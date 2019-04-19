@@ -1,7 +1,5 @@
 package net.xzos.upgraderall;
 
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,40 +15,20 @@ class httpApi {
     githubApi GithubApi(String api_url) {
         return new githubApi(api_url);
     }
-}
 
-class getHttpResponse implements Runnable {
-    private Thread t;
-    private String api_url;
-    private String responseString;
-
-    getHttpResponse(String api_url) {
-        this.api_url = api_url;
-    }
-
-    @Override
-    public void run() {
+    static String getHttpResponse(String api_url) {
+        String responseString = null;
         try {
             OkHttpClient client = new OkHttpClient();
-            Request request = new Request.Builder()
-                    .url(api_url)
-                    .build();
+            Request.Builder builder = new Request.Builder();
+            builder.url(api_url);
+            Request request = builder.build();
             Response response = client.newCall(request).execute();
             responseString = response.body() != null ? response.body().string() : null;
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    void start() {
-        if (t == null) {
-            t = new Thread(this);
-            t.start();
-        }
-    }
-
-    String getResponseString() {
-        return this.responseString;
+        return responseString;
     }
 }
 
@@ -71,11 +49,10 @@ class githubApi {
 
     private void flashData() throws JSONException {
         if (api_url.length() != 0) {
-            getHttpResponse getHttp = new getHttpResponse(api_url);
-            getHttp.start();
-            String jsonText = getHttp.getResponseString();
-            Log.d(TAG, "jsonText: " + jsonText);
-            this.returnJsonArray = new JSONArray(jsonText);
+            String jsonText = httpApi.getHttpResponse(api_url);
+            if (jsonText.length() != 0) {
+                this.returnJsonArray = new JSONArray(jsonText);
+            }
         }
     }
 

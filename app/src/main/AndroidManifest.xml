@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.xzos.upgraderall">
 
-    <uses-configuration android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:icon="@mipmap/ic_launcher"
