@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, UpgradeItemSettingActivity.class);
+                Intent intent = new Intent(MainActivity.this, RepoSettingActivity.class);
                 startActivity(intent);
             }
         });
