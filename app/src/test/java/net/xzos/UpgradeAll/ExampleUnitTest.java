@@ -1,4 +1,4 @@
-package net.xzos.upgraderall;
+package net.xzos.UpgradeAll;
 
 import org.junit.Test;
 
