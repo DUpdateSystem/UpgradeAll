@@ -1,9 +1,7 @@
-package net.xzos.upgraderall;
+package net.xzos.UpgradeAll;
 
 import android.app.IntentService;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -47,30 +45,29 @@ public class DownloaderService extends IntentService {
                 }
                 // 获取数据
                 if (latestReleaseJson != null) {
-                    String tag_name = null;
+                    // 返回数据不为空
+                    String tag_release = null;
                     String release_name = null;
+                    RepoDatabase repoDatabase = new RepoDatabase();
                     try {
-                        tag_name = latestReleaseJson.getString("tag_name");
+                        tag_release = latestReleaseJson.getString("tag_name");
                         release_name = latestReleaseJson.getString("name");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    RepoDatabaseHelper dbHelper = new DatabaseHelper().repoDatabaseHelper(this, 1);
-                    SQLiteDatabase db = dbHelper.getWritableDatabase();
-                    ContentValues values = new ContentValues();
-                    if (name.length() != 0) {
-                        values.put("name", name);
-                    } else {
-                        values.put("name", repo);
+                    if (name.length() == 0) {
+                        name = repo;
+                        // 如果未自定义名称，则使用仓库名
                     }
-                    values.put("repo", repo);
-                    values.put("owner", owner);
-                    values.put("api", api);
-                    values.put("tag_name", tag_name);
-                    values.put("latest_release", release_name);
-                    db.insert("Repo", null, values);
+                    repoDatabase.setName(name);
+                    repoDatabase.setRepo(repo);
+                    repoDatabase.setOwner(owner);
+                    repoDatabase.setApi(api);
+                    repoDatabase.setLatestTag(tag_release);
+                    repoDatabase.setLatestRelease(release_name);
+                    repoDatabase.save();
+                    // 将数据存入 RepoDatabase 数据库
                 }
-                // 将数据存入 Repo 数据库
             }
         }
     }

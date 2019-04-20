@@ -1,4 +1,4 @@
-package net.xzos.upgraderall;
+package net.xzos.UpgradeAll;
 
 import android.content.Intent;
 import android.os.Bundle;

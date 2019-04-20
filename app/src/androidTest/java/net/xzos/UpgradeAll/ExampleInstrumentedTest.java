@@ -1,4 +1,4 @@
-package net.xzos.upgraderall;
+package net.xzos.UpgradeAll;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
