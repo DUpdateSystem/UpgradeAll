@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,6 +24,7 @@ public class DownloaderService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             JSONObject latestReleaseJson = null;
+            JSONArray apiReturnJsonArray = null;
             String name = intent.getStringExtra("name");
             String api = intent.getStringExtra("api");
             String url = intent.getStringExtra("url");
@@ -41,6 +43,7 @@ public class DownloaderService extends IntentService {
                         Log.d(TAG, "api_url: " + api_url);
                         githubApi httpApi = new HttpApi().GithubApi(api_url);
                         latestReleaseJson = httpApi.getLatestRelease();
+                        apiReturnJsonArray = httpApi.getReturnJsonArray();
                         break;
                 }
                 // 获取数据
@@ -65,6 +68,7 @@ public class DownloaderService extends IntentService {
                     repoDatabase.setApi(api);
                     repoDatabase.setLatestTag(tag_release);
                     repoDatabase.setLatestRelease(release_name);
+                    repoDatabase.setApiReturnData(apiReturnJsonArray.toString());
                     repoDatabase.save();
                     // 将数据存入 RepoDatabase 数据库
                 }

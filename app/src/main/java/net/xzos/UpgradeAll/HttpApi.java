@@ -74,4 +74,9 @@ class githubApi {
         }
     }
 
+    public JSONArray getReturnJsonArray() {
+        return returnJsonArray;
+    }
+
+
 }
