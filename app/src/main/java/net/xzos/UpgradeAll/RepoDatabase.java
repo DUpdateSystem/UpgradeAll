@@ -12,6 +12,7 @@ public class RepoDatabase extends LitePalSupport {
     private String latest_release;
     // 为避免 tag 版本与 release 版本不一致
     private String installed_release;
+    private String apiReturnData;
 
     public int getId() {
         return id;
@@ -75,5 +76,13 @@ public class RepoDatabase extends LitePalSupport {
 
     public void setInstalledRelease(String installed_release) {
         this.installed_release = installed_release;
+    }
+
+    public String getApiReturnData() {
+        return apiReturnData;
+    }
+
+    public void setApiReturnData(String apiReturnData) {
+        this.apiReturnData = apiReturnData;
     }
 }
