@@ -12,8 +12,8 @@ import okhttp3.Response;
 
 
 class HttpApi {
-    githubApi GithubApi(String api_url) {
-        return new githubApi(api_url);
+    GithubApi githubApi(String api_url) {
+        return new GithubApi(api_url);
     }
 
     static String getHttpResponse(String api_url) {
@@ -33,11 +33,11 @@ class HttpApi {
 }
 
 
-class githubApi {
+class GithubApi {
     private JSONArray returnJsonArray;
     private String api_url = null;
 
-    githubApi(String api_url) {
+    GithubApi(String api_url) {
         setApi_url(api_url);
         try {
             flashData();
@@ -74,7 +74,7 @@ class githubApi {
         }
     }
 
-    public JSONArray getReturnJsonArray() {
+    JSONArray getReturnJsonArray() {
         return returnJsonArray;
     }
 
