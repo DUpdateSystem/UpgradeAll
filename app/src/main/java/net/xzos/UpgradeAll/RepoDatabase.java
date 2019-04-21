@@ -26,7 +26,7 @@ public class RepoDatabase extends LitePalSupport {
         return api;
     }
 
-    public void setApi(String api) {
+    void setApi(String api) {
         this.api = api;
     }
 
@@ -42,7 +42,7 @@ public class RepoDatabase extends LitePalSupport {
         return owner;
     }
 
-    public void setOwner(String owner) {
+    void setOwner(String owner) {
         this.owner = owner;
     }
 
@@ -50,7 +50,7 @@ public class RepoDatabase extends LitePalSupport {
         return repo;
     }
 
-    public void setRepo(String repo) {
+    void setRepo(String repo) {
         this.repo = repo;
     }
 
@@ -58,7 +58,7 @@ public class RepoDatabase extends LitePalSupport {
         return latest_tag;
     }
 
-    public void setLatestTag(String latest_tag) {
+    void setLatestTag(String latest_tag) {
         this.latest_tag = latest_tag;
     }
 
@@ -66,7 +66,7 @@ public class RepoDatabase extends LitePalSupport {
         return latest_release;
     }
 
-    public void setLatestRelease(String latest_release) {
+    void setLatestRelease(String latest_release) {
         this.latest_release = latest_release;
     }
 
@@ -82,7 +82,7 @@ public class RepoDatabase extends LitePalSupport {
         return apiReturnData;
     }
 
-    public void setApiReturnData(String apiReturnData) {
+    void setApiReturnData(String apiReturnData) {
         this.apiReturnData = apiReturnData;
     }
 }

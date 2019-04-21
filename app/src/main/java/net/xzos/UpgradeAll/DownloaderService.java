@@ -30,23 +30,27 @@ public class DownloaderService extends IntentService {
             String url = intent.getStringExtra("url");
 
             if (api.length() != 0 && url.length() != 0) {
-                String[] temp = url.split("github\\.com");
-                temp = temp[temp.length - 1].split("/");
-                List<String> list = new ArrayList<>(Arrays.asList(temp));
-                list.removeAll(Arrays.asList("", null));
-                String owner = list.get(0);
-                String repo = list.get(1);
+                String owner = null;
+                String repo = null;
                 switch (api) {
                     case "github":
+                        String[] temp = url.split("github\\.com");
+                        temp = temp[temp.length - 1].split("/");
+                        List<String> list = new ArrayList<>(Arrays.asList(temp));
+                        list.removeAll(Arrays.asList("", null));
+                        owner = list.get(0);
+                        repo = list.get(1);
+                        // 分割网址
                         String api_url = "https://api.github.com/repos/"
                                 + owner + "/" + repo + "/releases";
                         Log.d(TAG, "api_url: " + api_url);
-                        githubApi httpApi = new HttpApi().GithubApi(api_url);
+                        GithubApi httpApi = new HttpApi().githubApi(api_url);
+                        // 发达 API 请求
                         latestReleaseJson = httpApi.getLatestRelease();
                         apiReturnJsonArray = httpApi.getReturnJsonArray();
+                        // 获取数据
                         break;
                 }
-                // 获取数据
                 if (latestReleaseJson != null) {
                     // 返回数据不为空
                     String tag_release = null;
