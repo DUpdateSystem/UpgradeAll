@@ -45,11 +45,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void refreshUpgrade() {
-        new Thread(() -> runOnUiThread(() -> {
+        new Thread(() -> {
             Repo.refreshData();
-            adapter.notifyDataSetChanged();
-            swipeRefresh.setRefreshing(false);
-        })).start();
+            runOnUiThread(() -> {
+                adapter.notifyDataSetChanged();
+                swipeRefresh.setRefreshing(false);
+            });
+        }).start();
     }
 
     @Override
