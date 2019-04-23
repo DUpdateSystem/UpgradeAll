@@ -16,15 +16,12 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <service
             android:name=".UpgradeService"
-            android:exported="false"></service>
+            android:exported="false" />
         <service
             android:name=".UpgradeService_todo"
             android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedService" />
-        <service
-            android:name=".AddRepoServer"
-            android:exported="false" />
 
         <activity android:name=".UpgradeItemSettingActivity" />
         <activity
