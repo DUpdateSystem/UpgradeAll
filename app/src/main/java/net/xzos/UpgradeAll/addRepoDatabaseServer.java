@@ -12,16 +12,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DownloaderService extends IntentService {
+public class addRepoDatabaseServer extends IntentService {
 
-    private static final String TAG = "DownloaderService";
+    private  boolean addRepoSecess; // 是否完成添加操作
+    private static final String TAG = "addRepoDatabaseServer";
 
-    public DownloaderService() {
-        super("DownloaderService");
+    public addRepoDatabaseServer() {
+        super("addRepoDatabaseServer");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        addRepoSecess = addRepoDatabase(intent);
+    }
+
+    static boolean addRepoDatabase(Intent intent) {
         if (intent != null) {
             JSONObject latestReleaseJson = null;
             JSONArray apiReturnJsonArray = null;
@@ -75,8 +80,10 @@ public class DownloaderService extends IntentService {
                     repoDatabase.setApiReturnData(apiReturnJsonArray.toString());
                     repoDatabase.save();
                     // 将数据存入 RepoDatabase 数据库
+                    return true;
                 }
             }
         }
+        return true;
     }
 }

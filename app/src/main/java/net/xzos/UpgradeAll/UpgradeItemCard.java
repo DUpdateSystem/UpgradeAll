@@ -1,12 +1,12 @@
 package net.xzos.UpgradeAll;
 
-public class UpgradeItemCardView {
+public class UpgradeItemCard {
     private String name;
     private String version;
     private String url;
     private String api;
 
-    public UpgradeItemCardView(String name, String version, String url, String api) {
+    UpgradeItemCard(String name, String version, String url, String api) {
         this.name = name;
         this.version = version;
         this.url = url;
@@ -21,11 +21,11 @@ public class UpgradeItemCardView {
         return version;
     }
 
-    public String getApi() {
+    String getApi() {
         return api;
     }
 
-    public String getUrl() {
+    String getUrl() {
         return url;
     }
 }

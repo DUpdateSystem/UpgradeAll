@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class RepoSettingActivity extends AppCompatActivity {
+public class UpgradeItemSettingActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,7 +18,7 @@ public class RepoSettingActivity extends AppCompatActivity {
             EditText editUrl = findViewById(R.id.editUrl);
             String name = editName.getText().toString();
             String url = editUrl.getText().toString();
-            Intent intentService = new Intent(RepoSettingActivity.this, DownloaderService.class);
+            Intent intentService = new Intent(UpgradeItemSettingActivity.this, addRepoDatabaseServer.class);
             String api = "github";
             // api_url = "https://api.github.com/repos/ElderDrivers/EdXposed/releases"; //测试
             intentService.putExtra("api", api);
