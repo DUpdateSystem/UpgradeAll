@@ -2,6 +2,7 @@ package net.xzos.UpgradeAll;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,12 +13,12 @@ import android.widget.TextView;
 import java.util.List;
 
 
-public class UpgradeItemCardViewAdapter extends RecyclerView.Adapter<UpgradeItemCardViewAdapter.ViewHolder> {
+public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCardAdapter.ViewHolder> {
 
     private Context mContext;
 
 
-    private List<UpgradeItemCardView> mFruitList;
+    private List<UpgradeItemCard> mFruitList;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
@@ -26,7 +27,7 @@ public class UpgradeItemCardViewAdapter extends RecyclerView.Adapter<UpgradeItem
         TextView url;
         TextView api;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             cardView = (CardView) view;
             name = view.findViewById(R.id.nameTextView);
@@ -36,33 +37,32 @@ public class UpgradeItemCardViewAdapter extends RecyclerView.Adapter<UpgradeItem
         }
     }
 
-    public UpgradeItemCardViewAdapter(List<UpgradeItemCardView> fruitList) {
+    UpgradeItemCardAdapter(List<UpgradeItemCard> fruitList) {
         mFruitList = fruitList;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (mContext == null) {
             mContext = parent.getContext();
         }
         View view = LayoutInflater.from(mContext).inflate(R.layout.upgrade_item_card_view, parent, false);
         final ViewHolder holder = new ViewHolder(view);
         holder.cardView.setOnClickListener(v -> {
-            int position = holder.getAdapterPosition();
-            UpgradeItemCardView upgradeItemCardView = mFruitList.get(position);
-            Intent intent = new Intent(mContext, RepoSettingActivity.class);
+            Intent intent = new Intent(mContext, UpgradeItemSettingActivity.class);
             mContext.startActivity(intent);
         });
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        UpgradeItemCardView upgradeItemCardView = mFruitList.get(position);
-        holder.name.setText(upgradeItemCardView.getName());
-        holder.version.setText(upgradeItemCardView.getVersion());
-        holder.api.setText(upgradeItemCardView.getApi());
-        holder.url.setText(upgradeItemCardView.getUrl());
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        UpgradeItemCard upgradeItemCard = mFruitList.get(position);
+        holder.name.setText(upgradeItemCard.getName());
+        holder.version.setText(upgradeItemCard.getVersion());
+        holder.api.setText(upgradeItemCard.getApi());
+        holder.url.setText(upgradeItemCard.getUrl());
     }
 
     @Override

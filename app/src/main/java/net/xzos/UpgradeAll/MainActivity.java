@@ -15,13 +15,11 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private List<UpgradeItemCardView> UpgradeItemList = new ArrayList<>();
-
-    private UpgradeItemCardViewAdapter adapter;
+    private List<UpgradeItemCard> upgradeItemCardList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        UpgradeItemList.add(new UpgradeItemCardView("example", "v0.0.1", "github.com", "github"));
+        upgradeItemCardList.add(new UpgradeItemCard("example", "v0.0.1", "github.com", "github"));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -29,14 +27,24 @@ public class MainActivity extends AppCompatActivity {
         final RecyclerView recyclerView = findViewById(R.id.item_list_view);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new UpgradeItemCardViewAdapter(UpgradeItemList);
+        UpgradeItemCardAdapter adapter = new UpgradeItemCardAdapter(upgradeItemCardList);
         recyclerView.setAdapter(adapter);
+
+        Intent startIntent = new Intent(this, UpgradeService_todo.class);
+        startService(startIntent);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, RepoSettingActivity.class);
+            Intent intent = new Intent(MainActivity.this, UpgradeItemSettingActivity.class);
             startActivity(intent);
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Intent stopIntent = new Intent(this, UpgradeService_todo.class);
+        stopService(stopIntent);
     }
 
     @Override
