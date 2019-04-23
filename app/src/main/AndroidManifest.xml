@@ -23,7 +23,7 @@
             android:exported="true"
             tools:ignore="ExportedService" />
         <service
-            android:name=".addRepoDatabaseServer"
+            android:name=".AddRepoServer"
             android:exported="false" />
 
         <activity android:name=".UpgradeItemSettingActivity" />

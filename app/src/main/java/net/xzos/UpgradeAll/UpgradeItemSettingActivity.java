@@ -18,7 +18,7 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
             EditText editUrl = findViewById(R.id.editUrl);
             String name = editName.getText().toString();
             String url = editUrl.getText().toString();
-            Intent intentService = new Intent(UpgradeItemSettingActivity.this, addRepoDatabaseServer.class);
+            Intent intentService = new Intent(UpgradeItemSettingActivity.this, AddRepoServer.class);
             String api = "github";
             // api_url = "https://api.github.com/repos/ElderDrivers/EdXposed/releases"; //测试
             intentService.putExtra("api", api);

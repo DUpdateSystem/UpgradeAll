@@ -3,6 +3,7 @@ package net.xzos.UpgradeAll;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,7 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
+    private UpgradeItemCardAdapter adapter;
+    private SwipeRefreshLayout swipeRefresh;
     private List<UpgradeItemCard> upgradeItemCardList = new ArrayList<>();
 
     @Override
@@ -27,24 +29,32 @@ public class MainActivity extends AppCompatActivity {
         final RecyclerView recyclerView = findViewById(R.id.item_list_view);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
         recyclerView.setLayoutManager(layoutManager);
-        UpgradeItemCardAdapter adapter = new UpgradeItemCardAdapter(upgradeItemCardList);
+        adapter = new UpgradeItemCardAdapter(upgradeItemCardList);
         recyclerView.setAdapter(adapter);
 
-        Intent startIntent = new Intent(this, UpgradeService_todo.class);
-        startService(startIntent);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, UpgradeItemSettingActivity.class);
             startActivity(intent);
         });
+
+        swipeRefresh = findViewById(R.id.swipe_refresh);
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        swipeRefresh.setOnRefreshListener(this::refreshUpgrade);
+    }
+
+    private void refreshUpgrade() {
+        new Thread(() -> runOnUiThread(() -> {
+            Repo.refreshData();
+            adapter.notifyDataSetChanged();
+            swipeRefresh.setRefreshing(false);
+        })).start();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Intent stopIntent = new Intent(this, UpgradeService_todo.class);
-        stopService(stopIntent);
     }
 
     @Override
@@ -68,4 +78,5 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }
