@@ -2,7 +2,6 @@ package net.xzos.UpgradeAll;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -29,19 +28,18 @@ public class UpgradeService extends IntentService {
         // 刷新整个数据库
         // TODO: 多线程刷新
         List<RepoDatabase> repoDatabase = LitePal.findAll(RepoDatabase.class);
-        for (RepoDatabase upgraadeItem : repoDatabase) {
-            int id = upgraadeItem.getId();
-            String api = upgraadeItem.getApi();
-            String owner = upgraadeItem.getOwner();
-            String repo = upgraadeItem.getRepo();
-            String databaseLatestTag = upgraadeItem.getLatestTag();
+        for (RepoDatabase upgradeItem : repoDatabase) {
+            int id = upgradeItem.getId();
+            String api = upgradeItem.getApi();
+            String api_url = upgradeItem.getApiUrl();
+            String owner = upgradeItem.getOwner();
+            String repo = upgradeItem.getRepo();
+            String databaseLatestTag = upgradeItem.getLatestTag();
             switch (api) {
                 case "github":
                     JSONObject latestReleaseJson;
                     JSONArray apiReturnJsonArray;
                     // 预设返回数据
-                    String api_url = "https://api.github.com/repos/"
-                            + owner + "/" + repo + "/releases";
                     Log.d(TAG, "api_url: " + api_url);
                     GithubApi httpApi = new HttpApi().githubApi(api_url);
                     // 发达 API 请求

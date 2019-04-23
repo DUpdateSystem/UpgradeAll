@@ -8,6 +8,7 @@ public class RepoDatabase extends LitePalSupport {
     private String name;
     private String owner;
     private String repo;
+    private String api_url;
     private String latest_tag;
     private String latest_release;
     // 为避免 tag 版本与 release 版本不一致
@@ -93,5 +94,13 @@ public class RepoDatabase extends LitePalSupport {
 
     public void setLastRefreshTime(String lastRefreshTime) {
         this.lastRefreshTime = lastRefreshTime;
+    }
+
+    String getApiUrl() {
+        return api_url;
+    }
+
+    void setApiUrl(String api_url) {
+        this.api_url = api_url;
     }
 }
