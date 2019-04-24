@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshCardView() {
         List<RepoDatabase> repoDatabase = LitePal.findAll(RepoDatabase.class);
+        upgradeItemCardList.clear();
         for (RepoDatabase upgradeItem : repoDatabase) {
             String name = upgradeItem.getName();
             String api = upgradeItem.getApi();
