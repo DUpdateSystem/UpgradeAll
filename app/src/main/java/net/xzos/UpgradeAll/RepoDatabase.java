@@ -4,8 +4,9 @@ import org.litepal.crud.LitePalSupport;
 
 public class RepoDatabase extends LitePalSupport {
     private int id;
-    private String api;
     private String name;
+    private String api;
+    private String url;
     private String owner;
     private String repo;
     private String api_url;
@@ -102,5 +103,13 @@ public class RepoDatabase extends LitePalSupport {
 
     void setApiUrl(String api_url) {
         this.api_url = api_url;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

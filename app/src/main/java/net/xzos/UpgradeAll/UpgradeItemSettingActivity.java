@@ -21,6 +21,8 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
             String api = "github";
             // api_url = "https://api.github.com/repos/ElderDrivers/EdXposed/releases"; //测试
             boolean addRepoSecess = Repo.addRepoDatabase(name, api, url);
+            Intent intent = new Intent(UpgradeItemSettingActivity.this, MainActivity.class);
+            startActivity(intent);
         });
     }
 }
