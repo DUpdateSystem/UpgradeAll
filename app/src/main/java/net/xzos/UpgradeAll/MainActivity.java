@@ -8,31 +8,33 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private RecyclerView recyclerView;
+    private List<UpgradeItemCard> upgradeItemCardList = new ArrayList<>();
     private UpgradeItemCardAdapter adapter;
     private SwipeRefreshLayout swipeRefresh;
-    private List<UpgradeItemCard> upgradeItemCardList = new ArrayList<>();
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        refreshUpgrade();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        upgradeItemCardList.add(new UpgradeItemCard("example", "v0.0.1", "github.com", "github"));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        final RecyclerView recyclerView = findViewById(R.id.item_list_view);
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
-        recyclerView.setLayoutManager(layoutManager);
-        adapter = new UpgradeItemCardAdapter(upgradeItemCardList);
-        recyclerView.setAdapter(adapter);
-
-
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, UpgradeItemSettingActivity.class);
@@ -42,16 +44,42 @@ public class MainActivity extends AppCompatActivity {
         swipeRefresh = findViewById(R.id.swipe_refresh);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
         swipeRefresh.setOnRefreshListener(this::refreshUpgrade);
+
+        recyclerView = findViewById(R.id.item_list_view);
+
+        setRecyclerView();
     }
 
     private void refreshUpgrade() {
         new Thread(() -> {
             Repo.refreshData();
             runOnUiThread(() -> {
+                refreshCardView();
                 adapter.notifyDataSetChanged();
                 swipeRefresh.setRefreshing(false);
             });
         }).start();
+    }
+
+    private void refreshCardView() {
+        List<RepoDatabase> repoDatabase = LitePal.findAll(RepoDatabase.class);
+        for (RepoDatabase upgradeItem : repoDatabase) {
+            String name = upgradeItem.getName();
+            String api = upgradeItem.getApi();
+            String url = upgradeItem.getUrl();
+            String latest_release = upgradeItem.getLatestRelease();
+            String installed_release = upgradeItem.getInstalledRelease();
+            upgradeItemCardList.add(new UpgradeItemCard(name, installed_release + " -> " + latest_release, url, api));
+        }
+        setRecyclerView();
+    }
+
+    private void setRecyclerView() {
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new UpgradeItemCardAdapter(upgradeItemCardList);
+        recyclerView.setAdapter(adapter);
+
     }
 
     @Override
@@ -77,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
