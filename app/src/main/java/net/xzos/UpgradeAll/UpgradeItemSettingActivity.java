@@ -3,6 +3,7 @@ package net.xzos.UpgradeAll;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.JsonReader;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,28 +20,17 @@ import java.util.List;
 
 public class UpgradeItemSettingActivity extends AppCompatActivity {
 
-    private static final String TAG = "UpgradeItemSettingActivity";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        JSONObject versionChecker = new JSONObject();
         setContentView(R.layout.activity_upgrade_item_setting);
         Button versionCheckButton = findViewById(R.id.versionCheckButton);
         versionCheckButton.setOnClickListener(v -> {
             // 版本检查设置
-            Spinner versionCheckSpinner = findViewById(R.id.versionCheckSpinner);
-            EditText editVersionChecker = findViewById(R.id.editVersionChecker);
-            String versionCheckerText = editVersionChecker.getText().toString();
-            String versionCheckerApi = versionCheckSpinner.getSelectedItem().toString();
-            switch (versionCheckerApi) {
-                case "APP 版本":
-                    versionCheckerApi = "APP";
-                    break;
-            }
+            JSONObject versionChecker = getVersionChecker();
+            String versionCheckerApi = "";
             try {
-                versionChecker.put("api", versionCheckerApi);
-                versionChecker.put("text", versionCheckerText);
+                versionCheckerApi = versionChecker.getString("api");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -61,26 +51,40 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
             String url = editUrl.getText().toString();
             Spinner apiSpinner = findViewById(R.id.api_spinner);
             String api = apiSpinner.getSelectedItem().toString();
-            String versionCheckerText = null;
-            try {
-                versionCheckerText = String.valueOf(versionChecker.get("text"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            if (versionCheckerText != null && versionCheckerText.length() != 0) {
-                boolean addRepoSuccess = addRepoDatabase(name, api, url, versionChecker);
-                if (addRepoSuccess) {
-                    Intent intent = new Intent(UpgradeItemSettingActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    // 跳转主页面
-                } else {
-                    Toast.makeText(UpgradeItemSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
-                }
+            JSONObject versionChecker = getVersionChecker();
+            boolean addRepoSuccess = addRepoDatabase(name, api, url, versionChecker);
+            if (addRepoSuccess) {
+                Intent intent = new Intent(UpgradeItemSettingActivity.this, MainActivity.class);
+                startActivity(intent);
+                // 跳转主页面
+            } else {
+                Toast.makeText(UpgradeItemSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    static boolean addRepoDatabase(String name, String api, String url, JSONObject versionChecker) {
+    private JSONObject getVersionChecker() {
+        // 获取versionChecker
+        JSONObject versionChecker = new JSONObject();
+        Spinner versionCheckSpinner = findViewById(R.id.versionCheckSpinner);
+        EditText editVersionChecker = findViewById(R.id.editVersionChecker);
+        String versionCheckerText = editVersionChecker.getText().toString();
+        String versionCheckerApi = versionCheckSpinner.getSelectedItem().toString();
+        switch (versionCheckerApi) {
+            case "APP 版本":
+                versionCheckerApi = "APP";
+                break;
+        }
+        try {
+            versionChecker.put("api", versionCheckerApi);
+            versionChecker.put("text", versionCheckerText);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return versionChecker;
+    }
+
+    boolean addRepoDatabase(String name, String api, String url, JSONObject versionChecker) {
         // TODO: 可被忽略的参数
         if (api.length() != 0 && url.length() != 0) {
             String owner = "";
@@ -111,7 +115,6 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
             repoDatabase.setApi(api);
             repoDatabase.setUrl(url);
             repoDatabase.setApiUrl(api_url);
-            Log.d(TAG, "addRepoDatabase:  version" + versionChecker);
             repoDatabase.setVersionChecker(versionChecker);
             repoDatabase.save();
             // 将数据存入 RepoDatabase 数据库
