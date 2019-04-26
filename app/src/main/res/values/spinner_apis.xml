@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="http_support_api">
+        <item>
+            GitHub
+        </item>
+    </string-array>
+    <string-array name="version_checker_support_api">
+        <item>
+            APP 版本
+        </item>
+        <item>
+            自定义 Shell 命令
+        </item>
+    </string-array>
+</resources>

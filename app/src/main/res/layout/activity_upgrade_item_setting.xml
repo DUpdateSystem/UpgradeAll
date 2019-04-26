@@ -6,45 +6,103 @@
     tools:context=".UpgradeItemSettingActivity">
 
     <LinearLayout
-        android:layout_width="395dp"
-        android:layout_height="715dp"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp"
-        tools:ignore="MissingConstraints">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/editName"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Name"
-            android:inputType="textPersonName"
-            android:autofillHints=""
-            tools:ignore="HardcodedText" />
+            android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/editUrl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Url"
-            android:inputType="textPersonName"
-            tools:ignore="HardcodedText,TextFields"
-            android:autofillHints="" />
+            <TextView
+                android:id="@+id/basicInfoTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="@string/upgrade_item_setting_basicInfoTextView"
+                android:textColor="#F44336" />
 
-        <Spinner
-            android:id="@+id/spinner"
+            <EditText
+                android:id="@+id/editName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/basicInfoTextView"
+                android:autofillHints="name"
+                android:hint="@string/upgrade_item_setting_editName"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/editUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/editName"
+                android:autofillHints="url"
+                android:hint="@string/upgrade_item_setting_urlEdit"
+                android:inputType="textUri" />
+
+            <Spinner
+                android:id="@+id/api_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/editUrl"
+                android:entries="@array/http_support_api"
+                android:spinnerMode="dropdown" />
+
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/divider0"
+            style="@style/Divider.Horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp" />
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/support_api"
-            android:spinnerMode="dropdown" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/versionCheckTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="@string/upgrade_item_setting_versionCheckTextView"
+                android:textColor="#F44336" />
+
+            <Spinner
+                android:id="@+id/versionCheckSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/versionCheckTextView"
+                android:entries="@array/version_checker_support_api"
+                android:spinnerMode="dropdown" />
+
+            <EditText
+                android:id="@+id/editVersionChecker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/versionCheckSpinner"
+                android:layout_marginEnd="200dp"
+                android:layout_toStartOf="@+id/versionCheckButton"
+                android:autofillHints="versionChecker"
+                android:hint="@string/upgrade_item_setting_editVersionChecker"
+                android:inputType="text" />
+            <Button
+                android:id="@+id/versionCheckButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/versionCheckSpinner"
+                android:layout_alignParentEnd="true"
+                android:text="@string/upgrade_item_setting_versionCheckButton" />
+
+        </RelativeLayout>
 
         <Button
             android:id="@+id/addButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ADD"
-            tools:ignore="HardcodedText" />
+            android:text="@string/upgrade_item_setting_add_button" />
+
     </LinearLayout>
+
 </android.support.constraint.ConstraintLayout>

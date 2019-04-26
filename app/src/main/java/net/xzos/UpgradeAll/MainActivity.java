@@ -8,20 +8,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private RecyclerView recyclerView;
     private List<UpgradeItemCard> upgradeItemCardList = new ArrayList<>();
     private UpgradeItemCardAdapter adapter;
+
+    private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
+
+    final private Updater updater = new Updater();
 
     @Override
     protected void onPostResume() {
@@ -52,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshUpgrade() {
         new Thread(() -> {
-            Repo.refreshData();
+            updater.refresh();
             runOnUiThread(() -> {
                 refreshCardView();
                 adapter.notifyDataSetChanged();
@@ -65,12 +69,13 @@ public class MainActivity extends AppCompatActivity {
         List<RepoDatabase> repoDatabase = LitePal.findAll(RepoDatabase.class);
         upgradeItemCardList.clear();
         for (RepoDatabase upgradeItem : repoDatabase) {
+            int id = upgradeItem.getId();
             String name = upgradeItem.getName();
             String api = upgradeItem.getApi();
             String url = upgradeItem.getUrl();
-            String latest_release = upgradeItem.getLatestRelease();
-            String installed_release = upgradeItem.getInstalledRelease();
-            upgradeItemCardList.add(new UpgradeItemCard(name, installed_release + " -> " + latest_release, url, api));
+            String latestVersion = updater.getLatestVersion(id);
+            String installedVersion = updater.getInstalledVersion(id);
+            upgradeItemCardList.add(new UpgradeItemCard(name, installedVersion + " -> " + latestVersion, url, api));
         }
         setRecyclerView();
     }
@@ -80,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         adapter = new UpgradeItemCardAdapter(upgradeItemCardList);
         recyclerView.setAdapter(adapter);
-
     }
 
     @Override

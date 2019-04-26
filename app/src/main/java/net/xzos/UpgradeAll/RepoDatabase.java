@@ -1,36 +1,20 @@
 package net.xzos.UpgradeAll;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.crud.LitePalSupport;
 
 public class RepoDatabase extends LitePalSupport {
     private int id;
     private String name;
     private String api;
-    private String url;
-    private String owner;
-    private String repo;
+    private String url; //  方便用户获得源网址
     private String api_url;
-    private String latest_tag;
-    private String latest_release;
-    // 为避免 tag 版本与 release 版本不一致
-    private String installed_release;
-    private String apiReturnData;
-    private String lastRefreshTime;
+
+    private String versionChecker;
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getApi() {
-        return api;
-    }
-
-    void setApi(String api) {
-        this.api = api;
     }
 
     public String getName() {
@@ -41,60 +25,20 @@ public class RepoDatabase extends LitePalSupport {
         this.name = name;
     }
 
-    public String getOwner() {
-        return owner;
+    String getApi() {
+        return api;
     }
 
-    void setOwner(String owner) {
-        this.owner = owner;
+    void setApi(String api) {
+        this.api = api;
     }
 
-    public String getRepo() {
-        return repo;
+    String getUrl() {
+        return url;
     }
 
-    void setRepo(String repo) {
-        this.repo = repo;
-    }
-
-    public String getLatestTag() {
-        return latest_tag;
-    }
-
-    void setLatestTag(String latest_tag) {
-        this.latest_tag = latest_tag;
-    }
-
-    public String getLatestRelease() {
-        return latest_release;
-    }
-
-    void setLatestRelease(String latest_release) {
-        this.latest_release = latest_release;
-    }
-
-    public String getInstalledRelease() {
-        return installed_release;
-    }
-
-    public void setInstalledRelease(String installed_release) {
-        this.installed_release = installed_release;
-    }
-
-    public String getApiReturnData() {
-        return apiReturnData;
-    }
-
-    void setApiReturnData(String apiReturnData) {
-        this.apiReturnData = apiReturnData;
-    }
-
-    public String getLastRefreshTime() {
-        return lastRefreshTime;
-    }
-
-    public void setLastRefreshTime(String lastRefreshTime) {
-        this.lastRefreshTime = lastRefreshTime;
+    void setUrl(String url) {
+        this.url = url;
     }
 
     String getApiUrl() {
@@ -105,11 +49,16 @@ public class RepoDatabase extends LitePalSupport {
         this.api_url = api_url;
     }
 
-    public String getUrl() {
-        return url;
+    JSONObject getVersionChecker() {
+        try {
+            return new JSONObject(versionChecker);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return new JSONObject();
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    void setVersionChecker(JSONObject versionChecker) {
+        this.versionChecker = versionChecker.toString();
     }
 }

@@ -3,11 +3,11 @@ package net.xzos.UpgradeAll;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
     private List<UpgradeItemCard> mFruitList;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        RelativeLayout cardRelativeLayout;
+        CardView cardView;
         TextView name;
         TextView version;
         TextView url;
@@ -29,7 +29,7 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
 
         ViewHolder(View view) {
             super(view);
-            cardRelativeLayout = (RelativeLayout) view;
+            cardView = (CardView) view;
             name = view.findViewById(R.id.nameTextView);
             version = view.findViewById(R.id.versionTextView);
             url = view.findViewById(R.id.urlTextView);
@@ -49,7 +49,7 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
         }
         View view = LayoutInflater.from(mContext).inflate(R.layout.upgrade_item_card_view, parent, false);
         final ViewHolder holder = new ViewHolder(view);
-        holder.cardRelativeLayout.setOnClickListener(v -> {
+        holder.cardView.setOnClickListener(v -> {
             Intent intent = new Intent(mContext, UpgradeItemSettingActivity.class);
             mContext.startActivity(intent);
         });
