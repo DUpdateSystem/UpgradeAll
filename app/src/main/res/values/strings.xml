@@ -75,4 +75,11 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="button">Button</string>
+    <string name="upgrade_item_setting_add_button">ADD</string>
+    <string name="upgrade_item_setting_urlEdit">Url</string>
+    <string name="upgrade_item_setting_editName">Name</string>
+    <string name="upgrade_item_setting_editVersionChecker">软件包名/Shell</string>
+    <string name="upgrade_item_setting_basicInfoTextView">基础信息</string>
+    <string name="upgrade_item_setting_versionCheckTextView">版本控制设置</string>
+    <string name="upgrade_item_setting_versionCheckButton">Test</string>
 </resources>

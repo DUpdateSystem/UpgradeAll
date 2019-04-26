@@ -12,33 +12,41 @@ import okhttp3.Response;
 
 
 class HttpApi {
-    GithubApi githubApi(String api_url) {
-        return new GithubApi(api_url);
+
+    String getLatestRelease() {
+        return null;
     }
 
     static String getHttpResponse(String api_url) {
         String responseString = null;
+        OkHttpClient client = new OkHttpClient();
+        Request.Builder builder = new Request.Builder();
+        builder.url(api_url);
+        Request request = builder.build();
+        Response response = null;
         try {
-            OkHttpClient client = new OkHttpClient();
-            Request.Builder builder = new Request.Builder();
-            builder.url(api_url);
-            Request request = builder.build();
-            Response response = client.newCall(request).execute();
-            responseString = response.body() != null ? response.body().string() : null;
+            response = client.newCall(request).execute();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        if (response != null) {
+            try {
+                responseString = response.body() != null ? response.body().string() : null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return responseString;
     }
 }
 
 
-class GithubApi {
+class GithubApi extends HttpApi {
     private JSONArray returnJsonArray;
     private String api_url = null;
 
     GithubApi(String api_url) {
-        setApi_url(api_url);
+        setApiUrl(api_url);
         try {
             flashData();
         } catch (JSONException e) {
@@ -48,16 +56,17 @@ class GithubApi {
 
     private void flashData() throws JSONException {
         if (api_url.length() != 0) {
-            String jsonText = HttpApi.getHttpResponse(api_url);
+            String jsonText = getHttpResponse(api_url);
             if (jsonText.length() != 0) {
                 this.returnJsonArray = new JSONArray(jsonText);
             }
         }
     }
 
-    JSONObject getLatestRelease() {
+    @Override
+    String getLatestRelease() {
         try {
-            return getRelease(0);
+            return getRelease(0).getString("name");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -68,15 +77,9 @@ class GithubApi {
         return new JSONObject(this.returnJsonArray.getString(releaseNum));
     }
 
-    private void setApi_url(String api_url) {
+    private void setApiUrl(String api_url) {
         if (this.api_url == null) {
             this.api_url = api_url;
         }
     }
-
-    JSONArray getReturnJsonArray() {
-        return returnJsonArray;
-    }
-
-
 }
