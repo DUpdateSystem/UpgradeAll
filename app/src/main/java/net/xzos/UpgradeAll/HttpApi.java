@@ -1,5 +1,7 @@
 package net.xzos.UpgradeAll;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,8 +46,10 @@ class HttpApi {
 class GithubApi extends HttpApi {
     private JSONArray returnJsonArray;
     private String api_url = null;
+    private static final String TAG = "GithubApi";
 
     GithubApi(String api_url) {
+        Log.d(TAG, "api_url" + api_url);
         setApiUrl(api_url);
         try {
             flashData();

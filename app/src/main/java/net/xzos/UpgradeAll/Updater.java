@@ -72,7 +72,8 @@ class Updater {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        JSONObject versionChecker = upgradeItemDatabase.getVersionChecker();
-        return VersionChecker.getAppVersion(versionChecker);
+        JSONObject versionCheckerJsonObject = upgradeItemDatabase.getVersionChecker();
+        VersionChecker versionChecker = new VersionChecker(versionCheckerJsonObject);
+        return versionChecker.getVersion();
     }
 }
