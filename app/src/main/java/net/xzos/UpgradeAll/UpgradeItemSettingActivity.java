@@ -3,8 +3,6 @@ package net.xzos.UpgradeAll;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.JsonReader;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -27,20 +25,11 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
         Button versionCheckButton = findViewById(R.id.versionCheckButton);
         versionCheckButton.setOnClickListener(v -> {
             // 版本检查设置
-            JSONObject versionChecker = getVersionChecker();
-            String versionCheckerApi = "";
-            try {
-                versionCheckerApi = versionChecker.getString("api");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            switch (versionCheckerApi) {
-                case "APP":
-                    String appVersion = VersionChecker.getAppVersion(versionChecker);
-                    if (appVersion != null) {
-                        Toast.makeText(UpgradeItemSettingActivity.this, appVersion, Toast.LENGTH_SHORT).show();
-                    }
-                    break;
+            JSONObject versionCheckerJsonObject = getVersionChecker();
+            VersionChecker versionChecker = new VersionChecker(versionCheckerJsonObject);
+            String appVersion = versionChecker.getVersion();
+            if (appVersion != null) {
+                Toast.makeText(UpgradeItemSettingActivity.this, "version: " + appVersion, Toast.LENGTH_SHORT).show();
             }
         });
         Button addButton = findViewById(R.id.addButton);
@@ -73,6 +62,9 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
         switch (versionCheckerApi) {
             case "APP 版本":
                 versionCheckerApi = "APP";
+                break;
+            case "Magisk 模块":
+                versionCheckerApi = "Magisk";
                 break;
         }
         try {

@@ -10,6 +10,9 @@
             APP 版本
         </item>
         <item>
+            Magisk 模块
+        </item>
+        <item>
             自定义 Shell 命令
         </item>
     </string-array>
