@@ -2,21 +2,16 @@ package net.xzos.UpgradeAll;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class UpgradeItemSettingActivity extends AppCompatActivity {
 
@@ -82,7 +77,6 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
     boolean addRepoDatabase(String name, String api, String url, JSONObject versionChecker) {
         // TODO: 可被忽略的参数
         if (api.length() != 0 && url.length() != 0) {
-            String owner = "";
             String repo = "";
             String api_url = "";
             switch (api.toLowerCase()) {
