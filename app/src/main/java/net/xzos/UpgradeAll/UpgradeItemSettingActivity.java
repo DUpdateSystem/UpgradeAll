@@ -2,7 +2,9 @@ package net.xzos.UpgradeAll;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -23,6 +25,7 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upgrade_item_setting);
         Button versionCheckButton = findViewById(R.id.versionCheckButton);
+        // 以下是按键事件
         versionCheckButton.setOnClickListener(v -> {
             // 版本检查设置
             JSONObject versionCheckerJsonObject = getVersionChecker();
@@ -84,15 +87,9 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
             String api_url = "";
             switch (api.toLowerCase()) {
                 case "github":
-                    String[] temp = url.split("github\\.com");
-                    temp = temp[temp.length - 1].split("/");
-                    List<String> list = new ArrayList<>(Arrays.asList(temp));
-                    list.removeAll(Arrays.asList("", null));
-                    owner = list.get(0);
-                    repo = list.get(1);
-                    // 分割网址
-                    api_url = "https://api.github.com/repos/"
-                            + owner + "/" + repo + "/releases";
+                    String[] apiUrlStringList = GithubApi.getApiUrl(url);
+                    api_url = apiUrlStringList[0];
+                    repo = apiUrlStringList[1];
                     break;
             }
             if (name.length() == 0) {

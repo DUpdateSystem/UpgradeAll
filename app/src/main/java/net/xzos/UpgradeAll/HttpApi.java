@@ -1,12 +1,18 @@
 package net.xzos.UpgradeAll;
 
+import android.annotation.SuppressLint;
+import android.app.Application;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -33,7 +39,7 @@ class HttpApi {
         }
         if (response != null) {
             try {
-                responseString = response.body() != null ? response.body().string() : null;
+                responseString = response.body() != null ? response.body().string() : "";
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -49,7 +55,7 @@ class GithubApi extends HttpApi {
     private static final String TAG = "GithubApi";
 
     GithubApi(String api_url) {
-        Log.d(TAG, "api_url" + api_url);
+        Log.d(TAG, "api_url: " + api_url);
         setApiUrl(api_url);
         try {
             flashData();
@@ -78,12 +84,32 @@ class GithubApi extends HttpApi {
     }
 
     private JSONObject getRelease(int releaseNum) throws JSONException {
-        return new JSONObject(this.returnJsonArray.getString(releaseNum));
+        Log.d(TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject = new JSONObject(this.returnJsonArray.getString(releaseNum));
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
     }
 
     private void setApiUrl(String api_url) {
         if (this.api_url == null) {
             this.api_url = api_url;
         }
+    }
+
+    static String[] getApiUrl(String url) {
+        String[] temp = url.split("github\\.com");
+        temp = temp[temp.length - 1].split("/");
+        List<String> list = new ArrayList<>(Arrays.asList(temp));
+        list.removeAll(Arrays.asList("", null));
+        String owner = list.get(0);
+        String repo = list.get(1);
+        // 分割网址
+        String apiUrl = "https://api.github.com/repos/"
+                + owner + "/" + repo + "/releases";
+        return new String[]{apiUrl, repo};
     }
 }

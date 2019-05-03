@@ -2,14 +2,16 @@ package net.xzos.UpgradeAll;
 
 import android.content.Intent;
 import android.os.Bundle;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.litepal.LitePal;
 
@@ -26,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
     final private Updater updater = new Updater();
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
+    protected void onStart() {
+        super.onStart();
         refreshUpgrade();
     }
 
@@ -54,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshUpgrade() {
         new Thread(() -> {
+            runOnUiThread(() -> {
+                swipeRefresh.setRefreshing(true);
+            });
             updater.refresh();
             runOnUiThread(() -> {
                 refreshCardView();
