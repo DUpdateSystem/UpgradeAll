@@ -10,9 +10,6 @@ import java.util.List;
 class Updater {
     private JSONObject updateJsonData = new JSONObject(); // 存储 Updater 数据
 
-    Updater() {
-    }
-
     void refresh() {
         // TODO: 多线程刷新
         List<RepoDatabase> repoDatabase = LitePal.findAll(RepoDatabase.class);
@@ -55,7 +52,20 @@ class Updater {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return httpApi.getLatestRelease();
+        return httpApi.getVersion(0);
+    }
+
+    JSONObject getLatestDownloadUrl(int id) {
+        // 获取最新下载链接
+        JSONObject upgradeItem;
+        HttpApi httpApi = new HttpApi();
+        try {
+            upgradeItem = (JSONObject) updateJsonData.get(String.valueOf(id));
+            httpApi = (HttpApi) upgradeItem.get("httpApi");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return httpApi.getReleaseDownloadUrl(0);
     }
 
     String getInstalledVersion(int id) {
@@ -73,6 +83,7 @@ class Updater {
             e.printStackTrace();
         }
         JSONObject versionCheckerJsonObject = upgradeItemDatabase.getVersionChecker();
+        // 获取数据库 VersionChecker 数据
         VersionChecker versionChecker = new VersionChecker(versionCheckerJsonObject);
         return versionChecker.getVersion();
     }

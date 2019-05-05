@@ -36,6 +36,10 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
             EditText editUrl = findViewById(R.id.editUrl);
             String name = editName.getText().toString();
             String url = editUrl.getText().toString();
+            if (url.substring(url.length() - 1).equals("/")) {
+                url = url.substring(0, url.length() - 1);
+                // 判断url是否多余 /
+            }
             Spinner apiSpinner = findViewById(R.id.api_spinner);
             String api = apiSpinner.getSelectedItem().toString();
             JSONObject versionChecker = getVersionChecker();
