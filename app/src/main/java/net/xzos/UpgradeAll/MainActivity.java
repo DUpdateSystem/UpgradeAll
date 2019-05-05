@@ -19,13 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private List<UpgradeItemCard> upgradeItemCardList = new ArrayList<>();
+    private List<upgradeCard> upgradeCardList = new ArrayList<>();
     private UpgradeItemCardAdapter adapter;
 
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
 
-    final private Updater updater = new Updater();
+    final private Updater updater = MyApplication.getUpdater();
 
     @Override
     protected void onStart() {
@@ -70,15 +70,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshCardView() {
         List<RepoDatabase> repoDatabase = LitePal.findAll(RepoDatabase.class);
-        upgradeItemCardList.clear();
+        upgradeCardList.clear();
         for (RepoDatabase upgradeItem : repoDatabase) {
-            int id = upgradeItem.getId();
+            int databaseId = upgradeItem.getId();
             String name = upgradeItem.getName();
             String api = upgradeItem.getApi();
             String url = upgradeItem.getUrl();
-            String latestVersion = updater.getLatestVersion(id);
-            String installedVersion = updater.getInstalledVersion(id);
-            upgradeItemCardList.add(new UpgradeItemCard(name, installedVersion + " -> " + latestVersion, url, api));
+            String latestVersion = updater.getLatestVersion(databaseId);
+            String installedVersion = updater.getInstalledVersion(databaseId);
+            upgradeCardList.add(new upgradeCard(databaseId, name, installedVersion + " -> " + latestVersion, url, api));
         }
         setRecyclerView();
     }
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     private void setRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new UpgradeItemCardAdapter(upgradeItemCardList);
+        adapter = new UpgradeItemCardAdapter(upgradeCardList);
         recyclerView.setAdapter(adapter);
     }
 

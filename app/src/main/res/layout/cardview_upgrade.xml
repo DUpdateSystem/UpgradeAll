@@ -34,8 +34,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
+                android:onClick="onClick"
                 tools:ignore="RelativeOverlap"
-                tools:text="v0.0.0" />
+                tools:text="v0.0.0 -> v0.0.0.0" />
 
             <TextView
                 android:id="@+id/urlTextView"
@@ -43,7 +44,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentBottom="true"
-                tools:text="github.com/owner/repo" />
+                android:onClick="onClick"
+                tools:text="https://github.com/owner/repo" />
 
             <TextView
                 android:id="@+id/apiTextView"

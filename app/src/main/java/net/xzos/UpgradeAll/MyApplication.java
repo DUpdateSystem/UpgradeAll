@@ -8,6 +8,9 @@ import org.litepal.LitePal;
 
 @SuppressLint("Registered")
 public class MyApplication extends Application {
+
+    final private static Updater updater = new Updater();
+
     @SuppressLint("StaticFieldLeak")
     private static Context context;
 
@@ -18,7 +21,11 @@ public class MyApplication extends Application {
         LitePal.initialize(context);
     }
 
-    public  static Context getContext() {
+    public static Context getContext() {
         return context;
+    }
+
+    public static Updater getUpdater() {
+        return updater;
     }
 }

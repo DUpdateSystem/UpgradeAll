@@ -1,18 +1,23 @@
 package net.xzos.UpgradeAll;
 
-public class UpgradeItemCard {
+public class upgradeCard {
+    private int databaseId;
     private String name;
     private String version;
     private String url;
     private String api;
 
-    UpgradeItemCard(String name, String version, String url, String api) {
+    upgradeCard(int databaseId, String name, String version, String url, String api) {
+        this.databaseId = databaseId;
         this.name = name;
         this.version = version;
         this.url = url;
         this.api = api;
     }
 
+    public int getDatabaseId() {
+        return databaseId;
+    }
     public String getName() {
         return name;
     }
@@ -28,4 +33,5 @@ public class UpgradeItemCard {
     String getUrl() {
         return url;
     }
+
 }
