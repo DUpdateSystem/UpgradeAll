@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="net.xzos.UpgradeAll.MainActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/app_help"
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />

@@ -87,12 +87,12 @@ class GithubApi extends HttpApi {
             String jsonText = getHttpResponse(api_url);
             if (jsonText.length() != 0) {
                 this.returnJsonArray = new JSONArray(jsonText);
+                Log.d(TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
             }
         }
     }
 
     private JSONObject getRelease(int releaseNum) {
-        Log.d(TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject = new JSONObject(this.returnJsonArray.getString(releaseNum));
