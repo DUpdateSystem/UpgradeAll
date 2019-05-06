@@ -1,6 +1,7 @@
 package net.xzos.UpgradeAll;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private List<upgradeCard> upgradeCardList = new ArrayList<>();
+    private List<UpgradeCard> upgradeCardList = new ArrayList<>();
     private UpgradeItemCardAdapter adapter;
 
     private RecyclerView recyclerView;
@@ -39,6 +40,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.app_help:
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse("https://xzos.net/upgradeall-readme/"));
+                    intent = Intent.createChooser(intent, "请选择浏览器");
+                    startActivity(intent);
+                    return true;
+                default:
+                    return false;
+            }
+        });
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, UpgradeItemSettingActivity.class);
@@ -78,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
             String url = upgradeItem.getUrl();
             String latestVersion = updater.getLatestVersion(databaseId);
             String installedVersion = updater.getInstalledVersion(databaseId);
-            upgradeCardList.add(new upgradeCard(databaseId, name, installedVersion + " -> " + latestVersion, url, api));
+            upgradeCardList.add(new UpgradeCard(databaseId, name, installedVersion + " -> " + latestVersion, url, api));
         }
         setRecyclerView();
     }
@@ -110,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.app_help) {
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -1,15 +1,12 @@
 package net.xzos.UpgradeAll;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -28,10 +25,9 @@ import java.util.List;
 
 public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCardAdapter.ViewHolder> {
 
-    private static final String TAG = "UpgradeItemCardAdapter";
-    private List<upgradeCard> mUpgradeList;
+    private List<UpgradeCard> mUpgradeList;
 
-    UpgradeItemCardAdapter(List<upgradeCard> upgradeList) {
+    UpgradeItemCardAdapter(List<UpgradeCard> upgradeList) {
         mUpgradeList = upgradeList;
     }
 
@@ -63,10 +59,9 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
                 LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_upgrade, parent, false));
     }
 
-    @SuppressLint("ShowToast")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        upgradeCard upgradeCard = mUpgradeList.get(position);
+        UpgradeCard upgradeCard = mUpgradeList.get(position);
         holder.name.setText(upgradeCard.getName());
         holder.version.setText(upgradeCard.getVersion());
         holder.api.setText(upgradeCard.getApi());
@@ -80,10 +75,7 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
                 String key = sIterator.next();
                 itemList.add(key);
             }
-            String[] itemStringArray = new String[itemList.size()];
-            for (int i = 0; i < itemList.size(); i++) {
-                itemStringArray[i] = itemList.get(i);
-            }
+            String[] itemStringArray=itemList.toArray(new String[0]);
             // 获取文件列表
 
             AlertDialog.Builder builder = new AlertDialog.Builder(holder.version.getContext());
@@ -115,10 +107,12 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
             // 删除数据库
             String api_url = GithubApi.getApiUrl(holder.url.getText().toString())[0];
             LitePal.deleteAll(RepoDatabase.class, "api_url = ?", api_url);
-            Toast.makeText(MyApplication.getContext(), String.format("%s已删除", api_url), Toast.LENGTH_LONG);
+            // 删除指定数据库
             Intent intent = new Intent(holder.del_button.getContext(), MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             MyApplication.getContext().startActivity(intent);
+            // 重新跳转刷新界面
+            // TODO: 需要优化刷新方法
         });
     }
 
