@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 swipeRefresh.setRefreshing(true);
             });
-            updater.refresh();
+            updater.refreshAll();
             runOnUiThread(() -> {
                 refreshCardView();
                 adapter.notifyDataSetChanged();
