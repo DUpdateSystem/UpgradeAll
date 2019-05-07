@@ -18,6 +18,10 @@ import okhttp3.Response;
 
 class HttpApi {
 
+    public boolean flashData() {
+        return false;
+    }
+
     JSONObject getLatestRelease() {
         return null;
     }
@@ -75,21 +79,25 @@ class GithubApi extends HttpApi {
     GithubApi(String api_url) {
         Log.d(TAG, "api_url: " + api_url);
         this.api_url = api_url;
-        try {
-            flashData();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        flashData();
     }
 
-    private void flashData() throws JSONException {
+    public boolean flashData() {
+        // 仅刷新数据，不进行数据校验
         if (api_url.length() != 0) {
             String jsonText = getHttpResponse(api_url);
             if (jsonText.length() != 0) {
-                this.returnJsonArray = new JSONArray(jsonText);
-                Log.d(TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
+                try {
+                    this.returnJsonArray = new JSONArray(jsonText);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return true;
+                // 数据获取成功，返回 true
             }
         }
+        Log.d(TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
+        return false;
     }
 
     private JSONObject getRelease(int releaseNum) {
