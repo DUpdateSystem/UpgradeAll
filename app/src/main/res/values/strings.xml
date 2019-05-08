@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">UpgradeAll</string>
-    <string name="action_settings">帮助</string>
+    <string name="app_help">帮助</string>
+    <string name="app_setting">设置</string>
     <string name="title_activity_update_item_settings">Settings</string>
     <!-- support api -->
     <string-array name="http_support_api">
@@ -31,4 +32,10 @@
     <string name="upgrade_item_setting_versionCheckTextView">版本控制设置</string>
     <string name="upgrade_item_setting_versionCheckButton">检查</string>
     <string name="upgrade_item_card_view_del_button">删除</string>
+    <string name="title_activity_settings">设置</string>
+
+    <string name="sync_header">数据刷新</string>
+
+    <string name="initiative_sync_time">数据过期时间(min)</string>
+
 </resources>

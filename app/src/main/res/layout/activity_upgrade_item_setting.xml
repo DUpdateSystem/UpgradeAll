@@ -20,6 +20,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
                 android:text="@string/upgrade_item_setting_basicInfoTextView"
                 android:textColor="#F44336" />
 
@@ -28,7 +29,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/basicInfoTextView"
-                android:autofillHints="name"
                 android:hint="@string/upgrade_item_setting_editName"
                 android:inputType="text" />
 
@@ -37,7 +37,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/editName"
-                android:autofillHints="url"
                 android:hint="@string/upgrade_item_setting_urlEdit"
                 android:inputType="textUri" />
 
@@ -66,6 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
                 android:text="@string/upgrade_item_setting_versionCheckTextView"
                 android:textColor="#F44336" />
 
@@ -83,8 +83,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/versionCheckSpinner"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
                 android:layout_toStartOf="@+id/versionCheckButton"
-                android:autofillHints="versionCheckerJsonObject"
+                android:layout_toLeftOf="@+id/versionCheckButton"
                 android:hint="@string/upgrade_item_setting_editVersionChecker"
                 android:inputType="text" />
 
@@ -94,6 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/versionCheckSpinner"
                 android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
                 android:text="@string/upgrade_item_setting_versionCheckButton" />
 
         </RelativeLayout>

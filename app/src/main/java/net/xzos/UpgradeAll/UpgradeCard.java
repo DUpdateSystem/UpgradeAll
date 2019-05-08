@@ -7,10 +7,9 @@ public class UpgradeCard {
     private String url;
     private String api;
 
-    UpgradeCard(int databaseId, String name, String version, String url, String api) {
+    UpgradeCard(int databaseId, String name,  String url, String api) {
         this.databaseId = databaseId;
         this.name = name;
-        this.version = version;
         this.url = url;
         this.api = api;
     }
@@ -20,10 +19,6 @@ public class UpgradeCard {
     }
     public String getName() {
         return name;
-    }
-
-    public String getVersion() {
-        return version;
     }
 
     String getApi() {

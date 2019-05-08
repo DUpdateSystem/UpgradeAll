@@ -24,25 +24,44 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:textSize="30sp"
                 tools:text="ExampleName" />
 
-            <TextView
-                android:id="@+id/versionTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <ProgressBar
+                android:id="@+id/versionCheckingBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:onClick="onClick"
-                tools:ignore="RelativeOverlap"
-                tools:text="v0.0.0 -> v0.0.0.0" />
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:visibility="invisible" />
+
+            <ImageView
+                android:id="@+id/versionCheckButton"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/circle_shape"
+                app:srcCompat="@android:color/transparent"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/urlTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
                 android:layout_alignParentBottom="true"
                 android:onClick="onClick"
                 tools:text="https://github.com/owner/repo" />
@@ -52,6 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
                 android:layout_alignParentBottom="true"
                 tools:ignore="RelativeOverlap"
                 tools:text="GitHub" />
@@ -84,6 +104,7 @@
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
+
 
 </com.yanzhenjie.recyclerview.SwipeMenuLayout>
 
