@@ -38,6 +38,10 @@ public class RepoDatabase extends LitePalSupport {
     }
 
     void setUrl(String url) {
+        if (url.substring(url.length() - 1).equals("/")) {
+            url = url.substring(0, url.length() - 1);
+            // 判断url是否多余 /
+        }
         this.url = url;
     }
 

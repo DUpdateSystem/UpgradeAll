@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        refreshUpgrade();
+        refreshCardView();
     }
 
     @Override
@@ -47,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
                     intent.setData(Uri.parse("https://xzos.net/upgradeall-readme/"));
                     intent = Intent.createChooser(intent, "请选择浏览器");
                     startActivity(intent);
+                    return true;
+                case R.id.app_setting:
+                    Intent intent1 = new Intent(MainActivity.this, SettingsActivity.class);
+                    startActivity(intent1);
                     return true;
                 default:
                     return false;
@@ -72,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 swipeRefresh.setRefreshing(true);
             });
-            updater.refreshAll();
+            updater.refreshAll(true);
             runOnUiThread(() -> {
                 refreshCardView();
                 adapter.notifyDataSetChanged();
@@ -89,9 +93,7 @@ public class MainActivity extends AppCompatActivity {
             String name = upgradeItem.getName();
             String api = upgradeItem.getApi();
             String url = upgradeItem.getUrl();
-            String latestVersion = updater.getLatestVersion(databaseId);
-            String installedVersion = updater.getInstalledVersion(databaseId);
-            upgradeCardList.add(new UpgradeCard(databaseId, name, installedVersion + " -> " + latestVersion, url, api));
+            upgradeCardList.add(new UpgradeCard(databaseId, name, url, api));
         }
         setRecyclerView();
     }

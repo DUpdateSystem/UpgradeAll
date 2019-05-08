@@ -3,10 +3,15 @@ package net.xzos.UpgradeAll;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -34,9 +39,10 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
     static class ViewHolder extends RecyclerView.ViewHolder {
         SwipeMenuLayout cardView;
         TextView name;
-        TextView version;
         TextView url;
         TextView api;
+        ProgressBar versionCheckingBar;
+        ImageView versionCheckButton;
         CardView del_button;
         RecyclerView upgradeItemCardList;
 
@@ -44,9 +50,10 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
             super(view);
             cardView = (SwipeMenuLayout) view;
             name = view.findViewById(R.id.nameTextView);
-            version = view.findViewById(R.id.versionTextView);
             url = view.findViewById(R.id.urlTextView);
             api = view.findViewById(R.id.apiTextView);
+            versionCheckingBar = view.findViewById(R.id.versionCheckingBar);
+            versionCheckButton = view.findViewById(R.id.versionCheckButton);
             del_button = view.findViewById(R.id.del_button);
             upgradeItemCardList = view.findViewById(R.id.item_list_view);
         }
@@ -63,11 +70,12 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         UpgradeCard upgradeCard = mUpgradeList.get(position);
         holder.name.setText(upgradeCard.getName());
-        holder.version.setText(upgradeCard.getVersion());
         holder.api.setText(upgradeCard.getApi());
         holder.url.setText(upgradeCard.getUrl());
+        refreshUpdater(true, holder, upgradeCard);
         // 启动下载
-        holder.version.setOnClickListener(v -> {
+        holder.versionCheckButton.setOnClickListener(v -> {
+            // 单击展开 Release 详情页
             JSONObject latestDownloadUrl = MyApplication.getUpdater().getLatestDownloadUrl(upgradeCard.getDatabaseId());
             List<String> itemList = new ArrayList<>();
             Iterator<String> sIterator = latestDownloadUrl.keys();
@@ -75,11 +83,18 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
                 String key = sIterator.next();
                 itemList.add(key);
             }
-            String[] itemStringArray=itemList.toArray(new String[0]);
+            holder.versionCheckButton.setOnLongClickListener(v1 -> {
+                // 长按强制检查版本
+                refreshUpdater(false, holder, upgradeCard);
+                return true;
+            });
+            String[] itemStringArray = itemList.toArray(new String[0]);
             // 获取文件列表
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(holder.version.getContext());
-            builder.setItems(itemStringArray, (dialog, which) -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(holder.versionCheckingBar.getContext());
+            builder.setItems(itemStringArray, (dialog, which) ->
+
+            {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 String url = null;
                 try {
@@ -114,6 +129,24 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
             // 重新跳转刷新界面
             // TODO: 需要优化刷新方法
         });
+    }
+
+    private void refreshUpdater(boolean isAuto, ViewHolder holder, UpgradeCard upgradeCard) {
+        if (!isAuto) {
+            Toast.makeText(holder.versionCheckButton.getContext(), String.format("检查 %s 的更新", holder.name.getText().toString()),
+                    Toast.LENGTH_SHORT).show();
+        }
+        holder.versionCheckingBar.setVisibility(View.VISIBLE);
+        new Thread(() -> {
+            int databaseId = upgradeCard.getDatabaseId();
+            if (isAuto) {
+                MyApplication.getUpdater().autoRefresh(databaseId);
+            } else {
+                MyApplication.getUpdater().refresh(databaseId);
+            }
+            // 刷新数据库
+            new Handler(Looper.getMainLooper()).post(() -> holder.versionCheckingBar.setVisibility(View.INVISIBLE));
+        }).start();
     }
 
     @Override

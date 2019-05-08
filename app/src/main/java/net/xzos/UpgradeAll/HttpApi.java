@@ -83,21 +83,26 @@ class GithubApi extends HttpApi {
     }
 
     public boolean flashData() {
-        // 仅刷新数据，不进行数据校验
+        // 仅刷新数据，并进行数据校验
+        boolean refreshSuccess = false;
         if (api_url.length() != 0) {
             String jsonText = getHttpResponse(api_url);
             if (jsonText.length() != 0) {
+                JSONArray returnJsonArray = new JSONArray();
                 try {
-                    this.returnJsonArray = new JSONArray(jsonText);
+                    returnJsonArray = new JSONArray(jsonText);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                return true;
-                // 数据获取成功，返回 true
+                if (returnJsonArray.length() != 0) {
+                    this.returnJsonArray = returnJsonArray;
+                    refreshSuccess = true;
+                    // 数据获取成功，返回 true
+                }
             }
         }
         Log.d(TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
-        return false;
+        return refreshSuccess;
     }
 
     private JSONObject getRelease(int releaseNum) {

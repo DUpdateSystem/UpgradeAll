@@ -93,7 +93,7 @@ class VersionChecker {
         try {
             assert bufrIn != null;
             String line;
-            String keyWords = "version=";
+            String keyWords = "versionCheckingBar=";
             while ((line = bufrIn.readLine()) != null) {
                 if (line.indexOf(keyWords) == 0) {
                     magiskVersion = line.substring(keyWords.length());
