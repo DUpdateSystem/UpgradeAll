@@ -28,12 +28,12 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCardAdapter.ViewHolder> {
+public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAdapter.ViewHolder> {
 
-    private List<UpgradeCard> mUpgradeList;
+    private List<UpdateCard> mUpdateList;
 
-    UpgradeItemCardAdapter(List<UpgradeCard> upgradeList) {
-        mUpgradeList = upgradeList;
+    UpdateItemCardAdapter(List<UpdateCard> updateList) {
+        mUpdateList = updateList;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -44,7 +44,7 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
         ProgressBar versionCheckingBar;
         ImageView versionCheckButton;
         CardView del_button;
-        RecyclerView upgradeItemCardList;
+        RecyclerView updateItemCardList;
 
         ViewHolder(View view) {
             super(view);
@@ -53,9 +53,9 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
             url = view.findViewById(R.id.urlTextView);
             api = view.findViewById(R.id.apiTextView);
             versionCheckingBar = view.findViewById(R.id.versionCheckingBar);
-            versionCheckButton = view.findViewById(R.id.versionCheckButton);
+            versionCheckButton = view.findViewById(R.id.versionCheckTextButton);
             del_button = view.findViewById(R.id.del_button);
-            upgradeItemCardList = view.findViewById(R.id.item_list_view);
+            updateItemCardList = view.findViewById(R.id.item_list_view);
         }
     }
 
@@ -63,20 +63,19 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new ViewHolder(
-                LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_upgrade, parent, false));
+                LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_update, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        UpgradeCard upgradeCard = mUpgradeList.get(position);
-        holder.name.setText(upgradeCard.getName());
-        holder.api.setText(upgradeCard.getApi());
-        holder.url.setText(upgradeCard.getUrl());
-        refreshUpdater(true, holder, upgradeCard);
-        // 启动下载
+        UpdateCard updateCard = mUpdateList.get(position);
+        holder.name.setText(updateCard.getName());
+        holder.api.setText(updateCard.getApi());
+        holder.url.setText(updateCard.getUrl());
+        refreshUpdater(true, holder, updateCard);
         holder.versionCheckButton.setOnClickListener(v -> {
             // 单击展开 Release 详情页
-            JSONObject latestDownloadUrl = MyApplication.getUpdater().getLatestDownloadUrl(upgradeCard.getDatabaseId());
+            JSONObject latestDownloadUrl = MyApplication.getUpdater().getLatestDownloadUrl(updateCard.getDatabaseId());
             List<String> itemList = new ArrayList<>();
             Iterator<String> sIterator = latestDownloadUrl.keys();
             while (sIterator.hasNext()) {
@@ -85,7 +84,7 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
             }
             holder.versionCheckButton.setOnLongClickListener(v1 -> {
                 // 长按强制检查版本
-                refreshUpdater(false, holder, upgradeCard);
+                refreshUpdater(false, holder, updateCard);
                 return true;
             });
             String[] itemStringArray = itemList.toArray(new String[0]);
@@ -131,27 +130,35 @@ public class UpgradeItemCardAdapter extends RecyclerView.Adapter<UpgradeItemCard
         });
     }
 
-    private void refreshUpdater(boolean isAuto, ViewHolder holder, UpgradeCard upgradeCard) {
+    private void refreshUpdater(boolean isAuto, ViewHolder holder, UpdateCard updateCard) {
         if (!isAuto) {
             Toast.makeText(holder.versionCheckButton.getContext(), String.format("检查 %s 的更新", holder.name.getText().toString()),
                     Toast.LENGTH_SHORT).show();
         }
         holder.versionCheckingBar.setVisibility(View.VISIBLE);
         new Thread(() -> {
-            int databaseId = upgradeCard.getDatabaseId();
+            int databaseId = updateCard.getDatabaseId();
             if (isAuto) {
                 MyApplication.getUpdater().autoRefresh(databaseId);
             } else {
                 MyApplication.getUpdater().refresh(databaseId);
             }
             // 刷新数据库
-            new Handler(Looper.getMainLooper()).post(() -> holder.versionCheckingBar.setVisibility(View.INVISIBLE));
+            new Handler(Looper.getMainLooper()).post(() -> {
+                holder.versionCheckingBar.setVisibility(View.INVISIBLE);
+                Updater updater = MyApplication.getUpdater();
+                if (updater.isLatest(databaseId)) {
+                    holder.versionCheckButton.setImageResource(R.drawable.ic_check_latest);
+                } else {
+                    holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate);
+                }
+            });
         }).start();
     }
 
     @Override
     public int getItemCount() {
-        return mUpgradeList.size();
+        return mUpdateList.size();
     }
 
 }

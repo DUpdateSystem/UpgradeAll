@@ -3,6 +3,7 @@ package net.xzos.UpgradeAll;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -20,8 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private List<UpgradeCard> upgradeCardList = new ArrayList<>();
-    private UpgradeItemCardAdapter adapter;
+    private static final String TAG = "MainActivity";
+    private List<UpdateCard> updateCardList = new ArrayList<>();
+    private UpdateItemCardAdapter adapter;
 
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // toolbar 点击事件
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setOnMenuItemClickListener(item -> {
@@ -56,22 +59,23 @@ public class MainActivity extends AppCompatActivity {
                     return false;
             }
         });
+        // tab添加事件
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, UpgradeItemSettingActivity.class);
+            Intent intent = new Intent(MainActivity.this, UpdateItemSettingActivity.class);
             startActivity(intent);
         });
 
         swipeRefresh = findViewById(R.id.swipe_refresh);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
-        swipeRefresh.setOnRefreshListener(this::refreshUpgrade);
+        swipeRefresh.setOnRefreshListener(this::refreshUpdate);
 
         recyclerView = findViewById(R.id.item_list_view);
 
         setRecyclerView();
     }
 
-    private void refreshUpgrade() {
+    private void refreshUpdate() {
         new Thread(() -> {
             runOnUiThread(() -> {
                 swipeRefresh.setRefreshing(true);
@@ -87,13 +91,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshCardView() {
         List<RepoDatabase> repoDatabase = LitePal.findAll(RepoDatabase.class);
-        upgradeCardList.clear();
-        for (RepoDatabase upgradeItem : repoDatabase) {
-            int databaseId = upgradeItem.getId();
-            String name = upgradeItem.getName();
-            String api = upgradeItem.getApi();
-            String url = upgradeItem.getUrl();
-            upgradeCardList.add(new UpgradeCard(databaseId, name, url, api));
+        updateCardList.clear();
+        for (RepoDatabase updateItem : repoDatabase) {
+            int databaseId = updateItem.getId();
+            String name = updateItem.getName();
+            String api = updateItem.getApi();
+            String url = updateItem.getUrl();
+            updateCardList.add(new UpdateCard(databaseId, name, url, api));
         }
         setRecyclerView();
     }
@@ -101,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
     private void setRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new UpgradeItemCardAdapter(upgradeCardList);
+        adapter = new UpdateItemCardAdapter(updateCardList);
         recyclerView.setAdapter(adapter);
     }
 
@@ -119,16 +123,26 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.app_help) {
-            return true;
+        switch (id) {
+            case R.id.app_help:
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://xzos.net/upgradeall-readme/"));
+                intent = Intent.createChooser(intent, "请选择浏览器");
+                startActivity(intent);
+                return true;
+            case R.id.app_setting:
+                Intent intent1 = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent1);
+                return true;
+            case android.R.id.home:
+                Log.d(TAG, "onOptionsItemSelected:  Back");
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
 }
