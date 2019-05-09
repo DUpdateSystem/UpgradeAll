@@ -26,12 +26,22 @@ class Updater {
      * }
      */
 
+    boolean isLatest(int databaseId) {
+        VersionChecker versionChecker = getVersionChecker(databaseId);
+        String installedVersion = versionChecker.getRegexMatchVersion(getInstalledVersion(databaseId));
+        String latestVersion = versionChecker.getRegexMatchVersion(getLatestVersion(databaseId));
+        if (installedVersion.length() != 0 && latestVersion.length() != 0) {
+            return installedVersion.equals(latestVersion);
+        }
+        return false;
+    }
+
     void refreshAll(boolean isAuto) {
         // TODO: 多线程刷新
         // 强制刷新整个数据库
         List<RepoDatabase> repoDatabase = LitePal.findAll(RepoDatabase.class);
-        for (RepoDatabase upgradeItem : repoDatabase) {
-            int databaseId = upgradeItem.getId();
+        for (RepoDatabase updateItem : repoDatabase) {
+            int databaseId = updateItem.getId();
             if (isAuto)
                 autoRefresh(databaseId);
             else
@@ -55,7 +65,7 @@ class Updater {
             try {
                 updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.d(TAG, String.format("autoRefresh:  updateJsonData缺少 %s 项", databaseId));
             }
             if (updateItemJson.length() != 0) {
                 Calendar updateTime = Calendar.getInstance();
@@ -66,7 +76,7 @@ class Updater {
                 }
                 updateTime.add(Calendar.MINUTE, autoRefreshMinute);
                 if (Calendar.getInstance().before(updateTime)) {
-                    Log.d(TAG, "autoRefreshAll: NoUp");
+                    Log.d(TAG, String.format("autoRefreshAll: %s NoUp", databaseId));
                     startRefresh = false;
                 }
             }
@@ -82,37 +92,37 @@ class Updater {
          */
         boolean refreshSuccess;
         if (updateJsonData.has(String.valueOf(databaseId))) {
-            JSONObject upgradeItemJson = new JSONObject();
+            JSONObject updateItemJson = new JSONObject();
             try {
-                upgradeItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
+                updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             HttpApi httpApi = new HttpApi();
             try {
-                httpApi = (HttpApi) upgradeItemJson.get("httpApi");
+                httpApi = (HttpApi) updateItemJson.get("httpApi");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             refreshSuccess = httpApi.flashData();  // 调用刷新
             if (refreshSuccess) {
                 try {
-                    upgradeItemJson.put("UpdateTime", Calendar.getInstance());
+                    updateItemJson.put("UpdateTime", Calendar.getInstance());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
         } else {
-            refreshSuccess = newUpgradeItem(databaseId);  //  创建 HttpApi 时会自动刷新初始数据
+            refreshSuccess = newUpdateItem(databaseId);  //  创建 HttpApi 时会自动刷新初始数据
         }
         return refreshSuccess;
     }
 
-    private boolean newUpgradeItem(int databaseId) {
+    private boolean newUpdateItem(int databaseId) {
         // 添加一个 更新检查器追踪子项
-        RepoDatabase upgradeItemDatabase = LitePal.find(RepoDatabase.class, databaseId);
-        String api = upgradeItemDatabase.getApi();
-        String apiUrl = upgradeItemDatabase.getApiUrl();
+        RepoDatabase updateItemDatabase = LitePal.find(RepoDatabase.class, databaseId);
+        String api = updateItemDatabase.getApi();
+        String apiUrl = updateItemDatabase.getApiUrl();
         HttpApi httpApi = new HttpApi();
         switch (api.toLowerCase()) {
             case "github":
@@ -120,65 +130,69 @@ class Updater {
                 // 发达 API 请求
                 break;
         }
-        JSONObject upgradeItemJson = new JSONObject();
+        JSONObject updateItemJson = new JSONObject();
         try {
-            upgradeItemJson.put("httpApi", httpApi);
-            upgradeItemJson.put("database", upgradeItemDatabase);
-            upgradeItemJson.put("updateTime", Calendar.getInstance());
+            updateItemJson.put("httpApi", httpApi);
+            updateItemJson.put("database", updateItemDatabase);
+            updateItemJson.put("updateTime", Calendar.getInstance());
         } catch (JSONException e) {
             e.printStackTrace();
         }
         try {
-            updateJsonData.put(String.valueOf(databaseId), upgradeItemJson);
+            updateJsonData.put(String.valueOf(databaseId), updateItemJson);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return true;
     }
 
-    String getLatestVersion(int id) {
+    String getLatestVersion(int databaseId) {
         // 获取最新版本号
-        JSONObject upgradeItem;
+        JSONObject updateItem;
         HttpApi httpApi = new HttpApi();
         try {
-            upgradeItem = (JSONObject) updateJsonData.get(String.valueOf(id));
-            httpApi = (HttpApi) upgradeItem.get("httpApi");
+            updateItem = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
+            httpApi = (HttpApi) updateItem.get("httpApi");
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return httpApi.getVersion(0);
     }
 
-    JSONObject getLatestDownloadUrl(int id) {
+    JSONObject getLatestDownloadUrl(int databaseId) {
         // 获取最新下载链接
-        JSONObject upgradeItem;
+        JSONObject updateItem;
         HttpApi httpApi = new HttpApi();
         try {
-            upgradeItem = (JSONObject) updateJsonData.get(String.valueOf(id));
-            httpApi = (HttpApi) upgradeItem.get("httpApi");
+            updateItem = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
+            httpApi = (HttpApi) updateItem.get("httpApi");
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return httpApi.getReleaseDownloadUrl(0);
     }
 
-    String getInstalledVersion(int id) {
+    String getInstalledVersion(int databaseId) {
         // 获取已安装版本号
-        JSONObject upgradeItem = new JSONObject();
-        RepoDatabase upgradeItemDatabase = new RepoDatabase();
-        try {
-            upgradeItem = (JSONObject) updateJsonData.get(String.valueOf(id));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        try {
-            upgradeItemDatabase = (RepoDatabase) upgradeItem.get("database");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        JSONObject versionCheckerJsonObject = upgradeItemDatabase.getVersionChecker();
-        // 获取数据库 VersionChecker 数据
-        VersionChecker versionChecker = new VersionChecker(versionCheckerJsonObject);
+        VersionChecker versionChecker = getVersionChecker(databaseId);
         return versionChecker.getVersion();
+    }
+
+    private VersionChecker getVersionChecker(int databaseId) {
+        JSONObject updateItem = new JSONObject();
+        RepoDatabase updateItemDatabase = new RepoDatabase();
+        try {
+            updateItem = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            updateItemDatabase = (RepoDatabase) updateItem.get("database");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JSONObject versionCheckerJsonObject = updateItemDatabase.getVersionChecker();
+        // 获取数据库 VersionChecker 数据
+        return new VersionChecker(versionCheckerJsonObject);
     }
 }

@@ -13,6 +13,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class VersionChecker {
 
@@ -26,12 +28,12 @@ class VersionChecker {
     String getVersion() {
         JSONObject versionCheckerJsonObject = this.versionCheckerJsonObject;
         String versionCheckerApi = "";
+        String version = null;
         try {
             versionCheckerApi = versionCheckerJsonObject.getString("api");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        String version = null;
         switch (versionCheckerApi.toLowerCase()) {
             case "app":
                 version = getAppVersion(versionCheckerJsonObject);
@@ -43,7 +45,7 @@ class VersionChecker {
         return version;
     }
 
-    private static String getAppVersion(JSONObject versionCheckerJsonObject) {
+    private String getAppVersion(JSONObject versionCheckerJsonObject) {
         // 获取软件版本
         String appVersion;
         String packageName = null;
@@ -62,7 +64,7 @@ class VersionChecker {
         return appVersion;
     }
 
-    private static String getMagiskModuleVersion(JSONObject versionCheckerJsonObject) {
+    private String getMagiskModuleVersion(JSONObject versionCheckerJsonObject) {
         String magiskModuleName = null;
         try {
             magiskModuleName = String.valueOf(versionCheckerJsonObject.get("text"));
@@ -74,27 +76,25 @@ class VersionChecker {
         return runCmd(command);
     }
 
-    private static String runCmd(String cmd) {
-        Log.d(TAG, "runCmd:  cmd: " + cmd);
-        BufferedReader bufrIn = null;
+    private String runCmd(String cmd) {
+        BufferedReader buffIn = null;
         try {
             Process process = Runtime.getRuntime().exec("su");
             DataOutputStream os = new DataOutputStream(process.getOutputStream());
             os.writeBytes(cmd + "\n");
             os.writeBytes("exit\n");
             os.flush();
-            bufrIn = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
-            Log.d(TAG, "runCmd:  bufin: " + bufrIn.readLine());
+            buffIn = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             Toast.makeText(MyApplication.getContext(), "执行失败", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
         String magiskVersion = null;
         try {
-            assert bufrIn != null;
+            assert buffIn != null;
             String line;
             String keyWords = "versionCheckingBar=";
-            while ((line = bufrIn.readLine()) != null) {
+            while ((line = buffIn.readLine()) != null) {
                 if (line.indexOf(keyWords) == 0) {
                     magiskVersion = line.substring(keyWords.length());
                 }
@@ -102,7 +102,25 @@ class VersionChecker {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "runCmd:  " + magiskVersion);
         return magiskVersion;
+    }
+
+    String getRegexMatchVersion(String versionString) {
+        String regexString;
+        String regexVersion = "";
+        try {
+            regexString = String.valueOf(versionCheckerJsonObject.get("regular"));
+        } catch (JSONException e) {
+            Log.w(TAG, "数据库项 无regular项, 请检查 versionCheckerJsonObject: " + versionCheckerJsonObject);
+            regexString = "\\d+(\\.\\d+)*";
+        }
+        if (versionString != null && versionString.length() != 0) {
+            Pattern p = Pattern.compile(regexString);
+            Matcher m = p.matcher(versionString);
+            if (m.find()) {
+                regexVersion = m.group();
+            }
+        }
+        return regexVersion;
     }
 }

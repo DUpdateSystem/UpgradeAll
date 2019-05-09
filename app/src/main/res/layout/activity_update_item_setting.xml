@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UpgradeItemSettingActivity">
+    tools:context=".UpdateItemSettingActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,8 +21,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:text="@string/upgrade_item_setting_basicInfoTextView"
+                android:text="@string/update_item_setting_basicInfoTextView"
                 android:textColor="#F44336" />
 
             <EditText
@@ -29,16 +29,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/basicInfoTextView"
-                android:hint="@string/upgrade_item_setting_editName"
-                android:inputType="text" />
+                android:autofillHints="name"
+                android:hint="@string/update_item_setting_editName"
+                android:inputType="text"
+                tools:targetApi="o" />
 
             <EditText
                 android:id="@+id/editUrl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/editName"
-                android:hint="@string/upgrade_item_setting_urlEdit"
-                android:inputType="textUri" />
+                android:autofillHints="url"
+                android:hint="@string/update_item_setting_urlEdit"
+                android:inputType="textUri"
+                tools:targetApi="o" />
 
             <Spinner
                 android:id="@+id/api_spinner"
@@ -65,8 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:text="@string/upgrade_item_setting_versionCheckTextView"
+                android:text="@string/update_item_setting_versionCheckTextView"
                 android:textColor="#F44336" />
 
             <Spinner
@@ -78,33 +81,63 @@
                 android:spinnerMode="dropdown" />
 
             <EditText
-                android:id="@+id/editVersionChecker"
+                android:id="@+id/editVersionCheckText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/versionCheckSpinner"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_toStartOf="@+id/versionCheckButton"
-                android:layout_toLeftOf="@+id/versionCheckButton"
-                android:hint="@string/upgrade_item_setting_editVersionChecker"
-                android:inputType="text" />
+                android:layout_toStartOf="@+id/versionCheckTextButton"
+                android:autofillHints="versionCheckText"
+                android:hint="@string/update_item_setting_editVersionCheckerText"
+                android:inputType="text"
+                tools:targetApi="o" />
 
             <Button
-                android:id="@+id/versionCheckButton"
+                android:id="@+id/versionCheckTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/versionCheckSpinner"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:text="@string/upgrade_item_setting_versionCheckButton" />
+                android:text="@string/update_item_setting_versionCheckButton" />
 
+            <TextView
+                android:id="@+id/versionCheckRegularTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editVersionCheckText"
+                android:layout_alignParentStart="true"
+                android:text="@string/update_item_setting_editVersionCheckRegular"
+                android:textSize="10sp"
+                tools:ignore="SmallSp" />
+
+            <EditText
+                android:id="@+id/editVersionCheckRegular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/versionCheckTextButton"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/helpImageView"
+                android:autofillHints="versionCheckText"
+                android:inputType="text"
+                android:text="@string/update_item_setting_editVersionCheckRegularText"
+                tools:targetApi="o"
+                tools:ignore="LabelFor" />
+
+            <ImageView
+                android:id="@+id/helpImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/versionCheckTextButton"
+                android:layout_alignParentEnd="true"
+                app:srcCompat="@drawable/ic_help"
+                tools:ignore="ContentDescription" />
         </RelativeLayout>
 
         <Button
             android:id="@+id/addButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/upgrade_item_setting_add_button" />
+            android:text="@string/update_item_setting_add_button" />
 
     </LinearLayout>
 

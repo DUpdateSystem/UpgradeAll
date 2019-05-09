@@ -1,9 +1,12 @@
 package net.xzos.UpgradeAll;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -13,22 +16,31 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
-public class UpgradeItemSettingActivity extends AppCompatActivity {
+public class UpdateItemSettingActivity extends AppCompatActivity {
+
+    private static final String TAG = "UpdateItemSetting";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_upgrade_item_setting);
-        Button versionCheckButton = findViewById(R.id.versionCheckButton);
+        setContentView(R.layout.activity_update_item_setting);
         // 以下是按键事件
+        Button versionCheckButton = findViewById(R.id.versionCheckTextButton);
         versionCheckButton.setOnClickListener(v -> {
             // 版本检查设置
             JSONObject versionCheckerJsonObject = getVersionChecker();
             VersionChecker versionChecker = new VersionChecker(versionCheckerJsonObject);
             String appVersion = versionChecker.getVersion();
             if (appVersion != null) {
-                Toast.makeText(UpgradeItemSettingActivity.this, "version: " + appVersion, Toast.LENGTH_SHORT).show();
+                Toast.makeText(UpdateItemSettingActivity.this, "version: " + appVersion, Toast.LENGTH_SHORT).show();
             }
+        });
+        ImageView helpImageView = findViewById(R.id.helpImageView);
+        helpImageView.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("")); // TODO：帮助文档网址
+            intent = Intent.createChooser(intent, "请选择浏览器查看帮助文档");
+            startActivity(intent);
         });
         Button addButton = findViewById(R.id.addButton);
         addButton.setOnClickListener(v -> {
@@ -45,11 +57,11 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
             JSONObject versionChecker = getVersionChecker();
             boolean addRepoSuccess = addRepoDatabase(name, api, url, versionChecker);
             if (addRepoSuccess) {
-                Intent intent = new Intent(UpgradeItemSettingActivity.this, MainActivity.class);
+                Intent intent = new Intent(UpdateItemSettingActivity.this, MainActivity.class);
                 startActivity(intent);
                 // 跳转主页面
             } else {
-                Toast.makeText(UpgradeItemSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
+                Toast.makeText(UpdateItemSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -58,9 +70,12 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
         // 获取versionChecker
         JSONObject versionChecker = new JSONObject();
         Spinner versionCheckSpinner = findViewById(R.id.versionCheckSpinner);
-        EditText editVersionChecker = findViewById(R.id.editVersionChecker);
-        String versionCheckerText = editVersionChecker.getText().toString();
+        EditText editVersionCheckText = findViewById(R.id.editVersionCheckText);
+        EditText editVersionCheckRegular = findViewById(R.id.editVersionCheckRegular);
+        String versionCheckerText = editVersionCheckText.getText().toString();
         String versionCheckerApi = versionCheckSpinner.getSelectedItem().toString();
+        String versionCheckerRegular = editVersionCheckRegular.getText().toString();
+        Log.d(TAG, "getVersionChecker:  " + versionCheckerRegular);
         switch (versionCheckerApi) {
             case "APP 版本":
                 versionCheckerApi = "APP";
@@ -72,6 +87,7 @@ public class UpgradeItemSettingActivity extends AppCompatActivity {
         try {
             versionChecker.put("api", versionCheckerApi);
             versionChecker.put("text", versionCheckerText);
+            versionChecker.put("regular", versionCheckerRegular);
         } catch (JSONException e) {
             e.printStackTrace();
         }

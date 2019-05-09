@@ -1,13 +1,13 @@
 package net.xzos.UpgradeAll;
 
-public class UpgradeCard {
+public class UpdateCard {
     private int databaseId;
     private String name;
     private String version;
     private String url;
     private String api;
 
-    UpgradeCard(int databaseId, String name,  String url, String api) {
+    UpdateCard(int databaseId, String name, String url, String api) {
         this.databaseId = databaseId;
         this.name = name;
         this.url = url;
