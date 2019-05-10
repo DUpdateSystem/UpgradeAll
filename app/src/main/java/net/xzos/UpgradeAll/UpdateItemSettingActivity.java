@@ -62,7 +62,11 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
             EditText editVersionCheckText = findViewById(R.id.editVersionCheckText);
             editVersionCheckText.setText(versionCheckerText);
             EditText editVersionCheckRegular = findViewById(R.id.editVersionCheckRegular);
-            editVersionCheckRegular.setText(versionCheckRegular);
+            if (editVersionCheckRegular.length() == 0)
+                // TODO: 3个版本后删除该专门转换 (0.0.6)
+                editVersionCheckRegular.setText("\\d+(\\.\\d+)*");
+            else
+                editVersionCheckRegular.setText(versionCheckRegular);
         }
         // 以下是按键事件
         Button versionCheckButton = findViewById(R.id.versionCheckTextButton);
@@ -88,10 +92,6 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
             EditText editUrl = findViewById(R.id.editUrl);
             String name = editName.getText().toString();
             String url = editUrl.getText().toString();
-            if (url.substring(url.length() - 1).equals("/")) {
-                url = url.substring(0, url.length() - 1);
-                // 判断url是否多余 /
-            }
             Spinner apiSpinner = findViewById(R.id.api_spinner);
             String api = apiSpinner.getSelectedItem().toString();
             JSONObject versionChecker = getVersionChecker();
@@ -137,6 +137,10 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
     boolean addRepoDatabase(String name, String api, String url, JSONObject versionChecker) {
         // TODO: 可被忽略的参数
         if (api.length() != 0 && url.length() != 0) {
+            if (url.substring(url.length() - 1).equals("/")) {
+                url = url.substring(0, url.length() - 1);
+                // 判断url是否多余 /
+            }
             String repo = "";
             String api_url = "";
             switch (api.toLowerCase()) {
