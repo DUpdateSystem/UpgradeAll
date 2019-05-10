@@ -1,10 +1,13 @@
 package net.xzos.UpgradeAll;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.crud.LitePalSupport;
 
 public class RepoDatabase extends LitePalSupport {
+    private static final String TAG = "RepoDatabase";
     private int id;
     private String name;
     private String api;
@@ -55,6 +58,7 @@ public class RepoDatabase extends LitePalSupport {
 
     JSONObject getVersionChecker() {
         try {
+            Log.d(TAG, "getVersionChecker:  " + versionChecker);
             return new JSONObject(versionChecker);
         } catch (JSONException e) {
             e.printStackTrace();

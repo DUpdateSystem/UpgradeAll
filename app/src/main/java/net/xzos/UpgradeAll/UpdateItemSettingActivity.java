@@ -24,6 +24,46 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_item_setting);
+        // 获取可能来自修改设置项的请求
+        Intent intentGetdata = getIntent();
+        int databaseId = intentGetdata.getIntExtra("database_id", 0);
+        if (databaseId != 0) {
+            RepoDatabase database = LitePal.find(RepoDatabase.class, databaseId);
+            EditText editName = findViewById(R.id.editName);
+            editName.setText(database.getName());
+            EditText editUrl = findViewById(R.id.editUrl);
+            editUrl.setText(database.getUrl());
+            Spinner apiSpinner = findViewById(R.id.api_spinner);
+            switch (database.getApi().toLowerCase()) {
+                case "github":
+                    apiSpinner.setSelection(0);
+                    break;
+            }
+            Spinner versionCheckSpinner = findViewById(R.id.versionCheckSpinner);
+            JSONObject versionChecker = database.getVersionChecker();
+            String versionCheckerApi = "";
+            String versionCheckerText = "";
+            String versionCheckRegular = "";
+            try {
+                versionCheckerApi = versionChecker.getString("api");
+                versionCheckerText = versionChecker.getString("text");
+                versionCheckRegular = versionChecker.getString("regular");
+            } catch (JSONException e) {
+                Log.e(TAG, String.format("onCreate: 数据库损坏！  versionChecker: %s", versionChecker));
+            }
+            switch (versionCheckerApi.toLowerCase()) {
+                case "app":
+                    versionCheckSpinner.setSelection(0);
+                    break;
+                case "magisk":
+                    versionCheckSpinner.setSelection(1);
+                    break;
+            }
+            EditText editVersionCheckText = findViewById(R.id.editVersionCheckText);
+            editVersionCheckText.setText(versionCheckerText);
+            EditText editVersionCheckRegular = findViewById(R.id.editVersionCheckRegular);
+            editVersionCheckRegular.setText(versionCheckRegular);
+        }
         // 以下是按键事件
         Button versionCheckButton = findViewById(R.id.versionCheckTextButton);
         versionCheckButton.setOnClickListener(v -> {
@@ -38,7 +78,7 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
         ImageView helpImageView = findViewById(R.id.helpImageView);
         helpImageView.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("")); // TODO：帮助文档网址
+            intent.setData(Uri.parse("https://xzos.net/regular-expression"));
             intent = Intent.createChooser(intent, "请选择浏览器查看帮助文档");
             startActivity(intent);
         });
@@ -102,6 +142,7 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
             switch (api.toLowerCase()) {
                 case "github":
                     String[] apiUrlStringList = GithubApi.getApiUrl(url);
+                    if (apiUrlStringList == null) return false;  // 网址不符合规则返回 false
                     api_url = apiUrlStringList[0];
                     repo = apiUrlStringList[1];
                     break;

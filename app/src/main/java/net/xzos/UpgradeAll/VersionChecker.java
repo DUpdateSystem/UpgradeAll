@@ -86,17 +86,18 @@ class VersionChecker {
             os.flush();
             buffIn = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            Toast.makeText(MyApplication.getContext(), "执行失败", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
+            Toast.makeText(MyApplication.getContext(), "Shell 命令执行失败", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "runCmd: Shell 命令执行失败");
         }
         String magiskVersion = null;
         try {
-            assert buffIn != null;
             String line;
-            String keyWords = "versionCheckingBar=";
-            while ((line = buffIn.readLine()) != null) {
-                if (line.indexOf(keyWords) == 0) {
-                    magiskVersion = line.substring(keyWords.length());
+            String keyWords = "version=";
+            if (buffIn != null) {
+                while ((line = buffIn.readLine()) != null) {
+                    if (line.indexOf(keyWords) == 0) {
+                        magiskVersion = line.substring(keyWords.length());
+                    }
                 }
             }
         } catch (IOException e) {
@@ -107,7 +108,7 @@ class VersionChecker {
 
     String getRegexMatchVersion(String versionString) {
         String regexString;
-        String regexVersion = "";
+        String regexVersion = null;
         try {
             regexString = String.valueOf(versionCheckerJsonObject.get("regular"));
         } catch (JSONException e) {
@@ -121,6 +122,7 @@ class VersionChecker {
                 regexVersion = m.group();
             }
         }
+        Log.d(TAG, String.format("getRegexMatchVersion:  原版本号: %s, 处理版本号: %s, 正则规则: %s", versionString, regexVersion, regexString));
         return regexVersion;
     }
 }

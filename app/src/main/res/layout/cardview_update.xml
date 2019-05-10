@@ -2,14 +2,14 @@
 <com.yanzhenjie.recyclerview.SwipeMenuLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="75dp"
     app:contentViewId="@+id/item_card_view"
-    app:rightViewId="@id/del_button">
+    app:rightViewId="@id/setting_view">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/item_card_view"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_margin="3dp"
         app:cardCornerRadius="2dp">
@@ -47,7 +47,6 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="5dp"
-                android:background="@drawable/circle_shape"
                 app:srcCompat="@android:color/transparent"
                 tools:ignore="LabelFor" />
 
@@ -74,31 +73,73 @@
 
     </androidx.cardview.widget.CardView>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/del_button"
-        android:layout_width="65dp"
+    <LinearLayout
+        android:id="@+id/setting_view"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_margin="3dp"
-        android:foreground="?android:attr/selectableItemBackground"
         android:gravity="center"
-        app:cardBackgroundColor="#EE4863"
-        app:cardCornerRadius="2dp">
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/setting_button"
+            android:layout_width="65dp"
             android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:foreground="?android:attr/selectableItemBackground"
             android:gravity="center"
-            android:orientation="vertical">
+            app:cardCornerRadius="2dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/update_item_card_view_del_button" />
-        </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                tools:ignore="UseCompoundDrawables">
 
-    </androidx.cardview.widget.CardView>
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    app:srcCompat="@drawable/ic_write_item"
+                    tools:ignore="ContentDescription" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/update_item_card_view_setting_button" />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/del_button"
+            android:layout_width="65dp"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:gravity="center"
+            app:cardCornerRadius="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    app:srcCompat="@drawable/ic_delete_item"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/update_item_card_view_del_button" />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
 
 </com.yanzhenjie.recyclerview.SwipeMenuLayout>
-
-

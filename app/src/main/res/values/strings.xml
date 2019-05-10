@@ -17,7 +17,7 @@
             Magisk 模块
         </item>
         <!--
-        TODO
+        TODO: 自定义 Shell 命令
         <item>
             自定义 Shell 命令
         </item>
@@ -39,5 +39,8 @@
 
     <string name="initiative_sync_time">数据过期时间(min)</string>
     <string name="update_item_setting_editVersionCheckRegularText">\\d+(\\.\\d+)*</string>
+    <string name="dialog_version_releaseTextView">最新版本的云端文件</string>
+    <string name="dialog_version_cloud_release_text_view">正在刷新</string>
+    <string name="update_item_card_view_setting_button">修改</string>
 
 </resources>

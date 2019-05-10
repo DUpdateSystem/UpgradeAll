@@ -77,9 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshUpdate() {
         new Thread(() -> {
-            runOnUiThread(() -> {
-                swipeRefresh.setRefreshing(true);
-            });
+            runOnUiThread(() -> swipeRefresh.setRefreshing(true));
             updater.refreshAll(true);
             runOnUiThread(() -> {
                 refreshCardView();

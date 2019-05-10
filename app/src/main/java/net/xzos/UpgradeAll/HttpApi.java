@@ -18,7 +18,12 @@ import okhttp3.Response;
 
 class HttpApi {
 
-    public boolean flashData() {
+    private static final String TAG = "HttpApi";
+
+    public void flashData() {
+    }
+
+    public boolean isSuccessFlash() {
         return false;
     }
 
@@ -57,7 +62,7 @@ class HttpApi {
         try {
             response = client.newCall(request).execute();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "getHttpResponse:  网络错误");
         }
         if (response != null) {
             try {
@@ -72,7 +77,7 @@ class HttpApi {
 
 
 class GithubApi extends HttpApi {
-    private JSONArray returnJsonArray;
+    private JSONArray returnJsonArray = new JSONArray();
     private String api_url;
     private static final String TAG = "GithubApi";
 
@@ -82,37 +87,33 @@ class GithubApi extends HttpApi {
         flashData();
     }
 
-    public boolean flashData() {
+    public void flashData() {
         // 仅刷新数据，并进行数据校验
-        boolean refreshSuccess = false;
         if (api_url.length() != 0) {
             String jsonText = getHttpResponse(api_url);
+            // 如果刷新失败，则不记录数据
             if (jsonText.length() != 0) {
-                JSONArray returnJsonArray = new JSONArray();
                 try {
-                    returnJsonArray = new JSONArray(jsonText);
+                    this.returnJsonArray = new JSONArray(jsonText);
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
-                if (returnJsonArray.length() != 0) {
-                    this.returnJsonArray = returnJsonArray;
-                    refreshSuccess = true;
-                    // 数据获取成功，返回 true
                 }
             }
         }
         Log.d(TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
-        return refreshSuccess;
+    }
+
+    public boolean isSuccessFlash() {
+        // 数据获取成功，返回 true
+        return this.returnJsonArray.length() != 0;
     }
 
     private JSONObject getRelease(int releaseNum) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject = new JSONObject(this.returnJsonArray.getString(releaseNum));
-        } catch (NullPointerException e) {
-            e.printStackTrace();
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, String.format("getRelease:  返回数据解析错误: %s, returnJsonArray: %s", releaseNum, this.returnJsonArray));
         }
         return jsonObject;
     }
@@ -129,7 +130,7 @@ class GithubApi extends HttpApi {
         try {
             latestVersion = getRelease(releaseNum).getString("name");
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, String.format("getVersion:  返回数据解析错误: %s, returnJsonArray: %s", "name", getRelease(releaseNum)));
         }
         return latestVersion;
     }
@@ -141,7 +142,7 @@ class GithubApi extends HttpApi {
         try {
             releaseAssets = getRelease(releaseNum).getJSONArray("assets");
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, String.format(" getReleaseDownloadUrl:  返回数据解析错误: %s, returnJsonArray: %s", "assets", getRelease(releaseNum)));
         }
         for (int i = 0; i < releaseAssets.length(); i++) {
             JSONObject tmpJsonObject = new JSONObject();
@@ -166,11 +167,15 @@ class GithubApi extends HttpApi {
         temp = temp[temp.length - 1].split("/");
         List<String> list = new ArrayList<>(Arrays.asList(temp));
         list.removeAll(Arrays.asList("", null));
-        String owner = list.get(0);
-        String repo = list.get(1);
-        // 分割网址
-        String apiUrl = "https://api.github.com/repos/"
-                + owner + "/" + repo + "/releases";
-        return new String[]{apiUrl, repo};
+        if (list.size() == 2) {
+            String owner = list.get(0);
+            String repo = list.get(1);
+            // 分割网址
+            String apiUrl = "https://api.github.com/repos/"
+                    + owner + "/" + repo + "/releases";
+            return new String[]{apiUrl, repo};
+        } else {
+            return null;
+        }
     }
 }

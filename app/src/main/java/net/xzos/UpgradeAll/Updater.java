@@ -22,7 +22,7 @@ class Updater {
      * updateJsonData  = {
      * databaseId = { "httpApi": httpApi (Class),
      *                              "database": updateItemDatabase,
-     *                              "updateTime": 更新时间戳
+     *                              "update_time": 更新时间戳
      * }
      */
 
@@ -30,7 +30,7 @@ class Updater {
         VersionChecker versionChecker = getVersionChecker(databaseId);
         String installedVersion = versionChecker.getRegexMatchVersion(getInstalledVersion(databaseId));
         String latestVersion = versionChecker.getRegexMatchVersion(getLatestVersion(databaseId));
-        if (installedVersion.length() != 0 && latestVersion.length() != 0) {
+        if (installedVersion != null && latestVersion != null) {
             return installedVersion.equals(latestVersion);
         }
         return false;
@@ -68,13 +68,13 @@ class Updater {
                 Log.d(TAG, String.format("autoRefresh:  updateJsonData缺少 %s 项", databaseId));
             }
             if (updateItemJson.length() != 0) {
-                Calendar updateTime = Calendar.getInstance();
+                Calendar updateTime = null;
                 try {
-                    updateTime = (Calendar) updateItemJson.get("updateTime");
+                    updateTime = (Calendar) updateItemJson.get("update_time");
+                    updateTime.add(Calendar.MINUTE, autoRefreshMinute);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.d(TAG, String.format("autoRefresh:  初始化数据刷新: %s", databaseId));
                 }
-                updateTime.add(Calendar.MINUTE, autoRefreshMinute);
                 if (Calendar.getInstance().before(updateTime)) {
                     Log.d(TAG, String.format("autoRefreshAll: %s NoUp", databaseId));
                     startRefresh = false;
@@ -104,10 +104,12 @@ class Updater {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            refreshSuccess = httpApi.flashData();  // 调用刷新
+            httpApi.flashData();  // 调用刷新
+            refreshSuccess = httpApi.isSuccessFlash();  // 检查刷新
             if (refreshSuccess) {
                 try {
-                    updateItemJson.put("UpdateTime", Calendar.getInstance());
+                    Log.d(TAG, "refresh:  刷新成功");
+                    updateItemJson.put("update_time", Calendar.getInstance());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -134,10 +136,11 @@ class Updater {
         try {
             updateItemJson.put("httpApi", httpApi);
             updateItemJson.put("database", updateItemDatabase);
-            updateItemJson.put("updateTime", Calendar.getInstance());
+            updateItemJson.put("update_time", null);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.d(TAG, "autoRefresh:  json" + updateItemJson);
         try {
             updateJsonData.put(String.valueOf(databaseId), updateItemJson);
         } catch (JSONException e) {
