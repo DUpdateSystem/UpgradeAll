@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll;
+package net.xzos.UpgradeAll.adapters;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -21,6 +21,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.yanzhenjie.recyclerview.SwipeMenuLayout;
 
+import net.xzos.UpgradeAll.Activity.MainActivity;
+import net.xzos.UpgradeAll.Activity.UpdateItemSettingActivity;
+import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.Updater.Updater;
+import net.xzos.UpgradeAll.data.MyApplication;
+import net.xzos.UpgradeAll.data.RepoDatabase;
+import net.xzos.UpgradeAll.viewmodels.UpdateCard;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
@@ -36,7 +44,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
 
     final private Updater updater = MyApplication.getUpdater();
 
-    UpdateItemCardAdapter(List<UpdateCard> updateList) {
+    public UpdateItemCardAdapter(List<UpdateCard> updateList) {
         mUpdateList = updateList;
     }
 

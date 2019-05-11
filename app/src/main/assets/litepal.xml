@@ -32,7 +32,7 @@
     	</list>
     -->
     <list>
-        <mapping class="net.xzos.UpgradeAll.RepoDatabase" />
+        <mapping class="net.xzos.UpgradeAll.data.RepoDatabase" />
     </list>
 
     <!--

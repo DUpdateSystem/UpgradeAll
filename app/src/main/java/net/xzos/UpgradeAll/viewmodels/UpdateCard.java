@@ -1,13 +1,12 @@
-package net.xzos.UpgradeAll;
+package net.xzos.UpgradeAll.viewmodels;
 
 public class UpdateCard {
     private int databaseId;
     private String name;
-    private String version;
     private String url;
     private String api;
 
-    UpdateCard(int databaseId, String name, String url, String api) {
+    public UpdateCard(int databaseId, String name, String url, String api) {
         this.databaseId = databaseId;
         this.name = name;
         this.url = url;
@@ -21,11 +20,11 @@ public class UpdateCard {
         return name;
     }
 
-    String getApi() {
+    public String getApi() {
         return api;
     }
 
-    String getUrl() {
+    public String getUrl() {
         return url;
     }
 

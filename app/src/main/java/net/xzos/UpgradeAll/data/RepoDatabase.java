@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll;
+package net.xzos.UpgradeAll.data;
 
 import android.util.Log;
 
@@ -28,19 +28,19 @@ public class RepoDatabase extends LitePalSupport {
         this.name = name;
     }
 
-    String getApi() {
+    public String getApi() {
         return api;
     }
 
-    void setApi(String api) {
+    public void setApi(String api) {
         this.api = api;
     }
 
-    String getUrl() {
+    public String getUrl() {
         return url;
     }
 
-    void setUrl(String url) {
+    public void setUrl(String url) {
         if (url.substring(url.length() - 1).equals("/")) {
             url = url.substring(0, url.length() - 1);
             // 判断url是否多余 /
@@ -48,15 +48,15 @@ public class RepoDatabase extends LitePalSupport {
         this.url = url;
     }
 
-    String getApiUrl() {
+    public String getApiUrl() {
         return api_url;
     }
 
-    void setApiUrl(String api_url) {
+    public void setApiUrl(String api_url) {
         this.api_url = api_url;
     }
 
-    JSONObject getVersionChecker() {
+    public JSONObject getVersionChecker() {
         try {
             Log.d(TAG, "getVersionChecker:  " + versionChecker);
             return new JSONObject(versionChecker);
@@ -66,7 +66,7 @@ public class RepoDatabase extends LitePalSupport {
         return new JSONObject();
     }
 
-    void setVersionChecker(JSONObject versionChecker) {
+    public void setVersionChecker(JSONObject versionChecker) {
         this.versionChecker = versionChecker.toString();
     }
 }

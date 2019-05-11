@@ -1,9 +1,11 @@
-package net.xzos.UpgradeAll;
+package net.xzos.UpgradeAll.Updater.utils;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.util.Log;
 import android.widget.Toast;
+
+import net.xzos.UpgradeAll.data.MyApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,16 +18,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class VersionChecker {
+public class VersionChecker {
 
     private static final String TAG = "VersionChecker";
     private JSONObject versionCheckerJsonObject;
 
-    VersionChecker(JSONObject versionCheckerJsonObject) {
+    public VersionChecker(JSONObject versionCheckerJsonObject) {
         this.versionCheckerJsonObject = versionCheckerJsonObject;
     }
 
-    String getVersion() {
+    public String getVersion() {
         JSONObject versionCheckerJsonObject = this.versionCheckerJsonObject;
         String versionCheckerApi = "";
         String version = null;
@@ -106,7 +108,7 @@ class VersionChecker {
         return magiskVersion;
     }
 
-    String getRegexMatchVersion(String versionString) {
+    public String getRegexMatchVersion(String versionString) {
         String regexString;
         String regexVersion = null;
         try {
