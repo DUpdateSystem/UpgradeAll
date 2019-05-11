@@ -1,8 +1,14 @@
-package net.xzos.UpgradeAll;
+package net.xzos.UpgradeAll.Updater;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import net.xzos.UpgradeAll.Updater.HttpApi.GithubApi;
+import net.xzos.UpgradeAll.Updater.HttpApi.HttpApi;
+import net.xzos.UpgradeAll.Updater.utils.VersionChecker;
+import net.xzos.UpgradeAll.data.MyApplication;
+import net.xzos.UpgradeAll.data.RepoDatabase;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-class Updater {
+public class Updater {
     private static final String TAG = "Updater";
 
     private JSONObject updateJsonData = new JSONObject(); // 存储 Updater 数据
@@ -26,7 +32,7 @@ class Updater {
      * }
      */
 
-    boolean isLatest(int databaseId) {
+    public boolean isLatest(int databaseId) {
         VersionChecker versionChecker = getVersionChecker(databaseId);
         String installedVersion = versionChecker.getRegexMatchVersion(getInstalledVersion(databaseId));
         String latestVersion = versionChecker.getRegexMatchVersion(getLatestVersion(databaseId));
@@ -49,7 +55,7 @@ class Updater {
         }
     }
 
-    void autoRefresh(int databaseId) {
+    public void autoRefresh(int databaseId) {
         // 检查更新时间更新数据
         boolean startRefresh = true;
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
@@ -85,7 +91,7 @@ class Updater {
             refresh(databaseId);
     }
 
-    boolean refresh(int databaseId) {
+    public boolean refresh(int databaseId) {
         /* 强制刷新数据
          * 如果没有该子项，创建一个
          * 如果有，则使用
@@ -148,7 +154,7 @@ class Updater {
         return updateItemJson;
     }
 
-    String getLatestVersion(int databaseId) {
+    public String getLatestVersion(int databaseId) {
         // 获取最新版本号
         JSONObject updateItem;
         HttpApi httpApi = new HttpApi();
@@ -161,7 +167,7 @@ class Updater {
         return httpApi.getVersion(0);
     }
 
-    JSONObject getLatestDownloadUrl(int databaseId) {
+    public JSONObject getLatestDownloadUrl(int databaseId) {
         // 获取最新下载链接
         JSONObject updateItem;
         HttpApi httpApi = new HttpApi();
@@ -174,7 +180,7 @@ class Updater {
         return httpApi.getReleaseDownloadUrl(0);
     }
 
-    String getInstalledVersion(int databaseId) {
+    public String getInstalledVersion(int databaseId) {
         // 获取已安装版本号
         VersionChecker versionChecker = getVersionChecker(databaseId);
         return versionChecker.getVersion();

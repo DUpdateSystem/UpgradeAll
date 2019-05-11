@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll;
+package net.xzos.UpgradeAll.Activity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -11,6 +11,11 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.data.RepoDatabase;
+import net.xzos.UpgradeAll.Updater.HttpApi.GithubApi;
+import net.xzos.UpgradeAll.Updater.utils.VersionChecker;
 
 import org.json.JSONException;
 import org.json.JSONObject;

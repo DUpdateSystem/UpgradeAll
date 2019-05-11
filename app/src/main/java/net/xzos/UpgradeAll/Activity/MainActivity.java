@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll;
+package net.xzos.UpgradeAll.Activity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -14,6 +14,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.data.RepoDatabase;
+import net.xzos.UpgradeAll.viewmodels.UpdateCard;
+import net.xzos.UpgradeAll.adapters.UpdateItemCardAdapter;
 
 import org.litepal.LitePal;
 

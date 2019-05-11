@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll;
+package net.xzos.UpgradeAll.Activity;
 
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -6,6 +6,8 @@ import android.view.MenuItem;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
+
+import net.xzos.UpgradeAll.R;
 
 public class SettingsActivity extends AppCompatActivity {
     @Override
