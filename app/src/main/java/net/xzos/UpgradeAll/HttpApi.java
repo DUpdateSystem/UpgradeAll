@@ -84,7 +84,6 @@ class GithubApi extends HttpApi {
     GithubApi(String api_url) {
         Log.d(TAG, "api_url: " + api_url);
         this.api_url = api_url;
-        flashData();
     }
 
     public void flashData() {

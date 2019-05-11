@@ -28,8 +28,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
 
-    final private Updater updater = MyApplication.getUpdater();
-
     @Override
     protected void onStart() {
         super.onStart();
