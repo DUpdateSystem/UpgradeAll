@@ -177,12 +177,12 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
         holder.versionCheckButton.setVisibility(View.INVISIBLE);
         holder.versionCheckingBar.setVisibility(View.VISIBLE);
         new Thread(() -> {
+            // 刷新数据库
             if (isAuto) {
                 updater.autoRefresh(databaseId);
             } else {
                 updater.refresh(databaseId);
             }
-            // 刷新数据库
             new Handler(Looper.getMainLooper()).post(() -> {
                 holder.versionCheckButton.setVisibility(View.VISIBLE);
                 holder.versionCheckingBar.setVisibility(View.INVISIBLE);

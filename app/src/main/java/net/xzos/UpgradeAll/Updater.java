@@ -53,7 +53,7 @@ class Updater {
         // 检查更新时间更新数据
         boolean startRefresh = true;
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-        int autoRefreshMinute = Integer.parseInt(Objects.requireNonNull(sharedPref.getString("sync_time", "10")));
+        int autoRefreshMinute = Integer.parseInt(Objects.requireNonNull(sharedPref.getString("sync_time", "5")));
         // 默认自动刷新时间 5min
         if (updateJsonData.has(String.valueOf(databaseId))) {
             /* 如果存在数据，
@@ -91,36 +91,35 @@ class Updater {
          * 如果有，则使用
          */
         boolean refreshSuccess;
-        if (updateJsonData.has(String.valueOf(databaseId))) {
-            JSONObject updateItemJson = new JSONObject();
+        JSONObject updateItemJson;
+        try {
+            updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
+        } catch (JSONException e) {
+            Log.d(TAG, "refresh:  更新对象初始化");
+            updateItemJson = newUpdateItem(databaseId);  //  创建更新对象
+        }
+        // 数据刷新
+        HttpApi httpApi = new HttpApi();
+        try {
+            httpApi = (HttpApi) updateItemJson.get("httpApi");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        httpApi.flashData();  // 调用刷新
+        // 检查刷新
+        refreshSuccess = httpApi.isSuccessFlash();
+        if (refreshSuccess) {
             try {
-                updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
+                Log.d(TAG, "refresh:  刷新成功");
+                updateItemJson.put("update_time", Calendar.getInstance());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            HttpApi httpApi = new HttpApi();
-            try {
-                httpApi = (HttpApi) updateItemJson.get("httpApi");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            httpApi.flashData();  // 调用刷新
-            refreshSuccess = httpApi.isSuccessFlash();  // 检查刷新
-            if (refreshSuccess) {
-                try {
-                    Log.d(TAG, "refresh:  刷新成功");
-                    updateItemJson.put("update_time", Calendar.getInstance());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        } else {
-            refreshSuccess = newUpdateItem(databaseId);  //  创建 HttpApi 时会自动刷新初始数据
         }
         return refreshSuccess;
     }
 
-    private boolean newUpdateItem(int databaseId) {
+    private JSONObject newUpdateItem(int databaseId) {
         // 添加一个 更新检查器追踪子项
         RepoDatabase updateItemDatabase = LitePal.find(RepoDatabase.class, databaseId);
         String api = updateItemDatabase.getApi();
@@ -146,7 +145,7 @@ class Updater {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return true;
+        return updateItemJson;
     }
 
     String getLatestVersion(int databaseId) {
