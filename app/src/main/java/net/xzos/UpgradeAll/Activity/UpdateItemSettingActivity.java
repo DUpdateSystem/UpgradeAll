@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.data.RepoDatabase;
 import net.xzos.UpgradeAll.Updater.HttpApi.GithubApi;
-import net.xzos.UpgradeAll.Updater.utils.VersionChecker;
+import net.xzos.UpgradeAll.utils.VersionChecker;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -100,7 +100,7 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
             Spinner apiSpinner = findViewById(R.id.api_spinner);
             String api = apiSpinner.getSelectedItem().toString();
             JSONObject versionChecker = getVersionChecker();
-            boolean addRepoSuccess = addRepoDatabase(name, api, url, versionChecker);
+            boolean addRepoSuccess = addRepoDatabase(databaseId, name, api, url, versionChecker);
             if (addRepoSuccess) {
                 Intent intent = new Intent(UpdateItemSettingActivity.this, MainActivity.class);
                 startActivity(intent);
@@ -139,35 +139,29 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
         return versionChecker;
     }
 
-    boolean addRepoDatabase(String name, String api, String url, JSONObject versionChecker) {
+    boolean addRepoDatabase(int databaseId, String name, String api, String url, JSONObject versionChecker) {
         // TODO: 可被忽略的参数
         if (api.length() != 0 && url.length() != 0) {
+
+            // 数据处理
+            // 判断url是否多余
             if (url.substring(url.length() - 1).equals("/")) {
                 url = url.substring(0, url.length() - 1);
-                // 判断url是否多余 /
             }
-            String repo = "";
-            String api_url = "";
             switch (api.toLowerCase()) {
                 case "github":
-                    String[] apiUrlStringList = GithubApi.getApiUrl(url);
-                    if (apiUrlStringList == null) return false;  // 网址不符合规则返回 false
-                    api_url = apiUrlStringList[0];
-                    repo = apiUrlStringList[1];
+                    if (name.length() == 0) name = new GithubApi(url).getDefaultName();
                     break;
             }
-            if (name.length() == 0) {
-                name = repo;
-                // 如果未自定义名称，则使用仓库名
-            }
-            RepoDatabase repoDatabase = new RepoDatabase();
+            // 如果未自定义名称，则使用仓库名
+
+            // 修改数据库
+            RepoDatabase repoDatabase = LitePal.find(RepoDatabase.class, databaseId);
+            if (repoDatabase == null) repoDatabase = new RepoDatabase();
             // 开启数据库
-            LitePal.deleteAll(RepoDatabase.class, "api_url = ?", api_url);
-            // 删除所有数据库重复项
             repoDatabase.setName(name);
             repoDatabase.setApi(api);
             repoDatabase.setUrl(url);
-            repoDatabase.setApiUrl(api_url);
             repoDatabase.setVersionChecker(versionChecker);
             repoDatabase.save();
             // 将数据存入 RepoDatabase 数据库

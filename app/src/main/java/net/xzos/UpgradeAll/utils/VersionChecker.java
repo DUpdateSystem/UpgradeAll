@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.Updater.utils;
+package net.xzos.UpgradeAll.utils;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -110,14 +110,14 @@ public class VersionChecker {
 
     public String getRegexMatchVersion(String versionString) {
         String regexString;
-        String regexVersion = null;
+        String regexVersion = versionString;
         try {
             regexString = String.valueOf(versionCheckerJsonObject.get("regular"));
         } catch (JSONException e) {
             Log.w(TAG, "数据库项 无regular项, 请检查 versionCheckerJsonObject: " + versionCheckerJsonObject);
             regexString = "\\d+(\\.\\d+)*";
         }
-        if (versionString != null && versionString.length() != 0) {
+        if (versionString != null) {
             Pattern p = Pattern.compile(regexString);
             Matcher m = p.matcher(versionString);
             if (m.find()) {
@@ -126,5 +126,30 @@ public class VersionChecker {
         }
         Log.d(TAG, String.format("getRegexMatchVersion:  原版本号: %s, 处理版本号: %s, 正则规则: %s", versionString, regexVersion, regexString));
         return regexVersion;
+    }
+
+    public static boolean compareVersionNumber(String versionNumber0, String versionNumber1) {
+        /*
+         * 对比 versionNumber0 与 versionNumber1
+         * 若，前者比后者大，则返回 true*/
+        if (versionNumber0 != null && versionNumber1 != null) {
+            if (versionNumber0.equals((versionNumber1))) return true;  // 版本号一致
+            String[] versionNumberList0 = versionNumber0.split("\\.");
+            String[] versionNumberList1 = versionNumber1.split("\\.");
+            int listLength = versionNumberList0.length > versionNumberList1.length ? versionNumberList0.length : versionNumberList1.length;  // 获取较短字符串长度
+            for (int i = 0; i < listLength; i++) {
+                if (Integer.parseInt(versionNumberList0[i]) > Integer.parseInt(versionNumberList1[i])) {
+                    // 若部分版本号大
+                    return true;
+                } else if (Integer.parseInt(versionNumberList0[i]) < Integer.parseInt(versionNumberList1[i])) {
+                    // 若部分版本号小
+                    return false;
+                } else if (i == listLength - 1) {
+                    // 若前缀一致，比较长度
+                    return versionNumber0.length() > versionNumber1.length();
+                }
+            }
+        }
+        return false;
     }
 }
