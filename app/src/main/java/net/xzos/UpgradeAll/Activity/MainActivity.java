@@ -16,10 +16,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.Updater.HttpApi.HttpApi;
+import net.xzos.UpgradeAll.Updater.HttpApi.CustomApi;
 import net.xzos.UpgradeAll.data.RepoDatabase;
 import net.xzos.UpgradeAll.viewmodels.UpdateCard;
 import net.xzos.UpgradeAll.adapters.UpdateItemCardAdapter;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;

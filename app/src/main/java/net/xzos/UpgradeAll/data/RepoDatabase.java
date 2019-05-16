@@ -1,23 +1,23 @@
 package net.xzos.UpgradeAll.data;
 
-import android.util.Log;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.crud.LitePalSupport;
 
 public class RepoDatabase extends LitePalSupport {
-    private static final String TAG = "RepoDatabase";
     private int id;
     private String name;
     private String api;
     private String url; //  方便用户获得源网址
-    private String api_url;
 
     private String versionChecker;
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -48,25 +48,16 @@ public class RepoDatabase extends LitePalSupport {
         this.url = url;
     }
 
-    public String getApiUrl() {
-        return api_url;
-    }
-
-    public void setApiUrl(String api_url) {
-        this.api_url = api_url;
-    }
-
     public JSONObject getVersionChecker() {
         try {
-            Log.d(TAG, "getVersionChecker:  " + versionChecker);
             return new JSONObject(versionChecker);
         } catch (JSONException e) {
-            e.printStackTrace();
+            return null;
         }
-        return new JSONObject();
     }
 
     public void setVersionChecker(JSONObject versionChecker) {
         this.versionChecker = versionChecker.toString();
     }
+
 }

@@ -6,7 +6,7 @@ import android.util.Log;
 
 import net.xzos.UpgradeAll.Updater.HttpApi.GithubApi;
 import net.xzos.UpgradeAll.Updater.HttpApi.HttpApi;
-import net.xzos.UpgradeAll.Updater.utils.VersionChecker;
+import net.xzos.UpgradeAll.utils.VersionChecker;
 import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.data.RepoDatabase;
 
@@ -26,7 +26,7 @@ public class Updater {
 
     /*
      * updateJsonData  = {
-     * databaseId = { "httpApi": httpApi (Class),
+     * databaseId = { "http_api": httpApi (Class),
      *                              "database": updateItemDatabase,
      *                              "update_time": 更新时间戳
      * }
@@ -34,12 +34,9 @@ public class Updater {
 
     public boolean isLatest(int databaseId) {
         VersionChecker versionChecker = getVersionChecker(databaseId);
-        String installedVersion = versionChecker.getRegexMatchVersion(getInstalledVersion(databaseId));
         String latestVersion = versionChecker.getRegexMatchVersion(getLatestVersion(databaseId));
-        if (installedVersion != null && latestVersion != null) {
-            return installedVersion.equals(latestVersion);
-        }
-        return false;
+        String installedVersion = versionChecker.getRegexMatchVersion(getInstalledVersion(databaseId));
+        return VersionChecker.compareVersionNumber(latestVersion, installedVersion);
     }
 
     void refreshAll(boolean isAuto) {
@@ -107,7 +104,7 @@ public class Updater {
         // 数据刷新
         HttpApi httpApi = new HttpApi();
         try {
-            httpApi = (HttpApi) updateItemJson.get("httpApi");
+            httpApi = (HttpApi) updateItemJson.get("http_api");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -129,19 +126,18 @@ public class Updater {
         // 添加一个 更新检查器追踪子项
         RepoDatabase updateItemDatabase = LitePal.find(RepoDatabase.class, databaseId);
         String api = updateItemDatabase.getApi();
-        String apiUrl = updateItemDatabase.getApiUrl();
+        String url = updateItemDatabase.getUrl();
         HttpApi httpApi = new HttpApi();
         switch (api.toLowerCase()) {
             case "github":
-                httpApi = new GithubApi(apiUrl);
+                httpApi = new GithubApi(url);
                 // 发达 API 请求
                 break;
         }
         JSONObject updateItemJson = new JSONObject();
         try {
-            updateItemJson.put("httpApi", httpApi);
+            updateItemJson.put("http_api", httpApi);
             updateItemJson.put("database", updateItemDatabase);
-            updateItemJson.put("update_time", null);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -160,11 +156,11 @@ public class Updater {
         HttpApi httpApi = new HttpApi();
         try {
             updateItem = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
-            httpApi = (HttpApi) updateItem.get("httpApi");
+            httpApi = (HttpApi) updateItem.get("http_api");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return httpApi.getVersion(0);
+        return httpApi.getVersionNumber(0);
     }
 
     public JSONObject getLatestDownloadUrl(int databaseId) {
@@ -173,11 +169,11 @@ public class Updater {
         HttpApi httpApi = new HttpApi();
         try {
             updateItem = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
-            httpApi = (HttpApi) updateItem.get("httpApi");
+            httpApi = (HttpApi) updateItem.get("http_api");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return httpApi.getReleaseDownloadUrl(0);
+        return httpApi.getReleaseDownload(0);
     }
 
     public String getInstalledVersion(int databaseId) {

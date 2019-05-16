@@ -1,37 +1,27 @@
 package net.xzos.UpgradeAll.Updater.HttpApi;
 
-import android.util.Log;
-
 import org.json.JSONObject;
-
-import java.io.IOException;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 
 public class HttpApi {
-
-    private static final String TAG = "HttpApi";
 
     public void flashData() {
     }
 
     public boolean isSuccessFlash() {
-        return false;
+        return getReleaseNum() != 0;
     }
 
-    JSONObject getLatestRelease() {
-        return null;
+    int getReleaseNum() {
+        return 0;
     }
 
-    public String getVersion(int releaseNum) {
+    public String getVersionNumber(int releaseNum) {
         /*返回云端版本号*/
         return null;
     }
 
-    public JSONObject getReleaseDownloadUrl(int releaseNum) {
+    public JSONObject getReleaseDownload(int releaseNum) {
         /*
          * 获取特定版本的下载链接
          *
@@ -43,31 +33,7 @@ public class HttpApi {
         return null;
     }
 
-    int getReleaseNum() {
-        return 0;
-    }
-
-    static String getHttpResponse(String api_url) {
-        String responseString = "";
-        Response response = null;
-        OkHttpClient client = new OkHttpClient();
-        Request.Builder builder = new Request.Builder();
-        builder.url(api_url);
-        Request request = builder.build();
-        try {
-            response = client.newCall(request).execute();
-        } catch (IOException e) {
-            Log.e(TAG, "getHttpResponse:  网络错误");
-        }
-        if (response != null) {
-            try {
-                responseString = response.body() != null ? response.body().string() : "";
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return responseString;
+    public String getDefaultName() {
+        return null;
     }
 }
-
-
