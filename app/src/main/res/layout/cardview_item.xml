@@ -2,21 +2,27 @@
 <com.yanzhenjie.recyclerview.SwipeMenuLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="75dp"
+    android:layout_marginTop="7dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    android:gravity="center"
     app:contentViewId="@+id/item_card_view"
     app:rightViewId="@id/setting_view">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/item_card_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_margin="3dp"
-        app:cardCornerRadius="2dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="0dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:orientation="vertical">
 
             <TextView
@@ -40,15 +46,16 @@
                 android:visibility="invisible" />
 
             <ImageView
-                android:id="@+id/versionCheckTextButton"
+                android:id="@+id/versionCheckButton"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="5dp"
+                android:visibility="invisible"
                 app:srcCompat="@android:color/transparent"
-                tools:ignore="LabelFor" />
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/urlTextView"
@@ -77,7 +84,6 @@
         android:id="@+id/setting_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_margin="3dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -85,10 +91,11 @@
             android:id="@+id/setting_button"
             android:layout_width="65dp"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
+            android:layout_marginStart="5dp"
             android:foreground="?android:attr/selectableItemBackground"
             android:gravity="center"
-            app:cardCornerRadius="2dp">
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -115,16 +122,18 @@
             android:id="@+id/del_button"
             android:layout_width="65dp"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
+            android:layout_marginStart="5dp"
             android:foreground="?android:attr/selectableItemBackground"
             android:gravity="center"
-            app:cardCornerRadius="2dp">
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                tools:ignore="UseCompoundDrawables">
 
                 <ImageView
                     android:layout_width="30dp"

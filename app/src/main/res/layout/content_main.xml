@@ -5,16 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".Activity.MainActivity"
+    tools:context=".activity.MainActivity"
     tools:showIn="@layout/activity_main">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh"
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/item_list_view"
+            android:id="@+id/updateItemRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.Activity;
+package net.xzos.UpgradeAll.activity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -16,14 +16,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.Updater.HttpApi.HttpApi;
-import net.xzos.UpgradeAll.Updater.HttpApi.CustomApi;
-import net.xzos.UpgradeAll.data.RepoDatabase;
-import net.xzos.UpgradeAll.viewmodels.UpdateCard;
 import net.xzos.UpgradeAll.adapters.UpdateItemCardAdapter;
+import net.xzos.UpgradeAll.data.RepoDatabase;
+import net.xzos.UpgradeAll.viewmodels.Repo;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
@@ -31,7 +27,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private List<UpdateCard> updateCardList = new ArrayList<>();
+    private List<Repo> repoList = new ArrayList<>();
     private UpdateItemCardAdapter adapter;
 
     private RecyclerView recyclerView;
@@ -73,11 +69,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        swipeRefresh = findViewById(R.id.swipe_refresh);
+        swipeRefresh = findViewById(R.id.swipeRefresh);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
         swipeRefresh.setOnRefreshListener(this::refreshUpdate);
 
-        recyclerView = findViewById(R.id.item_list_view);
+        recyclerView = findViewById(R.id.updateItemRecyclerView);
 
         setRecyclerView();
     }
@@ -93,13 +89,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshCardView() {
         List<RepoDatabase> repoDatabase = LitePal.findAll(RepoDatabase.class);
-        updateCardList.clear();
+        repoList.clear();
         for (RepoDatabase updateItem : repoDatabase) {
             int databaseId = updateItem.getId();
             String name = updateItem.getName();
             String api = updateItem.getApi();
             String url = updateItem.getUrl();
-            updateCardList.add(new UpdateCard(databaseId, name, url, api));
+            repoList.add(new Repo(databaseId, name, url, api));
         }
         setRecyclerView();
     }
@@ -107,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     private void setRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new UpdateItemCardAdapter(updateCardList);
+        adapter = new UpdateItemCardAdapter(repoList);
         recyclerView.setAdapter(adapter);
     }
 
