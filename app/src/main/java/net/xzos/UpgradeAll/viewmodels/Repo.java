@@ -1,12 +1,12 @@
 package net.xzos.UpgradeAll.viewmodels;
 
-public class UpdateCard {
+public class Repo {
     private int databaseId;
     private String name;
     private String url;
     private String api;
 
-    public UpdateCard(int databaseId, String name, String url, String api) {
+    public Repo(int databaseId, String name, String url, String api) {
         this.databaseId = databaseId;
         this.name = name;
         this.url = url;

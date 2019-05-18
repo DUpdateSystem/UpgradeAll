@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">UpgradeAll</string>
     <string name="app_help">帮助</string>
+    <string name="repo_setting">软件源</string>
     <string name="app_setting">设置</string>
     <string name="title_activity_update_item_settings">Settings</string>
     <!-- support api -->

@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.Activity;
+package net.xzos.UpgradeAll.activity;
 
 import android.os.Bundle;
 import android.view.MenuItem;

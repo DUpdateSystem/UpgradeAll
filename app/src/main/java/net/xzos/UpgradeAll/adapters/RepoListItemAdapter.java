@@ -36,14 +36,14 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAdapter.ViewHolder> {
+public class RepoListItemAdapter extends RecyclerView.Adapter<RepoListItemAdapter.ViewHolder> {
 
-    private List<Repo> mUpdateList;
+    private List<Repo> mRepoList;
 
     final private Updater updater = MyApplication.getUpdater();
 
-    public UpdateItemCardAdapter(List<Repo> updateList) {
-        mUpdateList = updateList;
+    public RepoListItemAdapter(List<Repo> updateList) {
+        mRepoList = updateList;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -78,7 +78,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Repo repo = mUpdateList.get(position);
+        Repo repo = mRepoList.get(position);
         int databaseId = repo.getDatabaseId();
         holder.name.setText(repo.getName());
         holder.api.setText(repo.getApi());
@@ -212,8 +212,9 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
 
     @Override
     public int getItemCount() {
-        return mUpdateList.size();
+        return mRepoList.size();
     }
 
 }
+
 

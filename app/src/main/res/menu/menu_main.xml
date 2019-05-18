@@ -1,11 +1,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="net.xzos.UpgradeAll.Activity.MainActivity">
+    tools:context="net.xzos.UpgradeAll.activity.MainActivity">
     <item
         android:id="@+id/app_help"
         android:orderInCategory="100"
         android:title="@string/app_help"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/repo_setting"
+        android:orderInCategory="100"
+        android:title="@string/repo_setting"
         app:showAsAction="never" />
     <item
         android:id="@+id/app_setting"

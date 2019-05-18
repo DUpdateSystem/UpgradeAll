@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.UpdateItemSettingActivity">
+    tools:context=".activity.UpdateItemSettingActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -86,14 +86,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/versionCheckSpinner"
                 android:layout_alignParentStart="true"
-                android:layout_toStartOf="@+id/versionCheckTextButton"
+                android:layout_toStartOf="@+id/versionCheckButton"
                 android:autofillHints="versionCheckText"
                 android:hint="@string/update_item_setting_editVersionCheckerText"
                 android:inputType="text"
                 tools:targetApi="o" />
 
             <Button
-                android:id="@+id/versionCheckTextButton"
+                android:id="@+id/versionCheckButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/versionCheckSpinner"
@@ -114,7 +114,7 @@
                 android:id="@+id/editVersionCheckRegular"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/versionCheckTextButton"
+                android:layout_below="@+id/versionCheckButton"
                 android:layout_alignParentStart="true"
                 android:layout_toStartOf="@+id/helpImageView"
                 android:autofillHints="versionCheckText"
@@ -127,7 +127,7 @@
                 android:id="@+id/helpImageView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/versionCheckTextButton"
+                android:layout_below="@+id/versionCheckButton"
                 android:layout_alignParentEnd="true"
                 app:srcCompat="@drawable/ic_help"
                 tools:ignore="ContentDescription" />

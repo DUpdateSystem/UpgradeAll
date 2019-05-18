@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.Activity;
+package net.xzos.UpgradeAll.activity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -74,7 +74,7 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
                 editVersionCheckRegular.setText(versionCheckRegular);
         }
         // 以下是按键事件
-        Button versionCheckButton = findViewById(R.id.versionCheckTextButton);
+        Button versionCheckButton = findViewById(R.id.versionCheckButton);
         versionCheckButton.setOnClickListener(v -> {
             // 版本检查设置
             JSONObject versionCheckerJsonObject = getVersionChecker();
