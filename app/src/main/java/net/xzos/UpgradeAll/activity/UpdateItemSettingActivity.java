@@ -10,10 +10,11 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.data.RepoDatabase;
+import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.Updater.HttpApi.GithubApi;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
@@ -29,6 +30,10 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_item_setting);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         // 获取可能来自修改设置项的请求
         Intent intentGetdata = getIntent();
         int databaseId = intentGetdata.getIntExtra("database_id", 0);
@@ -120,7 +125,7 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
         String versionCheckerText = editVersionCheckText.getText().toString();
         String versionCheckerApi = versionCheckSpinner.getSelectedItem().toString();
         String versionCheckerRegular = editVersionCheckRegular.getText().toString();
-        Log.d(TAG, "getVersionChecker:  " + versionCheckerRegular);
+        Log.d(TAG, "getRepoConfig:  " + versionCheckerRegular);
         switch (versionCheckerApi) {
             case "APP 版本":
                 versionCheckerApi = "APP";

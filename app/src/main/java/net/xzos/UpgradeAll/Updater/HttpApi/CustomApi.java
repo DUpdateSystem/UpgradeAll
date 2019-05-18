@@ -18,11 +18,11 @@ public class CustomApi extends HttpApi {
     private static final String TAG = "CustomApi";
 
     private String url;
-    private JSONObject xsoupConfig;
+    private JSONObject repoConfig;
     private Document doc;
 
-    public CustomApi(String url, JSONObject xsoupConfig) {
-        this.xsoupConfig = xsoupConfig;
+    public CustomApi(String url, JSONObject repoConfig) {
+        this.repoConfig = repoConfig;
         this.url = url;
     }
 
@@ -31,7 +31,7 @@ public class CustomApi extends HttpApi {
         String userAgent;
         Document tmpDoc = this.doc;
         try {
-            userAgent = xsoupConfig.getString("user_agent");
+            userAgent = repoConfig.getString("user_agent");
         } catch (JSONException e) {
             Log.w(TAG, "flashData:  未设置 user_agent");
             userAgent = null;
@@ -50,13 +50,13 @@ public class CustomApi extends HttpApi {
         String nameXpath;
         String nameRegex;
         try {
-            nameXpath = this.xsoupConfig.getJSONObject("xpath").getString("name");
+            nameXpath = this.repoConfig.getJSONObject("xpath").getString("name");
         } catch (JSONException e) {
             nameXpath = "";
             Log.e(TAG, "getDefaultName:  name xpath 未设置");
         }
         try {
-            nameRegex = this.xsoupConfig.getJSONObject("regex").getString("name");
+            nameRegex = this.repoConfig.getJSONObject("regex").getString("name");
         } catch (JSONException e) {
             nameRegex = null;
             Log.e(TAG, "getDefaultName:  name regex 未设置");
@@ -80,13 +80,13 @@ public class CustomApi extends HttpApi {
         String releaseNode = getReleaseNodeList().get(releaseNum);
         Document doc = Jsoup.parse(releaseNode);  // 初始化 release 节点
         try {
-            versionNumberXpath = "/html/body" + this.xsoupConfig.getJSONObject("xpath").getJSONObject("release").getJSONObject("attribute").getString("version_number");
+            versionNumberXpath = "/html/body" + this.repoConfig.getJSONObject("xpath").getJSONObject("release").getJSONObject("attribute").getString("version_number");
         } catch (JSONException e) {
             versionNumberXpath = "";
             Log.e(TAG, "getDefaultName:  version_number xpath 未设置");
         }
         try {
-            versionNumberRegex = this.xsoupConfig.getJSONObject("regex").getJSONObject("release").getJSONObject("attribute").getString("version_number");
+            versionNumberRegex = this.repoConfig.getJSONObject("regex").getJSONObject("release").getJSONObject("attribute").getString("version_number");
         } catch (JSONException e) {
             versionNumberRegex = null;
             Log.e(TAG, "getDefaultName:  version_number regex 未设置");
@@ -107,16 +107,16 @@ public class CustomApi extends HttpApi {
         String releaseNode = getReleaseNodeList().get(releaseNum);
         Document doc = Jsoup.parse(releaseNode);  // 初始化 release 节点
         try {
-            JSONObject releaseAssetsJsonObject = this.xsoupConfig.getJSONObject("xpath").getJSONObject("release").getJSONObject("attribute").getJSONObject("assets");
+            JSONObject releaseAssetsJsonObject = this.repoConfig.getJSONObject("xpath").getJSONObject("release").getJSONObject("attribute").getJSONObject("assets");
             fileNameXpath = "/html/body" + releaseAssetsJsonObject.getString("file_name");
             fileUrlXpath = "/html/body" + releaseAssetsJsonObject.getString("download_url");
         } catch (JSONException e) {
             fileNameXpath = "";
             fileUrlXpath = "";
-            Log.e(TAG, String.format("getReleaseDownload: xsoupConfig: %s", this.xsoupConfig));
+            Log.e(TAG, String.format("getReleaseDownload: repoConfig: %s", this.repoConfig));
         }
         try {
-            JSONObject releaseAssetsJsonObject = this.xsoupConfig.getJSONObject("regex").getJSONObject("release").getJSONObject("attribute").getJSONObject("assets");
+            JSONObject releaseAssetsJsonObject = this.repoConfig.getJSONObject("regex").getJSONObject("release").getJSONObject("attribute").getJSONObject("assets");
             fileNameRegex = releaseAssetsJsonObject.getString("file_name");
         } catch (JSONException e) {
             fileNameRegex = null;
@@ -140,7 +140,7 @@ public class CustomApi extends HttpApi {
         String releaseNodeXpath;
         List<String> releaseNodeList;
         try {
-            releaseNodeXpath = this.xsoupConfig.getJSONObject("xpath").getJSONObject("release").getString("release_node");
+            releaseNodeXpath = this.repoConfig.getJSONObject("xpath").getJSONObject("release").getString("release_node");
         } catch (JSONException e) {
             releaseNodeXpath = "";
             Log.e(TAG, "getDefaultName:  release_node 未设置");

@@ -24,7 +24,7 @@ import net.xzos.UpgradeAll.activity.UpdateItemSettingActivity;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.Updater.Updater;
 import net.xzos.UpgradeAll.data.MyApplication;
-import net.xzos.UpgradeAll.data.RepoDatabase;
+import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.viewmodels.Repo;
 
 import org.json.JSONException;
@@ -63,8 +63,8 @@ public class RepoListItemAdapter extends RecyclerView.Adapter<RepoListItemAdapte
             api = view.findViewById(R.id.apiTextView);
             versionCheckingBar = view.findViewById(R.id.versionCheckingBar);
             versionCheckButton = view.findViewById(R.id.versionCheckButton);
-            delButton = view.findViewById(R.id.del_button);
-            settingButton = view.findViewById(R.id.setting_button);
+            delButton = view.findViewById(R.id.delButton);
+            settingButton = view.findViewById(R.id.settingButton);
             updateItemCardList = view.findViewById(R.id.updateItemRecyclerView);
         }
     }
@@ -92,13 +92,13 @@ public class RepoListItemAdapter extends RecyclerView.Adapter<RepoListItemAdapte
             dialog.show();
 
             // 显示本地版本号
-            TextView cloudReleaseTextView = dialog.getWindow().findViewById(R.id.cloud_release_text_view);
+            TextView cloudReleaseTextView = dialog.getWindow().findViewById(R.id.cloudReleaseTextView);
             String latestVersion = updater.getLatestVersion(databaseId);
             if (latestVersion != null)
                 cloudReleaseTextView.setText(latestVersion);
             else
                 cloudReleaseTextView.setText("获取失败");
-            TextView localReleaseTextView = dialog.getWindow().findViewById(R.id.local_release_text_view);
+            TextView localReleaseTextView = dialog.getWindow().findViewById(R.id.localReleaseTextView);
             String installedVersion = updater.getInstalledVersion(databaseId);
             if (installedVersion != null)
                 localReleaseTextView.setText(installedVersion);

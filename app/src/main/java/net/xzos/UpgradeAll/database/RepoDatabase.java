@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.data;
+package net.xzos.UpgradeAll.database;
 
 import org.json.JSONException;
 import org.json.JSONObject;

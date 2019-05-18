@@ -11,6 +11,6 @@ public class RepoSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_repo_setting);
+        setContentView(R.layout.activity_list);
     }
 }

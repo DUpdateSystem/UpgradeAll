@@ -21,7 +21,7 @@
             tools:ignore="ContentDescription" />
 
         <TextView
-            android:id="@+id/cloud_release_text_view"
+            android:id="@+id/cloudReleaseTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
@@ -44,7 +44,7 @@
             tools:ignore="ContentDescription" />
 
         <TextView
-            android:id="@+id/local_release_text_view"
+            android:id="@+id/localReleaseTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
