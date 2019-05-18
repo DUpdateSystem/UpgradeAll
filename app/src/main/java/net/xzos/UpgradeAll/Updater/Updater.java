@@ -6,9 +6,9 @@ import android.util.Log;
 
 import net.xzos.UpgradeAll.Updater.HttpApi.GithubApi;
 import net.xzos.UpgradeAll.Updater.HttpApi.HttpApi;
+import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 import net.xzos.UpgradeAll.data.MyApplication;
-import net.xzos.UpgradeAll.data.RepoDatabase;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -124,9 +124,9 @@ public class Updater {
 
     private JSONObject newUpdateItem(int databaseId) {
         // 添加一个 更新检查器追踪子项
-        RepoDatabase updateItemDatabase = LitePal.find(RepoDatabase.class, databaseId);
-        String api = updateItemDatabase.getApi();
-        String url = updateItemDatabase.getUrl();
+        RepoDatabase repoDatabase = LitePal.find(RepoDatabase.class, databaseId);
+        String api = repoDatabase.getApi();
+        String url = repoDatabase.getUrl();
         HttpApi httpApi = new HttpApi();
         switch (api.toLowerCase()) {
             case "github":
@@ -137,7 +137,7 @@ public class Updater {
         JSONObject updateItemJson = new JSONObject();
         try {
             updateItemJson.put("http_api", httpApi);
-            updateItemJson.put("database", updateItemDatabase);
+            updateItemJson.put("database", repoDatabase);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -184,18 +184,18 @@ public class Updater {
 
     private VersionChecker getVersionChecker(int databaseId) {
         JSONObject updateItem = new JSONObject();
-        RepoDatabase updateItemDatabase = new RepoDatabase();
+        RepoDatabase repoDatabase = new RepoDatabase();
         try {
             updateItem = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
         } catch (JSONException e) {
             e.printStackTrace();
         }
         try {
-            updateItemDatabase = (RepoDatabase) updateItem.get("database");
+            repoDatabase = (RepoDatabase) updateItem.get("database");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        JSONObject versionCheckerJsonObject = updateItemDatabase.getVersionChecker();
+        JSONObject versionCheckerJsonObject = repoDatabase.getVersionChecker();
         // 获取数据库 VersionChecker 数据
         return new VersionChecker(versionCheckerJsonObject);
     }

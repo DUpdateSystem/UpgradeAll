@@ -3,7 +3,6 @@ package net.xzos.UpgradeAll.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -17,7 +16,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.adapters.UpdateItemCardAdapter;
-import net.xzos.UpgradeAll.data.RepoDatabase;
+import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.viewmodels.Repo;
 
 import org.litepal.LitePal;
@@ -42,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_list);
         // toolbar 点击事件
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         // tab添加事件
-        FloatingActionButton fab = findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.addFab);
         fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, UpdateItemSettingActivity.class);
             startActivity(intent);
@@ -133,10 +132,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.app_setting:
                 Intent intent1 = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent1);
-                return true;
-            case android.R.id.home:
-                Log.d(TAG, "onOptionsItemSelected:  Back");
-                onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

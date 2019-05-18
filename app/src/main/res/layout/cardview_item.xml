@@ -88,7 +88,7 @@
         android:orientation="horizontal">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/setting_button"
+            android:id="@+id/settingButton"
             android:layout_width="65dp"
             android:layout_height="match_parent"
             android:layout_marginStart="5dp"
@@ -119,7 +119,7 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/del_button"
+            android:id="@+id/delButton"
             android:layout_width="65dp"
             android:layout_height="match_parent"
             android:layout_marginStart="5dp"
