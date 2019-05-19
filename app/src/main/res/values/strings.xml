@@ -1,9 +1,8 @@
 <resources>
     <string name="app_name">UpgradeAll</string>
-    <string name="app_help">帮助</string>
+    <string name="help">帮助</string>
     <string name="repo_setting">软件源</string>
-    <string name="app_setting">设置</string>
-    <string name="title_activity_update_item_settings">Settings</string>
+    <string name="setting">设置</string>
     <!-- support api -->
     <string-array name="http_support_api">
         <item>
@@ -43,5 +42,7 @@
     <string name="dialog_version_releaseTextView">最新版本的云端文件</string>
     <string name="dialog_version_cloud_release_text_view">正在刷新</string>
     <string name="update_item_card_view_setting_button">修改</string>
+
+    <string name="dialog_repo_config_edit_text">第三方源的配置文本</string>
 
 </resources>

@@ -36,7 +36,7 @@ public class Updater {
         VersionChecker versionChecker = getVersionChecker(databaseId);
         String latestVersion = versionChecker.getRegexMatchVersion(getLatestVersion(databaseId));
         String installedVersion = versionChecker.getRegexMatchVersion(getInstalledVersion(databaseId));
-        return VersionChecker.compareVersionNumber(latestVersion, installedVersion);
+        return VersionChecker.compareVersionNumber(installedVersion, latestVersion);
     }
 
     void refreshAll(boolean isAuto) {
@@ -99,7 +99,7 @@ public class Updater {
             updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
         } catch (JSONException e) {
             Log.d(TAG, "refresh:  更新对象初始化");
-            updateItemJson = newUpdateItem(databaseId);  //  创建更新对象
+            updateItemJson = renewUpdateItem(databaseId);  //  创建更新对象
         }
         // 数据刷新
         HttpApi httpApi = new HttpApi();
@@ -122,16 +122,16 @@ public class Updater {
         return refreshSuccess;
     }
 
-    private JSONObject newUpdateItem(int databaseId) {
+    public JSONObject renewUpdateItem(int databaseId) {
         // 添加一个 更新检查器追踪子项
         RepoDatabase repoDatabase = LitePal.find(RepoDatabase.class, databaseId);
         String api = repoDatabase.getApi();
         String url = repoDatabase.getUrl();
         HttpApi httpApi = new HttpApi();
+        // 新建 HttpApi 对象
         switch (api.toLowerCase()) {
             case "github":
                 httpApi = new GithubApi(url);
-                // 发达 API 请求
                 break;
         }
         JSONObject updateItemJson = new JSONObject();
@@ -142,6 +142,7 @@ public class Updater {
             e.printStackTrace();
         }
         Log.d(TAG, "autoRefresh:  json" + updateItemJson);
+        updateJsonData.remove(String.valueOf(databaseId));
         try {
             updateJsonData.put(String.valueOf(databaseId), updateItemJson);
         } catch (JSONException e) {

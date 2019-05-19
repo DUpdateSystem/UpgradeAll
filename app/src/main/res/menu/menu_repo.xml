@@ -7,14 +7,5 @@
         android:orderInCategory="100"
         android:title="@string/help"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/repo_setting"
-        android:orderInCategory="100"
-        android:title="@string/repo_setting"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/app_setting"
-        android:orderInCategory="100"
-        android:title="@string/setting"
-        app:showAsAction="never" />
 </menu>
+

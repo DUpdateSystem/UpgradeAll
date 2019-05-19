@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -14,6 +15,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.Updater.HttpApi.GithubApi;
 import net.xzos.UpgradeAll.utils.VersionChecker;
@@ -26,6 +28,7 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
 
     private static final String TAG = "UpdateItemSetting";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,8 +38,8 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         // 获取可能来自修改设置项的请求
-        Intent intentGetdata = getIntent();
-        int databaseId = intentGetdata.getIntExtra("database_id", 0);
+        Intent intentGetData = getIntent();
+        int databaseId = intentGetData.getIntExtra("database_id", 0);
         if (databaseId != 0) {
             RepoDatabase database = LitePal.find(RepoDatabase.class, databaseId);
             EditText editName = findViewById(R.id.editName);
@@ -107,13 +110,24 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
             JSONObject versionChecker = getVersionChecker();
             boolean addRepoSuccess = addRepoDatabase(databaseId, name, api, url, versionChecker);
             if (addRepoSuccess) {
-                Intent intent = new Intent(UpdateItemSettingActivity.this, MainActivity.class);
-                startActivity(intent);
+                MyApplication.getUpdater().renewUpdateItem(databaseId);
+                // 强行刷新被修改的子项
+                onBackPressed();
                 // 跳转主页面
             } else {
                 Toast.makeText(UpdateItemSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private JSONObject getVersionChecker() {
