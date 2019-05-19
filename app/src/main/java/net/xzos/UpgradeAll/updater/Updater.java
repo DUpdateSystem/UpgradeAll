@@ -1,11 +1,11 @@
-package net.xzos.UpgradeAll.Updater;
+package net.xzos.UpgradeAll.updater;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import net.xzos.UpgradeAll.Updater.HttpApi.GithubApi;
-import net.xzos.UpgradeAll.Updater.HttpApi.HttpApi;
+import net.xzos.UpgradeAll.updater.HttpApi.GithubApi;
+import net.xzos.UpgradeAll.updater.HttpApi.HttpApi;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 import net.xzos.UpgradeAll.data.MyApplication;

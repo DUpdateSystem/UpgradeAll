@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.UpdateItemSettingActivity">
+    tools:context=".activity.UpdaterSettingActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/basicInfoTextView"
                 android:autofillHints="updater_name"
-                android:hint="@string/update_item_setting_editName"
+                android:hint="@string/name"
                 android:inputType="text"
                 tools:targetApi="o" />
 
@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/editName"
                 android:autofillHints="url"
-                android:hint="@string/update_item_setting_urlEdit"
+                android:hint="@string/url"
                 android:inputType="textUri"
                 tools:targetApi="o" />
 
@@ -86,14 +86,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/versionCheckSpinner"
                 android:layout_alignParentStart="true"
-                android:layout_toStartOf="@+id/versionCheckButton"
+                android:layout_toStartOf="@+id/statusCheckButton"
                 android:autofillHints="versionCheckText"
                 android:hint="@string/update_item_setting_editVersionCheckerText"
                 android:inputType="text"
                 tools:targetApi="o" />
 
             <Button
-                android:id="@+id/versionCheckButton"
+                android:id="@+id/statusCheckButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/versionCheckSpinner"
@@ -114,7 +114,7 @@
                 android:id="@+id/editVersionCheckRegular"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/versionCheckButton"
+                android:layout_below="@+id/statusCheckButton"
                 android:layout_alignParentStart="true"
                 android:layout_toStartOf="@+id/helpImageView"
                 android:autofillHints="versionCheckText"
@@ -127,7 +127,7 @@
                 android:id="@+id/helpImageView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/versionCheckButton"
+                android:layout_below="@+id/statusCheckButton"
                 android:layout_alignParentEnd="true"
                 app:srcCompat="@drawable/ic_help"
                 tools:ignore="ContentDescription" />
@@ -137,7 +137,7 @@
             android:id="@+id/addButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/update_item_setting_add_button" />
+            android:text="@string/add" />
 
     </LinearLayout>
 

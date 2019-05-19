@@ -6,13 +6,35 @@
         <item name="colorPrimary">@color/colorPrimary</item>
     </style>
 
+    <style name="DialogStyle" parent="Theme.AppCompat.Dialog">
+        <!--设置dialog的背景-->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!--设置Dialog的windowFrame框为无-->
+        <item name="android:windowFrame">@null</item>
+        <!--设置无标题-->
+        <item name="android:windowNoTitle">true</item>
+        <!--是否浮现在activity之上-->
+        <item name="android:windowIsFloating">true</item>
+        <!--是否半透明-->
+        <item name="android:windowIsTranslucent">true</item>
+        <!--设置窗口内容不覆盖-->
+        <item name="android:windowContentOverlay">@null</item>
+        <!--设置动画，在这里使用让它继承系统的Animation.Dialog-->
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <!--背景是否模糊显示-->
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+
     <style name="Divider">
-        <item name="android:background">?android:attr/listDivider</item> //you can give your color here. that will change all divider color in your app.
+        <item name="android:background">?android:attr/listDivider</item>
+        //you can give your color here. that will change all divider color in your app.
     </style>
 
     <style name="Divider.Horizontal" parent="Divider">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1dp</item> // You can change thickness here.
+        <item name="android:layout_height">1dp</item>
+        // You can change thickness here.
 
     </style>
 

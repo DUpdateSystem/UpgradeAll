@@ -19,13 +19,12 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import net.xzos.UpgradeAll.activity.MainActivity;
-import net.xzos.UpgradeAll.activity.UpdateItemSettingActivity;
+import net.xzos.UpgradeAll.activity.UpdaterSettingActivity;
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.Updater.Updater;
+import net.xzos.UpgradeAll.updater.Updater;
 import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.viewmodels.Repo;
+import net.xzos.UpgradeAll.viewmodels.ItemCardView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,12 +37,12 @@ import java.util.List;
 
 public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAdapter.ViewHolder> {
 
-    private List<Repo> mUpdateList;
+    private List<ItemCardView> mItemCardViewList;
 
     final private Updater updater = MyApplication.getUpdater();
 
-    public UpdateItemCardAdapter(List<Repo> updateList) {
-        mUpdateList = updateList;
+    public UpdateItemCardAdapter(List<ItemCardView> updateList) {
+        mItemCardViewList = updateList;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -61,8 +60,8 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
             name = view.findViewById(R.id.nameTextView);
             url = view.findViewById(R.id.urlTextView);
             api = view.findViewById(R.id.apiTextView);
-            versionCheckingBar = view.findViewById(R.id.versionCheckingBar);
-            versionCheckButton = view.findViewById(R.id.versionCheckButton);
+            versionCheckingBar = view.findViewById(R.id.statusChangingBar);
+            versionCheckButton = view.findViewById(R.id.statusCheckButton);
             delButton = view.findViewById(R.id.delButton);
             settingButton = view.findViewById(R.id.settingButton);
             updateItemCardList = view.findViewById(R.id.updateItemRecyclerView);
@@ -78,11 +77,11 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Repo repo = mUpdateList.get(position);
-        int databaseId = repo.getDatabaseId();
-        holder.name.setText(repo.getName());
-        holder.api.setText(repo.getApi());
-        holder.url.setText(repo.getUrl());
+        ItemCardView itemCardView = mItemCardViewList.get(position);
+        int databaseId = itemCardView.getDatabaseId();
+        holder.name.setText(itemCardView.getName());
+        holder.api.setText(itemCardView.getApi());
+        holder.url.setText(itemCardView.getUrl());
         refreshUpdater(true, databaseId, holder);
 
         // 单击展开 Release 详情页
@@ -156,7 +155,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
         });
         // 修改按钮
         holder.settingButton.setOnClickListener(v -> {
-            Intent intent = new Intent(holder.settingButton.getContext(), UpdateItemSettingActivity.class);
+            Intent intent = new Intent(holder.settingButton.getContext(), UpdaterSettingActivity.class);
             intent.putExtra("database_id", databaseId);
             holder.settingButton.getContext().startActivity(intent);
         });
@@ -165,11 +164,10 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
             // 删除数据库
             LitePal.delete(RepoDatabase.class, databaseId);
             // 删除指定数据库
-            Intent intent = new Intent(holder.delButton.getContext(), MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            holder.delButton.getContext().startActivity(intent);
-            // 重新跳转刷新界面
-            // TODO: 需要优化刷新方法
+            mItemCardViewList.remove(holder.getAdapterPosition());
+            notifyItemRemoved(holder.getAdapterPosition());
+            notifyItemRangeChanged(holder.getAdapterPosition(),mItemCardViewList.size());
+            // 删除 CardView
         });
     }
 
@@ -212,7 +210,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
 
     @Override
     public int getItemCount() {
-        return mUpdateList.size();
+        return mItemCardViewList.size();
     }
 
 }

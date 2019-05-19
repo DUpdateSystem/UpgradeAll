@@ -8,9 +8,9 @@
         android:title="@string/help"
         app:showAsAction="never" />
     <item
-        android:id="@+id/repo_setting"
+        android:id="@+id/hub_list"
         android:orderInCategory="100"
-        android:title="@string/repo_setting"
+        android:title="@string/hub_list"
         app:showAsAction="never" />
     <item
         android:id="@+id/app_setting"

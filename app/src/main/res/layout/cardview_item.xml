@@ -35,7 +35,7 @@
                 tools:text="ExampleName" />
 
             <ProgressBar
-                android:id="@+id/versionCheckingBar"
+                android:id="@+id/statusChangingBar"
                 style="?android:attr/progressBarStyle"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
@@ -46,13 +46,13 @@
                 android:visibility="invisible" />
 
             <ImageView
-                android:id="@+id/versionCheckButton"
+                android:id="@+id/statusCheckButton"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
+                android:layout_alignEnd="@+id/statusChangingBar"
                 android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
                 android:layout_marginTop="5dp"
-                android:layout_marginEnd="5dp"
+                android:layout_marginEnd="0dp"
                 android:visibility="invisible"
                 app:srcCompat="@android:color/transparent"
                 tools:ignore="ContentDescription" />
@@ -64,7 +64,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_alignParentBottom="true"
                 android:onClick="onClick"
-                tools:text="https://github.com/owner/repo" />
+                tools:text="https://github.com/owner/itemCardView" />
 
             <TextView
                 android:id="@+id/apiTextView"
@@ -144,7 +144,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/update_item_card_view_del_button" />
+                    android:text="@string/delete" />
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>

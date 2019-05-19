@@ -17,7 +17,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.adapters.UpdateItemCardAdapter;
 import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.viewmodels.Repo;
+import net.xzos.UpgradeAll.viewmodels.ItemCardView;
 
 import org.litepal.LitePal;
 
@@ -26,45 +26,28 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private List<Repo> repoList = new ArrayList<>();
+    private List<ItemCardView> itemCardViewList = new ArrayList<>();
     private UpdateItemCardAdapter adapter;
 
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onPostResume() {
+        super.onPostResume();
         refreshCardView();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
-        // toolbar 点击事件
+        setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setOnMenuItemClickListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.app_help:
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse("https://xzos.net/upgradeall-readme/"));
-                    intent = Intent.createChooser(intent, "请选择浏览器");
-                    startActivity(intent);
-                    return true;
-                case R.id.app_setting:
-                    Intent intent1 = new Intent(MainActivity.this, SettingsActivity.class);
-                    startActivity(intent1);
-                    return true;
-                default:
-                    return false;
-            }
-        });
         // tab添加事件
         FloatingActionButton fab = findViewById(R.id.addFab);
         fab.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, UpdateItemSettingActivity.class);
+            Intent intent = new Intent(MainActivity.this, UpdaterSettingActivity.class);
             startActivity(intent);
         });
 
@@ -88,13 +71,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshCardView() {
         List<RepoDatabase> repoDatabase = LitePal.findAll(RepoDatabase.class);
-        repoList.clear();
+        itemCardViewList.clear();
         for (RepoDatabase updateItem : repoDatabase) {
             int databaseId = updateItem.getId();
             String name = updateItem.getName();
             String api = updateItem.getApi();
             String url = updateItem.getUrl();
-            repoList.add(new Repo(databaseId, name, url, api));
+            itemCardViewList.add(new ItemCardView(databaseId, name, url, api));
         }
         setRecyclerView();
     }
@@ -102,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     private void setRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new UpdateItemCardAdapter(repoList);
+        adapter = new UpdateItemCardAdapter(itemCardViewList);
         recyclerView.setAdapter(adapter);
     }
 
@@ -121,17 +104,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        Intent intent;
 
         switch (id) {
             case R.id.app_help:
-                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse("https://xzos.net/upgradeall-readme/"));
                 intent = Intent.createChooser(intent, "请选择浏览器");
                 startActivity(intent);
                 return true;
+            case R.id.hub_list:
+                intent = new Intent(MainActivity.this, HubListActivity.class);
+                startActivity(intent);
+                return true;
             case R.id.app_setting:
-                Intent intent1 = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent1);
+                intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
