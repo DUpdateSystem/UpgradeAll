@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/basicInfoTextView"
-                android:autofillHints="name"
+                android:autofillHints="updater_name"
                 android:hint="@string/update_item_setting_editName"
                 android:inputType="text"
                 tools:targetApi="o" />

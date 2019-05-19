@@ -15,6 +15,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -135,7 +136,9 @@ public class VersionChecker {
         if (versionNumber0 != null && versionNumber1 != null) {
             if (versionNumber0.equals((versionNumber1))) return true;  // 版本号一致
             String[] versionNumberList0 = versionNumber0.split("\\.");
+            Log.d(TAG, "compareVersionNumber:  List0: " + Arrays.toString(versionNumberList0));
             String[] versionNumberList1 = versionNumber1.split("\\.");
+            Log.d(TAG, "compareVersionNumber:  List1: " + Arrays.toString(versionNumberList1));
             int listLength = versionNumberList0.length > versionNumberList1.length ? versionNumberList0.length : versionNumberList1.length;  // 获取较短字符串长度
             for (int i = 0; i < listLength; i++) {
                 if (Integer.parseInt(versionNumberList0[i]) > Integer.parseInt(versionNumberList1[i])) {
