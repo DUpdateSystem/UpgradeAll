@@ -16,10 +16,14 @@
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="m">
-        <activity android:name=".activity.RepoSettingActivity" />
+
+        <activity android:name=".activity.HubListActivity" />
+        <activity
+            android:name=".activity.HubSettingActivity"
+            android:theme="@style/DialogStyle" />
         <activity
             android:name=".activity.SettingsActivity"
-            android:label="@string/title_activity_settings" />
+            android:label="@string/setting" />
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
@@ -31,7 +35,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.UpdateItemSettingActivity" />
+        <activity android:name=".activity.UpdaterSettingActivity" />
     </application>
 
 </manifest>

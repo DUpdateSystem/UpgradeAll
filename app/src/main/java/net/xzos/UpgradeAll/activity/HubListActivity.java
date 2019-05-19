@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -15,52 +15,40 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.adapters.UpdateItemCardAdapter;
-import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.viewmodels.Repo;
+import net.xzos.UpgradeAll.adapters.HubItemAdapter;
+import net.xzos.UpgradeAll.database.HubDatabase;
+import net.xzos.UpgradeAll.viewmodels.ItemCardView;
 
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RepoSettingActivity extends AppCompatActivity {
-    private static final String TAG = "RepoSettingActivity";
-    private List<Repo> repoList = new ArrayList<>();
-    private UpdateItemCardAdapter adapter;
+public class HubListActivity extends AppCompatActivity {
+    private List<ItemCardView> itemCardViewList = new ArrayList<>();
+    private HubItemAdapter adapter;
 
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onPostResume() {
+        super.onPostResume();
         refreshCardView();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
+        setContentView(R.layout.activity_hub);
         // toolbar 点击事件
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setOnMenuItemClickListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.app_help:
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse("https://xzos.net/upgradeall-readme/"));
-                    intent = Intent.createChooser(intent, "请选择浏览器");
-                    startActivity(intent);
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         // tab添加事件
         FloatingActionButton fab = findViewById(R.id.addFab);
-        fab.setOnClickListener(view -> {
-        });
+        fab.setOnClickListener(view -> startActivity(new Intent(HubListActivity.this, HubSettingActivity.class)));
 
         swipeRefresh = findViewById(R.id.swipeRefresh);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
@@ -81,14 +69,12 @@ public class RepoSettingActivity extends AppCompatActivity {
     }
 
     private void refreshCardView() {
-        List<RepoDatabase> repoDatabase = LitePal.findAll(RepoDatabase.class);
-        repoList.clear();
-        for (RepoDatabase updateItem : repoDatabase) {
+        List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
+        itemCardViewList.clear();
+        for (HubDatabase updateItem : hubDatabase) {
             int databaseId = updateItem.getId();
             String name = updateItem.getName();
-            String api = updateItem.getApi();
-            String url = updateItem.getUrl();
-            repoList.add(new Repo(databaseId, name, url, api));
+            itemCardViewList.add(new ItemCardView(databaseId, name, "", ""));
         }
         setRecyclerView();
     }
@@ -96,7 +82,7 @@ public class RepoSettingActivity extends AppCompatActivity {
     private void setRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new UpdateItemCardAdapter(repoList);
+        adapter = new HubItemAdapter(itemCardViewList);
         recyclerView.setAdapter(adapter);
     }
 
@@ -119,8 +105,8 @@ public class RepoSettingActivity extends AppCompatActivity {
         switch (id) {
             case R.id.app_help:
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://xzos.net/upgradeall-readme/"));
-                intent = Intent.createChooser(intent, "请选择浏览器");
+                intent.setData(Uri.parse("https://xzos.net/upgradeall-readme/"));  //TODO: 自定义源帮助文档
+                intent = Intent.createChooser(intent, "请选择浏览器以查看帮助文档");
                 startActivity(intent);
                 return true;
             case android.R.id.home:

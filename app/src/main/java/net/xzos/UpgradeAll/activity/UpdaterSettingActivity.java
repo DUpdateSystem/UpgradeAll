@@ -17,14 +17,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.Updater.HttpApi.GithubApi;
+import net.xzos.UpgradeAll.updater.HttpApi.GithubApi;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
-public class UpdateItemSettingActivity extends AppCompatActivity {
+public class UpdaterSettingActivity extends AppCompatActivity {
 
     private static final String TAG = "UpdateItemSetting";
 
@@ -35,6 +35,7 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_update_item_setting);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
+            actionBar.setTitle(R.string.add);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         // 获取可能来自修改设置项的请求
@@ -82,21 +83,21 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
                 editVersionCheckRegular.setText(versionCheckRegular);
         }
         // 以下是按键事件
-        Button versionCheckButton = findViewById(R.id.versionCheckButton);
+        Button versionCheckButton = findViewById(R.id.statusCheckButton);
         versionCheckButton.setOnClickListener(v -> {
             // 版本检查设置
             JSONObject versionCheckerJsonObject = getVersionChecker();
             VersionChecker versionChecker = new VersionChecker(versionCheckerJsonObject);
             String appVersion = versionChecker.getVersion();
             if (appVersion != null) {
-                Toast.makeText(UpdateItemSettingActivity.this, "version: " + appVersion, Toast.LENGTH_SHORT).show();
+                Toast.makeText(UpdaterSettingActivity.this, "version: " + appVersion, Toast.LENGTH_SHORT).show();
             }
         });
         ImageView helpImageView = findViewById(R.id.helpImageView);
         helpImageView.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse("https://xzos.net/regular-expression"));
-            intent = Intent.createChooser(intent, "请选择浏览器查看帮助文档");
+            intent = Intent.createChooser(intent, "请选择浏览器以查看帮助文档");
             startActivity(intent);
         });
         Button addButton = findViewById(R.id.addButton);
@@ -115,7 +116,7 @@ public class UpdateItemSettingActivity extends AppCompatActivity {
                 onBackPressed();
                 // 跳转主页面
             } else {
-                Toast.makeText(UpdateItemSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
+                Toast.makeText(UpdaterSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
             }
         });
     }

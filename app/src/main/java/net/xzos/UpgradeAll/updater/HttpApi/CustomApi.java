@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.Updater.HttpApi;
+package net.xzos.UpgradeAll.updater.HttpApi;
 
 import android.util.Log;
 
