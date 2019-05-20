@@ -4,9 +4,12 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import net.xzos.UpgradeAll.updater.HttpApi.GithubApi;
-import net.xzos.UpgradeAll.updater.HttpApi.HttpApi;
+import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.database.HubDatabase;
+import net.xzos.UpgradeAll.updater.api.Api;
+import net.xzos.UpgradeAll.updater.api.GithubApi;
 import net.xzos.UpgradeAll.database.RepoDatabase;
+import net.xzos.UpgradeAll.updater.api.WebCrawlerApi;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 import net.xzos.UpgradeAll.data.MyApplication;
 
@@ -102,15 +105,15 @@ public class Updater {
             updateItemJson = renewUpdateItem(databaseId);  //  创建更新对象
         }
         // 数据刷新
-        HttpApi httpApi = new HttpApi();
+        Api api = new Api();
         try {
-            httpApi = (HttpApi) updateItemJson.get("http_api");
+            api = (Api) updateItemJson.get("http_api");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        httpApi.flashData();  // 调用刷新
+        api.flashData();  // 调用刷新
         // 检查刷新
-        refreshSuccess = httpApi.isSuccessFlash();
+        refreshSuccess = api.isSuccessFlash();
         if (refreshSuccess) {
             try {
                 Log.d(TAG, "refresh:  刷新成功");
@@ -125,14 +128,27 @@ public class Updater {
     public JSONObject renewUpdateItem(int databaseId) {
         // 添加一个 更新检查器追踪子项
         RepoDatabase repoDatabase = LitePal.find(RepoDatabase.class, databaseId);
-        String api = repoDatabase.getApi();
+        String apiUuid = repoDatabase.getApiUuid();
+        Log.d(TAG, "renewUpdateItem:  uuid: " + apiUuid);
+        if (apiUuid == null) {
+            repoDatabase.setApiUuid(MyApplication.getContext().getString(R.string.github_uuid));
+            repoDatabase.save();
+        }
         String url = repoDatabase.getUrl();
-        HttpApi httpApi = new HttpApi();
-        // 新建 HttpApi 对象
-        switch (api.toLowerCase()) {
-            case "github":
-                httpApi = new GithubApi(url);
-                break;
+        Api httpApi = new Api();
+        // 新建 Api 对象
+        if (MyApplication.getContext().getString(R.string.github_uuid).equals(apiUuid)) {
+            httpApi = new GithubApi(url);
+        } else {
+            List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
+            JSONObject hubConfig = null;
+            for (HubDatabase hubItem : hubDatabase) {
+                if (hubItem.getUuid().equals(apiUuid)) {
+                    hubConfig = hubItem.getRepoConfig();
+                }
+                if (hubConfig != null)
+                    httpApi = new WebCrawlerApi(url, hubConfig);
+            }
         }
         JSONObject updateItemJson = new JSONObject();
         try {
@@ -154,27 +170,27 @@ public class Updater {
     public String getLatestVersion(int databaseId) {
         // 获取最新版本号
         JSONObject updateItem;
-        HttpApi httpApi = new HttpApi();
+        Api api = new Api();
         try {
             updateItem = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
-            httpApi = (HttpApi) updateItem.get("http_api");
+            api = (Api) updateItem.get("http_api");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return httpApi.getVersionNumber(0);
+        return api.getVersionNumber(0);
     }
 
     public JSONObject getLatestDownloadUrl(int databaseId) {
         // 获取最新下载链接
         JSONObject updateItem;
-        HttpApi httpApi = new HttpApi();
+        Api api = new Api();
         try {
             updateItem = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
-            httpApi = (HttpApi) updateItem.get("http_api");
+            api = (Api) updateItem.get("http_api");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return httpApi.getReleaseDownload(0);
+        return api.getReleaseDownload(0);
     }
 
     public String getInstalledVersion(int databaseId) {

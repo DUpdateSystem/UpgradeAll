@@ -1,9 +1,9 @@
-package net.xzos.UpgradeAll.updater.HttpApi;
+package net.xzos.UpgradeAll.updater.api;
 
 import org.json.JSONObject;
 
 
-public class HttpApi {
+public class Api {
 
     public void flashData() {
     }

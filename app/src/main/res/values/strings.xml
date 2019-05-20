@@ -25,7 +25,7 @@
     <string name="hub_list">软件源</string>
     <string name="setting">设置</string>
     <string name="add">添加</string>
-    <string name="url">网址</string>
+    <string name="desc">网址</string>
     <string name="name">名称</string>
     <string name="update_item_setting_editVersionCheckerText">跟踪目标</string>
     <string name="update_item_setting_editVersionCheckRegular">版本号正则表达式匹配规则</string>
