@@ -31,9 +31,10 @@ public class HubSettingActivity extends Activity {
         addButton.setOnClickListener(v -> {
             String repoConfig = configEditText.getText().toString();
             boolean addHubSuccess = addHubDatabase(databaseId, repoConfig);
-            if (addHubSuccess)
+            if (addHubSuccess) {
                 onBackPressed();
-            else
+                Toast.makeText(HubSettingActivity.this, "数据添加成功", Toast.LENGTH_LONG).show();
+            } else
                 Toast.makeText(HubSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
         });
     }
@@ -50,19 +51,22 @@ public class HubSettingActivity extends Activity {
         // hubConfig 符合 JsonObject 格式，做进一步数据处理
         if (repoConfigJsonObject != null) {
             String name = null;
+            String uuid = null;
             try {
                 name = repoConfigJsonObject.getString("name");
+                uuid = repoConfigJsonObject.getString("uuid");
             } catch (JSONException e) {
                 Log.e(TAG, "addHubDatabase: 请确认 hubConfig 包含各个必须元素 repoConfigJsonObject: " + repoConfigJsonObject);
             }
-            // 如果设置了名字，则存入数据库
-            if (name != null) {
+            // 如果设置了名字与 UUID，则存入数据库
+            if (name != null && uuid != null) {
 
                 // 修改数据库
                 HubDatabase hubDatabase = LitePal.find(HubDatabase.class, databaseId);
                 if (hubDatabase == null) hubDatabase = new HubDatabase();
                 // 开启数据库
                 hubDatabase.setName(name);
+                hubDatabase.setUuid(uuid);
                 hubDatabase.setRepoConfig(repoConfigJsonObject);
                 hubDatabase.save();
                 // 将数据存入 HubDatabase 数据库

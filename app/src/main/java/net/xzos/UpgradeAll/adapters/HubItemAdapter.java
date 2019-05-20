@@ -13,13 +13,8 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.activity.HubSettingActivity;
-import net.xzos.UpgradeAll.activity.MainActivity;
-import net.xzos.UpgradeAll.activity.UpdaterSettingActivity;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.database.HubDatabase;
-import net.xzos.UpgradeAll.updater.Updater;
-import net.xzos.UpgradeAll.data.MyApplication;
-import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.viewmodels.ItemCardView;
 
 import org.litepal.LitePal;
@@ -37,7 +32,7 @@ public class HubItemAdapter extends RecyclerView.Adapter<HubItemAdapter.ViewHold
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name;
-        TextView url;
+        TextView descTextView;
         TextView api;
         ProgressBar versionCheckingBar;
         ImageView versionCheckButton;
@@ -48,7 +43,7 @@ public class HubItemAdapter extends RecyclerView.Adapter<HubItemAdapter.ViewHold
         ViewHolder(View view) {
             super(view);
             name = view.findViewById(R.id.nameTextView);
-            url = view.findViewById(R.id.urlTextView);
+            descTextView = view.findViewById(R.id.descTextView);
             api = view.findViewById(R.id.apiTextView);
             versionCheckingBar = view.findViewById(R.id.statusChangingBar);
             versionCheckButton = view.findViewById(R.id.statusCheckButton);
@@ -71,7 +66,8 @@ public class HubItemAdapter extends RecyclerView.Adapter<HubItemAdapter.ViewHold
         int databaseId = itemCardView.getDatabaseId();
         holder.name.setText(itemCardView.getName());
         holder.api.setText(itemCardView.getApi());
-        holder.url.setText(itemCardView.getUrl());
+        holder.descTextView.setText(itemCardView.getDesc());
+        holder.descTextView.setEnabled(false);
 
         // 修改按钮
         holder.settingButton.setOnClickListener(v -> {
@@ -97,5 +93,3 @@ public class HubItemAdapter extends RecyclerView.Adapter<HubItemAdapter.ViewHold
     }
 
 }
-
-

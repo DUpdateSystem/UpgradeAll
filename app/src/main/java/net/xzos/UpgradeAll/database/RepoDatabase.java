@@ -8,6 +8,7 @@ public class RepoDatabase extends LitePalSupport {
     private int id;
     private String name;
     private String api;
+    private String api_uuid;
     private String url; //  方便用户获得源网址
 
     private String versionChecker;
@@ -60,4 +61,11 @@ public class RepoDatabase extends LitePalSupport {
         this.versionChecker = versionChecker.toString();
     }
 
+    public String getApiUuid() {
+        return api_uuid;
+    }
+
+    public void setApiUuid(String api_uuid) {
+        this.api_uuid = api_uuid;
+    }
 }

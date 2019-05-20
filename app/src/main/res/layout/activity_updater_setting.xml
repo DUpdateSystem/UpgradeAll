@@ -39,13 +39,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/editName"
-                android:autofillHints="url"
-                android:hint="@string/url"
+                android:autofillHints="desc"
+                android:hint="@string/desc"
                 android:inputType="textUri"
                 tools:targetApi="o" />
 
             <Spinner
-                android:id="@+id/api_spinner"
+                android:id="@+id/apiSpinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/editUrl"

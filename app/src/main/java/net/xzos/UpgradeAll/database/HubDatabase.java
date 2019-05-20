@@ -7,6 +7,7 @@ import org.litepal.crud.LitePalSupport;
 public class HubDatabase extends LitePalSupport {
     private int id;
     private String name;
+    private String uuid;
     private String repoConfig;
 
     public int getId() {
@@ -37,4 +38,11 @@ public class HubDatabase extends LitePalSupport {
         this.repoConfig = repoConfig.toString();
     }
 
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid.toLowerCase();
+    }
 }

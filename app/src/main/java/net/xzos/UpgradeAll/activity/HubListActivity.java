@@ -71,10 +71,11 @@ public class HubListActivity extends AppCompatActivity {
     private void refreshCardView() {
         List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
         itemCardViewList.clear();
-        for (HubDatabase updateItem : hubDatabase) {
-            int databaseId = updateItem.getId();
-            String name = updateItem.getName();
-            itemCardViewList.add(new ItemCardView(databaseId, name, "", ""));
+        for (HubDatabase hubItem : hubDatabase) {
+            int databaseId = hubItem.getId();
+            String name = hubItem.getName();
+            String uuid = hubItem.getUuid();
+            itemCardViewList.add(new ItemCardView(databaseId, name, uuid, ""));
         }
         setRecyclerView();
     }

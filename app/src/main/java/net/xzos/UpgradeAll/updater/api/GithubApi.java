@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.updater.HttpApi;
+package net.xzos.UpgradeAll.updater.api;
 
 import android.util.Log;
 
@@ -16,7 +16,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class GithubApi extends HttpApi {
+public class GithubApi extends Api {
     private static final String TAG = "GithubApi";
 
     private String apiUrl;
@@ -32,7 +32,7 @@ public class GithubApi extends HttpApi {
     @Override
     public void flashData() {
         // 仅刷新数据，并进行数据校验
-        if (apiUrl.length() != 0) {
+        if (apiUrl != null) {
             String jsonText = getHttpResponse(apiUrl);
             // 如果刷新失败，则不记录数据
             if (jsonText.length() != 0) {
@@ -64,6 +64,7 @@ public class GithubApi extends HttpApi {
 
     @Override
     public String getVersionNumber(int releaseNum) {
+        if (!isSuccessFlash()) return null;
         String latestVersion = null;
         try {
             latestVersion = getRelease(releaseNum).getString("name");
@@ -75,7 +76,8 @@ public class GithubApi extends HttpApi {
 
     @Override
     public JSONObject getReleaseDownload(int releaseNum) {
-        JSONObject releaseDownloadUrl = new JSONObject();
+        JSONObject releaseDownloadUrlJsonObject = new JSONObject();
+        if (!isSuccessFlash()) return releaseDownloadUrlJsonObject;
         JSONArray releaseAssets = new JSONArray();
         try {
             releaseAssets = getRelease(releaseNum).getJSONArray("assets");
@@ -91,12 +93,12 @@ public class GithubApi extends HttpApi {
             }
             // 获取一项的 JsonObject
             try {
-                releaseDownloadUrl.put(tmpJsonObject.getString("name"), tmpJsonObject.getString("browser_download_url"));
+                releaseDownloadUrlJsonObject.put(tmpJsonObject.getString("name"), tmpJsonObject.getString("browser_download_url"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-        return releaseDownloadUrl;
+        return releaseDownloadUrlJsonObject;
     }
 
     public String getDefaultName() {
@@ -108,7 +110,9 @@ public class GithubApi extends HttpApi {
 
     private static String getApiUrl(String url) {
         //获取api地址的独立方法
-        return Objects.requireNonNull(GithubApi.splitUrl(url))[0];
+        String[] apiUrlStringList = GithubApi.splitUrl(url);
+        if (apiUrlStringList == null) return null;  // 网址不符合规则返回 false
+        else return apiUrlStringList[0];
     }
 
     private static String[] splitUrl(String url) {

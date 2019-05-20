@@ -3,29 +3,31 @@ package net.xzos.UpgradeAll.viewmodels;
 public class ItemCardView {
     private int databaseId;
     private String name;
-    private String url;
+    private String desc;
     private String api;
 
-    public ItemCardView(int databaseId, String name, String url, String api) {
+    public ItemCardView(int databaseId, String name, String desc, String api) {
         this.databaseId = databaseId;
         this.name = name;
-        this.url = url;
+        this.desc = desc;
         this.api = api;
     }
 
     public int getDatabaseId() {
         return databaseId;
     }
+
     public String getName() {
         return name;
+    }
+
+    public String getDesc() {
+        return desc;
     }
 
     public String getApi() {
         return api;
     }
 
-    public String getUrl() {
-        return url;
-    }
 
 }

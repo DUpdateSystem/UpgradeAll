@@ -58,7 +58,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
         ViewHolder(View view) {
             super(view);
             name = view.findViewById(R.id.nameTextView);
-            url = view.findViewById(R.id.urlTextView);
+            url = view.findViewById(R.id.descTextView);
             api = view.findViewById(R.id.apiTextView);
             versionCheckingBar = view.findViewById(R.id.statusChangingBar);
             versionCheckButton = view.findViewById(R.id.statusCheckButton);
@@ -81,7 +81,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
         int databaseId = itemCardView.getDatabaseId();
         holder.name.setText(itemCardView.getName());
         holder.api.setText(itemCardView.getApi());
-        holder.url.setText(itemCardView.getUrl());
+        holder.url.setText(itemCardView.getDesc());
         refreshUpdater(true, databaseId, holder);
 
         // 单击展开 Release 详情页
