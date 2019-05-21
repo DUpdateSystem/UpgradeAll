@@ -157,7 +157,7 @@ public class Updater {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "autoRefresh:  json" + updateItemJson);
+        Log.d(TAG, " renewUpdateItem:  json: " + updateItemJson);
         updateJsonData.remove(String.valueOf(databaseId));
         try {
             updateJsonData.put(String.valueOf(databaseId), updateItemJson);
