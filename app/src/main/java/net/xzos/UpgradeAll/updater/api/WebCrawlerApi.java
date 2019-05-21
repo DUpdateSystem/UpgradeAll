@@ -6,20 +6,22 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.seimicrawler.xpath.JXDocument;
+import org.seimicrawler.xpath.JXNode;
+import org.seimicrawler.xpath.exception.XpathSyntaxErrorException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import us.codecraft.xsoup.Xsoup;
 
 public class WebCrawlerApi extends Api {
     private static final String TAG = "WebCrawlerApi";
 
     private String url;
     private JSONObject hubConfig;
-    private Document doc;
+    private JXDocument doc;
 
     public WebCrawlerApi(String url, JSONObject hubConfig) {
         JSONObject webCrawlerConfig = new JSONObject();
@@ -35,7 +37,6 @@ public class WebCrawlerApi extends Api {
     @Override
     public void flashData() {
         String userAgent;
-        Document tmpDoc = this.doc;
         try {
             userAgent = hubConfig.getString("user_agent");
         } catch (JSONException e) {
@@ -43,9 +44,9 @@ public class WebCrawlerApi extends Api {
             userAgent = null;
         }
         try {
-            this.doc = Jsoup.connect(url).userAgent(userAgent).get();
+            Document doc = Jsoup.connect(url).userAgent(userAgent).get();
+            this.doc = JXDocument.create(doc);
         } catch (IOException e) {
-            this.doc = tmpDoc;
             Log.e(TAG, "flashData:  Jsoup 对象初始化失败");
         }
     }
@@ -64,7 +65,7 @@ public class WebCrawlerApi extends Api {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        String name;
+        String name = null;
         String nameXpath;
         String nameRegex;
         try {
@@ -79,7 +80,13 @@ public class WebCrawlerApi extends Api {
             nameRegex = null;
             Log.e(TAG, "getDefaultName:  name regex 未设置");
         }
-        name = Xsoup.compile(nameXpath).evaluate(doc).get();
+        if (this.doc != null) {
+            try {
+                name = doc.selNOne(nameXpath).toString();
+            } catch (XpathSyntaxErrorException e) {
+                Log.e(TAG, "getDefaultName:  Xpath 语法有误, nameXpath: " + nameXpath);
+            }
+        }
         name = regexMatch(name, nameRegex);
         Log.d(TAG, "getDefaultName:  name: " + name);
         return name;
@@ -93,15 +100,14 @@ public class WebCrawlerApi extends Api {
     @Override
     public String getVersionNumber(int releaseNum) {
         if (!isSuccessFlash()) return null;
-        String versionNumber;
+        String versionNumber = null;
         String versionNumberXpath;
         String versionNumberRegex;
-        String releaseNode = getReleaseNodeList().get(releaseNum);
-        Document doc = Jsoup.parse(releaseNode);  // 初始化 release 节点
+        JXNode releaseNode = getReleaseNodeList().get(releaseNum);  // 初始化 release 节点
         try {
-            versionNumberXpath = "/html/body" + this.hubConfig.getJSONObject("xpath").getJSONObject("release").getJSONObject("attribute").getString("version_number");
+            versionNumberXpath = this.hubConfig.getJSONObject("xpath").getJSONObject("release").getJSONObject("attribute").getString("version_number");
         } catch (JSONException e) {
-            versionNumberXpath = "";
+            versionNumberXpath = null;
             Log.e(TAG, "getDefaultName:  version_number xpath 未设置");
         }
         try {
@@ -110,7 +116,15 @@ public class WebCrawlerApi extends Api {
             versionNumberRegex = null;
             Log.e(TAG, "getDefaultName:  version_number regex 未设置");
         }
-        versionNumber = Xsoup.compile(versionNumberXpath).evaluate(doc).get();
+        if (this.doc != null && versionNumberXpath != null)
+            try {
+                versionNumber = releaseNode.selOne(versionNumberXpath).toString();
+            } catch (NullPointerException e) {
+                Log.e(TAG, "getVersionNumber:  未取得数据, versionNumberXpath : " + versionNumberXpath);
+                ;
+            } catch (XpathSyntaxErrorException e) {
+                Log.e(TAG, "getVersionNumber:  Xpath 语法有误, versionNumberXpath : " + versionNumberXpath);
+            }
         versionNumber = regexMatch(versionNumber, versionNumberRegex);
         Log.d(TAG, "getVersionNumber:  version: " + versionNumber);
         return versionNumber;
@@ -120,19 +134,18 @@ public class WebCrawlerApi extends Api {
     public JSONObject getReleaseDownload(int releaseNum) {
         JSONObject releaseDownloadUrlJsonObject = new JSONObject();
         if (!isSuccessFlash()) return releaseDownloadUrlJsonObject;
-        String url;
-        String fileName;
+        String url = null;
+        String fileName = null;
         String fileNameXpath;
         String fileNameRegex;
         String fileUrlXpath;
-        String releaseNode = getReleaseNodeList().get(releaseNum);
-        Document doc = Jsoup.parse(releaseNode);  // 初始化 release 节点
+        JXNode releaseNode = getReleaseNodeList().get(releaseNum);  // 初始化 release 节点
         try {
             JSONObject releaseAssetsJsonObject = this.hubConfig.getJSONObject("xpath").getJSONObject("release").getJSONObject("attribute").getJSONObject("assets");
-            fileNameXpath = "/html/body" + releaseAssetsJsonObject.getString("file_name");
-            fileUrlXpath = "/html/body" + releaseAssetsJsonObject.getString("download_url");
+            fileNameXpath = releaseAssetsJsonObject.getString("file_name");
+            fileUrlXpath = releaseAssetsJsonObject.getString("download_url");
         } catch (JSONException e) {
-            fileNameXpath = "";
+            fileNameXpath = null;
             fileUrlXpath = "";
             Log.e(TAG, String.format("getReleaseDownload: hubConfig: %s", this.hubConfig));
         }
@@ -143,9 +156,23 @@ public class WebCrawlerApi extends Api {
             fileNameRegex = null;
             Log.e(TAG, "getReleaseDownload: file_name regex 未设置");
         }
-        fileName = Xsoup.compile(fileNameXpath).evaluate(doc).get();
+        if (this.doc != null && fileNameXpath != null)
+            try {
+                fileName = releaseNode.selOne(fileNameXpath).toString();
+            } catch (NullPointerException e) {
+                Log.e(TAG, "getReleaseDownload: 未取得数据, fileNameXpath: " + fileNameXpath);
+            } catch (XpathSyntaxErrorException e) {
+                Log.e(TAG, " getReleaseDownload: Xpath 语法有误, fileNameXpath: " + fileNameXpath);
+            }
         fileName = regexMatch(fileName, fileNameRegex);
-        url = Xsoup.compile(fileUrlXpath).evaluate(doc).get();
+        if (this.doc != null && fileNameXpath != null)
+            try {
+                url = releaseNode.selOne(fileUrlXpath).toString();
+            } catch (NullPointerException e) {
+                Log.e(TAG, "getReleaseDownload:  未取得数据, fileUrlXpath: " + fileUrlXpath);
+            } catch (XpathSyntaxErrorException e) {
+                Log.e(TAG, " getReleaseDownload:  Xpath 语法有误, fileUrlXpath: " + fileUrlXpath);
+            }
         Log.d(TAG, "getReleaseDownload: file_name: " + fileName);
         Log.d(TAG, "getReleaseDownload: url: " + url);
         try {
@@ -156,23 +183,29 @@ public class WebCrawlerApi extends Api {
         return releaseDownloadUrlJsonObject;
     }
 
-    private List<String> getReleaseNodeList() {
+    private List<JXNode> getReleaseNodeList() {
         String releaseNodeXpath;
-        List<String> releaseNodeList;
+        List<JXNode> releaseNodeList = new ArrayList<>();
         try {
             releaseNodeXpath = this.hubConfig.getJSONObject("xpath").getJSONObject("release").getString("release_node");
         } catch (JSONException e) {
-            releaseNodeXpath = "";
+            releaseNodeXpath = null;
             Log.e(TAG, "getDefaultName:  release_node 未设置");
         }
-        releaseNodeList = Xsoup.compile(releaseNodeXpath).evaluate(doc).list();
+        if (this.doc != null && releaseNodeXpath != null)
+            try {
+                releaseNodeList = doc.selN(releaseNodeXpath);
+            } catch (XpathSyntaxErrorException e) {
+                Log.e(TAG, "getReleaseNodeList:  Xpath 语法有误, releaseNodeXpath: " + releaseNodeXpath);
+            }
+        Log.d(TAG, "getReleaseNodeList:  Node Num: " + releaseNodeList.size());
         return releaseNodeList;
     }
 
     private String regexMatch(String matchString, String regex) {
         Log.d(TAG, "regexMatch:  matchString: " + matchString);
         String regexString = matchString;
-        if (regex != null) {
+        if (matchString != null && regex != null) {
             Pattern p = Pattern.compile(regex);
             Matcher m = p.matcher(matchString);
             if (m.find()) {

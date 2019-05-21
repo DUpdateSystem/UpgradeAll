@@ -166,7 +166,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
             // 删除指定数据库
             mItemCardViewList.remove(holder.getAdapterPosition());
             notifyItemRemoved(holder.getAdapterPosition());
-            notifyItemRangeChanged(holder.getAdapterPosition(),mItemCardViewList.size());
+            notifyItemRangeChanged(holder.getAdapterPosition(), mItemCardViewList.size());
             // 删除 CardView
         });
     }
@@ -183,6 +183,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
             if (isAuto) {
                 updater.autoRefresh(databaseId);
             } else {
+                updater.renewUpdateItem(databaseId);
                 updater.refresh(databaseId);
             }
             new Handler(Looper.getMainLooper()).post(() -> {

@@ -261,8 +261,8 @@ public class UpdaterSettingActivity extends AppCompatActivity {
         }
         // 获取自定义源
         List<HubDatabase> hubList = LitePal.findAll(HubDatabase.class);  // 读取 hub 数据库
+        int presetNumber = apiSpinnerJsonObject.length();  // 获取预置 API 数量
         for (int i = 0; i < hubList.size(); i++) {
-            int presetNumber = apiSpinnerJsonObject.length();  // 获取预置 API 数量
             HubDatabase hubItem = hubList.get(i);
             String name = hubItem.getName();
             String apiUuid = hubItem.getUuid();
