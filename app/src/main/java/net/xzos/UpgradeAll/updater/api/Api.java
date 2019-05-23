@@ -12,7 +12,7 @@ public class Api {
         return getReleaseNum() != 0;
     }
 
-    int getReleaseNum() {
+    public int getReleaseNum() {
         return 0;
     }
 

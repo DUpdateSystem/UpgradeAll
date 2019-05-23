@@ -6,6 +6,7 @@ import android.util.Log;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.database.HubDatabase;
+import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.updater.api.Api;
 import net.xzos.UpgradeAll.updater.api.GithubApi;
 import net.xzos.UpgradeAll.database.RepoDatabase;
@@ -141,7 +142,7 @@ public class Updater {
             httpApi = new GithubApi(url);
         } else {
             List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
-            JSONObject hubConfig = null;
+            HubConfig hubConfig = null;
             for (HubDatabase hubItem : hubDatabase) {
                 if (hubItem.getUuid().equals(apiUuid)) {
                     hubConfig = hubItem.getRepoConfig();

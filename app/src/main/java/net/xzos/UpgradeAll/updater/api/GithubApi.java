@@ -57,7 +57,7 @@ public class GithubApi extends Api {
     }
 
     @Override
-    int getReleaseNum() {
+    public int getReleaseNum() {
         return this.returnJsonArray.length();
     }
 
