@@ -1,7 +1,10 @@
 package net.xzos.UpgradeAll.database;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+import net.xzos.UpgradeAll.gson.HubConfig;
+
 import org.litepal.crud.LitePalSupport;
 
 public class HubDatabase extends LitePalSupport {
@@ -26,16 +29,18 @@ public class HubDatabase extends LitePalSupport {
         this.name = name;
     }
 
-    public JSONObject getRepoConfig() {
+    public HubConfig getRepoConfig() {
+        Gson gson = new Gson();
         try {
-            return new JSONObject(repoConfig);
-        } catch (JSONException e) {
+            return gson.fromJson(repoConfig, HubConfig.class);
+        } catch (JsonSyntaxException e) {
             return null;
         }
     }
 
-    public void setRepoConfig(JSONObject repoConfig) {
-        this.repoConfig = repoConfig.toString();
+    public void setRepoConfig(HubConfig repoConfig) {
+        Gson gson = new Gson();
+        this.repoConfig = gson.toJson(repoConfig);
     }
 
     public String getUuid() {

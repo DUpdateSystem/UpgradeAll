@@ -8,11 +8,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.database.HubDatabase;
+import net.xzos.UpgradeAll.gson.HubConfig;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.litepal.LitePal;
 
 public class HubSettingActivity extends Activity {
@@ -41,33 +43,33 @@ public class HubSettingActivity extends Activity {
 
     boolean addHubDatabase(int databaseId, String hubConfig) {
         // TODO: 可被忽略的参数
-        JSONObject repoConfigJsonObject = null;
+        Gson gson = new Gson();
+        HubConfig repoConfigGson = null;
         try {
-            repoConfigJsonObject = new JSONObject(hubConfig);
-        } catch (JSONException e) {
+            repoConfigGson = gson.fromJson(hubConfig, HubConfig.class);
+        } catch (JsonSyntaxException e) {
             Log.e(TAG, "addHubDatabase:  hubConfig 不符合 JsonObject 格式 hubConfig: " + hubConfig);
         }
 
         // hubConfig 符合 JsonObject 格式，做进一步数据处理
-        if (repoConfigJsonObject != null) {
+        if (repoConfigGson != null) {
             String name = null;
             String uuid = null;
             try {
-                name = repoConfigJsonObject.getString("name");
-                uuid = repoConfigJsonObject.getString("uuid");
-            } catch (JSONException e) {
-                Log.e(TAG, "addHubDatabase: 请确认 hubConfig 包含各个必须元素 repoConfigJsonObject: " + repoConfigJsonObject);
+                name = repoConfigGson.getInfo().getConfigName();
+                uuid = repoConfigGson.getUuid();
+            } catch (NullPointerException e) {
+                Log.e(TAG, "addHubDatabase: 请确认 hubConfig 包含各个必须元素 hubConfigGson: " + hubConfig);
             }
             // 如果设置了名字与 UUID，则存入数据库
             if (name != null && uuid != null) {
-
                 // 修改数据库
                 HubDatabase hubDatabase = LitePal.find(HubDatabase.class, databaseId);
                 if (hubDatabase == null) hubDatabase = new HubDatabase();
                 // 开启数据库
                 hubDatabase.setName(name);
                 hubDatabase.setUuid(uuid);
-                hubDatabase.setRepoConfig(repoConfigJsonObject);
+                hubDatabase.setRepoConfig(repoConfigGson);
                 hubDatabase.save();
                 // 将数据存入 HubDatabase 数据库
                 return true;
