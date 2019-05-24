@@ -144,7 +144,7 @@ public class GithubApi extends Api {
         }
         if (response != null) {
             try {
-                responseString = response.body() != null ? response.body().string() : "";
+                responseString = Objects.requireNonNull(response.body()).string();
             } catch (IOException e) {
                 e.printStackTrace();
             }

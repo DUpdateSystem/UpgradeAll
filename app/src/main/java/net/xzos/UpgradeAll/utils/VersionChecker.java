@@ -115,7 +115,7 @@ public class VersionChecker {
         try {
             regexString = String.valueOf(versionCheckerJsonObject.get("regular"));
         } catch (JSONException e) {
-            Log.w(TAG, "数据库项 无regular项, 请检查 versionCheckerJsonObject: " + versionCheckerJsonObject);
+            Log.w(TAG, "数据库项 无regular项(已套用默认配置), 请检查 versionCheckerJsonObject: " + versionCheckerJsonObject);
             regexString = "\\d+(\\.\\d+)*";
         }
         if (versionString != null) {
@@ -136,10 +136,10 @@ public class VersionChecker {
         if (versionNumber0 != null && versionNumber1 != null) {
             if (versionNumber0.equals((versionNumber1))) return true;  // 版本号一致
             String[] versionNumberList0 = versionNumber0.split("\\.");
-            Log.d(TAG, "compareVersionNumber:  List0: " + Arrays.toString(versionNumberList0));
+            Log.d(TAG, "compareVersionNumber0:  " + versionNumber0);
             String[] versionNumberList1 = versionNumber1.split("\\.");
-            Log.d(TAG, "compareVersionNumber:  List1: " + Arrays.toString(versionNumberList1));
-            int listLength = versionNumberList0.length > versionNumberList1.length ? versionNumberList0.length : versionNumberList1.length;  // 获取较短字符串长度
+            Log.d(TAG, "compareVersionNumber1:  " + versionNumber1);
+            int listLength = versionNumberList0.length < versionNumberList1.length ? versionNumberList0.length : versionNumberList1.length;  // 获取较短字符串长度
             for (int i = 0; i < listLength; i++) {
                 if (Integer.parseInt(versionNumberList0[i]) > Integer.parseInt(versionNumberList1[i])) {
                     // 若部分版本号大
