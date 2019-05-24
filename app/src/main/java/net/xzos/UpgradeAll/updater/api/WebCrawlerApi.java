@@ -157,7 +157,7 @@ public class WebCrawlerApi extends Api {
         try {
             releaseDownloadUrlJsonObject.put(fileName, downloadUrl);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, String.format("getReleaseDownload:  字符串为空, fileName: %s, url: %s", fileName, url));
         }
         return releaseDownloadUrlJsonObject;
     }
