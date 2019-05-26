@@ -16,14 +16,13 @@ import org.seimicrawler.xpath.JXDocument;
 import org.seimicrawler.xpath.JXNode;
 import org.seimicrawler.xpath.exception.XpathSyntaxErrorException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class WebCrawlerApi extends Api {
-    private static final String TAG = "WebCrawlerApi";
+public class JsoupApi extends Api {
+    private static final String TAG = "JsoupApi";
 
     private String url;
     private HubConfig hubConfig;
@@ -31,7 +30,7 @@ public class WebCrawlerApi extends Api {
     private int hubConfigVersion;
     private int hubConfigVersionBase;
 
-    public WebCrawlerApi(String url, HubConfig hubConfig) {
+    public JsoupApi(String url, HubConfig hubConfig) {
         this.hubConfig = hubConfig;
         hubConfigVersion = this.hubConfig.getBaseVersion();
         Resources resources = MyApplication.getContext().getResources();
@@ -42,14 +41,13 @@ public class WebCrawlerApi extends Api {
     @Override
     public void flashData() {
         if (hubConfigVersion < hubConfigVersionBase) return;
-        String userAgent;
-        userAgent = hubConfig.getWebCrawler().getUserAgent();
+        String userAgent = hubConfig.getWebCrawler().getUserAgent();
         try {
             Connection connection = Jsoup.connect(url);
             if (userAgent != null) connection.userAgent(userAgent);
             Document doc = connection.get();
             this.doc = JXDocument.create(doc);
-        } catch (IOException e) {
+        } catch (Throwable e) {
             Log.e(TAG, "flashData:  Jsoup 对象初始化失败");
         }
     }
@@ -123,10 +121,10 @@ public class WebCrawlerApi extends Api {
         if (!isSuccessFlash()) return releaseDownloadUrlJsonObject;
         JXNode releaseNode = getReleaseNodeList().get(releaseNum);  // 初始化 release 节点
         HubConfig.StringItemBean fileNameBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getAssets().getFileName();
-        HubConfig.StringItemBean downloadUrlBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getAssets().getDownloadUrl();
+        HubConfig.DownloadItemBean downloadUrlBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getAssets().getDownloadUrl();
         // 获取文件名
         String fileName = fileNameBean.getText();
-        if (fileName != null && fileName.length() == 0) {
+        if (fileName == null || fileName.length() == 0) {
             String fileNameXpath = fileNameBean.getSearchPath().getXpath();
             String fileNameRegex = fileNameBean.getSearchPath().getRegex();
             try {
@@ -140,7 +138,7 @@ public class WebCrawlerApi extends Api {
         }
         // 获取下载链接
         String downloadUrl = downloadUrlBean.getText();
-        if (downloadUrl != null && downloadUrl.length() == 0) {
+        if (downloadUrl == null || downloadUrl.length() == 0) {
             String downloadUrlXpath = downloadUrlBean.getSearchPath().getXpath();
             String downloadUrlRegex = downloadUrlBean.getSearchPath().getRegex();
             try {

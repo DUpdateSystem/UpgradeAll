@@ -5,7 +5,7 @@
         <EditTextPreference
             app:key="sync_time"
             app:title="@string/initiative_sync_time"
-            android:defaultValue="5"
+            android:defaultValue="@string/default_data_expiration_time"
             app:useSimpleSummaryProvider="true" />
 
         <!--

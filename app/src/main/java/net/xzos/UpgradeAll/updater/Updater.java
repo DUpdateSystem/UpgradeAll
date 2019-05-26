@@ -10,7 +10,8 @@ import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.updater.api.Api;
 import net.xzos.UpgradeAll.updater.api.GithubApi;
 import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.updater.api.WebCrawlerApi;
+import net.xzos.UpgradeAll.updater.api.HtmlUnitApi;
+import net.xzos.UpgradeAll.updater.api.JsoupApi;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 import net.xzos.UpgradeAll.data.MyApplication;
 
@@ -60,8 +61,9 @@ public class Updater {
         // 检查更新时间更新数据
         boolean startRefresh = true;
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-        int autoRefreshMinute = Integer.parseInt(Objects.requireNonNull(sharedPref.getString("sync_time", "5")));
-        // 默认自动刷新时间 5min
+        String defaultDataExpirationTime = MyApplication.getContext().getString(R.string.default_data_expiration_time);
+        int autoRefreshMinute = Integer.parseInt(Objects.requireNonNull(sharedPref.getString("sync_time", defaultDataExpirationTime)));
+        // 默认自动刷新时间 10min
         if (updateJsonData.has(String.valueOf(databaseId))) {
             /* 如果存在数据，
              * 检查刷新时间，
@@ -130,7 +132,8 @@ public class Updater {
         // 添加一个 更新检查器追踪子项
         RepoDatabase repoDatabase = LitePal.find(RepoDatabase.class, databaseId);
         String apiUuid = repoDatabase.getApiUuid();
-        Log.d(TAG, "renewUpdateItem:  uuid: " + apiUuid);
+        Log.d(TAG, "renewUpdateItem: uuid: " + apiUuid);
+        // 修复之前版本中GitHub没有 UUID 的问题
         if (apiUuid == null) {
             repoDatabase.setApiUuid(MyApplication.getContext().getString(R.string.github_uuid));
             repoDatabase.save();
@@ -147,10 +150,16 @@ public class Updater {
                 if (hubItem.getUuid().equals(apiUuid)) {
                     hubConfig = hubItem.getRepoConfig();
                 }
-                if (hubConfig != null)
-                    httpApi = new WebCrawlerApi(url, hubConfig);
+                if (hubConfig != null) {
+                    String tool = hubConfig.getWebCrawler().getTool();
+                    if (tool != null && tool.toLowerCase().equals("htmlunit"))
+                        httpApi = new HtmlUnitApi(url, hubConfig);
+                    else
+                        httpApi = new JsoupApi(url, hubConfig);
+                }
             }
         }
+        // 组装一个更新子项
         JSONObject updateItemJson = new JSONObject();
         try {
             updateItemJson.put("http_api", httpApi);
@@ -158,8 +167,9 @@ public class Updater {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, " renewUpdateItem:  json: " + updateItemJson);
+        Log.d(TAG, "renewUpdateItem:  json: " + updateItemJson);
         updateJsonData.remove(String.valueOf(databaseId));
+        // 添加一个更新子项
         try {
             updateJsonData.put(String.valueOf(databaseId), updateItemJson);
         } catch (JSONException e) {
