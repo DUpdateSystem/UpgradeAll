@@ -21,7 +21,7 @@ import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.updater.api.GithubApi;
-import net.xzos.UpgradeAll.updater.api.WebCrawlerApi;
+import net.xzos.UpgradeAll.updater.api.JsoupApi;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
 import org.json.JSONException;
@@ -220,7 +220,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                     for (HubDatabase hubItem : hubDatabase) {
                         if (hubItem.getUuid().equals(uuid)) {
                             HubConfig hubConfig = hubItem.getRepoConfig();
-                            name = new WebCrawlerApi(url, hubConfig).getDefaultName();
+                            name = new JsoupApi(url, hubConfig).getDefaultName();
                             break;
                         }
                     }

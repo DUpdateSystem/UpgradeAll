@@ -77,8 +77,17 @@ public class HubConfig {
          * app_config : {"default_name":{"text":"","search_path":{"xpath":"","regex":""}},"release":{"release_node":"","attribute":{"version_number":{"text":"","search_path":{"xpath":"","regex":""}},"assets":{"file_name":{"text":"","search_path":{"xpath":"","regex":""}},"download_url":{"text":"","search_path":{"xpath":"","regex":""}}}}}}
          */
 
+        private String tool;
         private String user_agent;
         private AppConfigBean app_config;
+
+        public String getTool() {
+            return tool;
+        }
+
+        public void setTool(String tool) {
+            this.tool = tool;
+        }
 
         public String getUserAgent() {
             return user_agent;
@@ -179,7 +188,7 @@ public class HubConfig {
                          */
 
                         private StringItemBean file_name;
-                        private StringItemBean download_url;
+                        private DownloadItemBean download_url;
 
                         public StringItemBean getFileName() {
                             return file_name;
@@ -189,11 +198,11 @@ public class HubConfig {
                             this.file_name = file_name;
                         }
 
-                        public StringItemBean getDownloadUrl() {
+                        public DownloadItemBean getDownloadUrl() {
                             return download_url;
                         }
 
-                        public void setDownloadUrl(StringItemBean download_url) {
+                        public void setDownloadUrl(DownloadItemBean download_url) {
                             this.download_url = download_url;
                         }
                     }
@@ -250,6 +259,68 @@ public class HubConfig {
 
             public void setRegex(String regex) {
                 this.regex = regex;
+            }
+        }
+    }
+
+    public static class DownloadItemBean {
+        /**
+         * text :
+         * search_path : {"xpath":"","regex":""}
+         */
+
+        private String text;
+        private SearchPathBean search_path;
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public SearchPathBean getSearchPath() {
+            return search_path;
+        }
+
+        public void setSearchPath(SearchPathBean search_path) {
+            this.search_path = search_path;
+        }
+
+        public static class SearchPathBean {
+            /**
+             * is_button:
+             * xpath:
+             * regex:
+             */
+
+            private String xpath;
+            private String regex;
+            private boolean is_button;
+
+            public String getXpath() {
+                return xpath;
+            }
+
+            public void setXpath(String xpath) {
+                this.xpath = xpath;
+            }
+
+            public String getRegex() {
+                return regex;
+            }
+
+            public void setRegex(String regex) {
+                this.regex = regex;
+            }
+
+            public boolean getIsButton() {
+                return is_button;
+            }
+
+            public void setIsButton(boolean is_button) {
+                this.is_button = is_button;
             }
         }
     }

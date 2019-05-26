@@ -105,38 +105,43 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
                 localReleaseTextView.setText("获取失败");
 
             // 获取云端文件
-            JSONObject latestDownloadUrl = updater.getLatestDownloadUrl(databaseId);
-            List<String> itemList = new ArrayList<>();
-            Iterator<String> sIterator = latestDownloadUrl.keys();
-            while (sIterator.hasNext()) {
-                String key = sIterator.next();
-                itemList.add(key);
-            }
+            new Thread(() -> {
+                // 刷新数据库
+                JSONObject latestDownloadUrl = updater.getLatestDownloadUrl(databaseId);
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    List<String> itemList = new ArrayList<>();
+                    Iterator<String> sIterator = latestDownloadUrl.keys();
+                    while (sIterator.hasNext()) {
+                        String key = sIterator.next();
+                        itemList.add(key);
+                    }
 
-            // 无Release文件，不显示网络文件列表
-            if (itemList.size() == 0) {
-                dialog.getWindow().findViewById(R.id.releaseTextView).setVisibility(View.INVISIBLE);
-            }
+                    // 无Release文件，不显示网络文件列表
+                    if (itemList.size() == 0) {
+                        dialog.getWindow().findViewById(R.id.releaseTextView).setVisibility(View.INVISIBLE);
+                    }
 
-            // 构建文件列表
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                    dialog.getContext(), android.R.layout.simple_list_item_1, itemList);
-            ListView cloudReleaseList = dialog.getWindow().findViewById(R.id.cloudReleaseList);
-            // 设置文件列表点击事件
-            cloudReleaseList.setOnItemClickListener((parent, view, position1, id) -> {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                String url = null;
-                try {
-                    url = latestDownloadUrl.getString(itemList.get(position1));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                intent.setData(Uri.parse(url));
-                intent = Intent.createChooser(intent, "请选择浏览器");
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                MyApplication.getContext().startActivity(intent);
-            });
-            cloudReleaseList.setAdapter(adapter);
+                    // 构建文件列表
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            dialog.getContext(), android.R.layout.simple_list_item_1, itemList);
+                    ListView cloudReleaseList = dialog.getWindow().findViewById(R.id.cloudReleaseList);
+                    // 设置文件列表点击事件
+                    cloudReleaseList.setOnItemClickListener((parent, view, position1, id) -> {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        String url = null;
+                        try {
+                            url = latestDownloadUrl.getString(itemList.get(position1));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        intent.setData(Uri.parse(url));
+                        intent = Intent.createChooser(intent, "请选择浏览器");
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        MyApplication.getContext().startActivity(intent);
+                    });
+                    cloudReleaseList.setAdapter(adapter);
+                });
+            }).start();
         });
 
         // 长按强制检查版本
