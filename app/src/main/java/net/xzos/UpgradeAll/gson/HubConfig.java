@@ -1,11 +1,13 @@
 package net.xzos.UpgradeAll.gson;
 
+import java.util.List;
+
 public class HubConfig {
     /**
      * base_version : 1
      * uuid :
      * info : {"config_name":"","config_version":""}
-     * web_crawler : {"user_agent":"","app_config":{"default_name":{"text":"","search_path":{"xpath":"","regex":""}},"release":{"release_node":"","attribute":{"version_number":{"text":"","search_path":{"xpath":"","regex":""}},"assets":{"file_name":{"text":"","search_path":{"xpath":"","regex":""}},"download_url":{"text":"","search_path":{"xpath":"","regex":""}}}}}}}
+     * web_crawler : {"tool":"","user_agent":"","app_config":{"default_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"release":{"release_node":"","attribute":{"version_number":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"assets":{"file_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"download_url":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}}}}}}
      */
 
     private String uuid;
@@ -73,8 +75,9 @@ public class HubConfig {
 
     public static class WebCrawlerBean {
         /**
+         * tool :
          * user_agent :
-         * app_config : {"default_name":{"text":"","search_path":{"xpath":"","regex":""}},"release":{"release_node":"","attribute":{"version_number":{"text":"","search_path":{"xpath":"","regex":""}},"assets":{"file_name":{"text":"","search_path":{"xpath":"","regex":""}},"download_url":{"text":"","search_path":{"xpath":"","regex":""}}}}}}
+         * app_config : {"default_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"release":{"release_node":"","attribute":{"version_number":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"assets":{"file_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"download_url":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}}}}}
          */
 
         private String tool;
@@ -107,8 +110,8 @@ public class HubConfig {
 
         public static class AppConfigBean {
             /**
-             * default_name : {"text":"","search_path":{"xpath":"","regex":""}}
-             * release : {"release_node":"","attribute":{"version_number":{"text":"","search_path":{"xpath":"","regex":""}},"assets":{"file_name":{"text":"","search_path":{"xpath":"","regex":""}},"download_url":{"text":"","search_path":{"xpath":"","regex":""}}}}}
+             * default_name : {"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}
+             * release : {"release_node":"","attribute":{"version_number":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"assets":{"file_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"download_url":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}}}}
              */
 
             private StringItemBean default_name;
@@ -134,7 +137,7 @@ public class HubConfig {
             public static class ReleaseBean {
                 /**
                  * release_node :
-                 * attribute : {"version_number":{"text":"","search_path":{"xpath":"","regex":""}},"assets":{"file_name":{"text":"","search_path":{"xpath":"","regex":""}},"download_url":{"text":"","search_path":{"xpath":"","regex":""}}}}
+                 * attribute : {"version_number":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"assets":{"file_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"download_url":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}}}
                  */
 
                 private String release_node;
@@ -158,8 +161,8 @@ public class HubConfig {
 
                 public static class AttributeBean {
                     /**
-                     * version_number : {"text":"","search_path":{"xpath":"","regex":""}}
-                     * assets : {"file_name":{"text":"","search_path":{"xpath":"","regex":""}},"download_url":{"text":"","search_path":{"xpath":"","regex":""}}}
+                     * version_number : {"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}
+                     * assets : {"file_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"download_url":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}}
                      */
 
                     private StringItemBean version_number;
@@ -183,26 +186,26 @@ public class HubConfig {
 
                     public static class AssetsBean {
                         /**
-                         * file_name : {"text":"","search_path":{"xpath":"","regex":""}}
-                         * download_url : {"text":"","search_path":{"xpath":"","regex":""}}
+                         * file_name : {"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}
+                         * download_url : {"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}
                          */
 
                         private StringItemBean file_name;
-                        private DownloadItemBean download_url;
+                        private StringItemBean download_url;
 
                         public StringItemBean getFileName() {
                             return file_name;
                         }
 
-                        public void setFile_name(StringItemBean file_name) {
+                        public void setFileName(StringItemBean file_name) {
                             this.file_name = file_name;
                         }
 
-                        public DownloadItemBean getDownloadUrl() {
+                        public StringItemBean getDownloadUrl() {
                             return download_url;
                         }
 
-                        public void setDownloadUrl(DownloadItemBean download_url) {
+                        public void setDownloadUrl(StringItemBean download_url) {
                             this.download_url = download_url;
                         }
                     }
@@ -214,7 +217,7 @@ public class HubConfig {
     public static class StringItemBean {
         /**
          * text :
-         * search_path : {"xpath":"","regex":""}
+         * search_path : {"regex":"","xpath_list":[{"delay":0,"xpath":""}]}
          */
 
         private String text;
@@ -238,74 +241,12 @@ public class HubConfig {
 
         public static class SearchPathBean {
             /**
-             * xpath :
              * regex :
+             * xpath_list : [{"delay":0,"xpath":""}]
              */
 
-            private String xpath;
             private String regex;
-
-            public String getXpath() {
-                return xpath;
-            }
-
-            public void setXpath(String xpath) {
-                this.xpath = xpath;
-            }
-
-            public String getRegex() {
-                return regex;
-            }
-
-            public void setRegex(String regex) {
-                this.regex = regex;
-            }
-        }
-    }
-
-    public static class DownloadItemBean {
-        /**
-         * text :
-         * search_path : {"xpath":"","regex":""}
-         */
-
-        private String text;
-        private SearchPathBean search_path;
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public SearchPathBean getSearchPath() {
-            return search_path;
-        }
-
-        public void setSearchPath(SearchPathBean search_path) {
-            this.search_path = search_path;
-        }
-
-        public static class SearchPathBean {
-            /**
-             * is_button:
-             * xpath:
-             * regex:
-             */
-
-            private String xpath;
-            private String regex;
-            private boolean is_button;
-
-            public String getXpath() {
-                return xpath;
-            }
-
-            public void setXpath(String xpath) {
-                this.xpath = xpath;
-            }
+            private List<XpathListBean> xpath_list;
 
             public String getRegex() {
                 return regex;
@@ -315,12 +256,38 @@ public class HubConfig {
                 this.regex = regex;
             }
 
-            public boolean getIsButton() {
-                return is_button;
+            public List<XpathListBean> getXpathList() {
+                return xpath_list;
             }
 
-            public void setIsButton(boolean is_button) {
-                this.is_button = is_button;
+            public void setXpathList(List<XpathListBean> xpath_list) {
+                this.xpath_list = xpath_list;
+            }
+
+            public static class XpathListBean {
+                /**
+                 * delay : 0
+                 * xpath :
+                 */
+
+                private int delay;
+                private String xpath;
+
+                public int getDelay() {
+                    return delay;
+                }
+
+                public void setDelay(int delay) {
+                    this.delay = delay;
+                }
+
+                public String getXpath() {
+                    return xpath;
+                }
+
+                public void setXpath(String xpath) {
+                    this.xpath = xpath;
+                }
             }
         }
     }

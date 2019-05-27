@@ -3,18 +3,13 @@ package net.xzos.UpgradeAll.updater.api;
 import android.content.res.Resources;
 import android.util.Log;
 
-import com.gargoylesoftware.htmlunit.AjaxController;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.ScriptException;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomText;
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.HtmlSubmitInput;
-import com.gargoylesoftware.htmlunit.javascript.background.JavaScriptJobManager;
+import com.google.gson.Gson;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.data.MyApplication;
@@ -24,7 +19,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.seimicrawler.xpath.exception.XpathSyntaxErrorException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -37,6 +31,7 @@ public class HtmlUnitApi extends Api {
     private String url;
     private HubConfig hubConfig;
     private HtmlPage page;
+    private WebClient webClient;
     private int hubConfigVersion;
     private int hubConfigVersionBase;
 
@@ -52,7 +47,6 @@ public class HtmlUnitApi extends Api {
     public void flashData() {
         if (hubConfigVersion < hubConfigVersionBase) return;
         String userAgent = hubConfig.getWebCrawler().getUserAgent();
-        final WebClient webClient;
         if (userAgent != null && userAgent.length() != 0) {
             final BrowserVersion browserVersion = new BrowserVersion.BrowserVersionBuilder(BrowserVersion.FIREFOX_52)
                     .setUserAgent(userAgent)
@@ -60,7 +54,7 @@ public class HtmlUnitApi extends Api {
             Log.d(TAG, "flashData:  HtmlUnit FireFox");
             webClient = new WebClient(browserVersion);
         } else {
-            webClient = new WebClient(BrowserVersion.BEST_SUPPORTED);
+            webClient = new WebClient(BrowserVersion.CHROME);
             Log.d(TAG, "flashData:  HtmlUnit Chrome");
         }
         try {
@@ -89,17 +83,8 @@ public class HtmlUnitApi extends Api {
         HubConfig.StringItemBean defaultNameBean = this.hubConfig.getWebCrawler().getAppConfig().getDefaultName();
         String name = defaultNameBean.getText();
         if (name != null && name.length() != 0) return name;
-        String nameXpath = defaultNameBean.getSearchPath().getXpath();
-        String nameRegex = defaultNameBean.getSearchPath().getRegex();
-        if (this.page != null) {
-            try {
-                DomElement element = page.getFirstByXPath(nameXpath);
-                name = element.getNodeValue();
-            } catch (XpathSyntaxErrorException e) {
-                Log.e(TAG, "getDefaultName:  Xpath 语法有误, nameXpath: " + nameXpath);
-            }
-        }
-        name = regexMatch(name, nameRegex);
+        DomElement rootDom = page.getFirstByXPath("//body");
+        name = getDomString(rootDom, defaultNameBean);
         Log.d(TAG, "getDefaultName:  name: " + name);
         return name;
     }
@@ -115,23 +100,8 @@ public class HtmlUnitApi extends Api {
         if (hubConfigVersion < hubConfigVersionBase) return super.getVersionNumber(releaseNum);
         if (!isSuccessFlash()) return null;
         HubConfig.StringItemBean versionNumberBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getVersion_number();
-        String versionNumber = versionNumberBean.getText();
-        if (versionNumber != null && versionNumber.length() != 0) return versionNumber;
-        String versionNumberXpath = versionNumberBean.getSearchPath().getXpath();
-        String versionNumberRegex = versionNumberBean.getSearchPath().getRegex();
         final DomElement releaseNode = getReleaseNodeList().get(releaseNum);  // 初始化 release 节点
-        if (this.page != null && versionNumberXpath != null)
-            try {
-                DomText domText = releaseNode.getFirstByXPath(versionNumberXpath);
-                versionNumber = domText.getNodeValue();
-            } catch (NullPointerException e) {
-                Log.e(TAG, "getVersionNumber: 未取得数据, versionNumberXpath : " + versionNumberXpath);
-            } catch (XpathSyntaxErrorException e) {
-                Log.e(TAG, "getVersionNumber: Xpath 语法有误, versionNumberXpath : " + versionNumberXpath);
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        versionNumber = regexMatch(versionNumber, versionNumberRegex);
+        String versionNumber = getDomString(releaseNode, versionNumberBean);
         Log.d(TAG, "getVersionNumber: version: " + versionNumber);
         return versionNumber;
     }
@@ -144,48 +114,11 @@ public class HtmlUnitApi extends Api {
         final DomElement releaseNode = getReleaseNodeList().get(releaseNum);  // 初始化 release 节点
         Log.d(TAG, "getReleaseDownload: release node: " + releaseNode.toString());
         HubConfig.StringItemBean fileNameBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getAssets().getFileName();
-        HubConfig.DownloadItemBean downloadUrlBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getAssets().getDownloadUrl();
+        HubConfig.StringItemBean downloadUrlBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getAssets().getDownloadUrl();
         // 获取文件名
-        String fileName = fileNameBean.getText();
-        if (fileName == null || fileName.length() == 0) {
-            String fileNameXpath = fileNameBean.getSearchPath().getXpath();
-            String fileNameRegex = fileNameBean.getSearchPath().getRegex();
-            try {
-                DomText domText = releaseNode.getFirstByXPath(fileNameXpath);
-                fileName = domText.getNodeValue();
-            } catch (NullPointerException e) {
-                Log.e(TAG, "getReleaseDownload: 未取得数据, fileNameXpath: " + fileNameXpath);
-            } catch (XpathSyntaxErrorException e) {
-                Log.e(TAG, " getReleaseDownload: Xpath 语法有误, fileNameXpath: " + fileNameXpath);
-            }
-            fileName = regexMatch(fileName, fileNameRegex);
-        }
+        String fileName = getDomString(releaseNode, fileNameBean);
         // 获取下载链接
-        String downloadUrl = downloadUrlBean.getText();
-        if (downloadUrl == null || downloadUrl.length() == 0) {
-            boolean isDownloadButton = downloadUrlBean.getSearchPath().getIsButton();
-            String downloadUrlXpath = downloadUrlBean.getSearchPath().getXpath();
-            String downloadUrlRegex = downloadUrlBean.getSearchPath().getRegex();
-            try {
-                if (!isDownloadButton) {
-                    DomElement element = releaseNode.getFirstByXPath(downloadUrlXpath);
-                    downloadUrl = element.getNodeValue();
-                } else {
-                    final HtmlAnchor button = releaseNode.getFirstByXPath(downloadUrlXpath);
-                    final HtmlPage page2 = button.click();
-                    if (page2.isHtmlPage()) {
-                        downloadUrl = page2.getUrl().toString();
-                    }
-                }
-            } catch (NullPointerException e) {
-                Log.e(TAG, "getReleaseDownload:  未取得数据, downloadUrlXpath: " + downloadUrlXpath);
-            } catch (XpathSyntaxErrorException e) {
-                Log.e(TAG, " getReleaseDownload:  Xpath 语法有误, downloadUrlXpath: " + downloadUrlXpath);
-            } catch (IOException | ScriptException e) {
-                Log.d(TAG, "getReleaseDownload:  按钮点击事件失败, downloadUrlXpath: " + downloadUrlXpath);
-            }
-            downloadUrl = regexMatch(downloadUrl, downloadUrlRegex);
-        }
+        String downloadUrl = getDomString(releaseNode, downloadUrlBean);
         Log.d(TAG, "getReleaseDownload: file_name: " + fileName);
         Log.d(TAG, "getReleaseDownload: download_url: " + downloadUrl);
         try {
@@ -208,6 +141,55 @@ public class HtmlUnitApi extends Api {
         }
         Log.d(TAG, "getReleaseNodeList:  Node Num: " + releaseNodeList.size());
         return releaseNodeList;
+    }
+
+    private String getDomString(DomElement domElement, HubConfig.StringItemBean stringItemBeans) {
+        String returnString = stringItemBeans.getText();
+        if (returnString != null && returnString.length() != 0) return returnString;
+        Log.d(TAG, "getDomString: domElement: " + domElement);
+        Gson gson = new Gson();
+        Log.d(TAG, "getDomString: stringItemBeans: " + gson.toJson(stringItemBeans.toString()));
+        HtmlPage page = this.page; // 继承全局根网页
+        String regex = stringItemBeans.getSearchPath().getRegex();
+        List<HubConfig.StringItemBean.SearchPathBean.XpathListBean> xpathList = stringItemBeans.getSearchPath().getXpathList();
+        if (xpathList != null) {
+            for (int i = 0; i < xpathList.size(); i++) {
+                HubConfig.StringItemBean.SearchPathBean.XpathListBean xpathListBean = xpathList.get(i);
+                int delay = xpathListBean.getDelay();
+                delay *= 1000;
+                String xpath = xpathListBean.getXpath();
+                try {
+                    Log.d(TAG, "getDomString:  webClient wait " + delay);
+                    this.webClient.waitForBackgroundJavaScript(delay);
+                    if (i != xpathList.size() - 1) {
+                        try {
+                            DomElement dom = domElement.getFirstByXPath(xpath);
+                            Log.d(TAG, "getDomString: dom: " + dom);
+                            page = dom.click();
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                        domElement = page.getFirstByXPath("//body");
+                    } else {
+                        try {
+                            DomNode dom = domElement.getFirstByXPath(xpath);
+                            Log.d(TAG, "getDomString: dom: " + dom);
+                            returnString = dom.getNodeValue();
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (NullPointerException e) {
+                    Log.e(TAG, " getDomString: 未取得数据, Xpath: " + xpath);
+                } catch (XpathSyntaxErrorException e) {
+                    Log.e(TAG, " getDomString: Xpath 语法有误, Xpath: " + xpath);
+                } catch (ScriptException e) {
+                    Log.d(TAG, " getDomString: 按钮点击事件失败, Xpath: " + xpath);
+                }
+            }
+        }
+        returnString = regexMatch(returnString, regex);
+        return returnString;
     }
 
     private String regexMatch(String matchString, String regex) {
