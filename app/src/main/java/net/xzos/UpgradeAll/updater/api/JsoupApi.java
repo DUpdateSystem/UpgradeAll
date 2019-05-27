@@ -16,6 +16,7 @@ import org.seimicrawler.xpath.JXDocument;
 import org.seimicrawler.xpath.JXNode;
 import org.seimicrawler.xpath.exception.XpathSyntaxErrorException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -48,7 +49,7 @@ public class JsoupApi extends Api {
             Document doc = connection.get();
             this.doc = JXDocument.create(doc);
         } catch (Throwable e) {
-            Log.e(TAG, "flashData:  Jsoup 对象初始化失败");
+            Log.e(TAG, "flashData: Jsoup 对象初始化失败");
         }
     }
 
@@ -69,19 +70,9 @@ public class JsoupApi extends Api {
         }
         // 刷新数据
         HubConfig.StringItemBean defaultNameBean = this.hubConfig.getWebCrawler().getAppConfig().getDefaultName();
-        String name = defaultNameBean.getText();
-        if (name != null && name.length() != 0) return name;
-        String nameXpath = defaultNameBean.getSearchPath().getXpath();
-        String nameRegex = defaultNameBean.getSearchPath().getRegex();
-        if (this.doc != null) {
-            try {
-                name = doc.selNOne(nameXpath).toString();
-            } catch (XpathSyntaxErrorException e) {
-                Log.e(TAG, "getDefaultName:  Xpath 语法有误, nameXpath: " + nameXpath);
-            }
-        }
-        name = regexMatch(name, nameRegex);
-        Log.d(TAG, "getDefaultName:  name: " + name);
+        JXNode rootNode = this.doc.selN("//body").get(0);
+        String name = getDomString(rootNode, defaultNameBean);
+        Log.d(TAG, "getDefaultName: name: " + name);
         return name;
     }
 
@@ -96,21 +87,9 @@ public class JsoupApi extends Api {
         if (hubConfigVersion < hubConfigVersionBase) return super.getVersionNumber(releaseNum);
         if (!isSuccessFlash()) return null;
         HubConfig.StringItemBean versionNumberBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getVersion_number();
-        String versionNumber = versionNumberBean.getText();
-        if (versionNumber != null && versionNumber.length() != 0) return versionNumber;
-        String versionNumberXpath = versionNumberBean.getSearchPath().getXpath();
-        String versionNumberRegex = versionNumberBean.getSearchPath().getRegex();
         JXNode releaseNode = getReleaseNodeList().get(releaseNum);  // 初始化 release 节点
-        if (this.doc != null && versionNumberXpath != null)
-            try {
-                versionNumber = releaseNode.selOne(versionNumberXpath).toString();
-            } catch (NullPointerException e) {
-                Log.e(TAG, "getVersionNumber:  未取得数据, versionNumberXpath : " + versionNumberXpath);
-            } catch (XpathSyntaxErrorException e) {
-                Log.e(TAG, "getVersionNumber:  Xpath 语法有误, versionNumberXpath : " + versionNumberXpath);
-            }
-        versionNumber = regexMatch(versionNumber, versionNumberRegex);
-        Log.d(TAG, "getVersionNumber:  version: " + versionNumber);
+        String versionNumber = getDomString(releaseNode, versionNumberBean);
+        Log.d(TAG, "getVersionNumber: version: " + versionNumber);
         return versionNumber;
     }
 
@@ -121,41 +100,17 @@ public class JsoupApi extends Api {
         if (!isSuccessFlash()) return releaseDownloadUrlJsonObject;
         JXNode releaseNode = getReleaseNodeList().get(releaseNum);  // 初始化 release 节点
         HubConfig.StringItemBean fileNameBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getAssets().getFileName();
-        HubConfig.DownloadItemBean downloadUrlBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getAssets().getDownloadUrl();
+        HubConfig.StringItemBean downloadUrlBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getAssets().getDownloadUrl();
         // 获取文件名
-        String fileName = fileNameBean.getText();
-        if (fileName == null || fileName.length() == 0) {
-            String fileNameXpath = fileNameBean.getSearchPath().getXpath();
-            String fileNameRegex = fileNameBean.getSearchPath().getRegex();
-            try {
-                fileName = releaseNode.selOne(fileNameXpath).toString();
-            } catch (NullPointerException e) {
-                Log.e(TAG, "getReleaseDownload: 未取得数据, fileNameXpath: " + fileNameXpath);
-            } catch (XpathSyntaxErrorException e) {
-                Log.e(TAG, " getReleaseDownload: Xpath 语法有误, fileNameXpath: " + fileNameXpath);
-            }
-            fileName = regexMatch(fileName, fileNameRegex);
-        }
+        String fileName = getDomString(releaseNode, fileNameBean);
         // 获取下载链接
-        String downloadUrl = downloadUrlBean.getText();
-        if (downloadUrl == null || downloadUrl.length() == 0) {
-            String downloadUrlXpath = downloadUrlBean.getSearchPath().getXpath();
-            String downloadUrlRegex = downloadUrlBean.getSearchPath().getRegex();
-            try {
-                downloadUrl = releaseNode.selOne(downloadUrlXpath).toString();
-            } catch (NullPointerException e) {
-                Log.e(TAG, "getReleaseDownload:  未取得数据, downloadUrlXpath: " + downloadUrlXpath);
-            } catch (XpathSyntaxErrorException e) {
-                Log.e(TAG, " getReleaseDownload:  Xpath 语法有误, downloadUrlXpath: " + downloadUrlXpath);
-            }
-            downloadUrl = regexMatch(downloadUrl, downloadUrlRegex);
-        }
+        String downloadUrl = getDomString(releaseNode, downloadUrlBean);
         Log.d(TAG, "getReleaseDownload: file_name: " + fileName);
         Log.d(TAG, "getReleaseDownload: download_url: " + downloadUrl);
         try {
             releaseDownloadUrlJsonObject.put(fileName, downloadUrl);
         } catch (JSONException e) {
-            Log.e(TAG, String.format("getReleaseDownload:  字符串为空, fileName: %s, url: %s", fileName, url));
+            Log.e(TAG, String.format("getReleaseDownload: 字符串为空, fileName: %s, downloadUrl: %s", fileName, downloadUrl));
         }
         return releaseDownloadUrlJsonObject;
     }
@@ -168,10 +123,42 @@ public class JsoupApi extends Api {
             try {
                 releaseNodeList = doc.selN(releaseNodeXpath);
             } catch (XpathSyntaxErrorException e) {
-                Log.e(TAG, "getReleaseNodeList:  Xpath 语法有误, releaseNodeXpath: " + releaseNodeXpath);
+                Log.e(TAG, "getReleaseNodeList: Xpath 语法有误, releaseNodeXpath: " + releaseNodeXpath);
             }
-        Log.d(TAG, "getReleaseNodeList:  Node Num: " + releaseNodeList.size());
+        Log.d(TAG, "getReleaseNodeList: Node Num: " + releaseNodeList.size());
         return releaseNodeList;
+    }
+
+    private String getDomString(JXNode node, HubConfig.StringItemBean stringItemBeans) {
+        String returnString = stringItemBeans.getText();
+        if (returnString != null && returnString.length() != 0) return returnString;
+        String regex = stringItemBeans.getSearchPath().getRegex();
+        List<HubConfig.StringItemBean.SearchPathBean.XpathListBean> xpathList = stringItemBeans.getSearchPath().getXpathList();
+        if (xpathList != null) {
+            for (int i = 0; i < xpathList.size(); i++) {
+                HubConfig.StringItemBean.SearchPathBean.XpathListBean xpathListBean = xpathList.get(i);
+                String xpath = xpathListBean.getXpath();
+                try {
+                    returnString = node.selOne(xpath).toString();
+                    if (i != xpathList.size() - 1) {
+                        String userAgent = hubConfig.getWebCrawler().getUserAgent();
+                        Connection connection = Jsoup.connect(returnString);
+                        if (userAgent != null) connection.userAgent(userAgent);
+                        Document doc = connection.get();
+                        JXDocument jxDocument = JXDocument.create(doc);
+                        node = jxDocument.selN("//body").get(0);
+                    }
+                } catch (NullPointerException e) {
+                    Log.e(TAG, "getDomString: 未取得数据, xpath: " + xpath);
+                } catch (XpathSyntaxErrorException e) {
+                    Log.e(TAG, "getDomString: Xpath 语法有误, xpath: " + xpath);
+                } catch (IOException e) {
+                    Log.e(TAG, "getDomString: Jsoup 对象初始化失败");
+                }
+            }
+        }
+        returnString = regexMatch(returnString, regex);
+        return returnString;
     }
 
     private String regexMatch(String matchString, String regex) {
