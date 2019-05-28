@@ -156,20 +156,20 @@ public class HtmlUnitApi extends Api {
             for (int i = 0; i < xpathList.size(); i++) {
                 HubConfig.StringItemBean.SearchPathBean.XpathListBean xpathListBean = xpathList.get(i);
                 int delay = xpathListBean.getDelay() * 1000;
-                int defaultDelay = 5 * 1000;
+                int defaultDelay = 3 * 1000;
                 String xpath = xpathListBean.getXpath();
                 try {
                     Log.d(TAG, "getDomString: webClient wait " + delay);
                     this.webClient.waitForBackgroundJavaScript(delay);
                     if (i != xpathList.size() - 1) {
                         try {
-                            for (int j = 0; j < 3; j++) {
+                            for (int j = 0; j < 5; j++) {
                                 DomElement dom = domElement.getFirstByXPath(xpath);
                                 if (dom != null) {
                                     Log.d(TAG, "getDomString: dom: " + dom);
                                     page = dom.click();
                                     Log.d(TAG, "getDomString: clicked, page url to " + page.getUrl());
-                                    break;
+                                    break;  // 跳出 for 循环
                                 } else
                                     this.webClient.waitForBackgroundJavaScript(defaultDelay);
                             }
@@ -181,7 +181,9 @@ public class HtmlUnitApi extends Api {
                         try {
                             DomNode dom = domElement.getFirstByXPath(xpath);
                             Log.d(TAG, "getDomString: dom: " + dom);
-                            returnString = dom.getTextContent();
+                            returnString = dom.getNodeValue();
+                            if (returnString == null)
+                                returnString = dom.getTextContent();
                         } catch (Throwable e) {
                             e.printStackTrace();
                         }
@@ -200,7 +202,7 @@ public class HtmlUnitApi extends Api {
     }
 
     private String regexMatch(String matchString, String regex) {
-        Log.d(TAG, "regexMatch:  matchString: " + matchString);
+        Log.d(TAG, "regexMatch: matchString: " + matchString);
         String regexString = matchString;
         if (matchString != null && regex != null && regex.length() != 0) {
             Pattern p = Pattern.compile(regex);
