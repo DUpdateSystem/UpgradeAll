@@ -155,17 +155,24 @@ public class HtmlUnitApi extends Api {
         if (xpathList != null) {
             for (int i = 0; i < xpathList.size(); i++) {
                 HubConfig.StringItemBean.SearchPathBean.XpathListBean xpathListBean = xpathList.get(i);
-                int delay = xpathListBean.getDelay();
-                delay *= 1000;
+                int delay = xpathListBean.getDelay() * 1000;
+                int defaultDelay = 5 * 1000;
                 String xpath = xpathListBean.getXpath();
                 try {
-                    Log.d(TAG, "getDomString:  webClient wait " + delay);
+                    Log.d(TAG, "getDomString: webClient wait " + delay);
                     this.webClient.waitForBackgroundJavaScript(delay);
                     if (i != xpathList.size() - 1) {
                         try {
-                            DomElement dom = domElement.getFirstByXPath(xpath);
-                            Log.d(TAG, "getDomString: dom: " + dom);
-                            page = dom.click();
+                            for (int j = 0; j < 3; j++) {
+                                DomElement dom = domElement.getFirstByXPath(xpath);
+                                if (dom != null) {
+                                    Log.d(TAG, "getDomString: dom: " + dom);
+                                    page = dom.click();
+                                    Log.d(TAG, "getDomString: clicked, page url to " + page.getUrl());
+                                    break;
+                                } else
+                                    this.webClient.waitForBackgroundJavaScript(defaultDelay);
+                            }
                         } catch (Throwable e) {
                             e.printStackTrace();
                         }
@@ -174,7 +181,7 @@ public class HtmlUnitApi extends Api {
                         try {
                             DomNode dom = domElement.getFirstByXPath(xpath);
                             Log.d(TAG, "getDomString: dom: " + dom);
-                            returnString = dom.getNodeValue();
+                            returnString = dom.getTextContent();
                         } catch (Throwable e) {
                             e.printStackTrace();
                         }

@@ -135,20 +135,24 @@ public class VersionChecker {
         if (versionNumber0 != null && versionNumber1 != null) {
             if (versionNumber0.equals((versionNumber1))) return true;  // 版本号一致
             String[] versionNumberList0 = versionNumber0.split("\\.");
-            Log.d(TAG, "compareVersionNumber0:  " + versionNumber0);
+            Log.d(TAG, "compareVersionNumber0: " + versionNumber0);
             String[] versionNumberList1 = versionNumber1.split("\\.");
-            Log.d(TAG, "compareVersionNumber1:  " + versionNumber1);
+            Log.d(TAG, "compareVersionNumber1: " + versionNumber1);
             int listLength = versionNumberList0.length < versionNumberList1.length ? versionNumberList0.length : versionNumberList1.length;  // 获取较短字符串长度
             for (int i = 0; i < listLength; i++) {
-                if (Integer.parseInt(versionNumberList0[i]) > Integer.parseInt(versionNumberList1[i])) {
-                    // 若部分版本号大
-                    return true;
-                } else if (Integer.parseInt(versionNumberList0[i]) < Integer.parseInt(versionNumberList1[i])) {
-                    // 若部分版本号小
-                    return false;
-                } else if (i == listLength - 1) {
-                    // 若前缀一致，比较长度
-                    return versionNumber0.length() > versionNumber1.length();
+                try {
+                    if (Integer.parseInt(versionNumberList0[i]) > Integer.parseInt(versionNumberList1[i])) {
+                        // 若部分版本号大
+                        return true;
+                    } else if (Integer.parseInt(versionNumberList0[i]) < Integer.parseInt(versionNumberList1[i])) {
+                        // 若部分版本号小
+                        return false;
+                    } else if (i == listLength - 1) {
+                        // 若前缀一致，比较长度
+                        return versionNumber0.length() > versionNumber1.length();
+                    }
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, String.format("compareVersionNumber: 数据解析错误, versionNumber0: %s, versionNumber1: %s", versionNumber0, versionNumber1));
                 }
             }
         }

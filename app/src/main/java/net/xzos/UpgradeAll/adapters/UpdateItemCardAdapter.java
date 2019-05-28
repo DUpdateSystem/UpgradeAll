@@ -118,7 +118,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
 
                     // 无Release文件，不显示网络文件列表
                     if (itemList.size() == 0) {
-                        dialog.getWindow().findViewById(R.id.releaseTextView).setVisibility(View.INVISIBLE);
+                        dialog.getWindow().findViewById(R.id.releaseFileListLinearLayout).setVisibility(View.GONE);
                     }
 
                     // 构建文件列表
@@ -140,6 +140,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
                         MyApplication.getContext().startActivity(intent);
                     });
                     cloudReleaseList.setAdapter(adapter);
+                    dialog.getWindow().findViewById(R.id.fileListProgressBar).setVisibility(View.INVISIBLE);  // 隐藏等待提醒条
                 });
             }).start();
         });

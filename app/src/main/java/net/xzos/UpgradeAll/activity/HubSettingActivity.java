@@ -65,7 +65,10 @@ public class HubSettingActivity extends Activity {
             if (name != null && uuid != null) {
                 // 修改数据库
                 HubDatabase hubDatabase = LitePal.find(HubDatabase.class, databaseId);
-                if (hubDatabase == null) hubDatabase = new HubDatabase();
+                if (hubDatabase == null) {
+                    LitePal.deleteAll(HubDatabase.class, "uuid = ?", uuid);
+                    hubDatabase = new HubDatabase();
+                }
                 // 开启数据库
                 hubDatabase.setName(name);
                 hubDatabase.setUuid(uuid);

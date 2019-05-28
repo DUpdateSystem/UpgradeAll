@@ -29,14 +29,13 @@ import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class UpdaterSettingActivity extends AppCompatActivity {
 
     private static final String TAG = "UpdateItemSetting";
 
-    private static JSONObject apiSpinnerJsonObject = new JSONObject();
+    private static ArrayList<String> apiSpinnerList = new ArrayList<>();
 
     private int databaseId;  // 设置页面代表的数据库项目
 
@@ -121,25 +120,9 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             editUrl.setText(database.getUrl());
             Spinner apiSpinner = findViewById(R.id.apiSpinner);
             String apiUuid = database.getApiUuid();
-            final String githubUuid = getString(R.string.github_uuid);
-            if (githubUuid.equals(apiUuid)) {// Github 源
-                apiSpinner.setSelection(0);
-            } else {// 自定义源
-                Iterator<String> sIterator = apiSpinnerJsonObject.keys();
-                while (sIterator.hasNext()) {
-                    String key = sIterator.next();
-                    String uuid = null;
-                    try {
-                        uuid = apiSpinnerJsonObject.getString(key);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    if (apiUuid.equals(uuid)) {
-                        apiSpinner.setSelection(Integer.parseInt(key));
-                        break;
-                    }
-                }
-            }
+            // 设置 apiSpinner 位置
+            int spinnerIndex = apiSpinnerList.indexOf(apiUuid);
+            if (spinnerIndex != -1) apiSpinner.setSelection(spinnerIndex);
             Spinner versionCheckSpinner = findViewById(R.id.versionCheckSpinner);
             JSONObject versionChecker = database.getVersionChecker();
             String versionCheckerApi = "";
@@ -199,12 +182,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             versionChecker) {
         // TODO: 可被忽略的参数
         // 数据处理
-        String uuid = null;
-        try {
-            uuid = apiSpinnerJsonObject.getString(String.valueOf(apiNum));
-        } catch (JSONException e) {
-            Log.e(TAG, String.format("addRepoDatabase: 获取API接口异常, apiNum: %s, apiSpinnerJsonObject: %s", apiNum, apiSpinnerJsonObject));
-        }
+        String uuid = apiSpinnerList.get(apiNum);
         if (url.length() != 0 && uuid != null) {
             // 判断url是否多余
             if (url.substring(url.length() - 1).equals("/")) {
@@ -251,29 +229,19 @@ public class UpdaterSettingActivity extends AppCompatActivity {
     private String[] renewApiJsonObject() {
         // api接口名称列表
         List<String> nameStringList = new ArrayList<>();
-        // 清空 apiSpinnerJsonObject
-        apiSpinnerJsonObject = new JSONObject();
-        try {
-            // 添加Github 源
-            apiSpinnerJsonObject.put(String.valueOf(0), getString(R.string.github_uuid));
-            nameStringList.add("GitHub");
-        } catch (JSONException e) {
-            Log.e(TAG, "renewApiJsonObject: 添加API接口列表异常, apiSpinnerJsonObject: " + apiSpinnerJsonObject);
-        }
+        // 清空 apiSpinnerList
+        // 添加Github 源
+        nameStringList.add("GitHub");
+        apiSpinnerList.add(getString(R.string.github_uuid));
         // 获取自定义源
         List<HubDatabase> hubList = LitePal.findAll(HubDatabase.class);  // 读取 hub 数据库
-        int presetNumber = apiSpinnerJsonObject.length();  // 获取预置 API 数量
         for (int i = 0; i < hubList.size(); i++) {
             HubDatabase hubItem = hubList.get(i);
             String name = hubItem.getName();
             String apiUuid = hubItem.getUuid();
             nameStringList.add(name);
             // 记录可用的api UUID
-            try {
-                apiSpinnerJsonObject.put(String.valueOf(i + presetNumber), apiUuid);
-            } catch (JSONException e) {
-                Log.e(TAG, "renewApiJsonObject: 添加API接口 JsonObject 数据异常, apiSpinnerJsonObject: " + apiSpinnerJsonObject);
-            }
+            apiSpinnerList.add(apiUuid);
         }
         return nameStringList.toArray(new String[0]);
     }
