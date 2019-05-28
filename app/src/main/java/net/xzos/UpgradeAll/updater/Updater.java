@@ -151,7 +151,10 @@ public class Updater {
                     hubConfig = hubItem.getRepoConfig();
                 }
                 if (hubConfig != null) {
-                    String tool = hubConfig.getWebCrawler().getTool();
+                    String tool = null;
+                    if (hubConfig.getWebCrawler() != null) {
+                        tool = hubConfig.getWebCrawler().getTool();
+                    }
                     if (tool != null && tool.toLowerCase().equals("htmlunit"))
                         httpApi = new HtmlUnitApi(url, hubConfig);
                     else
