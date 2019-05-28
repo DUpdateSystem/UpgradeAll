@@ -65,13 +65,17 @@ public class GithubApi extends Api {
     @Override
     public String getVersionNumber(int releaseNum) {
         if (!isSuccessFlash()) return null;
-        String latestVersion = null;
+        String versionNumber = null;
         try {
-            latestVersion = getRelease(releaseNum).getString("name");
+            versionNumber = getRelease(releaseNum).getString("name");
+            if (versionNumber.equals("null"))
+                versionNumber = getRelease(releaseNum).getString("tag_name");
+            if (versionNumber.equals("null")) versionNumber = null;
         } catch (JSONException e) {
             Log.e(TAG, String.format("getVersionNumber:  返回数据解析错误: %s, returnJsonArray: %s", "name", getRelease(releaseNum)));
         }
-        return latestVersion;
+        Log.d(TAG, "getVersionNumber: version: " + versionNumber);
+        return versionNumber;
     }
 
     @Override

@@ -10,60 +10,89 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:gravity="center"
-        tools:ignore="UseCompoundDrawables">
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
-            app:srcCompat="@drawable/ic_version_cloud"
-            tools:ignore="ContentDescription" />
-
-        <TextView
-            android:id="@+id/cloudReleaseTextView"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_weight="1"
-            android:text="@string/dialog_version_cloud_release_text_view"
-            android:textSize="20sp" />
+            android:gravity="center"
+            tools:ignore="UseCompoundDrawables">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="10dp"
+                app:srcCompat="@drawable/ic_version_local"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/localReleaseTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:text="Release Text"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            tools:ignore="UseCompoundDrawables">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="10dp"
+                app:srcCompat="@drawable/ic_version_cloud"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/cloudReleaseTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:text="@string/dialog_version_cloud_release_text_view"
+                android:textSize="20sp" />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/releaseFileListLinearLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        tools:ignore="UseCompoundDrawables">
+        android:layout_height="match_parent"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
-            app:srcCompat="@drawable/ic_version_local"
-            tools:ignore="ContentDescription" />
-
-        <TextView
-            android:id="@+id/localReleaseTextView"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/releaseFileTextViewLinearLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_weight="1"
-            android:text="Release Text"
-            android:textSize="20sp"
-            tools:ignore="HardcodedText" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:text="@string/dialog_version_releaseTextView" />
+
+            <ProgressBar
+                android:id="@+id/fileListProgressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/cloudReleaseList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/releaseTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="10dp"
-        android:text="@string/dialog_version_releaseTextView" />
-
-    <ListView
-        android:id="@+id/cloudReleaseList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 </LinearLayout>
