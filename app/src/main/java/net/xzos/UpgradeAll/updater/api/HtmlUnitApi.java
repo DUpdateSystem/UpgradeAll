@@ -21,6 +21,7 @@ import org.seimicrawler.xpath.exception.XpathSyntaxErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +42,9 @@ public class HtmlUnitApi extends Api {
         Resources resources = MyApplication.getContext().getResources();
         hubConfigVersionBase = resources.getInteger(R.integer.hub_config_version_base);
         this.url = url;
+        java.util.logging.Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF);
+        java.util.logging.Logger.getLogger("org.apache.commons.httpclient").setLevel(Level.OFF);
+        java.util.logging.Logger.getLogger("org.apache.http.client.protocol.ResponseProcessCookies").setLevel(Level.OFF);
     }
 
     @Override
@@ -119,6 +123,10 @@ public class HtmlUnitApi extends Api {
         String fileName = getDomString(releaseNode, fileNameBean);
         // 获取下载链接
         String downloadUrl = getDomString(releaseNode, downloadUrlBean);
+        if (downloadUrl == null) {
+            fileName = fileName + "(获取下载地址失败，点击跳转主页)";
+            downloadUrl = this.url;
+        }
         Log.d(TAG, "getReleaseDownload: file_name: " + fileName);
         Log.d(TAG, "getReleaseDownload: download_url: " + downloadUrl);
         try {
@@ -146,14 +154,14 @@ public class HtmlUnitApi extends Api {
     private String getDomString(DomElement domElement, HubConfig.StringItemBean stringItemBeans) {
         String returnString = stringItemBeans.getText();
         if (returnString != null && returnString.length() != 0) return returnString;
-        Log.d(TAG, "getDomString: domElement: " + domElement);
+        else returnString = null;
         Gson gson = new Gson();
         Log.d(TAG, "getDomString: stringItemBeans: " + gson.toJson(stringItemBeans.toString()));
-        HtmlPage page = this.page; // 继承全局根网页
         String regex = stringItemBeans.getSearchPath().getRegex();
         List<HubConfig.StringItemBean.SearchPathBean.XpathListBean> xpathList = stringItemBeans.getSearchPath().getXpathList();
         if (xpathList != null) {
             for (int i = 0; i < xpathList.size(); i++) {
+                Log.d(TAG, "getDomString: domElement: " + domElement);
                 HubConfig.StringItemBean.SearchPathBean.XpathListBean xpathListBean = xpathList.get(i);
                 int delay = xpathListBean.getDelay() * 1000;
                 int defaultDelay = 3 * 1000;
@@ -161,32 +169,28 @@ public class HtmlUnitApi extends Api {
                 try {
                     Log.d(TAG, "getDomString: webClient wait " + delay);
                     this.webClient.waitForBackgroundJavaScript(delay);
-                    if (i != xpathList.size() - 1) {
-                        try {
-                            for (int j = 0; j < 5; j++) {
-                                DomElement dom = domElement.getFirstByXPath(xpath);
-                                if (dom != null) {
-                                    Log.d(TAG, "getDomString: dom: " + dom);
-                                    page = dom.click();
-                                    Log.d(TAG, "getDomString: clicked, page url to " + page.getUrl());
-                                    break;  // 跳出 for 循环
-                                } else
-                                    this.webClient.waitForBackgroundJavaScript(defaultDelay);
+                    for (int j = 0; j < 5; j++) {
+                        Log.d(TAG, String.format("getDomString: 循环第 %s 次", j));
+                        if (i != xpathList.size() - 1) {
+                            DomElement dom = domElement.getFirstByXPath(xpath);
+                            if (dom != null) {
+                                Log.d(TAG, "getDomString: dom: " + dom);
+                                HtmlPage page = dom.click();
+                                Log.d(TAG, "getDomString: clicked, page url to " + page.getUrl());
+                                domElement = page.getFirstByXPath("//body");
+                                break;  // 跳出 for 循环
                             }
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                        }
-                        domElement = page.getFirstByXPath("//body");
-                    } else {
-                        try {
+                        } else {
                             DomNode dom = domElement.getFirstByXPath(xpath);
-                            Log.d(TAG, "getDomString: dom: " + dom);
-                            returnString = dom.getNodeValue();
-                            if (returnString == null)
-                                returnString = dom.getTextContent();
-                        } catch (Throwable e) {
-                            e.printStackTrace();
+                            if (dom != null) {
+                                Log.d(TAG, "getDomString: dom: " + dom);
+                                returnString = dom.getNodeValue();
+                                if (returnString == null)
+                                    returnString = dom.getTextContent();
+                                else break;
+                            }
                         }
+                        this.webClient.waitForBackgroundJavaScript(defaultDelay);
                     }
                 } catch (NullPointerException e) {
                     Log.e(TAG, " getDomString: 未取得数据, Xpath: " + xpath);
@@ -194,10 +198,15 @@ public class HtmlUnitApi extends Api {
                     Log.e(TAG, " getDomString: Xpath 语法有误, Xpath: " + xpath);
                 } catch (ScriptException e) {
                     Log.d(TAG, " getDomString: 按钮点击事件失败, Xpath: " + xpath);
+                } catch (Throwable e) {
+                    e.printStackTrace();
                 }
             }
         }
-        returnString = regexMatch(returnString, regex);
+
+        returnString =
+
+                regexMatch(returnString, regex);
         return returnString;
     }
 

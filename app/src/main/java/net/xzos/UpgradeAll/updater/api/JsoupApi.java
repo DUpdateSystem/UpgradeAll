@@ -132,6 +132,7 @@ public class JsoupApi extends Api {
     private String getDomString(JXNode node, HubConfig.StringItemBean stringItemBeans) {
         String returnString = stringItemBeans.getText();
         if (returnString != null && returnString.length() != 0) return returnString;
+        else returnString = null;
         String regex = stringItemBeans.getSearchPath().getRegex();
         List<HubConfig.StringItemBean.SearchPathBean.XpathListBean> xpathList = stringItemBeans.getSearchPath().getXpathList();
         if (xpathList != null) {
