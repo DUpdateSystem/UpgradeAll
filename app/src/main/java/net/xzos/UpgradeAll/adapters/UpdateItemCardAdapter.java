@@ -134,10 +134,13 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        if (url != null && !url.startsWith("http://") && !url.startsWith("https://"))
+                            url = "http://" + url;
                         intent.setData(Uri.parse(url));
-                        intent = Intent.createChooser(intent, "请选择浏览器");
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        MyApplication.getContext().startActivity(intent);
+                        Intent chooser = Intent.createChooser(intent, "请选择浏览器");
+                        if (intent.resolveActivity(dialog.getContext().getPackageManager()) != null) {
+                            dialog.getContext().startActivity(chooser);
+                        }
                     });
                     cloudReleaseList.setAdapter(adapter);
                     dialog.getWindow().findViewById(R.id.fileListProgressBar).setVisibility(View.INVISIBLE);  // 隐藏等待提醒条
@@ -155,9 +158,10 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
         holder.url.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(holder.url.getText().toString()));
-            intent = Intent.createChooser(intent, "请选择浏览器");
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            MyApplication.getContext().startActivity(intent);
+            Intent chooser = Intent.createChooser(intent, "请选择浏览器");
+            if (intent.resolveActivity(holder.url.getContext().getPackageManager()) != null) {
+                holder.url.getContext().startActivity(chooser);
+            }
         });
         // 修改按钮
         holder.settingButton.setOnClickListener(v -> {
