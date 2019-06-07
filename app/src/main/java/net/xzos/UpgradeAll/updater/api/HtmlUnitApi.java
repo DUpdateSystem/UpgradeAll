@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 public class HtmlUnitApi extends Api {
 
-    private static final String TAG = "JsoupApi";
+    private static final String TAG = "HtmlUnitApi";
 
     private String url;
     private HubConfig hubConfig;
@@ -65,6 +65,7 @@ public class HtmlUnitApi extends Api {
             this.page = webClient.getPage(url);
         } catch (Throwable e) {
             Log.e(TAG, "flashData:  HtmlUnit 对象初始化失败");
+            e.printStackTrace();
         }
     }
 
