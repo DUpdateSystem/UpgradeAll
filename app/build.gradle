@@ -7,7 +7,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 16
-        versionName "0.0.8"
+        versionName "0.0.9-alpha.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -27,15 +27,15 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.1.0-alpha05'
+    implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta1'
-    implementation 'com.google.android.material:material:1.1.0-alpha06'
+    implementation 'com.google.android.material:material:1.1.0-alpha07'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.preference:preference:1.1.0-alpha05'
+    implementation 'androidx.preference:preference:1.1.0-beta01'
     testImplementation 'junit:junit:4.13-beta-3'
-    androidTestImplementation 'androidx.test:runner:1.2.0-beta01'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0-beta01'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0-alpha05'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0-alpha06'
 
     // OkHttp
     implementation 'com.squareup.okhttp3:okhttp:4.0.0-alpha01'
@@ -50,4 +50,6 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'cn.wanghaomiao:JsoupXpath:2.3.2'
     implementation 'xyz.nulldev.huandroid:huandroid:2.30.01'
+    // JavaScript 引擎
+    //implementation 'com.eclipsesource.j2v8:j2v8_android:3.0.5'
 }

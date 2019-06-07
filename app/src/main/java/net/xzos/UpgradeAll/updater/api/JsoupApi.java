@@ -50,6 +50,7 @@ public class JsoupApi extends Api {
             this.doc = JXDocument.create(doc);
         } catch (Throwable e) {
             Log.e(TAG, "flashData: Jsoup 对象初始化失败");
+            e.printStackTrace();
         }
     }
 
