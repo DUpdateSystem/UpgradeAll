@@ -38,7 +38,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0-alpha06'
 
     // OkHttp
-    implementation 'com.squareup.okhttp3:okhttp:4.0.0-alpha01'
+    implementation 'com.squareup.okhttp3:okhttp:4.0.0-alpha02'
     implementation 'com.squareup.okio:okio:2.2.2'
     // 数据处理
     implementation 'org.litepal.android:java:3.0.0'
@@ -51,5 +51,5 @@ dependencies {
     implementation 'cn.wanghaomiao:JsoupXpath:2.3.2'
     implementation 'xyz.nulldev.huandroid:huandroid:2.30.01'
     // JavaScript 引擎
-    //implementation 'com.eclipsesource.j2v8:j2v8_android:3.0.5'
+    implementation 'com.eclipsesource.j2v8:j2v8:5.0.103@aar'
 }

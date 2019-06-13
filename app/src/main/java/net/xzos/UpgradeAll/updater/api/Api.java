@@ -2,6 +2,9 @@ package net.xzos.UpgradeAll.updater.api;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Api {
 
@@ -12,8 +15,12 @@ public class Api {
         return getReleaseNum() != 0;
     }
 
-    public int getReleaseNum() {
-        return 0;
+    private int getReleaseNum() {
+        return getReleaseNodeList().size();
+    }
+
+    public List<?> getReleaseNodeList() {
+        return new ArrayList<>();
     }
 
     public String getVersionNumber(int releaseNum) {
@@ -36,4 +43,5 @@ public class Api {
     public String getDefaultName() {
         return null;
     }
+
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="hub_config_version_base">1</integer>
+    <integer name="hub_config_version_javascript">2</integer>
     <string name="default_data_expiration_time">10</string>
 </resources>

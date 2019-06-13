@@ -57,12 +57,6 @@ public class GithubApi extends Api {
     }
 
     @Override
-    public int getReleaseNum() {
-        return this.returnJsonArray.length();
-    }
-
-
-    @Override
     public String getVersionNumber(int releaseNum) {
         if (!isSuccessFlash()) return null;
         String versionNumber = null;

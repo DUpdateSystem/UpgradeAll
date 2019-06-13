@@ -11,6 +11,7 @@ import net.xzos.UpgradeAll.updater.api.Api;
 import net.xzos.UpgradeAll.updater.api.GithubApi;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.updater.api.HtmlUnitApi;
+import net.xzos.UpgradeAll.updater.api.JavaScriptJEngine;
 import net.xzos.UpgradeAll.updater.api.JsoupApi;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 import net.xzos.UpgradeAll.data.MyApplication;
@@ -157,6 +158,8 @@ public class Updater {
                     }
                     if (tool != null && tool.toLowerCase().equals("htmlunit"))
                         httpApi = new HtmlUnitApi(url, hubConfig);
+                    else if (tool != null && tool.toLowerCase().equals("javascript"))
+                        httpApi = new JavaScriptJEngine(url, hubConfig);
                     else
                         httpApi = new JsoupApi(url, hubConfig);
                 }

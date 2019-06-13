@@ -82,6 +82,7 @@ public class HubConfig {
 
         private String tool;
         private String user_agent;
+        private  String JavaScript;
         private AppConfigBean app_config;
 
         public String getTool() {
@@ -106,6 +107,14 @@ public class HubConfig {
 
         public void setAppConfig(AppConfigBean app_config) {
             this.app_config = app_config;
+        }
+
+        public String getJavaScript() {
+            return JavaScript;
+        }
+
+        public void setJavaScript(String javaScript) {
+            JavaScript = javaScript;
         }
 
         public static class AppConfigBean {
