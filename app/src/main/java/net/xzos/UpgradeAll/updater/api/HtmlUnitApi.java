@@ -21,7 +21,6 @@ import org.seimicrawler.xpath.exception.XpathSyntaxErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,9 +41,9 @@ public class HtmlUnitApi extends Api {
         Resources resources = MyApplication.getContext().getResources();
         hubConfigVersionBase = resources.getInteger(R.integer.hub_config_version_base);
         this.url = url;
-        java.util.logging.Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF);
-        java.util.logging.Logger.getLogger("org.apache.commons.httpclient").setLevel(Level.OFF);
-        java.util.logging.Logger.getLogger("org.apache.http.client.protocol.ResponseProcessCookies").setLevel(Level.OFF);
+        //java.util.logging.Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF);
+        //java.util.logging.Logger.getLogger("org.apache.commons.httpclient").setLevel(Level.OFF);
+        //java.util.logging.Logger.getLogger("org.apache.http.client.protocol.ResponseProcessCookies").setLevel(Level.OFF);
     }
 
     @Override
@@ -95,12 +94,6 @@ public class HtmlUnitApi extends Api {
     }
 
     @Override
-    public int getReleaseNum() {
-        if (hubConfigVersion < hubConfigVersionBase) return super.getReleaseNum();
-        return getReleaseNodeList().size();
-    }
-
-    @Override
     public String getVersionNumber(int releaseNum) {
         if (hubConfigVersion < hubConfigVersionBase) return super.getVersionNumber(releaseNum);
         if (!isSuccessFlash()) return null;
@@ -138,7 +131,8 @@ public class HtmlUnitApi extends Api {
         return releaseDownloadUrlJsonObject;
     }
 
-    private List<DomElement> getReleaseNodeList() {
+    @Override
+    public List<DomElement> getReleaseNodeList() {
         List<DomElement> releaseNodeList = new ArrayList<>();
         String releaseNodeXpath = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getReleaseNode();
         if (this.page != null && releaseNodeXpath != null) {
@@ -154,8 +148,11 @@ public class HtmlUnitApi extends Api {
 
     private String getDomString(DomElement domElement, HubConfig.StringItemBean stringItemBeans) {
         String returnString = stringItemBeans.getText();
+        // 初始化 returnString
         if (returnString != null && returnString.length() != 0) return returnString;
         else returnString = null;
+        HtmlPage domPage = this.page;
+        // 打印 Json
         Gson gson = new Gson();
         Log.d(TAG, "getDomString: stringItemBeans: " + gson.toJson(stringItemBeans.toString()));
         String regex = stringItemBeans.getSearchPath().getRegex();
@@ -173,23 +170,30 @@ public class HtmlUnitApi extends Api {
                     for (int j = 0; j < 5; j++) {
                         Log.d(TAG, String.format("getDomString: 循环第 %s 次", j));
                         if (i != xpathList.size() - 1) {
+                            // 界面跳转逻辑
                             DomElement dom = domElement.getFirstByXPath(xpath);
                             if (dom != null) {
                                 Log.d(TAG, "getDomString: dom: " + dom);
-                                HtmlPage page = dom.click();
-                                Log.d(TAG, "getDomString: clicked, page url to " + page.getUrl());
-                                domElement = page.getFirstByXPath("//body");
+                                domPage = dom.click();
+                                Log.d(TAG, "getDomString: clicked, domPage url to " + domPage.getUrl());
+                                domElement = domPage.getFirstByXPath("//body");
                                 break;  // 跳出 for 循环
                             }
                         } else {
-                            DomNode dom = domElement.getFirstByXPath(xpath);
-                            if (dom != null) {
-                                Log.d(TAG, "getDomString: dom: " + dom);
-                                returnString = dom.getNodeValue();
-                                if (returnString == null)
-                                    returnString = dom.getTextContent();
-                                else break;
+                            // 获取返回的字符串
+                            if (xpath.equals("get_page_url")) {
+                                returnString = domPage.getUrl().toString();
+                            } else {
+                                DomNode dom = domElement.getFirstByXPath(xpath);
+                                if (dom != null) {
+                                    Log.d(TAG, "getDomString: dom: " + dom);
+                                    // 获取文本链接信息
+                                    returnString = dom.getNodeValue();
+                                    if (returnString == null)
+                                        returnString = dom.getTextContent();
+                                }
                             }
+                            if (returnString != null) break;  // 如果获取到字符串，终止重试
                         }
                         this.webClient.waitForBackgroundJavaScript(defaultDelay);
                     }

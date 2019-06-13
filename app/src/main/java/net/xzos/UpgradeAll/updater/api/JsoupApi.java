@@ -32,11 +32,11 @@ public class JsoupApi extends Api {
     private int hubConfigVersionBase;
 
     public JsoupApi(String url, HubConfig hubConfig) {
+        this.url = url;
         this.hubConfig = hubConfig;
-        hubConfigVersion = this.hubConfig.getBaseVersion();
         Resources resources = MyApplication.getContext().getResources();
         hubConfigVersionBase = resources.getInteger(R.integer.hub_config_version_base);
-        this.url = url;
+        hubConfigVersion = this.hubConfig.getBaseVersion();
     }
 
     @Override
@@ -78,12 +78,6 @@ public class JsoupApi extends Api {
     }
 
     @Override
-    public int getReleaseNum() {
-        if (hubConfigVersion < hubConfigVersionBase) return super.getReleaseNum();
-        return getReleaseNodeList().size();
-    }
-
-    @Override
     public String getVersionNumber(int releaseNum) {
         if (hubConfigVersion < hubConfigVersionBase) return super.getVersionNumber(releaseNum);
         if (!isSuccessFlash()) return null;
@@ -116,7 +110,8 @@ public class JsoupApi extends Api {
         return releaseDownloadUrlJsonObject;
     }
 
-    private List<JXNode> getReleaseNodeList() {
+    @Override
+    public List<JXNode> getReleaseNodeList() {
         String releaseNodeXpath;
         List<JXNode> releaseNodeList = new ArrayList<>();
         releaseNodeXpath = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getReleaseNode();
