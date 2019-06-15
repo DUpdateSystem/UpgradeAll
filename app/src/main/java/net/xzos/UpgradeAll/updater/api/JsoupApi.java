@@ -43,20 +43,16 @@ public class JsoupApi extends Api {
     public void flashData() {
         if (hubConfigVersion < hubConfigVersionBase) return;
         String userAgent = hubConfig.getWebCrawler().getUserAgent();
-        try {
-            Connection connection = Jsoup.connect(url);
-            if (userAgent != null) connection.userAgent(userAgent);
-            Document doc = connection.get();
-            this.doc = JXDocument.create(doc);
-        } catch (Throwable e) {
-            Log.e(TAG, "flashData: Jsoup 对象初始化失败");
-            e.printStackTrace();
-        }
+        Connection connection = Jsoup.connect(url);
+        if (userAgent != null) connection.userAgent(userAgent);
+        Document doc = flashDoc(connection);
+        this.doc = JXDocument.create(doc);
     }
 
     @Override
     public String getDefaultName() {
         if (hubConfigVersion < hubConfigVersionBase) return super.getDefaultName();
+        // 刷新数据
         class FlashDataThread extends Thread {
             public void run() {
                 flashData();  // 获取数据
@@ -69,7 +65,7 @@ public class JsoupApi extends Api {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        // 刷新数据
+        // 提取数据
         HubConfig.StringItemBean defaultNameBean = this.hubConfig.getWebCrawler().getAppConfig().getDefaultName();
         JXNode rootNode = this.doc.selN("//body").get(0);
         String name = getDomString(rootNode, defaultNameBean);
@@ -170,5 +166,42 @@ public class JsoupApi extends Api {
         }
         Log.d(TAG, "regexMatch: regexString: " + regexString);
         return regexString;
+    }
+
+    static Document flashDoc(Connection connection) {
+        FlashDataThread thread = new FlashDataThread();
+        thread.initConnection(connection);
+        thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return thread.getDoc();
+    }
+}
+
+// 刷新数据
+class FlashDataThread extends Thread {
+    private static final String TAG = "FlashDataThread";
+    private Document doc;
+    private Connection connection;
+
+    void initConnection(Connection connection) {
+        this.connection = connection;
+    }
+
+    Document getDoc() {
+        return this.doc;
+    }
+
+    public void run() {
+        try {
+            doc = connection.get();
+        } catch (Throwable e) {
+            Log.e(TAG, "getStringByJsoupXpath: Jsoup 对象初始化失败");
+            e.printStackTrace();
+            this.doc = null;
+        }
     }
 }

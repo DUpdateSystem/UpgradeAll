@@ -6,6 +6,7 @@ import android.util.Log;
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
 import com.eclipsesource.v8.V8Object;
+import com.google.gson.JsonObject;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.data.MyApplication;
@@ -55,7 +56,9 @@ public class JavaScriptJEngine extends Api {
     @Override
     public String getDefaultName() {
         if (hubConfigVersion < hubConfigVersionJavaScript) return super.getDefaultName();
-        return v8.executeStringFunction("getDefaultName", null);
+        String s = v8.executeStringFunction("getDefaultName", null);
+        Log.e(TAG, "getDefaultName: s: " + s);
+        return s;
     }
 
     @Override
@@ -80,18 +83,19 @@ public class JavaScriptJEngine extends Api {
         WebCrawler webCrawler = new WebCrawler();
         V8Object v8WebCrawler = new V8Object(v8);
         v8.add("webCrawler", v8WebCrawler);
-        v8WebCrawler.registerJavaMethod(webCrawler, "selNByJsoupXpath", "selNByJsoupXpath", new Class<?>[]{String.class});
+        v8WebCrawler.registerJavaMethod(webCrawler, "selNByJsoupXpath", "selNByJsoupXpath", new Class<?>[]{String.class, String.class});
         v8WebCrawler.release();
         // Log
         LogUtil Log = new LogUtil();
         V8Object v8Log = new V8Object(v8);
         v8.add("Log", v8Log);
-        v8Log.registerJavaMethod(Log, "v", "v", new Class<?>[]{String.class});
-        v8Log.registerJavaMethod(Log, "d", "d", new Class<?>[]{String.class});
-        v8Log.registerJavaMethod(Log, "i", "i", new Class<?>[]{String.class});
-        v8Log.registerJavaMethod(Log, "w", "w", new Class<?>[]{String.class});
-        v8Log.registerJavaMethod(Log, "e", "e", new Class<?>[]{String.class});
+        v8Log.registerJavaMethod(Log, "v", "v", new Class<?>[]{String.class, String.class});
+        v8Log.registerJavaMethod(Log, "d", "d", new Class<?>[]{String.class, String.class});
+        v8Log.registerJavaMethod(Log, "i", "i", new Class<?>[]{String.class, String.class});
+        v8Log.registerJavaMethod(Log, "w", "w", new Class<?>[]{String.class, String.class});
+        v8Log.registerJavaMethod(Log, "e", "e", new Class<?>[]{String.class, Object.class});
         v8Log.release();
+        V8Array v8Array = new V8Array(v8);
     }
 
     // 加载 JavaScript 代码
@@ -99,50 +103,35 @@ public class JavaScriptJEngine extends Api {
         v8.executeScript(hubConfig.getWebCrawler().getJavaScript());
     }
 
+    private V8Array toV8Array(List<?> list) {
+        V8Array v8Array = new V8Array(v8);
+        for (Object item : list) {
+            v8Array.push(item);
+        }
+        return v8Array;
+    }
+
     /**
      * 爬虫相关库的打包集合
      * For JavaScript
      */
     private class WebCrawler {
-        private List<String> selNByJsoupXpath(String URL, String xpath) {
+        public V8Array selNByJsoupXpath(String URL, String xpath) {
+            return toV8Array(selNByJsoupXpathJavaList(URL, xpath));
+        }
+
+        private List<String> selNByJsoupXpathJavaList(String URL, String xpath) {
             String userAgent = hubConfig.getWebCrawler().getUserAgent();
             Connection connection = Jsoup.connect(URL);
             if (userAgent != null) connection.userAgent(userAgent);
-            Document doc;
-            try {
-                doc = connection.get();
-            } catch (Throwable e) {
-                Log.e(TAG, " getStringByJsoupXpath: Jsoup 对象初始化失败");
-                e.printStackTrace();
-                return new ArrayList<>();
-            }
+            Document doc = JsoupApi.flashDoc(connection);
             JXDocument JXDoc = JXDocument.create(doc);
             List<String> nodeStringArrayList = new ArrayList<>();
             for (JXNode node : JXDoc.selN((xpath))) {
                 nodeStringArrayList.add(node.toString());
             }
+            Log.d(TAG, "selNByJsoupXpath: node_list: " + nodeStringArrayList);
             return nodeStringArrayList;
         }
-    }
-
-    public JSONObject runFunction(ArrayList<String> targetStringList, String javaScriptString) {
-        // 初始化
-        V8 runtime = V8.createV8Runtime();
-        runtime.executeScript(javaScriptString);
-        // 转换输入字符串列表
-        V8Array targetStringV8Array = new V8Array(runtime);
-        for (String targetString : targetStringList)
-            targetStringV8Array.push(targetString);
-        // 运行 JavaScript 函数
-        V8Array returnV8Array = runtime.executeArrayFunction("main", targetStringV8Array);
-        // 获取网址
-        String url = returnV8Array.getString("url");
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("url", url);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObject;
     }
 }

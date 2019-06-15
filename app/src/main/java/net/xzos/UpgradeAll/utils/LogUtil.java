@@ -2,6 +2,8 @@ package net.xzos.UpgradeAll.utils;
 
 import android.util.Log;
 
+import com.eclipsesource.v8.V8Object;
+
 /**
  * 自定义的日志打印工具类
  */
@@ -29,35 +31,50 @@ public class LogUtil {
     // 调用Log.v()方法打印日志
     public static void v(String tag, String msg) {
         if (LEVEL <= VERBOSE) {
-            Log.v(tag, msg);
+            if (msg.getClass().equals(V8Object.class))
+                msg = msg.toString();
+            if (msg.getClass().equals(String.class))
+                Log.v(tag, (String) msg);
         }
     }
 
     // 调用Log.d()方法打印日志
     public static void d(String tag, String msg) {
         if (LEVEL <= DEBUG) {
-            Log.d(tag, msg);
+            if (msg.getClass().equals(V8Object.class))
+                msg = msg.toString();
+            if (msg.getClass().equals(String.class))
+                Log.d(tag, (String) msg);
         }
     }
 
     // 调用Log.i()方法打印日志
     public static void i(String tag, String msg) {
         if (LEVEL <= INFO) {
-            Log.i(tag, msg);
+            if (msg.getClass().equals(V8Object.class))
+                msg = msg.toString();
+            if (msg.getClass().equals(String.class))
+                Log.i(tag, (String) msg);
         }
     }
 
     // 调用Log.w()方法打印日志
     public static void w(String tag, String msg) {
         if (LEVEL <= WARN) {
-            Log.w(tag, msg);
+            if (msg.getClass().equals(V8Object.class))
+                msg = msg.toString();
+            if (msg.getClass().equals(String.class))
+                Log.w(tag, (String) msg);
         }
     }
 
     // 调用Log.e()方法打印日志
-    public static void e(String tag, String msg) {
+    public static void e(String tag, Object msg) {
         if (LEVEL <= ERROR) {
-            Log.e(tag, msg);
+            if (msg.getClass().equals(V8Object.class))
+                msg = msg.toString();
+            if (msg.getClass().equals(String.class))
+                Log.e(tag, (String) msg);
         }
     }
 }

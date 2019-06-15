@@ -21,6 +21,8 @@ import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.updater.api.GithubApi;
+import net.xzos.UpgradeAll.updater.api.HtmlUnitApi;
+import net.xzos.UpgradeAll.updater.api.JavaScriptJEngine;
 import net.xzos.UpgradeAll.updater.api.JsoupApi;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
@@ -198,7 +200,18 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                     for (HubDatabase hubItem : hubDatabase) {
                         if (hubItem.getUuid().equals(uuid)) {
                             HubConfig hubConfig = hubItem.getRepoConfig();
-                            name = new JsoupApi(url, hubConfig).getDefaultName();
+                            if (hubConfig != null) {
+                                String tool = null;
+                                if (hubConfig.getWebCrawler() != null) {
+                                    tool = hubConfig.getWebCrawler().getTool();
+                                }
+                                if (tool != null && tool.toLowerCase().equals("htmlunit"))
+                                    name = new HtmlUnitApi(url, hubConfig).getDefaultName();
+                                else if (tool != null && tool.toLowerCase().equals("javascript"))
+                                    name = new JavaScriptJEngine(url, hubConfig).getDefaultName();
+                                else
+                                    name = new JsoupApi(url, hubConfig).getDefaultName();
+                            }
                             break;
                         }
                     }
