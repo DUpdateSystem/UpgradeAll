@@ -132,7 +132,7 @@ public class HtmlUnitApi extends Api {
     }
 
     @Override
-    public List<DomElement> getReleaseNodeList() {
+    protected List<DomElement> getReleaseNodeList() {
         List<DomElement> releaseNodeList = new ArrayList<>();
         String releaseNodeXpath = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getReleaseNode();
         if (this.page != null && releaseNodeXpath != null) {
