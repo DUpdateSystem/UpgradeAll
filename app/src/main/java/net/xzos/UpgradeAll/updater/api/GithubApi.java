@@ -46,6 +46,10 @@ public class GithubApi extends Api {
         Log.d(TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
     }
 
+    @Override
+    public int getReleaseNum() {
+        return this.returnJsonArray.length();
+    }
     private JSONObject getRelease(int releaseNum) {
         JSONObject jsonObject = new JSONObject();
         try {
@@ -99,6 +103,7 @@ public class GithubApi extends Api {
         return releaseDownloadUrlJsonObject;
     }
 
+    @Override
     public String getDefaultName() {
         // 获取默认名称的独立方法
         String[] apiUrlStringList = GithubApi.splitUrl(url);
