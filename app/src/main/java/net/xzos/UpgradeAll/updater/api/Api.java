@@ -15,11 +15,11 @@ public class Api {
         return getReleaseNum() != 0;
     }
 
-    private int getReleaseNum() {
+    public int getReleaseNum() {
         return getReleaseNodeList().size();
     }
 
-    public List<?> getReleaseNodeList() {
+    protected List<?> getReleaseNodeList() {
         return new ArrayList<>();
     }
 

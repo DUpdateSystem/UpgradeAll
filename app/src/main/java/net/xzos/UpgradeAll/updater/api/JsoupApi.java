@@ -25,14 +25,14 @@ import java.util.regex.Pattern;
 public class JsoupApi extends Api {
     private static final String TAG = "JsoupApi";
 
-    private String url;
+    private String URL;
     private HubConfig hubConfig;
-    private JXDocument doc;
+    private JXDocument JXDoc;
     private int hubConfigVersion;
     private int hubConfigVersionBase;
 
-    public JsoupApi(String url, HubConfig hubConfig) {
-        this.url = url;
+    public JsoupApi(String URL, HubConfig hubConfig) {
+        this.URL = URL;
         this.hubConfig = hubConfig;
         Resources resources = MyApplication.getContext().getResources();
         hubConfigVersionBase = resources.getInteger(R.integer.hub_config_version_base);
@@ -43,31 +43,19 @@ public class JsoupApi extends Api {
     public void flashData() {
         if (hubConfigVersion < hubConfigVersionBase) return;
         String userAgent = hubConfig.getWebCrawler().getUserAgent();
-        Connection connection = Jsoup.connect(url);
+        Connection connection = Jsoup.connect(this.URL);
         if (userAgent != null) connection.userAgent(userAgent);
-        Document doc = flashDoc(connection);
-        this.doc = JXDocument.create(doc);
+        Document doc = JsoupApi.getDoc(connection);
+        this.JXDoc = JXDocument.create(doc);
     }
 
     @Override
     public String getDefaultName() {
         if (hubConfigVersion < hubConfigVersionBase) return super.getDefaultName();
-        // 刷新数据
-        class FlashDataThread extends Thread {
-            public void run() {
-                flashData();  // 获取数据
-            }
-        }
-        Thread thread = new FlashDataThread();
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        flashData();  // 刷新数据
         // 提取数据
         HubConfig.StringItemBean defaultNameBean = this.hubConfig.getWebCrawler().getAppConfig().getDefaultName();
-        JXNode rootNode = this.doc.selN("//body").get(0);
+        JXNode rootNode = this.JXDoc.selN("//body").get(0);
         String name = getDomString(rootNode, defaultNameBean);
         Log.d(TAG, "getDefaultName: name: " + name);
         return name;
@@ -107,13 +95,13 @@ public class JsoupApi extends Api {
     }
 
     @Override
-    public List<JXNode> getReleaseNodeList() {
+    protected List<JXNode> getReleaseNodeList() {
         String releaseNodeXpath;
         List<JXNode> releaseNodeList = new ArrayList<>();
         releaseNodeXpath = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getReleaseNode();
-        if (this.doc != null && releaseNodeXpath != null)
+        if (this.JXDoc != null && releaseNodeXpath != null)
             try {
-                releaseNodeList = doc.selN(releaseNodeXpath);
+                releaseNodeList = JXDoc.selN(releaseNodeXpath);
             } catch (XpathSyntaxErrorException e) {
                 Log.e(TAG, "getReleaseNodeList: Xpath 语法有误, releaseNodeXpath: " + releaseNodeXpath);
             }
@@ -168,7 +156,7 @@ public class JsoupApi extends Api {
         return regexString;
     }
 
-    static Document flashDoc(Connection connection) {
+    static Document getDoc(Connection connection) {
         FlashDataThread thread = new FlashDataThread();
         thread.initConnection(connection);
         thread.start();
