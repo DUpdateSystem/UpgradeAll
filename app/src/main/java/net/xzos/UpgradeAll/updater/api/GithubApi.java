@@ -1,6 +1,6 @@
 package net.xzos.UpgradeAll.updater.api;
 
-import android.util.Log;
+import net.xzos.UpgradeAll.utils.LogUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,7 +26,7 @@ public class GithubApi extends Api {
     public GithubApi(String url) {
         this.url = url;
         this.apiUrl = getApiUrl(url);
-        Log.d(TAG, "api_url: " + apiUrl);
+        LogUtil.d(TAG, "api_url: " + apiUrl);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class GithubApi extends Api {
                 }
             }
         }
-        Log.d(TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
+        LogUtil.d(TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class GithubApi extends Api {
         try {
             jsonObject = new JSONObject(this.returnJsonArray.getString(releaseNum));
         } catch (JSONException e) {
-            Log.e(TAG, String.format("getRelease:  返回数据解析错误: %s, returnJsonArray: %s", releaseNum, this.returnJsonArray));
+            LogUtil.e(TAG, String.format("getRelease:  返回数据解析错误: %s, returnJsonArray: %s", releaseNum, this.returnJsonArray));
         }
         return jsonObject;
     }
@@ -70,9 +70,9 @@ public class GithubApi extends Api {
                 versionNumber = getRelease(releaseNum).getString("tag_name");
             if (versionNumber.equals("null")) versionNumber = null;
         } catch (JSONException e) {
-            Log.e(TAG, String.format("getVersionNumber:  返回数据解析错误: %s, returnJsonArray: %s", "name", getRelease(releaseNum)));
+            LogUtil.e(TAG, String.format("getVersionNumber:  返回数据解析错误: %s, returnJsonArray: %s", "name", getRelease(releaseNum)));
         }
-        Log.d(TAG, "getVersionNumber: version: " + versionNumber);
+        LogUtil.d(TAG, "getVersionNumber: version: " + versionNumber);
         return versionNumber;
     }
 
@@ -84,7 +84,7 @@ public class GithubApi extends Api {
         try {
             releaseAssets = getRelease(releaseNum).getJSONArray("assets");
         } catch (JSONException e) {
-            Log.e(TAG, String.format(" getReleaseDownload:  返回数据解析错误: %s, returnJsonArray: %s", "assets", getRelease(releaseNum)));
+            LogUtil.e(TAG, String.format(" getReleaseDownload:  返回数据解析错误: %s, returnJsonArray: %s", "assets", getRelease(releaseNum)));
         }
         for (int i = 0; i < releaseAssets.length(); i++) {
             JSONObject tmpJsonObject = new JSONObject();
@@ -143,7 +143,7 @@ public class GithubApi extends Api {
         try {
             response = client.newCall(request).execute();
         } catch (IOException e) {
-            Log.e(TAG, "getHttpResponse:  网络错误");
+            LogUtil.e(TAG, "getHttpResponse:  网络错误");
         }
         if (response != null) {
             try {

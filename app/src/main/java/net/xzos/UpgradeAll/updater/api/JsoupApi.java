@@ -1,11 +1,12 @@
 package net.xzos.UpgradeAll.updater.api;
 
 import android.content.res.Resources;
-import android.util.Log;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.gson.HubConfig;
+
+import net.xzos.UpgradeAll.utils.LogUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 public class JsoupApi extends Api {
     private static final String TAG = "JsoupApi";
@@ -57,7 +59,7 @@ public class JsoupApi extends Api {
         HubConfig.StringItemBean defaultNameBean = this.hubConfig.getWebCrawler().getAppConfig().getDefaultName();
         JXNode rootNode = this.JXDoc.selN("//body").get(0);
         String name = getDomString(rootNode, defaultNameBean);
-        Log.d(TAG, "getDefaultName: name: " + name);
+        LogUtil.d(TAG, "getDefaultName: name: " + name);
         return name;
     }
 
@@ -68,7 +70,7 @@ public class JsoupApi extends Api {
         HubConfig.StringItemBean versionNumberBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getVersion_number();
         JXNode releaseNode = getReleaseNodeList().get(releaseNum);  // 初始化 release 节点
         String versionNumber = getDomString(releaseNode, versionNumberBean);
-        Log.d(TAG, "getVersionNumber: version: " + versionNumber);
+        LogUtil.d(TAG, "getVersionNumber: version: " + versionNumber);
         return versionNumber;
     }
 
@@ -84,12 +86,12 @@ public class JsoupApi extends Api {
         String fileName = getDomString(releaseNode, fileNameBean);
         // 获取下载链接
         String downloadUrl = getDomString(releaseNode, downloadUrlBean);
-        Log.d(TAG, "getReleaseDownload: file_name: " + fileName);
-        Log.d(TAG, "getReleaseDownload: download_url: " + downloadUrl);
+        LogUtil.d(TAG, "getReleaseDownload: file_name: " + fileName);
+        LogUtil.d(TAG, "getReleaseDownload: download_url: " + downloadUrl);
         try {
             releaseDownloadUrlJsonObject.put(fileName, downloadUrl);
         } catch (JSONException e) {
-            Log.e(TAG, String.format("getReleaseDownload: 字符串为空, fileName: %s, downloadUrl: %s", fileName, downloadUrl));
+            LogUtil.e(TAG, String.format("getReleaseDownload: 字符串为空, fileName: %s, downloadUrl: %s", fileName, downloadUrl));
         }
         return releaseDownloadUrlJsonObject;
     }
@@ -103,9 +105,9 @@ public class JsoupApi extends Api {
             try {
                 releaseNodeList = JXDoc.selN(releaseNodeXpath);
             } catch (XpathSyntaxErrorException e) {
-                Log.e(TAG, "getReleaseNodeList: Xpath 语法有误, releaseNodeXpath: " + releaseNodeXpath);
+                LogUtil.e(TAG, "getReleaseNodeList: Xpath 语法有误, releaseNodeXpath: " + releaseNodeXpath);
             }
-        Log.d(TAG, "getReleaseNodeList: Node Num: " + releaseNodeList.size());
+        LogUtil.d(TAG, "getReleaseNodeList: Node Num: " + releaseNodeList.size());
         return releaseNodeList;
     }
 
@@ -130,11 +132,11 @@ public class JsoupApi extends Api {
                         node = jxDocument.selN("//body").get(0);
                     }
                 } catch (NullPointerException e) {
-                    Log.e(TAG, "getDomString: 未取得数据, xpath: " + xpath);
+                    LogUtil.e(TAG, "getDomString: 未取得数据, xpath: " + xpath);
                 } catch (XpathSyntaxErrorException e) {
-                    Log.e(TAG, "getDomString: Xpath 语法有误, xpath: " + xpath);
+                    LogUtil.e(TAG, "getDomString: Xpath 语法有误, xpath: " + xpath);
                 } catch (IOException e) {
-                    Log.e(TAG, "getDomString: Jsoup 对象初始化失败");
+                    LogUtil.e(TAG, "getDomString: Jsoup 对象初始化失败");
                 }
             }
         }
@@ -143,7 +145,7 @@ public class JsoupApi extends Api {
     }
 
     private String regexMatch(String matchString, String regex) {
-        Log.d(TAG, "regexMatch:  matchString: " + matchString);
+        LogUtil.d(TAG, "regexMatch:  matchString: " + matchString);
         String regexString = matchString;
         if (matchString != null && regex != null && regex.length() != 0) {
             Pattern p = Pattern.compile(regex);
@@ -152,7 +154,7 @@ public class JsoupApi extends Api {
                 regexString = m.group();
             }
         }
-        Log.d(TAG, "regexMatch: regexString: " + regexString);
+        LogUtil.d(TAG, "regexMatch: regexString: " + regexString);
         return regexString;
     }
 
@@ -187,7 +189,7 @@ class FlashDataThread extends Thread {
         try {
             doc = connection.get();
         } catch (Throwable e) {
-            Log.e(TAG, "getStringByJsoupXpath: Jsoup 对象初始化失败");
+            LogUtil.e(TAG, "getStringByJsoupXpath: Jsoup 对象初始化失败");
             e.printStackTrace();
             this.doc = null;
         }
