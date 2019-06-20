@@ -3,7 +3,6 @@ package net.xzos.UpgradeAll.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -14,6 +13,7 @@ import com.google.gson.JsonSyntaxException;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.utils.LogUtil;
 
 import org.litepal.LitePal;
 
@@ -48,7 +48,7 @@ public class HubSettingActivity extends Activity {
         try {
             repoConfigGson = gson.fromJson(hubConfig, HubConfig.class);
         } catch (JsonSyntaxException e) {
-            Log.e(TAG, "addHubDatabase:  hubConfig 不符合 JsonObject 格式 hubConfig: " + hubConfig);
+            LogUtil.e(TAG, "addHubDatabase:  hubConfig 不符合 JsonObject 格式 hubConfig: " + hubConfig);
         }
 
         // hubConfig 符合 JsonObject 格式，做进一步数据处理
@@ -59,7 +59,7 @@ public class HubSettingActivity extends Activity {
                 name = repoConfigGson.getInfo().getConfigName();
                 uuid = repoConfigGson.getUuid();
             } catch (NullPointerException e) {
-                Log.e(TAG, "addHubDatabase: 请确认 hubConfig 包含各个必须元素 hubConfigGson: " + hubConfig);
+                LogUtil.e(TAG, "addHubDatabase: 请确认 hubConfig 包含各个必须元素 hubConfigGson: " + hubConfig);
             }
             // 如果设置了名字与 UUID，则存入数据库
             if (name != null && uuid != null) {

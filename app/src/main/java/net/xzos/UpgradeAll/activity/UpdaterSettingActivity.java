@@ -3,7 +3,6 @@ package net.xzos.UpgradeAll.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -24,6 +23,7 @@ import net.xzos.UpgradeAll.updater.api.GithubApi;
 import net.xzos.UpgradeAll.updater.api.HtmlUnitApi;
 import net.xzos.UpgradeAll.updater.api.JavaScriptJEngine;
 import net.xzos.UpgradeAll.updater.api.JsoupApi;
+import net.xzos.UpgradeAll.utils.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
 import org.json.JSONException;
@@ -135,7 +135,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                 versionCheckerText = versionChecker.getString("text");
                 versionCheckRegular = versionChecker.getString("regular");
             } catch (JSONException e) {
-                Log.e(TAG, String.format("onCreate: 数据库损坏！  versionChecker: %s", versionChecker));
+                LogUtil.e(TAG, String.format("onCreate: 数据库损坏！  versionChecker: %s", versionChecker));
             }
             switch (versionCheckerApi.toLowerCase()) {
                 case "app":
@@ -161,7 +161,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
         String versionCheckerText = editVersionCheckText.getText().toString();
         String versionCheckerApi = versionCheckSpinner.getSelectedItem().toString();
         String versionCheckerRegular = editVersionCheckRegular.getText().toString();
-        Log.d(TAG, "getRepoConfig:  " + versionCheckerRegular);
+        LogUtil.d(TAG, "getRepoConfig:  " + versionCheckerRegular);
         switch (versionCheckerApi) {
             case "APP 版本":
                 versionCheckerApi = "APP";

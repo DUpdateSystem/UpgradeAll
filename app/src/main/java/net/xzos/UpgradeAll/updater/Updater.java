@@ -2,19 +2,19 @@ package net.xzos.UpgradeAll.updater;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
+import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.updater.api.Api;
 import net.xzos.UpgradeAll.updater.api.GithubApi;
-import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.updater.api.HtmlUnitApi;
 import net.xzos.UpgradeAll.updater.api.JavaScriptJEngine;
 import net.xzos.UpgradeAll.updater.api.JsoupApi;
+import net.xzos.UpgradeAll.utils.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
-import net.xzos.UpgradeAll.data.MyApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -75,7 +75,7 @@ public class Updater {
             try {
                 updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
             } catch (JSONException e) {
-                Log.d(TAG, String.format("autoRefresh:  updateJsonData缺少 %s 项", databaseId));
+                LogUtil.d(TAG, String.format("autoRefresh:  updateJsonData缺少 %s 项", databaseId));
             }
             if (updateItemJson.length() != 0) {
                 Calendar updateTime = null;
@@ -83,10 +83,10 @@ public class Updater {
                     updateTime = (Calendar) updateItemJson.get("update_time");
                     updateTime.add(Calendar.MINUTE, autoRefreshMinute);
                 } catch (JSONException e) {
-                    Log.d(TAG, String.format("autoRefresh:  初始化数据刷新: %s", databaseId));
+                    LogUtil.d(TAG, String.format("autoRefresh:  初始化数据刷新: %s", databaseId));
                 }
                 if (Calendar.getInstance().before(updateTime)) {
-                    Log.d(TAG, String.format("autoRefreshAll: %s NoUp", databaseId));
+                    LogUtil.d(TAG, String.format("autoRefreshAll: %s NoUp", databaseId));
                     startRefresh = false;
                 }
             }
@@ -105,7 +105,7 @@ public class Updater {
         try {
             updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
         } catch (JSONException e) {
-            Log.d(TAG, "refresh:  更新对象初始化");
+            LogUtil.d(TAG, "refresh:  更新对象初始化");
             updateItemJson = renewUpdateItem(databaseId);  //  创建更新对象
         }
         // 数据刷新
@@ -120,7 +120,7 @@ public class Updater {
         refreshSuccess = api.isSuccessFlash();
         if (refreshSuccess) {
             try {
-                Log.d(TAG, "refresh:  刷新成功");
+                LogUtil.d(TAG, "refresh:  刷新成功");
                 updateItemJson.put("update_time", Calendar.getInstance());
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -133,7 +133,7 @@ public class Updater {
         // 添加一个 更新检查器追踪子项
         RepoDatabase repoDatabase = LitePal.find(RepoDatabase.class, databaseId);
         String apiUuid = repoDatabase.getApiUuid();
-        Log.d(TAG, "renewUpdateItem: uuid: " + apiUuid);
+        LogUtil.d(TAG, "renewUpdateItem: uuid: " + apiUuid);
         // 修复之前版本中GitHub没有 UUID 的问题
         if (apiUuid == null) {
             repoDatabase.setApiUuid(MyApplication.getContext().getString(R.string.github_uuid));
@@ -173,7 +173,7 @@ public class Updater {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "renewUpdateItem:  json: " + updateItemJson);
+        LogUtil.d(TAG, "renewUpdateItem:  json: " + updateItemJson);
         updateJsonData.remove(String.valueOf(databaseId));
         // 添加一个更新子项
         try {

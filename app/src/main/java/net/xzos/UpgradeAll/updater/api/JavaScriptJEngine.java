@@ -1,7 +1,6 @@
 package net.xzos.UpgradeAll.updater.api;
 
 import android.content.res.Resources;
-import android.util.Log;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
@@ -71,7 +70,7 @@ public class JavaScriptJEngine extends Api {
         if (hubConfigVersion < hubConfigVersionJavaScript) return super.getDefaultName();
         initJ2V8(); // 初始化 J2V8
         String defaultName = this.WebCrawler.executeStringFunction("getDefaultName", null);
-        Log.d(TAG, "getDefaultName: defaultName: " + defaultName);
+        LogUtil.d(TAG, "getDefaultName: defaultName: " + defaultName);
         closeJ2V8(); // 销毁 J2V8 对象
         return defaultName;
     }
@@ -82,7 +81,7 @@ public class JavaScriptJEngine extends Api {
             return super.getReleaseNum();
         initJ2V8(); // 初始化 J2V8
         int releaseNum = this.WebCrawler.executeIntegerFunction("getReleaseNum", null);
-        Log.d(TAG, "getReleaseNum: releaseNum: " + releaseNum);
+        LogUtil.d(TAG, "getReleaseNum: releaseNum: " + releaseNum);
         closeJ2V8(); // 销毁 J2V8 对象
         return releaseNum;
     }
@@ -94,7 +93,7 @@ public class JavaScriptJEngine extends Api {
             return super.getVersionNumber(releaseNum);
         initJ2V8(); // 初始化 J2V8
         String versionNumber = this.WebCrawler.executeStringFunction("getVersionNumber", new V8Array(v8).push(releaseNum));
-        Log.d(TAG, "getVersionNumber: versionNumber: " + versionNumber);
+        LogUtil.d(TAG, "getVersionNumber: versionNumber: " + versionNumber);
         memoryManager.release();
         closeJ2V8(); // 销毁 J2V8 对象
         return versionNumber;
@@ -110,12 +109,12 @@ public class JavaScriptJEngine extends Api {
         try {
             releaseDownloadUrlJsonObject = new JSONObject(versionNumberString);
         } catch (JSONException e) {
-            Log.e(TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范，versionNumberString : " + versionNumberString);
+            LogUtil.e(TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范，versionNumberString : " + versionNumberString);
             releaseDownloadUrlJsonObject = new JSONObject();
             e.printStackTrace();
         }
         closeJ2V8(); // 销毁 J2V8 对象
-        Log.d(TAG, "getReleaseDownload:  releaseDownloadUrlJsonObject: " + releaseDownloadUrlJsonObject);
+        LogUtil.d(TAG, "getReleaseDownload:  releaseDownloadUrlJsonObject: " + releaseDownloadUrlJsonObject);
         return releaseDownloadUrlJsonObject;
     }
 
@@ -137,7 +136,6 @@ public class JavaScriptJEngine extends Api {
         v8Log.registerJavaMethod(Log, "w", "w", new Class<?>[]{String.class, Object.class});
         v8Log.registerJavaMethod(Log, "e", "e", new Class<?>[]{String.class, Object.class});
         v8Log.release();
-        V8Array v8Array = new V8Array(v8);
     }
 
     // 加载 JavaScript 代码
@@ -168,9 +166,9 @@ public class JavaScriptJEngine extends Api {
             if (JsoupDomDict.has(URL)) {
                 try {
                     doc = (Document) JsoupDomDict.get(URL);
-                    Log.d(TAG, "selNByJsoupXpathJavaList: 从缓存加载，url: " + URL);
+                    LogUtil.d(TAG, "selNByJsoupXpathJavaList: 从缓存加载，url: " + URL);
                 } catch (JSONException e) {
-                    Log.e(TAG, "selNByJsoupXpathJavaList: Jsoup 缓存队列无该对象，JsoupDomDict: " + JsoupDomDict);
+                    LogUtil.e(TAG, "selNByJsoupXpathJavaList: Jsoup 缓存队列无该对象，JsoupDomDict: " + JsoupDomDict);
                     e.printStackTrace();
                 }
             } else {
@@ -179,9 +177,9 @@ public class JavaScriptJEngine extends Api {
                 doc = JsoupApi.getDoc(connection);
                 try {
                     JsoupDomDict.put(URL, doc);
-                    Log.d(TAG, "selNByJsoupXpathJavaList: 缓存，url: " + URL);
+                    LogUtil.d(TAG, "selNByJsoupXpathJavaList: 缓存，url: " + URL);
                 } catch (JSONException e) {
-                    Log.d(TAG, "selNByJsoupXpathJavaList: 缓存失败，url: " + URL);
+                    LogUtil.d(TAG, "selNByJsoupXpathJavaList: 缓存失败，url: " + URL);
                     e.printStackTrace();
                 }
             }
@@ -190,7 +188,7 @@ public class JavaScriptJEngine extends Api {
             for (JXNode node : JXDoc.selN((xpath))) {
                 nodeStringArrayList.add(node.toString());
             }
-            Log.d(TAG, "selNByJsoupXpath: node_list: " + nodeStringArrayList);
+            LogUtil.d(TAG, "selNByJsoupXpath: node_list: " + nodeStringArrayList);
             return nodeStringArrayList;
         }
     }
