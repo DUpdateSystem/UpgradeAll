@@ -35,6 +35,7 @@ import java.util.List;
 
 public class UpdaterSettingActivity extends AppCompatActivity {
 
+    private static final LogUtil Log = MyApplication.getLog();
     private static final String TAG = "UpdateItemSetting";
 
     private static ArrayList<String> apiSpinnerList = new ArrayList<>();
@@ -135,7 +136,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                 versionCheckerText = versionChecker.getString("text");
                 versionCheckRegular = versionChecker.getString("regular");
             } catch (JSONException e) {
-                LogUtil.e(TAG, String.format("onCreate: 数据库损坏！  versionChecker: %s", versionChecker));
+                Log.e(TAG, TAG, String.format("onCreate: 数据库损坏！  versionChecker: %s", versionChecker));
             }
             switch (versionCheckerApi.toLowerCase()) {
                 case "app":
@@ -161,7 +162,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
         String versionCheckerText = editVersionCheckText.getText().toString();
         String versionCheckerApi = versionCheckSpinner.getSelectedItem().toString();
         String versionCheckerRegular = editVersionCheckRegular.getText().toString();
-        LogUtil.d(TAG, "getRepoConfig:  " + versionCheckerRegular);
+        Log.d(TAG, TAG, "getRepoConfig:  " + versionCheckerRegular);
         switch (versionCheckerApi) {
             case "APP 版本":
                 versionCheckerApi = "APP";

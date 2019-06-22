@@ -13,6 +13,11 @@
         android:title="@string/hub_list"
         app:showAsAction="never" />
     <item
+        android:id="@+id/app_log"
+        android:orderInCategory="100"
+        android:title="@string/log"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/app_setting"
         android:orderInCategory="100"
         android:title="@string/setting"

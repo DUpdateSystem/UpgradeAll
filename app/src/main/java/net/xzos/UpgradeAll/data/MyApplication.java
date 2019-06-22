@@ -5,16 +5,18 @@ import android.app.Application;
 import android.content.Context;
 
 import net.xzos.UpgradeAll.updater.Updater;
+import net.xzos.UpgradeAll.utils.LogUtil;
 
 import org.litepal.LitePal;
 
 @SuppressLint("Registered")
 public class MyApplication extends Application {
 
-    final private static Updater updater = new Updater();
-
     @SuppressLint("StaticFieldLeak")
     private static Context context;
+
+    final private static LogUtil Log = new LogUtil();
+    final private static Updater updater = new Updater();
 
     @Override
     public void onCreate() {
@@ -25,6 +27,10 @@ public class MyApplication extends Application {
 
     public static Context getContext() {
         return context;
+    }
+
+    public static LogUtil getLog() {
+        return Log;
     }
 
     public static Updater getUpdater() {

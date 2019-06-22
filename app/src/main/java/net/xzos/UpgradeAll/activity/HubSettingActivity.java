@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.utils.LogUtil;
@@ -19,6 +20,7 @@ import org.litepal.LitePal;
 
 public class HubSettingActivity extends Activity {
 
+    private static final LogUtil Log = MyApplication.getLog();
     private static final String TAG = "HubSettingActivity";
 
     @Override
@@ -48,7 +50,7 @@ public class HubSettingActivity extends Activity {
         try {
             repoConfigGson = gson.fromJson(hubConfig, HubConfig.class);
         } catch (JsonSyntaxException e) {
-            LogUtil.e(TAG, "addHubDatabase:  hubConfig 不符合 JsonObject 格式 hubConfig: " + hubConfig);
+            Log.e(TAG, TAG, "addHubDatabase:  hubConfig 不符合 JsonObject 格式 hubConfig: " + hubConfig);
         }
 
         // hubConfig 符合 JsonObject 格式，做进一步数据处理
@@ -59,7 +61,7 @@ public class HubSettingActivity extends Activity {
                 name = repoConfigGson.getInfo().getConfigName();
                 uuid = repoConfigGson.getUuid();
             } catch (NullPointerException e) {
-                LogUtil.e(TAG, "addHubDatabase: 请确认 hubConfig 包含各个必须元素 hubConfigGson: " + hubConfig);
+                Log.e(TAG, TAG, "addHubDatabase: 请确认 hubConfig 包含各个必须元素 hubConfigGson: " + hubConfig);
             }
             // 如果设置了名字与 UUID，则存入数据库
             if (name != null && uuid != null) {

@@ -9,12 +9,10 @@ import com.google.android.material.tabs.TabLayout;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.activity.ui.main.SectionsPagerAdapter;
+import net.xzos.UpgradeAll.viewmodels.ui.log.SectionsPagerAdapter;
 
 public class LogActivity extends AppCompatActivity {
 

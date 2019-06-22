@@ -1,12 +1,11 @@
 package net.xzos.UpgradeAll.updater.api;
 
 import android.content.res.Resources;
+import android.util.Log;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.gson.HubConfig;
-
-import net.xzos.UpgradeAll.utils.LogUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,7 +24,9 @@ import java.util.regex.Pattern;
 
 
 public class JsoupApi extends Api {
+
     private static final String TAG = "JsoupApi";
+    private String APITAG = "NULL";
 
     private String URL;
     private HubConfig hubConfig;
@@ -33,8 +34,9 @@ public class JsoupApi extends Api {
     private int hubConfigVersion;
     private int hubConfigVersionBase;
 
-    public JsoupApi(String URL, HubConfig hubConfig) {
-        this.URL = URL;
+    public JsoupApi(String url, HubConfig hubConfig) {
+        this.APITAG = url;
+        this.URL = url;
         this.hubConfig = hubConfig;
         Resources resources = MyApplication.getContext().getResources();
         hubConfigVersionBase = resources.getInteger(R.integer.hub_config_version_base);
@@ -48,6 +50,7 @@ public class JsoupApi extends Api {
         Connection connection = Jsoup.connect(this.URL);
         if (userAgent != null) connection.userAgent(userAgent);
         Document doc = JsoupApi.getDoc(connection);
+        if (doc == null) Log.e(APITAG, TAG, "flashData: Jsoup 对象初始化失败");
         this.JXDoc = JXDocument.create(doc);
     }
 
@@ -59,7 +62,7 @@ public class JsoupApi extends Api {
         HubConfig.StringItemBean defaultNameBean = this.hubConfig.getWebCrawler().getAppConfig().getDefaultName();
         JXNode rootNode = this.JXDoc.selN("//body").get(0);
         String name = getDomString(rootNode, defaultNameBean);
-        LogUtil.d(TAG, "getDefaultName: name: " + name);
+        Log.d(APITAG, TAG, "getDefaultName: name: " + name);
         return name;
     }
 
@@ -70,7 +73,7 @@ public class JsoupApi extends Api {
         HubConfig.StringItemBean versionNumberBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getVersion_number();
         JXNode releaseNode = getReleaseNodeList().get(releaseNum);  // 初始化 release 节点
         String versionNumber = getDomString(releaseNode, versionNumberBean);
-        LogUtil.d(TAG, "getVersionNumber: version: " + versionNumber);
+        Log.d(APITAG, TAG, "getVersionNumber: version: " + versionNumber);
         return versionNumber;
     }
 
@@ -86,12 +89,12 @@ public class JsoupApi extends Api {
         String fileName = getDomString(releaseNode, fileNameBean);
         // 获取下载链接
         String downloadUrl = getDomString(releaseNode, downloadUrlBean);
-        LogUtil.d(TAG, "getReleaseDownload: file_name: " + fileName);
-        LogUtil.d(TAG, "getReleaseDownload: download_url: " + downloadUrl);
+        Log.d(APITAG, TAG, "getReleaseDownload: file_name: " + fileName);
+        Log.d(APITAG, TAG, "getReleaseDownload: download_url: " + downloadUrl);
         try {
             releaseDownloadUrlJsonObject.put(fileName, downloadUrl);
         } catch (JSONException e) {
-            LogUtil.e(TAG, String.format("getReleaseDownload: 字符串为空, fileName: %s, downloadUrl: %s", fileName, downloadUrl));
+            Log.e(APITAG, TAG, String.format("getReleaseDownload: 字符串为空, fileName: %s, downloadUrl: %s", fileName, downloadUrl));
         }
         return releaseDownloadUrlJsonObject;
     }
@@ -105,9 +108,9 @@ public class JsoupApi extends Api {
             try {
                 releaseNodeList = JXDoc.selN(releaseNodeXpath);
             } catch (XpathSyntaxErrorException e) {
-                LogUtil.e(TAG, "getReleaseNodeList: Xpath 语法有误, releaseNodeXpath: " + releaseNodeXpath);
+                Log.e(APITAG, TAG, "getReleaseNodeList: Xpath 语法有误, releaseNodeXpath: " + releaseNodeXpath);
             }
-        LogUtil.d(TAG, "getReleaseNodeList: Node Num: " + releaseNodeList.size());
+        Log.d(APITAG, TAG, "getReleaseNodeList: Node Num: " + releaseNodeList.size());
         return releaseNodeList;
     }
 
@@ -132,11 +135,11 @@ public class JsoupApi extends Api {
                         node = jxDocument.selN("//body").get(0);
                     }
                 } catch (NullPointerException e) {
-                    LogUtil.e(TAG, "getDomString: 未取得数据, xpath: " + xpath);
+                    Log.e(APITAG, TAG, "getDomString: 未取得数据, xpath: " + xpath);
                 } catch (XpathSyntaxErrorException e) {
-                    LogUtil.e(TAG, "getDomString: Xpath 语法有误, xpath: " + xpath);
+                    Log.e(APITAG, TAG, "getDomString: Xpath 语法有误, xpath: " + xpath);
                 } catch (IOException e) {
-                    LogUtil.e(TAG, "getDomString: Jsoup 对象初始化失败");
+                    Log.e(APITAG, TAG, "getDomString: Jsoup 对象初始化失败");
                 }
             }
         }
@@ -145,7 +148,7 @@ public class JsoupApi extends Api {
     }
 
     private String regexMatch(String matchString, String regex) {
-        LogUtil.d(TAG, "regexMatch:  matchString: " + matchString);
+        Log.d(APITAG, TAG, "regexMatch:  matchString: " + matchString);
         String regexString = matchString;
         if (matchString != null && regex != null && regex.length() != 0) {
             Pattern p = Pattern.compile(regex);
@@ -154,7 +157,7 @@ public class JsoupApi extends Api {
                 regexString = m.group();
             }
         }
-        LogUtil.d(TAG, "regexMatch: regexString: " + regexString);
+        Log.d(APITAG, TAG, "regexMatch: regexString: " + regexString);
         return regexString;
     }
 
@@ -189,7 +192,7 @@ class FlashDataThread extends Thread {
         try {
             doc = connection.get();
         } catch (Throwable e) {
-            LogUtil.e(TAG, "getStringByJsoupXpath: Jsoup 对象初始化失败");
+            Log.e(TAG, "getStringByJsoupXpath: Jsoup 对象初始化失败");
             e.printStackTrace();
             this.doc = null;
         }

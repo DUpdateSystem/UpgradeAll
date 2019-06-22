@@ -1,7 +1,5 @@
 package net.xzos.UpgradeAll.updater.api;
 
-import net.xzos.UpgradeAll.utils.LogUtil;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,15 +16,17 @@ import okhttp3.Response;
 
 public class GithubApi extends Api {
     private static final String TAG = "GithubApi";
+    private String APITAG = "NULL";
 
     private String apiUrl;
-    private String url;
+    private String URL;
     private JSONArray returnJsonArray = new JSONArray();
 
-    public GithubApi(String url) {
-        this.url = url;
-        this.apiUrl = getApiUrl(url);
-        LogUtil.d(TAG, "api_url: " + apiUrl);
+    public GithubApi(String URL) {
+        this.APITAG = URL;
+        this.URL = URL;
+        this.apiUrl = getApiUrl(URL);
+        Log.d(APITAG, TAG, "api_url: " + apiUrl);
     }
 
     @Override
@@ -39,23 +39,24 @@ public class GithubApi extends Api {
                 try {
                     this.returnJsonArray = new JSONArray(jsonText);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(APITAG, TAG, "flashData: ERROR_MESSAGE: " + e.toString());
                 }
             }
         }
-        LogUtil.d(TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
+        Log.d(APITAG, TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
     }
 
     @Override
     public int getReleaseNum() {
         return this.returnJsonArray.length();
     }
+
     private JSONObject getRelease(int releaseNum) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject = new JSONObject(this.returnJsonArray.getString(releaseNum));
         } catch (JSONException e) {
-            LogUtil.e(TAG, String.format("getRelease:  返回数据解析错误: %s, returnJsonArray: %s", releaseNum, this.returnJsonArray));
+            Log.e(APITAG, TAG, String.format("getRelease:  返回数据解析错误: %s, returnJsonArray: %s", releaseNum, this.returnJsonArray));
         }
         return jsonObject;
     }
@@ -70,9 +71,9 @@ public class GithubApi extends Api {
                 versionNumber = getRelease(releaseNum).getString("tag_name");
             if (versionNumber.equals("null")) versionNumber = null;
         } catch (JSONException e) {
-            LogUtil.e(TAG, String.format("getVersionNumber:  返回数据解析错误: %s, returnJsonArray: %s", "name", getRelease(releaseNum)));
+            Log.e(APITAG, TAG, String.format("getVersionNumber:  返回数据解析错误: %s, returnJsonArray: %s", "name", getRelease(releaseNum)));
         }
-        LogUtil.d(TAG, "getVersionNumber: version: " + versionNumber);
+        Log.d(APITAG, TAG, "getVersionNumber: version: " + versionNumber);
         return versionNumber;
     }
 
@@ -84,20 +85,20 @@ public class GithubApi extends Api {
         try {
             releaseAssets = getRelease(releaseNum).getJSONArray("assets");
         } catch (JSONException e) {
-            LogUtil.e(TAG, String.format(" getReleaseDownload:  返回数据解析错误: %s, returnJsonArray: %s", "assets", getRelease(releaseNum)));
+            Log.e(APITAG, TAG, String.format(" getReleaseDownload:  返回数据解析错误: %s, returnJsonArray: %s", "assets", getRelease(releaseNum)));
         }
         for (int i = 0; i < releaseAssets.length(); i++) {
             JSONObject tmpJsonObject = new JSONObject();
             try {
                 tmpJsonObject = releaseAssets.getJSONObject(i);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(APITAG, TAG, "getReleaseDownload: ERROR_MESSAGE: " + e.toString());
             }
             // 获取一项的 JsonObject
             try {
                 releaseDownloadUrlJsonObject.put(tmpJsonObject.getString("name"), tmpJsonObject.getString("browser_download_url"));
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(APITAG, TAG, "getReleaseDownload: ERROR_MESSAGE: " + e.toString());
             }
         }
         return releaseDownloadUrlJsonObject;
@@ -106,7 +107,7 @@ public class GithubApi extends Api {
     @Override
     public String getDefaultName() {
         // 获取默认名称的独立方法
-        String[] apiUrlStringList = GithubApi.splitUrl(url);
+        String[] apiUrlStringList = GithubApi.splitUrl(URL);
         if (apiUrlStringList == null) return null;  // 网址不符合规则返回 false
         return apiUrlStringList[1];
     }
@@ -133,7 +134,7 @@ public class GithubApi extends Api {
         } else return null;
     }
 
-    private static String getHttpResponse(String api_url) {
+    private String getHttpResponse(String api_url) {
         String responseString = "";
         Response response = null;
         OkHttpClient client = new OkHttpClient();
@@ -143,13 +144,13 @@ public class GithubApi extends Api {
         try {
             response = client.newCall(request).execute();
         } catch (IOException e) {
-            LogUtil.e(TAG, "getHttpResponse:  网络错误");
+            Log.e(APITAG, TAG, "getHttpResponse:  网络错误");
         }
         if (response != null) {
             try {
                 responseString = Objects.requireNonNull(response.body()).string();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(APITAG, TAG, "getHttpResponse: ERROR_MESSAGE: " + e.toString());
             }
         }
         return responseString;
