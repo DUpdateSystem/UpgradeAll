@@ -1,24 +1,34 @@
 package net.xzos.UpgradeAll.utils;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.eclipsesource.v8.V8Object;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * 自定义的日志打印工具类
  */
 public class LogUtil {
 
+    private static final String TAG = "LogUtil";
+
     /**
      * 定义6个静态常量，用来表示日志信息的打印等级
      * 由1到5打印等级依次升高
      */
-    public static final int VERBOSE = 1;
-    public static final int DEBUG = 2;
-    public static final int INFO = 3;
-    public static final int WARN = 4;
-    public static final int ERROR = 5;
-    public static final int NOTHING = 6;
+    private static final int VERBOSE = 1;
+    private static final int DEBUG = 2;
+    private static final int INFO = 3;
+    private static final int WARN = 4;
+    private static final int ERROR = 5;
+    private static final int NOTHING = 6;
 
     /**
      * 该静态常量的值用来控制你想打印的日志等级；
@@ -26,75 +36,120 @@ public class LogUtil {
      * 假如当前LEVEL的值为常量2（DEBUG），那么你只能打印从DEBUG（2）到ERROR（5）之间的日志信息；
      * 假如你要是不想让日志信息打印出现，那么将LEVEL的值置为NOTHING即可。
      */
-    public static final int LEVEL = VERBOSE;
+    private static final int LEVEL = VERBOSE;  // TODO: 设置中加入对该值的自定义
+
+    /**
+     * 定义一个JsonObject存储日志
+     * {
+     * repo_database_id: [String_Log1, String_Log2, ]
+     * }
+     */
+    private JSONObject logJSONObject = new JSONObject();
+
+    private void addLogMessage(int LogLevel, String logObjectTag, String tag, String msg) {
+        // 确定日志等级标志
+        String logLevelString;
+        switch (LogLevel) {
+            case VERBOSE:
+                logLevelString = "V";
+                break;
+            case DEBUG:
+                logLevelString = "D";
+                break;
+            case INFO:
+                logLevelString = "I";
+                break;
+            case WARN:
+                logLevelString = "W";
+                break;
+            case ERROR:
+                logLevelString = "E";
+                break;
+            default:
+                logLevelString = String.format("NO_Level %s", LogLevel);
+                break;
+        }
+        // 获取时间
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        // 生成日志信息
+        String logMessage = String.format("%s %s %s/%s: %s", ft.format(new Date()), logObjectTag, logLevelString, tag, msg);
+        // 获取日志列表
+        JSONArray logMessageArray = new JSONArray();
+        if (logJSONObject.has(logObjectTag)) {
+            try {
+                logMessageArray = logJSONObject.getJSONArray(logObjectTag);
+            } catch (JSONException e) {
+                Log.e(TAG, "addLogMessage: 出乎意料的错误， logJSONObject: " + logJSONObject);
+                e.printStackTrace();
+            }
+        }
+        // 向日志列表载入新日志
+        logMessageArray.put(logMessage);
+        try {
+            logJSONObject.put(logObjectTag, logMessageArray);
+        } catch (JSONException e) {
+            Log.e(TAG, "addLogMessage: 出乎意料的错误， logJSONObject: " + logJSONObject);
+            e.printStackTrace();
+        }
+    }
+
+    private String preMsg(Object msgObject) {
+        String msg = null;
+        if (msgObject == null)
+            msg = "null";
+        else if (msgObject.getClass().equals(String.class))
+            msg = (String) msgObject;
+        else if (msgObject.getClass().equals(V8Object.class))
+            msg = msgObject.toString();
+        return msg;
+    }
+
+    public JSONObject getLogMessage() {
+        return this.logJSONObject;
+    }
 
     // 调用Log.v()方法打印日志
-    public static void v(String tag, Object msg) {
+    public void v(String logObjectTag, String tag, Object msgObject) {
         if (LEVEL <= VERBOSE) {
-            if (msg == null) {
-                Log.v(tag, "null");
-                return;
-            }
-            if (msg.getClass().equals(V8Object.class))
-                msg = msg.toString();
-            if (msg.getClass().equals(String.class))
-                Log.v(tag, (String) msg);
+            String msg = preMsg(msgObject);
+            Log.v(tag, msg);
+            addLogMessage(VERBOSE, logObjectTag, tag, msg);
         }
     }
 
     // 调用Log.d()方法打印日志
-    public static void d(String tag, Object msg) {
+    public void d(String logObjectTag, String tag, Object msgObject) {
         if (LEVEL <= DEBUG) {
-            if (msg == null) {
-                Log.d(tag, "null");
-                return;
-            }
-            if (msg.getClass().equals(V8Object.class))
-                msg = msg.toString();
-            if (msg.getClass().equals(String.class))
-                Log.d(tag, (String) msg);
+            String msg = preMsg(msgObject);
+            Log.d(tag, msg);
+            addLogMessage(DEBUG, logObjectTag, tag, msg);
         }
     }
 
     // 调用Log.i()方法打印日志
-    public static void i(String tag, Object msg) {
+    public void i(String logObjectTag, String tag, Object msgObject) {
         if (LEVEL <= INFO) {
-            if (msg == null) {
-                Log.i(tag, "null");
-                return;
-            }
-            if (msg.getClass().equals(V8Object.class))
-                msg = msg.toString();
-            if (msg.getClass().equals(String.class))
-                Log.i(tag, (String) msg);
+            String msg = preMsg(msgObject);
+            Log.i(tag, msg);
+            addLogMessage(INFO, logObjectTag, tag, msg);
         }
     }
 
     // 调用Log.w()方法打印日志
-    public static void w(String tag, Object msg) {
+    public void w(String logObjectTag, String tag, Object msgObject) {
         if (LEVEL <= WARN) {
-            if (msg == null) {
-                Log.w(tag, "null");
-                return;
-            }
-            if (msg.getClass().equals(V8Object.class))
-                msg = msg.toString();
-            if (msg.getClass().equals(String.class))
-                Log.w(tag, (String) msg);
+            String msg = preMsg(msgObject);
+            Log.w(tag, msg);
+            addLogMessage(WARN, logObjectTag, tag, msg);
         }
     }
 
     // 调用Log.e()方法打印日志
-    public static void e(String tag, Object msg) {
+    public void e(String logObjectTag, String tag, Object msgObject) {
         if (LEVEL <= ERROR) {
-            if (msg == null) {
-                Log.e(tag, "null");
-                return;
-            }
-            if (msg.getClass().equals(V8Object.class))
-                msg = msg.toString();
-            if (msg.getClass().equals(String.class))
-                Log.e(tag, (String) msg);
+            String msg = preMsg(msgObject);
+            Log.e(tag, msg);
+            addLogMessage(ERROR, logObjectTag, tag, msg);
         }
     }
 }

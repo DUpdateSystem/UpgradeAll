@@ -13,7 +13,6 @@ import com.google.gson.Gson;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.utils.LogUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +26,7 @@ import java.util.regex.Pattern;
 public class HtmlUnitApi extends Api {
 
     private static final String TAG = "HtmlUnitApi";
+    private String APITAG = "NULL";
 
     private String url;
     private HubConfig hubConfig;
@@ -36,6 +36,7 @@ public class HtmlUnitApi extends Api {
     private int hubConfigVersionBase;
 
     public HtmlUnitApi(String url, HubConfig hubConfig) {
+        this.APITAG = url;
         this.hubConfig = hubConfig;
         hubConfigVersion = this.hubConfig.getBaseVersion();
         Resources resources = MyApplication.getContext().getResources();
@@ -54,17 +55,16 @@ public class HtmlUnitApi extends Api {
             final BrowserVersion browserVersion = new BrowserVersion.BrowserVersionBuilder(BrowserVersion.FIREFOX_52)
                     .setUserAgent(userAgent)
                     .build();
-            LogUtil.d(TAG, "flashData:  HtmlUnit FireFox");
+            Log.d(APITAG, TAG, "flashData:  HtmlUnit FireFox");
             webClient = new WebClient(browserVersion);
         } else {
             webClient = new WebClient(BrowserVersion.CHROME);
-            LogUtil.d(TAG, "flashData:  HtmlUnit Chrome");
+            Log.d(APITAG, TAG, "flashData:  HtmlUnit Chrome");
         }
         try {
             this.page = webClient.getPage(url);
         } catch (Throwable e) {
-            LogUtil.e(TAG, "flashData:  HtmlUnit 对象初始化失败");
-            e.printStackTrace();
+            Log.e(APITAG, TAG, "flashData: HtmlUnit 对象初始化失败，ERROR_MESSAGE: " + e.toString());
         }
     }
 
@@ -81,7 +81,7 @@ public class HtmlUnitApi extends Api {
         try {
             thread.join();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e(APITAG, TAG, "getDefaultName: ERROR_MESSAGE: " + e.toString());
         }
         // 刷新数据
         HubConfig.StringItemBean defaultNameBean = this.hubConfig.getWebCrawler().getAppConfig().getDefaultName();
@@ -89,7 +89,7 @@ public class HtmlUnitApi extends Api {
         if (name != null && name.length() != 0) return name;
         DomElement rootDom = page.getFirstByXPath("//body");
         name = getDomString(rootDom, defaultNameBean);
-        LogUtil.d(TAG, "getDefaultName:  name: " + name);
+        Log.d(APITAG, TAG, "getDefaultName:  name: " + name);
         return name;
     }
 
@@ -100,7 +100,7 @@ public class HtmlUnitApi extends Api {
         HubConfig.StringItemBean versionNumberBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getVersion_number();
         final DomElement releaseNode = getReleaseNodeList().get(releaseNum);  // 初始化 release 节点
         String versionNumber = getDomString(releaseNode, versionNumberBean);
-        LogUtil.d(TAG, "getVersionNumber: version: " + versionNumber);
+        Log.d(APITAG, TAG, "getVersionNumber: version: " + versionNumber);
         return versionNumber;
     }
 
@@ -110,7 +110,7 @@ public class HtmlUnitApi extends Api {
         JSONObject releaseDownloadUrlJsonObject = new JSONObject();
         if (!isSuccessFlash()) return releaseDownloadUrlJsonObject;
         final DomElement releaseNode = getReleaseNodeList().get(releaseNum);  // 初始化 release 节点
-        LogUtil.d(TAG, "getReleaseDownload: release node: " + releaseNode.toString());
+        Log.d(APITAG, TAG, "getReleaseDownload: release node: " + releaseNode.toString());
         HubConfig.StringItemBean fileNameBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getAssets().getFileName();
         HubConfig.StringItemBean downloadUrlBean = this.hubConfig.getWebCrawler().getAppConfig().getRelease().getAttribute().getAssets().getDownloadUrl();
         // 获取文件名
@@ -121,12 +121,12 @@ public class HtmlUnitApi extends Api {
             fileName = fileName + "(获取下载地址失败，点击跳转主页)";
             downloadUrl = this.url;
         }
-        LogUtil.d(TAG, "getReleaseDownload: file_name: " + fileName);
-        LogUtil.d(TAG, "getReleaseDownload: download_url: " + downloadUrl);
+        Log.d(APITAG, TAG, "getReleaseDownload: file_name: " + fileName);
+        Log.d(APITAG, TAG, "getReleaseDownload: download_url: " + downloadUrl);
         try {
             releaseDownloadUrlJsonObject.put(fileName, downloadUrl);
         } catch (JSONException e) {
-            LogUtil.e(TAG, String.format("getReleaseDownload:  字符串为空, fileName: %s, downloadUrl: %s", fileName, downloadUrl));
+            Log.e(APITAG, TAG, String.format("getReleaseDownload:  字符串为空, fileName: %s, downloadUrl: %s", fileName, downloadUrl));
         }
         return releaseDownloadUrlJsonObject;
     }
@@ -139,10 +139,10 @@ public class HtmlUnitApi extends Api {
             try {
                 releaseNodeList = page.getByXPath(releaseNodeXpath);
             } catch (XpathSyntaxErrorException e) {
-                LogUtil.e(TAG, "getReleaseNodeList:  Xpath 语法有误, releaseNodeXpath: " + releaseNodeXpath);
+                Log.e(APITAG, TAG, "getReleaseNodeList:  Xpath 语法有误, releaseNodeXpath: " + releaseNodeXpath);
             }
         }
-        LogUtil.d(TAG, "getReleaseNodeList:  Node Num: " + releaseNodeList.size());
+        Log.d(APITAG, TAG, "getReleaseNodeList:  Node Num: " + releaseNodeList.size());
         return releaseNodeList;
     }
 
@@ -154,28 +154,28 @@ public class HtmlUnitApi extends Api {
         HtmlPage domPage = this.page;
         // 打印 Json
         Gson gson = new Gson();
-        LogUtil.d(TAG, "getDomString: stringItemBeans: " + gson.toJson(stringItemBeans.toString()));
+        Log.d(APITAG, TAG, "getDomString: stringItemBeans: " + gson.toJson(stringItemBeans.toString()));
         String regex = stringItemBeans.getSearchPath().getRegex();
         List<HubConfig.StringItemBean.SearchPathBean.XpathListBean> xpathList = stringItemBeans.getSearchPath().getXpathList();
         if (xpathList != null) {
             for (int i = 0; i < xpathList.size(); i++) {
-                LogUtil.d(TAG, "getDomString: domElement: " + domElement);
+                Log.d(APITAG, TAG, "getDomString: domElement: " + domElement);
                 HubConfig.StringItemBean.SearchPathBean.XpathListBean xpathListBean = xpathList.get(i);
                 int delay = xpathListBean.getDelay() * 1000;
                 int defaultDelay = 3 * 1000;
                 String xpath = xpathListBean.getXpath();
                 try {
-                    LogUtil.d(TAG, "getDomString: webClient wait " + delay);
+                    Log.d(APITAG, TAG, "getDomString: webClient wait " + delay);
                     this.webClient.waitForBackgroundJavaScript(delay);
                     for (int j = 0; j < 5; j++) {
-                        LogUtil.d(TAG, String.format("getDomString: 循环第 %s 次", j));
+                        Log.d(APITAG, TAG, String.format("getDomString: 循环第 %s 次", j));
                         if (i != xpathList.size() - 1) {
                             // 界面跳转逻辑
                             DomElement dom = domElement.getFirstByXPath(xpath);
                             if (dom != null) {
-                                LogUtil.d(TAG, "getDomString: dom: " + dom);
+                                Log.d(APITAG, TAG, "getDomString: dom: " + dom);
                                 domPage = dom.click();
-                                LogUtil.d(TAG, "getDomString: clicked, domPage url to " + domPage.getUrl());
+                                Log.d(APITAG, TAG, "getDomString: clicked, domPage url to " + domPage.getUrl());
                                 domElement = domPage.getFirstByXPath("//body");
                                 break;  // 跳出 for 循环
                             }
@@ -186,7 +186,7 @@ public class HtmlUnitApi extends Api {
                             } else {
                                 DomNode dom = domElement.getFirstByXPath(xpath);
                                 if (dom != null) {
-                                    LogUtil.d(TAG, "getDomString: dom: " + dom);
+                                    Log.d(APITAG, TAG, "getDomString: dom: " + dom);
                                     // 获取文本链接信息
                                     returnString = dom.getNodeValue();
                                     if (returnString == null)
@@ -198,25 +198,22 @@ public class HtmlUnitApi extends Api {
                         this.webClient.waitForBackgroundJavaScript(defaultDelay);
                     }
                 } catch (NullPointerException e) {
-                    LogUtil.e(TAG, " getDomString: 未取得数据, Xpath: " + xpath);
+                    Log.e(APITAG, TAG, "getDomString: 未取得数据, Xpath: " + xpath);
                 } catch (XpathSyntaxErrorException e) {
-                    LogUtil.e(TAG, " getDomString: Xpath 语法有误, Xpath: " + xpath);
+                    Log.e(APITAG, TAG, "getDomString: Xpath 语法有误, Xpath: " + xpath);
                 } catch (ScriptException e) {
-                    LogUtil.d(TAG, " getDomString: 按钮点击事件失败, Xpath: " + xpath);
+                    Log.d(APITAG, TAG, "getDomString: 按钮点击事件失败, Xpath: " + xpath);
                 } catch (Throwable e) {
-                    e.printStackTrace();
+                    Log.e(APITAG, TAG, "getDomString: ERROR_MESSAGE: " + e.toString());
                 }
             }
         }
-
-        returnString =
-
-                regexMatch(returnString, regex);
+        returnString = regexMatch(returnString, regex);
         return returnString;
     }
 
     private String regexMatch(String matchString, String regex) {
-        LogUtil.d(TAG, "regexMatch: matchString: " + matchString);
+        Log.d(APITAG, TAG, "regexMatch: matchString: " + matchString);
         String regexString = matchString;
         if (matchString != null && regex != null && regex.length() != 0) {
             Pattern p = Pattern.compile(regex);
@@ -225,7 +222,7 @@ public class HtmlUnitApi extends Api {
                 regexString = m.group();
             }
         }
-        LogUtil.d(TAG, "regexMatch: regexString: " + regexString);
+        Log.d(APITAG, TAG, "regexMatch: regexString: " + regexString);
         return regexString;
     }
 }

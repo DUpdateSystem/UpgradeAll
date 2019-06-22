@@ -1,5 +1,8 @@
 package net.xzos.UpgradeAll.updater.api;
 
+import net.xzos.UpgradeAll.data.MyApplication;
+import net.xzos.UpgradeAll.utils.LogUtil;
+
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -7,6 +10,7 @@ import java.util.List;
 
 
 public class Api {
+    static final LogUtil Log = MyApplication.getLog();
 
     public void flashData() {
     }

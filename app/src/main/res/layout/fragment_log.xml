@@ -4,7 +4,7 @@
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="net.xzos.UpgradeAll.activity.ui.main.PlaceholderFragment">
+    tools:context=".viewmodels.ui.log.PlaceholderFragment">
 
     <TextView
         android:id="@+id/section_label"

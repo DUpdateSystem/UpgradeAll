@@ -117,6 +117,10 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(MainActivity.this, HubListActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.app_log:
+                intent = new Intent(MainActivity.this, LogActivity.class);
+                startActivity(intent);
+                return true;
             case R.id.app_setting:
                 intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);

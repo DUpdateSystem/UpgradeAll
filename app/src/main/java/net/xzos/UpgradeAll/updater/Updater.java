@@ -26,6 +26,8 @@ import java.util.Objects;
 
 
 public class Updater {
+
+    private static final LogUtil Log = MyApplication.getLog();
     private static final String TAG = "Updater";
 
     private JSONObject updateJsonData = new JSONObject(); // 存储 Updater 数据
@@ -75,7 +77,7 @@ public class Updater {
             try {
                 updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
             } catch (JSONException e) {
-                LogUtil.d(TAG, String.format("autoRefresh:  updateJsonData缺少 %s 项", databaseId));
+                Log.d(TAG, TAG, String.format("autoRefresh:  updateJsonData缺少 %s 项", databaseId));
             }
             if (updateItemJson.length() != 0) {
                 Calendar updateTime = null;
@@ -83,10 +85,10 @@ public class Updater {
                     updateTime = (Calendar) updateItemJson.get("update_time");
                     updateTime.add(Calendar.MINUTE, autoRefreshMinute);
                 } catch (JSONException e) {
-                    LogUtil.d(TAG, String.format("autoRefresh:  初始化数据刷新: %s", databaseId));
+                    Log.d(TAG, TAG, String.format("autoRefresh:  初始化数据刷新: %s", databaseId));
                 }
                 if (Calendar.getInstance().before(updateTime)) {
-                    LogUtil.d(TAG, String.format("autoRefreshAll: %s NoUp", databaseId));
+                    Log.d(TAG, TAG, String.format("autoRefreshAll: %s NoUp", databaseId));
                     startRefresh = false;
                 }
             }
@@ -95,7 +97,7 @@ public class Updater {
             refresh(databaseId);
     }
 
-    public boolean refresh(int databaseId) {
+    public void refresh(int databaseId) {
         /* 强制刷新数据
          * 如果没有该子项，创建一个
          * 如果有，则使用
@@ -105,7 +107,7 @@ public class Updater {
         try {
             updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
         } catch (JSONException e) {
-            LogUtil.d(TAG, "refresh:  更新对象初始化");
+            Log.d(TAG, TAG, "refresh:  更新对象初始化");
             updateItemJson = renewUpdateItem(databaseId);  //  创建更新对象
         }
         // 数据刷新
@@ -120,20 +122,19 @@ public class Updater {
         refreshSuccess = api.isSuccessFlash();
         if (refreshSuccess) {
             try {
-                LogUtil.d(TAG, "refresh:  刷新成功");
+                Log.d(TAG, TAG, "refresh:  刷新成功");
                 updateItemJson.put("update_time", Calendar.getInstance());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-        return refreshSuccess;
     }
 
     public JSONObject renewUpdateItem(int databaseId) {
         // 添加一个 更新检查器追踪子项
         RepoDatabase repoDatabase = LitePal.find(RepoDatabase.class, databaseId);
         String apiUuid = repoDatabase.getApiUuid();
-        LogUtil.d(TAG, "renewUpdateItem: uuid: " + apiUuid);
+        Log.d(TAG, TAG, "renewUpdateItem: uuid: " + apiUuid);
         // 修复之前版本中GitHub没有 UUID 的问题
         if (apiUuid == null) {
             repoDatabase.setApiUuid(MyApplication.getContext().getString(R.string.github_uuid));
@@ -173,7 +174,7 @@ public class Updater {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        LogUtil.d(TAG, "renewUpdateItem:  json: " + updateItemJson);
+        Log.d(TAG, TAG, "renewUpdateItem:  json: " + updateItemJson);
         updateJsonData.remove(String.valueOf(databaseId));
         // 添加一个更新子项
         try {
