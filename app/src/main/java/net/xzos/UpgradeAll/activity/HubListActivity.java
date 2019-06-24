@@ -15,7 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.adapters.HubItemAdapter;
+import net.xzos.UpgradeAll.viewmodels.adapters.HubItemAdapter;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.viewmodels.ItemCardView;
 
@@ -54,7 +54,7 @@ public class HubListActivity extends AppCompatActivity {
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
         swipeRefresh.setOnRefreshListener(this::refreshUpdate);
 
-        recyclerView = findViewById(R.id.updateItemRecyclerView);
+        recyclerView = findViewById(R.id.update_item_recycler_view);
 
         setRecyclerView();
     }

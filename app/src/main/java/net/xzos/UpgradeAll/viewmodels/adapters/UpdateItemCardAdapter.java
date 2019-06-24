@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.adapters;
+package net.xzos.UpgradeAll.viewmodels.adapters;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -64,7 +64,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
             versionCheckButton = view.findViewById(R.id.statusCheckButton);
             delButton = view.findViewById(R.id.delButton);
             settingButton = view.findViewById(R.id.settingButton);
-            updateItemCardList = view.findViewById(R.id.updateItemRecyclerView);
+            updateItemCardList = view.findViewById(R.id.update_item_recycler_view);
         }
     }
 

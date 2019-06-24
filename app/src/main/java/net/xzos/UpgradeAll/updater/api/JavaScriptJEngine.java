@@ -26,7 +26,7 @@ import java.util.List;
 public class JavaScriptJEngine extends Api {
 
     private static final String TAG = "JavaScriptJEngine";
-    private String APITAG = "NULL";
+    private String APITAG;
 
     private String URL;
     private HubConfig hubConfig;
@@ -75,7 +75,7 @@ public class JavaScriptJEngine extends Api {
         try {
             defaultName = this.WebCrawler.executeStringFunction("getDefaultName", null);
         } catch (V8ScriptExecutionException e) {
-            Log.e(APITAG, TAG, "getDefaultName: 脚本执行错误，ERROR_MESSAGE: " + e.toString());
+            Log.e(APITAG, TAG, "getDefaultName: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
         }
         Log.d(APITAG, TAG, "getDefaultName: defaultName: " + defaultName);
         closeJ2V8(); // 销毁 J2V8 对象
@@ -91,7 +91,7 @@ public class JavaScriptJEngine extends Api {
         try {
             releaseNum = this.WebCrawler.executeIntegerFunction("getReleaseNum", null);
         } catch (V8ScriptExecutionException e) {
-            Log.e(APITAG, TAG, "getReleaseNum: 脚本执行错误，ERROR_MESSAGE: " + e.toString());
+            Log.e(APITAG, TAG, "getReleaseNum: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
         }
         Log.d(APITAG, TAG, "getReleaseNum: releaseNum: " + releaseNum);
         closeJ2V8(); // 销毁 J2V8 对象
@@ -108,7 +108,7 @@ public class JavaScriptJEngine extends Api {
         try {
             versionNumber = this.WebCrawler.executeStringFunction("getVersionNumber", new V8Array(v8).push(releaseNum));
         } catch (V8ScriptExecutionException e) {
-            Log.e(APITAG, TAG, "getVersionNumber: 脚本执行错误，ERROR_MESSAGE: " + e.toString());
+            Log.e(APITAG, TAG, "getVersionNumber: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
         }
         Log.d(APITAG, TAG, "getVersionNumber: versionNumber: " + versionNumber);
         memoryManager.release();
@@ -125,14 +125,14 @@ public class JavaScriptJEngine extends Api {
         try {
             versionNumberString = this.WebCrawler.executeStringFunction("getReleaseDownload", new V8Array(v8).push(releaseNum));
         } catch (V8ScriptExecutionException e) {
-            Log.e(APITAG, TAG, "getReleaseDownload: 脚本执行错误，ERROR_MESSAGE: " + e.toString());
+            Log.e(APITAG, TAG, "getReleaseDownload: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
         }
         JSONObject releaseDownloadUrlJsonObject;
         try {
             releaseDownloadUrlJsonObject = new JSONObject(versionNumberString);
         } catch (JSONException e) {
             releaseDownloadUrlJsonObject = new JSONObject();
-            Log.e(APITAG, TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范，versionNumberString : " + versionNumberString);
+            Log.e(APITAG, TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范, versionNumberString : " + versionNumberString);
         }
         closeJ2V8(); // 销毁 J2V8 对象
         Log.d(APITAG, TAG, "getReleaseDownload:  releaseDownloadUrlJsonObject: " + releaseDownloadUrlJsonObject);
@@ -186,20 +186,23 @@ public class JavaScriptJEngine extends Api {
             if (JsoupDomDict.has(URL)) {
                 try {
                     doc = (Document) JsoupDomDict.get(URL);
-                    Log.d(APITAG, TAG, "selNByJsoupXpathJavaList: 从缓存加载，URL: " + URL);
+                    Log.d(APITAG, TAG, "selNByJsoupXpathJavaList: 从缓存加载, URL: " + URL);
                 } catch (JSONException e) {
-                    Log.e(APITAG, TAG, "selNByJsoupXpathJavaList: Jsoup 缓存队列无该对象，JsoupDomDict: " + JsoupDomDict);
+                    Log.e(APITAG, TAG, "selNByJsoupXpathJavaList: Jsoup 缓存队列无该对象, JsoupDomDict: " + JsoupDomDict);
                 }
             } else {
                 Connection connection = Jsoup.connect(URL);
                 if (userAgent != null) connection.userAgent(userAgent);
                 doc = JsoupApi.getDoc(connection);
-                if (doc == null) Log.e(APITAG, TAG, "selNByJsoupXpathJavaList: Jsoup 对象初始化失败");
+                if (doc == null) {
+                    Log.e(APITAG, TAG, "selNByJsoupXpathJavaList: Jsoup 对象初始化失败");
+                    return new ArrayList<>();
+                }
                 try {
                     JsoupDomDict.put(URL, doc);
-                    Log.d(APITAG, TAG, "selNByJsoupXpathJavaList: 缓存，URL: " + URL);
+                    Log.d(APITAG, TAG, "selNByJsoupXpathJavaList: 缓存, URL: " + URL);
                 } catch (JSONException e) {
-                    Log.d(APITAG, TAG, "selNByJsoupXpathJavaList: 缓存失败，URL: " + URL);
+                    Log.d(APITAG, TAG, "selNByJsoupXpathJavaList: 缓存失败, URL: " + URL);
                 }
             }
             JXDocument JXDoc = JXDocument.create(doc);

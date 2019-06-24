@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 public class HtmlUnitApi extends Api {
 
     private static final String TAG = "HtmlUnitApi";
-    private String APITAG = "NULL";
+    private String APITAG;
 
     private String url;
     private HubConfig hubConfig;

@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 public class JsoupApi extends Api {
 
     private static final String TAG = "JsoupApi";
-    private String APITAG = "NULL";
+    private String APITAG;
 
     private String URL;
     private HubConfig hubConfig;
@@ -50,7 +50,10 @@ public class JsoupApi extends Api {
         Connection connection = Jsoup.connect(this.URL);
         if (userAgent != null) connection.userAgent(userAgent);
         Document doc = JsoupApi.getDoc(connection);
-        if (doc == null) Log.e(APITAG, TAG, "flashData: Jsoup 对象初始化失败");
+        if (doc == null) {
+            Log.e(APITAG, TAG, "flashData: Jsoup 对象初始化失败");
+            return;
+        }
         this.JXDoc = JXDocument.create(doc);
     }
 

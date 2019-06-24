@@ -16,7 +16,7 @@ import okhttp3.Response;
 
 public class GithubApi extends Api {
     private static final String TAG = "GithubApi";
-    private String APITAG = "NULL";
+    private String APITAG;
 
     private String apiUrl;
     private String URL;

@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.adapters;
+package net.xzos.UpgradeAll.viewmodels.adapters;
 
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -49,7 +49,7 @@ public class HubItemAdapter extends RecyclerView.Adapter<HubItemAdapter.ViewHold
             versionCheckButton = view.findViewById(R.id.statusCheckButton);
             delButton = view.findViewById(R.id.delButton);
             settingButton = view.findViewById(R.id.settingButton);
-            updateItemCardList = view.findViewById(R.id.updateItemRecyclerView);
+            updateItemCardList = view.findViewById(R.id.update_item_recycler_view);
         }
     }
 
@@ -91,5 +91,4 @@ public class HubItemAdapter extends RecyclerView.Adapter<HubItemAdapter.ViewHold
     public int getItemCount() {
         return mItemCardViewList.size();
     }
-
 }

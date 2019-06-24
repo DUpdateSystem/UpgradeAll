@@ -1,15 +1,18 @@
 package net.xzos.UpgradeAll.viewmodels.ui.log;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import net.xzos.UpgradeAll.R;
@@ -21,12 +24,14 @@ public class PlaceholderFragment extends Fragment {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
 
+    private Context mContext;
+
     private PageViewModel pageViewModel;
 
-    public static PlaceholderFragment newInstance(int index) {
+    static PlaceholderFragment newInstance(String URL) {
         PlaceholderFragment fragment = new PlaceholderFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt(ARG_SECTION_NUMBER, index);
+        bundle.putString(ARG_SECTION_NUMBER, URL);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -34,12 +39,13 @@ public class PlaceholderFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = getContext();
         pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
-        int index = 1;
+        String URL = null;
         if (getArguments() != null) {
-            index = getArguments().getInt(ARG_SECTION_NUMBER);
+            URL = getArguments().getString(ARG_SECTION_NUMBER);
         }
-        pageViewModel.setIndex(index);
+        pageViewModel.setURL(URL);
     }
 
     @Override
@@ -47,12 +53,17 @@ public class PlaceholderFragment extends Fragment {
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_log, container, false);
-        final TextView textView = root.findViewById(R.id.section_label);
-        pageViewModel.getText().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
+        final ListView logListView = root.findViewById(R.id.log_list);
+        pageViewModel.getLog().observe(this, logArray -> {
+            @SuppressWarnings("unchecked") ArrayAdapter<String> adapter = new ArrayAdapter<String>(root.getContext(), android.R.layout.simple_expandable_list_item_1, logArray);
+            logListView.setAdapter(adapter);
+            // 点击复制到粘贴板
+            logListView.setOnItemClickListener((parent, view, position, id) -> {
+                ClipboardManager cm = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData mClipData = ClipData.newPlainText("Label", (CharSequence) logArray.get(position));
+                cm.setPrimaryClip(mClipData);
+                Toast.makeText(mContext, "已复制到粘贴板", Toast.LENGTH_SHORT).show();
+            });
         });
         return root;
     }
