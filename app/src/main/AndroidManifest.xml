@@ -18,8 +18,7 @@
         tools:targetApi="m">
         <activity
             android:name=".activity.LogActivity"
-            android:label="@string/title_activity_log"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:label="@string/title_activity_log" />
         <activity android:name=".activity.HubListActivity" />
         <activity
             android:name=".activity.HubSettingActivity"
