@@ -17,7 +17,7 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.gson.CloudConfig;
 import net.xzos.UpgradeAll.server.cloud.CloudHub;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
-import net.xzos.UpgradeAll.ui.viewmodels.adapters.HubItemAdapter;
+import net.xzos.UpgradeAll.ui.viewmodels.adapters.CloudHubItemAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ import io.github.kobakei.materialfabspeeddial.FabSpeedDial;
 
 public class CloudHubListActivity extends AppCompatActivity {
     private List<ItemCardView> itemCardViewList = new ArrayList<>();
-    private HubItemAdapter adapter;
+    private CloudHubItemAdapter adapter;
 
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
@@ -71,7 +71,7 @@ public class CloudHubListActivity extends AppCompatActivity {
 
     private void refreshCloudHubList() {
         new Thread(() -> {
-            cloudHub.flashCloudConfig();
+            cloudHub.flashCloudConfigList();
             new Handler(Looper.getMainLooper()).post(() -> {
                 List<CloudConfig.HubListBean> hubList = cloudHub.getHubList();
                 itemCardViewList.clear();
@@ -89,7 +89,7 @@ public class CloudHubListActivity extends AppCompatActivity {
     private void setRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new HubItemAdapter(itemCardViewList);
+        adapter = new CloudHubItemAdapter(itemCardViewList, cloudHub);
         recyclerView.setAdapter(adapter);
     }
 

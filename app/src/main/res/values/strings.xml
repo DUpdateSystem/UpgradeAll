@@ -52,5 +52,6 @@
     <string name="title_activity_log">LogActivity</string>
     <string name="add_manually">手动添加</string>
     <string name="cloud_hub">云端仓库</string>
+    <string name="download">下载</string>
 
 </resources>
