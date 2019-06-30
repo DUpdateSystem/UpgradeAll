@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.viewmodels.ui.log;
+package net.xzos.UpgradeAll.ui.viewmodels.log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

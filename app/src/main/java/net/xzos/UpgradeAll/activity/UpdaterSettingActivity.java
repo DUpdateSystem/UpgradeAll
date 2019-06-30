@@ -19,10 +19,10 @@ import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.updater.api.GithubApi;
-import net.xzos.UpgradeAll.updater.api.HtmlUnitApi;
-import net.xzos.UpgradeAll.updater.api.JavaScriptJEngine;
-import net.xzos.UpgradeAll.updater.api.JsoupApi;
+import net.xzos.UpgradeAll.server.updater.api.GithubApi;
+import net.xzos.UpgradeAll.server.updater.api.HtmlUnitApi;
+import net.xzos.UpgradeAll.server.updater.api.JavaScriptJEngine;
+import net.xzos.UpgradeAll.server.updater.api.JsoupApi;
 import net.xzos.UpgradeAll.utils.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
@@ -181,9 +181,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
         return versionChecker;
     }
 
-    boolean addRepoDatabase(int databaseId, String name, int apiNum, String url, JSONObject
-            versionChecker) {
-        // TODO: 可被忽略的参数
+    boolean addRepoDatabase(int databaseId, String name, int apiNum, String url, JSONObject versionChecker) {
         // 数据处理
         String uuid = apiSpinnerList.get(apiNum);
         if (url.length() != 0 && uuid != null) {

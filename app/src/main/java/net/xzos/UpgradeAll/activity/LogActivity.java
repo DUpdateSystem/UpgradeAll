@@ -10,7 +10,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.viewmodels.ui.log.SectionsPagerAdapter;
+import net.xzos.UpgradeAll.ui.viewmodels.log.SectionsPagerAdapter;
 
 public class LogActivity extends AppCompatActivity {
 

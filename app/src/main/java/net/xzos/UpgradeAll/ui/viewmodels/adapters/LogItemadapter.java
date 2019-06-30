@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.viewmodels.adapters;
+package net.xzos.UpgradeAll.ui.viewmodels.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.viewmodels.LogItemView;
+import net.xzos.UpgradeAll.ui.viewmodels.LogItemView;
 
 import java.util.List;
 

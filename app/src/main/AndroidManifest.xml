@@ -17,26 +17,26 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="m">
         <activity
-            android:name=".activity.LogActivity"
-            android:label="@string/title_activity_log" />
-        <activity android:name=".activity.HubListActivity" />
-        <activity
-            android:name=".activity.HubSettingActivity"
-            android:theme="@style/DialogStyle" />
-        <activity
-            android:name=".activity.SettingsActivity"
-            android:label="@string/setting" />
-        <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activity.LogActivity"
+            android:label="@string/title_activity_log" />
+        <activity android:name=".activity.HubListActivity" />
+        <activity android:name=".activity.CloudHubListActivity" />
+        <activity
+            android:name=".activity.HubLocalAddActivity"
+            android:theme="@style/DialogStyle" />
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:label="@string/setting" />
         <activity android:name=".activity.UpdaterSettingActivity" />
     </application>
 

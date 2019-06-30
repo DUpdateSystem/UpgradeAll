@@ -4,7 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 
-import net.xzos.UpgradeAll.updater.Updater;
+import net.xzos.UpgradeAll.server.updater.Updater;
 import net.xzos.UpgradeAll.utils.LogUtil;
 
 import org.litepal.LitePal;

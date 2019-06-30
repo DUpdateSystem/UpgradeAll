@@ -8,13 +8,16 @@
 
     <include layout="@layout/content_list" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addFab"
+    <io.github.kobakei.materialfabspeeddial.FabSpeedDial
+        android:id="@+id/add_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@color/colorPrimary"
-        app:srcCompat="@drawable/ic_add" />
+        app:fab_fabBackgroundColor="@color/colorPrimary"
+        app:fab_menu="@menu/menu_tab_hub"
+        app:fab_miniFabBackgroundColor="@color/colorPrimary"
+        app:fab_miniFabTextBackground="@color/colorPrimary"
+        app:fab_miniFabTextColor="@android:color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,15 +1,13 @@
-package net.xzos.UpgradeAll.viewmodels.ui.log;
+package net.xzos.UpgradeAll.ui.viewmodels.log;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.data.MyApplication;
 
 import org.json.JSONObject;
