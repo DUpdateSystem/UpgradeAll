@@ -28,20 +28,20 @@ public class HtmlUnitApi extends Api {
     private static final String TAG = "HtmlUnitApi";
     private String APITAG;
 
-    private String url;
+    private String URL;
     private HubConfig hubConfig;
     private HtmlPage page;
     private WebClient webClient;
     private int hubConfigVersion;
     private int hubConfigVersionBase;
 
-    public HtmlUnitApi(String url, HubConfig hubConfig) {
-        this.APITAG = url;
+    public HtmlUnitApi(String URL, HubConfig hubConfig) {
+        this.APITAG = URL;
         this.hubConfig = hubConfig;
         hubConfigVersion = this.hubConfig.getBaseVersion();
         Resources resources = MyApplication.getContext().getResources();
         hubConfigVersionBase = resources.getInteger(R.integer.hub_config_version_base);
-        this.url = url;
+        this.URL = URL;
         //java.util.logging.Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF);
         //java.util.logging.Logger.getLogger("org.apache.commons.httpclient").setLevel(Level.OFF);
         //java.util.logging.Logger.getLogger("org.apache.http.client.protocol.ResponseProcessCookies").setLevel(Level.OFF);
@@ -62,7 +62,7 @@ public class HtmlUnitApi extends Api {
             Log.d(APITAG, TAG, "flashData:  HtmlUnit Chrome");
         }
         try {
-            this.page = webClient.getPage(url);
+            this.page = webClient.getPage(URL);
         } catch (Throwable e) {
             Log.e(APITAG, TAG, "flashData: HtmlUnit 对象初始化失败，ERROR_MESSAGE: " + e.toString());
         }
@@ -119,7 +119,7 @@ public class HtmlUnitApi extends Api {
         String downloadUrl = getDomString(releaseNode, downloadUrlBean);
         if (downloadUrl == null) {
             fileName = fileName + "(获取下载地址失败，点击跳转主页)";
-            downloadUrl = this.url;
+            downloadUrl = this.URL;
         }
         Log.d(APITAG, TAG, "getReleaseDownload: file_name: " + fileName);
         Log.d(APITAG, TAG, "getReleaseDownload: download_url: " + downloadUrl);
@@ -175,7 +175,7 @@ public class HtmlUnitApi extends Api {
                             if (dom != null) {
                                 Log.d(APITAG, TAG, "getDomString: dom: " + dom);
                                 domPage = dom.click();
-                                Log.d(APITAG, TAG, "getDomString: clicked, domPage url to " + domPage.getUrl());
+                                Log.d(APITAG, TAG, "getDomString: clicked, domPage URL to " + domPage.getUrl());
                                 domElement = domPage.getFirstByXPath("//body");
                                 break;  // 跳出 for 循环
                             }
