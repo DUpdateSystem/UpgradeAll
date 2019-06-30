@@ -83,6 +83,7 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CloudHubItemAdapte
                 switch (item.getItemId()) {
                     // 下载
                     case R.id.download:
+                        Toast.makeText(holder.itemCardView.getContext(), "开始下载", Toast.LENGTH_LONG).show();
                         // 下载数据
                         new Thread(() -> {
                             HubConfig cloudHubConfigGson = mCloudHub.getHubConfig(holder.descTextView.getText().toString());

@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
 import com.eclipsesource.v8.V8Object;
+import com.eclipsesource.v8.V8ResultUndefined;
 import com.eclipsesource.v8.V8ScriptExecutionException;
 import com.eclipsesource.v8.utils.MemoryManager;
 
@@ -67,6 +68,26 @@ public class JavaScriptJEngine extends Api {
         this.memoryManager = null;
     }
 
+    /**
+     * 初始化一些可能造成软件卡顿的网络数据
+     * 建议但不强制要求
+     *
+     * @Version:0.0.9
+     */
+    @Override
+    public void flashData() {
+        if (hubConfigVersion < hubConfigVersionJavaScript) return;
+        initJ2V8(); // 初始化 J2V8
+        try {
+            this.WebCrawler.executeVoidFunction("flashData", null);
+        } catch (V8ScriptExecutionException e) {
+            Log.e(APITAG, TAG, "flashData: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
+        } catch (V8ResultUndefined e) {
+            Log.e(APITAG, TAG, "flashData: 函数返回值错误, ERROR_MESSAGE: " + e.toString());
+        }
+        closeJ2V8(); // 销毁 J2V8 对象
+    }
+
     @Override
     public String getDefaultName() {
         if (hubConfigVersion < hubConfigVersionJavaScript) return super.getDefaultName();
@@ -76,6 +97,8 @@ public class JavaScriptJEngine extends Api {
             defaultName = this.WebCrawler.executeStringFunction("getDefaultName", null);
         } catch (V8ScriptExecutionException e) {
             Log.e(APITAG, TAG, "getDefaultName: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
+        } catch (V8ResultUndefined e) {
+            Log.e(APITAG, TAG, "getDefaultName: 函数返回值错误, ERROR_MESSAGE: " + e.toString());
         }
         Log.d(APITAG, TAG, "getDefaultName: defaultName: " + defaultName);
         closeJ2V8(); // 销毁 J2V8 对象
@@ -92,6 +115,8 @@ public class JavaScriptJEngine extends Api {
             releaseNum = this.WebCrawler.executeIntegerFunction("getReleaseNum", null);
         } catch (V8ScriptExecutionException e) {
             Log.e(APITAG, TAG, "getReleaseNum: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
+        } catch (V8ResultUndefined e) {
+            Log.e(APITAG, TAG, "getReleaseNum: 函数返回值错误, ERROR_MESSAGE: " + e.toString());
         }
         Log.d(APITAG, TAG, "getReleaseNum: releaseNum: " + releaseNum);
         closeJ2V8(); // 销毁 J2V8 对象
@@ -109,6 +134,8 @@ public class JavaScriptJEngine extends Api {
             versionNumber = this.WebCrawler.executeStringFunction("getVersionNumber", new V8Array(v8).push(releaseNum));
         } catch (V8ScriptExecutionException e) {
             Log.e(APITAG, TAG, "getVersionNumber: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
+        } catch (V8ResultUndefined e) {
+            Log.e(APITAG, TAG, "getVersionNumber: 函数返回值错误, ERROR_MESSAGE: " + e.toString());
         }
         Log.d(APITAG, TAG, "getVersionNumber: versionNumber: " + versionNumber);
         memoryManager.release();
@@ -126,6 +153,8 @@ public class JavaScriptJEngine extends Api {
             versionNumberString = this.WebCrawler.executeStringFunction("getReleaseDownload", new V8Array(v8).push(releaseNum));
         } catch (V8ScriptExecutionException e) {
             Log.e(APITAG, TAG, "getReleaseDownload: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
+        } catch (V8ResultUndefined e) {
+            Log.e(APITAG, TAG, "getReleaseDownload: 函数返回值错误, ERROR_MESSAGE: " + e.toString());
         }
         JSONObject releaseDownloadUrlJsonObject;
         try {
