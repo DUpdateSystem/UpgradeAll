@@ -135,7 +135,7 @@ public class GithubApi extends Api {
     }
 
     public static String getHttpResponse(String APITAG, String api_url) {
-        String responseString = "";
+        String responseString = null;
         String TAG = " getHttpResponse";
         Response response = null;
         OkHttpClient client = new OkHttpClient();

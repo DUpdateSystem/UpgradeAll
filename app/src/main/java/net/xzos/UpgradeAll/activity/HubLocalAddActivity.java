@@ -33,8 +33,24 @@ public class HubLocalAddActivity extends Activity {
         Button addButton = findViewById(R.id.addButton);
         EditText configEditText = findViewById(R.id.configEditText);
         addButton.setOnClickListener(v -> {
-            String repoConfig = configEditText.getText().toString();
-            boolean addHubSuccess = addHubDatabase(databaseId, repoConfig);
+            String hubConfig = configEditText.getText().toString();
+
+            // 字符串转 Gson
+            Gson gson = new Gson();
+            HubConfig hubConfigGson = null;
+            try {
+                hubConfigGson = gson.fromJson(hubConfig, HubConfig.class);
+            } catch (JsonSyntaxException e) {
+                Log.e(TAG, TAG, "addHubDatabase:  hubConfig 不符合 JsonObject 格式 hubConfig: " + hubConfig);
+            }
+
+            // hubConfig 符合 JsonObject 格式，做进一步数据处理
+            boolean addHubSuccess;
+            if (hubConfigGson != null)
+                addHubSuccess = addHubDatabase(databaseId, hubConfigGson);
+            else
+                addHubSuccess = false;
+
             if (addHubSuccess) {
                 onBackPressed();
                 Toast.makeText(HubLocalAddActivity.this, "数据添加成功", Toast.LENGTH_LONG).show();
@@ -43,24 +59,16 @@ public class HubLocalAddActivity extends Activity {
         });
     }
 
-    boolean addHubDatabase(int databaseId, String hubConfig) {
-        Gson gson = new Gson();
-        HubConfig repoConfigGson = null;
-        try {
-            repoConfigGson = gson.fromJson(hubConfig, HubConfig.class);
-        } catch (JsonSyntaxException e) {
-            Log.e(TAG, TAG, "addHubDatabase:  hubConfig 不符合 JsonObject 格式 hubConfig: " + hubConfig);
-        }
-
-        // hubConfig 符合 JsonObject 格式，做进一步数据处理
-        if (repoConfigGson != null) {
+    public static boolean addHubDatabase(int databaseId, HubConfig hubConfigGson) {
+        if (hubConfigGson != null) {
             String name = null;
             String uuid = null;
             try {
-                name = repoConfigGson.getInfo().getConfigName();
-                uuid = repoConfigGson.getUuid();
+                name = hubConfigGson.getInfo().getConfigName();
+                uuid = hubConfigGson.getUuid();
             } catch (NullPointerException e) {
-                Log.e(TAG, TAG, "addHubDatabase: 请确认 hubConfig 包含各个必须元素 hubConfigGson: " + hubConfig);
+                Gson gson = new Gson();
+                Log.e(TAG, TAG, "addHubDatabase: 请确认 hubConfig 包含各个必须元素 hubConfigGson: " + gson.toJson(hubConfigGson));
             }
             // 如果设置了名字与 UUID，则存入数据库
             if (name != null && uuid != null) {
@@ -73,7 +81,7 @@ public class HubLocalAddActivity extends Activity {
                 // 开启数据库
                 hubDatabase.setName(name);
                 hubDatabase.setUuid(uuid);
-                hubDatabase.setRepoConfig(repoConfigGson);
+                hubDatabase.setRepoConfig(hubConfigGson);
                 hubDatabase.save();
                 // 将数据存入 HubDatabase 数据库
                 return true;

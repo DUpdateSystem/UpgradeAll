@@ -10,6 +10,7 @@ import com.google.gson.JsonSyntaxException;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.gson.CloudConfig;
+import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.server.updater.api.GithubApi;
 import net.xzos.UpgradeAll.utils.LogUtil;
 
@@ -34,7 +35,7 @@ public class CloudHub {
         rulesListJsonFileRawUrl = baseRawUrl + "rules/rules_list.json";
     }
 
-    public void flashCloudConfig() {
+    public void flashCloudConfigList() {
         if (rulesListJsonFileRawUrl != null) {
             String jsonText = GithubApi.getHttpResponse(TAG, rulesListJsonFileRawUrl);
             // 如果刷新失败，则不记录数据
@@ -64,9 +65,15 @@ public class CloudHub {
         return GithubApi.getHttpResponse(TAG, appConfigRawUrl);
     }
 
-    public String getHubConfig(String hubConfigUuid) {
+    public HubConfig getHubConfig(String hubConfigUuid) {
         String hubConfigRawUrl = cloudConfig.getListUrl().getHubListRawUrl() + hubConfigUuid + ".json";
-        return GithubApi.getHttpResponse(TAG, hubConfigRawUrl);
+        String hubConfigString = GithubApi.getHttpResponse(TAG, hubConfigRawUrl);
+        Gson gson = new Gson();
+        try {
+            return gson.fromJson(hubConfigString, HubConfig.class);
+        } catch (JsonSyntaxException e) {
+            return null;
+        }
     }
 
     private String getRawRootUrl(String gitUrl) {
