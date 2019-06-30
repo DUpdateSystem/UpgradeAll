@@ -34,12 +34,15 @@
     <string name="update_item_setting_versionCheckTextView">版本控制设置</string>
     <string name="update_item_setting_versionCheckButton">测试</string>
     <string name="delete">删除</string>
+    <string name="edit">编辑</string>
     <string name="sync_header">数据刷新</string>
     <string name="initiative_sync_time">数据过期时间(min)</string>
     <string name="update_item_setting_editVersionCheckRegularText">\\d+(\\.\\d+)*</string>
     <string name="dialog_version_releaseTextView">最新版本的云端文件</string>
     <string name="dialog_version_cloud_release_text_view">正在刷新</string>
     <string name="update_item_card_view_setting_button">修改</string>
+    <string name="cloud_rules">云规则</string>
+    <string name="cloud_rules_repo_url">Git 仓库地址</string>
 
     <string name="dialog_repo_config_edit_text">第三方源的配置文本</string>
     <string name="title_activity_hub_setting">HubSettingActivity</string>
@@ -47,5 +50,7 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_log">LogActivity</string>
+    <string name="add_manually">手动添加</string>
+    <string name="cloud_hub">云端仓库</string>
 
 </resources>

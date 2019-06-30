@@ -15,9 +15,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.viewmodels.adapters.UpdateItemCardAdapter;
+import net.xzos.UpgradeAll.ui.viewmodels.adapters.UpdateItemCardAdapter;
 import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.viewmodels.ItemCardView;
+import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
 
 import org.litepal.LitePal;
 
@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
     private List<ItemCardView> itemCardViewList = new ArrayList<>();
     private UpdateItemCardAdapter adapter;
 
@@ -35,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        refreshCardView();
+        refreshAppList();
     }
 
     @Override
@@ -44,32 +43,25 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // tab添加事件
-        FloatingActionButton fab = findViewById(R.id.addFab);
-        fab.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, UpdaterSettingActivity.class);
-            startActivity(intent);
-        });
 
         swipeRefresh = findViewById(R.id.swipeRefresh);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
-        swipeRefresh.setOnRefreshListener(this::refreshUpdate);
+        swipeRefresh.setOnRefreshListener(this::refreshCardView);
 
         recyclerView = findViewById(R.id.update_item_recycler_view);
 
         setRecyclerView();
     }
 
-    private void refreshUpdate() {
+    private void refreshCardView() {
         new Thread(() -> runOnUiThread(() -> {
             swipeRefresh.setRefreshing(true);
-            refreshCardView();
-            adapter.notifyDataSetChanged();
+            refreshAppList();
             swipeRefresh.setRefreshing(false);
         })).start();
     }
 
-    private void refreshCardView() {
+    private void refreshAppList() {
         List<RepoDatabase> repoDatabase = LitePal.findAll(RepoDatabase.class);
         itemCardViewList.clear();
         for (RepoDatabase updateItem : repoDatabase) {
@@ -80,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
             itemCardViewList.add(new ItemCardView(databaseId, name, url, api));
         }
         setRecyclerView();
+        adapter.notifyDataSetChanged();
     }
 
     private void setRecyclerView() {
@@ -97,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_actionbar_main, menu);
         return true;
     }
 
@@ -107,6 +100,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intent;
 
         switch (id) {
+            case R.id.item_add:
+                intent = new Intent(MainActivity.this, UpdaterSettingActivity.class);
+                startActivity(intent);
+                return true;
             case R.id.app_help:
                 intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse("https://xzos.net/upgradeall-readme/"));

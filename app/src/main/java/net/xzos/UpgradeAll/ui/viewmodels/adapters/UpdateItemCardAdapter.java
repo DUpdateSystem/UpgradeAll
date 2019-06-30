@@ -1,13 +1,17 @@
-package net.xzos.UpgradeAll.viewmodels.adapters;
+package net.xzos.UpgradeAll.ui.viewmodels.adapters;
 
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -16,15 +20,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.activity.UpdaterSettingActivity;
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.updater.Updater;
+import net.xzos.UpgradeAll.server.updater.Updater;
 import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.viewmodels.ItemCardView;
+import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,8 +56,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
         TextView api;
         ProgressBar versionCheckingBar;
         ImageView versionCheckButton;
-        CardView delButton;
-        CardView settingButton;
+        CardView itemCardView;
         RecyclerView updateItemCardList;
 
         ViewHolder(View view) {
@@ -60,10 +64,9 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
             name = view.findViewById(R.id.nameTextView);
             url = view.findViewById(R.id.descTextView);
             api = view.findViewById(R.id.apiTextView);
+            itemCardView = view.findViewById(R.id.item_card_view);
             versionCheckingBar = view.findViewById(R.id.statusChangingBar);
             versionCheckButton = view.findViewById(R.id.statusCheckButton);
-            delButton = view.findViewById(R.id.delButton);
-            settingButton = view.findViewById(R.id.settingButton);
             updateItemCardList = view.findViewById(R.id.update_item_recycler_view);
         }
     }
@@ -90,19 +93,23 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
             final AlertDialog dialog = builder.setView(R.layout.dialog_version).create();
             dialog.show();
 
-            // 显示本地版本号
-            TextView cloudReleaseTextView = dialog.getWindow().findViewById(R.id.cloudReleaseTextView);
-            String latestVersion = updater.getLatestVersion(databaseId);
-            if (latestVersion != null)
-                cloudReleaseTextView.setText(latestVersion);
-            else
-                cloudReleaseTextView.setText("获取失败");
-            TextView localReleaseTextView = dialog.getWindow().findViewById(R.id.localReleaseTextView);
-            String installedVersion = updater.getInstalledVersion(databaseId);
-            if (installedVersion != null)
-                localReleaseTextView.setText(installedVersion);
-            else
-                localReleaseTextView.setText("获取失败");
+            Window dialogWindow = dialog.getWindow();
+
+            if (dialogWindow != null) {
+                TextView cloudReleaseTextView = dialogWindow.findViewById(R.id.cloudReleaseTextView);
+                TextView localReleaseTextView = dialogWindow.findViewById(R.id.localReleaseTextView);
+                // 显示本地版本号
+                String latestVersion = updater.getLatestVersion(databaseId);
+                if (latestVersion != null)
+                    cloudReleaseTextView.setText(latestVersion);
+                else
+                    cloudReleaseTextView.setText("获取失败");
+                String installedVersion = updater.getInstalledVersion(databaseId);
+                if (installedVersion != null)
+                    localReleaseTextView.setText(installedVersion);
+                else
+                    localReleaseTextView.setText("获取失败");
+            }
 
             // 获取云端文件
             new Thread(() -> {
@@ -163,21 +170,36 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
                 holder.url.getContext().startActivity(chooser);
             }
         });
-        // 修改按钮
-        holder.settingButton.setOnClickListener(v -> {
-            Intent intent = new Intent(holder.settingButton.getContext(), UpdaterSettingActivity.class);
-            intent.putExtra("database_id", databaseId);
-            holder.settingButton.getContext().startActivity(intent);
-        });
-        // 删除按钮
-        holder.delButton.setOnClickListener(v -> {
-            // 删除数据库
-            LitePal.delete(RepoDatabase.class, databaseId);
-            // 删除指定数据库
-            mItemCardViewList.remove(holder.getAdapterPosition());
-            notifyItemRemoved(holder.getAdapterPosition());
-            notifyItemRangeChanged(holder.getAdapterPosition(), mItemCardViewList.size());
-            // 删除 CardView
+
+        // 长按菜单
+        holder.itemCardView.setOnLongClickListener(v -> {
+            PopupMenu popupMenu = new PopupMenu(holder.itemCardView.getContext(), v);
+            MenuInflater menuInflater = popupMenu.getMenuInflater();
+            menuInflater.inflate(R.menu.menu_long_click_cardview_item, popupMenu.getMenu());
+            popupMenu.show();
+            //设置item的点击事件
+            popupMenu.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()) {
+                    // 修改按钮
+                    case R.id.setting_button:
+                        Intent intent = new Intent(holder.itemCardView.getContext(), UpdaterSettingActivity.class);
+                        intent.putExtra("database_id", databaseId);
+                        holder.itemCardView.getContext().startActivity(intent);
+                        break;
+                    // 删除按钮
+                    case R.id.del_button:
+                        // 删除数据库
+                        LitePal.delete(RepoDatabase.class, databaseId);
+                        // 删除指定数据库
+                        mItemCardViewList.remove(holder.getAdapterPosition());
+                        notifyItemRemoved(holder.getAdapterPosition());
+                        notifyItemRangeChanged(holder.getAdapterPosition(), mItemCardViewList.size());
+                        // 删除 CardView
+                        break;
+                }
+                return true;
+            });
+            return true;
         });
     }
 

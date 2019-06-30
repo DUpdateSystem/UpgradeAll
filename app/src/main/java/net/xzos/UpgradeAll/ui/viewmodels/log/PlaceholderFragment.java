@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.viewmodels.ui.log;
+package net.xzos.UpgradeAll.ui.viewmodels.log;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;

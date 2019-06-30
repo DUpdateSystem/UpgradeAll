@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.updater.api;
+package net.xzos.UpgradeAll.server.updater.api;
 
 import android.content.res.Resources;
 
@@ -202,7 +202,7 @@ public class HtmlUnitApi extends Api {
                 } catch (XpathSyntaxErrorException e) {
                     Log.e(APITAG, TAG, "getDomString: Xpath 语法有误, Xpath: " + xpath);
                 } catch (ScriptException e) {
-                    Log.d(APITAG, TAG, "getDomString: 按钮点击事件失败, Xpath: " + xpath);
+                    Log.e(APITAG, TAG, "getDomString: 按钮点击事件失败, Xpath: " + xpath);
                 } catch (Throwable e) {
                     Log.e(APITAG, TAG, "getDomString: ERROR_MESSAGE: " + e.toString());
                 }

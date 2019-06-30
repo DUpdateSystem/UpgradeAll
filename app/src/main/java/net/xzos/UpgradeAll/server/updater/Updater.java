@@ -1,18 +1,20 @@
-package net.xzos.UpgradeAll.updater;
+package net.xzos.UpgradeAll.server.updater;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import android.content.res.Resources;
+
+import androidx.preference.PreferenceManager;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.updater.api.Api;
-import net.xzos.UpgradeAll.updater.api.GithubApi;
-import net.xzos.UpgradeAll.updater.api.HtmlUnitApi;
-import net.xzos.UpgradeAll.updater.api.JavaScriptJEngine;
-import net.xzos.UpgradeAll.updater.api.JsoupApi;
+import net.xzos.UpgradeAll.server.updater.api.Api;
+import net.xzos.UpgradeAll.server.updater.api.GithubApi;
+import net.xzos.UpgradeAll.server.updater.api.HtmlUnitApi;
+import net.xzos.UpgradeAll.server.updater.api.JavaScriptJEngine;
+import net.xzos.UpgradeAll.server.updater.api.JsoupApi;
 import net.xzos.UpgradeAll.utils.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
@@ -64,8 +66,8 @@ public class Updater {
         // 检查更新时间更新数据
         boolean startRefresh = true;
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-        String defaultDataExpirationTime = MyApplication.getContext().getString(R.string.default_data_expiration_time);
-        int autoRefreshMinute = Integer.parseInt(Objects.requireNonNull(sharedPref.getString("sync_time", defaultDataExpirationTime)));
+        Integer defaultDataExpirationTime =MyApplication.getContext().getResources().getInteger(R.integer.default_data_expiration_time);
+        int autoRefreshMinute = Integer.parseInt(Objects.requireNonNull(sharedPref.getString("sync_time", String.valueOf(defaultDataExpirationTime))));
         // 默认自动刷新时间 10min
         if (updateJsonData.has(String.valueOf(databaseId))) {
             /* 如果存在数据，
@@ -77,7 +79,7 @@ public class Updater {
             try {
                 updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
             } catch (JSONException e) {
-                Log.d(TAG, TAG, String.format("autoRefresh:  updateJsonData缺少 %s 项", databaseId));
+                Log.e(TAG, TAG, String.format("autoRefresh:  updateJsonData缺少 %s 项", databaseId));
             }
             if (updateItemJson.length() != 0) {
                 Calendar updateTime = null;
@@ -85,10 +87,10 @@ public class Updater {
                     updateTime = (Calendar) updateItemJson.get("update_time");
                     updateTime.add(Calendar.MINUTE, autoRefreshMinute);
                 } catch (JSONException e) {
-                    Log.d(TAG, TAG, String.format("autoRefresh:  初始化数据刷新: %s", databaseId));
+                    Log.v(TAG, TAG, String.format("autoRefresh:  初始化数据刷新: %s", databaseId));
                 }
                 if (Calendar.getInstance().before(updateTime)) {
-                    Log.d(TAG, TAG, String.format("autoRefreshAll: %s NoUp", databaseId));
+                    Log.v(TAG, TAG, String.format("autoRefreshAll: %s NoUp", databaseId));
                     startRefresh = false;
                 }
             }
@@ -107,7 +109,7 @@ public class Updater {
         try {
             updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
         } catch (JSONException e) {
-            Log.d(TAG, TAG, "refresh:  更新对象初始化");
+            Log.v(TAG, TAG, "refresh:  更新对象初始化");
             updateItemJson = renewUpdateItem(databaseId);  //  创建更新对象
         }
         // 数据刷新
@@ -122,7 +124,7 @@ public class Updater {
         refreshSuccess = api.isSuccessFlash();
         if (refreshSuccess) {
             try {
-                Log.d(TAG, TAG, "refresh:  刷新成功");
+                Log.v(TAG, TAG, "refresh:  刷新成功");
                 updateItemJson.put("update_time", Calendar.getInstance());
             } catch (JSONException e) {
                 e.printStackTrace();

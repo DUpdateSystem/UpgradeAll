@@ -1,10 +1,11 @@
 package net.xzos.UpgradeAll.activity;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,28 +14,28 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.database.HubDatabase;
+import net.xzos.UpgradeAll.gson.CloudConfig;
+import net.xzos.UpgradeAll.server.cloud.CloudHub;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
 import net.xzos.UpgradeAll.ui.viewmodels.adapters.HubItemAdapter;
-
-import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial;
 
-public class HubListActivity extends AppCompatActivity {
+public class CloudHubListActivity extends AppCompatActivity {
     private List<ItemCardView> itemCardViewList = new ArrayList<>();
     private HubItemAdapter adapter;
 
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
+    private CloudHub cloudHub = new CloudHub();
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        refreshHubList();
+        refreshCardView();
     }
 
     @Override
@@ -45,17 +46,11 @@ public class HubListActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(getApplicationContext().getString(R.string.cloud_hub));
         }
-        // tab添加事件
+        // 隐藏 tab
         FabSpeedDial fab = findViewById(R.id.add_fab);
-        fab.addOnMenuItemClickListener((floatingActionButton, textView, integer) -> {
-            if (floatingActionButton == fab.getMiniFab(0)) {
-                startActivity(new Intent(HubListActivity.this, HubLocalAddActivity.class));
-            } else if (floatingActionButton == fab.getMiniFab(1)) {
-                startActivity(new Intent(HubListActivity.this, CloudHubListActivity.class));
-            }
-            return null;
-        });
+        fab.setVisibility(View.GONE);
 
         swipeRefresh = findViewById(R.id.swipeRefresh);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
@@ -69,22 +64,26 @@ public class HubListActivity extends AppCompatActivity {
     private void refreshCardView() {
         new Thread(() -> runOnUiThread(() -> {
             swipeRefresh.setRefreshing(true);
-            refreshHubList();
-            adapter.notifyDataSetChanged();
+            refreshCloudHubList();
             swipeRefresh.setRefreshing(false);
         })).start();
     }
 
-    private void refreshHubList() {
-        List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
-        itemCardViewList.clear();
-        for (HubDatabase hubItem : hubDatabase) {
-            int databaseId = hubItem.getId();
-            String name = hubItem.getName();
-            String uuid = hubItem.getUuid();
-            itemCardViewList.add(new ItemCardView(databaseId, name, uuid, ""));
-        }
-        setRecyclerView();
+    private void refreshCloudHubList() {
+        new Thread(() -> {
+            cloudHub.flashCloudConfig();
+            new Handler(Looper.getMainLooper()).post(() -> {
+                List<CloudConfig.HubListBean> hubList = cloudHub.getHubList();
+                itemCardViewList.clear();
+                for (CloudConfig.HubListBean hubItem : hubList) {
+                    String name = hubItem.getHubConfigName();
+                    String uuid = hubItem.getHubConfigUuid();
+                    itemCardViewList.add(new ItemCardView(0, name, uuid, ""));
+                }
+                setRecyclerView();
+                adapter.notifyDataSetChanged();
+            });
+        }).start();
     }
 
     private void setRecyclerView() {
@@ -102,27 +101,16 @@ public class HubListActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_actionbar_hub, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.app_help:
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://xzos.net/the-customizing-configuration-rules-for-a-software-depot/"));
-                intent = Intent.createChooser(intent, "请选择浏览器以查看帮助文档");
-                startActivity(intent);
-                return true;
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
 }

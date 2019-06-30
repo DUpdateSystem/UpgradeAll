@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.updater.api;
+package net.xzos.UpgradeAll.server.updater.api;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,14 +26,14 @@ public class GithubApi extends Api {
         this.APITAG = URL;
         this.URL = URL;
         this.apiUrl = getApiUrl(URL);
-        Log.d(APITAG, TAG, "api_url: " + apiUrl);
+        Log.v(APITAG, TAG, "api_url: " + apiUrl);
     }
 
     @Override
     public void flashData() {
         // 仅刷新数据，并进行数据校验
         if (apiUrl != null) {
-            String jsonText = getHttpResponse(apiUrl);
+            String jsonText = getHttpResponse(APITAG, apiUrl);
             // 如果刷新失败，则不记录数据
             if (jsonText.length() != 0) {
                 try {
@@ -134,8 +134,9 @@ public class GithubApi extends Api {
         } else return null;
     }
 
-    private String getHttpResponse(String api_url) {
+    public static String getHttpResponse(String APITAG, String api_url) {
         String responseString = "";
+        String TAG = " getHttpResponse";
         Response response = null;
         OkHttpClient client = new OkHttpClient();
         Request.Builder builder = new Request.Builder();
@@ -155,5 +156,4 @@ public class GithubApi extends Api {
         }
         return responseString;
     }
-
 }

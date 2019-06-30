@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.updater.api;
+package net.xzos.UpgradeAll.server.updater.api;
 
 import android.content.res.Resources;
 import android.util.Log;

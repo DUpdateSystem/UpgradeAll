@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.viewmodels;
+package net.xzos.UpgradeAll.ui.viewmodels;
 
 public class ItemCardView {
     private int databaseId;

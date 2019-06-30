@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.updater.api;
+package net.xzos.UpgradeAll.server.updater.api;
 
 import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.utils.LogUtil;
@@ -10,7 +10,7 @@ import java.util.List;
 
 
 public class Api {
-    static final LogUtil Log = MyApplication.getLog();
+    protected static final LogUtil Log = MyApplication.getLog();
 
     public void flashData() {
     }

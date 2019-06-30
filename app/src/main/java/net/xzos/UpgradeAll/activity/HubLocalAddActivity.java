@@ -18,10 +18,10 @@ import net.xzos.UpgradeAll.utils.LogUtil;
 
 import org.litepal.LitePal;
 
-public class HubSettingActivity extends Activity {
+public class HubLocalAddActivity extends Activity {
 
     private static final LogUtil Log = MyApplication.getLog();
-    private static final String TAG = "HubSettingActivity";
+    private static final String TAG = "HubLocalAddActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,14 +37,13 @@ public class HubSettingActivity extends Activity {
             boolean addHubSuccess = addHubDatabase(databaseId, repoConfig);
             if (addHubSuccess) {
                 onBackPressed();
-                Toast.makeText(HubSettingActivity.this, "数据添加成功", Toast.LENGTH_LONG).show();
+                Toast.makeText(HubLocalAddActivity.this, "数据添加成功", Toast.LENGTH_LONG).show();
             } else
-                Toast.makeText(HubSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
+                Toast.makeText(HubLocalAddActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
         });
     }
 
     boolean addHubDatabase(int databaseId, String hubConfig) {
-        // TODO: 可被忽略的参数
         Gson gson = new Gson();
         HubConfig repoConfigGson = null;
         try {

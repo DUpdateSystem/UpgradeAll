@@ -1,7 +1,8 @@
-package net.xzos.UpgradeAll.viewmodels.adapters;
+package net.xzos.UpgradeAll.ui.viewmodels.adapters;
 
 import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -9,13 +10,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import net.xzos.UpgradeAll.activity.HubSettingActivity;
 import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.activity.HubLocalAddActivity;
 import net.xzos.UpgradeAll.database.HubDatabase;
-import net.xzos.UpgradeAll.viewmodels.ItemCardView;
+import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
 
 import org.litepal.LitePal;
 
@@ -34,10 +36,9 @@ public class HubItemAdapter extends RecyclerView.Adapter<HubItemAdapter.ViewHold
         TextView name;
         TextView descTextView;
         TextView api;
+        CardView itemCardView;
         ProgressBar versionCheckingBar;
         ImageView versionCheckButton;
-        CardView delButton;
-        CardView settingButton;
         RecyclerView updateItemCardList;
 
         ViewHolder(View view) {
@@ -45,10 +46,9 @@ public class HubItemAdapter extends RecyclerView.Adapter<HubItemAdapter.ViewHold
             name = view.findViewById(R.id.nameTextView);
             descTextView = view.findViewById(R.id.descTextView);
             api = view.findViewById(R.id.apiTextView);
+            itemCardView = view.findViewById(R.id.item_card_view);
             versionCheckingBar = view.findViewById(R.id.statusChangingBar);
             versionCheckButton = view.findViewById(R.id.statusCheckButton);
-            delButton = view.findViewById(R.id.delButton);
-            settingButton = view.findViewById(R.id.settingButton);
             updateItemCardList = view.findViewById(R.id.update_item_recycler_view);
         }
     }
@@ -69,21 +69,35 @@ public class HubItemAdapter extends RecyclerView.Adapter<HubItemAdapter.ViewHold
         holder.descTextView.setText(itemCardView.getDesc());
         holder.descTextView.setEnabled(false);
 
-        // 修改按钮
-        holder.settingButton.setOnClickListener(v -> {
-            Intent intent = new Intent(holder.settingButton.getContext(), HubSettingActivity.class);
-            intent.putExtra("database_id", databaseId);
-            holder.settingButton.getContext().startActivity(intent);
-        });
-        // 删除按钮
-        holder.delButton.setOnClickListener(v -> {
-            // 删除数据库
-            LitePal.delete(HubDatabase.class, databaseId);
-            // 删除指定数据库
-            mItemCardViewList.remove(holder.getAdapterPosition());
-            notifyItemRemoved(holder.getAdapterPosition());
-            notifyItemRangeChanged(holder.getAdapterPosition(), mItemCardViewList.size());
-            // 删除 CardView
+        // 长按菜单
+        holder.itemCardView.setOnLongClickListener(v -> {
+            PopupMenu popupMenu = new PopupMenu(holder.itemCardView.getContext(), v);
+            MenuInflater menuInflater = popupMenu.getMenuInflater();
+            menuInflater.inflate(R.menu.menu_long_click_cardview_item, popupMenu.getMenu());
+            popupMenu.show();
+            //设置item的点击事件
+            popupMenu.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()) {
+                    // 修改按钮
+                    case R.id.setting_button:
+                        Intent intent = new Intent(holder.itemCardView.getContext(), HubLocalAddActivity.class);
+                        intent.putExtra("database_id", databaseId);
+                        holder.itemCardView.getContext().startActivity(intent);
+                        break;
+                    // 删除按钮
+                    case R.id.del_button:
+                        // 删除数据库
+                        LitePal.delete(HubDatabase.class, databaseId);
+                        // 删除指定数据库
+                        mItemCardViewList.remove(holder.getAdapterPosition());
+                        notifyItemRemoved(holder.getAdapterPosition());
+                        notifyItemRangeChanged(holder.getAdapterPosition(), mItemCardViewList.size());
+                        // 删除 CardView
+                        break;
+                }
+                return true;
+            });
+            return true;
         });
     }
 

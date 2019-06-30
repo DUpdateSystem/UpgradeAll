@@ -4,7 +4,7 @@
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".viewmodels.ui.log.PlaceholderFragment"
+    tools:context=".ui.viewmodels.log.PlaceholderFragment"
     tools:ignore="ExtraText">
 
 

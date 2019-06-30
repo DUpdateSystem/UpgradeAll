@@ -1,11 +1,11 @@
-<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory app:title="@string/sync_header">
         <EditTextPreference
+            android:defaultValue="@integer/default_data_expiration_time"
             app:key="sync_time"
             app:title="@string/initiative_sync_time"
-            android:defaultValue="@string/default_data_expiration_time"
             app:useSimpleSummaryProvider="true" />
 
         <!--
@@ -14,6 +14,14 @@
             app:title="@string/sync_title" />
         -->
 
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/cloud_rules">
+        <EditTextPreference
+            android:defaultValue="@string/default_cloud_rules_hub_url"
+            app:key="cloud_rules_hub_url"
+            app:title="@string/cloud_rules_repo_url"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>

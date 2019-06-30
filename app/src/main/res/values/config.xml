@@ -3,5 +3,6 @@
     <integer name="log_level">1</integer>
     <integer name="hub_config_version_base">1</integer>
     <integer name="hub_config_version_javascript">2</integer>
-    <string name="default_data_expiration_time">10</string>
+    <integer name="default_data_expiration_time">10</integer>
+    <string name="default_cloud_rules_hub_url">https://github.com/xz-dev/UpgradeAll-rules</string>
 </resources>
