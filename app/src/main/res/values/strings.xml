@@ -53,5 +53,6 @@
     <string name="add_manually">手动添加</string>
     <string name="cloud_hub">云端仓库</string>
     <string name="download">下载</string>
+    <string name="end">End</string>
 
 </resources>
