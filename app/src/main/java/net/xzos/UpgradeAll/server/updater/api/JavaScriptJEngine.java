@@ -68,22 +68,26 @@ public class JavaScriptJEngine extends Api {
         this.memoryManager = null;
     }
 
+    @Override
+    public void flashData() {
+        initData();
+    }
+
     /**
      * 初始化一些可能造成软件卡顿的网络数据
      * 建议但不强制要求
      *
      * @Version:0.0.9
      */
-    @Override
-    public void flashData() {
+    private void initData() {
         if (hubConfigVersion < hubConfigVersionJavaScript) return;
         initJ2V8(); // 初始化 J2V8
         try {
             this.WebCrawler.executeVoidFunction("flashData", null);
         } catch (V8ScriptExecutionException e) {
-            Log.e(APITAG, TAG, "flashData: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
+            Log.e(APITAG, TAG, "initData: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
         } catch (V8ResultUndefined e) {
-            Log.e(APITAG, TAG, "flashData: 函数返回值错误, ERROR_MESSAGE: " + e.toString());
+            Log.e(APITAG, TAG, "initData: 函数返回值错误, ERROR_MESSAGE: " + e.toString());
         }
         closeJ2V8(); // 销毁 J2V8 对象
     }
@@ -156,12 +160,13 @@ public class JavaScriptJEngine extends Api {
         } catch (V8ResultUndefined e) {
             Log.e(APITAG, TAG, "getReleaseDownload: 函数返回值错误, ERROR_MESSAGE: " + e.toString());
         }
-        JSONObject releaseDownloadUrlJsonObject;
+        JSONObject releaseDownloadUrlJsonObject = new JSONObject();
         try {
             releaseDownloadUrlJsonObject = new JSONObject(versionNumberString);
         } catch (JSONException e) {
-            releaseDownloadUrlJsonObject = new JSONObject();
             Log.e(APITAG, TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范, versionNumberString : " + versionNumberString);
+        } catch (NullPointerException e) {
+            Log.e(APITAG, TAG, "getReleaseDownload: 返回值为 NULL, versionNumberString : " + versionNumberString);
         }
         closeJ2V8(); // 销毁 J2V8 对象
         Log.d(APITAG, TAG, "getReleaseDownload:  releaseDownloadUrlJsonObject: " + releaseDownloadUrlJsonObject);

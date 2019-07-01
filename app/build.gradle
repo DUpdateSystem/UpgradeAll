@@ -7,7 +7,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 19
-        versionName "0.0.9-alpha.4"
+        versionName "0.0.9-alpha.4_BugFix"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
