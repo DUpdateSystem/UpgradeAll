@@ -1,6 +1,7 @@
 package net.xzos.UpgradeAll.server.cloud;
 
 import android.content.SharedPreferences;
+import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
@@ -35,19 +36,22 @@ public class CloudHub {
         rulesListJsonFileRawUrl = baseRawUrl + "rules/rules_list.json";
     }
 
-    public void flashCloudConfigList() {
+    public boolean flashCloudConfigList() {
+        boolean isSuccess = false;
         if (rulesListJsonFileRawUrl != null) {
             String jsonText = GithubApi.getHttpResponse(TAG, rulesListJsonFileRawUrl);
             // 如果刷新失败，则不记录数据
-            if (jsonText.length() != 0) {
+            if (jsonText != null && jsonText.length() != 0) {
                 Gson gson = new Gson();
                 try {
                     cloudConfig = gson.fromJson(jsonText, CloudConfig.class);
+                    isSuccess = true;
                 } catch (JsonSyntaxException e) {
                     Log.e(TAG, TAG, "flashData: ERROR_MESSAGE: " + e.toString());
                 }
             }
         }
+        return isSuccess;
     }
 
     public List<CloudConfig.AppListBean> getAppList() {

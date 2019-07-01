@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -71,8 +72,9 @@ public class CloudHubListActivity extends AppCompatActivity {
 
     private void refreshCloudHubList() {
         new Thread(() -> {
-            cloudHub.flashCloudConfigList();
+            boolean isSuccess = cloudHub.flashCloudConfigList();
             new Handler(Looper.getMainLooper()).post(() -> {
+                if (!isSuccess) Toast.makeText(this, "网络错误", Toast.LENGTH_SHORT).show();
                 List<CloudConfig.HubListBean> hubList = cloudHub.getHubList();
                 itemCardViewList.clear();
                 for (CloudConfig.HubListBean hubItem : hubList) {
