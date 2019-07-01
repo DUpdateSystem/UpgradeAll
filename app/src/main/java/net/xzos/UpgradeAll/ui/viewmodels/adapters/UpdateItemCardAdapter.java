@@ -54,6 +54,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
         TextView name;
         TextView url;
         TextView api;
+        TextView endTextView;
         ProgressBar versionCheckingBar;
         ImageView versionCheckButton;
         CardView itemCardView;
@@ -68,6 +69,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
             versionCheckingBar = view.findViewById(R.id.statusChangingBar);
             versionCheckButton = view.findViewById(R.id.statusCheckButton);
             updateItemCardList = view.findViewById(R.id.update_item_recycler_view);
+            endTextView = view.findViewById(R.id.end_text_view);
         }
     }
 
@@ -81,6 +83,11 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ItemCardView itemCardView = mItemCardViewList.get(position);
+        // 底栏设置
+        if (itemCardView.getName() == null && itemCardView.getApi() == null && itemCardView.getDesc() == null) {
+            holder.itemCardView.setVisibility(View.GONE);
+            holder.endTextView.setVisibility(View.VISIBLE);
+        }
         int databaseId = itemCardView.getDatabaseId();
         holder.name.setText(itemCardView.getName());
         holder.api.setText(itemCardView.getApi());
@@ -204,6 +211,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
     }
 
     private void refreshUpdater(boolean isAuto, int databaseId, ViewHolder holder) {
+        if (databaseId == 0) return;
         if (!isAuto) {
             Toast.makeText(holder.versionCheckButton.getContext(), String.format("检查 %s 的更新", holder.name.getText().toString()),
                     Toast.LENGTH_SHORT).show();

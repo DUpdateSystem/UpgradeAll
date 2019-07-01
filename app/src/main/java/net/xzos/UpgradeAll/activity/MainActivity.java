@@ -1,10 +1,14 @@
 package net.xzos.UpgradeAll.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -71,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
             String url = updateItem.getUrl();
             itemCardViewList.add(new ItemCardView(databaseId, name, url, api));
         }
+        itemCardViewList.add(new ItemCardView(0, null, null, null));
         setRecyclerView();
         adapter.notifyDataSetChanged();
     }
