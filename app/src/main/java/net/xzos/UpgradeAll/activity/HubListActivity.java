@@ -70,7 +70,6 @@ public class HubListActivity extends AppCompatActivity {
         new Thread(() -> runOnUiThread(() -> {
             swipeRefresh.setRefreshing(true);
             refreshHubList();
-            adapter.notifyDataSetChanged();
             swipeRefresh.setRefreshing(false);
         })).start();
     }
@@ -84,7 +83,9 @@ public class HubListActivity extends AppCompatActivity {
             String uuid = hubItem.getUuid();
             itemCardViewList.add(new ItemCardView(databaseId, name, uuid, ""));
         }
+        itemCardViewList.add(new ItemCardView(0, null, null, null));
         setRecyclerView();
+        adapter.notifyDataSetChanged();
     }
 
     private void setRecyclerView() {

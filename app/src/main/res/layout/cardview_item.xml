@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="@string/end"
-        android:visibility="invisible" />
+        android:visibility="gone" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/item_card_view"
@@ -50,7 +50,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="5dp"
-                android:visibility="invisible" />
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/statusCheckButton"
@@ -60,7 +60,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="0dp"
-                android:visibility="invisible"
+                android:visibility="gone"
                 app:srcCompat="@android:color/transparent"
                 tools:ignore="ContentDescription" />
 
