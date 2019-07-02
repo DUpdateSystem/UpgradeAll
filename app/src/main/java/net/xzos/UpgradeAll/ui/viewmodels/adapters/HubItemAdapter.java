@@ -5,13 +5,9 @@ import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
@@ -24,7 +20,7 @@ import org.litepal.LitePal;
 import java.util.List;
 
 
-public class HubItemAdapter extends RecyclerView.Adapter<HubItemAdapter.ViewHolder> {
+public class HubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHolder> {
 
     private List<ItemCardView> mItemCardViewList;
 
@@ -32,38 +28,15 @@ public class HubItemAdapter extends RecyclerView.Adapter<HubItemAdapter.ViewHold
         mItemCardViewList = updateList;
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name;
-        TextView descTextView;
-        TextView api;
-        TextView endTextView;
-        CardView itemCardView;
-        ProgressBar versionCheckingBar;
-        ImageView versionCheckButton;
-        RecyclerView updateItemCardList;
-
-        ViewHolder(View view) {
-            super(view);
-            name = view.findViewById(R.id.nameTextView);
-            descTextView = view.findViewById(R.id.descTextView);
-            api = view.findViewById(R.id.apiTextView);
-            itemCardView = view.findViewById(R.id.item_card_view);
-            versionCheckingBar = view.findViewById(R.id.statusChangingBar);
-            versionCheckButton = view.findViewById(R.id.statusCheckButton);
-            updateItemCardList = view.findViewById(R.id.update_item_recycler_view);
-            endTextView = view.findViewById(R.id.end_text_view);
-        }
-    }
-
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(
+    public CardViewRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_item, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
         ItemCardView itemCardView = mItemCardViewList.get(position);
         // 底栏设置
         if (itemCardView.getName() == null && itemCardView.getApi() == null && itemCardView.getDesc() == null) {

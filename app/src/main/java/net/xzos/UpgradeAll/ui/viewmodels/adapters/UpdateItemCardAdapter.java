@@ -5,30 +5,25 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import net.xzos.UpgradeAll.activity.UpdaterSettingActivity;
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.server.updater.Updater;
+import net.xzos.UpgradeAll.activity.UpdaterSettingActivity;
 import net.xzos.UpgradeAll.data.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
+import net.xzos.UpgradeAll.server.updater.Updater;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
 
 import org.json.JSONException;
@@ -40,7 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAdapter.ViewHolder> {
+public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHolder> {
 
     private List<ItemCardView> mItemCardViewList;
 
@@ -50,38 +45,15 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
         mItemCardViewList = updateList;
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name;
-        TextView url;
-        TextView api;
-        TextView endTextView;
-        ProgressBar versionCheckingBar;
-        ImageView versionCheckButton;
-        CardView itemCardView;
-        RecyclerView updateItemCardList;
-
-        ViewHolder(View view) {
-            super(view);
-            name = view.findViewById(R.id.nameTextView);
-            url = view.findViewById(R.id.descTextView);
-            api = view.findViewById(R.id.apiTextView);
-            itemCardView = view.findViewById(R.id.item_card_view);
-            versionCheckingBar = view.findViewById(R.id.statusChangingBar);
-            versionCheckButton = view.findViewById(R.id.statusCheckButton);
-            updateItemCardList = view.findViewById(R.id.update_item_recycler_view);
-            endTextView = view.findViewById(R.id.end_text_view);
-        }
-    }
-
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(
+    public CardViewRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_item, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
         ItemCardView itemCardView = mItemCardViewList.get(position);
         // 底栏设置
         if (itemCardView.getName() == null && itemCardView.getApi() == null && itemCardView.getDesc() == null) {
@@ -91,7 +63,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
         int databaseId = itemCardView.getDatabaseId();
         holder.name.setText(itemCardView.getName());
         holder.api.setText(itemCardView.getApi());
-        holder.url.setText(itemCardView.getDesc());
+        holder.descTextView.setText(itemCardView.getDesc());
         refreshUpdater(true, databaseId, holder);
 
         // 单击展开 Release 详情页
@@ -169,12 +141,12 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
         });
 
         // 打开指向Url
-        holder.url.setOnClickListener(v -> {
+        holder.descTextView.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(holder.url.getText().toString()));
+            intent.setData(Uri.parse(holder.descTextView.getText().toString()));
             Intent chooser = Intent.createChooser(intent, "请选择浏览器");
-            if (intent.resolveActivity(holder.url.getContext().getPackageManager()) != null) {
-                holder.url.getContext().startActivity(chooser);
+            if (intent.resolveActivity(holder.descTextView.getContext().getPackageManager()) != null) {
+                holder.descTextView.getContext().startActivity(chooser);
             }
         });
 
@@ -210,7 +182,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<UpdateItemCardAd
         });
     }
 
-    private void refreshUpdater(boolean isAuto, int databaseId, ViewHolder holder) {
+    private void refreshUpdater(boolean isAuto, int databaseId, CardViewRecyclerViewHolder holder) {
         if (databaseId == 0) return;
         if (!isAuto) {
             Toast.makeText(holder.versionCheckButton.getContext(), String.format("检查 %s 的更新", holder.name.getText().toString()),
