@@ -28,7 +28,7 @@ import java.util.List;
 public class CloudHubItemAdapter extends RecyclerView.Adapter<CloudHubItemAdapter.ViewHolder> {
 
     private List<ItemCardView> mItemCardViewList;
-    
+
     private CloudHub mCloudHub;
 
     public CloudHubItemAdapter(List<ItemCardView> updateList, CloudHub cloudHub) {
@@ -40,6 +40,7 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CloudHubItemAdapte
         TextView name;
         TextView descTextView;
         TextView api;
+        TextView endTextView;
         CardView itemCardView;
         ProgressBar versionCheckingBar;
         ImageView versionCheckButton;
@@ -54,6 +55,7 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CloudHubItemAdapte
             versionCheckingBar = view.findViewById(R.id.statusChangingBar);
             versionCheckButton = view.findViewById(R.id.statusCheckButton);
             updateItemCardList = view.findViewById(R.id.update_item_recycler_view);
+            endTextView = view.findViewById(R.id.end_text_view);
         }
     }
 
@@ -67,6 +69,11 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CloudHubItemAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ItemCardView itemCardView = mItemCardViewList.get(position);
+        // 底栏设置
+        if (itemCardView.getName() == null && itemCardView.getApi() == null && itemCardView.getDesc() == null) {
+            holder.itemCardView.setVisibility(View.GONE);
+            holder.endTextView.setVisibility(View.VISIBLE);
+        }
         holder.name.setText(itemCardView.getName());
         holder.api.setText(itemCardView.getApi());
         holder.descTextView.setText(itemCardView.getDesc());

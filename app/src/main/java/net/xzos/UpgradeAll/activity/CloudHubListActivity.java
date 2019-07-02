@@ -82,6 +82,7 @@ public class CloudHubListActivity extends AppCompatActivity {
                     String uuid = hubItem.getHubConfigUuid();
                     itemCardViewList.add(new ItemCardView(0, name, uuid, ""));
                 }
+                itemCardViewList.add(new ItemCardView(0, null, null, null));
                 setRecyclerView();
                 adapter.notifyDataSetChanged();
             });
