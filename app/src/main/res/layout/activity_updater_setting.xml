@@ -135,10 +135,10 @@
         </RelativeLayout>
 
         <Button
-            android:id="@+id/addButton"
+            android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add" />
+            android:text="@string/save" />
 
     </LinearLayout>
 

@@ -10,6 +10,7 @@ public class RepoDatabase extends LitePalSupport {
     private String api;
     private String api_uuid;
     private String url; //  方便用户获得源网址
+    private String extra_data;  // JSON形式 存储额外数据
 
     private String versionChecker;
 
@@ -67,5 +68,17 @@ public class RepoDatabase extends LitePalSupport {
 
     public void setApiUuid(String api_uuid) {
         this.api_uuid = api_uuid;
+    }
+
+    public JSONObject getExtraData() {
+        try {
+            return new JSONObject(extra_data);
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
+    public void setExtraData(JSONObject extra_data) {
+        this.extra_data = extra_data.toString();
     }
 }

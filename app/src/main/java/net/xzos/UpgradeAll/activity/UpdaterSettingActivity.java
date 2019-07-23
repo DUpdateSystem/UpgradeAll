@@ -1,8 +1,11 @@
 package net.xzos.UpgradeAll.activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -15,14 +18,12 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.data.MyApplication;
+import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.server.updater.api.GithubApi;
-import net.xzos.UpgradeAll.server.updater.api.HtmlUnitApi;
-import net.xzos.UpgradeAll.server.updater.api.JavaScriptJEngine;
-import net.xzos.UpgradeAll.server.updater.api.JsoupApi;
+import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
 import net.xzos.UpgradeAll.utils.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
@@ -82,7 +83,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             intent = Intent.createChooser(intent, "请选择浏览器以查看帮助文档");
             startActivity(intent);
         });
-        Button addButton = findViewById(R.id.addButton);
+        Button addButton = findViewById(R.id.saveButton);
         addButton.setOnClickListener(v -> {
             EditText editName = findViewById(R.id.editName);
             EditText editUrl = findViewById(R.id.editUrl);
@@ -91,15 +92,31 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             Spinner apiSpinner = findViewById(R.id.apiSpinner);
             int apiNum = apiSpinner.getSelectedItemPosition();
             JSONObject versionChecker = getVersionChecker();
-            boolean addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker);
-            if (addRepoSuccess) {
-                MyApplication.getUpdater().renewUpdateItem(databaseId);
-                // 强行刷新被修改的子项
-                onBackPressed();
-                // 跳转主页面
-            } else {
-                Toast.makeText(UpdaterSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
-            }
+            ProgressDialog progressDialog = new ProgressDialog(UpdaterSettingActivity.this);
+            new Thread(() -> {
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    // 弹出等待框
+                    progressDialog.setTitle("正在添加，请稍等");
+                    progressDialog.setMessage("Loading...");
+                    progressDialog.setCancelable(true);
+                    progressDialog.show();
+                });
+                // 添加数据库
+                boolean addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker);
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    // 取消等待框
+                    progressDialog.cancel();
+                    if (addRepoSuccess) {
+                        MyApplication.getUpdater().renewUpdateItem(databaseId);
+                        // 强行刷新被修改的子项
+                        onBackPressed();
+                        // 跳转主页面
+                    } else {
+                        Toast.makeText(UpdaterSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }).start();
+
         });
     }
 
@@ -162,7 +179,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
         String versionCheckerText = editVersionCheckText.getText().toString();
         String versionCheckerApi = versionCheckSpinner.getSelectedItem().toString();
         String versionCheckerRegular = editVersionCheckRegular.getText().toString();
-        Log.d(TAG, TAG, "getRepoConfig:  " + versionCheckerRegular);
+        Log.d(TAG, TAG, "getHubConfig:  " + versionCheckerRegular);
         switch (versionCheckerApi) {
             case "APP 版本":
                 versionCheckerApi = "APP";
@@ -198,18 +215,21 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                     List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
                     for (HubDatabase hubItem : hubDatabase) {
                         if (hubItem.getUuid().equals(uuid)) {
-                            HubConfig hubConfig = hubItem.getRepoConfig();
+                            JSONObject extraData = hubItem.getExtraData();
+                            String jsCode = null;
+                            try {
+                                jsCode = extraData.getString("javascript");
+                            } catch (JSONException e) {
+                                Log.e(TAG, TAG, "未找到 js 脚本，extraData: " + extraData);
+                            }
+                            HubConfig hubConfig = hubItem.getHubConfig();
                             if (hubConfig != null) {
                                 String tool = null;
                                 if (hubConfig.getWebCrawler() != null) {
                                     tool = hubConfig.getWebCrawler().getTool();
                                 }
-                                if (tool != null && tool.toLowerCase().equals("htmlunit"))
-                                    name = new HtmlUnitApi(url, hubConfig).getDefaultName();
-                                else if (tool != null && tool.toLowerCase().equals("javascript"))
-                                    name = new JavaScriptJEngine(url, hubConfig).getDefaultName();
-                                else
-                                    name = new JsoupApi(url, hubConfig).getDefaultName();
+                                if (tool != null && tool.toLowerCase().equals("javascript"))
+                                    name = new JavaScriptJEngine(url, jsCode).getDefaultName();
                             }
                             break;
                         }

@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.data;
+package net.xzos.UpgradeAll.application;
 
 import android.annotation.SuppressLint;
 import android.app.Application;

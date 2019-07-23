@@ -16,7 +16,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.gson.CloudConfig;
-import net.xzos.UpgradeAll.server.cloud.CloudHub;
+import net.xzos.UpgradeAll.server.hub.CloudHub;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
 import net.xzos.UpgradeAll.ui.viewmodels.adapters.CloudHubItemAdapter;
 
@@ -79,7 +79,7 @@ public class CloudHubListActivity extends AppCompatActivity {
                 itemCardViewList.clear();
                 for (CloudConfig.HubListBean hubItem : hubList) {
                     String name = hubItem.getHubConfigName();
-                    String uuid = hubItem.getHubConfigUuid();
+                    String uuid = hubItem.getHubConfigFileName();
                     itemCardViewList.add(new ItemCardView(0, name, uuid, ""));
                 }
                 itemCardViewList.add(new ItemCardView(0, null, null, null));

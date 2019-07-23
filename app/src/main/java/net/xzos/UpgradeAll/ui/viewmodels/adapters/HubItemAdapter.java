@@ -11,7 +11,7 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.activity.HubLocalAddActivity;
+import net.xzos.UpgradeAll.activity.HubLocalActivity;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
 
@@ -60,7 +60,7 @@ public class HubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHol
                 switch (item.getItemId()) {
                     // 修改按钮
                     case R.id.setting_button:
-                        Intent intent = new Intent(holder.itemCardView.getContext(), HubLocalAddActivity.class);
+                        Intent intent = new Intent(holder.itemCardView.getContext(), HubLocalActivity.class);
                         intent.putExtra("database_id", databaseId);
                         holder.itemCardView.getContext().startActivity(intent);
                         break;

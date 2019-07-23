@@ -54,5 +54,24 @@
     <string name="cloud_hub">云端仓库</string>
     <string name="download">下载</string>
     <string name="end">End</string>
+    <string name="js_test">JS 脚本测试</string>
+    <string name="selected_file_address">已选中的文件:\ </string>
+    <string name="run">运行</string>
+    <string name="js_code">JS 代码</string>
+    <string name="select_file">选择文件</string>
+    <string name="test_url">测试网址:\ </string>
+    <string name="hub_config_info">配置信息</string>
+    <string name="hub_config">自定义源配置</string>
+    <string name="config_base_version">适配配置版本 (base_version)</string>
+    <string name="config_uuid">配置识别码 (uuid)</string>
+    <string name="config_info">简述信息 (info)</string>
+    <string name="config_hub_name">仓库名称 (hub_name)</string>
+    <string name="config_version">配置版本 (config_version)</string>
+    <string name="config_web_crawler">网络爬虫配置 (web_crawler)</string>
+    <string name="config_web_crawler_tool">爬虫调用库 (tool)</string>
+    <string name="js_file_path">爬虫配置文件地址 (file_path)</string>
+    <string name="save">保存</string>
+    <string name="save_to_file">保存到文件</string>
+    <string name="save_to_file_and_database">保存到文件与数据库</string>
 
 </resources>

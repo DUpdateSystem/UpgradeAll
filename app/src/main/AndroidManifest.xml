@@ -5,9 +5,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".data.MyApplication"
+        android:name=".application.MyApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
@@ -31,9 +32,7 @@
             android:label="@string/title_activity_log" />
         <activity android:name=".activity.HubListActivity" />
         <activity android:name=".activity.CloudHubListActivity" />
-        <activity
-            android:name=".activity.HubLocalAddActivity"
-            android:theme="@style/DialogStyle" />
+        <activity android:name=".activity.HubLocalActivity" />
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/setting" />
