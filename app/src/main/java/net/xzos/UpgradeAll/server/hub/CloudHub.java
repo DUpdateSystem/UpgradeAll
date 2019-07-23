@@ -47,7 +47,7 @@ public class CloudHub {
                     cloudConfig = gson.fromJson(jsonText, CloudConfig.class);
                     isSuccess = true;
                 } catch (JsonSyntaxException e) {
-                    Log.e(TAG, TAG, "flashData: ERROR_MESSAGE: " + e.toString());
+                    Log.e(TAG, TAG, "initData: ERROR_MESSAGE: " + e.toString());
                 }
             }
         }

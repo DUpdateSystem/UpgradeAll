@@ -8,6 +8,7 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
+import net.xzos.UpgradeAll.server.JSEngine.JSEngineDataProxy;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
 import net.xzos.UpgradeAll.server.updater.api.Api;
 import net.xzos.UpgradeAll.server.updater.api.GithubApi;
@@ -115,7 +116,7 @@ public class Updater {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        api.flashData();  // 调用刷新
+        api.initData();  // 调用刷新
         // 检查刷新
         refreshSuccess = api.isSuccessFlash();
         if (refreshSuccess) {
@@ -154,7 +155,8 @@ public class Updater {
                         e.printStackTrace();
                     }
                 }
-                httpApi = new JavaScriptJEngine(url, jsCode);
+                JavaScriptJEngine javaScriptJEngine = new JavaScriptJEngine(url, jsCode);
+                httpApi = new JSEngineDataProxy(javaScriptJEngine);
             }
         }
         // 组装一个更新子项
@@ -178,11 +180,11 @@ public class Updater {
 
     public String getLatestVersion(int databaseId) {
         // 获取最新版本号
-        JSONObject updateItem;
+        JSONObject updateItemJson;
         Api api = new Api();
         try {
-            updateItem = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
-            api = (Api) updateItem.get("http_api");
+            updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
+            api = (Api) updateItemJson.get("http_api");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -191,11 +193,11 @@ public class Updater {
 
     public JSONObject getLatestDownloadUrl(int databaseId) {
         // 获取最新下载链接
-        JSONObject updateItem;
+        JSONObject updateItemJson;
         Api api = new Api();
         try {
-            updateItem = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
-            api = (Api) updateItem.get("http_api");
+            updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
+            api = (Api) updateItemJson.get("http_api");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -209,15 +211,15 @@ public class Updater {
     }
 
     private VersionChecker getVersionChecker(int databaseId) {
-        JSONObject updateItem = new JSONObject();
+        JSONObject updateItemJson = new JSONObject();
         RepoDatabase repoDatabase = new RepoDatabase();
         try {
-            updateItem = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
+            updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
         } catch (JSONException e) {
             e.printStackTrace();
         }
         try {
-            repoDatabase = (RepoDatabase) updateItem.get("database");
+            repoDatabase = (RepoDatabase) updateItemJson.get("database");
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -8,6 +8,7 @@ import com.eclipsesource.v8.V8ScriptCompilationException;
 import com.eclipsesource.v8.V8ScriptExecutionException;
 import com.eclipsesource.v8.utils.MemoryManager;
 
+import net.xzos.UpgradeAll.gson.JSCacheData;
 import net.xzos.UpgradeAll.server.updater.api.Api;
 
 import org.json.JSONException;
@@ -24,6 +25,8 @@ public class JavaScriptJEngine extends Api {
     private V8 v8 = null;
     private MemoryManager memoryManager = null;
     private V8Object WebCrawler = null;
+
+    private JSCacheData JSCacheData = new JSCacheData();
 
     public JavaScriptJEngine(String URL, String jsCode) {
         this.APITAG = URL;
@@ -45,30 +48,44 @@ public class JavaScriptJEngine extends Api {
 
     private boolean initJ2V8() {
         // 实例化 V2J8
-        if (this.memoryManager != null) return true;
+        if (this.v8 != null) return false;
         this.v8 = V8.createV8Runtime();
         this.memoryManager = new MemoryManager(v8); // 实例化 MemoryManager
         // 载入 JavaScript 实例
         RegisterJavaMethods();
-        boolean isSuccess = executeVoidScript();
-        if (!isSuccess) return true;
+        boolean methodsSuccess = executeVoidScript();
+        if (!methodsSuccess) return false;
         // 获取 JSUtils 实例
         this.WebCrawler = v8.getObject("WebCrawler");
         this.WebCrawler.add("URL", URL);  // 初始化 URL
-        return false;
+        return true;
     }
 
     private void closeJ2V8() {
         if (this.memoryManager == null) return;
         this.memoryManager.release();
+        this.memoryManager = null;
         this.WebCrawler = null;
         this.v8 = null;
-        this.memoryManager = null;
     }
 
-    @Override
-    public void flashData() {
-        initData();
+    // 注册 Java 代码
+    private void RegisterJavaMethods() {
+        // 爬虫库
+        JSUtils JSUtils = new JSUtils(v8, APITAG);
+        JSUtils.setJsoupDomDict(JSCacheData.getJsoupDomDict());
+        V8Object v8JSUtils = new V8Object(v8);
+        v8.add("JSUtils", v8JSUtils);
+        v8JSUtils.registerJavaMethod(JSUtils, "selNByJsoupXpath", "selNByJsoupXpath", new Class<?>[]{String.class, String.class, String.class});
+        v8JSUtils.registerJavaMethod(JSUtils, "getHttpResponse", "getHttpResponse", new Class<?>[]{String.class});
+        // Log
+        V8Object v8Log = new V8Object(v8);
+        v8.add("Log", v8Log);
+        v8Log.registerJavaMethod(Log, "v", "v", new Class<?>[]{String.class, String.class, Object.class});
+        v8Log.registerJavaMethod(Log, "d", "d", new Class<?>[]{String.class, String.class, Object.class});
+        v8Log.registerJavaMethod(Log, "i", "i", new Class<?>[]{String.class, String.class, Object.class});
+        v8Log.registerJavaMethod(Log, "w", "w", new Class<?>[]{String.class, String.class, Object.class});
+        v8Log.registerJavaMethod(Log, "e", "e", new Class<?>[]{String.class, String.class, Object.class});
     }
 
     /**
@@ -77,11 +94,12 @@ public class JavaScriptJEngine extends Api {
      *
      * @Version:0.0.9
      */
+    @Override
     public boolean initData() {
         boolean isSuccess = false;
-        if (initJ2V8()) return false; // 初始化 J2V8
+        if (!initJ2V8()) return false; // 初始化 J2V8
         try {
-            this.WebCrawler.executeVoidFunction("flashData", null);
+            this.WebCrawler.executeVoidFunction("initData", null);
             isSuccess = true;
         } catch (V8ScriptExecutionException e) {
             Log.e(APITAG, TAG, "initData: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
@@ -94,7 +112,7 @@ public class JavaScriptJEngine extends Api {
 
     @Override
     public String getDefaultName() {
-        if (initJ2V8()) return null; // 初始化 J2V8
+        if (!initJ2V8()) return null; // 初始化 J2V8
         String defaultName = null;
         try {
             defaultName = this.WebCrawler.executeStringFunction("getDefaultName", null);
@@ -110,7 +128,7 @@ public class JavaScriptJEngine extends Api {
 
     @Override
     public int getReleaseNum() {
-        if (initJ2V8()) return 0; // 初始化 J2V8
+        if (!initJ2V8()) return 0; // 初始化 J2V8
         int releaseNum = 0;
         try {
             releaseNum = this.WebCrawler.executeIntegerFunction("getReleaseNum", null);
@@ -127,7 +145,7 @@ public class JavaScriptJEngine extends Api {
 
     @Override
     public String getVersionNumber(int releaseNum) {
-        if (initJ2V8()) return null; // 初始化 J2V8
+        if (!initJ2V8()) return null; // 初始化 J2V8
         String versionNumber = null;
         try {
             versionNumber = this.WebCrawler.executeStringFunction("getVersionNumber", new V8Array(v8).push(releaseNum));
@@ -144,7 +162,7 @@ public class JavaScriptJEngine extends Api {
 
     @Override
     public JSONObject getReleaseDownload(int releaseNum) {
-        if (initJ2V8()) return null; // 初始化 J2V8
+        if (!initJ2V8()) return null; // 初始化 J2V8
         String versionNumberString = null;
         try {
             versionNumberString = this.WebCrawler.executeStringFunction("getReleaseDownload", new V8Array(v8).push(releaseNum));
@@ -164,25 +182,5 @@ public class JavaScriptJEngine extends Api {
         closeJ2V8(); // 销毁 J2V8 对象
         Log.d(APITAG, TAG, "getReleaseDownload:  releaseDownloadUrlJsonObject: " + releaseDownloadUrlJsonObject);
         return releaseDownloadUrlJsonObject;
-    }
-
-    // 注册 Java 代码
-    private void RegisterJavaMethods() {
-        // 爬虫库
-        JSUtils JSUtils = new JSUtils(v8, APITAG);
-        V8Object v8JSUtils = new V8Object(v8);
-        v8.add("JSUtils", v8JSUtils);
-        v8JSUtils.registerJavaMethod(JSUtils, "selNByJsoupXpath", "selNByJsoupXpath", new Class<?>[]{String.class, String.class, String.class});
-        v8JSUtils.registerJavaMethod(JSUtils, "getHttpResponse", "getHttpResponse", new Class<?>[]{String.class});
-        v8JSUtils.release();
-        // Log
-        V8Object v8Log = new V8Object(v8);
-        v8.add("Log", v8Log);
-        v8Log.registerJavaMethod(Log, "v", "v", new Class<?>[]{String.class, String.class, Object.class});
-        v8Log.registerJavaMethod(Log, "d", "d", new Class<?>[]{String.class, String.class, Object.class});
-        v8Log.registerJavaMethod(Log, "i", "i", new Class<?>[]{String.class, String.class, Object.class});
-        v8Log.registerJavaMethod(Log, "w", "w", new Class<?>[]{String.class, String.class, Object.class});
-        v8Log.registerJavaMethod(Log, "e", "e", new Class<?>[]{String.class, String.class, Object.class});
-        v8Log.release();
     }
 }
