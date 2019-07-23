@@ -12,19 +12,16 @@ import java.util.List;
 public class Api {
     protected static final LogUtil Log = MyApplication.getLog();
 
-    public void flashData() {
+    public boolean initData() {
+        return false;
     }
 
-    public boolean isSuccessFlash() {
-        return getReleaseNum() != 0;
+    public String getDefaultName() {
+        return null;
     }
 
     public int getReleaseNum() {
-        return getReleaseNodeList().size();
-    }
-
-    protected List<?> getReleaseNodeList() {
-        return new ArrayList<>();
+        return 0;
     }
 
     public String getVersionNumber(int releaseNum) {
@@ -44,8 +41,7 @@ public class Api {
         return null;
     }
 
-    public String getDefaultName() {
-        return null;
+    public boolean isSuccessFlash() {
+        return getReleaseNum() != 0;
     }
-
 }

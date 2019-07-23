@@ -47,6 +47,14 @@ class JSUtils {
         this.APITAG = APITAG;
     }
 
+    void setJsoupDomDict(JSONObject jsoupDomDict) {
+        this.JsoupDomDict = jsoupDomDict;
+    }
+
+    JSONObject getJsoupDomDict() {
+        return JsoupDomDict;
+    }
+
     public String getHttpResponse(String URL) {
         return OkHttpApi.getHttpResponse(APITAG, URL);
     }
@@ -98,31 +106,6 @@ class JsoupApi {
             doc = null;
         }
         return doc;
-    }
-
-    // 刷新数据
-    static class FlashDataThread extends Thread {
-        private static final String TAG = "FlashDataThread";
-        private Document doc;
-        private Connection connection;
-
-        void initConnection(Connection connection) {
-            this.connection = connection;
-        }
-
-        Document getDoc() {
-            return this.doc;
-        }
-
-        public void run() {
-            try {
-                doc = connection.get();
-            } catch (Throwable e) {
-                Log.e(TAG, "getStringByJsoupXpath: Jsoup 对象初始化失败");
-                e.printStackTrace();
-                this.doc = null;
-            }
-        }
     }
 }
 

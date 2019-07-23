@@ -30,25 +30,27 @@ public class GithubApi extends Api {
     }
 
     @Override
-    public void flashData() {
+    public boolean initData() {
         // 仅刷新数据，并进行数据校验
         if (apiUrl != null) {
             String jsonText = getHttpResponse(APITAG, apiUrl);
             // 如果刷新失败，则不记录数据
             if (jsonText.length() != 0) {
                 try {
-                    this.returnJsonArray = new JSONArray(jsonText);
+                    returnJsonArray = new JSONArray(jsonText);
+                    Log.d(APITAG, TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
+                    return true;
                 } catch (JSONException e) {
-                    Log.e(APITAG, TAG, "flashData: ERROR_MESSAGE: " + e.toString());
+                    Log.e(APITAG, TAG, "initData: ERROR_MESSAGE: " + e.toString());
                 }
             }
         }
-        Log.d(APITAG, TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
+        return false;
     }
 
     @Override
     public int getReleaseNum() {
-        return this.returnJsonArray.length();
+        return returnJsonArray.length();
     }
 
     private JSONObject getRelease(int releaseNum) {

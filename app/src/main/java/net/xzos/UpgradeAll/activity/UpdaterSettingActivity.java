@@ -98,7 +98,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                     // 弹出等待框
                     progressDialog.setTitle("正在添加，请稍等");
                     progressDialog.setMessage("Loading...");
-                    progressDialog.setCancelable(true);
+                    progressDialog.setCancelable(false);
                     progressDialog.show();
                 });
                 // 添加数据库

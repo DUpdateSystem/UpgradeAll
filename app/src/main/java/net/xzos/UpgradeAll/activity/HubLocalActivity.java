@@ -333,7 +333,7 @@ public class HubLocalActivity extends Activity {
                 returnMessage0 = "失败";
             new Handler(Looper.getMainLooper()).post(() -> {
                 jsLogTextView.setVisibility(View.VISIBLE);
-                String logMessage = jsLogTextView.getText().toString() + String.format("0. 数据初始化%s (flashData)\n", returnMessage0);
+                String logMessage = jsLogTextView.getText().toString() + String.format("0. 数据初始化%s (initData)\n", returnMessage0);
                 jsLogTextView.setText(logMessage);
             });
 
