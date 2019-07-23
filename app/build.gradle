@@ -7,7 +7,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 19
-        versionName "0.0.9-alpha.4_BugFix"
+        versionName "0.0.9-alpha.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -27,26 +27,28 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
+    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
-    implementation 'com.google.android.material:material:1.1.0-alpha07'
+    implementation 'com.google.android.material:material:1.1.0-alpha08'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.preference:preference:1.1.0-beta01'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha01'
+    implementation 'androidx.preference:preference:1.1.0-rc01'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha02'
     testImplementation 'junit:junit:4.13-beta-3'
     androidTestImplementation 'androidx.test:runner:1.3.0-alpha01'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0-alpha01'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0-alpha06'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0-beta01'
 
     // OkHttp
-    implementation 'com.squareup.okhttp3:okhttp:4.0.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.0.1'
     implementation 'com.squareup.okio:okio:2.2.2'
     // 数据处理
     implementation 'org.litepal.android:java:3.0.0'
     implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'org.apache.commons:commons-text:1.7'  // 去除转义字符
     // 界面设计
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.github.kobakei:MaterialFabSpeedDial:master-SNAPSHOT' // Tab 菜单 TODO: 考虑转换项目到kotlin的可行性
+    // Tab 菜单 TODO: 考虑转换项目到kotlin的可行性
+    implementation 'com.github.kobakei:MaterialFabSpeedDial:master-SNAPSHOT'
     // 网络爬虫
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'cn.wanghaomiao:JsoupXpath:2.3.2'

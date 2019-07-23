@@ -1,28 +1,17 @@
-package net.xzos.UpgradeAll.server.updater.api;
-
-import android.content.res.Resources;
+package net.xzos.UpgradeAll.server.JSEngine;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
 import com.eclipsesource.v8.V8Object;
 import com.eclipsesource.v8.V8ResultUndefined;
+import com.eclipsesource.v8.V8ScriptCompilationException;
 import com.eclipsesource.v8.V8ScriptExecutionException;
 import com.eclipsesource.v8.utils.MemoryManager;
 
-import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.data.MyApplication;
-import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.server.updater.api.Api;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.seimicrawler.xpath.JXDocument;
-import org.seimicrawler.xpath.JXNode;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class JavaScriptJEngine extends Api {
 
@@ -30,34 +19,43 @@ public class JavaScriptJEngine extends Api {
     private String APITAG;
 
     private String URL;
-    private HubConfig hubConfig;
-    private int hubConfigVersion;
-    private int hubConfigVersionJavaScript;
-    private JSONObject JsoupDomDict = new JSONObject();
+    private String jsCode;
+
     private V8 v8 = null;
     private MemoryManager memoryManager = null;
     private V8Object WebCrawler = null;
 
-    public JavaScriptJEngine(String URL, HubConfig hubConfig) {
+    public JavaScriptJEngine(String URL, String jsCode) {
         this.APITAG = URL;
         this.URL = URL;
-        this.hubConfig = hubConfig;
-        Resources resources = MyApplication.getContext().getResources();
-        hubConfigVersionJavaScript = resources.getInteger(R.integer.hub_config_version_javascript);
-        hubConfigVersion = this.hubConfig.getBaseVersion();
+        this.jsCode = jsCode;
     }
 
-    private void initJ2V8() {
+    // 加载 JavaScript 代码
+    private boolean executeVoidScript() {
+        boolean isSuccess = false;
+        try {
+            v8.executeScript(this.jsCode);
+            isSuccess = true;
+        } catch (V8ScriptCompilationException e) {
+            Log.e(APITAG, TAG, "executeVoidScript: 脚本载入错误, ERROR_MESSAGE: " + e.toString());
+        }
+        return isSuccess;
+    }
+
+    private boolean initJ2V8() {
         // 实例化 V2J8
-        if (this.memoryManager != null) return;
+        if (this.memoryManager != null) return true;
         this.v8 = V8.createV8Runtime();
         this.memoryManager = new MemoryManager(v8); // 实例化 MemoryManager
         // 载入 JavaScript 实例
         RegisterJavaMethods();
-        executeVoidScript();
-        // 获取 WebCrawler 实例
+        boolean isSuccess = executeVoidScript();
+        if (!isSuccess) return true;
+        // 获取 JSUtils 实例
         this.WebCrawler = v8.getObject("WebCrawler");
-        this.WebCrawler.executeVoidFunction("setUrl", new V8Array(v8).push(URL)); // 初始化 URL
+        this.WebCrawler.add("URL", URL);  // 初始化 URL
+        return false;
     }
 
     private void closeJ2V8() {
@@ -79,23 +77,24 @@ public class JavaScriptJEngine extends Api {
      *
      * @Version:0.0.9
      */
-    private void initData() {
-        if (hubConfigVersion < hubConfigVersionJavaScript) return;
-        initJ2V8(); // 初始化 J2V8
+    public boolean initData() {
+        boolean isSuccess = false;
+        if (initJ2V8()) return false; // 初始化 J2V8
         try {
             this.WebCrawler.executeVoidFunction("flashData", null);
+            isSuccess = true;
         } catch (V8ScriptExecutionException e) {
             Log.e(APITAG, TAG, "initData: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
         } catch (V8ResultUndefined e) {
             Log.e(APITAG, TAG, "initData: 函数返回值错误, ERROR_MESSAGE: " + e.toString());
         }
         closeJ2V8(); // 销毁 J2V8 对象
+        return isSuccess;
     }
 
     @Override
     public String getDefaultName() {
-        if (hubConfigVersion < hubConfigVersionJavaScript) return super.getDefaultName();
-        initJ2V8(); // 初始化 J2V8
+        if (initJ2V8()) return null; // 初始化 J2V8
         String defaultName = null;
         try {
             defaultName = this.WebCrawler.executeStringFunction("getDefaultName", null);
@@ -111,9 +110,7 @@ public class JavaScriptJEngine extends Api {
 
     @Override
     public int getReleaseNum() {
-        if (hubConfigVersion < hubConfigVersionJavaScript)
-            return super.getReleaseNum();
-        initJ2V8(); // 初始化 J2V8
+        if (initJ2V8()) return 0; // 初始化 J2V8
         int releaseNum = 0;
         try {
             releaseNum = this.WebCrawler.executeIntegerFunction("getReleaseNum", null);
@@ -130,9 +127,7 @@ public class JavaScriptJEngine extends Api {
 
     @Override
     public String getVersionNumber(int releaseNum) {
-        if (hubConfigVersion < hubConfigVersionJavaScript)
-            return super.getVersionNumber(releaseNum);
-        initJ2V8(); // 初始化 J2V8
+        if (initJ2V8()) return null; // 初始化 J2V8
         String versionNumber = null;
         try {
             versionNumber = this.WebCrawler.executeStringFunction("getVersionNumber", new V8Array(v8).push(releaseNum));
@@ -149,9 +144,7 @@ public class JavaScriptJEngine extends Api {
 
     @Override
     public JSONObject getReleaseDownload(int releaseNum) {
-        if (hubConfigVersion < hubConfigVersionJavaScript)
-            return super.getReleaseDownload(releaseNum);
-        initJ2V8(); // 初始化 J2V8
+        if (initJ2V8()) return null; // 初始化 J2V8
         String versionNumberString = null;
         try {
             versionNumberString = this.WebCrawler.executeStringFunction("getReleaseDownload", new V8Array(v8).push(releaseNum));
@@ -176,11 +169,12 @@ public class JavaScriptJEngine extends Api {
     // 注册 Java 代码
     private void RegisterJavaMethods() {
         // 爬虫库
-        WebCrawler webCrawler = new WebCrawler();
-        V8Object v8WebCrawler = new V8Object(v8);
-        v8.add("webCrawler", v8WebCrawler);
-        v8WebCrawler.registerJavaMethod(webCrawler, "selNByJsoupXpath", "selNByJsoupXpath", new Class<?>[]{String.class, String.class});
-        v8WebCrawler.release();
+        JSUtils JSUtils = new JSUtils(v8, APITAG);
+        V8Object v8JSUtils = new V8Object(v8);
+        v8.add("JSUtils", v8JSUtils);
+        v8JSUtils.registerJavaMethod(JSUtils, "selNByJsoupXpath", "selNByJsoupXpath", new Class<?>[]{String.class, String.class, String.class});
+        v8JSUtils.registerJavaMethod(JSUtils, "getHttpResponse", "getHttpResponse", new Class<?>[]{String.class});
+        v8JSUtils.release();
         // Log
         V8Object v8Log = new V8Object(v8);
         v8.add("Log", v8Log);
@@ -190,62 +184,5 @@ public class JavaScriptJEngine extends Api {
         v8Log.registerJavaMethod(Log, "w", "w", new Class<?>[]{String.class, String.class, Object.class});
         v8Log.registerJavaMethod(Log, "e", "e", new Class<?>[]{String.class, String.class, Object.class});
         v8Log.release();
-    }
-
-    // 加载 JavaScript 代码
-    private void executeVoidScript() {
-        v8.executeScript(hubConfig.getWebCrawler().getJavaScript());
-    }
-
-    private V8Array toV8Array(List<?> list) {
-        V8Array v8Array = new V8Array(v8);
-        for (Object item : list) {
-            v8Array.push(item);
-        }
-        return v8Array;
-    }
-
-    /**
-     * 爬虫相关库的打包集合
-     * For JavaScript
-     */
-    private class WebCrawler {
-        public V8Array selNByJsoupXpath(String URL, String xpath) {
-            return toV8Array(selNByJsoupXpathJavaList(URL, xpath));
-        }
-
-        private List<String> selNByJsoupXpathJavaList(String URL, String xpath) {
-            String userAgent = hubConfig.getWebCrawler().getUserAgent();
-            Document doc = new Document(URL);
-            if (JsoupDomDict.has(URL)) {
-                try {
-                    doc = (Document) JsoupDomDict.get(URL);
-                    Log.d(APITAG, TAG, "selNByJsoupXpathJavaList: 从缓存加载, URL: " + URL);
-                } catch (JSONException e) {
-                    Log.e(APITAG, TAG, "selNByJsoupXpathJavaList: Jsoup 缓存队列无该对象, JsoupDomDict: " + JsoupDomDict);
-                }
-            } else {
-                Connection connection = Jsoup.connect(URL);
-                if (userAgent != null) connection.userAgent(userAgent);
-                doc = JsoupApi.getDoc(connection);
-                if (doc == null) {
-                    Log.e(APITAG, TAG, "selNByJsoupXpathJavaList: Jsoup 对象初始化失败");
-                    return new ArrayList<>();
-                }
-                try {
-                    JsoupDomDict.put(URL, doc);
-                    Log.d(APITAG, TAG, "selNByJsoupXpathJavaList: 缓存, URL: " + URL);
-                } catch (JSONException e) {
-                    Log.d(APITAG, TAG, "selNByJsoupXpathJavaList: 缓存失败, URL: " + URL);
-                }
-            }
-            JXDocument JXDoc = JXDocument.create(doc);
-            List<String> nodeStringArrayList = new ArrayList<>();
-            for (JXNode node : JXDoc.selN((xpath))) {
-                nodeStringArrayList.add(node.toString());
-            }
-            Log.d(APITAG, TAG, "selNByJsoupXpath: node_list: " + nodeStringArrayList);
-            return nodeStringArrayList;
-        }
     }
 }

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import net.xzos.UpgradeAll.data.MyApplication;
+import net.xzos.UpgradeAll.application.MyApplication;
 
 import org.json.JSONArray;
 import org.json.JSONException;

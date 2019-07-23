@@ -5,7 +5,7 @@ import android.content.pm.PackageInfo;
 import android.util.Log;
 import android.widget.Toast;
 
-import net.xzos.UpgradeAll.data.MyApplication;
+import net.xzos.UpgradeAll.application.MyApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;

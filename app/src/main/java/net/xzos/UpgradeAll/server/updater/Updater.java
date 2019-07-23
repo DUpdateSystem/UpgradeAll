@@ -1,20 +1,16 @@
 package net.xzos.UpgradeAll.server.updater;
 
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 
 import androidx.preference.PreferenceManager;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.data.MyApplication;
+import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
 import net.xzos.UpgradeAll.server.updater.api.Api;
 import net.xzos.UpgradeAll.server.updater.api.GithubApi;
-import net.xzos.UpgradeAll.server.updater.api.HtmlUnitApi;
-import net.xzos.UpgradeAll.server.updater.api.JavaScriptJEngine;
-import net.xzos.UpgradeAll.server.updater.api.JsoupApi;
 import net.xzos.UpgradeAll.utils.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
@@ -66,7 +62,7 @@ public class Updater {
         // 检查更新时间更新数据
         boolean startRefresh = true;
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-        Integer defaultDataExpirationTime =MyApplication.getContext().getResources().getInteger(R.integer.default_data_expiration_time);
+        Integer defaultDataExpirationTime = MyApplication.getContext().getResources().getInteger(R.integer.default_data_expiration_time);
         int autoRefreshMinute = Integer.parseInt(Objects.requireNonNull(sharedPref.getString("sync_time", String.valueOf(defaultDataExpirationTime))));
         // 默认自动刷新时间 10min
         if (updateJsonData.has(String.valueOf(databaseId))) {
@@ -149,23 +145,16 @@ public class Updater {
             httpApi = new GithubApi(url);
         } else {
             List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
-            HubConfig hubConfig = null;
+            String jsCode = null;
             for (HubDatabase hubItem : hubDatabase) {
                 if (hubItem.getUuid().equals(apiUuid)) {
-                    hubConfig = hubItem.getRepoConfig();
-                }
-                if (hubConfig != null) {
-                    String tool = null;
-                    if (hubConfig.getWebCrawler() != null) {
-                        tool = hubConfig.getWebCrawler().getTool();
+                    try {
+                        jsCode = hubItem.getExtraData().getString("javascript");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                    if (tool != null && tool.toLowerCase().equals("htmlunit"))
-                        httpApi = new HtmlUnitApi(url, hubConfig);
-                    else if (tool != null && tool.toLowerCase().equals("javascript"))
-                        httpApi = new JavaScriptJEngine(url, hubConfig);
-                    else
-                        httpApi = new JsoupApi(url, hubConfig);
                 }
+                httpApi = new JavaScriptJEngine(url, jsCode);
             }
         }
         // 组装一个更新子项

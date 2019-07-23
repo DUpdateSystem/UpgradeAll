@@ -13,9 +13,10 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.activity.HubLocalAddActivity;
+import net.xzos.UpgradeAll.activity.HubLocalActivity;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.server.cloud.CloudHub;
+import net.xzos.UpgradeAll.server.hub.CloudHub;
+import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
 
 import java.util.List;
@@ -69,7 +70,15 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerVi
                             HubConfig cloudHubConfigGson = mCloudHub.getHubConfig(holder.descTextView.getText().toString());
                             boolean addHubSuccess;
                             if (cloudHubConfigGson != null) {
-                                addHubSuccess = HubLocalAddActivity.addHubDatabase(0, cloudHubConfigGson);
+                                String cloudHubConfigJS = mCloudHub.getHubConfigJS(cloudHubConfigGson.getWebCrawler().getFilePath());
+                                if (cloudHubConfigJS != null)
+                                    addHubSuccess = HubManager.addHubDatabase(0, cloudHubConfigGson, cloudHubConfigJS);
+                                else {
+                                    addHubSuccess = false;
+                                    new Handler(Looper.getMainLooper()).post(() -> {
+                                        Toast.makeText(holder.itemCardView.getContext(), "获取 JS 代码失败", Toast.LENGTH_LONG).show();
+                                    });
+                                }
                             } else {
                                 addHubSuccess = false;
                                 new Handler(Looper.getMainLooper()).post(() -> {

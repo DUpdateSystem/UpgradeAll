@@ -1,5 +1,7 @@
 package net.xzos.UpgradeAll.utils;
 
+import android.annotation.SuppressLint;
+
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -17,7 +19,7 @@ public class UUIDType5 {
         return nameUUIDFromNamespaceAndBytes(namespace, Objects.requireNonNull(name, "name == null").getBytes(UTF8));
     }
 
-    public static UUID nameUUIDFromNamespaceAndBytes(UUID namespace, byte[] name) {
+    private static UUID nameUUIDFromNamespaceAndBytes(UUID namespace, byte[] name) {
         MessageDigest md;
         try {
             md = MessageDigest.getInstance("SHA-1");
@@ -34,6 +36,7 @@ public class UUIDType5 {
         return fromBytes(sha1Bytes);
     }
 
+    @SuppressLint("Assert")
     private static UUID fromBytes(byte[] data) {
         // Based on the private UUID(bytes[]) constructor
         long msb = 0;

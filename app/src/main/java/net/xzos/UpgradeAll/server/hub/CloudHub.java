@@ -1,7 +1,6 @@
-package net.xzos.UpgradeAll.server.cloud;
+package net.xzos.UpgradeAll.server.hub;
 
 import android.content.SharedPreferences;
-import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
@@ -9,10 +8,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.data.MyApplication;
+import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.CloudConfig;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.server.updater.api.GithubApi;
+import net.xzos.UpgradeAll.utils.FileUtil;
 import net.xzos.UpgradeAll.utils.LogUtil;
 
 import java.util.ArrayList;
@@ -78,6 +78,12 @@ public class CloudHub {
         } catch (JsonSyntaxException e) {
             return null;
         }
+    }
+
+    public String getHubConfigJS(final String URL) {
+        String hubListRawUrl = cloudConfig.getListUrl().getHubListRawUrl();
+        String hubConfigJSRawUrl = FileUtil.pathTransformRelativeToAbsolute(hubListRawUrl, URL);
+        return GithubApi.getHttpResponse(TAG, hubConfigJSRawUrl);
     }
 
     private String getRawRootUrl(String gitUrl) {

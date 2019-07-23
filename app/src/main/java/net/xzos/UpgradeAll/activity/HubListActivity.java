@@ -50,7 +50,7 @@ public class HubListActivity extends AppCompatActivity {
         FabSpeedDial fab = findViewById(R.id.add_fab);
         fab.addOnMenuItemClickListener((floatingActionButton, textView, integer) -> {
             if (floatingActionButton == fab.getMiniFab(0)) {
-                startActivity(new Intent(HubListActivity.this, HubLocalAddActivity.class));
+                startActivity(new Intent(HubListActivity.this, HubLocalActivity.class));
             } else if (floatingActionButton == fab.getMiniFab(1)) {
                 startActivity(new Intent(HubListActivity.this, CloudHubListActivity.class));
             }

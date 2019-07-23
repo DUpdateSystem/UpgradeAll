@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.activity.UpdaterSettingActivity;
-import net.xzos.UpgradeAll.data.MyApplication;
+import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.server.updater.Updater;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
@@ -67,7 +67,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
         refreshUpdater(true, databaseId, holder);
 
         // 单击展开 Release 详情页
-        holder.versionCheckButton.setOnClickListener(v -> {
+        holder.itemCardView.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(holder.versionCheckingBar.getContext());
             final AlertDialog dialog = builder.setView(R.layout.dialog_version).create();
             dialog.show();
@@ -134,22 +134,6 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
             }).start();
         });
 
-        // 长按强制检查版本
-        holder.versionCheckButton.setOnLongClickListener(v1 -> {
-            refreshUpdater(false, databaseId, holder);
-            return true;
-        });
-
-        // 打开指向Url
-        holder.descTextView.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(holder.descTextView.getText().toString()));
-            Intent chooser = Intent.createChooser(intent, "请选择浏览器");
-            if (intent.resolveActivity(holder.descTextView.getContext().getPackageManager()) != null) {
-                holder.descTextView.getContext().startActivity(chooser);
-            }
-        });
-
         // 长按菜单
         holder.itemCardView.setOnLongClickListener(v -> {
             PopupMenu popupMenu = new PopupMenu(holder.itemCardView.getContext(), v);
@@ -179,6 +163,22 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
                 return true;
             });
             return true;
+        });
+
+        // 长按强制检查版本
+        holder.versionCheckButton.setOnLongClickListener(v1 -> {
+            refreshUpdater(false, databaseId, holder);
+            return true;
+        });
+
+        // 打开指向Url
+        holder.descTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(holder.descTextView.getText().toString()));
+            Intent chooser = Intent.createChooser(intent, "请选择浏览器");
+            if (intent.resolveActivity(holder.descTextView.getContext().getPackageManager()) != null) {
+                holder.descTextView.getContext().startActivity(chooser);
+            }
         });
     }
 

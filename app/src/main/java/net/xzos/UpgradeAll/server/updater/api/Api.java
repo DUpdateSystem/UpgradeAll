@@ -1,6 +1,6 @@
 package net.xzos.UpgradeAll.server.updater.api;
 
-import net.xzos.UpgradeAll.data.MyApplication;
+import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.utils.LogUtil;
 
 import org.json.JSONObject;

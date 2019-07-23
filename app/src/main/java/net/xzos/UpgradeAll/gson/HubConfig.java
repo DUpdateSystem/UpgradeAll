@@ -1,19 +1,25 @@
 package net.xzos.UpgradeAll.gson;
 
-import java.util.List;
-
 public class HubConfig {
     /**
      * base_version : 1
      * uuid :
-     * info : {"config_name":"","config_version":""}
-     * web_crawler : {"tool":"","user_agent":"","app_config":{"default_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"release":{"release_node":"","attribute":{"version_number":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"assets":{"file_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"download_url":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}}}}}}
+     * info : {"hub_name":"","config_version":1}
+     * web_crawler : {"tool":"","file_path":""}
      */
 
-    private String uuid;
     private int base_version;
+    private String uuid;
     private InfoBean info;
     private WebCrawlerBean web_crawler;
+
+    public int getBaseVersion() {
+        return base_version;
+    }
+
+    public void setBaseVersion(int base_version) {
+        this.base_version = base_version;
+    }
 
     public String getUuid() {
         return uuid;
@@ -21,14 +27,6 @@ public class HubConfig {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
-    }
-
-    public int getBaseVersion() {
-        return base_version;
-    }
-
-    public void setBaseVersion(int config_version) {
-        this.base_version = config_version;
     }
 
     public InfoBean getInfo() {
@@ -49,26 +47,26 @@ public class HubConfig {
 
     public static class InfoBean {
         /**
-         * config_name :
-         * config_version :
+         * hub_name :
+         * config_version : 1
          */
 
-        private String config_name;
-        private String config_version;
+        private String hub_name;
+        private int config_version;
 
-        public String getConfigName() {
-            return config_name;
+        public String getHubName() {
+            return hub_name;
         }
 
-        public void setConfigName(String config_name) {
-            this.config_name = config_name;
+        public void setHubName(String hub_nare) {
+            this.hub_name = hub_nare;
         }
 
-        public String getConfigVersion() {
+        public int getConfigVersion() {
             return config_version;
         }
 
-        public void setConfigVersion(String config_version) {
+        public void setConfigVersion(int config_version) {
             this.config_version = config_version;
         }
     }
@@ -76,14 +74,11 @@ public class HubConfig {
     public static class WebCrawlerBean {
         /**
          * tool :
-         * user_agent :
-         * app_config : {"default_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"release":{"release_node":"","attribute":{"version_number":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"assets":{"file_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"download_url":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}}}}}
+         * file_path :
          */
 
         private String tool;
-        private String user_agent;
-        private  String JavaScript;
-        private AppConfigBean app_config;
+        private String file_path;
 
         public String getTool() {
             return tool;
@@ -93,211 +88,12 @@ public class HubConfig {
             this.tool = tool;
         }
 
-        public String getUserAgent() {
-            return user_agent;
+        public String getFilePath() {
+            return file_path;
         }
 
-        public void setUserAgent(String user_agent) {
-            this.user_agent = user_agent;
-        }
-
-        public AppConfigBean getAppConfig() {
-            return app_config;
-        }
-
-        public void setAppConfig(AppConfigBean app_config) {
-            this.app_config = app_config;
-        }
-
-        public String getJavaScript() {
-            return JavaScript;
-        }
-
-        public void setJavaScript(String javaScript) {
-            JavaScript = javaScript;
-        }
-
-        public static class AppConfigBean {
-            /**
-             * default_name : {"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}
-             * release : {"release_node":"","attribute":{"version_number":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"assets":{"file_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"download_url":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}}}}
-             */
-
-            private StringItemBean default_name;
-            private ReleaseBean release;
-
-            public StringItemBean getDefaultName() {
-                return default_name;
-            }
-
-            public void setDefaultName(StringItemBean default_name) {
-                this.default_name = default_name;
-            }
-
-            public ReleaseBean getRelease() {
-                return release;
-            }
-
-            public void setRelease(ReleaseBean release) {
-                this.release = release;
-            }
-
-
-            public static class ReleaseBean {
-                /**
-                 * release_node :
-                 * attribute : {"version_number":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"assets":{"file_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"download_url":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}}}
-                 */
-
-                private String release_node;
-                private AttributeBean attribute;
-
-                public String getReleaseNode() {
-                    return release_node;
-                }
-
-                public void setReleaseNode(String release_node) {
-                    this.release_node = release_node;
-                }
-
-                public AttributeBean getAttribute() {
-                    return attribute;
-                }
-
-                public void setAttribute(AttributeBean attribute) {
-                    this.attribute = attribute;
-                }
-
-                public static class AttributeBean {
-                    /**
-                     * version_number : {"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}
-                     * assets : {"file_name":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}},"download_url":{"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}}
-                     */
-
-                    private StringItemBean version_number;
-                    private AssetsBean assets;
-
-                    public StringItemBean getVersion_number() {
-                        return version_number;
-                    }
-
-                    public void setVersion_number(StringItemBean version_number) {
-                        this.version_number = version_number;
-                    }
-
-                    public AssetsBean getAssets() {
-                        return assets;
-                    }
-
-                    public void setAssets(AssetsBean assets) {
-                        this.assets = assets;
-                    }
-
-                    public static class AssetsBean {
-                        /**
-                         * file_name : {"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}
-                         * download_url : {"text":"","search_path":{"regex":"","xpath_list":[{"delay":0,"xpath":""}]}}
-                         */
-
-                        private StringItemBean file_name;
-                        private StringItemBean download_url;
-
-                        public StringItemBean getFileName() {
-                            return file_name;
-                        }
-
-                        public void setFileName(StringItemBean file_name) {
-                            this.file_name = file_name;
-                        }
-
-                        public StringItemBean getDownloadUrl() {
-                            return download_url;
-                        }
-
-                        public void setDownloadUrl(StringItemBean download_url) {
-                            this.download_url = download_url;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public static class StringItemBean {
-        /**
-         * text :
-         * search_path : {"regex":"","xpath_list":[{"delay":0,"xpath":""}]}
-         */
-
-        private String text;
-        private SearchPathBean search_path;
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public SearchPathBean getSearchPath() {
-            return search_path;
-        }
-
-        public void setSearchPath(SearchPathBean search_path) {
-            this.search_path = search_path;
-        }
-
-        public static class SearchPathBean {
-            /**
-             * regex :
-             * xpath_list : [{"delay":0,"xpath":""}]
-             */
-
-            private String regex;
-            private List<XpathListBean> xpath_list;
-
-            public String getRegex() {
-                return regex;
-            }
-
-            public void setRegex(String regex) {
-                this.regex = regex;
-            }
-
-            public List<XpathListBean> getXpathList() {
-                return xpath_list;
-            }
-
-            public void setXpathList(List<XpathListBean> xpath_list) {
-                this.xpath_list = xpath_list;
-            }
-
-            public static class XpathListBean {
-                /**
-                 * delay : 0
-                 * xpath :
-                 */
-
-                private int delay;
-                private String xpath;
-
-                public int getDelay() {
-                    return delay;
-                }
-
-                public void setDelay(int delay) {
-                    this.delay = delay;
-                }
-
-                public String getXpath() {
-                    return xpath;
-                }
-
-                public void setXpath(String xpath) {
-                    this.xpath = xpath;
-                }
-            }
+        public void setFilePath(String file_path) {
+            this.file_path = file_path;
         }
     }
 }
