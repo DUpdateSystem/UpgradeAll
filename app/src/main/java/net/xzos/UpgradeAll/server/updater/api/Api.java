@@ -12,7 +12,7 @@ import java.util.List;
 public class Api {
     protected static final LogUtil Log = MyApplication.getLog();
 
-    public boolean initData() {
+    public boolean refreshData() {
         return false;
     }
 

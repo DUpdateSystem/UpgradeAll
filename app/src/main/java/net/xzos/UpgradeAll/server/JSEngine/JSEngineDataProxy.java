@@ -18,8 +18,7 @@ public class JSEngineDataProxy extends Api {
     }
 
     @Override
-    public boolean initData() {
-        javaScriptJEngine.initData();
+    public boolean refreshData() {
         getReleaseNum();
         if (getReleaseNum() != 0) {
             getVersionNumber(0);

@@ -1,6 +1,7 @@
 package net.xzos.UpgradeAll.server.hub;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
@@ -47,7 +48,7 @@ public class CloudHub {
                     cloudConfig = gson.fromJson(jsonText, CloudConfig.class);
                     isSuccess = true;
                 } catch (JsonSyntaxException e) {
-                    Log.e(TAG, TAG, "initData: ERROR_MESSAGE: " + e.toString());
+                    Log.e(TAG, TAG, "refreshData: ERROR_MESSAGE: " + e.toString());
                 }
             }
         }
@@ -69,8 +70,8 @@ public class CloudHub {
         return GithubApi.getHttpResponse(TAG, appConfigRawUrl);
     }
 
-    public HubConfig getHubConfig(String hubConfigUuid) {
-        String hubConfigRawUrl = cloudConfig.getListUrl().getHubListRawUrl() + hubConfigUuid + ".json";
+    public HubConfig getHubConfig(String hubConfigName) {
+        String hubConfigRawUrl = cloudConfig.getListUrl().getHubListRawUrl() + hubConfigName + ".json";
         String hubConfigString = GithubApi.getHttpResponse(TAG, hubConfigRawUrl);
         Gson gson = new Gson();
         try {
@@ -80,9 +81,9 @@ public class CloudHub {
         }
     }
 
-    public String getHubConfigJS(final String URL) {
+    public String getHubConfigJS(final String filePath) {
         String hubListRawUrl = cloudConfig.getListUrl().getHubListRawUrl();
-        String hubConfigJSRawUrl = FileUtil.pathTransformRelativeToAbsolute(hubListRawUrl, URL);
+        String hubConfigJSRawUrl = FileUtil.pathTransformRelativeToAbsolute(hubListRawUrl, filePath);
         return GithubApi.getHttpResponse(TAG, hubConfigJSRawUrl);
     }
 

@@ -43,7 +43,7 @@ public class HubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHol
             holder.itemCardView.setVisibility(View.GONE);
             holder.endTextView.setVisibility(View.VISIBLE);
         }
-        int databaseId = itemCardView.getDatabaseId();
+        int databaseId = itemCardView.getExtraData().getDatabaseId();
         holder.name.setText(itemCardView.getName());
         holder.api.setText(itemCardView.getApi());
         holder.descTextView.setText(itemCardView.getDesc());

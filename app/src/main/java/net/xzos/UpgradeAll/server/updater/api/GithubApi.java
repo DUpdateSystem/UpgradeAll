@@ -30,7 +30,7 @@ public class GithubApi extends Api {
     }
 
     @Override
-    public boolean initData() {
+    public boolean refreshData() {
         // 仅刷新数据，并进行数据校验
         if (apiUrl != null) {
             String jsonText = getHttpResponse(APITAG, apiUrl);
@@ -41,7 +41,7 @@ public class GithubApi extends Api {
                     Log.d(APITAG, TAG, "getRelease:  returnJsonArray: " + returnJsonArray);
                     return true;
                 } catch (JSONException e) {
-                    Log.e(APITAG, TAG, "initData: ERROR_MESSAGE: " + e.toString());
+                    Log.e(APITAG, TAG, "refreshData: ERROR_MESSAGE: " + e.toString());
                 }
             }
         }

@@ -60,7 +60,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
             holder.itemCardView.setVisibility(View.GONE);
             holder.endTextView.setVisibility(View.VISIBLE);
         }
-        int databaseId = itemCardView.getDatabaseId();
+        int databaseId = itemCardView.getExtraData().getDatabaseId();
         holder.name.setText(itemCardView.getName());
         holder.api.setText(itemCardView.getApi());
         holder.descTextView.setText(itemCardView.getDesc());
@@ -94,9 +94,11 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
             new Thread(() -> {
                 // 刷新数据库
                 JSONObject latestDownloadUrl = updater.getLatestDownloadUrl(databaseId);
+                if (latestDownloadUrl == null) latestDownloadUrl = new JSONObject();
+                final JSONObject latestDownloadUrlCopy = latestDownloadUrl;
                 new Handler(Looper.getMainLooper()).post(() -> {
                     List<String> itemList = new ArrayList<>();
-                    Iterator<String> sIterator = latestDownloadUrl.keys();
+                    Iterator<String> sIterator = latestDownloadUrlCopy.keys();
                     while (sIterator.hasNext()) {
                         String key = sIterator.next();
                         itemList.add(key);
@@ -116,7 +118,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         String url = null;
                         try {
-                            url = latestDownloadUrl.getString(itemList.get(position1));
+                            url = latestDownloadUrlCopy.getString(itemList.get(position1));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

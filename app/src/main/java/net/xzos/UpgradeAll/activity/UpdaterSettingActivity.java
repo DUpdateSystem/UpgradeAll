@@ -208,7 +208,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             }
             if (name.length() == 0) {
                 final String githubUuid = getString(R.string.github_uuid);
-                if (githubUuid.equals(uuid)) {// GitHub 源
+                if (uuid.equals(githubUuid)) {// GitHub 源
                     name = new GithubApi(url).getDefaultName();
                 } else {
                     // 自定义源
