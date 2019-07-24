@@ -116,7 +116,7 @@ public class Updater {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        api.initData();  // 调用刷新
+        api.refreshData();  // 调用刷新
         // 检查刷新
         refreshSuccess = api.isSuccessFlash();
         if (refreshSuccess) {
@@ -151,6 +151,8 @@ public class Updater {
                 if (hubItem.getUuid().equals(apiUuid)) {
                     try {
                         jsCode = hubItem.getExtraData().getString("javascript");
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

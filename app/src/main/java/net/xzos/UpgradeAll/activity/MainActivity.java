@@ -19,6 +19,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
 import net.xzos.UpgradeAll.ui.viewmodels.adapters.UpdateItemCardAdapter;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
@@ -73,9 +74,11 @@ public class MainActivity extends AppCompatActivity {
             String name = updateItem.getName();
             String api = updateItem.getApi();
             String url = updateItem.getUrl();
-            itemCardViewList.add(new ItemCardView(databaseId, name, url, api));
+            ItemCardViewExtraData extraData = new ItemCardViewExtraData();
+            extraData.setDatabaseId(databaseId);
+            itemCardViewList.add(new ItemCardView.Builder(name, url, api).extraData(extraData).build());
         }
-        itemCardViewList.add(new ItemCardView(0, null, null, null));
+        itemCardViewList.add(new ItemCardView.Builder(null, null, null).build());
         setRecyclerView();
         adapter.notifyDataSetChanged();
     }

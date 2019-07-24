@@ -14,6 +14,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.database.HubDatabase;
+import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
 import net.xzos.UpgradeAll.ui.viewmodels.adapters.HubItemAdapter;
 
@@ -81,9 +82,11 @@ public class HubListActivity extends AppCompatActivity {
             int databaseId = hubItem.getId();
             String name = hubItem.getName();
             String uuid = hubItem.getUuid();
-            itemCardViewList.add(new ItemCardView(databaseId, name, uuid, ""));
+            ItemCardViewExtraData extraData = new ItemCardViewExtraData();
+            extraData.setDatabaseId(databaseId);
+            itemCardViewList.add(new ItemCardView.Builder(name, uuid, "").extraData(extraData).build());
         }
-        itemCardViewList.add(new ItemCardView(0, null, null, null));
+        itemCardViewList.add(new ItemCardView.Builder(null, null, null).build());
         setRecyclerView();
         adapter.notifyDataSetChanged();
     }

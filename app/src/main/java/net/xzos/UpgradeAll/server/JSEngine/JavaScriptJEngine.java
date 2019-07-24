@@ -36,9 +36,10 @@ public class JavaScriptJEngine extends Api {
 
     // 加载 JavaScript 代码
     private boolean executeVoidScript() {
+        if (jsCode == null) return false;
         boolean isSuccess = false;
         try {
-            v8.executeScript(this.jsCode);
+            v8.executeScript(jsCode);
             isSuccess = true;
         } catch (V8ScriptCompilationException e) {
             Log.e(APITAG, TAG, "executeVoidScript: 脚本载入错误, ERROR_MESSAGE: " + e.toString());
@@ -86,28 +87,6 @@ public class JavaScriptJEngine extends Api {
         v8Log.registerJavaMethod(Log, "i", "i", new Class<?>[]{String.class, String.class, Object.class});
         v8Log.registerJavaMethod(Log, "w", "w", new Class<?>[]{String.class, String.class, Object.class});
         v8Log.registerJavaMethod(Log, "e", "e", new Class<?>[]{String.class, String.class, Object.class});
-    }
-
-    /**
-     * 初始化一些可能造成软件卡顿的网络数据
-     * 建议但不强制要求
-     *
-     * @Version:0.0.9
-     */
-    @Override
-    public boolean initData() {
-        boolean isSuccess = false;
-        if (!initJ2V8()) return false; // 初始化 J2V8
-        try {
-            this.WebCrawler.executeVoidFunction("initData", null);
-            isSuccess = true;
-        } catch (V8ScriptExecutionException e) {
-            Log.e(APITAG, TAG, "initData: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
-        } catch (V8ResultUndefined e) {
-            Log.e(APITAG, TAG, "initData: 函数返回值错误, ERROR_MESSAGE: " + e.toString());
-        }
-        closeJ2V8(); // 销毁 J2V8 对象
-        return isSuccess;
     }
 
     @Override

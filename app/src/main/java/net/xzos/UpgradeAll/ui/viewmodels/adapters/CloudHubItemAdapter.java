@@ -2,6 +2,7 @@ package net.xzos.UpgradeAll.ui.viewmodels.adapters;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
@@ -12,9 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
+
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.activity.HubLocalActivity;
 import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
 import net.xzos.UpgradeAll.server.hub.CloudHub;
 import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
@@ -23,6 +26,8 @@ import java.util.List;
 
 
 public class CloudHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHolder> {
+
+    private static final String TAG = "CloudHubItemAdapter";
 
     private List<ItemCardView> mItemCardViewList;
 
@@ -67,7 +72,7 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerVi
                         Toast.makeText(holder.itemCardView.getContext(), "开始下载", Toast.LENGTH_LONG).show();
                         // 下载数据
                         new Thread(() -> {
-                            HubConfig cloudHubConfigGson = mCloudHub.getHubConfig(holder.descTextView.getText().toString());
+                            HubConfig cloudHubConfigGson = mCloudHub.getHubConfig(itemCardView.getExtraData().getConfigFileName());
                             boolean addHubSuccess;
                             if (cloudHubConfigGson != null) {
                                 String cloudHubConfigJS = mCloudHub.getHubConfigJS(cloudHubConfigGson.getWebCrawler().getFilePath());

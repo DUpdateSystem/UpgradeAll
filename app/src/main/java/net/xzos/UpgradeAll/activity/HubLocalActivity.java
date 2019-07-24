@@ -325,18 +325,6 @@ public class HubLocalActivity extends Activity {
         TextView jsLogTextView = findViewById(R.id.jsLogTextView);
         // JS 初始化
         new Thread(() -> {
-            String returnMessage0;
-
-            if (javaScriptJEngine.initData())
-                returnMessage0 = "成功";
-            else
-                returnMessage0 = "失败";
-            new Handler(Looper.getMainLooper()).post(() -> {
-                jsLogTextView.setVisibility(View.VISIBLE);
-                String logMessage = jsLogTextView.getText().toString() + String.format("0. 数据初始化%s (initData)\n", returnMessage0);
-                jsLogTextView.setText(logMessage);
-            });
-
             // 分步测试
             String returnMessage1 = javaScriptJEngine.getDefaultName();
             new Handler(Looper.getMainLooper()).post(() -> {

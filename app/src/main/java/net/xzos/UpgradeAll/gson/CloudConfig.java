@@ -86,6 +86,7 @@ public class CloudConfig {
          */
 
         private String hub_config_name;
+        private String hub_config_uuid;
         private String hub_config_file_name;
 
         public String getHubConfigName() {
@@ -94,6 +95,14 @@ public class CloudConfig {
 
         public void setHubConfigName(String hub_config_name) {
             this.hub_config_name = hub_config_name;
+        }
+
+        public String getHubConfigUuid() {
+            return hub_config_uuid;
+        }
+
+        public void setHubConfigUuid(String hub_config_uuid) {
+            this.hub_config_uuid = hub_config_uuid;
         }
 
         public String getHubConfigFileName() {
