@@ -48,7 +48,6 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.Objects;
 
 public class HubLocalActivity extends Activity {
 
@@ -282,10 +281,8 @@ public class HubLocalActivity extends Activity {
                 if (item.getItemId() == R.id.testJS) {
                     EditText jsFilePathEditText = findViewById(R.id.jsFilePathEditText);
                     String jsRelativePath = jsFilePathEditText.getText().toString();
-                    String configPath = HUBCONFIG_URI.getPath();
+                    String configPath = FileUtil.uriToPath(HUBCONFIG_URI);
                     if (HUBCONFIG_URI != null && configPath != null && !jsRelativePath.equals("")) {
-                        if (configPath.contains(":"))
-                            configPath = configPath.split(":")[1];
                         configPath = configPath.substring(0, configPath.lastIndexOf("/"));
                         String jsPath = FileUtil.pathTransformRelativeToAbsolute(configPath, jsRelativePath);
                         Log.e(TAG, "onActionItemClicked: jsPath:" + jsPath);
@@ -323,6 +320,7 @@ public class HubLocalActivity extends Activity {
         String jsCode = FileUtil.readTextFromUri(JS_URI);
         JavaScriptJEngine javaScriptJEngine = new JavaScriptJEngine(testUrl, jsCode);
         TextView jsLogTextView = findViewById(R.id.jsLogTextView);
+        jsLogTextView.setVisibility(View.VISIBLE);
         // JS 初始化
         new Thread(() -> {
             // 分步测试
@@ -493,9 +491,7 @@ public class HubLocalActivity extends Activity {
         JS_URI = uri;
         // 更新按钮提示信息
         Log.e(TAG, "loadJSFromUri: " + uri.getPath());
-        String path = uri.getPath();
-        if (path != null && path.contains(":"))
-            path = path.split(":")[1];
+        String path = FileUtil.uriToPath(uri);
         Button selectJsFileButton = findViewById(R.id.selectJsFileButton);
         String selectedJsFileText = SELECTED_FILE_ADDRESS + path;
         selectJsFileButton.setText(selectedJsFileText);
@@ -504,9 +500,9 @@ public class HubLocalActivity extends Activity {
     }
 
     private void loadConfigJSFormUri(@NonNull Uri uri) {
-        HUBCONFIG_URI = uri;
-        String configPath = Objects.requireNonNull(uri.getPath()).split(":")[1];
-        String jsAbsolutePath = Objects.requireNonNull(uri.getPath()).split(":")[1];
+        String configPath = FileUtil.uriToPath(HUBCONFIG_URI);
+        if (configPath == null) return;
+        String jsAbsolutePath = FileUtil.uriToPath(uri);
         String jsPath = FileUtil.pathTransformAbsoluteToRelative(configPath, jsAbsolutePath);
         EditText jsFilePathEditText = findViewById(R.id.jsFilePathEditText);
         jsFilePathEditText.setText(jsPath);
@@ -514,10 +510,9 @@ public class HubLocalActivity extends Activity {
 
     private void loadConfigFromUri(Uri uri) {
         String configString = FileUtil.readTextFromUri(uri);
-        if (configString == null) return;
         HUBCONFIG_URI = uri;
         // 更新按钮提示信息
-        String path = Objects.requireNonNull(HUBCONFIG_URI.getPath()).split(":")[1];
+        String path = FileUtil.uriToPath(uri);
         Button selectConfigFileButton = findViewById(R.id.selectConfigFileButton);
         String selectedJsFileText = SELECTED_FILE_ADDRESS + path;
         selectConfigFileButton.setText(selectedJsFileText);
@@ -549,11 +544,11 @@ public class HubLocalActivity extends Activity {
     private void addHubConfigToDatabase(int databaseId) {
         // 获取数据
         HubConfig hubConfigGson = getHubConfigGson();
+        String baseRootPath = FileUtil.uriToPath(HUBCONFIG_URI);
         // 存入数据
         if (HUBCONFIG_URI == null)
             Toast.makeText(HubLocalActivity.this, "请选择配置文件，若无配置文件，你可以长按文件选择框创建新文件", Toast.LENGTH_LONG).show();
-        else if (HUBCONFIG_URI.getPath() != null && hubConfigGson != null) {
-            String baseRootPath = HUBCONFIG_URI.getPath().split(":")[1];
+        else if (baseRootPath != null && hubConfigGson != null) {
             baseRootPath = baseRootPath.substring(0, baseRootPath.lastIndexOf('/'));  // 去除末尾的 文件名，得到目录
             String jsPath = FileUtil.pathTransformRelativeToAbsolute(baseRootPath, hubConfigGson.getWebCrawler().getFilePath());
             Log.e(TAG, "onCreate: jsPath: " + jsPath);
