@@ -41,6 +41,8 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
 
     private static final Updater updater = MyApplication.getUpdater();
 
+    private static int databaseId = 0;
+
     public UpdateItemCardAdapter(List<ItemCardView> updateList) {
         mItemCardViewList = updateList;
     }
@@ -48,24 +50,8 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
     @NonNull
     @Override
     public CardViewRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new CardViewRecyclerViewHolder(
+        final CardViewRecyclerViewHolder holder = new CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_item, parent, false));
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
-        ItemCardView itemCardView = mItemCardViewList.get(position);
-        // 底栏设置
-        if (itemCardView.getName() == null && itemCardView.getApi() == null && itemCardView.getDesc() == null) {
-            holder.itemCardView.setVisibility(View.GONE);
-            holder.endTextView.setVisibility(View.VISIBLE);
-        }
-        int databaseId = itemCardView.getExtraData().getDatabaseId();
-        holder.name.setText(itemCardView.getName());
-        holder.api.setText(itemCardView.getApi());
-        holder.descTextView.setText(itemCardView.getDesc());
-        refreshUpdater(true, databaseId, holder);
-
         // 单击展开 Release 详情页
         holder.itemCardView.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(holder.versionCheckingBar.getContext());
@@ -114,11 +100,11 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
                             dialog.getContext(), android.R.layout.simple_list_item_1, itemList);
                     ListView cloudReleaseList = dialog.getWindow().findViewById(R.id.cloudReleaseList);
                     // 设置文件列表点击事件
-                    cloudReleaseList.setOnItemClickListener((parent, view, position1, id) -> {
+                    cloudReleaseList.setOnItemClickListener((parent1, view, position, id) -> {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         String url = null;
                         try {
-                            url = latestDownloadUrlCopy.getString(itemList.get(position1));
+                            url = latestDownloadUrlCopy.getString(itemList.get(position));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -182,6 +168,23 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
                 holder.descTextView.getContext().startActivity(chooser);
             }
         });
+        return holder;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
+        ItemCardView itemCardView = mItemCardViewList.get(position);
+        databaseId = itemCardView.getExtraData().getDatabaseId();
+        // 底栏设置
+        if (itemCardView.getExtraData().isEmpty()) {
+            holder.itemCardView.setVisibility(View.GONE);
+            holder.endTextView.setVisibility(View.VISIBLE);
+        } else {
+            holder.name.setText(itemCardView.getName());
+            holder.api.setText(itemCardView.getApi());
+            holder.descTextView.setText(itemCardView.getDesc());
+            refreshUpdater(true, databaseId, holder);
+        }
     }
 
     private void refreshUpdater(boolean isAuto, int databaseId, CardViewRecyclerViewHolder holder) {

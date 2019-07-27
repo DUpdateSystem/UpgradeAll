@@ -33,8 +33,8 @@ public class HubListActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefresh;
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
+    protected void onResume() {
+        super.onResume();
         refreshHubList();
     }
 

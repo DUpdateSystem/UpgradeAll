@@ -18,7 +18,6 @@ class CardViewRecyclerViewHolder extends RecyclerView.ViewHolder {
     CardView itemCardView;
     ProgressBar versionCheckingBar;
     ImageView versionCheckButton;
-    RecyclerView updateItemCardList;
 
     CardViewRecyclerViewHolder(View view) {
         super(view);
@@ -28,7 +27,6 @@ class CardViewRecyclerViewHolder extends RecyclerView.ViewHolder {
         itemCardView = view.findViewById(R.id.item_card_view);
         versionCheckingBar = view.findViewById(R.id.statusChangingBar);
         versionCheckButton = view.findViewById(R.id.statusCheckButton);
-        updateItemCardList = view.findViewById(R.id.update_item_recycler_view);
         endTextView = view.findViewById(R.id.end_text_view);
     }
 }

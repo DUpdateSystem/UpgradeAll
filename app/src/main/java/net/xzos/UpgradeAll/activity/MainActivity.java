@@ -1,14 +1,10 @@
 package net.xzos.UpgradeAll.activity;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -16,13 +12,11 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
-import net.xzos.UpgradeAll.ui.viewmodels.adapters.UpdateItemCardAdapter;
 import net.xzos.UpgradeAll.database.RepoDatabase;
+import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
+import net.xzos.UpgradeAll.ui.viewmodels.adapters.UpdateItemCardAdapter;
 
 import org.litepal.LitePal;
 
@@ -36,9 +30,11 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
 
+    private static final String TAG = "MainActivity";
+
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
+    protected void onResume() {
+        super.onResume();
         refreshAppList();
     }
 
@@ -78,7 +74,9 @@ public class MainActivity extends AppCompatActivity {
             extraData.setDatabaseId(databaseId);
             itemCardViewList.add(new ItemCardView.Builder(name, url, api).extraData(extraData).build());
         }
-        itemCardViewList.add(new ItemCardView.Builder(null, null, null).build());
+        ItemCardViewExtraData extraData = new ItemCardViewExtraData();
+        extraData.setEmpty(true);
+        itemCardViewList.add(new ItemCardView.Builder(null, null, null).extraData(extraData).build());
         setRecyclerView();
         adapter.notifyDataSetChanged();
     }

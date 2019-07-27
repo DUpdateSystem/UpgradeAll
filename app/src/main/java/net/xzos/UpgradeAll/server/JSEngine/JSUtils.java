@@ -8,6 +8,7 @@ import com.eclipsesource.v8.V8Object;
 import com.eclipsesource.v8.utils.V8ObjectUtils;
 
 import net.xzos.UpgradeAll.application.MyApplication;
+import net.xzos.UpgradeAll.gson.JSCacheData;
 import net.xzos.UpgradeAll.server.updater.api.GithubApi;
 import net.xzos.UpgradeAll.utils.LogUtil;
 
@@ -40,33 +41,54 @@ class JSUtils {
     private static final String TAG = "JSUtils";
     private String APITAG;
 
-    private JSONObject JsoupDomDict = new JSONObject();
+    private JSCacheData jsCacheData = new JSCacheData();
 
     JSUtils(V8 v8, String APITAG) {
         this.v8 = v8;
         this.APITAG = APITAG;
     }
 
-    void setJsoupDomDict(JSONObject jsoupDomDict) {
-        this.JsoupDomDict = jsoupDomDict;
+    JSCacheData getJsCacheData() {
+        return jsCacheData;
     }
 
-    JSONObject getJsoupDomDict() {
-        return JsoupDomDict;
+    void setJsCacheData(JSCacheData jsCacheData) {
+        this.jsCacheData = jsCacheData;
     }
 
     public String getHttpResponse(String URL) {
-        return OkHttpApi.getHttpResponse(APITAG, URL);
+        JSONObject httpResponseDict = jsCacheData.getHttpResponseDict();
+        String responseString = null;
+        if (httpResponseDict.has(URL)) {
+            try {
+                responseString = httpResponseDict.getString(URL);
+                Log.d(APITAG, TAG, "getHttpResponse: 从缓存加载, URL: " + URL);
+            } catch (JSONException e) {
+                Log.e(APITAG, TAG, "getHttpResponse: HTTP 缓存队列无该对象, httpResponseDict : " + httpResponseDict);
+            }
+        } else {
+            responseString = OkHttpApi.getHttpResponse(APITAG, URL);
+            if (responseString != null) {
+                try {
+                    httpResponseDict.put(URL, responseString);
+                    Log.d(APITAG, TAG, "getHttpResponse: 缓存, URL: " + URL);
+                } catch (JSONException e) {
+                    Log.d(APITAG, TAG, "getHttpResponse: 缓存失败, URL: " + URL);
+                }
+            }
+        }
+        return responseString;
     }
 
     public V8Array selNByJsoupXpath(String userAgent, String URL, String xpath) {
         Document doc = new Document(URL);
-        if (JsoupDomDict.has(URL)) {
+        JSONObject jsoupDomDict = jsCacheData.getJsoupDomDict();
+        if (jsoupDomDict.has(URL)) {
             try {
-                doc = (Document) JsoupDomDict.get(URL);
+                doc = (Document) jsoupDomDict.get(URL);
                 Log.d(APITAG, TAG, "selNByJsoupXpathJavaList: 从缓存加载, URL: " + URL);
             } catch (JSONException e) {
-                Log.e(APITAG, TAG, "selNByJsoupXpathJavaList: Jsoup 缓存队列无该对象, JsoupDomDict: " + JsoupDomDict);
+                Log.e(APITAG, TAG, "selNByJsoupXpathJavaList: Jsoup 缓存队列无该对象, jsoupDomDict: " + jsoupDomDict);
             }
         } else {
             Connection connection = Jsoup.connect(URL);
@@ -77,7 +99,7 @@ class JSUtils {
                 return new V8Array(v8);
             }
             try {
-                JsoupDomDict.put(URL, doc);
+                jsoupDomDict.put(URL, doc);
                 Log.d(APITAG, TAG, "selNByJsoupXpathJavaList: 缓存, URL: " + URL);
             } catch (JSONException e) {
                 Log.d(APITAG, TAG, "selNByJsoupXpathJavaList: 缓存失败, URL: " + URL);
