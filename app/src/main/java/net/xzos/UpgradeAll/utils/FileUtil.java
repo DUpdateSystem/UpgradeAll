@@ -3,7 +3,6 @@ package net.xzos.UpgradeAll.utils;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -22,6 +21,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 public class FileUtil {
+
+    private static final LogUtil Log = MyApplication.getLog();
 
     private static final String TAG = "FileUtil";
 
@@ -42,6 +43,13 @@ public class FileUtil {
         activity.startActivityForResult(intent, WRITE_REQUEST_CODE);
     }
 
+    public static String uriToPath(final Uri uri) {
+        String path = uri.getPath();
+        Log.d(TAG, TAG, String.format(" uriToPath: uri: %s, path: %s", uri, path));
+        if (path != null && path.contains(":"))
+            path = path.split(":")[1];
+        return path;
+    }
 
     public static boolean fileIsExistsByPath(final String path) {
         File file = new File(path);
@@ -65,7 +73,7 @@ public class FileUtil {
      * 兼容本地文件地址和网址与于此类似的其他地址
      */
     public static String pathTransformRelativeToAbsolute(String absolutePath, String relativePath) {
-        Log.e(TAG, String.format("pathTransformRelativeToAbsolute: absolutePath: %s, relativePath: %s", absolutePath, relativePath));
+        Log.e(TAG, TAG, String.format("pathTransformRelativeToAbsolute: absolutePath: %s, relativePath: %s", absolutePath, relativePath));
         if (!absolutePath.equals("/")) {
             if (absolutePath.endsWith("/"))
                 absolutePath = absolutePath.substring(0, absolutePath.length() - 1);  // 去除末尾的 /
@@ -154,7 +162,7 @@ public class FileUtil {
     }
 
     public static boolean writeTextFromUri(@NonNull Uri uri, String text) {
-        Log.e(TAG, "writeTextFromUri: " + uri.getPath());
+        Log.e(TAG, TAG, "writeTextFromUri: " + uri.getPath());
         boolean writeSuccess = false;
         try {
             OutputStream outputStream = MyApplication.getContext().getContentResolver().openOutputStream(uri);
