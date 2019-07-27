@@ -5,6 +5,8 @@ public class ItemCardViewExtraData {
     private String uuid;
     private String configFileName;
 
+    private boolean isEmpty = false;
+
     public int getDatabaseId() {
         return databaseId;
     }
@@ -27,5 +29,13 @@ public class ItemCardViewExtraData {
 
     public void setConfigFileName(String configFileName) {
         this.configFileName = configFileName;
+    }
+
+    public boolean isEmpty() {
+        return isEmpty;
+    }
+
+    public void setEmpty(boolean empty) {
+        isEmpty = empty;
     }
 }

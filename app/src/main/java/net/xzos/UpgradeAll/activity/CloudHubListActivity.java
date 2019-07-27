@@ -35,12 +35,6 @@ public class CloudHubListActivity extends AppCompatActivity {
     private CloudHub cloudHub = new CloudHub();
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        refreshCardView();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hub);

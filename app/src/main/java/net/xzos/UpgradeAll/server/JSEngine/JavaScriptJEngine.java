@@ -74,7 +74,7 @@ public class JavaScriptJEngine extends Api {
     private void RegisterJavaMethods() {
         // 爬虫库
         JSUtils JSUtils = new JSUtils(v8, APITAG);
-        JSUtils.setJsoupDomDict(JSCacheData.getJsoupDomDict());
+        JSUtils.setJsCacheData(JSCacheData);
         V8Object v8JSUtils = new V8Object(v8);
         v8.add("JSUtils", v8JSUtils);
         v8JSUtils.registerJavaMethod(JSUtils, "selNByJsoupXpath", "selNByJsoupXpath", new Class<?>[]{String.class, String.class, String.class});
