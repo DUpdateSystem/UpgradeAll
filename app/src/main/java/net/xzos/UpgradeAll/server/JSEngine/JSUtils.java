@@ -2,14 +2,8 @@ package net.xzos.UpgradeAll.server.JSEngine;
 
 import android.util.Log;
 
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.V8Array;
-import com.eclipsesource.v8.V8Object;
-import com.eclipsesource.v8.utils.V8ObjectUtils;
-
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.JSCacheData;
-import net.xzos.UpgradeAll.server.updater.api.GithubApi;
 import net.xzos.UpgradeAll.utils.LogUtil;
 
 import org.json.JSONException;
@@ -22,7 +16,6 @@ import org.seimicrawler.xpath.JXNode;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import okhttp3.OkHttpClient;
@@ -35,16 +28,13 @@ import okhttp3.Response;
  */
 class JSUtils {
 
-    private V8 v8;
-
     private static final LogUtil Log = MyApplication.getLog();
     private static final String TAG = "JSUtils";
     private String APITAG;
 
     private JSCacheData jsCacheData = new JSCacheData();
 
-    JSUtils(V8 v8, String APITAG) {
-        this.v8 = v8;
+    JSUtils(String APITAG) {
         this.APITAG = APITAG;
     }
 
@@ -54,6 +44,10 @@ class JSUtils {
 
     void setJsCacheData(JSCacheData jsCacheData) {
         this.jsCacheData = jsCacheData;
+    }
+
+    public JSONObject getJson() {
+        return new JSONObject();
     }
 
     public String getHttpResponse(String URL) {
@@ -80,7 +74,7 @@ class JSUtils {
         return responseString;
     }
 
-    public V8Array selNByJsoupXpath(String userAgent, String URL, String xpath) {
+    public ArrayList selNByJsoupXpath(String userAgent, String URL, String xpath) {
         Document doc = new Document(URL);
         JSONObject jsoupDomDict = jsCacheData.getJsoupDomDict();
         if (jsoupDomDict.has(URL)) {
@@ -96,7 +90,7 @@ class JSUtils {
             doc = JsoupApi.getDoc(connection);
             if (doc == null) {
                 Log.e(APITAG, TAG, "selNByJsoupXpathJavaList: Jsoup 对象初始化失败");
-                return new V8Array(v8);
+                return new ArrayList<>();
             }
             try {
                 jsoupDomDict.put(URL, doc);
@@ -106,12 +100,12 @@ class JSUtils {
             }
         }
         JXDocument JXDoc = JXDocument.create(doc);
-        List<String> nodeStringArrayList = new ArrayList<>();
+        ArrayList<String> nodeStringArrayList = new ArrayList<>();
         for (JXNode node : JXDoc.selN((xpath))) {
             nodeStringArrayList.add(node.toString());
         }
         Log.d(APITAG, TAG, "selNByJsoupXpath: node_list number: " + nodeStringArrayList.size());
-        return V8ObjectUtils.toV8Array(v8, nodeStringArrayList);
+        return nodeStringArrayList;
     }
 }
 

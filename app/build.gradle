@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 19
-        versionName "0.0.9-alpha.5_BugFix"
+        versionName "0.0.9-alpha.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -34,8 +34,8 @@ dependencies {
     implementation 'androidx.preference:preference:1.1.0-rc01'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha02'
     testImplementation 'junit:junit:4.13-beta-3'
-    androidTestImplementation 'androidx.test:runner:1.3.0-alpha01'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0-alpha01'
+    androidTestImplementation 'androidx.test:runner:1.3.0-alpha02'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0-alpha02'
     implementation 'androidx.recyclerview:recyclerview:1.1.0-beta01'
 
     // OkHttp
@@ -54,5 +54,6 @@ dependencies {
     implementation 'cn.wanghaomiao:JsoupXpath:2.3.2'
     implementation 'xyz.nulldev.huandroid:huandroid:2.30.01'
     // JavaScript 引擎
-    implementation 'com.eclipsesource.j2v8:j2v8:5.0.103@aar'
+    implementation 'com.faendir.rhino_android:rhino-android:1.5'
+    implementation 'org.mozilla:rhino:1.7.11'
 }
