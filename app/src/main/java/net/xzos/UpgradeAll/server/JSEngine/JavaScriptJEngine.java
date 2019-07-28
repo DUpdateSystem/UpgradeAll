@@ -1,7 +1,5 @@
 package net.xzos.UpgradeAll.server.JSEngine;
 
-import com.faendir.rhino_android.RhinoAndroidHelper;
-
 import net.xzos.UpgradeAll.gson.JSCacheData;
 import net.xzos.UpgradeAll.server.updater.api.Api;
 
@@ -22,7 +20,6 @@ public class JavaScriptJEngine extends Api {
 
     private Context cx;
     private Scriptable scope;
-    private RhinoAndroidHelper rhinoAndroidHelper;
 
     private JSCacheData JSCacheData = new JSCacheData();
 
@@ -51,8 +48,7 @@ public class JavaScriptJEngine extends Api {
 
     private boolean initRhino() {
         // 初始化 rhino 对象
-        rhinoAndroidHelper = new RhinoAndroidHelper();
-        cx = rhinoAndroidHelper.enterContext();
+        cx = Context.enter();
         cx.setOptimizationLevel(-1);
         scope = cx.initStandardObjects();
         // 载入 JavaScript 实例

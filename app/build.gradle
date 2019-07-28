@@ -54,6 +54,5 @@ dependencies {
     implementation 'cn.wanghaomiao:JsoupXpath:2.3.2'
     implementation 'xyz.nulldev.huandroid:huandroid:2.30.01'
     // JavaScript 引擎
-    implementation 'com.faendir.rhino_android:rhino-android:1.5'
     implementation 'org.mozilla:rhino:1.7.11'
 }
