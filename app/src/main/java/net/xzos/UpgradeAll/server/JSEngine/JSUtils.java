@@ -2,10 +2,13 @@ package net.xzos.UpgradeAll.server.JSEngine;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.JSCacheData;
 import net.xzos.UpgradeAll.utils.LogUtil;
 
+import org.jetbrains.annotations.Contract;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Connection;
@@ -26,7 +29,7 @@ import okhttp3.Response;
  * 爬虫相关库的打包集合
  * For JavaScript
  */
-class JSUtils {
+public class JSUtils {
 
     private static final LogUtil Log = MyApplication.getLog();
     private static final String TAG = "JSUtils";
@@ -46,7 +49,9 @@ class JSUtils {
         this.jsCacheData = jsCacheData;
     }
 
-    public JSONObject getJson() {
+    @NonNull
+    @Contract(" -> new")
+    public static JSONObject getJson() {
         return new JSONObject();
     }
 

@@ -76,8 +76,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/jsShrinkLayout"
-                        android:shrinkColumns="0"
-                        android:stretchColumns="1">
+                        android:stretchColumns="0,1">
 
                         <Button
                             android:id="@+id/selectJsFileButton"
