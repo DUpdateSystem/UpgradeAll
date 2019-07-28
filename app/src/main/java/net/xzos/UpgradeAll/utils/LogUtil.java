@@ -3,8 +3,6 @@ package net.xzos.UpgradeAll.utils;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
-import com.eclipsesource.v8.V8Object;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,13 +92,11 @@ public class LogUtil {
     }
 
     private String preMsg(Object msgObject) {
-        String msg = null;
+        String msg;
         if (msgObject == null)
-            msg = "null";
-        else if (msgObject.getClass().equals(String.class))
+            msg = "NULL";
+        else
             msg = (String) msgObject;
-        else if (msgObject.getClass().equals(V8Object.class))
-            msg = msgObject.toString();
         return msg;
     }
 

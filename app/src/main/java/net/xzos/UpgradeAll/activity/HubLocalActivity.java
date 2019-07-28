@@ -39,6 +39,7 @@ import com.google.gson.GsonBuilder;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.server.JSEngine.JSEngineDataProxy;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
 import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.utils.FileUtil;
@@ -319,36 +320,39 @@ public class HubLocalActivity extends Activity {
         // 创建 JS 引擎
         String jsCode = FileUtil.readTextFromUri(JS_URI);
         JavaScriptJEngine javaScriptJEngine = new JavaScriptJEngine(testUrl, jsCode);
+        JSEngineDataProxy jsEngineDataProxy = new JSEngineDataProxy(javaScriptJEngine);
         TextView jsLogTextView = findViewById(R.id.jsLogTextView);
         jsLogTextView.setVisibility(View.VISIBLE);
         // JS 初始化
         new Thread(() -> {
             // 分步测试
-            String returnMessage1 = javaScriptJEngine.getDefaultName();
+            String returnMessage1 = jsEngineDataProxy.getDefaultName();
             new Handler(Looper.getMainLooper()).post(() -> {
                 String logMessage = jsLogTextView.getText().toString() + String.format("1. 获取默认名称(getDefaultName): %s \n", returnMessage1);
                 jsLogTextView.setText(logMessage);
             });
-            String returnMessage2 = String.valueOf(javaScriptJEngine.getReleaseNum());
+            String returnMessage2 = String.valueOf(jsEngineDataProxy.getReleaseNum());
             new Handler(Looper.getMainLooper()).post(() -> {
                 String logMessage = jsLogTextView.getText().toString() + String.format("2. 获取发布版本号总数(getReleaseNum): %s \n", returnMessage2);
                 jsLogTextView.setText(logMessage);
             });
-            for (int i = 0; i < javaScriptJEngine.getReleaseNum(); i++) {
+            for (int i = 0; i < jsEngineDataProxy.getReleaseNum(); i++) {
                 int j = i;
-                String returnMessage3 = String.valueOf(javaScriptJEngine.getVersionNumber(i));
+                String returnMessage3 = jsEngineDataProxy.getVersionNumber(i);
                 new Handler(Looper.getMainLooper()).post(() -> {
                     String logMessage = jsLogTextView.getText().toString() + String.format("3. (%s) 获取发布版本号(getVersionNumber): %s \n", j, returnMessage3);
                     jsLogTextView.setText(logMessage);
                 });
             }
-            for (int i = 0; i < javaScriptJEngine.getReleaseNum(); i++) {
+            for (int i = 0; i < jsEngineDataProxy.getReleaseNum(); i++) {
                 int j = i;
-                JSONObject releaseDownload = javaScriptJEngine.getReleaseDownload(i);
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    String logMessage = jsLogTextView.getText().toString() + String.format("4. (%s) 获取下载链接(getReleaseDownload): %s \n", j, StringEscapeUtils.unescapeJava(releaseDownload.toString()));
-                    jsLogTextView.setText(logMessage);
-                });
+                JSONObject releaseDownload = jsEngineDataProxy.getReleaseDownload(i);
+                if (releaseDownload != null) {
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        String logMessage = jsLogTextView.getText().toString() + String.format("4. (%s) 获取下载链接(getReleaseDownload): %s \n", j, StringEscapeUtils.unescapeJava(releaseDownload.toString()));
+                        jsLogTextView.setText(logMessage);
+                    });
+                }
             }
         }).start();
 
