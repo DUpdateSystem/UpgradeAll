@@ -95,6 +95,8 @@ public class LogUtil {
         String msg;
         if (msgObject == null)
             msg = "NULL";
+        else if (msgObject.equals(Double.class))
+            msg = String.valueOf(msgObject);
         else
             msg = (String) msgObject;
         return msg;
