@@ -22,7 +22,6 @@ import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.server.updater.api.GithubApi;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
 import net.xzos.UpgradeAll.utils.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
@@ -207,32 +206,27 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                 url = url.substring(0, url.length() - 1);
             }
             if (name.length() == 0) {
-                final String githubUuid = getString(R.string.github_uuid);
-                if (uuid.equals(githubUuid)) {// GitHub 源
-                    name = new GithubApi(url).getDefaultName();
-                } else {
-                    // 自定义源
-                    List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
-                    for (HubDatabase hubItem : hubDatabase) {
-                        if (hubItem.getUuid().equals(uuid)) {
-                            JSONObject extraData = hubItem.getExtraData();
-                            String jsCode = null;
-                            try {
-                                jsCode = extraData.getString("javascript");
-                            } catch (JSONException e) {
-                                Log.e(TAG, TAG, "未找到 js 脚本，extraData: " + extraData);
-                            }
-                            HubConfig hubConfig = hubItem.getHubConfig();
-                            if (hubConfig != null) {
-                                String tool = null;
-                                if (hubConfig.getWebCrawler() != null) {
-                                    tool = hubConfig.getWebCrawler().getTool();
-                                }
-                                if (tool != null && tool.toLowerCase().equals("javascript"))
-                                    name = new JavaScriptJEngine(url, jsCode).getDefaultName();
-                            }
-                            break;
+                // 自定义源
+                List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
+                for (HubDatabase hubItem : hubDatabase) {
+                    if (hubItem.getUuid().equals(uuid)) {
+                        JSONObject extraData = hubItem.getExtraData();
+                        String jsCode = null;
+                        try {
+                            jsCode = extraData.getString("javascript");
+                        } catch (JSONException e) {
+                            Log.e(TAG, TAG, "未找到 js 脚本，extraData: " + extraData);
                         }
+                        HubConfig hubConfig = hubItem.getHubConfig();
+                        if (hubConfig != null) {
+                            String tool = null;
+                            if (hubConfig.getWebCrawler() != null) {
+                                tool = hubConfig.getWebCrawler().getTool();
+                            }
+                            if (tool != null && tool.toLowerCase().equals("javascript"))
+                                name = new JavaScriptJEngine(url, jsCode).getDefaultName();
+                        }
+                        break;
                     }
                 }
             }
@@ -260,11 +254,8 @@ public class UpdaterSettingActivity extends AppCompatActivity {
 
     private String[] renewApiJsonObject() {
         // api接口名称列表
-        List<String> nameStringList = new ArrayList<>();
         // 清空 apiSpinnerList
-        // 添加Github 源
-        nameStringList.add("GitHub");
-        apiSpinnerList.add(getString(R.string.github_uuid));
+        List<String> nameStringList = new ArrayList<>();
         // 获取自定义源
         List<HubDatabase> hubList = LitePal.findAll(HubDatabase.class);  // 读取 hub 数据库
         for (int i = 0; i < hubList.size(); i++) {

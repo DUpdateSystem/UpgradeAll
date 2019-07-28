@@ -11,7 +11,6 @@ import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.server.JSEngine.JSEngineDataProxy;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
 import net.xzos.UpgradeAll.server.updater.api.Api;
-import net.xzos.UpgradeAll.server.updater.api.GithubApi;
 import net.xzos.UpgradeAll.utils.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
@@ -134,32 +133,23 @@ public class Updater {
         RepoDatabase repoDatabase = LitePal.find(RepoDatabase.class, databaseId);
         String apiUuid = repoDatabase.getApiUuid();
         Log.d(TAG, TAG, "renewUpdateItem: uuid: " + apiUuid);
-        // 修复之前版本中GitHub没有 UUID 的问题
-        if (apiUuid == null) {
-            repoDatabase.setApiUuid(MyApplication.getContext().getString(R.string.github_uuid));
-            repoDatabase.save();
-        }
         String url = repoDatabase.getUrl();
         Api httpApi = new Api();
         // 新建 Api 对象
-        if (MyApplication.getContext().getString(R.string.github_uuid).equals(apiUuid)) {
-            httpApi = new GithubApi(url);
-        } else {
-            List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
-            String jsCode = null;
-            for (HubDatabase hubItem : hubDatabase) {
-                if (hubItem.getUuid().equals(apiUuid)) {
-                    try {
-                        jsCode = hubItem.getExtraData().getString("javascript");
-                    } catch (NullPointerException e) {
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+        List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
+        String jsCode = null;
+        for (HubDatabase hubItem : hubDatabase) {
+            if (hubItem.getUuid().equals(apiUuid)) {
+                try {
+                    jsCode = hubItem.getExtraData().getString("javascript");
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                JavaScriptJEngine javaScriptJEngine = new JavaScriptJEngine(url, jsCode);
-                httpApi = new JSEngineDataProxy(javaScriptJEngine);
             }
+            JavaScriptJEngine javaScriptJEngine = new JavaScriptJEngine(url, jsCode);
+            httpApi = new JSEngineDataProxy(javaScriptJEngine);
         }
         // 组装一个更新子项
         JSONObject updateItemJson = new JSONObject();

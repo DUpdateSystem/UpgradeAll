@@ -6,6 +6,7 @@ import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.JSCacheData;
 import net.xzos.UpgradeAll.utils.LogUtil;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Connection;
@@ -46,9 +47,26 @@ public class JSUtils {
         this.jsCacheData = jsCacheData;
     }
 
-    public static JSONObject getJson(String jsonString) {
+
+    public JSONObject getJSONObject() {
+        return new JSONObject();
+    }
+
+    public JSONArray getJSONArray() {
+        return new JSONArray();
+    }
+
+    public JSONObject getJSONObject(String jsonString) {
         try {
             return new JSONObject(jsonString);
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
+    public JSONArray getJSONArray(String jsonString) {
+        try {
+            return new JSONArray(jsonString);
         } catch (JSONException e) {
             return null;
         }
