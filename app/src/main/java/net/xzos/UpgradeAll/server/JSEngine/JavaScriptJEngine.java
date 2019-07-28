@@ -21,12 +21,15 @@ public class JavaScriptJEngine extends Api {
     private Context cx;
     private Scriptable scope;
 
+    private JSUtils JSUtils;
     private JSCacheData JSCacheData = new JSCacheData();
 
     public JavaScriptJEngine(String URL, String jsCode) {
         this.APITAG = URL;
         this.URL = URL;
         this.jsCode = jsCode;
+        JSUtils = new JSUtils(APITAG);
+        JSUtils.setJsCacheData(JSCacheData);
     }
 
     String getURL() {
@@ -66,8 +69,6 @@ public class JavaScriptJEngine extends Api {
     // 注册 Java 代码
     private void RegisterJavaMethods() {
         // 爬虫库
-        JSUtils JSUtils = new JSUtils(APITAG);
-        JSUtils.setJsCacheData(JSCacheData);
         Object rhinoJSUtils = Context.javaToJS(JSUtils, scope);
         ScriptableObject.putProperty(scope, "JSUtils", rhinoJSUtils);
         // Log
