@@ -2,13 +2,10 @@ package net.xzos.UpgradeAll.server.JSEngine;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.JSCacheData;
 import net.xzos.UpgradeAll.utils.LogUtil;
 
-import org.jetbrains.annotations.Contract;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Connection;
@@ -49,10 +46,12 @@ public class JSUtils {
         this.jsCacheData = jsCacheData;
     }
 
-    @NonNull
-    @Contract(" -> new")
-    public static JSONObject getJson() {
-        return new JSONObject();
+    public static JSONObject getJson(String jsonString) {
+        try {
+            return new JSONObject(jsonString);
+        } catch (JSONException e) {
+            return null;
+        }
     }
 
     public String getHttpResponse(String URL) {
