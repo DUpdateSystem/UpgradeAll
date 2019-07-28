@@ -23,10 +23,12 @@ public class JSEngineDataProxy extends Api {
 
     @Override
     public boolean refreshData() {
-        getReleaseNum();
-        if (getReleaseNum() != 0) {
-            getVersionNumber(0);
-            getReleaseDownload(0);
+        int releaseNum = getReleaseNum();
+        if (releaseNum != 0) {
+            for (int i = 0; i < releaseNum; i++) {
+                versionNumberList.add(getVersionNumber(i));
+                releaseDownloadList.add(getReleaseDownload(i));
+            }
             return true;
         } else
             return false;

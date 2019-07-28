@@ -22,14 +22,15 @@ public class JavaScriptJEngine extends Api {
     private Scriptable scope;
 
     private JSUtils JSUtils;
-    private JSCacheData JSCacheData = new JSCacheData();
 
     public JavaScriptJEngine(String URL, String jsCode) {
         this.APITAG = URL;
         this.URL = URL;
         this.jsCode = jsCode;
         JSUtils = new JSUtils(APITAG);
+        JSCacheData JSCacheData = new JSCacheData();
         JSUtils.setJsCacheData(JSCacheData);
+        Log.i(APITAG, TAG, String.format("JavaScriptJEngine: jsCode: \n%s", jsCode));
     }
 
     String getURL() {
@@ -44,7 +45,7 @@ public class JavaScriptJEngine extends Api {
             cx.evaluateString(scope, jsCode, null, 1, null);
             isSuccess = true;
         } catch (Throwable e) {
-            Log.e(APITAG, TAG, "executeVoidScript: 脚本载入错误, ERROR_MESSAGE: " + e.toString());
+            Log.e(APITAG, TAG, String.format("executeVoidScript: 脚本载入错误, ERROR_MESSAGE: %s", e.toString()));
         }
         return isSuccess;
     }
