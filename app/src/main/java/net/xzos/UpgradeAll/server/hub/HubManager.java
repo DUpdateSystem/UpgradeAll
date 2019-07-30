@@ -18,6 +18,7 @@ public class HubManager {
     private static final LogUtil Log = MyApplication.getLog();
 
     private static final String TAG = "HubManager";
+    private static final String[] LogObjectTag = {"Core", TAG};
 
     public static boolean addHubDatabase(int databaseId, HubConfig hubConfigGson, String jsCode) {
         if (hubConfigGson != null && jsCode != null) {
@@ -28,7 +29,7 @@ public class HubManager {
                 uuid = hubConfigGson.getUuid();
             } catch (NullPointerException e) {
                 Gson gson = new Gson();
-                Log.e(TAG, TAG, "addHubDatabase: 请确认 hubConfig 包含各个必须元素 hubConfigGson: " + gson.toJson(hubConfigGson));
+                Log.e(LogObjectTag, TAG, "addHubDatabase: 请确认 hubConfig 包含各个必须元素 hubConfigGson: " + gson.toJson(hubConfigGson));
             }
             // 如果设置了名字与 UUID，则存入数据库
             if (name != null && uuid != null) {
@@ -67,7 +68,7 @@ public class HubManager {
             try {
                 jsCode = extraData.getString("javascript");
             } catch (JSONException e) {
-                Log.e(TAG, TAG, "未取得 JS 代码，extraData: " + extraData);
+                Log.e(LogObjectTag, TAG, "未取得 JS 代码，extraData: " + extraData);
                 e.printStackTrace();
             }
         }

@@ -1,6 +1,6 @@
 package net.xzos.UpgradeAll.server.JSEngine;
 
-import net.xzos.UpgradeAll.server.updater.api.Api;
+import net.xzos.UpgradeAll.server.JSEngine.api.Api;
 
 import org.json.JSONObject;
 
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class JSEngineDataProxy extends Api {
 
     private static final String TAG = "JSEngineDataProxy";
-    private static String APITAG;
+    private static String[] LogObjectTag;
     private JavaScriptJEngine javaScriptJEngine;
 
     private int releaseNum = 0;
@@ -18,7 +18,7 @@ public class JSEngineDataProxy extends Api {
 
     public JSEngineDataProxy(JavaScriptJEngine javaScriptJEngine) {
         this.javaScriptJEngine = javaScriptJEngine;
-        APITAG = javaScriptJEngine.getURL();
+        LogObjectTag = javaScriptJEngine.getLogObjectTag();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class JSEngineDataProxy extends Api {
             try {
                 this.releaseNum = javaScriptJEngine.getReleaseNum();
             } catch (Throwable e) {
-                Log.e(APITAG, TAG, "getReleaseNum: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
+                Log.e(LogObjectTag, TAG, "getReleaseNum: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
             }
         }
         return this.releaseNum;
@@ -53,7 +53,7 @@ public class JSEngineDataProxy extends Api {
             try {
                 versionNumber = javaScriptJEngine.getVersionNumber(releaseNum);
             } catch (Throwable e) {
-                Log.e(APITAG, TAG, "getVersionNumber: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
+                Log.e(LogObjectTag, TAG, "getVersionNumber: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
                 return null;
             }
         } else if (releaseNum >= 0 && releaseNum < versionNumberList.size())
@@ -68,7 +68,7 @@ public class JSEngineDataProxy extends Api {
             try {
                 releaseDownload = javaScriptJEngine.getReleaseDownload(releaseNum);
             } catch (Throwable e) {
-                Log.e(APITAG, TAG, "getReleaseDownload: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
+                Log.e(LogObjectTag, TAG, "getReleaseDownload: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
                 return null;
             }
         } else if (releaseNum >= 0 && releaseNum < releaseDownloadList.size())
@@ -81,7 +81,7 @@ public class JSEngineDataProxy extends Api {
         try {
             return javaScriptJEngine.getDefaultName();
         } catch (Throwable e) {
-            Log.e(APITAG, TAG, "getDefaultName: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
+            Log.e(LogObjectTag, TAG, "getDefaultName: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
         }
         return null;
     }

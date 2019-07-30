@@ -22,6 +22,7 @@ import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.server.JSEngine.JSEngineDataProxy;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
 import net.xzos.UpgradeAll.utils.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
@@ -37,6 +38,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
 
     private static final LogUtil Log = MyApplication.getLog();
     private static final String TAG = "UpdateItemSetting";
+    private static final String[] LogObjectTag = {"Core", TAG};
 
     private static ArrayList<String> apiSpinnerList = new ArrayList<>();
 
@@ -152,7 +154,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                 versionCheckerText = versionChecker.getString("text");
                 versionCheckRegular = versionChecker.getString("regular");
             } catch (JSONException e) {
-                Log.e(TAG, TAG, String.format("onCreate: 数据库损坏！  versionChecker: %s", versionChecker));
+                Log.e(LogObjectTag, TAG, String.format("onCreate: 数据库损坏！  versionChecker: %s", versionChecker));
             }
             switch (versionCheckerApi.toLowerCase()) {
                 case "app":
@@ -178,7 +180,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
         String versionCheckerText = editVersionCheckText.getText().toString();
         String versionCheckerApi = versionCheckSpinner.getSelectedItem().toString();
         String versionCheckerRegular = editVersionCheckRegular.getText().toString();
-        Log.d(TAG, TAG, "getHubConfig:  " + versionCheckerRegular);
+        Log.d(LogObjectTag, TAG, "getHubConfig:  " + versionCheckerRegular);
         switch (versionCheckerApi) {
             case "APP 版本":
                 versionCheckerApi = "APP";
@@ -215,7 +217,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                         try {
                             jsCode = extraData.getString("javascript");
                         } catch (JSONException e) {
-                            Log.e(TAG, TAG, "未找到 js 脚本，extraData: " + extraData);
+                            Log.e(LogObjectTag, TAG, "未找到 js 脚本，extraData: " + extraData);
                         }
                         HubConfig hubConfig = hubItem.getHubConfig();
                         if (hubConfig != null) {
@@ -223,8 +225,10 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                             if (hubConfig.getWebCrawler() != null) {
                                 tool = hubConfig.getWebCrawler().getTool();
                             }
-                            if (tool != null && tool.toLowerCase().equals("javascript"))
-                                name = new JavaScriptJEngine(url, jsCode).getDefaultName();
+                            if (tool != null && tool.toLowerCase().equals("javascript")) {
+                                String[] logObjectTag = {"TEMP", "0"};
+                                name = new JSEngineDataProxy(new JavaScriptJEngine(logObjectTag, url, jsCode)).getDefaultName();
+                            }
                         }
                         break;
                     }

@@ -1,7 +1,9 @@
 package net.xzos.UpgradeAll.server.JSEngine;
 
 import net.xzos.UpgradeAll.gson.JSCacheData;
-import net.xzos.UpgradeAll.server.updater.api.Api;
+import net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSLog;
+import net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSUtils;
+import net.xzos.UpgradeAll.server.JSEngine.api.Api;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,7 +15,7 @@ import org.mozilla.javascript.ScriptableObject;
 public class JavaScriptJEngine extends Api {
 
     private static final String TAG = "JavaScriptJEngine";
-    private String APITAG;
+    private String[] LogObjectTag;
 
     private String URL;
     private String jsCode;
@@ -22,19 +24,21 @@ public class JavaScriptJEngine extends Api {
     private Scriptable scope;
 
     private JSUtils JSUtils;
+    private net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSLog JSLog;
 
-    public JavaScriptJEngine(String URL, String jsCode) {
-        this.APITAG = URL;
+    public JavaScriptJEngine(String[] logObjectTag, String URL, String jsCode) {
+        this.LogObjectTag = logObjectTag;
         this.URL = URL;
         this.jsCode = jsCode;
-        JSUtils = new JSUtils(APITAG);
+        JSUtils = new JSUtils(this.LogObjectTag);
+        JSLog = new JSLog(this.LogObjectTag);
         JSCacheData JSCacheData = new JSCacheData();
         JSUtils.setJsCacheData(JSCacheData);
-        Log.i(APITAG, TAG, String.format("JavaScriptJEngine: jsCode: \n%s", jsCode));
+        Log.i(this.LogObjectTag, TAG, String.format("JavaScriptJEngine: jsCode: \n%s", jsCode));
     }
 
-    String getURL() {
-        return URL;
+    String[] getLogObjectTag() {
+        return LogObjectTag;
     }
 
     // 加载 JavaScript 代码
@@ -45,7 +49,7 @@ public class JavaScriptJEngine extends Api {
             cx.evaluateString(scope, jsCode, null, 1, null);
             isSuccess = true;
         } catch (Throwable e) {
-            Log.e(APITAG, TAG, String.format("executeVoidScript: 脚本载入错误, ERROR_MESSAGE: %s", e.toString()));
+            Log.e(LogObjectTag, TAG, String.format("executeVoidScript: 脚本载入错误, ERROR_MESSAGE: %s", e.toString()));
         }
         return isSuccess;
     }
@@ -73,7 +77,7 @@ public class JavaScriptJEngine extends Api {
         Object rhinoJSUtils = Context.javaToJS(JSUtils, scope);
         ScriptableObject.putProperty(scope, "JSUtils", rhinoJSUtils);
         // Log
-        Object rhinoLogUtils = Context.javaToJS(Log, scope);
+        Object rhinoLogUtils = Context.javaToJS(JSLog, scope);
         ScriptableObject.putProperty(scope, "Log", rhinoLogUtils);
     }
 
@@ -85,7 +89,7 @@ public class JavaScriptJEngine extends Api {
         Function function = (Function) functionObject;
         Object result = function.call(cx, scope, scope, new Object[]{});
         defaultName = Context.toString(result);
-        Log.d(APITAG, TAG, "getDefaultName: defaultName: " + defaultName);
+        Log.d(LogObjectTag, TAG, "getDefaultName: defaultName: " + defaultName);
         closeRhino(); // 销毁 J2V8 对象
         return defaultName;
     }
@@ -98,7 +102,7 @@ public class JavaScriptJEngine extends Api {
         Function function = (Function) functionObject;
         Object result = function.call(cx, scope, scope, new Object[]{});
         releaseNum = (int) Context.toNumber(result);
-        Log.d(APITAG, TAG, "getReleaseNum: releaseNum: " + releaseNum);
+        Log.d(LogObjectTag, TAG, "getReleaseNum: releaseNum: " + releaseNum);
         closeRhino(); // 销毁 J2V8 对象
         return releaseNum;
     }
@@ -113,7 +117,7 @@ public class JavaScriptJEngine extends Api {
         Object[] args = {releaseNum};
         Object result = function.call(cx, scope, scope, args);
         versionNumber = Context.toString(result);
-        Log.d(APITAG, TAG, "getVersionNumber: versionNumber: " + versionNumber);
+        Log.d(LogObjectTag, TAG, "getVersionNumber: versionNumber: " + versionNumber);
         closeRhino(); // 销毁 J2V8 对象
         return versionNumber;
     }
@@ -131,12 +135,12 @@ public class JavaScriptJEngine extends Api {
         try {
             releaseDownloadUrlJsonObject = new JSONObject(versionNumberString);
         } catch (JSONException e) {
-            Log.e(APITAG, TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范, versionNumberString : " + versionNumberString);
+            Log.e(LogObjectTag, TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范, versionNumberString : " + versionNumberString);
         } catch (NullPointerException e) {
-            Log.e(APITAG, TAG, "getReleaseDownload: 返回值为 NULL, versionNumberString : " + versionNumberString);
+            Log.e(LogObjectTag, TAG, "getReleaseDownload: 返回值为 NULL, versionNumberString : " + versionNumberString);
         }
         closeRhino(); // 销毁 J2V8 对象
-        Log.d(APITAG, TAG, "getReleaseDownload:  releaseDownloadUrlJsonObject: " + releaseDownloadUrlJsonObject);
+        Log.d(LogObjectTag, TAG, "getReleaseDownload:  releaseDownloadUrlJsonObject: " + releaseDownloadUrlJsonObject);
         return releaseDownloadUrlJsonObject;
     }
 }

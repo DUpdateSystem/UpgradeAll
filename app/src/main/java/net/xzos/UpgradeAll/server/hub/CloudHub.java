@@ -1,7 +1,6 @@
 package net.xzos.UpgradeAll.server.hub;
 
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
@@ -12,7 +11,7 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.CloudConfig;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.server.updater.api.GithubApi;
+import net.xzos.UpgradeAll.server.JSEngine.JSUtils.OkHttpApi;
 import net.xzos.UpgradeAll.utils.FileUtil;
 import net.xzos.UpgradeAll.utils.LogUtil;
 
@@ -24,6 +23,7 @@ import java.util.Objects;
 public class CloudHub {
 
     private static final String TAG = "CloudHub";
+    private static final String[] LogObjectTag = {"Core", TAG};
 
     private static final LogUtil Log = MyApplication.getLog();
     private String rulesListJsonFileRawUrl;
@@ -40,7 +40,7 @@ public class CloudHub {
     public boolean flashCloudConfigList() {
         boolean isSuccess = false;
         if (rulesListJsonFileRawUrl != null) {
-            String jsonText = GithubApi.getHttpResponse(TAG, rulesListJsonFileRawUrl);
+            String jsonText = OkHttpApi.getHttpResponse(LogObjectTag, rulesListJsonFileRawUrl);
             // 如果刷新失败，则不记录数据
             if (jsonText != null && jsonText.length() != 0) {
                 Gson gson = new Gson();
@@ -48,7 +48,7 @@ public class CloudHub {
                     cloudConfig = gson.fromJson(jsonText, CloudConfig.class);
                     isSuccess = true;
                 } catch (JsonSyntaxException e) {
-                    Log.e(TAG, TAG, "refreshData: ERROR_MESSAGE: " + e.toString());
+                    Log.e(LogObjectTag, TAG, "refreshData: ERROR_MESSAGE: " + e.toString());
                 }
             }
         }
@@ -67,12 +67,12 @@ public class CloudHub {
 
     public String getAppConfig(String packageName) {
         String appConfigRawUrl = cloudConfig.getListUrl().getAppListRawUrl() + packageName + ".json";
-        return GithubApi.getHttpResponse(TAG, appConfigRawUrl);
+        return OkHttpApi.getHttpResponse(LogObjectTag, appConfigRawUrl);
     }
 
     public HubConfig getHubConfig(String hubConfigName) {
         String hubConfigRawUrl = cloudConfig.getListUrl().getHubListRawUrl() + hubConfigName + ".json";
-        String hubConfigString = GithubApi.getHttpResponse(TAG, hubConfigRawUrl);
+        String hubConfigString = OkHttpApi.getHttpResponse(LogObjectTag, hubConfigRawUrl);
         Gson gson = new Gson();
         try {
             return gson.fromJson(hubConfigString, HubConfig.class);
@@ -84,7 +84,7 @@ public class CloudHub {
     public String getHubConfigJS(final String filePath) {
         String hubListRawUrl = cloudConfig.getListUrl().getHubListRawUrl();
         String hubConfigJSRawUrl = FileUtil.pathTransformRelativeToAbsolute(hubListRawUrl, filePath);
-        return GithubApi.getHttpResponse(TAG, hubConfigJSRawUrl);
+        return OkHttpApi.getHttpResponse(LogObjectTag, hubConfigJSRawUrl);
     }
 
     private String getRawRootUrl(String gitUrl) {

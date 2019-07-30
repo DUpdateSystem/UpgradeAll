@@ -8,7 +8,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * 自定义的日志打印工具类
@@ -44,7 +47,36 @@ public class LogUtil {
      */
     private JSONObject logJSONObject = new JSONObject();
 
-    private void addLogMessage(int LogLevel, String logObjectTag, String tag, String msg) {
+    public JSONObject getLogMessageJson() {
+        return this.logJSONObject;
+    }
+
+    public List<String> getLogSort() {
+        ArrayList<String> logSortList = new ArrayList<>();
+        Iterator it = logJSONObject.keys();
+        while (it.hasNext()) {
+            logSortList.add((String) it.next());
+        }
+        return logSortList;
+    }
+
+    public List<String> getLogObjectId(String logSort) {
+        ArrayList<String> logObjectId = new ArrayList<>();
+        JSONObject logSortJson = new JSONObject();
+        try {
+            logSortJson = logJSONObject.getJSONObject(logSort);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Iterator it = logSortJson.keys();
+        while (it.hasNext()) {
+            logObjectId.add((String) it.next());
+        }
+        return logObjectId;
+    }
+
+
+    private void addLogMessage(int LogLevel, String[] logObjectTag, String tag, String msg) {
         // 确定日志等级标志
         String logLevelString;
         switch (LogLevel) {
@@ -70,23 +102,34 @@ public class LogUtil {
         // 获取时间
         @SuppressLint("SimpleDateFormat") SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         // 生成日志信息
-        String logMessage = String.format("%s %s %s/%s: %s", ft.format(new Date()), logObjectTag, logLevelString, tag, msg);
+        String logMessage = String.format("%s %s %s/%s: %s", ft.format(new Date()), logObjectTag[1], logLevelString, tag, msg);
         // 获取日志列表
+        String logSortString = logObjectTag[0];
+        String logObjectId = logObjectTag[1];
         JSONArray logMessageArray = new JSONArray();
-        if (logJSONObject.has(logObjectTag)) {
+        JSONObject logSortJson = new JSONObject();
+        if (logJSONObject.has(logSortString)) {
             try {
-                logMessageArray = logJSONObject.getJSONArray(logObjectTag);
+                logSortJson = logJSONObject.getJSONObject(logSortString);
             } catch (JSONException e) {
-                Log.e(TAG, "addLogMessage: 出乎意料的错误， logJSONObject: " + logJSONObject);
+                Log.e(TAG, "addLogMessage: 出乎意料的错误,  logJSONObject: " + logJSONObject);
                 e.printStackTrace();
+            }
+            if (logSortJson.has(logObjectId)) {
+                try {
+                    logMessageArray = logSortJson.getJSONArray(logObjectId);
+                } catch (JSONException e) {
+                    Log.e(TAG, "addLogMessage: 出乎意料的错误, logSortJson: " + logJSONObject);
+                    e.printStackTrace();
+                }
             }
         }
         // 向日志列表载入新日志
         logMessageArray.put(logMessage);
         try {
-            logJSONObject.put(logObjectTag, logMessageArray);
+            logSortJson.put(logObjectId, logMessageArray);
+            logJSONObject.put(logSortString, logSortJson);
         } catch (JSONException e) {
-            Log.e(TAG, "addLogMessage: 出乎意料的错误， logJSONObject: " + logJSONObject);
             e.printStackTrace();
         }
     }
@@ -102,12 +145,20 @@ public class LogUtil {
         return msg;
     }
 
-    public JSONObject getLogMessage() {
-        return this.logJSONObject;
+    public List<String> getLogMessageList(String[] logObjectTag) throws JSONException {
+        ArrayList<String> logMessageArray = new ArrayList<>();
+        String logSortString = logObjectTag[0];
+        String logObjectId = logObjectTag[1];
+        JSONArray logMessageJSONArray = logJSONObject.getJSONObject(logSortString).getJSONArray(logObjectId);
+        int len = logMessageJSONArray.length();
+        for (int i = 0; i < len; i++) {
+            logMessageArray.add(logMessageJSONArray.get(i).toString());
+        }
+        return logMessageArray;
     }
 
     // 调用Log.v()方法打印日志
-    public void v(String logObjectTag, String tag, Object msgObject) {
+    public void v(String[] logObjectTag, String tag, Object msgObject) {
         if (LEVEL <= VERBOSE) {
             String msg = preMsg(msgObject);
             Log.v(tag, msg);
@@ -116,7 +167,7 @@ public class LogUtil {
     }
 
     // 调用Log.d()方法打印日志
-    public void d(String logObjectTag, String tag, Object msgObject) {
+    public void d(String[] logObjectTag, String tag, Object msgObject) {
         if (LEVEL <= DEBUG) {
             String msg = preMsg(msgObject);
             Log.d(tag, msg);
@@ -125,7 +176,7 @@ public class LogUtil {
     }
 
     // 调用Log.i()方法打印日志
-    public void i(String logObjectTag, String tag, Object msgObject) {
+    public void i(String[] logObjectTag, String tag, Object msgObject) {
         if (LEVEL <= INFO) {
             String msg = preMsg(msgObject);
             Log.i(tag, msg);
@@ -134,7 +185,7 @@ public class LogUtil {
     }
 
     // 调用Log.w()方法打印日志
-    public void w(String logObjectTag, String tag, Object msgObject) {
+    public void w(String[] logObjectTag, String tag, Object msgObject) {
         if (LEVEL <= WARN) {
             String msg = preMsg(msgObject);
             Log.w(tag, msg);
@@ -143,7 +194,7 @@ public class LogUtil {
     }
 
     // 调用Log.e()方法打印日志
-    public void e(String logObjectTag, String tag, Object msgObject) {
+    public void e(String[] logObjectTag, String tag, Object msgObject) {
         if (LEVEL <= ERROR) {
             String msg = preMsg(msgObject);
             Log.e(tag, msg);

@@ -319,7 +319,8 @@ public class HubLocalActivity extends Activity {
         }
         // 创建 JS 引擎
         String jsCode = FileUtil.readTextFromUri(JS_URI);
-        JavaScriptJEngine javaScriptJEngine = new JavaScriptJEngine(testUrl, jsCode);
+        String[] logObjectTag = {"DeBug", "0"};
+        JavaScriptJEngine javaScriptJEngine = new JavaScriptJEngine(logObjectTag, testUrl, jsCode);
         JSEngineDataProxy jsEngineDataProxy = new JSEngineDataProxy(javaScriptJEngine);
         TextView jsLogTextView = findViewById(R.id.jsLogTextView);
         jsLogTextView.setVisibility(View.VISIBLE);

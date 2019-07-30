@@ -48,7 +48,7 @@ public class HubListActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         // tab添加事件
-        FabSpeedDial fab = findViewById(R.id.add_fab);
+        FabSpeedDial fab = findViewById(R.id.addFab);
         fab.addOnMenuItemClickListener((floatingActionButton, textView, integer) -> {
             if (floatingActionButton == fab.getMiniFab(0)) {
                 startActivity(new Intent(HubListActivity.this, HubLocalActivity.class));

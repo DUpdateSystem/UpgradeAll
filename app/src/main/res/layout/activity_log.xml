@@ -26,4 +26,16 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <io.github.kobakei.materialfabspeeddial.FabSpeedDial
+        android:id="@+id/sortFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:fitsSystemWindows="true"
+        app:fab_fabBackgroundColor="@color/colorPrimary"
+        app:fab_miniFabBackgroundColor="@color/colorPrimary"
+        app:fab_miniFabTextBackground="@color/colorPrimary"
+        app:fab_miniFabTextColor="@android:color/white" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
