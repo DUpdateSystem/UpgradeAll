@@ -3,17 +3,12 @@ package net.xzos.UpgradeAll.utils.log;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * 自定义的日志打印工具类
@@ -49,100 +44,18 @@ public class LogUtil {
      */
     private JSONObject logJSONObject = new JSONObject();
 
-    private LogMessageProxy logMessageProxy = new LogMessageProxy(logJSONObject);
+    private LogLiveData logLiveData = new LogLiveData();
 
-    public List<String> getLogSort() {
-        ArrayList<String> logSortList = new ArrayList<>();
-        Iterator it = logJSONObject.keys();
-        while (it.hasNext()) {
-            logSortList.add((String) it.next());
-        }
-        return logSortList;
+    JSONObject getLogJSONObject() {
+        return logJSONObject;
     }
 
-    public List<String> getLogObjectId(String logSort) {
-        ArrayList<String> logObjectId = new ArrayList<>();
-        JSONObject logSortJson = new JSONObject();
-        try {
-            logSortJson = logJSONObject.getJSONObject(logSort);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        Iterator it = logSortJson.keys();
-        while (it.hasNext()) {
-            logObjectId.add((String) it.next());
-        }
-        return logObjectId;
+    public void setLogJSONObject(JSONObject logJSONObject) {
+        this.logJSONObject = logJSONObject;
     }
 
-    List<String> getLogMessageList(String[] logObjectTag) throws JSONException {
-        ArrayList<String> logMessageArray = new ArrayList<>();
-        String logSortString = logObjectTag[0];
-        String logObjectId = logObjectTag[1];
-        JSONArray logMessageJSONArray = logJSONObject.getJSONObject(logSortString).getJSONArray(logObjectId);
-        int len = logMessageJSONArray.length();
-        for (int i = 0; i < len; i++) {
-            logMessageArray.add(logMessageJSONArray.get(i).toString());
-        }
-        return logMessageArray;
-    }
-
-    public LiveData<List<String>> getLogMessageListLiveData(String[] logObjectTag) {
-        return logMessageProxy.getLogList(logObjectTag);
-    }
-
-    public void clearLogAll() {
-        logJSONObject = new JSONObject();
-        logMessageProxy.setLogJSONObject(logJSONObject);
-    }
-
-    public void clearLogSort(String logSort) {
-        logJSONObject.remove(logSort);
-        logMessageProxy.setLogJSONObject(logJSONObject);
-    }
-
-    public void clearLogMessage(String[] logObjectTag) throws JSONException {
-        String logSortString = logObjectTag[0];
-        String logObjectId = logObjectTag[1];
-        logJSONObject.getJSONObject(logSortString).remove(logObjectId);
-        logMessageProxy.setLogJSONObject(logJSONObject);
-    }
-
-    public String getLogAllToString() {
-        List<String> sortList = getLogSort();
-        StringBuilder fullLogString = new StringBuilder();
-        for (String logSort : sortList) {
-            fullLogString.append(getLogStringBySort(logSort));
-        }
-        return fullLogString.toString();
-    }
-
-    public String getLogStringBySort(String logSort) {
-        StringBuilder fullLogString = new StringBuilder(logSort + "\n");
-        List<String> sortDatabaseIdList = getLogObjectId(logSort);
-        for (String databaseIdString : sortDatabaseIdList) {
-            String logString = getLogMessageToString(new String[]{logSort, databaseIdString});
-            if (logString != null)
-                logString = logString.split("\n", 2)[1];
-            else logString = "";
-            fullLogString.append(logString).append("\n");
-        }
-        return fullLogString.toString();
-    }
-
-    public String getLogMessageToString(String[] logObjectTag) {
-        String sort = logObjectTag[0];
-        String name = "    " + LogMessageProxy.getNameFromId(logObjectTag[1]);
-        StringBuilder logMessageString = new StringBuilder();
-        List<String> logMessageArray;
-        try {
-            logMessageArray = getLogMessageList(logObjectTag);
-        } catch (JSONException e) {
-            return null;
-        }
-        for (String logMessage : logMessageArray)
-            logMessageString.append("        ").append(logMessage).append("\n");
-        return sort + "\n" + name + "\n" + logMessageString;
+    LogLiveData getLogLiveData() {
+        return logLiveData;
     }
 
     private void addLogMessage(int LogLevel, String[] logObjectTag, String tag, String msg) {
@@ -201,7 +114,7 @@ public class LogUtil {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        logMessageProxy.setLogJSONObject(logJSONObject);
+        logLiveData.setLogJSONObject(logJSONObject);
     }
 
     private String preMsg(Object msgObject) {

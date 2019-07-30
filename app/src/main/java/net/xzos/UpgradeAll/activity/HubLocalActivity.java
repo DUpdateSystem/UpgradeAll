@@ -45,6 +45,7 @@ import net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSLog;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
 import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.utils.FileUtil;
+import net.xzos.UpgradeAll.utils.log.LogDataProxy;
 import net.xzos.UpgradeAll.utils.log.LogUtil;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -193,7 +194,7 @@ public class HubLocalActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.clearLogSort("DeBug");
+        new LogDataProxy(MyApplication.getLog()).clearLogSort("DeBug");
     }
 
     @Override
@@ -359,7 +360,7 @@ public class HubLocalActivity extends AppCompatActivity {
         JSEngineDataProxy jsEngineDataProxy = new JSEngineDataProxy(javaScriptJEngine);
         JSLog jsLog = new JSLog(logObjectTag);
         TextView jsLogTextView = findViewById(R.id.jsLogTextView);
-        LiveData<List<String>> logListLiveData = Log.getLogMessageListLiveData(logObjectTag);
+        LiveData<List<String>> logListLiveData = new LogDataProxy(MyApplication.getLog()).getLogMessageListLiveData(logObjectTag);
         logListLiveData.observe(this, logList -> {
             StringBuilder textViewMessage = new StringBuilder();
             for (String logMessage : logList)

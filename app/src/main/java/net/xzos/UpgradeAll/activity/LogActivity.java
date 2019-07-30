@@ -21,6 +21,7 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.ui.viewmodels.log.SectionsPagerAdapter;
 import net.xzos.UpgradeAll.utils.FileUtil;
+import net.xzos.UpgradeAll.utils.log.LogDataProxy;
 import net.xzos.UpgradeAll.utils.log.LogUtil;
 
 import java.io.File;
@@ -52,11 +53,11 @@ public class LogActivity extends AppCompatActivity {
 
     private void setFab() {
         FabSpeedDial fab = findViewById(R.id.sortFab);
-        List<String> logSortList = MyApplication.getLog().getLogSort();
+        List<String> logSortList = new LogDataProxy(MyApplication.getLog()).getLogSort();
         FabSpeedDialMenu menu = new FabSpeedDialMenu(this);
         for (String logSort : logSortList) {
             if (logSort.equals("Core"))
-                menu.add("Core").setIcon(R.drawable.ic_core);
+                menu.add(getResources().getString(R.string.main_program)).setIcon(R.drawable.ic_core);
             else
                 menu.add(logSort).setIcon(R.drawable.ic_cloud);
         }
@@ -92,15 +93,18 @@ public class LogActivity extends AppCompatActivity {
                 popupMenu.show();
                 //设置item的点击事件
                 popupMenu.setOnMenuItemClickListener(popItem -> {
+                    LogDataProxy logDataProxy = new LogDataProxy(Log);
                     switch (popItem.getItemId()) {
                         // 清空当前分类的日志
                         case R.id.log_del_sort:
-                            Log.clearLogSort(logSort);
+                            logDataProxy.clearLogSort(logSort);
+                            setViewPage(logSort);
                             setFab();
                             break;
                         // 清空全部日志
                         case R.id.log_del_all:
-                            Log.clearLogAll();
+                            logDataProxy.clearLogAll();
+                            setViewPage(logSort);
                             setFab();
                             break;
                     }
@@ -118,14 +122,15 @@ public class LogActivity extends AppCompatActivity {
                 String logFileName = "Log.txt";
                 popupMenu.setOnMenuItemClickListener(popItem -> {
                     String logString = null;
+                    LogDataProxy logDataProxy = new LogDataProxy(Log);
                     switch (popItem.getItemId()) {
                         // 导出当前分类日志
                         case R.id.log_share_sort:
-                            logString = Log.getLogStringBySort(logSort);
+                            logString = logDataProxy.getLogStringBySort(logSort);
                             break;
                         // 导出全部日志
                         case R.id.log_share_all:
-                            logString = Log.getLogAllToString();
+                            logString = logDataProxy.getLogAllToString();
                             break;
                     }
                     if (logString != null) {

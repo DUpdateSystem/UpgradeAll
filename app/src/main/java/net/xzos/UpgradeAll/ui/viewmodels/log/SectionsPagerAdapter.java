@@ -9,7 +9,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import net.xzos.UpgradeAll.application.MyApplication;
-import net.xzos.UpgradeAll.utils.log.LogMessageProxy;
+import net.xzos.UpgradeAll.utils.log.LogDataProxy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +30,10 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
         this.logSort = logSort;
         TAB_TITLES.clear();
         mContext = context;
-        logObjectIdList = MyApplication.getLog().getLogObjectId(logSort);
+        LogDataProxy logDataProxy = new LogDataProxy(MyApplication.getLog());
+        logObjectIdList = logDataProxy.getLogObjectId(logSort);
         for (String databaseIdString : logObjectIdList) {
-            String name = LogMessageProxy.getNameFromId(databaseIdString);
+            String name = LogDataProxy.getNameFromId(databaseIdString);
             TAB_TITLES.add(name);
         }
     }
