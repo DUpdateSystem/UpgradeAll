@@ -1,12 +1,9 @@
-package net.xzos.UpgradeAll.server.updater.api;
+package net.xzos.UpgradeAll.server.JSEngine.api;
 
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.utils.LogUtil;
 
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class Api {

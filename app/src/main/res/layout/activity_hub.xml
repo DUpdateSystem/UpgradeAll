@@ -10,7 +10,7 @@
     <include layout="@layout/content_list" />
 
     <io.github.kobakei.materialfabspeeddial.FabSpeedDial
-        android:id="@+id/add_fab"
+        android:id="@+id/addFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

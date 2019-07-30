@@ -45,7 +45,7 @@ public class CloudHubListActivity extends AppCompatActivity {
             actionBar.setTitle(getApplicationContext().getString(R.string.cloud_hub));
         }
         // 隐藏 tab
-        FabSpeedDial fab = findViewById(R.id.add_fab);
+        FabSpeedDial fab = findViewById(R.id.addFab);
         fab.setVisibility(View.GONE);
 
         swipeRefresh = findViewById(R.id.swipeRefresh);
@@ -55,6 +55,7 @@ public class CloudHubListActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.update_item_recycler_view);
 
         setRecyclerView();
+        refreshCardView();
     }
 
     private void refreshCardView() {

@@ -25,6 +25,7 @@ public class FileUtil {
     private static final LogUtil Log = MyApplication.getLog();
 
     private static final String TAG = "FileUtil";
+    private static final String[] LogObjectTag = {"Core", TAG};
 
     public static void performFileSearch(@NonNull final Activity activity, final int READ_REQUEST_CODE, final String mimeType) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -45,7 +46,7 @@ public class FileUtil {
 
     public static String uriToPath(final Uri uri) {
         String path = uri.getPath();
-        Log.d(TAG, TAG, String.format(" uriToPath: uri: %s, path: %s", uri, path));
+        Log.d(LogObjectTag, TAG, String.format(" uriToPath: uri: %s, path: %s", uri, path));
         if (path != null && path.contains(":"))
             path = path.split(":")[1];
         return path;
@@ -73,7 +74,7 @@ public class FileUtil {
      * 兼容本地文件地址和网址与于此类似的其他地址
      */
     public static String pathTransformRelativeToAbsolute(String absolutePath, String relativePath) {
-        Log.e(TAG, TAG, String.format("pathTransformRelativeToAbsolute: absolutePath: %s, relativePath: %s", absolutePath, relativePath));
+        Log.e(LogObjectTag, TAG, String.format("pathTransformRelativeToAbsolute: absolutePath: %s, relativePath: %s", absolutePath, relativePath));
         if (!absolutePath.equals("/")) {
             if (absolutePath.endsWith("/"))
                 absolutePath = absolutePath.substring(0, absolutePath.length() - 1);  // 去除末尾的 /
@@ -162,7 +163,7 @@ public class FileUtil {
     }
 
     public static boolean writeTextFromUri(@NonNull Uri uri, String text) {
-        Log.e(TAG, TAG, "writeTextFromUri: " + uri.getPath());
+        Log.e(LogObjectTag, TAG, "writeTextFromUri: " + uri.getPath());
         boolean writeSuccess = false;
         try {
             OutputStream outputStream = MyApplication.getContext().getContentResolver().openOutputStream(uri);

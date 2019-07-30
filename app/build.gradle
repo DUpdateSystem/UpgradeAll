@@ -49,6 +49,7 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     // Tab 菜单 TODO: 考虑转换项目到kotlin的可行性
     implementation 'com.github.kobakei:MaterialFabSpeedDial:master-SNAPSHOT'
+    implementation 'com.gordonwong:material-sheet-fab:1.2.1'
     // 网络爬虫
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'cn.wanghaomiao:JsoupXpath:2.3.2'

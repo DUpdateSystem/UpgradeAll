@@ -10,7 +10,7 @@ import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.server.JSEngine.JSEngineDataProxy;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
-import net.xzos.UpgradeAll.server.updater.api.Api;
+import net.xzos.UpgradeAll.server.JSEngine.api.Api;
 import net.xzos.UpgradeAll.utils.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
@@ -27,6 +27,7 @@ public class Updater {
 
     private static final LogUtil Log = MyApplication.getLog();
     private static final String TAG = "Updater";
+    private static final String[] LogObjectTag = {"Core", TAG};
 
     private JSONObject updateJsonData = new JSONObject(); // 存储 Updater 数据
 
@@ -75,7 +76,7 @@ public class Updater {
             try {
                 updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
             } catch (JSONException e) {
-                Log.e(TAG, TAG, String.format("autoRefresh:  updateJsonData缺少 %s 项", databaseId));
+                Log.e(LogObjectTag, TAG, String.format("autoRefresh:  updateJsonData缺少 %s 项", databaseId));
             }
             if (updateItemJson.length() != 0) {
                 Calendar updateTime = null;
@@ -83,10 +84,10 @@ public class Updater {
                     updateTime = (Calendar) updateItemJson.get("update_time");
                     updateTime.add(Calendar.MINUTE, autoRefreshMinute);
                 } catch (JSONException e) {
-                    Log.v(TAG, TAG, String.format("autoRefresh:  初始化数据刷新: %s", databaseId));
+                    Log.v(LogObjectTag, TAG, String.format("autoRefresh:  初始化数据刷新: %s", databaseId));
                 }
                 if (Calendar.getInstance().before(updateTime)) {
-                    Log.v(TAG, TAG, String.format("autoRefreshAll: %s NoUp", databaseId));
+                    Log.v(LogObjectTag, TAG, String.format("autoRefreshAll: %s NoUp", databaseId));
                     startRefresh = false;
                 }
             }
@@ -105,7 +106,7 @@ public class Updater {
         try {
             updateItemJson = (JSONObject) updateJsonData.get(String.valueOf(databaseId));
         } catch (JSONException e) {
-            Log.v(TAG, TAG, "refresh:  更新对象初始化");
+            Log.v(LogObjectTag, TAG, "refresh:  更新对象初始化");
             updateItemJson = renewUpdateItem(databaseId);  //  创建更新对象
         }
         // 数据刷新
@@ -120,7 +121,7 @@ public class Updater {
         refreshSuccess = api.isSuccessFlash();
         if (refreshSuccess) {
             try {
-                Log.v(TAG, TAG, "refresh:  刷新成功");
+                Log.v(LogObjectTag, TAG, "refresh:  刷新成功");
                 updateItemJson.put("update_time", Calendar.getInstance());
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -132,8 +133,9 @@ public class Updater {
         // 添加一个 更新检查器追踪子项
         RepoDatabase repoDatabase = LitePal.find(RepoDatabase.class, databaseId);
         String apiUuid = repoDatabase.getApiUuid();
-        Log.d(TAG, TAG, "renewUpdateItem: uuid: " + apiUuid);
+        Log.d(LogObjectTag, TAG, "renewUpdateItem: uuid: " + apiUuid);
         String url = repoDatabase.getUrl();
+        String apiName = repoDatabase.getApi();
         Api httpApi = new Api();
         // 新建 Api 对象
         List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
@@ -148,7 +150,8 @@ public class Updater {
                     e.printStackTrace();
                 }
             }
-            JavaScriptJEngine javaScriptJEngine = new JavaScriptJEngine(url, jsCode);
+            String[] logObjectTag = {apiName, String.valueOf(databaseId)};
+            JavaScriptJEngine javaScriptJEngine = new JavaScriptJEngine(logObjectTag, url, jsCode);
             httpApi = new JSEngineDataProxy(javaScriptJEngine);
         }
         // 组装一个更新子项
@@ -159,7 +162,7 @@ public class Updater {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, TAG, "renewUpdateItem:  json: " + updateItemJson);
+        Log.d(LogObjectTag, TAG, "renewUpdateItem:  json: " + updateItemJson);
         updateJsonData.remove(String.valueOf(databaseId));
         // 添加一个更新子项
         try {

@@ -22,16 +22,16 @@ import net.xzos.UpgradeAll.R;
  */
 public class PlaceholderFragment extends Fragment {
 
-    private static final String ARG_SECTION_NUMBER = "section_number";
+    private static final String ARG_SECTION_NUMBER = "LogObjectTag";
 
     private Context mContext;
 
     private PageViewModel pageViewModel;
 
-    static PlaceholderFragment newInstance(String URL) {
+    static PlaceholderFragment newInstance(@NonNull String[] logObjectTag) {
         PlaceholderFragment fragment = new PlaceholderFragment();
         Bundle bundle = new Bundle();
-        bundle.putString(ARG_SECTION_NUMBER, URL);
+        bundle.putStringArray(ARG_SECTION_NUMBER, logObjectTag);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -41,11 +41,11 @@ public class PlaceholderFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mContext = getContext();
         pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
-        String URL = null;
+        String[] logObjectTag = {null, null};
         if (getArguments() != null) {
-            URL = getArguments().getString(ARG_SECTION_NUMBER);
+            logObjectTag = getArguments().getStringArray(ARG_SECTION_NUMBER);
         }
-        pageViewModel.setURL(URL);
+        pageViewModel.setLogObjectTag(logObjectTag);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class PlaceholderFragment extends Fragment {
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_log, container, false);
         final ListView logListView = root.findViewById(R.id.log_list);
-        pageViewModel.getLog().observe(this, logArray -> {
+        pageViewModel.getLogList().observe(this, logArray -> {
             @SuppressWarnings("unchecked") ArrayAdapter<String> adapter = new ArrayAdapter<String>(root.getContext(), android.R.layout.simple_expandable_list_item_1, logArray);
             logListView.setAdapter(adapter);
             // 点击复制到粘贴板
