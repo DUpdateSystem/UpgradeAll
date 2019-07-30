@@ -24,7 +24,7 @@ import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.server.JSEngine.JSEngineDataProxy;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
-import net.xzos.UpgradeAll.utils.LogUtil;
+import net.xzos.UpgradeAll.utils.log.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
 import org.json.JSONException;

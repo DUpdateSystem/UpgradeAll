@@ -7,29 +7,20 @@ import androidx.lifecycle.ViewModel;
 
 import net.xzos.UpgradeAll.application.MyApplication;
 
-import org.json.JSONException;
-
-import java.util.ArrayList;
+import java.util.List;
 
 public class PageViewModel extends ViewModel {
 
     private MutableLiveData<String[]> mLogObjectTag = new MutableLiveData<>();
-    private LiveData<ArrayList> mLogList = Transformations.map(mLogObjectTag, logObjectTag -> {
-        ArrayList<String> arrayList;
-        try {
-            arrayList = (ArrayList<String>) MyApplication.getLog().getLogMessageList(logObjectTag);
-        } catch (JSONException e) {
-            arrayList = new ArrayList<>();
-            e.printStackTrace();
-        }
-        return arrayList;
+    private LiveData<LiveData<List<String>>> mLogList = Transformations.map(mLogObjectTag, logObjectTag -> {
+        return MyApplication.getLog().getLogMessageListLiveData(logObjectTag);
     });
 
     void setLogObjectTag(String[] logObjectTag) {
         mLogObjectTag.setValue(logObjectTag);
     }
 
-    LiveData<ArrayList> getLogList() {
+    LiveData<LiveData<List<String>>> getLogList() {
         return mLogList;
     }
 }

@@ -9,11 +9,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,30 +26,38 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LiveData;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.server.JSEngine.JSEngineDataProxy;
+import net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSLog;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
 import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.utils.FileUtil;
+import net.xzos.UpgradeAll.utils.log.LogUtil;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.List;
 
-public class HubLocalActivity extends Activity {
+public class HubLocalActivity extends AppCompatActivity {
 
-    private static final String TAG = "HubLocalActivity";
+
+    protected static final LogUtil Log = MyApplication.getLog();
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 3;
 
@@ -75,7 +80,11 @@ public class HubLocalActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hub_setting);
-        setFinishOnTouchOutside(true);
+        // toolbar 点击事件
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         Intent intent = getIntent();
         int databaseId = intent.getIntExtra("database_id", 0);
 
@@ -149,6 +158,7 @@ public class HubLocalActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        super.onActivityResult(requestCode, resultCode, resultData);
         if (resultCode == Activity.RESULT_OK && resultData != null) {
             Uri uri = resultData.getData();
             if (uri != null)
@@ -177,6 +187,31 @@ public class HubLocalActivity extends Activity {
                 Toast.makeText(HubLocalActivity.this, "编辑测试生成配置需要读写本地文件", Toast.LENGTH_LONG).show();
                 onBackPressed();
             }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.cleanLogSort("DeBug");
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.app_help:
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://xzos.net/the-customizing-configuration-rules-for-a-software-depot/"));
+                intent = Intent.createChooser(intent, "请选择浏览器以查看帮助文档");
+                startActivity(intent);
+                return true;
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -286,7 +321,6 @@ public class HubLocalActivity extends Activity {
                     if (HUBCONFIG_URI != null && configPath != null && !jsRelativePath.equals("")) {
                         configPath = configPath.substring(0, configPath.lastIndexOf("/"));
                         String jsPath = FileUtil.pathTransformRelativeToAbsolute(configPath, jsRelativePath);
-                        Log.e(TAG, "onActionItemClicked: jsPath:" + jsPath);
                         if (FileUtil.fileIsExistsByPath(jsPath)) {
                             loadJSFromUri(Uri.fromFile(new File(jsPath)));
                             Toast.makeText(HubLocalActivity.this, "现在打开第一个卡片进行 JS 脚本测试", Toast.LENGTH_LONG).show();
@@ -321,38 +355,30 @@ public class HubLocalActivity extends Activity {
         String jsCode = FileUtil.readTextFromUri(JS_URI);
         String[] logObjectTag = {"DeBug", "0"};
         JavaScriptJEngine javaScriptJEngine = new JavaScriptJEngine(logObjectTag, testUrl, jsCode);
+        javaScriptJEngine.setEnableLogJsCode(false);
         JSEngineDataProxy jsEngineDataProxy = new JSEngineDataProxy(javaScriptJEngine);
+        JSLog jsLog = new JSLog(logObjectTag);
         TextView jsLogTextView = findViewById(R.id.jsLogTextView);
+        LiveData<List<String>> logListLiveData = Log.getLogMessageListLiveData(logObjectTag);
+        logListLiveData.observe(this, logList -> {
+            StringBuilder textViewMessage = new StringBuilder();
+            for (String logMessage : logList)
+                textViewMessage.append(StringEscapeUtils.unescapeJava(logMessage));
+            jsLogTextView.setText(textViewMessage.toString());
+        });
         jsLogTextView.setVisibility(View.VISIBLE);
         // JS 初始化
         new Thread(() -> {
             // 分步测试
-            String returnMessage1 = jsEngineDataProxy.getDefaultName();
-            new Handler(Looper.getMainLooper()).post(() -> {
-                String logMessage = jsLogTextView.getText().toString() + String.format("1. 获取默认名称(getDefaultName): %s \n", returnMessage1);
-                jsLogTextView.setText(logMessage);
-            });
-            String returnMessage2 = String.valueOf(jsEngineDataProxy.getReleaseNum());
-            new Handler(Looper.getMainLooper()).post(() -> {
-                String logMessage = jsLogTextView.getText().toString() + String.format("2. 获取发布版本号总数(getReleaseNum): %s \n", returnMessage2);
-                jsLogTextView.setText(logMessage);
-            });
+            jsLog.d(String.format("1. 获取默认名称(getDefaultName): %s \n", jsEngineDataProxy.getDefaultName()));
+            jsLog.d(String.format("2. 获取发布版本号总数(getReleaseNum): %s \n", jsEngineDataProxy.getReleaseNum()));
             for (int i = 0; i < jsEngineDataProxy.getReleaseNum(); i++) {
-                int j = i;
-                String returnMessage3 = jsEngineDataProxy.getVersionNumber(i);
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    String logMessage = jsLogTextView.getText().toString() + String.format("3. (%s) 获取发布版本号(getVersionNumber): %s \n", j, returnMessage3);
-                    jsLogTextView.setText(logMessage);
-                });
+                jsLog.d(String.format("3. (%s) 获取发布版本号(getVersionNumber): %s \n", i, jsEngineDataProxy.getVersionNumber(i)));
             }
             for (int i = 0; i < jsEngineDataProxy.getReleaseNum(); i++) {
-                int j = i;
                 JSONObject releaseDownload = jsEngineDataProxy.getReleaseDownload(i);
                 if (releaseDownload != null) {
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        String logMessage = jsLogTextView.getText().toString() + String.format("4. (%s) 获取下载链接(getReleaseDownload): %s \n", j, StringEscapeUtils.unescapeJava(releaseDownload.toString()));
-                        jsLogTextView.setText(logMessage);
-                    });
+                    jsLog.d(String.format("4. (%s) 获取下载链接(getReleaseDownload): %s \n", i, releaseDownload.toString()));
                 }
             }
         }).start();
@@ -495,7 +521,6 @@ public class HubLocalActivity extends Activity {
         if (jsCode == null) return;
         JS_URI = uri;
         // 更新按钮提示信息
-        Log.e(TAG, "loadJSFromUri: " + uri.getPath());
         String path = FileUtil.uriToPath(uri);
         Button selectJsFileButton = findViewById(R.id.selectJsFileButton);
         String selectedJsFileText = SELECTED_FILE_ADDRESS + path;
@@ -556,7 +581,6 @@ public class HubLocalActivity extends Activity {
         else if (baseRootPath != null && hubConfigGson != null) {
             baseRootPath = baseRootPath.substring(0, baseRootPath.lastIndexOf('/'));  // 去除末尾的 文件名，得到目录
             String jsPath = FileUtil.pathTransformRelativeToAbsolute(baseRootPath, hubConfigGson.getWebCrawler().getFilePath());
-            Log.e(TAG, "onCreate: jsPath: " + jsPath);
             Uri jsCodeUri = Uri.fromFile(new File(jsPath));
             if (FileUtil.fileIsExistsByUri(jsCodeUri)) {
                 String jsCode = FileUtil.readTextFromUri(jsCodeUri);

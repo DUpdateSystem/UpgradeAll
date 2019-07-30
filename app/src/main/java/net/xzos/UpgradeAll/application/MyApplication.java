@@ -5,7 +5,7 @@ import android.app.Application;
 import android.content.Context;
 
 import net.xzos.UpgradeAll.server.updater.Updater;
-import net.xzos.UpgradeAll.utils.LogUtil;
+import net.xzos.UpgradeAll.utils.log.LogUtil;
 
 import org.litepal.LitePal;
 

@@ -17,6 +17,10 @@ import androidx.lifecycle.ViewModelProviders;
 
 import net.xzos.UpgradeAll.R;
 
+import org.apache.commons.text.StringEscapeUtils;
+
+import java.util.ArrayList;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -54,17 +58,20 @@ public class PlaceholderFragment extends Fragment {
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_log, container, false);
         final ListView logListView = root.findViewById(R.id.log_list);
-        pageViewModel.getLogList().observe(this, logArray -> {
-            @SuppressWarnings("unchecked") ArrayAdapter<String> adapter = new ArrayAdapter<String>(root.getContext(), android.R.layout.simple_expandable_list_item_1, logArray);
+        pageViewModel.getLogList().observe(this, logListLiveData -> logListLiveData.observe(this, logArray -> {
+            ArrayList<String> logMessageArray = new ArrayList<>();
+            for (String logMessage : logArray)
+                logMessageArray.add(StringEscapeUtils.unescapeJava(logMessage));
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(root.getContext(), android.R.layout.simple_expandable_list_item_1, logMessageArray);
             logListView.setAdapter(adapter);
             // 点击复制到粘贴板
             logListView.setOnItemClickListener((parent, view, position, id) -> {
                 ClipboardManager cm = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData mClipData = ClipData.newPlainText("Label", (CharSequence) logArray.get(position));
+                ClipData mClipData = ClipData.newPlainText("Label", logArray.get(position));
                 cm.setPrimaryClip(mClipData);
                 Toast.makeText(mContext, "已复制到粘贴板", Toast.LENGTH_SHORT).show();
             });
-        });
+        }));
         return root;
     }
 }

@@ -1,7 +1,7 @@
 package net.xzos.UpgradeAll.server.JSEngine.JSUtils;
 
 import net.xzos.UpgradeAll.application.MyApplication;
-import net.xzos.UpgradeAll.utils.LogUtil;
+import net.xzos.UpgradeAll.utils.log.LogUtil;
 
 public class JSLog {
 

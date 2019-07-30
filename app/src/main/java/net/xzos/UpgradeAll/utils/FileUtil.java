@@ -7,6 +7,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 
 import net.xzos.UpgradeAll.application.MyApplication;
+import net.xzos.UpgradeAll.utils.log.LogUtil;
 
 import org.jetbrains.annotations.Nullable;
 
