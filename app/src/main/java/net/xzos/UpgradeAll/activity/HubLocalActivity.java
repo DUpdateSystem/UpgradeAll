@@ -193,7 +193,7 @@ public class HubLocalActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.cleanLogSort("DeBug");
+        Log.clearLogSort("DeBug");
     }
 
     @Override

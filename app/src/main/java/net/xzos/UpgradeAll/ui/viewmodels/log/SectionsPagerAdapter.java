@@ -9,9 +9,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import net.xzos.UpgradeAll.application.MyApplication;
-import net.xzos.UpgradeAll.database.RepoDatabase;
-
-import org.litepal.LitePal;
+import net.xzos.UpgradeAll.utils.log.LogMessageProxy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +32,7 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
         mContext = context;
         logObjectIdList = MyApplication.getLog().getLogObjectId(logSort);
         for (String databaseIdString : logObjectIdList) {
-            String name;
-            try {
-                RepoDatabase repoDatabase = LitePal.find(RepoDatabase.class, Integer.parseInt(databaseIdString));
-                name = repoDatabase.getName();
-            } catch (Throwable e) {
-                name = databaseIdString;
-            }
+            String name = LogMessageProxy.getNameFromId(databaseIdString);
             TAB_TITLES.add(name);
         }
     }
@@ -70,7 +62,8 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
         // Show 2 total pages.
         return TAB_TITLES.size();
     }
-    public void setLogSort(String sort){
+
+    public void setLogSort(String sort) {
         this.logSort = sort;
     }
 }

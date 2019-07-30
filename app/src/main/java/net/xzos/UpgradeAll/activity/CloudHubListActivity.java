@@ -42,7 +42,6 @@ public class CloudHubListActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getApplicationContext().getString(R.string.cloud_hub));
         }
         // 隐藏 tab
         FabSpeedDial fab = findViewById(R.id.addFab);

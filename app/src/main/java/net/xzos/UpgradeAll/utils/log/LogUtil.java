@@ -91,16 +91,59 @@ public class LogUtil {
         return logMessageProxy.getLogList(logObjectTag);
     }
 
-    public void cleanLogSort(String logSort) {
-        logJSONObject.remove(logSort);
+    public void clearLogAll() {
+        logJSONObject = new JSONObject();
+        logMessageProxy.setLogJSONObject(logJSONObject);
     }
 
-    public void cleanLogMessage(String[] logObjectTag) throws JSONException {
+    public void clearLogSort(String logSort) {
+        logJSONObject.remove(logSort);
+        logMessageProxy.setLogJSONObject(logJSONObject);
+    }
+
+    public void clearLogMessage(String[] logObjectTag) throws JSONException {
         String logSortString = logObjectTag[0];
         String logObjectId = logObjectTag[1];
         logJSONObject.getJSONObject(logSortString).remove(logObjectId);
+        logMessageProxy.setLogJSONObject(logJSONObject);
     }
 
+    public String getLogAllToString() {
+        List<String> sortList = getLogSort();
+        StringBuilder fullLogString = new StringBuilder();
+        for (String logSort : sortList) {
+            fullLogString.append(getLogStringBySort(logSort));
+        }
+        return fullLogString.toString();
+    }
+
+    public String getLogStringBySort(String logSort) {
+        StringBuilder fullLogString = new StringBuilder(logSort + "\n");
+        List<String> sortDatabaseIdList = getLogObjectId(logSort);
+        for (String databaseIdString : sortDatabaseIdList) {
+            String logString = getLogMessageToString(new String[]{logSort, databaseIdString});
+            if (logString != null)
+                logString = logString.split("\n", 2)[1];
+            else logString = "";
+            fullLogString.append(logString).append("\n");
+        }
+        return fullLogString.toString();
+    }
+
+    public String getLogMessageToString(String[] logObjectTag) {
+        String sort = logObjectTag[0];
+        String name = "    " + LogMessageProxy.getNameFromId(logObjectTag[1]);
+        StringBuilder logMessageString = new StringBuilder();
+        List<String> logMessageArray;
+        try {
+            logMessageArray = getLogMessageList(logObjectTag);
+        } catch (JSONException e) {
+            return null;
+        }
+        for (String logMessage : logMessageArray)
+            logMessageString.append("        ").append(logMessage).append("\n");
+        return sort + "\n" + name + "\n" + logMessageString;
+    }
 
     private void addLogMessage(int LogLevel, String[] logObjectTag, String tag, String msg) {
         // 确定日志等级标志

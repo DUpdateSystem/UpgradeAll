@@ -44,12 +44,13 @@
     <string name="cloud_rules">云规则</string>
     <string name="cloud_rules_repo_url">Git 仓库地址</string>
 
+    <string name="local_repo_manage">本地软件源管理</string>
     <string name="dialog_repo_config_edit_text">第三方源的配置文本</string>
     <string name="title_activity_hub_setting">HubSettingActivity</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
-    <string name="title_activity_log">LogActivity</string>
+    <string name="title_activity_log">日志</string>
     <string name="add_manually">手动添加</string>
     <string name="cloud_hub">云端仓库</string>
     <string name="download">下载</string>
