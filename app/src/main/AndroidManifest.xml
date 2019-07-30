@@ -30,9 +30,15 @@
         <activity
             android:name=".activity.LogActivity"
             android:label="@string/title_activity_log" />
-        <activity android:name=".activity.HubListActivity" />
-        <activity android:name=".activity.CloudHubListActivity" />
-        <activity android:name=".activity.HubLocalActivity" />
+        <activity
+            android:name=".activity.HubListActivity"
+            android:label="@string/hub_list" />
+        <activity
+            android:name=".activity.CloudHubListActivity"
+            android:label="@string/cloud_hub" />
+        <activity
+            android:name=".activity.HubLocalActivity"
+            android:label="@string/local_repo_manage" />
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/setting" />

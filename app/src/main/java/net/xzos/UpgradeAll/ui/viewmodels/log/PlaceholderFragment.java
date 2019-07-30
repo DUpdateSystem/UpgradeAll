@@ -53,24 +53,31 @@ public class PlaceholderFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_log, container, false);
         final ListView logListView = root.findViewById(R.id.log_list);
-        pageViewModel.getLogList().observe(this, logListLiveData -> logListLiveData.observe(this, logArray -> {
-            ArrayList<String> logMessageArray = new ArrayList<>();
-            for (String logMessage : logArray)
-                logMessageArray.add(StringEscapeUtils.unescapeJava(logMessage));
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(root.getContext(), android.R.layout.simple_expandable_list_item_1, logMessageArray);
-            logListView.setAdapter(adapter);
-            // 点击复制到粘贴板
-            logListView.setOnItemClickListener((parent, view, position, id) -> {
-                ClipboardManager cm = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData mClipData = ClipData.newPlainText("Label", logArray.get(position));
-                cm.setPrimaryClip(mClipData);
-                Toast.makeText(mContext, "已复制到粘贴板", Toast.LENGTH_SHORT).show();
-            });
+        ArrayList<String> logArray = new ArrayList<>();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(root.getContext(), android.R.layout.simple_expandable_list_item_1, logArray);
+        logListView.setAdapter(adapter);
+        // 点击复制到粘贴板
+        logListView.setOnItemClickListener((parent, view, position, id) -> {
+            ClipboardManager cm = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData mClipData = ClipData.newPlainText("Label", logArray.get(position));
+            if (cm != null) cm.setPrimaryClip(mClipData);
+            Toast.makeText(mContext, "已复制到粘贴板", Toast.LENGTH_SHORT).show();
+        });
+        pageViewModel.getLogList().observe(this, logListLiveData -> logListLiveData.observe(this, stringList -> {
+            if (!logArray.equals(stringList)) {
+                int index = logArray.size() - 1;
+                if (index == -1 || index > stringList.size() || !logArray.get(index).equals(stringList.get(index))) {
+                    adapter.clear();
+                    for (String logMessage : stringList)
+                        adapter.add(StringEscapeUtils.unescapeJava(logMessage));
+                } else {
+                    for (int i = index + 1; i < stringList.size(); i++)
+                        adapter.add(StringEscapeUtils.unescapeJava(stringList.get(i)));
+                }
+            }
         }));
         return root;
     }

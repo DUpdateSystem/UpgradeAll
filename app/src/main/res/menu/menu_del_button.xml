@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/log_del_sort"
+        android:title="清空当前分类的日志" />
+
+    <item
+        android:id="@+id/log_del_all"
+        android:title="清空全部日志" />
+
+</menu>

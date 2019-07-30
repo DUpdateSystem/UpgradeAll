@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="net.xzos.UpgradeAll.activity.MainActivity">
+    <item
+        android:id="@+id/log_share"
+        android:icon="@android:drawable/ic_menu_share"
+        android:orderInCategory="100"
+        android:title="全部导出"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/log_clear"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:orderInCategory="100"
+        android:title="清空日志"
+        app:showAsAction="ifRoom" />
+</menu>
