@@ -2,7 +2,7 @@ package net.xzos.UpgradeAll.server.JSEngine.JSUtils;
 
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.JSCacheData;
-import net.xzos.UpgradeAll.utils.LogUtil;
+import net.xzos.UpgradeAll.utils.log.LogUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,7 +14,6 @@ import org.seimicrawler.xpath.JXDocument;
 import org.seimicrawler.xpath.JXNode;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 爬虫相关库的打包集合

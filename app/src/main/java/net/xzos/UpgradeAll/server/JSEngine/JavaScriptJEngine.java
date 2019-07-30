@@ -16,6 +16,7 @@ public class JavaScriptJEngine extends Api {
 
     private static final String TAG = "JavaScriptJEngine";
     private String[] LogObjectTag;
+    private boolean enableLogJsCode = true;
 
     private String URL;
     private String jsCode;
@@ -34,15 +35,22 @@ public class JavaScriptJEngine extends Api {
         JSLog = new JSLog(this.LogObjectTag);
         JSCacheData JSCacheData = new JSCacheData();
         JSUtils.setJsCacheData(JSCacheData);
-        Log.i(this.LogObjectTag, TAG, String.format("JavaScriptJEngine: jsCode: \n%s", jsCode));
     }
 
     String[] getLogObjectTag() {
         return LogObjectTag;
     }
 
+    public void setEnableLogJsCode(boolean enableLogJsCode) {
+        this.enableLogJsCode = enableLogJsCode;
+    }
+
     // 加载 JavaScript 代码
     private boolean executeVoidScript() {
+        if (enableLogJsCode) {
+            Log.i(this.LogObjectTag, TAG, String.format("JavaScriptJEngine: jsCode: \n%s", jsCode));
+            enableLogJsCode = false;  // 只打印一次 JS 脚本
+        }
         if (jsCode == null) return false;
         boolean isSuccess = false;
         try {

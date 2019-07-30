@@ -13,7 +13,7 @@ import net.xzos.UpgradeAll.gson.CloudConfig;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.server.JSEngine.JSUtils.OkHttpApi;
 import net.xzos.UpgradeAll.utils.FileUtil;
-import net.xzos.UpgradeAll.utils.LogUtil;
+import net.xzos.UpgradeAll.utils.log.LogUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;

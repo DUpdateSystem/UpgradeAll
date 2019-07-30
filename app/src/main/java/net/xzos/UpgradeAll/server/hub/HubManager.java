@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.utils.LogUtil;
+import net.xzos.UpgradeAll.utils.log.LogUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;

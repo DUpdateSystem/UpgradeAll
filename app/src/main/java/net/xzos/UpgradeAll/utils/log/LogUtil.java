@@ -1,7 +1,9 @@
-package net.xzos.UpgradeAll.utils;
+package net.xzos.UpgradeAll.utils.log;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
+
+import androidx.lifecycle.LiveData;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,9 +49,7 @@ public class LogUtil {
      */
     private JSONObject logJSONObject = new JSONObject();
 
-    public JSONObject getLogMessageJson() {
-        return this.logJSONObject;
-    }
+    private LogMessageProxy logMessageProxy = new LogMessageProxy(logJSONObject);
 
     public List<String> getLogSort() {
         ArrayList<String> logSortList = new ArrayList<>();
@@ -73,6 +73,32 @@ public class LogUtil {
             logObjectId.add((String) it.next());
         }
         return logObjectId;
+    }
+
+    List<String> getLogMessageList(String[] logObjectTag) throws JSONException {
+        ArrayList<String> logMessageArray = new ArrayList<>();
+        String logSortString = logObjectTag[0];
+        String logObjectId = logObjectTag[1];
+        JSONArray logMessageJSONArray = logJSONObject.getJSONObject(logSortString).getJSONArray(logObjectId);
+        int len = logMessageJSONArray.length();
+        for (int i = 0; i < len; i++) {
+            logMessageArray.add(logMessageJSONArray.get(i).toString());
+        }
+        return logMessageArray;
+    }
+
+    public LiveData<List<String>> getLogMessageListLiveData(String[] logObjectTag) {
+        return logMessageProxy.getLogList(logObjectTag);
+    }
+
+    public void cleanLogSort(String logSort) {
+        logJSONObject.remove(logSort);
+    }
+
+    public void cleanLogMessage(String[] logObjectTag) throws JSONException {
+        String logSortString = logObjectTag[0];
+        String logObjectId = logObjectTag[1];
+        logJSONObject.getJSONObject(logSortString).remove(logObjectId);
     }
 
 
@@ -132,6 +158,7 @@ public class LogUtil {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        logMessageProxy.setLogJSONObject(logJSONObject);
     }
 
     private String preMsg(Object msgObject) {
@@ -143,18 +170,6 @@ public class LogUtil {
         else
             msg = (String) msgObject;
         return msg;
-    }
-
-    public List<String> getLogMessageList(String[] logObjectTag) throws JSONException {
-        ArrayList<String> logMessageArray = new ArrayList<>();
-        String logSortString = logObjectTag[0];
-        String logObjectId = logObjectTag[1];
-        JSONArray logMessageJSONArray = logJSONObject.getJSONObject(logSortString).getJSONArray(logObjectId);
-        int len = logMessageJSONArray.length();
-        for (int i = 0; i < len; i++) {
-            logMessageArray.add(logMessageJSONArray.get(i).toString());
-        }
-        return logMessageArray;
     }
 
     // 调用Log.v()方法打印日志
