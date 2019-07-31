@@ -40,7 +40,7 @@ dependencies {
 
     // OkHttp
     implementation 'com.squareup.okhttp3:okhttp:4.0.1'
-    implementation 'com.squareup.okio:okio:2.2.2'
+    implementation 'com.squareup.okio:okio:2.3.0'
     // 数据处理
     implementation 'org.litepal.android:java:3.0.0'
     implementation 'com.google.code.gson:gson:2.8.5'
@@ -49,11 +49,9 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     // Tab 菜单 TODO: 考虑转换项目到kotlin的可行性
     implementation 'com.github.kobakei:MaterialFabSpeedDial:master-SNAPSHOT'
-    implementation 'com.gordonwong:material-sheet-fab:1.2.1'
     // 网络爬虫
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'cn.wanghaomiao:JsoupXpath:2.3.2'
-    implementation 'xyz.nulldev.huandroid:huandroid:2.30.01'
     // JavaScript 引擎
     implementation 'org.mozilla:rhino:1.7.11'
 }
