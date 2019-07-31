@@ -2,6 +2,7 @@ package net.xzos.UpgradeAll.server.updater;
 
 import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
 import net.xzos.UpgradeAll.R;
@@ -14,6 +15,7 @@ import net.xzos.UpgradeAll.server.JSEngine.api.Api;
 import net.xzos.UpgradeAll.utils.log.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
+import org.jetbrains.annotations.Contract;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
@@ -205,6 +207,8 @@ public class Updater {
         return versionChecker.getVersion();
     }
 
+    @NonNull
+    @Contract("_ -> new")
     private VersionChecker getVersionChecker(int databaseId) {
         JSONObject updateItemJson = new JSONObject();
         RepoDatabase repoDatabase = new RepoDatabase();

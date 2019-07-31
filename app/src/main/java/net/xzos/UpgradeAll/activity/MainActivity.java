@@ -31,21 +31,10 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
 
-    private boolean onPause = true;
-
     @Override
     protected void onResume() {
         super.onResume();
-        if (onPause) {
-            refreshAppList();
-            onPause = false;
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        onPause = true;
+        refreshAppList();
     }
 
     @Override
