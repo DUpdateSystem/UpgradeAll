@@ -57,8 +57,6 @@ public class LogActivity extends AppCompatActivity {
 
         setFab();
         setViewPage(logSort);
-
-        requestPermission();
     }
 
     @Override
@@ -152,6 +150,7 @@ public class LogActivity extends AppCompatActivity {
                 });
                 return true;
             case R.id.log_share:
+                requestPermission();
                 vItem = findViewById(R.id.log_share);
                 popupMenu = new PopupMenu(this, vItem);
                 menuInflater = popupMenu.getMenuInflater();

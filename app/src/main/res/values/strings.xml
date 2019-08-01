@@ -73,6 +73,7 @@
     <string name="js_file_path">爬虫配置文件地址 (file_path)</string>
     <string name="save">保存</string>
     <string name="save_to_file">保存到文件</string>
+    <string name="save_to_database">保存到数据库</string>
     <string name="save_to_file_and_database">保存到文件与数据库</string>
     <string name="main_program">主程序</string>
 
