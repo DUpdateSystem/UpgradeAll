@@ -150,7 +150,12 @@ public class LogActivity extends AppCompatActivity {
                 });
                 return true;
             case R.id.log_share:
-                requestPermission();
+                if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    requestPermission();
+                    return true;
+                }
                 vItem = findViewById(R.id.log_share);
                 popupMenu = new PopupMenu(this, vItem);
                 menuInflater = popupMenu.getMenuInflater();
