@@ -39,7 +39,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
 
     private List<ItemCardView> mItemCardViewList;
 
-    private static final Updater updater = MyApplication.getUpdater();
+    private static final Updater updater = MyApplication.getServerContainer().getUpdater();
 
 
     public UpdateItemCardAdapter(List<ItemCardView> updateList) {

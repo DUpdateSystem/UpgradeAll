@@ -2,7 +2,7 @@ package net.xzos.UpgradeAll.server.JSEngine.JSUtils;
 
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.JSCacheData;
-import net.xzos.UpgradeAll.utils.log.LogUtil;
+import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
  */
 public class JSUtils {
 
-    private static final LogUtil Log = MyApplication.getLog();
+    private static final LogUtil Log = MyApplication.getServerContainer().getLog();
     private static final String TAG = "JSUtils";
     private String[] logObjectTag;
 

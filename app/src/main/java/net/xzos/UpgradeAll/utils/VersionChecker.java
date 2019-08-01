@@ -3,22 +3,19 @@ package net.xzos.UpgradeAll.utils;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.jaredrummler.android.shell.CommandResult;
+import com.jaredrummler.android.shell.Shell;
+
 import net.xzos.UpgradeAll.application.MyApplication;
-import net.xzos.UpgradeAll.utils.log.LogUtil;
+import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.jetbrains.annotations.Contract;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +23,7 @@ public class VersionChecker {
 
     private static final String TAG = "VersionChecker";
     private static final String[] LogObjectTag = {"Core", TAG};
-    protected static final LogUtil Log = MyApplication.getLog();
+    protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
 
     private JSONObject versionCheckerJsonObject;
 
@@ -71,7 +68,7 @@ public class VersionChecker {
                 PackageInfo packageInfo = context.getPackageManager().getPackageInfo(packageName, 0);
                 appVersion = packageInfo.versionName;
             } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
+                appVersion = null;
             }
         }
         return appVersion;
@@ -87,41 +84,15 @@ public class VersionChecker {
         }
         String modulePropFilePath = "/data/adb/modules/" + magiskModuleName + "/module.prop";
         String command = "cat " + modulePropFilePath;
-        BufferedReader cmdReturn = runCmd(command);
-        if (cmdReturn != null) {
-            try {
-                String line;
-                String keyWords = "version=";
-                while ((line = cmdReturn.readLine()) != null) {
-                    if (line.indexOf(keyWords) == 0) {
-                        magiskModuleVersion = line.substring(keyWords.length());
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        CommandResult result = Shell.SU.run(command);
+        String[] resultList = result.getStdout().split("\n");
+        String keyWords = "version=";
+        for (String resultLine : resultList) {
+            if (resultLine.indexOf(keyWords) == 0) {
+                magiskModuleVersion = resultLine.substring(keyWords.length());
             }
         }
         return magiskModuleVersion;
-    }
-
-    private BufferedReader runCmd(String cmd) {
-        BufferedReader buffIn = null;
-        try {
-            Process su = Runtime.getRuntime().exec("su");
-            DataOutputStream outputStream = new DataOutputStream(su.getOutputStream());
-            outputStream.writeBytes(cmd + "\n");
-            outputStream.writeBytes("exit\n");
-            outputStream.flush();
-            buffIn = new BufferedReader(new InputStreamReader(su.getInputStream(), StandardCharsets.UTF_8));
-            su.waitFor();
-            Log.d(LogObjectTag, TAG, "runCmd: Shell 命令执行完毕");
-        } catch (IOException e) {
-            Toast.makeText(MyApplication.getContext(), "Shell 命令执行失败", Toast.LENGTH_SHORT).show();
-            Log.e(LogObjectTag, TAG, "runCmd: Shell 命令执行失败");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return buffIn;
     }
 
     public String getRegexMatchVersion(String versionString) {

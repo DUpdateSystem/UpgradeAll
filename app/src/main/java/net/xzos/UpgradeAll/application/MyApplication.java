@@ -4,9 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 
-import net.xzos.UpgradeAll.server.updater.Updater;
-import net.xzos.UpgradeAll.utils.log.LogUtil;
+import net.xzos.UpgradeAll.server.ServerContainer;
 
+import org.jetbrains.annotations.Contract;
 import org.litepal.LitePal;
 
 @SuppressLint("Registered")
@@ -15,8 +15,7 @@ public class MyApplication extends Application {
     @SuppressLint("StaticFieldLeak")
     private static Context context;
 
-    final private static LogUtil Log = new LogUtil();
-    final private static Updater updater = new Updater();
+    final private static ServerContainer  serverContainer= new ServerContainer();
 
     @Override
     public void onCreate() {
@@ -25,15 +24,13 @@ public class MyApplication extends Application {
         LitePal.initialize(context);
     }
 
+    @Contract(pure = true)
     public static Context getContext() {
         return context;
     }
 
-    public static LogUtil getLog() {
-        return Log;
-    }
-
-    public static Updater getUpdater() {
-        return updater;
+    @Contract(pure = true)
+    public static ServerContainer getServerContainer() {
+        return serverContainer;
     }
 }

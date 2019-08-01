@@ -1,13 +1,13 @@
 package net.xzos.UpgradeAll.server.JSEngine.api;
 
 import net.xzos.UpgradeAll.application.MyApplication;
-import net.xzos.UpgradeAll.utils.log.LogUtil;
+import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.json.JSONObject;
 
 
 public class Api {
-    protected static final LogUtil Log = MyApplication.getLog();
+    protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
 
     public boolean refreshData() {
         return false;

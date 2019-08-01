@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,7 +25,7 @@ import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.server.JSEngine.JSEngineDataProxy;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
-import net.xzos.UpgradeAll.utils.log.LogUtil;
+import net.xzos.UpgradeAll.server.log.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
 import org.json.JSONException;
@@ -36,7 +37,7 @@ import java.util.List;
 
 public class UpdaterSettingActivity extends AppCompatActivity {
 
-    private static final LogUtil Log = MyApplication.getLog();
+    private static final LogUtil Log = MyApplication.getServerContainer().getLog();
     private static final String TAG = "UpdateItemSetting";
     private static final String[] LogObjectTag = {"Core", TAG};
 
@@ -108,7 +109,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                     // 取消等待框
                     progressDialog.cancel();
                     if (addRepoSuccess) {
-                        MyApplication.getUpdater().renewUpdateItem(databaseId);
+                        MyApplication.getServerContainer().getUpdater().renewUpdateItem(databaseId);
                         // 强行刷新被修改的子项
                         onBackPressed();
                         // 跳转主页面
@@ -122,7 +123,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
             onBackPressed();
