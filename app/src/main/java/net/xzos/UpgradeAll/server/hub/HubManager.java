@@ -1,5 +1,7 @@
 package net.xzos.UpgradeAll.server.hub;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.Gson;
 
 import net.xzos.UpgradeAll.application.MyApplication;
@@ -7,6 +9,7 @@ import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 
+import org.jetbrains.annotations.Contract;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
@@ -20,6 +23,7 @@ public class HubManager {
     private static final String TAG = "HubManager";
     private static final String[] LogObjectTag = {"Core", TAG};
 
+    @Contract("_, null, _ -> false; _, !null, null -> false")
     public static boolean addHubDatabase(int databaseId, HubConfig hubConfigGson, String jsCode) {
         if (hubConfigGson != null && jsCode != null) {
             String name = null;
@@ -59,18 +63,34 @@ public class HubManager {
         return false;
     }
 
-    public String getHubJsCode(String uuid) {
+    public static HubConfig getHubConfigByDatabaseId(int databaseId){
+        HubDatabase hubDatabase = LitePal.find(HubDatabase.class, databaseId);
+        return hubDatabase.getHubConfig();
+    }
+
+    public static String getHubJsCodeByUuid(String uuid) {
         String jsCode = null;
         List<HubDatabase> hubDatabases = LitePal.where("uuid = ?", uuid).find(HubDatabase.class);
         if (hubDatabases.size() != 0) {
             HubDatabase hubDatabase = hubDatabases.get(0);
-            JSONObject extraData = hubDatabase.getExtraData();
-            try {
-                jsCode = extraData.getString("javascript");
-            } catch (JSONException e) {
-                Log.e(LogObjectTag, TAG, "未取得 JS 代码，extraData: " + extraData);
-                e.printStackTrace();
-            }
+            jsCode = getJsCodeFromHubDatabaseItem(hubDatabase);
+        }
+        return jsCode;
+    }
+
+    public static String getHubJsCodeByDatabaseId(int databaseId) {
+        HubDatabase hubDatabase = LitePal.find(HubDatabase.class, databaseId);
+        return getJsCodeFromHubDatabaseItem(hubDatabase);
+    }
+
+    private static String getJsCodeFromHubDatabaseItem(@NonNull HubDatabase hubDatabase) {
+        String jsCode = null;
+        JSONObject extraData = hubDatabase.getExtraData();
+        try {
+            jsCode = extraData.getString("javascript");
+        } catch (JSONException e) {
+            Log.e(LogObjectTag, TAG, "未取得 JS 代码，extraData: " + extraData);
+            e.printStackTrace();
         }
         return jsCode;
     }

@@ -6,6 +6,10 @@
         android:title="@string/save_to_file" />
 
     <item
+        android:id="@+id/saveToDatabaseButton"
+        android:title="@string/save_to_database" />
+
+    <item
         android:id="@+id/saveToFileAndDatabaseButton"
         android:title="@string/save_to_file_and_database" />
 

@@ -126,9 +126,12 @@ public class HubLocalActivity extends AppCompatActivity {
                     case R.id.saveToFileButton:
                         writeHubConfigToFile();
                         break;
-                    case R.id.saveToFileAndDatabaseButton:
-                        writeHubConfigToFile();
+                    case R.id.saveToDatabaseButton:
                         addHubConfigToDatabase(databaseId);
+                        break;
+                    case R.id.saveToFileAndDatabaseButton:
+                        addHubConfigToDatabase(databaseId);
+                        writeHubConfigToFile();
                         break;
                 }
                 return true;
@@ -149,6 +152,8 @@ public class HubLocalActivity extends AppCompatActivity {
             RelativeLayout configContentLayout = findViewById(R.id.configContentLayout);
             cardViewAnim(configTextView, hubConfigCardView, configContentLayout);
         });
+
+        if (databaseId != 0) loadFromDatabase(databaseId);
 
         setUI();
 
@@ -341,11 +346,14 @@ public class HubLocalActivity extends AppCompatActivity {
     }
 
     private void runTestJs() {
-        if (JS_URI == null) {
+        if (JS_URI != null) {
+            loadJSFromUri(JS_URI);
+        }
+        TextView jsTestTextView = findViewById(R.id.jsTestTextView);
+        if (jsTestTextView.getText().toString().equals("")) {
             Toast.makeText(HubLocalActivity.this, "请选择一个正确的 JS 脚本文件", Toast.LENGTH_LONG).show();
             return;
         }
-        loadJSFromUri(JS_URI);
         EditText testUrlEditText = findViewById(R.id.testUrlEditText);
         String testUrl = testUrlEditText.getText().toString();
         if (testUrl.equals("")) {
@@ -487,6 +495,13 @@ public class HubLocalActivity extends AppCompatActivity {
             CONFIG_CARDVIEW_WRAP_HEIGHT = CARDVIEW_WRAP_HEIGHT;
     }
 
+    private void loadFromDatabase(int databaseId) {
+        String jsCode = HubManager.getHubJsCodeByDatabaseId(databaseId);
+        TextView jsTestTextView = findViewById(R.id.jsTestTextView);
+        jsTestTextView.setText(jsCode);
+        loadConfigFromHubConfig(HubManager.getHubConfigByDatabaseId(databaseId));
+    }
+
     @Nullable
     private HubConfig getHubConfigGson() {
         HubConfig hubConfig = new HubConfig();
@@ -518,6 +533,7 @@ public class HubLocalActivity extends AppCompatActivity {
     }
 
     private void loadJSFromUri(Uri uri) {
+        if (uri == null) return;
         String jsCode = FileUtil.readTextFromUri(uri);
         if (jsCode == null) return;
         JS_URI = uri;
@@ -555,6 +571,11 @@ public class HubLocalActivity extends AppCompatActivity {
             Toast.makeText(HubLocalActivity.this, "请选择一个正确的配置文件", Toast.LENGTH_LONG).show();
             return;
         }
+        loadConfigFromHubConfig(hubConfig);
+    }
+
+
+    private void loadConfigFromHubConfig(HubConfig hubConfig) {
         // 载入数据
         if (hubConfig != null) {
             EditText configBaseVersionEditText = findViewById(R.id.configBaseVersionEditText);
@@ -575,23 +596,19 @@ public class HubLocalActivity extends AppCompatActivity {
     private void addHubConfigToDatabase(int databaseId) {
         // 获取数据
         HubConfig hubConfigGson = getHubConfigGson();
-        String baseRootPath = FileUtil.uriToPath(HUBCONFIG_URI);
         // 存入数据
-        if (HUBCONFIG_URI == null)
-            Toast.makeText(HubLocalActivity.this, "请选择配置文件，若无配置文件，你可以长按文件选择框创建新文件", Toast.LENGTH_LONG).show();
-        else if (baseRootPath != null && hubConfigGson != null) {
-            baseRootPath = baseRootPath.substring(0, baseRootPath.lastIndexOf('/'));  // 去除末尾的 文件名，得到目录
-            String jsPath = FileUtil.pathTransformRelativeToAbsolute(baseRootPath, hubConfigGson.getWebCrawler().getFilePath());
-            Uri jsCodeUri = Uri.fromFile(new File(jsPath));
-            if (FileUtil.fileIsExistsByUri(jsCodeUri)) {
-                String jsCode = FileUtil.readTextFromUri(jsCodeUri);
+        if (hubConfigGson != null) {
+            loadJSFromUri(JS_URI);
+            TextView jsTestTextView = findViewById(R.id.jsTestTextView);
+            String jsCode = jsTestTextView.getText().toString();
+            if (!jsCode.equals("")) {
                 boolean addHubSuccess = HubManager.addHubDatabase(databaseId, hubConfigGson, jsCode);
                 if (addHubSuccess) {
-                    Toast.makeText(HubLocalActivity.this, "数据添加成功", Toast.LENGTH_LONG).show();
+                    Toast.makeText(HubLocalActivity.this, "数据库添加成功", Toast.LENGTH_LONG).show();
                 } else
                     Toast.makeText(HubLocalActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
             } else
-                Toast.makeText(HubLocalActivity.this, "JS 文件不存在", Toast.LENGTH_LONG).show();
+                Toast.makeText(HubLocalActivity.this, "JS 代码为空", Toast.LENGTH_LONG).show();
         }
     }
 

@@ -118,7 +118,7 @@ public class HubListActivity extends AppCompatActivity {
         switch (id) {
             case R.id.app_help:
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://xzos.net/the-customizing-configuration-rules-for-a-software-depot/"));
+                intent.setData(Uri.parse("https://xzos.net/upgradeall-developer-documentation/"));
                 intent = Intent.createChooser(intent, "请选择浏览器以查看帮助文档");
                 startActivity(intent);
                 return true;

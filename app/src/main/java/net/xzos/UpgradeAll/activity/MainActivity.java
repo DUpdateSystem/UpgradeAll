@@ -32,12 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefresh;
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        refreshAppList();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -50,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.update_item_recycler_view);
 
-        setRecyclerView();
+        refreshCardView();
     }
 
     private void refreshCardView() {
