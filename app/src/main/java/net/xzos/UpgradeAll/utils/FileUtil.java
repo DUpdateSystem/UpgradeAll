@@ -7,7 +7,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 
 import net.xzos.UpgradeAll.application.MyApplication;
-import net.xzos.UpgradeAll.utils.log.LogUtil;
+import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +23,7 @@ import java.io.OutputStreamWriter;
 
 public class FileUtil {
 
-    private static final LogUtil Log = MyApplication.getLog();
+    private static final LogUtil Log = MyApplication.getServerContainer().getLog();
 
     private static final String TAG = "FileUtil";
     private static final String[] LogObjectTag = {"Core", TAG};
@@ -164,7 +164,6 @@ public class FileUtil {
     }
 
     public static boolean writeTextFromUri(@NonNull Uri uri, String text) {
-        Log.e(LogObjectTag, TAG, "writeTextFromUri: " + uri.getPath());
         boolean writeSuccess = false;
         try {
             OutputStream outputStream = MyApplication.getContext().getContentResolver().openOutputStream(uri);
@@ -177,7 +176,8 @@ public class FileUtil {
                 writeSuccess = true;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(LogObjectTag, TAG, "writeTextFromUri: " + uri.getPath());
+            Log.e(LogObjectTag, TAG, "writeTextFromUri: 写入文件异常: ERROR_MESSAGE: " + e.toString());
         }
         return writeSuccess;
     }

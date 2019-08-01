@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.utils.log;
+package net.xzos.UpgradeAll.server.log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;

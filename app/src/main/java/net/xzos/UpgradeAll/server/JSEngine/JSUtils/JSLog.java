@@ -1,11 +1,11 @@
 package net.xzos.UpgradeAll.server.JSEngine.JSUtils;
 
 import net.xzos.UpgradeAll.application.MyApplication;
-import net.xzos.UpgradeAll.utils.log.LogUtil;
+import net.xzos.UpgradeAll.server.log.LogUtil;
 
 public class JSLog {
 
-    protected static final LogUtil Log = MyApplication.getLog();
+    protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
 
     private String[] LogObjectTag;
     private String TAG = "JavaScriptRunning";

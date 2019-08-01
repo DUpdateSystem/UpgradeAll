@@ -12,7 +12,7 @@ import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.server.JSEngine.JSEngineDataProxy;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
 import net.xzos.UpgradeAll.server.JSEngine.api.Api;
-import net.xzos.UpgradeAll.utils.log.LogUtil;
+import net.xzos.UpgradeAll.server.log.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
 import org.jetbrains.annotations.Contract;
@@ -27,7 +27,7 @@ import java.util.Objects;
 
 public class Updater {
 
-    private static final LogUtil Log = MyApplication.getLog();
+    private static LogUtil Log = null;
     private static final String TAG = "Updater";
     private static final String[] LogObjectTag = {"Core", TAG};
 
@@ -40,6 +40,10 @@ public class Updater {
      *                              "update_time": 更新时间戳
      * }
      */
+
+    public Updater(LogUtil logUtil) {
+        Log = logUtil;
+    }
 
     public boolean isLatest(int databaseId) {
         VersionChecker versionChecker = getVersionChecker(databaseId);

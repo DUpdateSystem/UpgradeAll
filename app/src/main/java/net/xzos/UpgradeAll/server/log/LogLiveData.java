@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.utils.log;
+package net.xzos.UpgradeAll.server.log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -22,7 +22,7 @@ public class LogLiveData {
 
     LiveData<List<String>> getLogLiveDataList(String[] logObjectTag) {
         return Transformations.map(mLogJSONObject, logJsonObject -> {
-            LogUtil logUtil = MyApplication.getLog();
+            LogUtil logUtil = MyApplication.getServerContainer().getLog();
             LogDataProxy logDataProxy = new LogDataProxy(logUtil);
             try {
                 return logDataProxy.getLogMessageList(logObjectTag);

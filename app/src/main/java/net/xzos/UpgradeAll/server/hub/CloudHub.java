@@ -13,7 +13,7 @@ import net.xzos.UpgradeAll.gson.CloudConfig;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.server.JSEngine.JSUtils.OkHttpApi;
 import net.xzos.UpgradeAll.utils.FileUtil;
-import net.xzos.UpgradeAll.utils.log.LogUtil;
+import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +25,7 @@ public class CloudHub {
     private static final String TAG = "CloudHub";
     private static final String[] LogObjectTag = {"Core", TAG};
 
-    private static final LogUtil Log = MyApplication.getLog();
+    private static final LogUtil Log = MyApplication.getServerContainer().getLog();
     private String rulesListJsonFileRawUrl;
     private CloudConfig cloudConfig;
 

@@ -45,8 +45,8 @@ import net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSLog;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
 import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.utils.FileUtil;
-import net.xzos.UpgradeAll.utils.log.LogDataProxy;
-import net.xzos.UpgradeAll.utils.log.LogUtil;
+import net.xzos.UpgradeAll.server.log.LogDataProxy;
+import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.Nullable;
@@ -58,7 +58,7 @@ import java.util.List;
 public class HubLocalActivity extends AppCompatActivity {
 
 
-    protected static final LogUtil Log = MyApplication.getLog();
+    protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 3;
 
@@ -194,7 +194,7 @@ public class HubLocalActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        new LogDataProxy(MyApplication.getLog()).clearLogSort("DeBug");
+        new LogDataProxy(Log).clearLogSort("DeBug");
     }
 
     @Override
@@ -360,7 +360,7 @@ public class HubLocalActivity extends AppCompatActivity {
         JSEngineDataProxy jsEngineDataProxy = new JSEngineDataProxy(javaScriptJEngine);
         JSLog jsLog = new JSLog(logObjectTag);
         TextView jsLogTextView = findViewById(R.id.jsLogTextView);
-        LiveData<List<String>> logListLiveData = new LogDataProxy(MyApplication.getLog()).getLogMessageListLiveData(logObjectTag);
+        LiveData<List<String>> logListLiveData = new LogDataProxy(Log).getLogMessageListLiveData(logObjectTag);
         logListLiveData.observe(this, logList -> {
             StringBuilder textViewMessage = new StringBuilder();
             for (String logMessage : logList)

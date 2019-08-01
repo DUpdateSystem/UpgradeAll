@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.utils.log;
+package net.xzos.UpgradeAll.server.log;
 
 import android.annotation.SuppressLint;
 import android.util.Log;

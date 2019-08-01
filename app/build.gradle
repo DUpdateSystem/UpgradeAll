@@ -54,4 +54,6 @@ dependencies {
     implementation 'cn.wanghaomiao:JsoupXpath:2.3.2'
     // JavaScript 引擎
     implementation 'org.mozilla:rhino:1.7.11'
+
+    implementation 'com.jaredrummler:android-shell:1.0.0'
 }

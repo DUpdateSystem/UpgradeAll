@@ -1,7 +1,7 @@
 package net.xzos.UpgradeAll.server.JSEngine.JSUtils;
 
 import net.xzos.UpgradeAll.application.MyApplication;
-import net.xzos.UpgradeAll.utils.log.LogUtil;
+import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -11,7 +11,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class OkHttpApi {
-    private static final LogUtil Log = MyApplication.getLog();
+    private static final LogUtil Log = MyApplication.getServerContainer().getLog();
     private static final String TAG = "OkHttpApi";
 
     public static String getHttpResponse(String[] LogObjectTag, String api_url) {
