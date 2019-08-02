@@ -192,6 +192,12 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             case "Magisk 模块":
                 versionCheckerApi = "Magisk";
                 break;
+            case "自定义 Shell 命令":
+                versionCheckerApi = "Shell";
+                break;
+            case "自定义 Shell 命令（ROOT）":
+                versionCheckerApi = "Shell_ROOT";
+                break;
         }
         try {
             versionChecker.put("api", versionCheckerApi);

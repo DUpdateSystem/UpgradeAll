@@ -1,20 +1,4 @@
 <resources>
-    <!-- support api -->
-    <string-array name="version_checker_support_api">
-        <item>
-            APP 版本
-        </item>
-        <item>
-            Magisk 模块
-        </item>
-        <!--
-        TODO: 自定义 Shell 命令
-        <item>
-            自定义 Shell 命令
-        </item>
-        -->
-    </string-array>
-
     <string name="app_name">UpgradeAll</string>
     <string name="help">帮助</string>
     <string name="hub_list">软件源</string>

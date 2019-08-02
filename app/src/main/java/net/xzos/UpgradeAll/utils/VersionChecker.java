@@ -41,12 +41,25 @@ public class VersionChecker {
             e.printStackTrace();
         }
         if (versionCheckerApi != null) {
+            String shellCommand;
+            try {
+                shellCommand = versionCheckerJsonObject.getString("text");
+            } catch (JSONException e) {
+                Log.e(LogObjectTag, TAG, "getVersion: JSONObject解析出错,  versionCheckerJsonObject: " + versionCheckerJsonObject.toString());
+                shellCommand = "";
+            }
             switch (versionCheckerApi.toLowerCase()) {
                 case "app":
                     version = getAppVersion(versionCheckerJsonObject);
                     break;
                 case "magisk":
                     version = getMagiskModuleVersion(versionCheckerJsonObject);
+                    break;
+                case "shell":
+                    version = Shell.run(shellCommand).getStdout();
+                    break;
+                case "shell_root":
+                    version = Shell.SU.run(shellCommand).getStdout();
                     break;
             }
         }
