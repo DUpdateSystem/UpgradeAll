@@ -50,7 +50,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/editUrl"
-                android:entries="@array/http_support_api"
                 android:spinnerMode="dropdown" />
 
         </RelativeLayout>

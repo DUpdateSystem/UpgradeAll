@@ -1,10 +1,5 @@
 <resources>
     <!-- support api -->
-    <string-array name="http_support_api">
-        <item>
-            GitHub
-        </item>
-    </string-array>
     <string-array name="version_checker_support_api">
         <item>
             APP 版本
