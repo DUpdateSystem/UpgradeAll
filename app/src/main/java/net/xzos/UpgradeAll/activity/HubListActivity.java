@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -93,6 +95,9 @@ public class HubListActivity extends AppCompatActivity {
             itemCardViewList.add(new ItemCardView.Builder(null, null, null).extraData(extraData).build());
             setRecyclerView();
             adapter.notifyDataSetChanged();
+        } else {
+            TextView guidelinesTextView = findViewById(R.id.guidelinesTextView);
+            guidelinesTextView.setVisibility(View.VISIBLE);
         }
     }
 
