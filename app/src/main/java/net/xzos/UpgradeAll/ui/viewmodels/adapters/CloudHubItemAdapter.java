@@ -2,7 +2,6 @@ package net.xzos.UpgradeAll.ui.viewmodels.adapters;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
@@ -13,11 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.Gson;
-
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
 import net.xzos.UpgradeAll.server.hub.CloudHub;
 import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
@@ -41,25 +37,12 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerVi
     @NonNull
     @Override
     public CardViewRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new CardViewRecyclerViewHolder(
+        final CardViewRecyclerViewHolder holder = new CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_item, parent, false));
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
-        ItemCardView itemCardView = mItemCardViewList.get(position);
-        // 底栏设置
-        if (itemCardView.getName() == null && itemCardView.getApi() == null && itemCardView.getDesc() == null) {
-            holder.itemCardView.setVisibility(View.GONE);
-            holder.endTextView.setVisibility(View.VISIBLE);
-        }
-        holder.name.setText(itemCardView.getName());
-        holder.api.setText(itemCardView.getApi());
-        holder.descTextView.setText(itemCardView.getDesc());
-        holder.descTextView.setEnabled(false);
-
         // 长按菜单
         holder.itemCardView.setOnLongClickListener(v -> {
+            final int position = holder.getAdapterPosition();
+            final ItemCardView itemCardView = mItemCardViewList.get(position);
             PopupMenu popupMenu = new PopupMenu(holder.itemCardView.getContext(), v);
             MenuInflater menuInflater = popupMenu.getMenuInflater();
             menuInflater.inflate(R.menu.menu_long_click_cardview_item_cloud_hub, popupMenu.getMenu());
@@ -104,6 +87,21 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerVi
             });
             return true;
         });
+        return holder;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
+        ItemCardView itemCardView = mItemCardViewList.get(position);
+        // 底栏设置
+        if (itemCardView.getName() == null && itemCardView.getApi() == null && itemCardView.getDesc() == null) {
+            holder.itemCardView.setVisibility(View.GONE);
+            holder.endTextView.setVisibility(View.VISIBLE);
+        }
+        holder.name.setText(itemCardView.getName());
+        holder.api.setText(itemCardView.getApi());
+        holder.descTextView.setText(itemCardView.getDesc());
+        holder.descTextView.setEnabled(false);
     }
 
     @Override
