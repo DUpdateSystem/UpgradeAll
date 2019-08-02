@@ -76,5 +76,6 @@
     <string name="save_to_database">保存到数据库</string>
     <string name="save_to_file_and_database">保存到文件与数据库</string>
     <string name="main_program">主程序</string>
+    <string name="usage_guidelines"><![CDATA[这里好像什么也没有(>﹏<)\n点开右上角菜单看看帮助文档吧~]]></string>
 
 </resources>
