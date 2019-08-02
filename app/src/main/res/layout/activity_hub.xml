@@ -9,6 +9,19 @@
 
     <include layout="@layout/content_list" />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/guidelinesTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/usage_guidelines_hub"
+            android:visibility="gone" />
+    </RelativeLayout>
+
     <io.github.kobakei.materialfabspeeddial.FabSpeedDial
         android:id="@+id/addFab"
         android:layout_width="wrap_content"

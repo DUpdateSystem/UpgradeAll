@@ -51,7 +51,7 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_log">日志</string>
-    <string name="add_manually">手动添加</string>
+    <string name="local_debug">本地调试</string>
     <string name="cloud_hub">云端仓库</string>
     <string name="download">下载</string>
     <string name="end">End</string>
@@ -76,6 +76,7 @@
     <string name="save_to_database">保存到数据库</string>
     <string name="save_to_file_and_database">保存到文件与数据库</string>
     <string name="main_program">主程序</string>
-    <string name="usage_guidelines"><![CDATA[这里好像什么也没有(>﹏<)\n点开右上角菜单看看帮助文档吧~]]></string>
+    <string name="usage_guidelines_main"><![CDATA[这里好像什么也没有(>﹏<)\n点开右上角菜单看看帮助文档吧~]]></string>
+    <string name="usage_guidelines_hub">Tips：点击右下角 + 添加云端规则~</string>
 
 </resources>
