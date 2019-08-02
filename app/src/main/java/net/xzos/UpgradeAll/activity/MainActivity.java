@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -67,11 +69,16 @@ public class MainActivity extends AppCompatActivity {
             extraData.setDatabaseId(databaseId);
             itemCardViewList.add(new ItemCardView.Builder(name, url, api).extraData(extraData).build());
         }
-        ItemCardViewExtraData extraData = new ItemCardViewExtraData();
-        extraData.setEmpty(true);
-        itemCardViewList.add(new ItemCardView.Builder(null, null, null).extraData(extraData).build());
-        setRecyclerView();
-        adapter.notifyDataSetChanged();
+        if (itemCardViewList.size() != 0) {
+            ItemCardViewExtraData extraData = new ItemCardViewExtraData();
+            extraData.setEmpty(true);
+            itemCardViewList.add(new ItemCardView.Builder(null, null, null).extraData(extraData).build());
+            setRecyclerView();
+            adapter.notifyDataSetChanged();
+        } else {
+            TextView guidelinesTextView = findViewById(R.id.guidelinesTextView);
+            guidelinesTextView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setRecyclerView() {

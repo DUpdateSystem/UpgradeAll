@@ -39,7 +39,7 @@ public class HubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHol
     public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
         ItemCardView itemCardView = mItemCardViewList.get(position);
         // 底栏设置
-        if (itemCardView.getName() == null && itemCardView.getApi() == null && itemCardView.getDesc() == null) {
+        if (itemCardView.getExtraData().isEmpty()) {
             holder.itemCardView.setVisibility(View.GONE);
             holder.endTextView.setVisibility(View.VISIBLE);
         }

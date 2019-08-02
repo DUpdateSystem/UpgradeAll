@@ -87,9 +87,13 @@ public class HubListActivity extends AppCompatActivity {
             extraData.setDatabaseId(databaseId);
             itemCardViewList.add(new ItemCardView.Builder(name, uuid, "").extraData(extraData).build());
         }
-        itemCardViewList.add(new ItemCardView.Builder(null, null, null).build());
-        setRecyclerView();
-        adapter.notifyDataSetChanged();
+        if (itemCardViewList.size() != 0) {
+            ItemCardViewExtraData extraData = new ItemCardViewExtraData();
+            extraData.setEmpty(true);
+            itemCardViewList.add(new ItemCardView.Builder(null, null, null).extraData(extraData).build());
+            setRecyclerView();
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private void setRecyclerView() {
