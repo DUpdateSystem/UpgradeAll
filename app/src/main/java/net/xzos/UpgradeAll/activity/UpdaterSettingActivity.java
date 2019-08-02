@@ -65,6 +65,9 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                     android.R.layout.simple_spinner_item, apiSpinnerStringArray);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             apiSpinner.setAdapter(adapter);
+        } else {
+            Toast.makeText(UpdaterSettingActivity.this, "请先添加自定义源", Toast.LENGTH_LONG).show();
+            onBackPressed();
         }
         setSettingItem(); // 设置预置设置项
         // 以下是按键事件

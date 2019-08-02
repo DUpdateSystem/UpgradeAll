@@ -33,6 +33,17 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
 
+    private boolean enableRenew = true;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (enableRenew) {
+            refreshCardView();
+            enableRenew = false;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
         swipeRefresh.setOnRefreshListener(this::refreshCardView);
 
         recyclerView = findViewById(R.id.update_item_recycler_view);
-
-        refreshCardView();
     }
 
     private void refreshCardView() {
@@ -69,14 +78,15 @@ public class MainActivity extends AppCompatActivity {
             extraData.setDatabaseId(databaseId);
             itemCardViewList.add(new ItemCardView.Builder(name, url, api).extraData(extraData).build());
         }
+        TextView guidelinesTextView = findViewById(R.id.guidelinesTextView);
         if (itemCardViewList.size() != 0) {
             ItemCardViewExtraData extraData = new ItemCardViewExtraData();
             extraData.setEmpty(true);
             itemCardViewList.add(new ItemCardView.Builder(null, null, null).extraData(extraData).build());
             setRecyclerView();
             adapter.notifyDataSetChanged();
+            guidelinesTextView.setVisibility(View.GONE);
         } else {
-            TextView guidelinesTextView = findViewById(R.id.guidelinesTextView);
             guidelinesTextView.setVisibility(View.VISIBLE);
         }
     }
@@ -107,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (id) {
             case R.id.item_add:
+                enableRenew = true;
                 intent = new Intent(MainActivity.this, UpdaterSettingActivity.class);
                 startActivity(intent);
                 return true;
