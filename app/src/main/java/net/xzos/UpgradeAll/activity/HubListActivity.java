@@ -19,7 +19,7 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
-import net.xzos.UpgradeAll.ui.viewmodels.adapters.HubItemAdapter;
+import net.xzos.UpgradeAll.ui.viewmodels.adapters.LocalHubItemAdapter;
 
 import org.litepal.LitePal;
 
@@ -30,7 +30,7 @@ import io.github.kobakei.materialfabspeeddial.FabSpeedDial;
 
 public class HubListActivity extends AppCompatActivity {
     private List<ItemCardView> itemCardViewList = new ArrayList<>();
-    private HubItemAdapter adapter;
+    private LocalHubItemAdapter adapter;
 
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
@@ -105,7 +105,7 @@ public class HubListActivity extends AppCompatActivity {
     private void setRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new HubItemAdapter(itemCardViewList);
+        adapter = new LocalHubItemAdapter(itemCardViewList);
         recyclerView.setAdapter(adapter);
     }
 

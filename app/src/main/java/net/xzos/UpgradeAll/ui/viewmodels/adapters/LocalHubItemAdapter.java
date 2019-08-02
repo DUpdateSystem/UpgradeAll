@@ -20,37 +20,24 @@ import org.litepal.LitePal;
 import java.util.List;
 
 
-public class HubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHolder> {
+public class LocalHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHolder> {
 
     private List<ItemCardView> mItemCardViewList;
 
-    public HubItemAdapter(List<ItemCardView> updateList) {
+    public LocalHubItemAdapter(List<ItemCardView> updateList) {
         mItemCardViewList = updateList;
     }
 
     @NonNull
     @Override
     public CardViewRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new CardViewRecyclerViewHolder(
+        final CardViewRecyclerViewHolder holder = new CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_item, parent, false));
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
-        ItemCardView itemCardView = mItemCardViewList.get(position);
-        // 底栏设置
-        if (itemCardView.getExtraData().isEmpty()) {
-            holder.itemCardView.setVisibility(View.GONE);
-            holder.endTextView.setVisibility(View.VISIBLE);
-        }
-        int databaseId = itemCardView.getExtraData().getDatabaseId();
-        holder.name.setText(itemCardView.getName());
-        holder.api.setText(itemCardView.getApi());
-        holder.descTextView.setText(itemCardView.getDesc());
-        holder.descTextView.setEnabled(false);
-
         // 长按菜单
         holder.itemCardView.setOnLongClickListener(v -> {
+            final int position = holder.getAdapterPosition();
+            final ItemCardView itemCardView = mItemCardViewList.get(position);
+            final int databaseId = itemCardView.getExtraData().getDatabaseId();
             PopupMenu popupMenu = new PopupMenu(holder.itemCardView.getContext(), v);
             MenuInflater menuInflater = popupMenu.getMenuInflater();
             menuInflater.inflate(R.menu.menu_long_click_cardview_item, popupMenu.getMenu());
@@ -79,6 +66,22 @@ public class HubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHol
             });
             return true;
         });
+        return holder;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
+        ItemCardView itemCardView = mItemCardViewList.get(position);
+        // 底栏设置
+        if (itemCardView.getExtraData().isEmpty()) {
+            holder.itemCardView.setVisibility(View.GONE);
+            holder.endTextView.setVisibility(View.VISIBLE);
+        }
+        holder.name.setText(itemCardView.getName());
+        holder.api.setText(itemCardView.getApi());
+        holder.descTextView.setText(itemCardView.getDesc());
+        holder.descTextView.setEnabled(false);
+
     }
 
     @Override

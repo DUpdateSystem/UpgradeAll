@@ -49,26 +49,13 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
     @NonNull
     @Override
     public CardViewRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new CardViewRecyclerViewHolder(
+        final CardViewRecyclerViewHolder holder = new CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_item, parent, false));
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
-        ItemCardView itemCardView = mItemCardViewList.get(position);
-        int databaseId = itemCardView.getExtraData().getDatabaseId();
-        // 底栏设置
-        if (itemCardView.getExtraData().isEmpty()) {
-            holder.itemCardView.setVisibility(View.GONE);
-            holder.endTextView.setVisibility(View.VISIBLE);
-        } else {
-            holder.name.setText(itemCardView.getName());
-            holder.api.setText(itemCardView.getApi());
-            holder.descTextView.setText(itemCardView.getDesc());
-            refreshUpdater(true, databaseId, holder);
-        }
         // 单击展开 Release 详情页
         holder.itemCardView.setOnClickListener(v -> {
+            final int position = holder.getAdapterPosition();
+            final ItemCardView itemCardView = mItemCardViewList.get(position);
+            final int databaseId = itemCardView.getExtraData().getDatabaseId();
             AlertDialog.Builder builder = new AlertDialog.Builder(holder.versionCheckingBar.getContext());
             final AlertDialog dialog = builder.setView(R.layout.dialog_version).create();
             dialog.show();
@@ -139,6 +126,9 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
 
         // 长按菜单
         holder.itemCardView.setOnLongClickListener(v -> {
+            final int position = holder.getAdapterPosition();
+            final ItemCardView itemCardView = mItemCardViewList.get(position);
+            final int databaseId = itemCardView.getExtraData().getDatabaseId();
             PopupMenu popupMenu = new PopupMenu(holder.itemCardView.getContext(), v);
             MenuInflater menuInflater = popupMenu.getMenuInflater();
             menuInflater.inflate(R.menu.menu_long_click_cardview_item, popupMenu.getMenu());
@@ -170,6 +160,9 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
 
         // 长按强制检查版本
         holder.versionCheckButton.setOnLongClickListener(v1 -> {
+            final int position = holder.getAdapterPosition();
+            final ItemCardView itemCardView = mItemCardViewList.get(position);
+            final int databaseId = itemCardView.getExtraData().getDatabaseId();
             refreshUpdater(false, databaseId, holder);
             return true;
         });
@@ -183,6 +176,23 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
                 holder.descTextView.getContext().startActivity(chooser);
             }
         });
+        return holder;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
+        ItemCardView itemCardView = mItemCardViewList.get(position);
+        int databaseId = itemCardView.getExtraData().getDatabaseId();
+        // 底栏设置
+        if (itemCardView.getExtraData().isEmpty()) {
+            holder.itemCardView.setVisibility(View.GONE);
+            holder.endTextView.setVisibility(View.VISIBLE);
+        } else {
+            holder.name.setText(itemCardView.getName());
+            holder.api.setText(itemCardView.getApi());
+            holder.descTextView.setText(itemCardView.getDesc());
+            refreshUpdater(true, databaseId, holder);
+        }
     }
 
     private void refreshUpdater(boolean isAuto, int databaseId, CardViewRecyclerViewHolder holder) {
