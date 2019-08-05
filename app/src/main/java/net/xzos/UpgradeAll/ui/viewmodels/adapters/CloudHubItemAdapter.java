@@ -94,10 +94,12 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerVi
     public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
         ItemCardView itemCardView = mItemCardViewList.get(position);
         // 底栏设置
-        if (itemCardView.getName() == null && itemCardView.getApi() == null && itemCardView.getDesc() == null) {
+        if (itemCardView.getExtraData().isEmpty()) {
             holder.itemCardView.setVisibility(View.GONE);
             holder.endTextView.setVisibility(View.VISIBLE);
         } else {
+            holder.itemCardView.setVisibility(View.VISIBLE);
+            holder.endTextView.setVisibility(View.GONE);
             holder.name.setText(itemCardView.getName());
             holder.api.setText(itemCardView.getApi());
             holder.descTextView.setText(itemCardView.getDesc());
@@ -109,10 +111,4 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerVi
     public int getItemCount() {
         return mItemCardViewList.size();
     }
-
-    @Override
-    public int getItemViewType(int position) {
-        return position;
-    }
 }
-

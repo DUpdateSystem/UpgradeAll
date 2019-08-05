@@ -182,12 +182,14 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
     @Override
     public void onBindViewHolder(@NonNull CardViewRecyclerViewHolder holder, int position) {
         ItemCardView itemCardView = mItemCardViewList.get(position);
-        int databaseId = itemCardView.getExtraData().getDatabaseId();
         // 底栏设置
         if (itemCardView.getExtraData().isEmpty()) {
             holder.itemCardView.setVisibility(View.GONE);
             holder.endTextView.setVisibility(View.VISIBLE);
         } else {
+            holder.itemCardView.setVisibility(View.VISIBLE);
+            holder.endTextView.setVisibility(View.GONE);
+            final int databaseId = itemCardView.getExtraData().getDatabaseId();
             holder.name.setText(itemCardView.getName());
             holder.api.setText(itemCardView.getApi());
             holder.descTextView.setText(itemCardView.getDesc());
@@ -238,10 +240,4 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
     public int getItemCount() {
         return mItemCardViewList.size();
     }
-
-    @Override
-    public int getItemViewType(int position) {
-        return position;
-    }
 }
-
