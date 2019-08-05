@@ -239,5 +239,9 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
         return mItemCardViewList.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
 }
 
