@@ -81,7 +81,9 @@ public class CloudHubListActivity extends AppCompatActivity {
                     extraData.setUuid(configUuid);
                     itemCardViewList.add(new ItemCardView.Builder(name, configUuid, configFileName).extraData(extraData).build());
                 }
-                itemCardViewList.add(new ItemCardView.Builder(null, null, null).build());
+                ItemCardViewExtraData extraData = new ItemCardViewExtraData();
+                extraData.setEmpty(true);
+                itemCardViewList.add(new ItemCardView.Builder(null, null, null).extraData(extraData).build());
                 setRecyclerView();
                 adapter.notifyDataSetChanged();
             });
@@ -114,5 +116,4 @@ public class CloudHubListActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 }
