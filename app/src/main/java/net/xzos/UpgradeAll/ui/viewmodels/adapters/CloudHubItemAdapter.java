@@ -97,16 +97,22 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerVi
         if (itemCardView.getName() == null && itemCardView.getApi() == null && itemCardView.getDesc() == null) {
             holder.itemCardView.setVisibility(View.GONE);
             holder.endTextView.setVisibility(View.VISIBLE);
+        } else {
+            holder.name.setText(itemCardView.getName());
+            holder.api.setText(itemCardView.getApi());
+            holder.descTextView.setText(itemCardView.getDesc());
+            holder.descTextView.setEnabled(false);
         }
-        holder.name.setText(itemCardView.getName());
-        holder.api.setText(itemCardView.getApi());
-        holder.descTextView.setText(itemCardView.getDesc());
-        holder.descTextView.setEnabled(false);
     }
 
     @Override
     public int getItemCount() {
         return mItemCardViewList.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 }
 

@@ -88,4 +88,9 @@ public class LocalHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerVi
     public int getItemCount() {
         return mItemCardViewList.size();
     }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
 }
