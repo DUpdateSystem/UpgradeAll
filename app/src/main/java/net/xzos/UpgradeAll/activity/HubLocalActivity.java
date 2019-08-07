@@ -350,7 +350,8 @@ public class HubLocalActivity extends AppCompatActivity {
             loadJSFromUri(JS_URI);
         }
         TextView jsTestTextView = findViewById(R.id.jsTestTextView);
-        if (jsTestTextView.getText().toString().equals("")) {
+        String jsCode = jsTestTextView.getText().toString();
+        if (jsCode.equals("")) {
             Toast.makeText(HubLocalActivity.this, "请选择一个正确的 JS 脚本文件", Toast.LENGTH_LONG).show();
             return;
         }
@@ -361,7 +362,6 @@ public class HubLocalActivity extends AppCompatActivity {
             return;
         }
         // 创建 JS 引擎
-        String jsCode = FileUtil.readTextFromUri(JS_URI);
         String[] logObjectTag = {"DeBug", "0"};
         JavaScriptJEngine javaScriptJEngine = new JavaScriptJEngine(logObjectTag, testUrl, jsCode);
         javaScriptJEngine.setEnableLogJsCode(false);
