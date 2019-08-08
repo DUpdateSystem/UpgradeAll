@@ -25,6 +25,7 @@ import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.server.updater.Updater;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
+import net.xzos.UpgradeAll.ui.viewmodels.ViewHolder.CardViewRecyclerViewHolder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
