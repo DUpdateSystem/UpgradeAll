@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.ui.viewmodels.adapters;
+package net.xzos.UpgradeAll.ui.viewmodels.ViewHolder;
 
 import android.view.View;
 import android.widget.ImageView;
@@ -10,16 +10,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
 
-class CardViewRecyclerViewHolder extends RecyclerView.ViewHolder {
-    TextView name;
-    TextView descTextView;
-    TextView api;
-    TextView endTextView;
-    CardView itemCardView;
-    ProgressBar versionCheckingBar;
-    ImageView versionCheckButton;
+public class CardViewRecyclerViewHolder extends RecyclerView.ViewHolder {
+    public TextView name;
+    public TextView descTextView;
+    public TextView api;
+    public TextView endTextView;
+    public CardView itemCardView;
+    public ProgressBar versionCheckingBar;
+    public ImageView versionCheckButton;
 
-    CardViewRecyclerViewHolder(View view) {
+    public CardViewRecyclerViewHolder(View view) {
         super(view);
         name = view.findViewById(R.id.nameTextView);
         descTextView = view.findViewById(R.id.descTextView);

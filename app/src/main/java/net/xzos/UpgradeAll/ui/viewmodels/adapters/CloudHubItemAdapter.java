@@ -17,6 +17,7 @@ import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.server.hub.CloudHub;
 import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
+import net.xzos.UpgradeAll.ui.viewmodels.ViewHolder.CardViewRecyclerViewHolder;
 
 import java.util.List;
 

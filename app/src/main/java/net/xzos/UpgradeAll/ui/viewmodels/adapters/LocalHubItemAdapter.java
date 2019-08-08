@@ -14,6 +14,7 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.activity.HubLocalActivity;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
+import net.xzos.UpgradeAll.ui.viewmodels.ViewHolder.CardViewRecyclerViewHolder;
 
 import org.litepal.LitePal;
 

@@ -1,25 +1,19 @@
 package net.xzos.UpgradeAll.ui.viewmodels.log;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
-
-import org.apache.commons.text.StringEscapeUtils;
-
-import java.util.ArrayList;
+import net.xzos.UpgradeAll.ui.viewmodels.adapters.LogItemAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -55,30 +49,11 @@ public class PlaceholderFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_log, container, false);
-        final ListView logListView = root.findViewById(R.id.log_list);
-        ArrayList<String> logArray = new ArrayList<>();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(root.getContext(), android.R.layout.simple_expandable_list_item_1, logArray);
+        final RecyclerView logListView = root.findViewById(R.id.log_list);
+        GridLayoutManager layoutManager = new GridLayoutManager(mContext, 1);
+        logListView.setLayoutManager(layoutManager);
+        LogItemAdapter adapter = new LogItemAdapter(pageViewModel.getLogList(), this);
         logListView.setAdapter(adapter);
-        // 点击复制到粘贴板
-        logListView.setOnItemClickListener((parent, view, position, id) -> {
-            ClipboardManager cm = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData mClipData = ClipData.newPlainText("Label", logArray.get(position));
-            if (cm != null) cm.setPrimaryClip(mClipData);
-            Toast.makeText(mContext, "已复制到粘贴板", Toast.LENGTH_SHORT).show();
-        });
-        pageViewModel.getLogList().observe(this, logListLiveData -> logListLiveData.observe(this, stringList -> {
-            if (!logArray.equals(stringList)) {
-                int index = logArray.size() - 1;
-                if (index == -1 || index > stringList.size() || !logArray.get(index).equals(stringList.get(index))) {
-                    adapter.clear();
-                    for (String logMessage : stringList)
-                        adapter.add(StringEscapeUtils.unescapeJava(logMessage));
-                } else {
-                    for (int i = index + 1; i < stringList.size(); i++)
-                        adapter.add(StringEscapeUtils.unescapeJava(stringList.get(i)));
-                }
-            }
-        }));
         return root;
     }
 }
