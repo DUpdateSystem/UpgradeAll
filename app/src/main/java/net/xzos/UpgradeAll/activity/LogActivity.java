@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LiveData;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
@@ -91,19 +92,21 @@ public class LogActivity extends AppCompatActivity {
 
     private void setFab() {
         FabSpeedDial fab = findViewById(R.id.sortFab);
-        List<String> logSortList = new LogDataProxy(Log).getLogSort();
-        FabSpeedDialMenu menu = new FabSpeedDialMenu(this);
-        for (String logSort : logSortList) {
-            if (logSort.equals("Core"))
-                menu.add(getResources().getString(R.string.main_program)).setIcon(R.drawable.ic_core);
-            else
-                menu.add(logSort).setIcon(R.drawable.ic_cloud);
-        }
-        fab.setMenu(menu);
-        fab.addOnMenuItemClickListener((floatingActionButton, textView, integer) -> {
-            logSort = logSortList.get(integer - 1);
-            setViewPage(logSort);
-            return null;
+        LiveData<List<String>> liveDataLogSortList = new LogDataProxy(Log).getLiveDataLogSortList();
+        liveDataLogSortList.observe(this, logSortList -> {
+            FabSpeedDialMenu menu = new FabSpeedDialMenu(this);
+            for (String logSort : logSortList) {
+                if (logSort.equals("Core"))
+                    menu.add(getResources().getString(R.string.main_program)).setIcon(R.drawable.ic_core);
+                else
+                    menu.add(logSort).setIcon(R.drawable.ic_cloud);
+            }
+            fab.setMenu(menu);
+            fab.addOnMenuItemClickListener((floatingActionButton, textView, integer) -> {
+                logSort = logSortList.get(integer - 1);
+                setViewPage(logSort);
+                return null;
+            });
         });
     }
 

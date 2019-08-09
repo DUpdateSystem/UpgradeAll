@@ -12,15 +12,30 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LogLiveData {
+class LogLiveData {
     private MutableLiveData<JSONObject> mLogJSONObject = new MutableLiveData<>(new JSONObject());
-
 
     void setLogJSONObject(JSONObject logJSONObject) {
         mLogJSONObject.postValue(logJSONObject);
     }
 
-    LiveData<List<String>> getLogLiveDataList(String[] logObjectTag) {
+    LiveData<List<String>> getLiveDataLogSortList() {
+        return Transformations.map(mLogJSONObject, logJsonObject -> {
+            LogUtil logUtil = MyApplication.getServerContainer().getLog();
+            LogDataProxy logDataProxy = new LogDataProxy(logUtil);
+            return logDataProxy.getLogSort();
+        });
+    }
+
+    LiveData<List<String>> getLiveDataLogObjectIdList(String logSort) {
+        return Transformations.map(mLogJSONObject, logJsonObject -> {
+            LogUtil logUtil = MyApplication.getServerContainer().getLog();
+            LogDataProxy logDataProxy = new LogDataProxy(logUtil);
+            return logDataProxy.getLogObjectId(logSort);
+        });
+    }
+
+    LiveData<List<String>> getLiveDataLogList(String[] logObjectTag) {
         return Transformations.map(mLogJSONObject, logJsonObject -> {
             LogUtil logUtil = MyApplication.getServerContainer().getLog();
             LogDataProxy logDataProxy = new LogDataProxy(logUtil);
@@ -32,5 +47,4 @@ public class LogLiveData {
             }
         });
     }
-
 }
