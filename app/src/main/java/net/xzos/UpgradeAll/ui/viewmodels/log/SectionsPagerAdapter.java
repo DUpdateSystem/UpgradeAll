@@ -1,12 +1,12 @@
 package net.xzos.UpgradeAll.ui.viewmodels.log;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.server.log.LogDataProxy;
@@ -22,20 +22,22 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
     private static ArrayList<String> TAB_TITLES = new ArrayList<>();
     private String logSort;
-    private List<String> logObjectIdList;
-    private final Context mContext;
+    private List<String> mLogObjectIdList;
 
-    public SectionsPagerAdapter(Context context, FragmentManager fm, String logSort) {
+    public SectionsPagerAdapter(LifecycleOwner owner, FragmentManager fm, String logSort) {
         super(fm);
         this.logSort = logSort;
-        TAB_TITLES.clear();
-        mContext = context;
         LogDataProxy logDataProxy = new LogDataProxy(MyApplication.getServerContainer().getLog());
-        logObjectIdList = logDataProxy.getLogObjectId(logSort);
-        for (String databaseIdString : logObjectIdList) {
-            String name = LogDataProxy.getNameFromId(databaseIdString);
-            TAB_TITLES.add(name);
-        }
+        LiveData<List<String>> liveDataLogObjectIdList = logDataProxy.getLiveDataLogObjectIdList(logSort);
+        liveDataLogObjectIdList.observe(owner, logObjectIdList -> {
+            TAB_TITLES.clear();
+            for (String databaseIdString : logObjectIdList) {
+                String name = LogDataProxy.getNameFromId(databaseIdString);
+                TAB_TITLES.add(name);
+            }
+            mLogObjectIdList = logObjectIdList;
+            notifyDataSetChanged();
+        });
     }
 
     @NonNull
@@ -43,7 +45,7 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         // getItem is called to instantiate the fragment for the given page.
         // Return a PlaceholderFragment (defined as a static inner class below).
-        String[] logObjectTag = {logSort, logObjectIdList.get(position)};
+        String[] logObjectTag = {logSort, mLogObjectIdList.get(position)};
         return PlaceholderFragment.newInstance(logObjectTag);
     }
 
@@ -62,9 +64,5 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
     public int getCount() {
         // Show 2 total pages.
         return TAB_TITLES.size();
-    }
-
-    public void setLogSort(String sort) {
-        this.logSort = sort;
     }
 }

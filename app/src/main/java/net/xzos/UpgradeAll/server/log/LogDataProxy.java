@@ -25,7 +25,7 @@ public class LogDataProxy {
         logLiveData = logUtil.getLogLiveData();
     }
 
-    public List<String> getLogSort() {
+    List<String> getLogSort() {
         ArrayList<String> logSortList = new ArrayList<>();
         Iterator it = logJSONObject.keys();
         while (it.hasNext()) {
@@ -34,7 +34,7 @@ public class LogDataProxy {
         return logSortList;
     }
 
-    public List<String> getLogObjectId(String logSort) {
+    List<String> getLogObjectId(String logSort) {
         ArrayList<String> logObjectId = new ArrayList<>();
         JSONObject logSortJson;
         try {
@@ -61,8 +61,16 @@ public class LogDataProxy {
         return logMessageArray;
     }
 
+    public LiveData<List<String>> getLiveDataLogSortList() {
+        return logLiveData.getLiveDataLogSortList();
+    }
+
+    public LiveData<List<String>> getLiveDataLogObjectIdList(String logSort) {
+        return logLiveData.getLiveDataLogObjectIdList(logSort);
+    }
+
     public LiveData<List<String>> getLogMessageListLiveData(String[] logObjectTag) {
-        return logLiveData.getLogLiveDataList(logObjectTag);
+        return logLiveData.getLiveDataLogList(logObjectTag);
     }
 
     public void clearLogAll() {
@@ -107,7 +115,7 @@ public class LogDataProxy {
         return fullLogString.toString();
     }
 
-    public String getLogMessageToString(String[] logObjectTag) {
+    private String getLogMessageToString(String[] logObjectTag) {
         String sort = logObjectTag[0];
         String name = "    " + getNameFromId(logObjectTag[1]);
         StringBuilder logMessageString = new StringBuilder();
