@@ -100,29 +100,6 @@
                 android:layout_alignParentEnd="true"
                 android:text="@string/update_item_setting_versionCheckButton" />
 
-            <TextView
-                android:id="@+id/versionCheckRegularTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/editVersionCheckText"
-                android:layout_alignParentStart="true"
-                android:text="@string/update_item_setting_editVersionCheckRegular"
-                android:textSize="10sp"
-                tools:ignore="SmallSp" />
-
-            <EditText
-                android:id="@+id/editVersionCheckRegular"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/statusCheckButton"
-                android:layout_alignParentStart="true"
-                android:layout_toStartOf="@+id/helpImageView"
-                android:autofillHints="versionCheckText"
-                android:inputType="text"
-                android:text="@string/update_item_setting_editVersionCheckRegularText"
-                tools:ignore="LabelFor"
-                tools:targetApi="o" />
-
             <ImageView
                 android:id="@+id/helpImageView"
                 android:layout_width="wrap_content"
