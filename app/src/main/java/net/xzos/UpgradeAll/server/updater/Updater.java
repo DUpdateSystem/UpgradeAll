@@ -46,9 +46,8 @@ public class Updater {
     }
 
     public boolean isLatest(int databaseId) {
-        VersionChecker versionChecker = getVersionChecker(databaseId);
-        String latestVersion = versionChecker.getRegexMatchVersion(getLatestVersion(databaseId));
-        String installedVersion = versionChecker.getRegexMatchVersion(getInstalledVersion(databaseId));
+        String latestVersion = getLatestVersion(databaseId);
+        String installedVersion = getInstalledVersion(databaseId);
         return VersionChecker.compareVersionNumber(installedVersion, latestVersion);
     }
 

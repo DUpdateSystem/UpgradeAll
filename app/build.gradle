@@ -6,8 +6,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 19
-        versionName "0.0.12"
+        versionCode 20
+        versionName "0.0.13"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -44,6 +44,7 @@ dependencies {
     // 数据处理
     implementation 'org.litepal.android:java:3.0.0'
     implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'org.apache.maven:maven-artifact:3.6.1'  // 版本比较
     implementation 'org.apache.commons:commons-text:1.7'  // 去除转义字符
     // shell
     implementation 'com.jaredrummler:android-shell:1.0.0'

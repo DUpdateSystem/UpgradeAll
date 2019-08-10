@@ -152,11 +152,9 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             JSONObject versionChecker = database.getVersionChecker();
             String versionCheckerApi = "";
             String versionCheckerText = "";
-            String versionCheckRegular = "";
             try {
                 versionCheckerApi = versionChecker.getString("api");
                 versionCheckerText = versionChecker.getString("text");
-                versionCheckRegular = versionChecker.getString("regular");
             } catch (JSONException e) {
                 Log.e(LogObjectTag, TAG, String.format("onCreate: 数据库损坏！  versionChecker: %s", versionChecker));
             }
@@ -170,8 +168,6 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             }
             EditText editVersionCheckText = findViewById(R.id.editVersionCheckText);
             editVersionCheckText.setText(versionCheckerText);
-            EditText editVersionCheckRegular = findViewById(R.id.editVersionCheckRegular);
-            editVersionCheckRegular.setText(versionCheckRegular);
         }
     }
 
@@ -180,11 +176,8 @@ public class UpdaterSettingActivity extends AppCompatActivity {
         JSONObject versionChecker = new JSONObject();
         Spinner versionCheckSpinner = findViewById(R.id.versionCheckSpinner);
         EditText editVersionCheckText = findViewById(R.id.editVersionCheckText);
-        EditText editVersionCheckRegular = findViewById(R.id.editVersionCheckRegular);
         String versionCheckerText = editVersionCheckText.getText().toString();
         String versionCheckerApi = versionCheckSpinner.getSelectedItem().toString();
-        String versionCheckerRegular = editVersionCheckRegular.getText().toString();
-        Log.d(LogObjectTag, TAG, "getHubConfig:  " + versionCheckerRegular);
         switch (versionCheckerApi) {
             case "APP 版本":
                 versionCheckerApi = "APP";
@@ -202,7 +195,6 @@ public class UpdaterSettingActivity extends AppCompatActivity {
         try {
             versionChecker.put("api", versionCheckerApi);
             versionChecker.put("text", versionCheckerText);
-            versionChecker.put("regular", versionCheckerRegular);
         } catch (JSONException e) {
             e.printStackTrace();
         }
