@@ -122,7 +122,7 @@ public class VersionChecker {
     }
 
     private static String getVersionNumberString(@NonNull String versionString) {
-        String versionMatchString = null;
+        String versionMatchString = versionString;
         String[] versionStringList = versionString.split(" ");
         for (String temp : versionStringList) {
             if (isVersion(temp))
@@ -135,7 +135,7 @@ public class VersionChecker {
         /*
          * 对比 versionNumber0 与 versionNumber1
          * 若，前者比后者大，则返回 true*/
-        Log.e(LogObjectTag, TAG, String.format("compareVersionNumber: versionNumber0: %s , versionNumber1: %s", versionNumber0, versionNumber1));
+        Log.i(LogObjectTag, TAG, String.format("compareVersionNumber: versionNumber0: %s , versionNumber1: %s", versionNumber0, versionNumber1));
         versionNumber0 = getVersionNumberString(versionNumber0);
         versionNumber1 = getVersionNumberString(versionNumber1);
         DefaultArtifactVersion version0 = new DefaultArtifactVersion(versionNumber0);
