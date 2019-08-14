@@ -6,6 +6,8 @@ UpgradeAll is a Free and Open Source Software that simplifies the process of fin
 
 * [GitHub Release](https://github.com/rumboalla/apkupdater/releases/)
 
+* [CoolApk](https://www.coolapk.com/apk/net.xzos.upgradeall)
+
 * [F-Droid] WIP
 
 * [Google Play Store] WIP
@@ -14,11 +16,11 @@ UpgradeAll is a Free and Open Source Software that simplifies the process of fin
 
 * Q: How to use?
 
-* A: WIP
+* A: Just download apk file, install it and run.
 
 * Q: Where's the help document?
 
-* A: WIP
+* A: Currently we only have [Chinese documents](https://xzos.net/upgradeall-readme/).
 
 # Features
 
@@ -30,7 +32,7 @@ UpgradeAll is a Free and Open Source Software that simplifies the process of fin
 
 * Modern and clean design.
 
-* Supports Android 5.0 to 10
+* Supports Android 5.0 to 9 (Not test on android Q)
 
 
 
@@ -38,9 +40,18 @@ UpgradeAll is a Free and Open Source Software that simplifies the process of fin
 
 Big thanks to the developers of these wonderful libraries:
 
-* WIP ASAP
+* [android-shell](https://github.com/jaredrummler/AndroidShell)
+* [jsoup](https://jsoup.org/)
+* [JsoupXpath](https://github.com/zhegexiaohuozi/JsoupXpath)
+* [rhino](https://github.com/mozilla/rhino)
 
-# Update sources
+* [OkHttp](https://github.com/square/okhttp)
+* [litepal](https://github.com/LitePalFramework/LitePal)
+* [gson](https://github.com/google/gson)
+* [maven-artifact](http://maven.apache.org/maven-artifact/)
+* [commons-text](https://commons.apache.org/text/)
+
+# Update data sources
 
 At the moment these sources are officially supported:
 
@@ -50,17 +61,17 @@ At the moment these sources are officially supported:
 
 * [Coolapk](https://www.coolapk.com) (An Android application market in China mainland)
 
-* [WIP]
+* [All sources list](https://github.com/xz-dev/UpgradeAll-rules/)
 
 # Translations
 
 * Chinese Simplified
 
-* WIP
+* English(On Plan)
 
 # Screenshots
 
-WIP
+[Release page on CoolApk](https://www.coolapk.com/apk/net.xzos.upgradeall)
 
 # License
 
