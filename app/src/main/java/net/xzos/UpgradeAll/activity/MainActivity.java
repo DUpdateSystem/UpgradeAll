@@ -9,11 +9,16 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.navigation.NavigationView;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.database.RepoDatabase;
@@ -26,10 +31,14 @@ import org.litepal.LitePal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
-    private List<ItemCardView> itemCardViewList = new ArrayList<>();
-    private UpdateItemCardAdapter adapter;
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
 
+    private List<ItemCardView> itemCardViewList = new ArrayList<>();
+
+    private DrawerLayout mDrawerLayout;
+    private NavigationView navView;
+    private UpdateItemCardAdapter adapter;
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
 
@@ -42,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
             refreshCardView();
             enableRenew = false;
         }
+        navView.setCheckedItem(R.id.app_list);
     }
 
     @Override
@@ -50,12 +60,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         swipeRefresh = findViewById(R.id.swipeRefresh);
+        recyclerView = findViewById(R.id.update_item_recycler_view);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        navView = findViewById(R.id.nav_view);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
         swipeRefresh.setOnRefreshListener(this::refreshCardView);
-
-        recyclerView = findViewById(R.id.update_item_recycler_view);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        navView.setNavigationItemSelectedListener(this);
+        setRecyclerView();
     }
 
     private void refreshCardView() {
@@ -99,13 +115,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_actionbar_main, menu);
         return true;
     }
@@ -115,33 +125,56 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         Intent intent;
 
+        if (id == R.id.item_add) {
+            enableRenew = true;
+            intent = new Intent(MainActivity.this, UpdaterSettingActivity.class);
+            startActivity(intent);
+            return true;
+        } else
+            return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        Intent intent;
+
         switch (id) {
             case R.id.item_add:
                 enableRenew = true;
                 intent = new Intent(MainActivity.this, UpdaterSettingActivity.class);
                 startActivity(intent);
-                return true;
+                break;
             case R.id.app_help:
                 intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse("https://xzos.net/upgradeall-readme/"));
                 intent = Intent.createChooser(intent, "请选择浏览器");
                 startActivity(intent);
-                return true;
+                break;
             case R.id.hub_list:
                 intent = new Intent(MainActivity.this, HubListActivity.class);
                 startActivity(intent);
-                return true;
+                break;
             case R.id.app_log:
                 intent = new Intent(MainActivity.this, LogActivity.class);
                 startActivity(intent);
-                return true;
+                break;
             case R.id.app_setting:
                 intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+                break;
         }
+        mDrawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 
+    @Override
+    public void onBackPressed() {
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
 }

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">UpgradeAll</string>
     <string name="help">帮助</string>
+    <string name="app_list">软件列表</string>
     <string name="hub_list">软件源</string>
     <string name="log">日志</string>
     <string name="setting">设置</string>
@@ -57,5 +58,7 @@
     <string name="main_program">主程序</string>
     <string name="usage_guidelines_main"><![CDATA[这里好像什么也没有(>﹏<)\n点开右上角菜单看看帮助文档吧~]]></string>
     <string name="usage_guidelines_hub">Tips：点击右下角 + 添加云端规则~</string>
+    <string name="navigation_drawer_open">开启侧滑菜单</string>
+    <string name="navigation_drawer_close">关闭侧滑菜单</string>
 
 </resources>
