@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -71,6 +73,16 @@ public class MainActivity extends AppCompatActivity
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         navView.setNavigationItemSelectedListener(this);
+        LinearLayout headerLayout = (LinearLayout) navView.getHeaderView(0);
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) headerLayout.getLayoutParams();
+        headerLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                headerLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                layoutParams.height = headerLayout.getWidth() / 16 * 9;
+                headerLayout.setLayoutParams(layoutParams);
+            }
+        });
         setRecyclerView();
     }
 

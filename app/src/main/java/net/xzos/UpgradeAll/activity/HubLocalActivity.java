@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,9 +45,9 @@ import net.xzos.UpgradeAll.server.JSEngine.JSEngineDataProxy;
 import net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSLog;
 import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
 import net.xzos.UpgradeAll.server.hub.HubManager;
-import net.xzos.UpgradeAll.utils.FileUtil;
 import net.xzos.UpgradeAll.server.log.LogDataProxy;
 import net.xzos.UpgradeAll.server.log.LogUtil;
+import net.xzos.UpgradeAll.utils.FileUtil;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.Nullable;
@@ -288,8 +289,24 @@ public class HubLocalActivity extends AppCompatActivity {
         // 折叠 JS 测试卡片
         TextView jsTextView = findViewById(R.id.jsTextView);
         CardView jsTestCardView = findViewById(R.id.jsTestCardView);
-        RelativeLayout jsContentLayout = findViewById(R.id.jsContentLayout);
-        cardViewAnim(jsTextView, jsTestCardView, jsContentLayout);
+        jsTestCardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                jsTestCardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                JS_CARDVIEW_WRAP_HEIGHT = jsTestCardView.getHeight();
+                // 折叠 JS 测试区
+                RelativeLayout jsContentLayout = findViewById(R.id.jsContentLayout);
+                cardViewAnim(jsTextView, jsTestCardView, jsContentLayout);
+            }
+        });
+        CardView hubConfigCardView = findViewById(R.id.hubConfigCardView);
+        hubConfigCardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                hubConfigCardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                CONFIG_CARDVIEW_WRAP_HEIGHT = hubConfigCardView.getHeight();
+            }
+        });
     }
 
     // 自定义 jsFilePathEditText 长按菜单
@@ -408,81 +425,63 @@ public class HubLocalActivity extends AppCompatActivity {
         // 获取 wrap 高度
         if (layoutParams.height == WindowManager.LayoutParams.WRAP_CONTENT)
             CARDVIEW_WRAP_HEIGHT = cardViewHeight;
-        if (cardViewHeight == 0) {
-            // 初始化界面
-            titleTextView.setVisibility(View.VISIBLE);
-            contentLayout.setVisibility(View.INVISIBLE);
-            layoutParams.height = SCREEN_HEIGHT / 15;
-            cardView.setLayoutParams(layoutParams);
+        int start = cardViewHeight;
+        int end;
+        if (titleTextView.getVisibility() != View.VISIBLE) {
+            // 折叠
             animStatus = false;
-        } else {
-            if (CARDVIEW_WRAP_HEIGHT == 0 && cardViewHeight == cardViewFoldHeight) {
-                // 展开，无初始化高度，无法获取终点值，不适用动画
-                layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                cardView.setLayoutParams(layoutParams);
-                contentLayout.setVisibility(View.VISIBLE);
-                titleTextView.setVisibility(View.INVISIBLE);
-                animStatus = true;
-            } else {
-                int start = cardViewHeight;
-                int end;
-                if (titleTextView.getVisibility() != View.VISIBLE) {
-                    // 折叠
-                    animStatus = false;
-                    end = cardViewFoldHeight;
-                    if (end > start) {
-                        int tmp = end;
-                        end = start;
-                        start = tmp;
-                    }
-                } else {
-                    // 展开
-                    animStatus = true;
-                    end = CARDVIEW_WRAP_HEIGHT;
-                    if (end < start) {
-                        int tmp = end;
-                        end = start;
-                        start = tmp;
-                    }
-                    // 为了美观，延迟卡片信息更新至最后
-                }
-                // 启动动画
-                ValueAnimator valueAnimator = ValueAnimator.ofInt(start, end);
-                valueAnimator.setDuration(animTime);
-                valueAnimator.addUpdateListener(animator -> {
-                    layoutParams.height = (int) (Integer) animator.getAnimatedValue();
-                    cardView.setLayoutParams(layoutParams);
-                });
-                valueAnimator.addListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        if (!animStatus) {
-                            // 折叠
-                            titleTextView.setVisibility(View.VISIBLE);
-                            contentLayout.setVisibility(View.INVISIBLE);
-                        }
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        if (animStatus) {
-                            // 展开
-                            contentLayout.setVisibility(View.VISIBLE);
-                            titleTextView.setVisibility(View.INVISIBLE);
-                        }
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-                    }
-                });
-                valueAnimator.start();
+            end = cardViewFoldHeight;
+            if (end > start) {
+                int tmp = end;
+                end = start;
+                start = tmp;
             }
+        } else {
+            // 展开
+            animStatus = true;
+            end = CARDVIEW_WRAP_HEIGHT;
+            if (end < start) {
+                int tmp = end;
+                end = start;
+                start = tmp;
+            }
+            // 为了美观，延迟卡片信息更新至最后
         }
+        // 启动动画
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(start, end);
+        valueAnimator.setDuration(animTime);
+        valueAnimator.addUpdateListener(animator -> {
+            layoutParams.height = (int) (Integer) animator.getAnimatedValue();
+            cardView.setLayoutParams(layoutParams);
+        });
+        valueAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                if (!animStatus) {
+                    // 折叠
+                    titleTextView.setVisibility(View.VISIBLE);
+                    contentLayout.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (animStatus) {
+                    // 展开
+                    contentLayout.setVisibility(View.VISIBLE);
+                    titleTextView.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+            }
+        });
+        valueAnimator.start();
         // 设置点击事件
         if (animStatus)
             cardView.setOnClickListener(null);

@@ -1,8 +1,6 @@
 package net.xzos.UpgradeAll.activity;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,7 +8,6 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -80,13 +77,6 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             if (appVersion != null) {
                 Toast.makeText(UpdaterSettingActivity.this, "version: " + appVersion, Toast.LENGTH_SHORT).show();
             }
-        });
-        ImageView helpImageView = findViewById(R.id.helpImageView);
-        helpImageView.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("https://xzos.net/regular-expression"));
-            intent = Intent.createChooser(intent, "请选择浏览器以查看帮助文档");
-            startActivity(intent);
         });
         Button addButton = findViewById(R.id.saveButton);
         addButton.setOnClickListener(v -> {
