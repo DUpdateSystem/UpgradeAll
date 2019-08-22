@@ -198,8 +198,8 @@ public class HubLocalActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         new LogDataProxy(Log).clearLogSort("DeBug");
     }
 
@@ -389,7 +389,7 @@ public class HubLocalActivity extends AppCompatActivity {
         logListLiveData.observe(this, logList -> {
             StringBuilder textViewMessage = new StringBuilder();
             for (String logMessage : logList)
-                textViewMessage.append(StringEscapeUtils.unescapeJava(logMessage));
+                textViewMessage.append(StringEscapeUtils.unescapeJava(logMessage)).append("\n");
             jsLogTextView.setText(textViewMessage.toString());
         });
         jsLogTextView.setVisibility(View.VISIBLE);
@@ -470,6 +470,8 @@ public class HubLocalActivity extends AppCompatActivity {
                     // 展开
                     contentLayout.setVisibility(View.VISIBLE);
                     titleTextView.setVisibility(View.INVISIBLE);
+                    layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                    cardView.setLayoutParams(layoutParams);
                 }
             }
 

@@ -66,7 +66,7 @@ public class CloudHubListActivity extends AppCompatActivity {
     }
 
     private void refreshCloudHubList() {
-        new Thread(() -> {
+        Thread thread = new Thread(() -> {
             boolean isSuccess = cloudHub.flashCloudConfigList();
             new Handler(Looper.getMainLooper()).post(() -> {
                 if (!isSuccess) Toast.makeText(this, "网络错误", Toast.LENGTH_SHORT).show();
@@ -87,7 +87,13 @@ public class CloudHubListActivity extends AppCompatActivity {
                 setRecyclerView();
                 adapter.notifyDataSetChanged();
             });
-        }).start();
+        });
+        thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setRecyclerView() {
