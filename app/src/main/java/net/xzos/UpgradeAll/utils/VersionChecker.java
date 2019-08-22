@@ -108,25 +108,16 @@ public class VersionChecker {
         return magiskModuleVersion;
     }
 
-    private static boolean isVersion(String versionString) {
-        boolean isVersion = false;
-        String regexString = "\\d+(\\.\\d+)*";
+    private static String getVersionNumberString(String versionString) {
+        String versionMatchString = null;
+        String regexString = "(\\d+(\\.\\d+)*)(([-|_|.]|[0-9A-Za-z])*)";
         if (versionString != null) {
             Pattern p = Pattern.compile(regexString);
             Matcher m = p.matcher(versionString);
             if (m.find()) {
-                isVersion = true;
-            }
-        }
-        return isVersion;
-    }
-
-    private static String getVersionNumberString(@NonNull String versionString) {
-        String versionMatchString = versionString;
-        String[] versionStringList = versionString.split(" ");
-        for (String temp : versionStringList) {
-            if (isVersion(temp))
-                versionMatchString = temp;
+                versionMatchString = m.group();
+            } else
+                versionMatchString = versionString;
         }
         return versionMatchString;
     }
