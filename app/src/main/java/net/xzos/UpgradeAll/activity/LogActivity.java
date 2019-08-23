@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.viewpager.widget.ViewPager;
@@ -24,10 +23,10 @@ import com.google.android.material.tabs.TabLayout;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
-import net.xzos.UpgradeAll.ui.viewmodels.log.SectionsPagerAdapter;
-import net.xzos.UpgradeAll.utils.FileUtil;
 import net.xzos.UpgradeAll.server.log.LogDataProxy;
 import net.xzos.UpgradeAll.server.log.LogUtil;
+import net.xzos.UpgradeAll.ui.viewmodels.log.SectionsPagerAdapter;
+import net.xzos.UpgradeAll.utils.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +40,7 @@ public class LogActivity extends AppCompatActivity {
     private static final String[] LogObjectTag = {"Core", TAG};
     protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
 
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 3;
+    private static final int PERMISSIONS_REQUEST_WRITE_CONTACTS = 0;
 
     private String logSort = "Core";
 
@@ -63,32 +62,13 @@ public class LogActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == MY_PERMISSIONS_REQUEST_WRITE_CONTACTS) {
+        if (requestCode == PERMISSIONS_REQUEST_WRITE_CONTACTS) {
             if (grantResults.length <= 0
                     || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(LogActivity.this, "导出日志文件需要读写本地文件", Toast.LENGTH_LONG).show();
             }
         }
     }
-
-    private void requestPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                Toast.makeText(LogActivity.this, "请给予本软件 读写存储空间权限", Toast.LENGTH_LONG).show();
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_WRITE_CONTACTS);
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_WRITE_CONTACTS);
-            }
-        }
-    }
-
 
     private void setFab() {
         FabSpeedDial fab = findViewById(R.id.sortFab);
@@ -156,7 +136,7 @@ public class LogActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
-                    requestPermission();
+                    FileUtil.requestPermission(this, PERMISSIONS_REQUEST_WRITE_CONTACTS);
                     return true;
                 }
                 vItem = findViewById(R.id.log_share);

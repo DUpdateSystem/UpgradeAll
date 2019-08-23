@@ -1,6 +1,5 @@
 package net.xzos.UpgradeAll.activity;
 
-import android.Manifest;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
@@ -31,8 +30,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 
 import com.google.gson.Gson;
@@ -61,12 +58,12 @@ public class HubLocalActivity extends AppCompatActivity {
 
     protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
 
-    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 3;
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 0;
 
-    private static final int READ_JS_REQUEST_CODE = 0;
-    private static final int READ_CONFIG_REQUEST_CODE = 1;
+    private static final int READ_JS_REQUEST_CODE = 1;
+    private static final int READ_CONFIG_REQUEST_CODE = 2;
     private static final int WRITE_CONFIG_REQUEST_CODE = READ_CONFIG_REQUEST_CODE;
-    private static final int READ_CONFIG_JS_REQUEST_CODE = 2;
+    private static final int READ_CONFIG_JS_REQUEST_CODE = 3;
 
     private Uri HUBCONFIG_URI = null;
     private Uri JS_URI = null;
@@ -160,7 +157,7 @@ public class HubLocalActivity extends AppCompatActivity {
 
         fixScrollTouch();
 
-        requestPermission();
+        FileUtil.requestPermission(this, PERMISSIONS_REQUEST_READ_CONTACTS);
     }
 
     @Override
@@ -179,8 +176,6 @@ public class HubLocalActivity extends AppCompatActivity {
                     case READ_CONFIG_JS_REQUEST_CODE:
                         loadConfigJSFormUri(uri);
                         break;
-                    default:
-                        break;
                 }
         }
     }
@@ -188,7 +183,7 @@ public class HubLocalActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == MY_PERMISSIONS_REQUEST_READ_CONTACTS) {
+        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
             if (grantResults.length <= 0
                     || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(HubLocalActivity.this, "编辑测试生成配置需要读写本地文件", Toast.LENGTH_LONG).show();
@@ -243,24 +238,6 @@ public class HubLocalActivity extends AppCompatActivity {
             jsLogTextView.getParent().requestDisallowInterceptTouchEvent(true);
             return false;
         });
-    }
-
-    private void requestPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                Toast.makeText(HubLocalActivity.this, "请给予本软件 读写存储空间权限", Toast.LENGTH_LONG).show();
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-            }
-        }
     }
 
     private void setUI() {
