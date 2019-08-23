@@ -27,9 +27,6 @@
     <string name="local_repo_manage">本地软件源管理</string>
     <string name="dialog_repo_config_edit_text">第三方源的配置文本</string>
     <string name="title_activity_hub_setting">HubSettingActivity</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
     <string name="title_activity_log">日志</string>
     <string name="local_debug">本地调试</string>
     <string name="cloud_hub">云端仓库</string>
@@ -60,5 +57,6 @@
     <string name="usage_guidelines_hub">Tips：点击右下角 + 添加云端规则~</string>
     <string name="navigation_drawer_open">开启侧滑菜单</string>
     <string name="navigation_drawer_close">关闭侧滑菜单</string>
+    <string name="navigation_head_image">侧滑菜单背景图</string>
 
 </resources>
