@@ -1,5 +1,5 @@
 <resources>
-    <!-- support api -->
+    <!-- support coreApi -->
     <string-array name="version_checker_support_api">
         <item>
             APP 版本

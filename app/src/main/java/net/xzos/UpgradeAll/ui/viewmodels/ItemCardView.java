@@ -1,5 +1,7 @@
 package net.xzos.UpgradeAll.ui.viewmodels;
 
+import androidx.annotation.NonNull;
+
 import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
 
 public class ItemCardView {
@@ -9,11 +11,11 @@ public class ItemCardView {
     private String api;
     private ItemCardViewExtraData extraData;
 
-    private ItemCardView(Builder builder) {
+    private ItemCardView(@NonNull Builder builder) {
         this.name = builder.name;
         this.desc = builder.desc;
         this.api = builder.api;
-        extraData = builder.extraData;
+        this.extraData = builder.extraData;
     }
 
     public String getName() {
@@ -49,7 +51,6 @@ public class ItemCardView {
             return this;
         }
 
-        // 通过Builder构建所需Person对象，并且每次都产生新的Person对象
         public ItemCardView build() {
             return new ItemCardView(this);
         }

@@ -15,7 +15,7 @@ public class MyApplication extends Application {
     @SuppressLint("StaticFieldLeak")
     private static Context context;
 
-    final private static ServerContainer  serverContainer= new ServerContainer();
+    final private static ServerContainer serverContainer = new ServerContainer();
 
     @Override
     public void onCreate() {

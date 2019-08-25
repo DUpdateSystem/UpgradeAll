@@ -38,9 +38,8 @@ import com.google.gson.GsonBuilder;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.server.JSEngine.JSEngineDataProxy;
 import net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSLog;
-import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
+import net.xzos.UpgradeAll.server.JSEngine.JavaScriptEngine;
 import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.server.log.LogDataProxy;
 import net.xzos.UpgradeAll.server.log.LogUtil;
@@ -357,9 +356,7 @@ public class HubLocalActivity extends AppCompatActivity {
         }
         // 创建 JS 引擎
         String[] logObjectTag = {"DeBug", "0"};
-        JavaScriptJEngine javaScriptJEngine = new JavaScriptJEngine(logObjectTag, testUrl, jsCode);
-        javaScriptJEngine.setEnableLogJsCode(false);
-        JSEngineDataProxy jsEngineDataProxy = new JSEngineDataProxy(javaScriptJEngine);
+        JavaScriptEngine javaScriptEngine = new JavaScriptEngine.Builder(logObjectTag, testUrl, jsCode).enableLogJsCode(false).build();
         JSLog jsLog = new JSLog(logObjectTag);
         TextView jsLogTextView = findViewById(R.id.jsLogTextView);
         LiveData<List<String>> logListLiveData = new LogDataProxy(Log).getLogMessageListLiveData(logObjectTag);
@@ -373,13 +370,13 @@ public class HubLocalActivity extends AppCompatActivity {
         // JS 初始化
         new Thread(() -> {
             // 分步测试
-            jsLog.d(String.format("1. 获取默认名称(getDefaultName): %s \n", jsEngineDataProxy.getDefaultName()));
-            jsLog.d(String.format("2. 获取发布版本号总数(getReleaseNum): %s \n", jsEngineDataProxy.getReleaseNum()));
-            for (int i = 0; i < jsEngineDataProxy.getReleaseNum(); i++) {
-                jsLog.d(String.format("3. (%s) 获取发布版本号(getVersionNumber): %s \n", i, jsEngineDataProxy.getVersionNumber(i)));
+            jsLog.d(String.format("1. 获取默认名称(getDefaultName): %s \n", javaScriptEngine.getDefaultName()));
+            jsLog.d(String.format("2. 获取发布版本号总数(getReleaseNum): %s \n", javaScriptEngine.getReleaseNum()));
+            for (int i = 0; i < javaScriptEngine.getReleaseNum(); i++) {
+                jsLog.d(String.format("3. (%s) 获取发布版本号(getVersionNumber): %s \n", i, javaScriptEngine.getVersionNumber(i)));
             }
-            for (int i = 0; i < jsEngineDataProxy.getReleaseNum(); i++) {
-                JSONObject releaseDownload = jsEngineDataProxy.getReleaseDownload(i);
+            for (int i = 0; i < javaScriptEngine.getReleaseNum(); i++) {
+                JSONObject releaseDownload = javaScriptEngine.getReleaseDownload(i);
                 if (releaseDownload != null) {
                     jsLog.d(String.format("4. (%s) 获取下载链接(getReleaseDownload): %s \n", i, releaseDownload.toString()));
                 }

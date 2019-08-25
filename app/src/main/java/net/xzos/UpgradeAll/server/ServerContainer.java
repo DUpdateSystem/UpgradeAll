@@ -1,13 +1,13 @@
 package net.xzos.UpgradeAll.server;
 
 import net.xzos.UpgradeAll.server.log.LogUtil;
-import net.xzos.UpgradeAll.server.updater.Updater;
+import net.xzos.UpgradeAll.server.updater.AppManager;
 
 import org.jetbrains.annotations.Contract;
 
 public class ServerContainer {
-    final private LogUtil Log = new LogUtil();
-    final private Updater updater = new Updater(Log);
+    final private static LogUtil Log = new LogUtil();
+    final private static AppManager AppManager = new AppManager(Log);
 
     @Contract(pure = true)
     public LogUtil getLog() {
@@ -15,7 +15,7 @@ public class ServerContainer {
     }
 
     @Contract(pure = true)
-    public Updater getUpdater() {
-        return updater;
+    public AppManager getAppManager() {
+        return AppManager;
     }
 }

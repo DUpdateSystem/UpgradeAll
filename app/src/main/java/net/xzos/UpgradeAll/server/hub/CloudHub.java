@@ -2,6 +2,7 @@ package net.xzos.UpgradeAll.server.hub;
 
 import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
 import com.google.gson.Gson;
@@ -14,6 +15,8 @@ import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.server.JSEngine.JSUtils.OkHttpApi;
 import net.xzos.UpgradeAll.utils.FileUtil;
 import net.xzos.UpgradeAll.server.log.LogUtil;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,7 +90,8 @@ public class CloudHub {
         return OkHttpApi.getHttpResponse(LogObjectTag, hubConfigJSRawUrl);
     }
 
-    private String getRawRootUrl(String gitUrl) {
+    @Nullable
+    private String getRawRootUrl(@NonNull String gitUrl) {
         String[] temp = gitUrl.split("github\\.com");
         temp = temp[temp.length - 1].split("/");
         List<String> list = new ArrayList<>(Arrays.asList(temp));

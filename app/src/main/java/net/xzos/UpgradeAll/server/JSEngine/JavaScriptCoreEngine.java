@@ -1,9 +1,11 @@
 package net.xzos.UpgradeAll.server.JSEngine;
 
+import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.JSCacheData;
 import net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSLog;
 import net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSUtils;
-import net.xzos.UpgradeAll.server.JSEngine.api.Api;
+import net.xzos.UpgradeAll.server.JSEngine.api.CoreApi;
+import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,11 +14,11 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
-public class JavaScriptJEngine extends Api {
+class JavaScriptCoreEngine implements CoreApi {
 
-    private static final String TAG = "JavaScriptJEngine";
+    private static final String TAG = "JavaScriptCoreEngine";
     private String[] LogObjectTag;
-    private boolean enableLogJsCode = true;
+    protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
 
     private String URL;
     private String jsCode;
@@ -27,7 +29,7 @@ public class JavaScriptJEngine extends Api {
     private JSUtils JSUtils;
     private net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSLog JSLog;
 
-    public JavaScriptJEngine(String[] logObjectTag, String URL, String jsCode) {
+    JavaScriptCoreEngine(String[] logObjectTag, String URL, String jsCode) {
         this.LogObjectTag = logObjectTag;
         this.URL = URL;
         this.jsCode = jsCode;
@@ -41,16 +43,8 @@ public class JavaScriptJEngine extends Api {
         return LogObjectTag;
     }
 
-    public void setEnableLogJsCode(boolean enableLogJsCode) {
-        this.enableLogJsCode = enableLogJsCode;
-    }
-
     // 加载 JavaScript 代码
     private boolean executeVoidScript() {
-        if (enableLogJsCode) {
-            Log.i(this.LogObjectTag, TAG, String.format("JavaScriptJEngine: jsCode: \n%s", jsCode));
-            enableLogJsCode = false;  // 只打印一次 JS 脚本
-        }
         if (jsCode == null) return false;
         boolean isSuccess = false;
         try {

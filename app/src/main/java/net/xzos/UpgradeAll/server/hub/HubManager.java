@@ -7,11 +7,10 @@ import com.google.gson.Gson;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.gson.HubItemExtraData;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.jetbrains.annotations.Contract;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.util.List;
@@ -48,14 +47,9 @@ public class HubManager {
                 hubDatabase.setUuid(uuid);
                 hubDatabase.setHubConfig(hubConfigGson);
                 // 存储 js 代码
-                JSONObject extraData = new JSONObject();
-                try {
-                    extraData.put("javascript", jsCode);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return false;
-                }
-                hubDatabase.setExtraData(extraData);
+                HubItemExtraData hubItemExtraData = new HubItemExtraData();
+                hubItemExtraData.setJavascript(jsCode);
+                hubDatabase.setExtraData(hubItemExtraData);
                 hubDatabase.save(); // 将数据存入 HubDatabase 数据库
                 return true;
             }
@@ -63,7 +57,7 @@ public class HubManager {
         return false;
     }
 
-    public static HubConfig getHubConfigByDatabaseId(int databaseId){
+    public static HubConfig getHubConfigByDatabaseId(int databaseId) {
         HubDatabase hubDatabase = LitePal.find(HubDatabase.class, databaseId);
         return hubDatabase.getHubConfig();
     }
@@ -84,14 +78,6 @@ public class HubManager {
     }
 
     private static String getJsCodeFromHubDatabaseItem(@NonNull HubDatabase hubDatabase) {
-        String jsCode = null;
-        JSONObject extraData = hubDatabase.getExtraData();
-        try {
-            jsCode = extraData.getString("javascript");
-        } catch (JSONException e) {
-            Log.e(LogObjectTag, TAG, "未取得 JS 代码，extraData: " + extraData);
-            e.printStackTrace();
-        }
-        return jsCode;
+        return hubDatabase.getExtraData().getJavascript();
     }
 }
