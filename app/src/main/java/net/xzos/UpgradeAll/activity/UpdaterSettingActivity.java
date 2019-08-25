@@ -87,7 +87,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             Spinner apiSpinner = findViewById(R.id.apiSpinner);
             int apiNum = apiSpinner.getSelectedItemPosition();
             JSONObject versionChecker = getVersionChecker();
-            ProgressDialog progressDialog = new ProgressDialog(UpdaterSettingActivity.this);
+            ProgressDialog progressDialog = new ProgressDialog(this);
             new Thread(() -> {
                 new Handler(Looper.getMainLooper()).post(() -> {
                     // 弹出等待框
@@ -111,7 +111,6 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                     }
                 });
             }).start();
-
         });
     }
 
