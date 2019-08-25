@@ -58,12 +58,12 @@ public class HubLocalActivity extends AppCompatActivity {
 
     protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
 
-    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 0;
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 1;
 
-    private static final int READ_JS_REQUEST_CODE = 1;
-    private static final int READ_CONFIG_REQUEST_CODE = 2;
+    private static final int READ_JS_REQUEST_CODE = 2;
+    private static final int READ_CONFIG_REQUEST_CODE = 3;
     private static final int WRITE_CONFIG_REQUEST_CODE = READ_CONFIG_REQUEST_CODE;
-    private static final int READ_CONFIG_JS_REQUEST_CODE = 3;
+    private static final int READ_CONFIG_JS_REQUEST_CODE = 4;
 
     private Uri HUBCONFIG_URI = null;
     private Uri JS_URI = null;

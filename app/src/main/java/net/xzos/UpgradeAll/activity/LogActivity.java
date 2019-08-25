@@ -40,7 +40,7 @@ public class LogActivity extends AppCompatActivity {
     private static final String[] LogObjectTag = {"Core", TAG};
     protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
 
-    private static final int PERMISSIONS_REQUEST_WRITE_CONTACTS = 0;
+    private static final int PERMISSIONS_REQUEST_WRITE_CONTACTS = 1;
 
     private String logSort = "Core";
 

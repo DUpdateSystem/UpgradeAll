@@ -1,16 +1,10 @@
 package net.xzos.UpgradeAll.activity;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,12 +24,16 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.navigation.NavigationView;
+import com.yalantis.ucrop.UCrop;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
+import net.xzos.UpgradeAll.server.log.LogUtil;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
 import net.xzos.UpgradeAll.ui.viewmodels.adapters.UpdateItemCardAdapter;
 import net.xzos.UpgradeAll.utils.FileUtil;
@@ -43,22 +41,21 @@ import net.xzos.UpgradeAll.utils.FileUtil;
 import org.litepal.LitePal;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    private static final String TAG = "MainActivity";
+    private static final String[] LogObjectTag = {"Core", TAG};
+
     private static final String NAV_IMAGE_FILE_NAME = "nav_image.png";
     private static File NAV_IMAGE_FILE = new File(new File(MyApplication.getContext().getFilesDir(), "images"), NAV_IMAGE_FILE_NAME);
 
-    private static final int PERMISSIONS_REQUEST_WRITE_CONTACTS = 0;
-    final int READ_PIC_REQUEST_CODE = 1;
-    final int PIC_CROP = 2;
+    private static final int PERMISSIONS_REQUEST_WRITE_CONTACTS = 1;
+    final int READ_PIC_REQUEST_CODE = 2;
 
     private boolean enableRenew = true;
 
@@ -74,21 +71,25 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         super.onActivityResult(requestCode, resultCode, resultData);
-        if (resultCode == Activity.RESULT_OK && resultData != null) {
-            Uri uri = resultData.getData();
-            if (uri != null) {
-                switch (requestCode) {
-                    case READ_PIC_REQUEST_CODE:
-                        boolean haveCropApp = FileUtil.performCrop(this, PIC_CROP, uri, 16, 9);
-                        if (!haveCropApp) {
-                            saveImage(resultData, NAV_IMAGE_FILE);
-                            initNavImage();
-                        }
-                        break;
-                    case PIC_CROP:
-                        initNavImage();
-                        break;
-                }
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case READ_PIC_REQUEST_CODE:
+                    Uri uri = resultData.getData();
+                    if (uri != null) {
+                        Uri destinationUri = Uri.fromFile(NAV_IMAGE_FILE);
+                        UCrop.of(uri, destinationUri)
+                                .withAspectRatio(16, 9)
+                                .start(this, UCrop.REQUEST_CROP);
+                    }
+                    break;
+                case UCrop.REQUEST_CROP:
+                    renewNavImage();
+                    break;
+                case UCrop.RESULT_ERROR:
+                    Throwable cropError = UCrop.getError(resultData);
+                    if (cropError != null)
+                        Log.e(LogObjectTag, TAG, "onActivityResult: 图片裁剪错误: " + cropError.toString());
+                    break;
             }
         }
     }
@@ -132,7 +133,7 @@ public class MainActivity extends AppCompatActivity
             setNavImage();
         });
         headerView.setOnLongClickListener(view -> {
-            delImage();
+            delNavImage();
             return true;
         });
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
@@ -149,7 +150,7 @@ public class MainActivity extends AppCompatActivity
                 LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) navViewHeaderImageView.getLayoutParams();
                 layoutParams.height = navViewHeaderImageView.getWidth() / 16 * 9;
                 navViewHeaderImageView.setLayoutParams(layoutParams);
-                initNavImage();
+                renewNavImage();
             }
         });
         setRecyclerView();
@@ -161,51 +162,15 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void initNavImage() {
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(NAV_IMAGE_FILE);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (fis != null) {
-            Bitmap bitmap = BitmapFactory.decodeStream(fis);
-            navViewHeaderImageView.setImageBitmap(bitmap);
-        }
-        Log.e("111", "initNavImage: " + fis);
+    private void renewNavImage() {
+        Glide.with(this)
+                .load(NAV_IMAGE_FILE)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .into(navViewHeaderImageView);
     }
 
-    private void saveImage(Intent intent, File imageFile) {
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        new Thread(() -> {
-            new Handler(Looper.getMainLooper()).post(() -> {
-                // 弹出等待框
-                progressDialog.setTitle("正在处理，请稍等");
-                progressDialog.setMessage("Loading...");
-                progressDialog.setCancelable(false);
-                progressDialog.show();
-            });
-            // 保存图片
-            NAV_IMAGE_FILE.delete();
-            Bitmap bitmap = FileUtil.getBitmapFromIntent(intent);
-            if (bitmap != null) {
-                String fileParent = imageFile.getParent();
-                if (fileParent != null && !FileUtil.fileIsExistsByPath(fileParent)) {
-                    File parent = new File(fileParent);
-                    parent.mkdirs();
-                }
-                try (FileOutputStream fos = new FileOutputStream(imageFile)) {
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            // 取消等待框
-            new Handler(Looper.getMainLooper()).post(progressDialog::cancel);
-        }).start();
-    }
-
-    private void delImage() {
+    private void delNavImage() {
         NAV_IMAGE_FILE.delete();
         navViewHeaderImageView.setImageDrawable(null);
     }
