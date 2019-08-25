@@ -20,8 +20,7 @@ import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.server.JSEngine.JSEngineDataProxy;
-import net.xzos.UpgradeAll.server.JSEngine.JavaScriptJEngine;
+import net.xzos.UpgradeAll.server.JSEngine.JavaScriptEngine;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
@@ -45,7 +44,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_updater_setting);
+        setContentView(R.layout.activity_app_setting);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.add);
@@ -102,7 +101,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                     // 取消等待框
                     progressDialog.cancel();
                     if (addRepoSuccess) {
-                        MyApplication.getServerContainer().getUpdater().renewUpdateItem(databaseId);
+                        MyApplication.getServerContainer().getAppManager().getUpdater().renewUpdateItem(databaseId);
                         // 强行刷新被修改的子项
                         onBackPressed();
                         // 跳转主页面
@@ -190,26 +189,22 @@ public class UpdaterSettingActivity extends AppCompatActivity {
         return versionChecker;
     }
 
-    boolean addRepoDatabase(int databaseId, String name, int apiNum, String url, JSONObject versionChecker) {
+    boolean addRepoDatabase(int databaseId, String name, int apiNum, @NonNull String URL, JSONObject versionChecker) {
         // 数据处理
         String uuid = apiSpinnerList.get(apiNum);
-        if (url.length() != 0 && uuid != null) {
+        if (URL.length() != 0 && uuid != null) {
             // 判断url是否多余
-            if (url.substring(url.length() - 1).equals("/")) {
-                url = url.substring(0, url.length() - 1);
+            if (URL.substring(URL.length() - 1).equals("/")) {
+                URL = URL.substring(0, URL.length() - 1);
             }
             if (name.length() == 0) {
                 // 自定义源
                 List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
                 for (HubDatabase hubItem : hubDatabase) {
                     if (hubItem.getUuid().equals(uuid)) {
-                        JSONObject extraData = hubItem.getExtraData();
-                        String jsCode = null;
-                        try {
-                            jsCode = extraData.getString("javascript");
-                        } catch (JSONException e) {
-                            Log.e(LogObjectTag, TAG, "未找到 js 脚本，extraData: " + extraData);
-                        }
+                        String jsCode = hubItem.getExtraData().getJavascript();
+                        if (jsCode == null)
+                            Log.e(LogObjectTag, TAG, "未找到 js 脚本");
                         HubConfig hubConfig = hubItem.getHubConfig();
                         if (hubConfig != null) {
                             String tool = null;
@@ -218,7 +213,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                             }
                             if (tool != null && tool.toLowerCase().equals("javascript")) {
                                 String[] logObjectTag = {"TEMP", "0"};
-                                name = new JSEngineDataProxy(new JavaScriptJEngine(logObjectTag, url, jsCode)).getDefaultName();
+                                name = new JavaScriptEngine.Builder(logObjectTag, URL, jsCode).build().getDefaultName();
                             }
                         }
                         break;
@@ -237,7 +232,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             repoDatabase.setName(name);
             repoDatabase.setApi(api);
             repoDatabase.setApiUuid(uuid);
-            repoDatabase.setUrl(url);
+            repoDatabase.setUrl(URL);
             repoDatabase.setVersionChecker(versionChecker);
             repoDatabase.save();
             // 为 databaseId 赋值
@@ -247,6 +242,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
         return false;
     }
 
+    @NonNull
     private String[] renewApiJsonObject() {
         // api接口名称列表
         // 清空 apiSpinnerList
@@ -263,5 +259,4 @@ public class UpdaterSettingActivity extends AppCompatActivity {
         }
         return nameStringList.toArray(new String[0]);
     }
-
 }

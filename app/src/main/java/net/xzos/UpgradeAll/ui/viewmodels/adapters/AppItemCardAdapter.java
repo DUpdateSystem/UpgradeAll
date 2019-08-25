@@ -23,6 +23,7 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.activity.UpdaterSettingActivity;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
+import net.xzos.UpgradeAll.server.updater.AppManager;
 import net.xzos.UpgradeAll.server.updater.Updater;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
 import net.xzos.UpgradeAll.ui.viewmodels.ViewHolder.CardViewRecyclerViewHolder;
@@ -36,14 +37,14 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHolder> {
+public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHolder> {
 
     private List<ItemCardView> mItemCardViewList;
 
-    private static final Updater updater = MyApplication.getServerContainer().getUpdater();
+    private static final AppManager AppManager = MyApplication.getServerContainer().getAppManager();
 
 
-    public UpdateItemCardAdapter(List<ItemCardView> updateList) {
+    public AppItemCardAdapter(List<ItemCardView> updateList) {
         mItemCardViewList = updateList;
     }
 
@@ -53,6 +54,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
         final CardViewRecyclerViewHolder holder = new CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_item, parent, false));
         // 单击展开 Release 详情页
+        final Updater updater = AppManager.getUpdater();
         holder.itemCardView.setOnClickListener(v -> {
             final int position = holder.getAdapterPosition();
             final ItemCardView itemCardView = mItemCardViewList.get(position);
@@ -72,7 +74,7 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
                     cloudReleaseTextView.setText(latestVersion);
                 else
                     cloudReleaseTextView.setText("获取失败");
-                String installedVersion = updater.getInstalledVersion(databaseId);
+                String installedVersion = AppManager.getInstalledVersion(databaseId);
                 if (installedVersion != null)
                     localReleaseTextView.setText(installedVersion);
                 else
@@ -206,13 +208,22 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
         }
         holder.versionCheckButton.setVisibility(View.INVISIBLE);
         holder.versionCheckingBar.setVisibility(View.VISIBLE);
+        final Updater updater = AppManager.getUpdater();
         new Thread(() -> {
             // 刷新数据库
+            Thread renewThread;
             if (isAuto) {
-                updater.autoRefresh(databaseId);
+                renewThread = updater.autoRenew(databaseId);
             } else {
                 updater.renewUpdateItem(databaseId);
-                updater.refresh(databaseId);
+                renewThread = updater.refresh(databaseId);
+            }
+            if (renewThread != null) {
+                try {
+                    renewThread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             new Handler(Looper.getMainLooper()).post(() -> {
                 holder.versionCheckButton.setVisibility(View.VISIBLE);
@@ -220,9 +231,9 @@ public class UpdateItemCardAdapter extends RecyclerView.Adapter<CardViewRecycler
                 //检查是否取得云端版本号
                 if (updater.getLatestVersion(databaseId) != null) {
                     // 检查是否获取本地版本号
-                    if (updater.getInstalledVersion(databaseId) != null) {
+                    if (AppManager.getInstalledVersion(databaseId) != null) {
                         // 检查本地版本
-                        if (updater.isLatest(databaseId)) {
+                        if (AppManager.isLatest(databaseId)) {
                             holder.versionCheckButton.setImageResource(R.drawable.ic_check_latest);
                         } else {
                             holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate);

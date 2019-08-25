@@ -5,7 +5,7 @@ import android.util.Log;
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
 
-public class JsoupApi {
+class JsoupApi {
     private static final String TAG = "JsoupApi";
 
     static Document getDoc(Connection connection) {

@@ -1,12 +1,13 @@
 package net.xzos.UpgradeAll.database;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.gson.HubItemExtraData;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.litepal.crud.LitePalSupport;
 
 public class HubDatabase extends LitePalSupport {
@@ -50,19 +51,21 @@ public class HubDatabase extends LitePalSupport {
         return uuid;
     }
 
-    public void setUuid(String uuid) {
+    public void setUuid(@NonNull String uuid) {
         this.uuid = uuid.toLowerCase();
     }
 
-    public JSONObject getExtraData() {
+    public HubItemExtraData getExtraData() {
+        Gson gson = new Gson();
         try {
-            return new JSONObject(extra_data);
-        } catch (JSONException e) {
+            return gson.fromJson(extra_data, HubItemExtraData.class);
+        } catch (JsonSyntaxException e) {
             return null;
         }
     }
 
-    public void setExtraData(JSONObject extra_data) {
-        this.extra_data = extra_data.toString();
+    public void setExtraData(HubItemExtraData extra_data) {
+        Gson gson = new Gson();
+        this.extra_data = gson.toJson(extra_data);
     }
 }
