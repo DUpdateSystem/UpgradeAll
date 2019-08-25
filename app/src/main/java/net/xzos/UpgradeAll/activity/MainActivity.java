@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
         setRecyclerView();
+        deleteFile(NAV_IMAGE_FILE_NAME);
     }
 
     private void setNavImage() {
