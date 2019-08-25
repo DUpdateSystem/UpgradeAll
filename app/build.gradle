@@ -14,8 +14,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 20
-        versionName "0.1.0-alpha"
+        versionCode 21
+        versionName "0.1.0-alpha.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -64,6 +64,10 @@ dependencies {
     implementation 'org.apache.maven:maven-artifact:3.6.1'  // 版本比较
     implementation 'org.apache.commons:commons-text:1.7'  // 去除转义字符
     implementation 'com.jaredrummler:android-shell:1.0.0'  // shell
+    // 图片加载
+    implementation 'com.github.bumptech.glide:glide:4.9.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+    implementation 'com.github.yalantis:ucrop:2.2.3'  // 图片裁剪
 
     // 界面设计
     implementation 'com.google.android.material:material:1.1.0-alpha09'  // Google MD 库
