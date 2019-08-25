@@ -1,14 +1,16 @@
 package net.xzos.UpgradeAll.activity;
 
 import android.app.Activity;
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +33,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.navigation.NavigationView;
 
 import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
 import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
@@ -39,6 +42,7 @@ import net.xzos.UpgradeAll.utils.FileUtil;
 
 import org.litepal.LitePal;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -49,7 +53,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String NAV_IMAGE_FILENAME = "nav_image.png";
+    private static final String NAV_IMAGE_FILE_NAME = "nav_image.png";
+    private static File NAV_IMAGE_FILE = new File(new File(MyApplication.getContext().getFilesDir(), "images"), NAV_IMAGE_FILE_NAME);
+
     private static final int PERMISSIONS_REQUEST_WRITE_CONTACTS = 0;
     final int READ_PIC_REQUEST_CODE = 1;
     final int PIC_CROP = 2;
@@ -69,28 +75,20 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         super.onActivityResult(requestCode, resultCode, resultData);
         if (resultCode == Activity.RESULT_OK && resultData != null) {
-            switch (requestCode) {
-                case READ_PIC_REQUEST_CODE:
-                    Uri uri = resultData.getData();
-                    FileUtil.performCrop(this, PIC_CROP, uri, 16, 9);
-                    break;
-                case PIC_CROP:
-                    Uri imageUri = resultData.getData();
-                    Bitmap bitmap = null;
-                    try {
-                        bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if (bitmap != null) {
-                        navViewHeaderImageView.setImageBitmap(bitmap);
-                        try (FileOutputStream fos = openFileOutput(NAV_IMAGE_FILENAME, Context.MODE_PRIVATE)) {
-                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+            Uri uri = resultData.getData();
+            if (uri != null) {
+                switch (requestCode) {
+                    case READ_PIC_REQUEST_CODE:
+                        boolean haveCropApp = FileUtil.performCrop(this, PIC_CROP, uri, 16, 9);
+                        if (!haveCropApp) {
+                            saveImage(resultData, NAV_IMAGE_FILE);
+                            initNavImage();
                         }
-                    }
-                    break;
+                        break;
+                    case PIC_CROP:
+                        initNavImage();
+                        break;
+                }
             }
         }
     }
@@ -103,7 +101,7 @@ public class MainActivity extends AppCompatActivity
                     || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(MainActivity.this, "设置背景图片需要读写本地文件", Toast.LENGTH_LONG).show();
             } else
-                FileUtil.performFileSearch(this, READ_PIC_REQUEST_CODE, "image/*");
+                setNavImage();
         }
     }
 
@@ -129,7 +127,14 @@ public class MainActivity extends AppCompatActivity
         navView = findViewById(R.id.nav_view);
         LinearLayout headerView = (LinearLayout) navView.getHeaderView(0);
         navViewHeaderImageView = headerView.findViewById(R.id.nav_header_imageView);
-        headerView.setOnClickListener(view -> performCrop());
+        headerView.setOnClickListener(view -> {
+            Toast.makeText(MainActivity.this, "长按侧滑栏图片可以删除图片", Toast.LENGTH_SHORT).show();
+            setNavImage();
+        });
+        headerView.setOnLongClickListener(view -> {
+            delImage();
+            return true;
+        });
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
         swipeRefresh.setOnRefreshListener(this::refreshCardView);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -144,20 +149,65 @@ public class MainActivity extends AppCompatActivity
                 LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) navViewHeaderImageView.getLayoutParams();
                 layoutParams.height = navViewHeaderImageView.getWidth() / 16 * 9;
                 navViewHeaderImageView.setLayoutParams(layoutParams);
-                try {
-                    FileInputStream fis = openFileInput(NAV_IMAGE_FILENAME);
-                    Bitmap bitmap = BitmapFactory.decodeStream(fis);
-                    navViewHeaderImageView.setImageBitmap(bitmap);
-                } catch (FileNotFoundException ignored) {
-                }
+                initNavImage();
             }
         });
         setRecyclerView();
     }
 
-    private void performCrop() {
-        if (FileUtil.requestPermission(this, PERMISSIONS_REQUEST_WRITE_CONTACTS))
-            FileUtil.performFileSearch(this, READ_PIC_REQUEST_CODE, "image/*");
+    private void setNavImage() {
+        if (FileUtil.requestPermission(this, PERMISSIONS_REQUEST_WRITE_CONTACTS)) {
+            FileUtil.getPicFormGallery(this, READ_PIC_REQUEST_CODE);
+        }
+    }
+
+    private void initNavImage() {
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(NAV_IMAGE_FILE);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (fis != null) {
+            Bitmap bitmap = BitmapFactory.decodeStream(fis);
+            navViewHeaderImageView.setImageBitmap(bitmap);
+        }
+        Log.e("111", "initNavImage: " + fis);
+    }
+
+    private void saveImage(Intent intent, File imageFile) {
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        new Thread(() -> {
+            new Handler(Looper.getMainLooper()).post(() -> {
+                // 弹出等待框
+                progressDialog.setTitle("正在处理，请稍等");
+                progressDialog.setMessage("Loading...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            });
+            // 保存图片
+            NAV_IMAGE_FILE.delete();
+            Bitmap bitmap = FileUtil.getBitmapFromIntent(intent);
+            if (bitmap != null) {
+                String fileParent = imageFile.getParent();
+                if (fileParent != null && !FileUtil.fileIsExistsByPath(fileParent)) {
+                    File parent = new File(fileParent);
+                    parent.mkdirs();
+                }
+                try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            // 取消等待框
+            new Handler(Looper.getMainLooper()).post(progressDialog::cancel);
+        }).start();
+    }
+
+    private void delImage() {
+        NAV_IMAGE_FILE.delete();
+        navViewHeaderImageView.setImageDrawable(null);
     }
 
     private void refreshCardView() {

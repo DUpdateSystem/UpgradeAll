@@ -3,9 +3,16 @@ package net.xzos.UpgradeAll.utils;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,12 +27,20 @@ import org.jetbrains.annotations.Nullable;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.channels.FileChannel;
+import java.util.List;
+
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
+import static net.xzos.UpgradeAll.utils.UUIDType5.NAMESPACE_URL;
 
 public class FileUtil {
 
@@ -205,26 +220,120 @@ public class FileUtil {
         return writeSuccess;
     }
 
-    public static void performCrop(@NonNull final Activity activity, final int PIC_CROP, final Uri picUri, final int aspectX, final int aspectY) {
+    @NonNull
+    public static File createTmpFile(final String fileName) {
+        File tmpFile = new File(
+                Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS),
+                UUIDType5.nameUUIDFromNamespaceAndString(NAMESPACE_URL, fileName).toString());
+        if (!tmpFile.exists()) {
+            android.util.Log.e(TAG, "createTmpFile: " + tmpFile.getPath());
+            try {
+                tmpFile.mkdirs();
+                tmpFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return tmpFile;
+    }
+
+    public static boolean copyFile(final File originalFile, final File targetFile) {
+        boolean result = false;
+        if ((originalFile == null) || (targetFile == null)) {
+            return result;
+        }
+        if (targetFile.exists()) {
+            targetFile.delete(); // delete file
+        }
         try {
-            Intent cropIntent = new Intent("com.android.camera.action.CROP");
-            cropIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            // indicate image type and Uri
-            cropIntent.setDataAndType(picUri, "image/*");
-            // set crop properties here
-            cropIntent.putExtra("crop", true);
-            // indicate aspect of desired crop
-            cropIntent.putExtra("aspectX", aspectX);
-            cropIntent.putExtra("aspectY", aspectY);
-            // retrieve data on return
-            cropIntent.putExtra("return-data", false);
-            // start the activity - we handle returning in onActivityResult
+            targetFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FileChannel srcChannel;
+        FileChannel dstChannel;
+        try {
+            srcChannel = new FileInputStream(originalFile).getChannel();
+            dstChannel = new FileOutputStream(targetFile).getChannel();
+            srcChannel.transferTo(0, srcChannel.size(), dstChannel);
+            result = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return result;
+        }
+        try {
+            srcChannel.close();
+            dstChannel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static void getPicFormGallery(@NonNull Activity activity, final int REQUEST_CODE_LOAD_IMAGE) {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+        activity.startActivityForResult(intent, REQUEST_CODE_LOAD_IMAGE);
+    }
+
+    public static Bitmap getBitmapFromUri(Uri uri) {
+        ParcelFileDescriptor parcelFileDescriptor = null;
+        try {
+            parcelFileDescriptor = MyApplication.getContext().getContentResolver().openFileDescriptor(uri, "r");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.d(LogObjectTag, TAG, "URI 文件获取失败, ERROR_MESSAGE: " + e.toString());
+        }
+        Bitmap image = null;
+        if (parcelFileDescriptor != null) {
+            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+            image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+            try {
+                parcelFileDescriptor.close();
+            } catch (IOException e) {
+                Log.d(LogObjectTag, TAG, "文件流关闭失败, ERROR_MESSAGE: " + e.toString());
+            }
+        }
+        return image;
+    }
+
+    public static Bitmap getBitmapFromIntent(Intent intent) {
+        Bitmap selectedBitmap = null;
+        if (intent != null) {
+            // get the returned data
+            Bundle extras = intent.getExtras();
+            // get the cropped bitmap
+            if (extras != null)
+                selectedBitmap = extras.getParcelable("data");
+            else
+                selectedBitmap = getBitmapFromUri(intent.getData());
+        }
+        return selectedBitmap;
+    }
+
+    public static boolean performCrop(@NonNull final Activity activity, final int PIC_CROP, final Uri picUri, final int aspectX, final int aspectY) {
+        boolean startActivity = false;
+        Context context = MyApplication.getContext();
+        Intent cropIntent = new Intent("com.android.camera.action.CROP");
+        cropIntent.setDataAndType(picUri, "image/*");
+        cropIntent.putExtra("aspectX", aspectX);
+        cropIntent.putExtra("aspectY", aspectY);
+        cropIntent.putExtra("crop", true);
+        cropIntent.putExtra("return-data", false);
+        List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(cropIntent, PackageManager.MATCH_DEFAULT_ONLY);
+        for (ResolveInfo resolveInfo : resInfoList) {
+            String packageName = resolveInfo.activityInfo.packageName;
+            context.grantUriPermission(packageName, picUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+        try {
             activity.startActivityForResult(cropIntent, PIC_CROP);
-        }
-        // respond to users whose devices do not support the crop action
-        catch (ActivityNotFoundException e) {
-            // display an error message
+            startActivity = true;
+        } catch (ActivityNotFoundException e) {
+            e.printStackTrace();
             Log.d(LogObjectTag, TAG, "ERROR_MESSAGE: : " + e.toString());
+            Toast.makeText(context, "无裁剪图片工具，跳过裁剪操作", Toast.LENGTH_LONG).show();
         }
+        return startActivity;
     }
 }
