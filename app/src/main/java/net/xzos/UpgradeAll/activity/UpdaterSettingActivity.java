@@ -62,7 +62,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             apiSpinner.setAdapter(adapter);
         } else {
-            Toast.makeText(UpdaterSettingActivity.this, "请先添加自定义源", Toast.LENGTH_LONG).show();
+            Toast.makeText(UpdaterSettingActivity.this, "请先添加软件源", Toast.LENGTH_LONG).show();
             onBackPressed();
         }
         setSettingItem(); // 设置预置设置项
@@ -79,37 +79,9 @@ public class UpdaterSettingActivity extends AppCompatActivity {
         });
         Button addButton = findViewById(R.id.saveButton);
         addButton.setOnClickListener(v -> {
-            EditText editName = findViewById(R.id.editName);
-            EditText editUrl = findViewById(R.id.editUrl);
-            String name = editName.getText().toString();
-            String url = editUrl.getText().toString();
-            Spinner apiSpinner = findViewById(R.id.apiSpinner);
-            int apiNum = apiSpinner.getSelectedItemPosition();
-            JSONObject versionChecker = getVersionChecker();
-            ProgressDialog progressDialog = new ProgressDialog(this);
-            new Thread(() -> {
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    // 弹出等待框
-                    progressDialog.setTitle("正在添加，请稍等");
-                    progressDialog.setMessage("Loading...");
-                    progressDialog.setCancelable(false);
-                    progressDialog.show();
-                });
-                // 添加数据库
-                boolean addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker);
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    // 取消等待框
-                    progressDialog.cancel();
-                    if (addRepoSuccess) {
-                        MyApplication.getServerContainer().getAppManager().getUpdater().renewUpdateItem(databaseId);
-                        // 强行刷新被修改的子项
-                        onBackPressed();
-                        // 跳转主页面
-                    } else {
-                        Toast.makeText(UpdaterSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
-                    }
-                });
-            }).start();
+            addButton.setEnabled(false);
+            addApp();
+            addButton.setEnabled(true);
         });
     }
 
@@ -121,6 +93,46 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addApp() {
+        EditText editName = findViewById(R.id.editName);
+        EditText editUrl = findViewById(R.id.editUrl);
+        String name = editName.getText().toString();
+        String url = editUrl.getText().toString();
+        Spinner apiSpinner = findViewById(R.id.apiSpinner);
+        int apiNum = apiSpinner.getSelectedItemPosition();
+        JSONObject versionChecker = getVersionChecker();
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        new Thread(() -> {
+            new Handler(Looper.getMainLooper()).post(() -> {
+                // 弹出等待框
+                progressDialog.setTitle("正在添加，请稍等");
+                progressDialog.setMessage("Loading...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            });
+            // 添加数据库
+            boolean addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker);
+            if (addRepoSuccess) {
+                try {
+                    MyApplication.getServerContainer().getAppManager().getUpdater().refresh(databaseId).join();
+                    // TODO: 异步请求服务
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            // 强行刷新被修改的子项
+            new Handler(Looper.getMainLooper()).post(() -> {
+                // 取消等待框
+                if (!addRepoSuccess) {
+                    Toast.makeText(UpdaterSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
+                }
+                progressDialog.cancel();
+                onBackPressed();  // 跳转主页面
+            });
+        }).start();
+
     }
 
     private void setSettingItem() {
