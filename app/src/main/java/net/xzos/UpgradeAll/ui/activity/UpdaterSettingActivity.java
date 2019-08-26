@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.activity;
+package net.xzos.UpgradeAll.ui.activity;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -20,7 +20,7 @@ import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.server.JSEngine.JavaScriptEngine;
+import net.xzos.UpgradeAll.server.app.engine.js.JavaScriptEngine;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 

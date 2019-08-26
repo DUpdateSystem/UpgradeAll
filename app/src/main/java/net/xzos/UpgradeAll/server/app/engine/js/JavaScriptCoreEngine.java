@@ -1,10 +1,10 @@
-package net.xzos.UpgradeAll.server.JSEngine;
+package net.xzos.UpgradeAll.server.app.engine.js;
 
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.JSCacheData;
-import net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSLog;
-import net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSUtils;
-import net.xzos.UpgradeAll.server.JSEngine.api.CoreApi;
+import net.xzos.UpgradeAll.server.app.engine.js.utils.JSLog;
+import net.xzos.UpgradeAll.server.app.engine.js.utils.JSUtils;
+import net.xzos.UpgradeAll.server.app.engine.api.CoreApi;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.json.JSONException;
@@ -27,7 +27,7 @@ class JavaScriptCoreEngine implements CoreApi {
     private Scriptable scope;
 
     private JSUtils JSUtils;
-    private net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSLog JSLog;
+    private net.xzos.UpgradeAll.server.app.engine.js.utils.JSLog JSLog;
 
     JavaScriptCoreEngine(String[] logObjectTag, String URL, String jsCode) {
         this.LogObjectTag = logObjectTag;

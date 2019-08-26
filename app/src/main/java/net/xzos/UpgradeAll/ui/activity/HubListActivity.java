@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.activity;
+package net.xzos.UpgradeAll.ui.activity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -18,7 +18,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
-import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
+import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
 import net.xzos.UpgradeAll.ui.viewmodels.adapters.LocalHubItemAdapter;
 
 import org.litepal.LitePal;

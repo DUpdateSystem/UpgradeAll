@@ -13,7 +13,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
-import net.xzos.UpgradeAll.ui.viewmodels.ViewHolder.LogRecyclerViewHolder;
+import net.xzos.UpgradeAll.ui.viewmodels.view.holder.LogRecyclerViewHolder;
 
 import org.apache.commons.text.StringEscapeUtils;
 

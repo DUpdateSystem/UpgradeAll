@@ -14,7 +14,7 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="m">
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
@@ -24,21 +24,21 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.LogActivity"
+            android:name=".ui.activity.LogActivity"
             android:label="@string/title_activity_log" />
         <activity
-            android:name=".activity.HubListActivity"
+            android:name=".ui.activity.HubListActivity"
             android:label="@string/hub_list" />
         <activity
-            android:name=".activity.CloudHubListActivity"
+            android:name=".ui.activity.CloudHubListActivity"
             android:label="@string/cloud_hub" />
         <activity
-            android:name=".activity.HubLocalActivity"
+            android:name=".ui.activity.HubLocalActivity"
             android:label="@string/local_repo_manage" />
         <activity
-            android:name=".activity.SettingsActivity"
+            android:name=".ui.activity.SettingsActivity"
             android:label="@string/setting" />
-        <activity android:name=".activity.UpdaterSettingActivity" />
+        <activity android:name=".ui.activity.UpdaterSettingActivity" />
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"

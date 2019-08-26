@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.activity;
+package net.xzos.UpgradeAll.ui.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;

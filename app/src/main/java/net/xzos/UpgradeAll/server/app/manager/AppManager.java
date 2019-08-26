@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.server.updater;
+package net.xzos.UpgradeAll.server.app.manager;
 
 import androidx.annotation.NonNull;
 

@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.activity;
+package net.xzos.UpgradeAll.ui.activity;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
@@ -38,8 +38,8 @@ import com.google.gson.GsonBuilder;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.server.JSEngine.JSUtils.JSLog;
-import net.xzos.UpgradeAll.server.JSEngine.JavaScriptEngine;
+import net.xzos.UpgradeAll.server.app.engine.js.utils.JSLog;
+import net.xzos.UpgradeAll.server.app.engine.js.JavaScriptEngine;
 import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.server.log.LogDataProxy;
 import net.xzos.UpgradeAll.server.log.LogUtil;

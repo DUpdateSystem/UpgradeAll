@@ -1,7 +1,7 @@
 package net.xzos.UpgradeAll.server;
 
 import net.xzos.UpgradeAll.server.log.LogUtil;
-import net.xzos.UpgradeAll.server.updater.AppManager;
+import net.xzos.UpgradeAll.server.app.manager.AppManager;
 
 import org.jetbrains.annotations.Contract;
 
