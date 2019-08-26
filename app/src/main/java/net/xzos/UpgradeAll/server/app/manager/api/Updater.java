@@ -32,15 +32,16 @@ public class Updater {
         this.appDatabaseId = appDatabaseId;
     }
 
-    public Thread renew(boolean isAuto) {
-        if (isAuto)
-            return autoRenew();
-        else
-            return forcedRenew();
-    }
-
     public MutableLiveData<Boolean> getRenewing() {
         return renewing;
+    }
+
+    public void renew(boolean isAuto) {
+        if (isAuto) {
+            autoRenew();
+        } else {
+            forcedRenew();
+        }
     }
 
     /**
@@ -48,9 +49,8 @@ public class Updater {
      * 如果时间未到，
      * 则停止刷新
      */
-    private Thread autoRenew() {
+    private void autoRenew() {
         // 检查更新时间更新数据
-        Thread renewThread = null;
         boolean startRefresh = true;
         int defaultDataExpirationTime = MyApplication.getContext().getResources().getInteger(R.integer.default_data_expiration_time);  // 默认自动刷新时间 10min
         int autoRefreshMinute = EditIntPreference.getInt("sync_time", defaultDataExpirationTime);
@@ -64,14 +64,11 @@ public class Updater {
             }
         }
         if (startRefresh)
-            renewThread = forcedRenew();
-        return renewThread;
+            forcedRenew();
     }
 
-    private Thread forcedRenew() {
-        Thread thread = new Thread(this::refreshThread);
-        thread.start();
-        return thread;
+    private void forcedRenew() {
+        new Thread(this::refreshThread).start();
     }
 
     /**
