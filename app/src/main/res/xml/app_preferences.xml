@@ -2,7 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory app:title="@string/sync_header">
-        <EditTextPreference
+        <net.xzos.UpgradeAll.ui.viewmodels.componnent.EditIntPreference
             android:defaultValue="@integer/default_data_expiration_time"
             app:key="sync_time"
             app:title="@string/initiative_sync_time"
