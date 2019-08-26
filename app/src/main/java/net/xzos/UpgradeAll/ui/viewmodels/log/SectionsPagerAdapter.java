@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 
-import net.xzos.UpgradeAll.application.MyApplication;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.log.LogDataProxy;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
     public SectionsPagerAdapter(LifecycleOwner owner, FragmentManager fm, String logSort) {
         super(fm);
         this.logSort = logSort;
-        LogDataProxy logDataProxy = new LogDataProxy(MyApplication.getServerContainer().getLog());
+        LogDataProxy logDataProxy = new LogDataProxy(ServerContainer.AppServer.getLog());
         LiveData<List<String>> liveDataLogObjectIdList = logDataProxy.getLiveDataLogObjectIdList(logSort);
         liveDataLogObjectIdList.observe(owner, logObjectIdList -> {
             TAB_TITLES.clear();

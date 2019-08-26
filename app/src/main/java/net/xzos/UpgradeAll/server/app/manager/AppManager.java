@@ -1,6 +1,7 @@
 package net.xzos.UpgradeAll.server.app.manager;
 
 import net.xzos.UpgradeAll.database.RepoDatabase;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.app.manager.api.App;
 import net.xzos.UpgradeAll.server.app.manager.api.Updater;
 import net.xzos.UpgradeAll.server.log.LogUtil;
@@ -15,16 +16,12 @@ import java.util.List;
 
 public class AppManager {
 
-    private LogUtil Log;
+    private LogUtil Log = ServerContainer.AppServer.getLog();
     private static final String TAG = "AppManager";
     private static final String[] LogObjectTag = {"Core", TAG};
     // TODO: 对 Core 日志页做同一父类
 
     private JSONObject appJson = new JSONObject(); // 存储 Updater Engine 数据
-
-    public AppManager(LogUtil Log) {
-        this.Log = Log;
-    }
 
     public void refreshAll(boolean isAuto) {
         if (getAppList().isEmpty())

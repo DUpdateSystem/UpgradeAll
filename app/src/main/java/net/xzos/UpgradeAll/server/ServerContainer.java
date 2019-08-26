@@ -6,16 +6,18 @@ import net.xzos.UpgradeAll.server.app.manager.AppManager;
 import org.jetbrains.annotations.Contract;
 
 public class ServerContainer {
-    final private static LogUtil Log = new LogUtil();
-    final private static AppManager AppManager = new AppManager(Log);
+    public static class AppServer {
+        final private static LogUtil Log = new LogUtil();
+        final private static AppManager AppManager = new AppManager();
 
-    @Contract(pure = true)
-    public LogUtil getLog() {
-        return Log;
-    }
+        @Contract(pure = true)
+        public static LogUtil getLog() {
+            return Log;
+        }
 
-    @Contract(pure = true)
-    public AppManager getAppManager() {
-        return AppManager;
+        @Contract(pure = true)
+        public static AppManager getAppManager() {
+            return AppManager;
+        }
     }
 }

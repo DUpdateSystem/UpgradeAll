@@ -1,10 +1,10 @@
 package net.xzos.UpgradeAll.server.app.engine.js;
 
-import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.JSCacheData;
+import net.xzos.UpgradeAll.server.ServerContainer;
+import net.xzos.UpgradeAll.server.app.engine.api.CoreApi;
 import net.xzos.UpgradeAll.server.app.engine.js.utils.JSLog;
 import net.xzos.UpgradeAll.server.app.engine.js.utils.JSUtils;
-import net.xzos.UpgradeAll.server.app.engine.api.CoreApi;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.json.JSONException;
@@ -18,7 +18,7 @@ class JavaScriptCoreEngine implements CoreApi {
 
     private static final String TAG = "JavaScriptCoreEngine";
     private String[] LogObjectTag;
-    protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    protected static final LogUtil Log = ServerContainer.AppServer.getLog();
 
     private String URL;
     private String jsCode;

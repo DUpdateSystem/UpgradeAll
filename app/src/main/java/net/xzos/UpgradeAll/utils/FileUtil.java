@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import net.xzos.UpgradeAll.application.MyApplication;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +29,7 @@ import java.io.OutputStreamWriter;
 
 public class FileUtil {
 
-    private static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    private static final LogUtil Log = ServerContainer.AppServer.getLog();
 
     private static final String TAG = "FileUtil";
     private static final String[] LogObjectTag = {"Core", TAG};

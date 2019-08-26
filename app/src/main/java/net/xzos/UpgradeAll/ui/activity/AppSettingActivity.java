@@ -16,10 +16,10 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.app.engine.js.JavaScriptEngine;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
@@ -33,7 +33,7 @@ import java.util.List;
 
 public class AppSettingActivity extends AppCompatActivity {
 
-    private static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    private static final LogUtil Log = ServerContainer.AppServer.getLog();
     private static final String TAG = "UpdateItemSetting";
     private static final String[] LogObjectTag = {"Core", TAG};
 
@@ -115,7 +115,7 @@ public class AppSettingActivity extends AppCompatActivity {
             // 添加数据库
             boolean addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker);
             if (addRepoSuccess) {
-                MyApplication.getServerContainer().getAppManager().setApp(databaseId);
+                ServerContainer.AppServer.getAppManager().setApp(databaseId);
             }
             // 强行刷新被修改的子项
             new Handler(Looper.getMainLooper()).post(() -> {

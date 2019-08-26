@@ -1,7 +1,7 @@
 package net.xzos.UpgradeAll.server.app.engine.js.utils;
 
-import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.JSCacheData;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.json.JSONArray;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
  */
 public class JSUtils {
 
-    private static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    private static final LogUtil Log = ServerContainer.AppServer.getLog();
     private static final String TAG = "JSUtils";
     private String[] logObjectTag;
 

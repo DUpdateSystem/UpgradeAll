@@ -22,7 +22,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.application.MyApplication;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.log.LogDataProxy;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 import net.xzos.UpgradeAll.ui.viewmodels.log.SectionsPagerAdapter;
@@ -38,7 +38,7 @@ import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu;
 public class LogActivity extends AppCompatActivity {
     private static final String TAG = "LogActivity";
     private static final String[] LogObjectTag = {"Core", TAG};
-    protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    protected static final LogUtil Log = ServerContainer.AppServer.getLog();
 
     private static final int PERMISSIONS_REQUEST_WRITE_CONTACTS = 1;
 

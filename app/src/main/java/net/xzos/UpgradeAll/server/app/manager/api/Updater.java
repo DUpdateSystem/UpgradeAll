@@ -6,6 +6,7 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.app.engine.api.EngineApi;
 import net.xzos.UpgradeAll.server.app.engine.js.JavaScriptEngine;
 import net.xzos.UpgradeAll.server.log.LogUtil;
@@ -20,7 +21,7 @@ import java.util.List;
 
 public class Updater {
 
-    protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    protected static final LogUtil Log = ServerContainer.AppServer.getLog();
     private static final String TAG = "Updater";
     private static final String[] LogObjectTag = {"Core", TAG};
 

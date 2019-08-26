@@ -60,7 +60,11 @@ public class EditIntPreference extends EditTextPreference {
 
     @Override
     protected boolean persistString(String value) {
-        return persistInt(Integer.valueOf(value));
+        try {
+            return persistInt(Integer.valueOf(value));
+        } catch (NumberFormatException ignored) {
+            return true;
+        }
     }
 
     public static int getInt(String key, int defaultReturnValue) {
