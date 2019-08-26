@@ -31,7 +31,7 @@ import org.litepal.LitePal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdaterSettingActivity extends AppCompatActivity {
+public class AppSettingActivity extends AppCompatActivity {
 
     private static final LogUtil Log = MyApplication.getServerContainer().getLog();
     private static final String TAG = "UpdateItemSetting";
@@ -62,7 +62,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             apiSpinner.setAdapter(adapter);
         } else {
-            Toast.makeText(UpdaterSettingActivity.this, "请先添加软件源", Toast.LENGTH_LONG).show();
+            Toast.makeText(AppSettingActivity.this, "请先添加软件源", Toast.LENGTH_LONG).show();
             onBackPressed();
         }
         setSettingItem(); // 设置预置设置项
@@ -74,7 +74,7 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             VersionChecker versionChecker = new VersionChecker(versionCheckerJsonObject);
             String appVersion = versionChecker.getVersion();
             if (appVersion != null) {
-                Toast.makeText(UpdaterSettingActivity.this, "version: " + appVersion, Toast.LENGTH_SHORT).show();
+                Toast.makeText(AppSettingActivity.this, "version: " + appVersion, Toast.LENGTH_SHORT).show();
             }
         });
         Button addButton = findViewById(R.id.saveButton);
@@ -115,18 +115,13 @@ public class UpdaterSettingActivity extends AppCompatActivity {
             // 添加数据库
             boolean addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker);
             if (addRepoSuccess) {
-                try {
-                    MyApplication.getServerContainer().getAppManager().getUpdater().refresh(databaseId).join();
-                    // TODO: 异步请求服务
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                MyApplication.getServerContainer().getAppManager().setApp(databaseId);
             }
             // 强行刷新被修改的子项
             new Handler(Looper.getMainLooper()).post(() -> {
                 // 取消等待框
                 if (!addRepoSuccess) {
-                    Toast.makeText(UpdaterSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AppSettingActivity.this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show();
                 }
                 progressDialog.cancel();
                 onBackPressed();  // 跳转主页面
@@ -232,8 +227,6 @@ public class UpdaterSettingActivity extends AppCompatActivity {
                     }
                 }
             }
-            // 如果未自定义名称，则使用仓库名
-
             // 修改数据库
             RepoDatabase repoDatabase = LitePal.find(RepoDatabase.class, databaseId);
             if (repoDatabase == null) repoDatabase = new RepoDatabase();

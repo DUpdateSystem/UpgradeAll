@@ -50,16 +50,12 @@ public class JavaScriptEngine extends EngineApi {
     }
 
     @Override
-    public boolean refreshData() {
-        int releaseNum = getReleaseNum();
-        if (releaseNum != 0) {
-            for (int i = 0; i < releaseNum; i++) {
-                versionNumberList.add(getVersionNumber(i));
-                releaseDownloadList.add(getReleaseDownload(i));
-            }
-            return true;
-        } else
-            return false;
+    public void refreshData() {
+        releaseNum = getReleaseNum();
+        for (int i = 0; i < releaseNum; i++) {
+            versionNumberList.add(getVersionNumber(i));
+            releaseDownloadList.add(getReleaseDownload(i));
+        }
     }
 
     @Override

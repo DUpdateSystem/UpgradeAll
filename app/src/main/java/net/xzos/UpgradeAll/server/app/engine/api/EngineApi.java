@@ -1,6 +1,7 @@
 package net.xzos.UpgradeAll.server.app.engine.api;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.server.log.LogUtil;
@@ -14,9 +15,9 @@ public abstract class EngineApi implements CoreApi {
 
     protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
 
-    private Calendar renewTime = Calendar.getInstance();
+    private Calendar renewTime;
 
-    public abstract boolean refreshData();
+    public abstract void refreshData();
 
     public boolean isSuccessFlash() {
         return getReleaseNum() != 0;
@@ -26,6 +27,7 @@ public abstract class EngineApi implements CoreApi {
         this.renewTime = Calendar.getInstance();
     }
 
+    @Nullable
     public Calendar getRenewTime() {
         return renewTime;
     }
@@ -40,8 +42,7 @@ public abstract class EngineApi implements CoreApi {
 class EmptyEngine extends EngineApi {
 
     @Override
-    public boolean refreshData() {
-        return false;
+    public void refreshData() {
     }
 
     @Override

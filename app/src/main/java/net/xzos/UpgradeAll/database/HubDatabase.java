@@ -8,11 +8,13 @@ import com.google.gson.JsonSyntaxException;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.gson.HubItemExtraData;
 
+import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
 public class HubDatabase extends LitePalSupport {
     private int id;
     private String name;
+    @Column(unique = true)
     private String uuid;
     private String hub_config;
     private String extra_data;  // JSON形式 存储JavaScript 和 额外数据

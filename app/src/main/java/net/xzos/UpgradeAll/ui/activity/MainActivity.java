@@ -180,6 +180,7 @@ public class MainActivity extends AppCompatActivity
         new Thread(() -> runOnUiThread(() -> {
             swipeRefresh.setRefreshing(true);
             refreshAppList();
+            MyApplication.getServerContainer().getAppManager().refreshAll(true);
             swipeRefresh.setRefreshing(false);
         })).start();
     }
@@ -212,7 +213,7 @@ public class MainActivity extends AppCompatActivity
     private void setRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new AppItemCardAdapter(itemCardViewList);
+        adapter = new AppItemCardAdapter(this, itemCardViewList);
         recyclerView.setAdapter(adapter);
     }
 
@@ -229,7 +230,7 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.item_add) {
             enableRenew = true;
-            intent = new Intent(MainActivity.this, UpdaterSettingActivity.class);
+            intent = new Intent(MainActivity.this, AppSettingActivity.class);
             startActivity(intent);
             return true;
         } else
@@ -244,7 +245,7 @@ public class MainActivity extends AppCompatActivity
         switch (id) {
             case R.id.item_add:
                 enableRenew = true;
-                intent = new Intent(MainActivity.this, UpdaterSettingActivity.class);
+                intent = new Intent(MainActivity.this, AppSettingActivity.class);
                 startActivity(intent);
                 break;
             case R.id.app_help:
