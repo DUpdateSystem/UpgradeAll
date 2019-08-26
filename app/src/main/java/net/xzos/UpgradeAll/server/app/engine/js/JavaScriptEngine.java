@@ -1,8 +1,8 @@
-package net.xzos.UpgradeAll.server.JSEngine;
+package net.xzos.UpgradeAll.server.app.engine.js;
 
 import androidx.annotation.NonNull;
 
-import net.xzos.UpgradeAll.server.JSEngine.api.EngineApi;
+import net.xzos.UpgradeAll.server.app.engine.api.EngineApi;
 
 import org.json.JSONObject;
 

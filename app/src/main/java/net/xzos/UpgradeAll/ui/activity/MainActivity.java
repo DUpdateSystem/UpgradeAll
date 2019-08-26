@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.activity;
+package net.xzos.UpgradeAll.ui.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -34,7 +34,7 @@ import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
 import net.xzos.UpgradeAll.server.log.LogUtil;
-import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
+import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
 import net.xzos.UpgradeAll.ui.viewmodels.adapters.AppItemCardAdapter;
 import net.xzos.UpgradeAll.utils.FileUtil;
 

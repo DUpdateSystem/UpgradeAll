@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.activity;
+package net.xzos.UpgradeAll.ui.activity;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,7 +18,7 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.gson.CloudConfig;
 import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
 import net.xzos.UpgradeAll.server.hub.CloudHub;
-import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
+import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
 import net.xzos.UpgradeAll.ui.viewmodels.adapters.CloudHubItemAdapter;
 
 import java.util.ArrayList;

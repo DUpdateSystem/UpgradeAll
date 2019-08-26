@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.server.updater;
+package net.xzos.UpgradeAll.server.app.manager;
 
 import android.content.SharedPreferences;
 
@@ -8,8 +8,8 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.server.JSEngine.JavaScriptEngine;
-import net.xzos.UpgradeAll.server.JSEngine.api.EngineApi;
+import net.xzos.UpgradeAll.server.app.engine.js.JavaScriptEngine;
+import net.xzos.UpgradeAll.server.app.engine.api.EngineApi;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.json.JSONException;

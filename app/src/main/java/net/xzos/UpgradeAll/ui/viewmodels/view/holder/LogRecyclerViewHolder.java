@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.ui.viewmodels.ViewHolder;
+package net.xzos.UpgradeAll.ui.viewmodels.view.holder;
 
 import android.view.View;
 import android.widget.TextView;

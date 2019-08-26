@@ -12,7 +12,7 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.CloudConfig;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.server.JSEngine.JSUtils.OkHttpApi;
+import net.xzos.UpgradeAll.server.app.engine.js.utils.OkHttpApi;
 import net.xzos.UpgradeAll.utils.FileUtil;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 

@@ -11,10 +11,10 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.activity.HubLocalActivity;
+import net.xzos.UpgradeAll.ui.activity.HubLocalActivity;
 import net.xzos.UpgradeAll.database.HubDatabase;
-import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
-import net.xzos.UpgradeAll.ui.viewmodels.ViewHolder.CardViewRecyclerViewHolder;
+import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
+import net.xzos.UpgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder;
 
 import org.litepal.LitePal;
 

@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.ui.viewmodels;
+package net.xzos.UpgradeAll.ui.viewmodels.view;
 
 import androidx.annotation.NonNull;
 

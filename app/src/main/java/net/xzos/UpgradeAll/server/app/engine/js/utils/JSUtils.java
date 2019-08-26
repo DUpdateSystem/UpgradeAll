@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.server.JSEngine.JSUtils;
+package net.xzos.UpgradeAll.server.app.engine.js.utils;
 
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.JSCacheData;

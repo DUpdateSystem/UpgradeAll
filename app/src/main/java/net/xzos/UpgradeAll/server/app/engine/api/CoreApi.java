@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.server.JSEngine.api;
+package net.xzos.UpgradeAll.server.app.engine.api;
 
 import org.json.JSONObject;
 

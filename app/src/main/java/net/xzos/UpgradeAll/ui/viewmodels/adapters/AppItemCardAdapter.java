@@ -20,13 +20,13 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.activity.UpdaterSettingActivity;
+import net.xzos.UpgradeAll.ui.activity.UpdaterSettingActivity;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.server.updater.AppManager;
-import net.xzos.UpgradeAll.server.updater.Updater;
-import net.xzos.UpgradeAll.ui.viewmodels.ItemCardView;
-import net.xzos.UpgradeAll.ui.viewmodels.ViewHolder.CardViewRecyclerViewHolder;
+import net.xzos.UpgradeAll.server.app.manager.AppManager;
+import net.xzos.UpgradeAll.server.app.manager.Updater;
+import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
+import net.xzos.UpgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
