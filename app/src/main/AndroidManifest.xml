@@ -38,7 +38,7 @@
         <activity
             android:name=".ui.activity.SettingsActivity"
             android:label="@string/setting" />
-        <activity android:name=".ui.activity.UpdaterSettingActivity" />
+        <activity android:name=".ui.activity.AppSettingActivity" />
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"

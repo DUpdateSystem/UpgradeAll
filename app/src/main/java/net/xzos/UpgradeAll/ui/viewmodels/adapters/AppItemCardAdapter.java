@@ -1,6 +1,7 @@
 package net.xzos.UpgradeAll.ui.viewmodels.adapters;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
@@ -17,14 +18,17 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.ui.activity.UpdaterSettingActivity;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.server.app.manager.AppManager;
-import net.xzos.UpgradeAll.server.app.manager.Updater;
+import net.xzos.UpgradeAll.server.app.manager.api.App;
+import net.xzos.UpgradeAll.server.app.manager.api.Updater;
+import net.xzos.UpgradeAll.ui.activity.AppSettingActivity;
 import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
 import net.xzos.UpgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder;
 
@@ -40,11 +44,13 @@ import java.util.List;
 public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHolder> {
 
     private List<ItemCardView> mItemCardViewList;
+    private Context mContext;
 
     private static final AppManager AppManager = MyApplication.getServerContainer().getAppManager();
 
 
-    public AppItemCardAdapter(List<ItemCardView> updateList) {
+    public AppItemCardAdapter(Context context, List<ItemCardView> updateList) {
+        mContext = context;
         mItemCardViewList = updateList;
     }
 
@@ -54,11 +60,12 @@ public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerVie
         final CardViewRecyclerViewHolder holder = new CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_item, parent, false));
         // 单击展开 Release 详情页
-        final Updater updater = AppManager.getUpdater();
         holder.itemCardView.setOnClickListener(v -> {
             final int position = holder.getAdapterPosition();
             final ItemCardView itemCardView = mItemCardViewList.get(position);
-            final int databaseId = itemCardView.getExtraData().getDatabaseId();
+            final int appDatabaseId = itemCardView.getExtraData().getDatabaseId();
+            final App app = AppManager.getApp(appDatabaseId);
+            final Updater updater = app.getUpdater();
             AlertDialog.Builder builder = new AlertDialog.Builder(holder.versionCheckingBar.getContext());
             final AlertDialog dialog = builder.setView(R.layout.dialog_version).create();
             dialog.show();
@@ -69,12 +76,12 @@ public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerVie
                 TextView cloudReleaseTextView = dialogWindow.findViewById(R.id.cloudReleaseTextView);
                 TextView localReleaseTextView = dialogWindow.findViewById(R.id.localReleaseTextView);
                 // 显示本地版本号
-                String latestVersion = updater.getLatestVersion(databaseId);
+                String latestVersion = updater.getLatestVersion();
                 if (latestVersion != null)
                     cloudReleaseTextView.setText(latestVersion);
                 else
                     cloudReleaseTextView.setText("获取失败");
-                String installedVersion = AppManager.getInstalledVersion(databaseId);
+                String installedVersion = app.getInstalledVersion();
                 if (installedVersion != null)
                     localReleaseTextView.setText(installedVersion);
                 else
@@ -84,7 +91,7 @@ public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerVie
             // 获取云端文件
             new Thread(() -> {
                 // 刷新数据库
-                JSONObject latestDownloadUrl = updater.getLatestDownloadUrl(databaseId);
+                JSONObject latestDownloadUrl = updater.getLatestDownloadUrl();
                 if (latestDownloadUrl == null) latestDownloadUrl = new JSONObject();
                 final JSONObject latestDownloadUrlCopy = latestDownloadUrl;
                 new Handler(Looper.getMainLooper()).post(() -> {
@@ -141,7 +148,7 @@ public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerVie
                 switch (item.getItemId()) {
                     // 修改按钮
                     case R.id.setting_button:
-                        Intent intent = new Intent(holder.itemCardView.getContext(), UpdaterSettingActivity.class);
+                        Intent intent = new Intent(holder.itemCardView.getContext(), AppSettingActivity.class);
                         intent.putExtra("database_id", databaseId);
                         holder.itemCardView.getContext().startActivity(intent);
                         break;
@@ -166,7 +173,9 @@ public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerVie
             final int position = holder.getAdapterPosition();
             final ItemCardView itemCardView = mItemCardViewList.get(position);
             final int databaseId = itemCardView.getExtraData().getDatabaseId();
-            refreshUpdater(false, databaseId, holder);
+            AppManager.getApp(databaseId).getUpdater().renew(false);
+            Toast.makeText(holder.versionCheckButton.getContext(), String.format("检查 %s 的更新", holder.name.getText().toString()),
+                    Toast.LENGTH_SHORT).show();
             return true;
         });
 
@@ -192,48 +201,31 @@ public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerVie
         } else {
             holder.itemCardView.setVisibility(View.VISIBLE);
             holder.endTextView.setVisibility(View.GONE);
-            final int databaseId = itemCardView.getExtraData().getDatabaseId();
+            final int appDatabaseId = itemCardView.getExtraData().getDatabaseId();
             holder.name.setText(itemCardView.getName());
             holder.api.setText(itemCardView.getApi());
             holder.descTextView.setText(itemCardView.getDesc());
-            refreshUpdater(true, databaseId, holder);
+            setAppStatusUI(appDatabaseId, holder);
         }
     }
 
-    private void refreshUpdater(boolean isAuto, int databaseId, CardViewRecyclerViewHolder holder) {
-        if (databaseId == 0) return;
-        if (!isAuto) {
-            Toast.makeText(holder.versionCheckButton.getContext(), String.format("检查 %s 的更新", holder.name.getText().toString()),
-                    Toast.LENGTH_SHORT).show();
-        }
-        holder.versionCheckButton.setVisibility(View.INVISIBLE);
-        holder.versionCheckingBar.setVisibility(View.VISIBLE);
-        final Updater updater = AppManager.getUpdater();
-        new Thread(() -> {
-            // 刷新数据库
-            Thread renewThread;
-            if (isAuto) {
-                renewThread = updater.autoRenew(databaseId);
+    private void setAppStatusUI(final int appDatabaseId, CardViewRecyclerViewHolder holder) {
+        final App app = AppManager.getApp(appDatabaseId);
+        final Updater updater = app.getUpdater();
+        LiveData<Boolean> renewing = updater.getRenewing();
+        renewing.observe((LifecycleOwner) mContext, renew -> {
+            if (renew) {
+                holder.versionCheckButton.setVisibility(View.INVISIBLE);
+                holder.versionCheckingBar.setVisibility(View.VISIBLE);
             } else {
-                updater.renewUpdateItem(databaseId);
-                renewThread = updater.refresh(databaseId);
-            }
-            if (renewThread != null) {
-                try {
-                    renewThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            new Handler(Looper.getMainLooper()).post(() -> {
                 holder.versionCheckButton.setVisibility(View.VISIBLE);
                 holder.versionCheckingBar.setVisibility(View.INVISIBLE);
                 //检查是否取得云端版本号
-                if (updater.getLatestVersion(databaseId) != null) {
+                if (updater.getLatestVersion() != null) {
                     // 检查是否获取本地版本号
-                    if (AppManager.getInstalledVersion(databaseId) != null) {
+                    if (app.getInstalledVersion() != null) {
                         // 检查本地版本
-                        if (AppManager.isLatest(databaseId)) {
+                        if (app.isLatest()) {
                             holder.versionCheckButton.setImageResource(R.drawable.ic_check_latest);
                         } else {
                             holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate);
@@ -244,8 +236,8 @@ public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerVie
                 } else {
                     holder.versionCheckButton.setImageResource(R.drawable.ic_404);
                 }
-            });
-        }).start();
+            }
+        });
     }
 
     @Override
