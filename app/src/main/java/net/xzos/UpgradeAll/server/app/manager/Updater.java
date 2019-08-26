@@ -1,16 +1,13 @@
 package net.xzos.UpgradeAll.server.app.manager;
 
-import android.content.SharedPreferences;
-
-import androidx.preference.PreferenceManager;
-
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.server.app.engine.js.JavaScriptEngine;
 import net.xzos.UpgradeAll.server.app.engine.api.EngineApi;
+import net.xzos.UpgradeAll.server.app.engine.js.JavaScriptEngine;
 import net.xzos.UpgradeAll.server.log.LogUtil;
+import net.xzos.UpgradeAll.ui.viewmodels.componnent.EditIntPreference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,19 +52,8 @@ public class Updater {
         // 检查更新时间更新数据
         Thread renewThread = null;
         boolean startRefresh = true;
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-        int defaultDataExpirationTime = MyApplication.getContext().getResources().getInteger(R.integer.default_data_expiration_time);
-        int autoRefreshMinute;
-        try {
-            autoRefreshMinute = sharedPref.getInt("sync_time", defaultDataExpirationTime);
-        } catch (ClassCastException e) {
-            autoRefreshMinute = Integer.parseInt(sharedPref.getString("sync_time", String.valueOf(defaultDataExpirationTime)));
-            sharedPref.edit().remove("sync_time").apply();
-            sharedPref.edit().putInt("sync_time", autoRefreshMinute).apply();
-            Log.e(LogObjectTag, TAG, "autoRenew: 已自动更改设置值属性");
-            // TODO: 三个大版本后移除。当前版本：0.1.0，移除版本：0.1.3
-        }
-        // 默认自动刷新时间 10min
+        int defaultDataExpirationTime = MyApplication.getContext().getResources().getInteger(R.integer.default_data_expiration_time);  // 默认自动刷新时间 10min
+        int autoRefreshMinute = EditIntPreference.getInt("sync_time", defaultDataExpirationTime);
         if (updateJsonData.has(String.valueOf(databaseId))) {
             /* 如果存在数据，
              * 检查刷新时间，
