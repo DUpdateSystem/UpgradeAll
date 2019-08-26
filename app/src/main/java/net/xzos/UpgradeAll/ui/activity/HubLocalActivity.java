@@ -354,10 +354,7 @@ public class HubLocalActivity extends AppCompatActivity {
             Toast.makeText(HubLocalActivity.this, "请填写 测试网址", Toast.LENGTH_LONG).show();
             return;
         }
-        // 创建 JS 引擎
         String[] logObjectTag = {"DeBug", "0"};
-        JavaScriptEngine javaScriptEngine = new JavaScriptEngine.Builder(logObjectTag, testUrl, jsCode).enableLogJsCode(false).build();
-        JSLog jsLog = new JSLog(logObjectTag);
         TextView jsLogTextView = findViewById(R.id.jsLogTextView);
         LiveData<List<String>> logListLiveData = new LogDataProxy(Log).getLogMessageListLiveData(logObjectTag);
         logListLiveData.observe(this, logList -> {
@@ -367,8 +364,10 @@ public class HubLocalActivity extends AppCompatActivity {
             jsLogTextView.setText(textViewMessage.toString());
         });
         jsLogTextView.setVisibility(View.VISIBLE);
-        // JS 初始化
         new Thread(() -> {
+            // 初始化 JS 组件
+            JSLog jsLog = new JSLog(logObjectTag);  // 连接日志系统以打印提示信息
+            JavaScriptEngine javaScriptEngine = new JavaScriptEngine.Builder(logObjectTag, testUrl, jsCode).enableLogJsCode(false).build();  // 创建 JS 引擎
             // 分步测试
             jsLog.d(String.format("1. 获取默认名称(getDefaultName): %s \n", javaScriptEngine.getDefaultName()));
             jsLog.d(String.format("2. 获取发布版本号总数(getReleaseNum): %s \n", javaScriptEngine.getReleaseNum()));
