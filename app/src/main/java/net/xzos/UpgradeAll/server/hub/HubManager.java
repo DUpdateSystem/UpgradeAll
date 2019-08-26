@@ -22,8 +22,8 @@ public class HubManager {
     private static final String TAG = "HubManager";
     private static final String[] LogObjectTag = {"Core", TAG};
 
-    @Contract("_, null, _ -> false; _, !null, null -> false")
-    public static boolean addHubDatabase(int databaseId, HubConfig hubConfigGson, String jsCode) {
+    @Contract("null, _ -> false; !null, null -> false")
+    public static boolean addHubDatabase(HubConfig hubConfigGson, String jsCode) {
         if (hubConfigGson != null && jsCode != null) {
             String name = null;
             String uuid = null;
@@ -37,11 +37,12 @@ public class HubManager {
             // 如果设置了名字与 UUID，则存入数据库
             if (name != null && uuid != null) {
                 // 修改数据库
-                HubDatabase hubDatabase = LitePal.find(HubDatabase.class, databaseId);
-                if (hubDatabase == null) {
-                    LitePal.deleteAll(HubDatabase.class, "uuid = ?", uuid);
+                List<HubDatabase> hubDatabases = LitePal.where("uuid = ?", uuid).find(HubDatabase.class);
+                HubDatabase hubDatabase;
+                if (!hubDatabases.isEmpty())
+                    hubDatabase = hubDatabases.get(0);
+                else
                     hubDatabase = new HubDatabase();
-                }
                 // 开启数据库
                 hubDatabase.setName(name);
                 hubDatabase.setUuid(uuid);

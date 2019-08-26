@@ -124,10 +124,10 @@ public class HubLocalActivity extends AppCompatActivity {
                         writeHubConfigToFile();
                         break;
                     case R.id.saveToDatabaseButton:
-                        addHubConfigToDatabase(databaseId);
+                        addHubConfigToDatabase();
                         break;
                     case R.id.saveToFileAndDatabaseButton:
-                        addHubConfigToDatabase(databaseId);
+                        addHubConfigToDatabase();
                         writeHubConfigToFile();
                         break;
                 }
@@ -567,7 +567,7 @@ public class HubLocalActivity extends AppCompatActivity {
         }
     }
 
-    private void addHubConfigToDatabase(int databaseId) {
+    private void addHubConfigToDatabase() {
         // 获取数据
         HubConfig hubConfigGson = getHubConfigGson();
         // 存入数据
@@ -576,7 +576,7 @@ public class HubLocalActivity extends AppCompatActivity {
             TextView jsTestTextView = findViewById(R.id.jsTestTextView);
             String jsCode = jsTestTextView.getText().toString();
             if (!jsCode.equals("")) {
-                boolean addHubSuccess = HubManager.addHubDatabase(databaseId, hubConfigGson, jsCode);
+                boolean addHubSuccess = HubManager.addHubDatabase(hubConfigGson, jsCode);
                 if (addHubSuccess) {
                     Toast.makeText(HubLocalActivity.this, "数据库添加成功", Toast.LENGTH_LONG).show();
                 } else

@@ -61,7 +61,7 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerVi
                             if (cloudHubConfigGson != null) {
                                 String cloudHubConfigJS = mCloudHub.getHubConfigJS(cloudHubConfigGson.getWebCrawler().getFilePath());
                                 if (cloudHubConfigJS != null)
-                                    addHubSuccess = HubManager.addHubDatabase(0, cloudHubConfigGson, cloudHubConfigJS);
+                                    addHubSuccess = HubManager.addHubDatabase(cloudHubConfigGson, cloudHubConfigJS);
                                 else {
                                     addHubSuccess = false;
                                     new Handler(Looper.getMainLooper()).post(() -> {
