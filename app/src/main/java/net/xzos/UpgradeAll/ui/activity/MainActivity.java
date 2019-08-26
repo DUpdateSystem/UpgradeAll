@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -76,6 +77,10 @@ public class MainActivity extends AppCompatActivity
                 case READ_PIC_REQUEST_CODE:
                     Uri uri = resultData.getData();
                     if (uri != null) {
+                        File parent = NAV_IMAGE_FILE.getParentFile();
+                        if (parent != null && !parent.exists()) {
+                            parent.mkdirs();
+                        }
                         Uri destinationUri = Uri.fromFile(NAV_IMAGE_FILE);
                         UCrop.of(uri, destinationUri)
                                 .withAspectRatio(16, 9)
