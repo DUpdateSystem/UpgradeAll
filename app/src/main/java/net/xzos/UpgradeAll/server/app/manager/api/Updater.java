@@ -98,7 +98,7 @@ public class Updater {
         String[] logObjectTag = {apiName, String.valueOf(databaseId)};
         // 查找软件源数据库
         List<HubDatabase> hubDatabases = LitePal.where("uuid = ?", apiUuid).find(HubDatabase.class);
-        if (hubDatabases.size() != 0) {
+        if (!hubDatabases.isEmpty()) {
             // 创建更新引擎
             HubDatabase hubDatabase = hubDatabases.get(0);
             String jsCode = hubDatabase.getExtraData().getJavascript();

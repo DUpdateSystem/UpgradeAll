@@ -138,7 +138,7 @@ public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerVie
         holder.itemCardView.setOnLongClickListener(v -> {
             final int position = holder.getAdapterPosition();
             final ItemCardView itemCardView = mItemCardViewList.get(position);
-            final int databaseId = itemCardView.getExtraData().getDatabaseId();
+            final int appDatabaseId = itemCardView.getExtraData().getDatabaseId();
             PopupMenu popupMenu = new PopupMenu(holder.itemCardView.getContext(), v);
             MenuInflater menuInflater = popupMenu.getMenuInflater();
             menuInflater.inflate(R.menu.menu_long_click_cardview_item, popupMenu.getMenu());
@@ -149,13 +149,15 @@ public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerVie
                     // 修改按钮
                     case R.id.setting_button:
                         Intent intent = new Intent(holder.itemCardView.getContext(), AppSettingActivity.class);
-                        intent.putExtra("database_id", databaseId);
+                        intent.putExtra("database_id", appDatabaseId);
                         holder.itemCardView.getContext().startActivity(intent);
                         break;
                     // 删除按钮
                     case R.id.del_button:
+                        // 删除正在运行的跟踪项
+                        AppManager.delApp(appDatabaseId);
                         // 删除数据库
-                        LitePal.delete(RepoDatabase.class, databaseId);
+                        LitePal.delete(RepoDatabase.class, appDatabaseId);
                         // 删除指定数据库
                         mItemCardViewList.remove(holder.getAdapterPosition());
                         notifyItemRemoved(holder.getAdapterPosition());

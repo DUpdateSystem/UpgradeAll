@@ -59,6 +59,12 @@ public class AppManager {
         }
     }
 
+    public void delApp(int appDatabaseId) {
+        // TODO: 自initApp维护，数据来源：独立 UI 数据
+        appJson.remove(String.valueOf(appDatabaseId));
+    }
+
+
     private List<App> getAppList() {
         ArrayList<App> appArrayList = new ArrayList<>();
         Iterator<String> keys = appJson.keys();
