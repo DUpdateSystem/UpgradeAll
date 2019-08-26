@@ -3,7 +3,7 @@ package net.xzos.UpgradeAll.server.app.engine.api;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import net.xzos.UpgradeAll.application.MyApplication;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.jetbrains.annotations.Contract;
@@ -13,7 +13,7 @@ import java.util.Calendar;
 
 public abstract class EngineApi implements CoreApi {
 
-    protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    protected static final LogUtil Log = ServerContainer.AppServer.getLog();
 
     private Calendar renewTime;
 

@@ -4,10 +4,10 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 
-import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.gson.HubItemExtraData;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.jetbrains.annotations.Contract;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class HubManager {
 
-    private static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    private static final LogUtil Log = ServerContainer.AppServer.getLog();
 
     private static final String TAG = "HubManager";
     private static final String[] LogObjectTag = {"Core", TAG};

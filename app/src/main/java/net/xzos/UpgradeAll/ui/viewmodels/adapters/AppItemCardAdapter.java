@@ -23,8 +23,8 @@ import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.app.manager.AppManager;
 import net.xzos.UpgradeAll.server.app.manager.api.App;
 import net.xzos.UpgradeAll.server.app.manager.api.Updater;
@@ -46,7 +46,7 @@ public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerVie
     private List<ItemCardView> mItemCardViewList;
     private Context mContext;
 
-    private static final AppManager AppManager = MyApplication.getServerContainer().getAppManager();
+    private static final AppManager AppManager = ServerContainer.AppServer.getAppManager();
 
 
     public AppItemCardAdapter(Context context, List<ItemCardView> updateList) {

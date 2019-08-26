@@ -36,10 +36,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.server.app.engine.js.utils.JSLog;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.app.engine.js.JavaScriptEngine;
+import net.xzos.UpgradeAll.server.app.engine.js.utils.JSLog;
 import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.server.log.LogDataProxy;
 import net.xzos.UpgradeAll.server.log.LogUtil;
@@ -55,7 +55,7 @@ import java.util.List;
 public class HubLocalActivity extends AppCompatActivity {
 
 
-    protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    protected static final LogUtil Log = ServerContainer.AppServer.getLog();
 
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 1;
 
@@ -193,8 +193,8 @@ public class HubLocalActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         new LogDataProxy(Log).clearLogSort("DeBug");
+        super.onDestroy();
     }
 
     @Override

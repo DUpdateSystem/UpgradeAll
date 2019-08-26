@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,9 +33,10 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.log.LogUtil;
-import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
 import net.xzos.UpgradeAll.ui.viewmodels.adapters.AppItemCardAdapter;
+import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
 import net.xzos.UpgradeAll.utils.FileUtil;
 
 import org.litepal.LitePal;
@@ -48,7 +48,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    private static final LogUtil Log = ServerContainer.AppServer.getLog();
     private static final String TAG = "MainActivity";
     private static final String[] LogObjectTag = {"Core", TAG};
 
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity
     private static File NAV_IMAGE_FILE = new File(new File(MyApplication.getContext().getFilesDir(), "images"), NAV_IMAGE_FILE_NAME);
 
     private static final int PERMISSIONS_REQUEST_WRITE_CONTACTS = 1;
-    final int READ_PIC_REQUEST_CODE = 2;
+    private final int READ_PIC_REQUEST_CODE = 2;
 
     private boolean enableRenew = true;
 
@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity
         new Thread(() -> runOnUiThread(() -> {
             swipeRefresh.setRefreshing(true);
             refreshAppList();
-            MyApplication.getServerContainer().getAppManager().refreshAll(true);
+            ServerContainer.AppServer.getAppManager().refreshAll(true);
             swipeRefresh.setRefreshing(false);
         })).start();
     }

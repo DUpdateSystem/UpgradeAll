@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
-import net.xzos.UpgradeAll.application.MyApplication;
+import net.xzos.UpgradeAll.server.ServerContainer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,7 +21,7 @@ class LogLiveData {
 
     LiveData<List<String>> getLiveDataLogSortList() {
         return Transformations.map(mLogJSONObject, logJsonObject -> {
-            LogUtil logUtil = MyApplication.getServerContainer().getLog();
+            LogUtil logUtil = ServerContainer.AppServer.getLog();
             LogDataProxy logDataProxy = new LogDataProxy(logUtil);
             return logDataProxy.getLogSort();
         });
@@ -29,7 +29,7 @@ class LogLiveData {
 
     LiveData<List<String>> getLiveDataLogObjectIdList(String logSort) {
         return Transformations.map(mLogJSONObject, logJsonObject -> {
-            LogUtil logUtil = MyApplication.getServerContainer().getLog();
+            LogUtil logUtil = ServerContainer.AppServer.getLog();
             LogDataProxy logDataProxy = new LogDataProxy(logUtil);
             return logDataProxy.getLogObjectId(logSort);
         });
@@ -37,7 +37,7 @@ class LogLiveData {
 
     LiveData<List<String>> getLiveDataLogList(String[] logObjectTag) {
         return Transformations.map(mLogJSONObject, logJsonObject -> {
-            LogUtil logUtil = MyApplication.getServerContainer().getLog();
+            LogUtil logUtil = ServerContainer.AppServer.getLog();
             LogDataProxy logDataProxy = new LogDataProxy(logUtil);
             try {
                 return logDataProxy.getLogMessageList(logObjectTag);

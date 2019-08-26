@@ -12,9 +12,10 @@ import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.gson.CloudConfig;
 import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.app.engine.js.utils.OkHttpApi;
-import net.xzos.UpgradeAll.utils.FileUtil;
 import net.xzos.UpgradeAll.server.log.LogUtil;
+import net.xzos.UpgradeAll.utils.FileUtil;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +29,7 @@ public class CloudHub {
     private static final String TAG = "CloudHub";
     private static final String[] LogObjectTag = {"Core", TAG};
 
-    private static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    private static final LogUtil Log = ServerContainer.AppServer.getLog();
     private String rulesListJsonFileRawUrl;
     private CloudConfig cloudConfig;
 

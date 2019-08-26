@@ -10,6 +10,7 @@ import com.jaredrummler.android.shell.CommandResult;
 import com.jaredrummler.android.shell.Shell;
 
 import net.xzos.UpgradeAll.application.MyApplication;
+import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -23,7 +24,7 @@ public class VersionChecker {
 
     private static final String TAG = "VersionChecker";
     private static final String[] LogObjectTag = {"Core", TAG};
-    protected static final LogUtil Log = MyApplication.getServerContainer().getLog();
+    protected static final LogUtil Log = ServerContainer.AppServer.getLog();
 
     private JSONObject versionCheckerJsonObject;
 
