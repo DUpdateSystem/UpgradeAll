@@ -35,7 +35,7 @@ import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.json.cache.ItemCardViewExtraData;
 import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.log.LogUtil;
-import net.xzos.UpgradeAll.ui.viewmodels.adapters.AppItemCardAdapter;
+import net.xzos.UpgradeAll.ui.viewmodels.adapters.AppItemAdapter;
 import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
 import net.xzos.UpgradeAll.utils.FileUtil;
 
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout mDrawerLayout;
     private NavigationView navView;
     private ImageView navViewHeaderImageView;
-    private AppItemCardAdapter adapter;
+    private AppItemAdapter adapter;
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
 
@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity
     private void setRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new AppItemCardAdapter(this, itemCardViewList);
+        adapter = new AppItemAdapter(this, itemCardViewList);
         recyclerView.setAdapter(adapter);
     }
 

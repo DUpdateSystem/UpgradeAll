@@ -87,8 +87,7 @@ class JavaScriptCoreEngine implements CoreApi {
     public String getDefaultName() {
         if (!initRhino()) return null; // 初始化 J2V8
         String defaultName;
-        Object functionObject = scope.get("getDefaultName", scope);
-        Function function = (Function) functionObject;
+        Function function = (Function) scope.get("getDefaultName", scope);
         Object result = function.call(cx, scope, scope, new Object[]{});
         defaultName = Context.toString(result);
         Log.d(LogObjectTag, TAG, "getDefaultName: defaultName: " + defaultName);
@@ -100,8 +99,7 @@ class JavaScriptCoreEngine implements CoreApi {
     public int getReleaseNum() {
         if (!initRhino()) return 0; // 初始化 J2V8
         int releaseNum;
-        Object functionObject = scope.get("getReleaseNum", scope);
-        Function function = (Function) functionObject;
+        Function function = (Function) scope.get("getReleaseNum", scope);
         Object result = function.call(cx, scope, scope, new Object[]{});
         releaseNum = (int) Context.toNumber(result);
         Log.d(LogObjectTag, TAG, "getReleaseNum: releaseNum: " + releaseNum);
@@ -111,15 +109,21 @@ class JavaScriptCoreEngine implements CoreApi {
 
 
     @Override
-    public String getVersionNumber(int releaseNum) {
+    public String getVersioning(int releaseNum) {
         if (!initRhino()) return null; // 初始化 J2V8
         String versionNumber;
-        Object functionObject = scope.get("getVersionNumber", scope);
-        Function function = (Function) functionObject;
+        Function function;
+        try {
+            function = (Function) scope.get("getVersioning", scope);
+        } catch (ClassCastException e) {
+            // TODO: 向下兼容两个主版本后移除，当前版本：0.1.0-alpha.3
+            Log.w(LogObjectTag, TAG, "getVersioning: 未找到 getVersioning 函数，尝试向下兼容");
+            function = (Function) scope.get("getVersionNumber", scope);
+        }
         Object[] args = {releaseNum};
         Object result = function.call(cx, scope, scope, args);
         versionNumber = Context.toString(result);
-        Log.d(LogObjectTag, TAG, "getVersionNumber: versionNumber: " + versionNumber);
+        Log.d(LogObjectTag, TAG, "getVersioning: versionNumber: " + versionNumber);
         closeRhino(); // 销毁 J2V8 对象
         return versionNumber;
     }
@@ -128,8 +132,7 @@ class JavaScriptCoreEngine implements CoreApi {
     public JSONObject getReleaseDownload(int releaseNum) {
         if (!initRhino()) return null; // 初始化 J2V8
         String versionNumberString;
-        Object functionObject = scope.get("getReleaseDownload", scope);
-        Function function = (Function) functionObject;
+        Function function = (Function) scope.get("getReleaseDownload", scope);
         Object[] args = {releaseNum};
         Object result = function.call(cx, scope, scope, args);
         versionNumberString = Context.toString(result);

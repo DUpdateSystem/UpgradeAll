@@ -41,7 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHolder> {
+public class AppItemAdapter extends RecyclerView.Adapter<CardViewRecyclerViewHolder> {
 
     private List<ItemCardView> mItemCardViewList;
     private Context mContext;
@@ -49,7 +49,7 @@ public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerVie
     private static final AppManager AppManager = ServerContainer.AppServer.getAppManager();
 
 
-    public AppItemCardAdapter(Context context, List<ItemCardView> updateList) {
+    public AppItemAdapter(Context context, List<ItemCardView> updateList) {
         mContext = context;
         mItemCardViewList = updateList;
     }
@@ -223,7 +223,7 @@ public class AppItemCardAdapter extends RecyclerView.Adapter<CardViewRecyclerVie
                 holder.versionCheckButton.setVisibility(View.VISIBLE);
                 holder.versionCheckingBar.setVisibility(View.INVISIBLE);
                 //检查是否取得云端版本号
-                if (updater.getLatestVersion() != null) {
+                if (updater.isSuccessRenew()) {
                     // 检查是否获取本地版本号
                     if (app.getInstalledVersion() != null) {
                         // 检查本地版本

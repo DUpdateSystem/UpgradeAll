@@ -19,10 +19,6 @@ public abstract class EngineApi implements CoreApi {
 
     public abstract void refreshData();
 
-    public boolean isSuccessFlash() {
-        return getReleaseNum() != 0;
-    }
-
     public void setRenewTime() {
         this.renewTime = Calendar.getInstance();
     }
@@ -39,6 +35,10 @@ public abstract class EngineApi implements CoreApi {
     }
 }
 
+/**
+ * 生成空 engine 避免错误
+ * TODO: 0.1.0 前核实去除方法
+ */
 class EmptyEngine extends EngineApi {
 
     @Override
@@ -56,7 +56,7 @@ class EmptyEngine extends EngineApi {
     }
 
     @Override
-    public String getVersionNumber(int releaseNum) {
+    public String getVersioning(int releaseNum) {
         return null;
     }
 

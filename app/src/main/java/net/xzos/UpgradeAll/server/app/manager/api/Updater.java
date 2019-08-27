@@ -78,9 +78,8 @@ public class Updater {
         renewing.postValue(true);
         newEngine(appDatabaseId);
         engine.refreshData();
-        boolean refreshSuccess = engine.isSuccessFlash();
         // 检查刷新
-        if (refreshSuccess) {
+        if (isSuccessRenew()) {
             engine.setRenewTime();
             Log.v(LogObjectTag, TAG, "refreshThread: 刷新成功");
         }
@@ -100,9 +99,13 @@ public class Updater {
         engine = new JavaScriptEngine.Builder(logObjectTag, url, jsCode).build();
     }
 
+    public boolean isSuccessRenew() {
+        return engine.getReleaseNum() != 0;
+    }
+
     public String getLatestVersion() {
         // 获取最新版本号
-        return engine.getVersionNumber(0);
+        return engine.getVersioning(0);
     }
 
     public JSONObject getLatestDownloadUrl() {
