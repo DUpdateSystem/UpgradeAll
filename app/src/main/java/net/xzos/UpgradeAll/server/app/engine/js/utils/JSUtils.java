@@ -1,6 +1,6 @@
 package net.xzos.UpgradeAll.server.app.engine.js.utils;
 
-import net.xzos.UpgradeAll.gson.JSCacheData;
+import net.xzos.UpgradeAll.json.cache.JSCacheData;
 import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 
@@ -31,14 +31,9 @@ public class JSUtils {
         this.logObjectTag = logObjectTag;
     }
 
-    JSCacheData getJsCacheData() {
-        return jsCacheData;
-    }
-
     public void setJsCacheData(JSCacheData jsCacheData) {
         this.jsCacheData = jsCacheData;
     }
-
 
     public JSONObject getJSONObject() {
         return new JSONObject();

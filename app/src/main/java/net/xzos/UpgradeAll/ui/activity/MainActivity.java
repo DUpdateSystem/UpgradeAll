@@ -32,7 +32,7 @@ import com.yalantis.ucrop.UCrop;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
 import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
+import net.xzos.UpgradeAll.json.cache.ItemCardViewExtraData;
 import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 import net.xzos.UpgradeAll.ui.viewmodels.adapters.AppItemCardAdapter;
@@ -198,15 +198,15 @@ public class MainActivity extends AppCompatActivity
             String name = updateItem.getName();
             String api = updateItem.getApi();
             String url = updateItem.getUrl();
-            ItemCardViewExtraData extraData = new ItemCardViewExtraData();
-            extraData.setDatabaseId(databaseId);
-            itemCardViewList.add(new ItemCardView.Builder(name, url, api).extraData(extraData).build());
+            itemCardViewList.add(new ItemCardView.Builder(name, url, api)
+                    .extraData(new ItemCardViewExtraData.Builder().databaseId(databaseId).build())
+                    .build());
         }
         TextView guidelinesTextView = findViewById(R.id.guidelinesTextView);
         if (itemCardViewList.size() != 0) {
-            ItemCardViewExtraData extraData = new ItemCardViewExtraData();
-            extraData.setEmpty(true);
-            itemCardViewList.add(new ItemCardView.Builder(null, null, null).extraData(extraData).build());
+            itemCardViewList.add(new ItemCardView.Builder(null, null, null)
+                    .extraData(new ItemCardViewExtraData.Builder().isEmpty(true).build())
+                    .build());
             setRecyclerView();
             adapter.notifyDataSetChanged();
             guidelinesTextView.setVisibility(View.GONE);

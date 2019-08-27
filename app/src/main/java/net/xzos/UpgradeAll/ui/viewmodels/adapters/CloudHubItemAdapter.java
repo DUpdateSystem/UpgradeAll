@@ -13,7 +13,7 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.json.gson.HubConfig;
 import net.xzos.UpgradeAll.server.hub.CloudHub;
 import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
@@ -61,7 +61,7 @@ public class CloudHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerVi
                             if (cloudHubConfigGson != null) {
                                 String cloudHubConfigJS = mCloudHub.getHubConfigJS(cloudHubConfigGson.getWebCrawler().getFilePath());
                                 if (cloudHubConfigJS != null)
-                                    addHubSuccess = HubManager.addHubDatabase(cloudHubConfigGson, cloudHubConfigJS);
+                                    addHubSuccess = HubManager.add(cloudHubConfigGson, cloudHubConfigJS);
                                 else {
                                     addHubSuccess = false;
                                     new Handler(Looper.getMainLooper()).post(() -> {

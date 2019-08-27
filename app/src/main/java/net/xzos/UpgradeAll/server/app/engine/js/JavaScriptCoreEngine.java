@@ -1,6 +1,6 @@
 package net.xzos.UpgradeAll.server.app.engine.js;
 
-import net.xzos.UpgradeAll.gson.JSCacheData;
+import net.xzos.UpgradeAll.json.cache.JSCacheData;
 import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.app.engine.api.CoreApi;
 import net.xzos.UpgradeAll.server.app.engine.js.utils.JSLog;

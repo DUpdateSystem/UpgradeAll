@@ -17,11 +17,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.database.HubDatabase;
-import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
-import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
+import net.xzos.UpgradeAll.json.cache.ItemCardViewExtraData;
+import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.ui.viewmodels.adapters.LocalHubItemAdapter;
-
-import org.litepal.LitePal;
+import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +53,7 @@ public class HubListActivity extends AppCompatActivity {
         FabSpeedDial fab = findViewById(R.id.addFab);
         fab.addOnMenuItemClickListener((floatingActionButton, textView, integer) -> {
             if (floatingActionButton == fab.getMiniFab(0)) {
-                startActivity(new Intent(HubListActivity.this, HubLocalActivity.class));
+                startActivity(new Intent(this, HubLocalActivity.class));
             } else if (floatingActionButton == fab.getMiniFab(1)) {
                 startActivity(new Intent(HubListActivity.this, CloudHubListActivity.class));
             }
@@ -79,21 +78,20 @@ public class HubListActivity extends AppCompatActivity {
     }
 
     private void refreshHubList() {
-        List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
+        List<HubDatabase> hubDatabase = HubManager.getDatabases();
         itemCardViewList.clear();
         for (HubDatabase hubItem : hubDatabase) {
-            int databaseId = hubItem.getId();
             String name = hubItem.getName();
             String uuid = hubItem.getUuid();
-            ItemCardViewExtraData extraData = new ItemCardViewExtraData();
-            extraData.setDatabaseId(databaseId);
-            itemCardViewList.add(new ItemCardView.Builder(name, uuid, "").extraData(extraData).build());
+            itemCardViewList.add(new ItemCardView.Builder(name, uuid, "")
+                    .extraData(new ItemCardViewExtraData.Builder().uuid(uuid).build())
+                    .build());
         }
         TextView guidelinesTextView = findViewById(R.id.guidelinesTextView);
         if (itemCardViewList.size() != 0) {
-            ItemCardViewExtraData extraData = new ItemCardViewExtraData();
-            extraData.setEmpty(true);
-            itemCardViewList.add(new ItemCardView.Builder(null, null, null).extraData(extraData).build());
+            itemCardViewList.add(new ItemCardView.Builder(null, null, null)
+                    .extraData(new ItemCardViewExtraData.Builder().isEmpty(true).build())
+                    .build());
             setRecyclerView();
             adapter.notifyDataSetChanged();
             guidelinesTextView.setVisibility(View.GONE);

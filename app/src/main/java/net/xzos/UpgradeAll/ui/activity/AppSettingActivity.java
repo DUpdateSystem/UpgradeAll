@@ -18,9 +18,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
-import net.xzos.UpgradeAll.gson.HubConfig;
 import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.app.engine.js.JavaScriptEngine;
+import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 import net.xzos.UpgradeAll.utils.VersionChecker;
 
@@ -198,34 +198,15 @@ public class AppSettingActivity extends AppCompatActivity {
 
     boolean addRepoDatabase(int databaseId, String name, int apiNum, @NonNull String URL, JSONObject versionChecker) {
         // 数据处理
-        String uuid = apiSpinnerList.get(apiNum);
-        if (URL.length() != 0 && uuid != null) {
-            // 判断url是否多余
-            if (URL.substring(URL.length() - 1).equals("/")) {
-                URL = URL.substring(0, URL.length() - 1);
-            }
+        String apiUuid = apiSpinnerList.get(apiNum);
+        if (URL.length() != 0) {
+            // Name 为空，获取默认名称
             if (name.length() == 0) {
-                // 自定义源
-                List<HubDatabase> hubDatabase = LitePal.findAll(HubDatabase.class);
-                for (HubDatabase hubItem : hubDatabase) {
-                    if (hubItem.getUuid().equals(uuid)) {
-                        String jsCode = hubItem.getExtraData().getJavascript();
-                        if (jsCode == null)
-                            Log.e(LogObjectTag, TAG, "未找到 js 脚本");
-                        HubConfig hubConfig = hubItem.getHubConfig();
-                        if (hubConfig != null) {
-                            String tool = null;
-                            if (hubConfig.getWebCrawler() != null) {
-                                tool = hubConfig.getWebCrawler().getTool();
-                            }
-                            if (tool != null && tool.toLowerCase().equals("javascript")) {
-                                String[] logObjectTag = {"TEMP", "0"};
-                                name = new JavaScriptEngine.Builder(logObjectTag, URL, jsCode).build().getDefaultName();
-                            }
-                        }
-                        break;
-                    }
-                }
+                String jsCode = HubManager.getJsCode(apiUuid);
+                if (jsCode == null)
+                    Log.e(LogObjectTag, TAG, "未找到 js 脚本");
+                String[] logObjectTag = {"TEMP", "0"};
+                name = new JavaScriptEngine.Builder(logObjectTag, URL, jsCode).build().getDefaultName();
             }
             // 修改数据库
             RepoDatabase repoDatabase = LitePal.find(RepoDatabase.class, databaseId);
@@ -236,7 +217,7 @@ public class AppSettingActivity extends AppCompatActivity {
             // 将数据存入 RepoDatabase 数据库
             repoDatabase.setName(name);
             repoDatabase.setApi(api);
-            repoDatabase.setApiUuid(uuid);
+            repoDatabase.setApiUuid(apiUuid);
             repoDatabase.setUrl(URL);
             repoDatabase.setVersionChecker(versionChecker);
             repoDatabase.save();
@@ -253,11 +234,10 @@ public class AppSettingActivity extends AppCompatActivity {
         // 清空 apiSpinnerList
         List<String> nameStringList = new ArrayList<>();
         // 获取自定义源
-        List<HubDatabase> hubList = LitePal.findAll(HubDatabase.class);  // 读取 hub 数据库
-        for (int i = 0; i < hubList.size(); i++) {
-            HubDatabase hubItem = hubList.get(i);
-            String name = hubItem.getName();
-            String apiUuid = hubItem.getUuid();
+        List<HubDatabase> hubList = HubManager.getDatabases();  // 读取 hub 数据库
+        for (HubDatabase hubDatabase : hubList) {
+            String name = hubDatabase.getName();
+            String apiUuid = hubDatabase.getUuid();
             nameStringList.add(name);
             // 记录可用的api UUID
             apiSpinnerList.add(apiUuid);

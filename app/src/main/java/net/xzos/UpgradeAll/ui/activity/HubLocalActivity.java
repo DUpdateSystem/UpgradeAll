@@ -36,7 +36,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.json.gson.HubConfig;
 import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.app.engine.js.JavaScriptEngine;
 import net.xzos.UpgradeAll.server.app.engine.js.utils.JSLog;
@@ -84,7 +84,7 @@ public class HubLocalActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         Intent intent = getIntent();
-        int databaseId = intent.getIntExtra("database_id", 0);
+        final String uuid = intent.getStringExtra("hub_uuid");
 
         // 读取 JS 脚本
         Button selectJsFileButton = findViewById(R.id.selectJsFileButton);
@@ -150,7 +150,7 @@ public class HubLocalActivity extends AppCompatActivity {
             cardViewAnim(configTextView, hubConfigCardView, configContentLayout);
         });
 
-        if (databaseId != 0) loadFromDatabase(databaseId);
+        if (uuid != null) loadFromDatabase(uuid);
 
         setUI();
 
@@ -185,7 +185,7 @@ public class HubLocalActivity extends AppCompatActivity {
         if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
             if (grantResults.length <= 0
                     || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(HubLocalActivity.this, "编辑测试生成配置需要读写本地文件", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "编辑测试生成配置需要读写本地文件", Toast.LENGTH_LONG).show();
                 onBackPressed();
             }
         }
@@ -290,11 +290,11 @@ public class HubLocalActivity extends AppCompatActivity {
         EditText jsFilePathEditText = findViewById(R.id.jsFilePathEditText);
         jsFilePathEditText.setOnLongClickListener(v -> {
             if (HUBCONFIG_URI != null) {
-                FileUtil.performFileSearch(HubLocalActivity.this, READ_CONFIG_JS_REQUEST_CODE, "application/*");
-                Toast.makeText(HubLocalActivity.this, "如果你需要编辑文字，可以双击编辑框而非长按", Toast.LENGTH_LONG).show();
+                FileUtil.performFileSearch(this, READ_CONFIG_JS_REQUEST_CODE, "application/*");
+                Toast.makeText(this, "如果你需要编辑文字，可以双击编辑框而非长按", Toast.LENGTH_LONG).show();
                 return true;
             } else {
-                Toast.makeText(HubLocalActivity.this, "请先选择配置文件位置", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "请先选择配置文件位置", Toast.LENGTH_LONG).show();
                 return false;
             }
         });
@@ -469,11 +469,13 @@ public class HubLocalActivity extends AppCompatActivity {
             CONFIG_CARDVIEW_WRAP_HEIGHT = CARDVIEW_WRAP_HEIGHT;
     }
 
-    private void loadFromDatabase(int databaseId) {
-        String jsCode = HubManager.getHubJsCodeByDatabaseId(databaseId);
+    private void loadFromDatabase(String uuid) {
+        String jsCode = HubManager.getJsCode(uuid);
         TextView jsTestTextView = findViewById(R.id.jsTestTextView);
         jsTestTextView.setText(jsCode);
-        loadConfigFromHubConfig(HubManager.getHubConfigByDatabaseId(databaseId));
+        HubConfig hubConfig = HubManager.getDatabase(uuid).getHubConfig();
+        if (hubConfig != null)
+            loadConfigFromHubConfig(hubConfig);
     }
 
     @Nullable
@@ -576,7 +578,7 @@ public class HubLocalActivity extends AppCompatActivity {
             TextView jsTestTextView = findViewById(R.id.jsTestTextView);
             String jsCode = jsTestTextView.getText().toString();
             if (!jsCode.equals("")) {
-                boolean addHubSuccess = HubManager.addHubDatabase(hubConfigGson, jsCode);
+                boolean addHubSuccess = HubManager.add(hubConfigGson, jsCode);
                 if (addHubSuccess) {
                     Toast.makeText(HubLocalActivity.this, "数据库添加成功", Toast.LENGTH_LONG).show();
                 } else

@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,7 +38,7 @@ public class PlaceholderFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getContext();
-        pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
+        pageViewModel = new ViewModelProvider(this).get(PageViewModel.class);
         String[] logObjectTag = {null, null};
         if (getArguments() != null) {
             logObjectTag = getArguments().getStringArray(ARG_SECTION_NUMBER);

@@ -10,8 +10,8 @@ import com.google.gson.JsonSyntaxException;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
-import net.xzos.UpgradeAll.gson.CloudConfig;
-import net.xzos.UpgradeAll.gson.HubConfig;
+import net.xzos.UpgradeAll.json.gson.CloudConfig;
+import net.xzos.UpgradeAll.json.gson.HubConfig;
 import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.app.engine.js.utils.OkHttpApi;
 import net.xzos.UpgradeAll.server.log.LogUtil;

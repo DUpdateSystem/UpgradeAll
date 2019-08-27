@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.gson;
+package net.xzos.UpgradeAll.json.gson;
 
 import java.util.List;
 
