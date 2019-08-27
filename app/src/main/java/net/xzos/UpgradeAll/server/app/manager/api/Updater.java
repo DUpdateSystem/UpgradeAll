@@ -4,11 +4,11 @@ import androidx.lifecycle.MutableLiveData;
 
 import net.xzos.UpgradeAll.R;
 import net.xzos.UpgradeAll.application.MyApplication;
-import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.database.RepoDatabase;
 import net.xzos.UpgradeAll.server.ServerContainer;
 import net.xzos.UpgradeAll.server.app.engine.api.EngineApi;
 import net.xzos.UpgradeAll.server.app.engine.js.JavaScriptEngine;
+import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.server.log.LogUtil;
 import net.xzos.UpgradeAll.ui.viewmodels.componnent.EditIntPreference;
 
@@ -16,7 +16,6 @@ import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.util.Calendar;
-import java.util.List;
 
 
 public class Updater {
@@ -97,13 +96,8 @@ public class Updater {
         String apiName = repoDatabase.getApi();
         String[] logObjectTag = {apiName, String.valueOf(databaseId)};
         // 查找软件源数据库
-        List<HubDatabase> hubDatabases = LitePal.where("uuid = ?", apiUuid).find(HubDatabase.class);
-        if (!hubDatabases.isEmpty()) {
-            // 创建更新引擎
-            HubDatabase hubDatabase = hubDatabases.get(0);
-            String jsCode = hubDatabase.getExtraData().getJavascript();
-            engine = new JavaScriptEngine.Builder(logObjectTag, url, jsCode).build();
-        }
+        String jsCode = HubManager.getJsCode(apiUuid);
+        engine = new JavaScriptEngine.Builder(logObjectTag, url, jsCode).build();
     }
 
     public String getLatestVersion() {

@@ -11,12 +11,10 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.xzos.UpgradeAll.R;
+import net.xzos.UpgradeAll.server.hub.HubManager;
 import net.xzos.UpgradeAll.ui.activity.HubLocalActivity;
-import net.xzos.UpgradeAll.database.HubDatabase;
 import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
 import net.xzos.UpgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder;
-
-import org.litepal.LitePal;
 
 import java.util.List;
 
@@ -38,7 +36,7 @@ public class LocalHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerVi
         holder.itemCardView.setOnLongClickListener(v -> {
             final int position = holder.getAdapterPosition();
             final ItemCardView itemCardView = mItemCardViewList.get(position);
-            final int databaseId = itemCardView.getExtraData().getDatabaseId();
+            final String uuid = itemCardView.getExtraData().getUuid();
             PopupMenu popupMenu = new PopupMenu(holder.itemCardView.getContext(), v);
             MenuInflater menuInflater = popupMenu.getMenuInflater();
             menuInflater.inflate(R.menu.menu_long_click_cardview_item, popupMenu.getMenu());
@@ -49,13 +47,13 @@ public class LocalHubItemAdapter extends RecyclerView.Adapter<CardViewRecyclerVi
                     // 修改按钮
                     case R.id.setting_button:
                         Intent intent = new Intent(holder.itemCardView.getContext(), HubLocalActivity.class);
-                        intent.putExtra("database_id", databaseId);
+                        intent.putExtra("hub_uuid", uuid);
                         holder.itemCardView.getContext().startActivity(intent);
                         break;
                     // 删除按钮
                     case R.id.del_button:
                         // 删除数据库
-                        LitePal.delete(HubDatabase.class, databaseId);
+                        HubManager.del(uuid);
                         // 删除指定数据库
                         mItemCardViewList.remove(holder.getAdapterPosition());
                         notifyItemRemoved(holder.getAdapterPosition());

@@ -52,7 +52,7 @@ dependencies {
 
     // OkHttp
     implementation 'com.squareup.okhttp3:okhttp:4.1.0'
-    implementation 'com.squareup.okio:okio:2.3.0'
+    implementation 'com.squareup.okio:okio:2.4.0'
     // 网络爬虫
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'cn.wanghaomiao:JsoupXpath:2.3.2'

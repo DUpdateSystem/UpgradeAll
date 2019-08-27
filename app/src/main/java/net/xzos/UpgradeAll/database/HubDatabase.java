@@ -5,8 +5,8 @@ import androidx.annotation.NonNull;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-import net.xzos.UpgradeAll.gson.HubConfig;
-import net.xzos.UpgradeAll.gson.HubItemExtraData;
+import net.xzos.UpgradeAll.json.gson.HubConfig;
+import net.xzos.UpgradeAll.json.gson.HubDatabaseExtraData;
 
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
@@ -57,16 +57,16 @@ public class HubDatabase extends LitePalSupport {
         this.uuid = uuid.toLowerCase();
     }
 
-    public HubItemExtraData getExtraData() {
+    public HubDatabaseExtraData getExtraData() {
         Gson gson = new Gson();
         try {
-            return gson.fromJson(extra_data, HubItemExtraData.class);
+            return gson.fromJson(extra_data, HubDatabaseExtraData.class);
         } catch (JsonSyntaxException e) {
             return null;
         }
     }
 
-    public void setExtraData(HubItemExtraData extra_data) {
+    public void setExtraData(HubDatabaseExtraData extra_data) {
         Gson gson = new Gson();
         this.extra_data = gson.toJson(extra_data);
     }

@@ -1,4 +1,4 @@
-package net.xzos.UpgradeAll.gson;
+package net.xzos.UpgradeAll.json.gson;
 
 public class HubConfig {
     /**

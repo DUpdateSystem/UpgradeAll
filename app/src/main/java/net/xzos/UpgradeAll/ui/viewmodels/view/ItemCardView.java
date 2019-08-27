@@ -2,7 +2,7 @@ package net.xzos.UpgradeAll.ui.viewmodels.view;
 
 import androidx.annotation.NonNull;
 
-import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
+import net.xzos.UpgradeAll.json.cache.ItemCardViewExtraData;
 
 public class ItemCardView {
 
@@ -38,7 +38,7 @@ public class ItemCardView {
         private final String name;
         private final String desc;
         private final String api;
-        private ItemCardViewExtraData extraData = new ItemCardViewExtraData();
+        private ItemCardViewExtraData extraData = new ItemCardViewExtraData.Builder().build();
 
         public Builder(String name, String desc, String api) {
             this.name = name;

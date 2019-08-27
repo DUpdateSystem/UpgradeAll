@@ -25,7 +25,7 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
     private List<String> mLogObjectIdList;
 
     public SectionsPagerAdapter(LifecycleOwner owner, FragmentManager fm, String logSort) {
-        super(fm);
+        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         this.logSort = logSort;
         LogDataProxy logDataProxy = new LogDataProxy(ServerContainer.AppServer.getLog());
         LiveData<List<String>> liveDataLogObjectIdList = logDataProxy.getLiveDataLogObjectIdList(logSort);
@@ -43,8 +43,6 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
     @NonNull
     @Override
     public Fragment getItem(int position) {
-        // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
         String[] logObjectTag = {logSort, mLogObjectIdList.get(position)};
         return PlaceholderFragment.newInstance(logObjectTag);
     }
@@ -62,7 +60,6 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        // Show 2 total pages.
         return TAB_TITLES.size();
     }
 }

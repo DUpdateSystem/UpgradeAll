@@ -15,11 +15,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import net.xzos.UpgradeAll.R;
-import net.xzos.UpgradeAll.gson.CloudConfig;
-import net.xzos.UpgradeAll.gson.ItemCardViewExtraData;
+import net.xzos.UpgradeAll.json.cache.ItemCardViewExtraData;
+import net.xzos.UpgradeAll.json.gson.CloudConfig;
 import net.xzos.UpgradeAll.server.hub.CloudHub;
-import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
 import net.xzos.UpgradeAll.ui.viewmodels.adapters.CloudHubItemAdapter;
+import net.xzos.UpgradeAll.ui.viewmodels.view.ItemCardView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,16 +74,19 @@ public class CloudHubListActivity extends AppCompatActivity {
                 itemCardViewList.clear();
                 for (CloudConfig.HubListBean hubItem : hubList) {
                     String name = hubItem.getHubConfigName();
-                    String configUuid = hubItem.getHubConfigUuid();
+                    String hubUuid = hubItem.getHubConfigUuid();
                     String configFileName = hubItem.getHubConfigFileName();
-                    ItemCardViewExtraData extraData = new ItemCardViewExtraData();
-                    extraData.setConfigFileName(configFileName);
-                    extraData.setUuid(configUuid);
-                    itemCardViewList.add(new ItemCardView.Builder(name, configUuid, configFileName).extraData(extraData).build());
+                    itemCardViewList.add(new ItemCardView.Builder(name, hubUuid, configFileName)
+                            .extraData(
+                                    new ItemCardViewExtraData.Builder()
+                                            .configFileName(configFileName)
+                                            .uuid(hubUuid)
+                                            .build())
+                            .build());
                 }
-                ItemCardViewExtraData extraData = new ItemCardViewExtraData();
-                extraData.setEmpty(true);
-                itemCardViewList.add(new ItemCardView.Builder(null, null, null).extraData(extraData).build());
+                itemCardViewList.add(new ItemCardView.Builder(null, null, null)
+                        .extraData(new ItemCardViewExtraData.Builder().isEmpty(true).build())
+                        .build());
                 setRecyclerView();
                 adapter.notifyDataSetChanged();
             });
