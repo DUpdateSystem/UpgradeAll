@@ -53,7 +53,7 @@ public class JavaScriptEngine extends EngineApi {
     public void refreshData() {
         releaseNum = getReleaseNum();
         for (int i = 0; i < releaseNum; i++) {
-            versionNumberList.add(getVersionNumber(i));
+            versionNumberList.add(getVersioning(i));
             releaseDownloadList.add(getReleaseDownload(i));
         }
     }
@@ -71,13 +71,13 @@ public class JavaScriptEngine extends EngineApi {
     }
 
     @Override
-    public String getVersionNumber(int releaseNum) {
+    public String getVersioning(int releaseNum) {
         String versionNumber = null;
         if (versionNumberList.size() == 0) {
             try {
-                versionNumber = javaScriptCoreEngine.getVersionNumber(releaseNum);
+                versionNumber = javaScriptCoreEngine.getVersioning(releaseNum);
             } catch (Throwable e) {
-                Log.e(LogObjectTag, TAG, "getVersionNumber: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
+                Log.e(LogObjectTag, TAG, "getVersioning: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
                 return null;
             }
         } else if (releaseNum >= 0 && releaseNum < versionNumberList.size())

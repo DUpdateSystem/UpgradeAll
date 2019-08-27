@@ -9,7 +9,7 @@ public interface CoreApi {
 
     int getReleaseNum();
 
-    String getVersionNumber(int releaseNum);
+    String getVersioning(int releaseNum);
     /*返回云端版本号*/
 
     JSONObject getReleaseDownload(int releaseNum);

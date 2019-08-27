@@ -372,7 +372,7 @@ public class HubLocalActivity extends AppCompatActivity {
             jsLog.d(String.format("1. 获取默认名称(getDefaultName): %s \n", javaScriptEngine.getDefaultName()));
             jsLog.d(String.format("2. 获取发布版本号总数(getReleaseNum): %s \n", javaScriptEngine.getReleaseNum()));
             for (int i = 0; i < javaScriptEngine.getReleaseNum(); i++) {
-                jsLog.d(String.format("3. (%s) 获取发布版本号(getVersionNumber): %s \n", i, javaScriptEngine.getVersionNumber(i)));
+                jsLog.d(String.format("3. (%s) 获取发布版本号(getVersioning): %s \n", i, javaScriptEngine.getVersioning(i)));
             }
             for (int i = 0; i < javaScriptEngine.getReleaseNum(); i++) {
                 JSONObject releaseDownload = javaScriptEngine.getReleaseDownload(i);
