@@ -18,7 +18,7 @@ class JavaScriptCoreEngine implements CoreApi {
 
     private static final String TAG = "JavaScriptCoreEngine";
     private String[] LogObjectTag;
-    protected static final LogUtil Log = ServerContainer.AppServer.getLog();
+    private static final LogUtil Log = ServerContainer.AppServer.getLog();
 
     private String URL;
     private String jsCode;
@@ -27,7 +27,7 @@ class JavaScriptCoreEngine implements CoreApi {
     private Scriptable scope;
 
     private JSUtils JSUtils;
-    private net.xzos.UpgradeAll.server.app.engine.js.utils.JSLog JSLog;
+    private JSLog JSLog;
 
     JavaScriptCoreEngine(String[] logObjectTag, String URL, String jsCode) {
         this.LogObjectTag = logObjectTag;
@@ -83,69 +83,67 @@ class JavaScriptCoreEngine implements CoreApi {
         ScriptableObject.putProperty(scope, "Log", rhinoLogUtils);
     }
 
+    // 运行 JS 代码
+    private Object runJS(String functionName, Object[] args) {
+        if (!initRhino()) return null; // 初始化 J2V8
+        Function function = (Function) scope.get(functionName, scope);
+        Object result = function.call(cx, scope, scope, args);
+        closeRhino(); // 销毁 J2V8 对象
+        return result;
+    }
+
     @Override
     public String getDefaultName() {
-        if (!initRhino()) return null; // 初始化 J2V8
-        String defaultName;
-        Function function = (Function) scope.get("getDefaultName", scope);
-        Object result = function.call(cx, scope, scope, new Object[]{});
-        defaultName = Context.toString(result);
+        String defaultName = Context.toString(runJS("getDefaultName", new Object[]{}));
         Log.d(LogObjectTag, TAG, "getDefaultName: defaultName: " + defaultName);
-        closeRhino(); // 销毁 J2V8 对象
         return defaultName;
     }
 
     @Override
     public int getReleaseNum() {
-        if (!initRhino()) return 0; // 初始化 J2V8
-        int releaseNum;
-        Function function = (Function) scope.get("getReleaseNum", scope);
-        Object result = function.call(cx, scope, scope, new Object[]{});
-        releaseNum = (int) Context.toNumber(result);
+        int releaseNum = (int) Context.toNumber(runJS("getReleaseNum", new Object[]{}));
         Log.d(LogObjectTag, TAG, "getReleaseNum: releaseNum: " + releaseNum);
-        closeRhino(); // 销毁 J2V8 对象
         return releaseNum;
     }
 
 
     @Override
     public String getVersioning(int releaseNum) {
-        if (!initRhino()) return null; // 初始化 J2V8
-        String versionNumber;
-        Function function;
+        Object result;
+        Object[] args = {releaseNum};
         try {
-            function = (Function) scope.get("getVersioning", scope);
+            result = runJS("getVersioning", args);
         } catch (ClassCastException e) {
             // TODO: 向下兼容两个主版本后移除，当前版本：0.1.0-alpha.3
             Log.w(LogObjectTag, TAG, "getVersioning: 未找到 getVersioning 函数，尝试向下兼容");
-            function = (Function) scope.get("getVersionNumber", scope);
+            result = runJS("getVersionNumber", args);
         }
-        Object[] args = {releaseNum};
-        Object result = function.call(cx, scope, scope, args);
-        versionNumber = Context.toString(result);
+        String versionNumber = Context.toString(result);
         Log.d(LogObjectTag, TAG, "getVersioning: versionNumber: " + versionNumber);
-        closeRhino(); // 销毁 J2V8 对象
         return versionNumber;
     }
 
     @Override
-    public JSONObject getReleaseDownload(int releaseNum) {
-        if (!initRhino()) return null; // 初始化 J2V8
-        String versionNumberString;
-        Function function = (Function) scope.get("getReleaseDownload", scope);
+    public String getChangelog(int releaseNum) {
         Object[] args = {releaseNum};
-        Object result = function.call(cx, scope, scope, args);
-        versionNumberString = Context.toString(result);
-        JSONObject releaseDownloadUrlJsonObject = new JSONObject();
+        String changeLog = Context.toString(runJS("getChangelog", args));
+        Log.d(LogObjectTag, TAG, "getChangelog: Changelog: " + changeLog);
+        return changeLog;
+    }
+
+    @Override
+    public JSONObject getReleaseDownload(int releaseNum) {
+        Object[] args = {releaseNum};
+        String fileJsonString = Context.toString(runJS("getReleaseDownload", args));
+        JSONObject fileJson = new JSONObject();
         try {
-            releaseDownloadUrlJsonObject = new JSONObject(versionNumberString);
+            fileJson = new JSONObject(fileJsonString);
         } catch (JSONException e) {
-            Log.e(LogObjectTag, TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范, versionNumberString : " + versionNumberString);
+            Log.e(LogObjectTag, TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范, fileJsonString : " + fileJsonString);
         } catch (NullPointerException e) {
-            Log.e(LogObjectTag, TAG, "getReleaseDownload: 返回值为 NULL, versionNumberString : " + versionNumberString);
+            Log.e(LogObjectTag, TAG, "getReleaseDownload: 返回值为 NULL, fileJsonString : " + fileJsonString);
         }
-        closeRhino(); // 销毁 J2V8 对象
-        Log.d(LogObjectTag, TAG, "getReleaseDownload:  releaseDownloadUrlJsonObject: " + releaseDownloadUrlJsonObject);
-        return releaseDownloadUrlJsonObject;
+        Log.d(LogObjectTag, TAG, "getReleaseDownload:  fileJson: " + fileJson);
+        return fileJson;
     }
 }

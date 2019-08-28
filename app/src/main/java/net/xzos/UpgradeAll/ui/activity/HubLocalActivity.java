@@ -55,7 +55,7 @@ import java.util.List;
 public class HubLocalActivity extends AppCompatActivity {
 
 
-    protected static final LogUtil Log = ServerContainer.AppServer.getLog();
+    private static final LogUtil Log = ServerContainer.AppServer.getLog();
 
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 1;
 
@@ -373,11 +373,12 @@ public class HubLocalActivity extends AppCompatActivity {
             jsLog.d(String.format("2. 获取发布版本号总数(getReleaseNum): %s \n", javaScriptEngine.getReleaseNum()));
             for (int i = 0; i < javaScriptEngine.getReleaseNum(); i++) {
                 jsLog.d(String.format("3. (%s) 获取发布版本号(getVersioning): %s \n", i, javaScriptEngine.getVersioning(i)));
+                jsLog.d(String.format("4. (%s) 获取发布版本号(getChangelog): %s \n", i, javaScriptEngine.getChangelog(i)));
             }
             for (int i = 0; i < javaScriptEngine.getReleaseNum(); i++) {
                 JSONObject releaseDownload = javaScriptEngine.getReleaseDownload(i);
                 if (releaseDownload != null) {
-                    jsLog.d(String.format("4. (%s) 获取下载链接(getReleaseDownload): %s \n", i, releaseDownload.toString()));
+                    jsLog.d(String.format("5. (%s) 获取下载链接(getReleaseDownload): %s \n", i, releaseDownload.toString()));
                 }
             }
         }).start();

@@ -20,7 +20,7 @@ import java.util.Calendar;
 
 public class Updater {
 
-    protected static final LogUtil Log = ServerContainer.AppServer.getLog();
+    private static final LogUtil Log = ServerContainer.AppServer.getLog();
     private static final String TAG = "Updater";
     private static final String[] LogObjectTag = {"Core", TAG};
 

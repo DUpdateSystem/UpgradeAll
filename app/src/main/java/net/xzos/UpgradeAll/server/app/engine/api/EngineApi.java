@@ -61,6 +61,11 @@ class EmptyEngine extends EngineApi {
     }
 
     @Override
+    public String getChangelog(int releaseNum) {
+        return null;
+    }
+
+    @Override
     public JSONObject getReleaseDownload(int releaseNum) {
         return null;
     }

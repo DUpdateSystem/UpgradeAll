@@ -17,6 +17,7 @@ public class JavaScriptEngine extends EngineApi {
 
     private int releaseNum = 0;
     private ArrayList<String> versionNumberList = new ArrayList<>();
+    private ArrayList<String> changeLogList = new ArrayList<>();
     private ArrayList<JSONObject> releaseDownloadList = new ArrayList<>();
 
     private JavaScriptEngine(@NonNull Builder builder) {
@@ -54,6 +55,7 @@ public class JavaScriptEngine extends EngineApi {
         releaseNum = getReleaseNum();
         for (int i = 0; i < releaseNum; i++) {
             versionNumberList.add(getVersioning(i));
+            changeLogList.add(getChangelog(i));
             releaseDownloadList.add(getReleaseDownload(i));
         }
     }
@@ -83,6 +85,21 @@ public class JavaScriptEngine extends EngineApi {
         } else if (releaseNum >= 0 && releaseNum < versionNumberList.size())
             versionNumber = versionNumberList.get(releaseNum);
         return versionNumber;
+    }
+
+    @Override
+    public String getChangelog(int releaseNum) {
+        String changeLog = null;
+        if (changeLogList.size() == 0) {
+            try {
+                changeLog = javaScriptCoreEngine.getChangelog(releaseNum);
+            } catch (Throwable e) {
+                Log.e(LogObjectTag, TAG, "getChangelog: 脚本执行错误, ERROR_MESSAGE: " + e.toString());
+                return null;
+            }
+        } else if (releaseNum >= 0 && releaseNum < changeLogList.size())
+            changeLog = changeLogList.get(releaseNum);
+        return changeLog;
     }
 
     @Override
