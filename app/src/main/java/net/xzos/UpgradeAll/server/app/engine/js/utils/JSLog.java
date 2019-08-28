@@ -5,7 +5,7 @@ import net.xzos.UpgradeAll.server.log.LogUtil;
 
 public class JSLog {
 
-    protected static final LogUtil Log = ServerContainer.AppServer.getLog();
+    private static final LogUtil Log = ServerContainer.AppServer.getLog();
 
     private String[] LogObjectTag;
     private String TAG = "JavaScriptRunning";

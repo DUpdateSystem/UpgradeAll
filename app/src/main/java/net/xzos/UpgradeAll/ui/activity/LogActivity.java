@@ -38,7 +38,7 @@ import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu;
 public class LogActivity extends AppCompatActivity {
     private static final String TAG = "LogActivity";
     private static final String[] LogObjectTag = {"Core", TAG};
-    protected static final LogUtil Log = ServerContainer.AppServer.getLog();
+    private static final LogUtil Log = ServerContainer.AppServer.getLog();
 
     private static final int PERMISSIONS_REQUEST_WRITE_CONTACTS = 1;
 

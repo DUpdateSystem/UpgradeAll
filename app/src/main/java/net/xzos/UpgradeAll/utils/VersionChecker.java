@@ -24,7 +24,7 @@ public class VersionChecker {
 
     private static final String TAG = "VersionChecker";
     private static final String[] LogObjectTag = {"Core", TAG};
-    protected static final LogUtil Log = ServerContainer.AppServer.getLog();
+    private static final LogUtil Log = ServerContainer.AppServer.getLog();
 
     private JSONObject versionCheckerJsonObject;
 
@@ -130,8 +130,11 @@ public class VersionChecker {
         Log.i(LogObjectTag, TAG, String.format("compareVersionNumber: versionNumber0: %s , versionNumber1: %s", versionNumber0, versionNumber1));
         versionNumber0 = getVersionNumberString(versionNumber0);
         versionNumber1 = getVersionNumberString(versionNumber1);
-        DefaultArtifactVersion version0 = new DefaultArtifactVersion(versionNumber0);
-        DefaultArtifactVersion version1 = new DefaultArtifactVersion(versionNumber1);
-        return version0.compareTo(version1) >= 0;
+        if (versionNumber0 != null && versionNumber1 != null) {
+            DefaultArtifactVersion version0 = new DefaultArtifactVersion(versionNumber0);
+            DefaultArtifactVersion version1 = new DefaultArtifactVersion(versionNumber1);
+            return version0.compareTo(version1) >= 0;
+        }
+        return false;
     }
 }
