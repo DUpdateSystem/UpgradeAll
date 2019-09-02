@@ -10,7 +10,7 @@ import net.xzos.upgradeAll.server.log.LogDataProxy
 class PageViewModel : ViewModel() {
 
     private val mLogObjectTag = MutableLiveData<Array<String>>()
-    internal val logList = Transformations.map(mLogObjectTag) { logObjectTag -> LogDataProxy(ServerContainer.AppServer.log).getLogMessageListLiveData(logObjectTag) }
+    internal val logList = Transformations.map(mLogObjectTag) { logObjectTag -> LogDataProxy(ServerContainer.Log).getLogMessageListLiveData(logObjectTag) }
 
     internal fun setLogObjectTag(logObjectTag: Array<String>) {
         mLogObjectTag.setValue(logObjectTag)

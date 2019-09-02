@@ -105,7 +105,7 @@ class JSUtils(private val logObjectTag: Array<String>) {
     }
 
     companion object {
-        private val Log = ServerContainer.AppServer.log
+        private val Log = ServerContainer.Log
         private const val TAG = "JSUtils"
     }
 }

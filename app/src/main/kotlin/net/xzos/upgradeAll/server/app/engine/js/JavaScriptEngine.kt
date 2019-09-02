@@ -96,7 +96,7 @@ class JavaScriptEngine internal constructor(
     companion object {
         private const val TAG = "JavaScriptEngine"
         private lateinit var LogObjectTag: Array<String>
-        private val Log = ServerContainer.AppServer.log
+        private val Log = ServerContainer.Log
         private var releaseNumCache = 0
         private val versionNumberCacheList = ArrayList<String?>()
         private val changeLogCacheList = ArrayList<String?>()

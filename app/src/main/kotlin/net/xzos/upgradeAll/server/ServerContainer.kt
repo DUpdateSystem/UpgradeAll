@@ -1,15 +1,14 @@
 package net.xzos.upgradeAll.server
 
-import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.server.app.manager.AppManager
-
+import net.xzos.upgradeAll.server.log.LogUtil
 import org.jetbrains.annotations.Contract
 
 class ServerContainer {
-    object AppServer {
+    companion object {
         @get:Contract(pure = true)
-        val log = LogUtil()
+        val Log = LogUtil()
         @get:Contract(pure = true)
-        val appManager = AppManager()
+        val AppManager = AppManager()
     }
 }

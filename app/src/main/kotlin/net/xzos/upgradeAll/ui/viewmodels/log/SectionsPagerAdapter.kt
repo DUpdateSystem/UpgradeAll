@@ -14,7 +14,7 @@ class SectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, private v
     private var mLogObjectIdList: List<String>? = null
 
     init {
-        val logDataProxy = LogDataProxy(ServerContainer.AppServer.log)
+        val logDataProxy = LogDataProxy(ServerContainer.Log)
         val liveDataLogObjectIdList = logDataProxy.getLiveDataLogObjectIdList(logSort)
         liveDataLogObjectIdList.observe(owner, Observer { logObjectIdList ->
             TAB_TITLES.clear()

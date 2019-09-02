@@ -14,7 +14,7 @@ import org.litepal.extension.findAll
 
 object HubManager {
 
-    private val Log = ServerContainer.AppServer.log
+    private val Log = ServerContainer.Log
 
     private const val TAG = "HubManager"
     private val LogObjectTag = arrayOf("Core", TAG)

@@ -7,7 +7,7 @@ import okhttp3.Response
 import java.io.IOException
 
 object OkHttpApi {
-    private val Log = ServerContainer.AppServer.log
+    private val Log = ServerContainer.Log
     private const val TAG = "OkHttpApi"
 
     fun getHttpResponse(LogObjectTag: Array<String>, api_url: String?): String? {

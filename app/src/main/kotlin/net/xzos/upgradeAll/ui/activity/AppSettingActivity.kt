@@ -119,7 +119,7 @@ class AppSettingActivity : AppCompatActivity() {
             // 添加数据库
             val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)
             if (addRepoSuccess) {
-                ServerContainer.AppServer.appManager.setApp(databaseId)
+                ServerContainer.AppManager.setApp(databaseId)
             }
             // 强行刷新被修改的子项
             Handler(Looper.getMainLooper()).post {
@@ -225,7 +225,7 @@ class AppSettingActivity : AppCompatActivity() {
 
     companion object {
 
-        private val Log = ServerContainer.AppServer.log
+        private val Log = ServerContainer.Log
         private const val TAG = "UpdateItemSetting"
         private val LogObjectTag = arrayOf("Core", TAG)
 
