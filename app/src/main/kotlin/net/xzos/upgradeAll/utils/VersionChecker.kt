@@ -100,7 +100,7 @@ class VersionChecker(private val inputVersionCheckerString: String? = null, priv
 
         private const val TAG = "VersionChecker"
         private val LogObjectTag = arrayOf("Core", TAG)
-        private val Log = ServerContainer.AppServer.log
+        private val Log = ServerContainer.Log
 
         private fun getVersionNumberString(versionString: String?): String? {
             var versionMatchString: String? = null

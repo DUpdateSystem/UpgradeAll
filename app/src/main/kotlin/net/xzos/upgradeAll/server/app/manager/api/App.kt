@@ -29,5 +29,4 @@ data class App(private val appDatabaseId: Int) {
             val versionChecker = repoDatabase?.versionChecker
             return VersionChecker(inputVersionCheckerString = versionChecker)
         }
-
 }

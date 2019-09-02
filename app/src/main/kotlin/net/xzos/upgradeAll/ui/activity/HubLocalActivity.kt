@@ -535,9 +535,7 @@ class HubLocalActivity : AppCompatActivity() {
     }
 
     companion object {
-
-
-        private val Log = ServerContainer.AppServer.log
+        private val Log = ServerContainer.Log
 
         private const val PERMISSIONS_REQUEST_READ_CONTACTS = 1
 

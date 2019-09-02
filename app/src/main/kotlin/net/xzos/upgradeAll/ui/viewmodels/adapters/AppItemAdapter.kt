@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +24,6 @@ import net.xzos.upgradeAll.ui.activity.AppSettingActivity
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import org.json.JSONException
-import org.json.JSONObject
 import org.litepal.LitePal
 import java.util.*
 
@@ -67,12 +65,10 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
             // 获取云端文件
             Thread {
                 // 刷新数据库
-                var latestDownloadUrl: JSONObject? = updater.latestDownloadUrl
-                if (latestDownloadUrl == null) latestDownloadUrl = JSONObject()
-                val latestDownloadUrlCopy = latestDownloadUrl
+                val latestFileDownloadUrl = updater.latestDownloadUrl
                 Handler(Looper.getMainLooper()).post {
                     val itemList = ArrayList<String>()
-                    val sIterator = latestDownloadUrlCopy.keys()
+                    val sIterator = latestFileDownloadUrl.keys()
                     while (sIterator.hasNext()) {
                         val key = sIterator.next()
                         itemList.add(key)
@@ -92,12 +88,12 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
                         val intent = Intent(Intent.ACTION_VIEW)
                         var url: String? = null
                         try {
-                            url = latestDownloadUrlCopy.getString(itemList[i])
+                            url = latestFileDownloadUrl.getString(itemList[i])
                         } catch (e: JSONException) {
                             e.printStackTrace()
                         }
 
-                        if (url != null && !url.startsWith("http://") && !url.startsWith("https://"))
+                        if (url != null && !url.startsWith("http"))
                             url = "http://$url"
                         intent.data = Uri.parse(url)
                         val chooser = Intent.createChooser(intent, "请选择浏览器")
@@ -223,6 +219,6 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
 
     companion object {
 
-        private val AppManager = ServerContainer.AppServer.appManager
+        private val AppManager = ServerContainer.AppManager
     }
 }

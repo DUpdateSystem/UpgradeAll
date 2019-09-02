@@ -15,14 +15,14 @@ internal class LogLiveData {
 
     val sortList: LiveData<List<String>>
         get() = Transformations.map(mLogJSONObject) {
-            val logUtil = ServerContainer.AppServer.log
+            val logUtil = ServerContainer.Log
             val logDataProxy = LogDataProxy(logUtil)
             logDataProxy.logSort
         }
 
     fun getIdListInSort(logSort: String): LiveData<List<String>> {
         return Transformations.map(mLogJSONObject) {
-            val logUtil = ServerContainer.AppServer.log
+            val logUtil = ServerContainer.Log
             val logDataProxy = LogDataProxy(logUtil)
             logDataProxy.getLogObjectId(logSort)
         }
@@ -30,7 +30,7 @@ internal class LogLiveData {
 
     fun getLogMassageList(logObjectTag: Array<String>): LiveData<List<String>> {
         return Transformations.map(mLogJSONObject) {
-            val logUtil = ServerContainer.AppServer.log
+            val logUtil = ServerContainer.Log
             val logDataProxy = LogDataProxy(logUtil)
             logDataProxy.getLogMessageList(logObjectTag)
         }

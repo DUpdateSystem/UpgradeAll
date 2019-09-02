@@ -16,7 +16,7 @@ import java.util.*
 
 
 class Updater internal constructor(private val appDatabaseId: Int) {
-    private var engine: EngineApi = newEngine((appDatabaseId))
+    private var engine = newEngine((appDatabaseId))
     val renewing = MutableLiveData(false)
 
     val isSuccessRenew: Boolean
@@ -93,8 +93,7 @@ class Updater internal constructor(private val appDatabaseId: Int) {
     }
 
     companion object {
-
-        private val Log = ServerContainer.AppServer.log
+        private val Log = ServerContainer.Log
         private const val TAG = "Updater"
         private val LogObjectTag = arrayOf("Core", TAG)
     }

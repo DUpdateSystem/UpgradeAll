@@ -14,7 +14,7 @@ import java.io.*
 
 object FileUtil {
 
-    private val Log = ServerContainer.AppServer.log
+    private val Log = ServerContainer.Log
 
     private const val TAG = "FileUtil"
     private val LogObjectTag = arrayOf("Core", TAG)

@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun refreshCardView() {
         swipeRefresh.isRefreshing = true
         refreshAppList()
-        ServerContainer.AppServer.appManager.refreshAll(true)
+        ServerContainer.AppManager.refreshAll(true)
         swipeRefresh.isRefreshing = false
     }
 
@@ -251,7 +251,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     companion object {
 
-        private val Log = ServerContainer.AppServer.log
+        private val Log = ServerContainer.Log
         private const val TAG = "MainActivity"
         private val LogObjectTag = arrayOf("Core", TAG)
 

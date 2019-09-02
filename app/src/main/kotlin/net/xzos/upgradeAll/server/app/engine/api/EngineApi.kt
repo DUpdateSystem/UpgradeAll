@@ -18,7 +18,7 @@ abstract class EngineApi : CoreApi {
 
     companion object {
 
-        protected val Log = ServerContainer.AppServer.log
+        protected val Log = ServerContainer.Log
 
         internal val emptyEngine: EmptyEngine
             @Contract(" -> new")

@@ -17,8 +17,7 @@ internal class JavaScriptCoreEngine(private val logObjectTag: Array<String>, pri
     private val jsUtils: JSUtils = JSUtils(this.logObjectTag)
 
     init {
-        val jsCacheData = JSCacheData()
-        jsUtils.setJsCacheData(jsCacheData)
+        jsUtils.setJsCacheData(JSCacheData())
     }
 
     // 加载 JavaScript 代码
@@ -135,7 +134,7 @@ internal class JavaScriptCoreEngine(private val logObjectTag: Array<String>, pri
 
     companion object {
         private const val TAG = "JavaScriptCoreEngine"
-        private val Log = ServerContainer.AppServer.log
+        private val Log = ServerContainer.Log
         private lateinit var cx: Context
         private lateinit var scope: Scriptable
     }

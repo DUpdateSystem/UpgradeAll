@@ -92,6 +92,6 @@ class CloudHub {
         private const val TAG = "CloudHub"
         private val LogObjectTag = arrayOf("Core", TAG)
 
-        private val Log = ServerContainer.AppServer.log
+        private val Log = ServerContainer.Log
     }
 }

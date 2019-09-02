@@ -27,6 +27,6 @@ class JSLog(private val LogObjectTag: Array<String>) {
 
     companion object {
 
-        private val Log = ServerContainer.AppServer.log
+        private val Log = ServerContainer.Log
     }
 }
