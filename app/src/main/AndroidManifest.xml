@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="net.xzos.UpgradeAll">
+    package="net.xzos.upgradeAll">
 
     <application
-        android:name=".application.MyApplication"
+        android:name="net.xzos.upgradeAll.application.MyApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
@@ -14,7 +14,7 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="m">
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name="net.xzos.upgradeAll.ui.activity.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
@@ -24,21 +24,21 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activity.LogActivity"
+            android:name="net.xzos.upgradeAll.ui.activity.LogActivity"
             android:label="@string/title_activity_log" />
         <activity
-            android:name=".ui.activity.HubListActivity"
+            android:name="net.xzos.upgradeAll.ui.activity.HubListActivity"
             android:label="@string/hub_list" />
         <activity
-            android:name=".ui.activity.CloudHubListActivity"
+            android:name="net.xzos.upgradeAll.ui.activity.CloudHubListActivity"
             android:label="@string/cloud_hub" />
         <activity
-            android:name=".ui.activity.HubLocalActivity"
+            android:name="net.xzos.upgradeAll.ui.activity.HubLocalActivity"
             android:label="@string/local_repo_manage" />
         <activity
-            android:name=".ui.activity.SettingsActivity"
+            android:name="net.xzos.upgradeAll.ui.activity.SettingsActivity"
             android:label="@string/setting" />
-        <activity android:name=".ui.activity.AppSettingActivity" />
+        <activity android:name="net.xzos.upgradeAll.ui.activity.AppSettingActivity" />
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
