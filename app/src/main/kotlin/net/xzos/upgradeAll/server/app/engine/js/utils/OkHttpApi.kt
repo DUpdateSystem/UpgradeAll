@@ -10,9 +10,8 @@ object OkHttpApi {
     private val Log = ServerContainer.Log
     private const val TAG = "OkHttpApi"
 
-    fun getHttpResponse(LogObjectTag: Array<String>, api_url: String?): String? {
+    fun getHttpResponse(LogObjectTag: Array<String>, api_url: String?, client: OkHttpClient = OkHttpClient()): Pair<String?, OkHttpClient> {
         var response: Response? = null
-        val client = OkHttpClient()
         val builder = Request.Builder()
         if (api_url != null) {
             builder.url(api_url)
@@ -23,6 +22,6 @@ object OkHttpApi {
         } catch (e: IOException) {
             Log.e(LogObjectTag, TAG, "getHttpResponse:  网络错误")
         }
-        return response?.body?.string()
+        return Pair(response?.body?.string(), client)
     }
 }

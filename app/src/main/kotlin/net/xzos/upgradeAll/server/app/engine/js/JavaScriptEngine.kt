@@ -6,18 +6,22 @@ import org.json.JSONObject
 import java.util.*
 
 class JavaScriptEngine internal constructor(
-        logObjectTag: Array<String>,
+        private var logObjectTag: Array<String>,
         URL: String,
         jsCode: String,
         enableLogJsCode: Boolean = true
 ) : EngineApi() {
 
+    private var releaseNumCache = 0
+    private val versionNumberCacheList = ArrayList<String?>()
+    private val changeLogCacheList = ArrayList<String?>()
+    private val releaseDownloadCacheList = ArrayList<JSONObject>()
+
     private val javaScriptCoreEngine: JavaScriptCoreEngine = JavaScriptCoreEngine(logObjectTag, URL, jsCode)
 
     init {
-        LogObjectTag = logObjectTag
         if (enableLogJsCode) {
-            Log.i(LogObjectTag, TAG, String.format("JavaScriptCoreEngine: jsCode: \n%s", jsCode))  // 只打印一次 JS 脚本
+            Log.i(this.logObjectTag, TAG, String.format("JavaScriptCoreEngine: jsCode: \n%s", jsCode))  // 只打印一次 JS 脚本
         }
     }
 
@@ -35,7 +39,7 @@ class JavaScriptEngine internal constructor(
             return try {
                 javaScriptCoreEngine.defaultName
             } catch (e: Throwable) {
-                Log.e(LogObjectTag, TAG, "defaultName: 脚本执行错误, ERROR_MESSAGE: $e")
+                Log.e(logObjectTag, TAG, "defaultName: 脚本执行错误, ERROR_MESSAGE: $e")
                 null
             }
         }
@@ -46,7 +50,7 @@ class JavaScriptEngine internal constructor(
                 try {
                     javaScriptCoreEngine.releaseNum
                 } catch (e: Throwable) {
-                    Log.e(LogObjectTag, TAG, "releaseNum: 脚本执行错误, ERROR_MESSAGE: $e")
+                    Log.e(logObjectTag, TAG, "releaseNum: 脚本执行错误, ERROR_MESSAGE: $e")
                     0
                 }
         }
@@ -59,7 +63,7 @@ class JavaScriptEngine internal constructor(
             try {
                 javaScriptCoreEngine.getVersioning(releaseNum)
             } catch (e: Throwable) {
-                Log.e(LogObjectTag, TAG, "getVersioning: 脚本执行错误, ERROR_MESSAGE: $e")
+                Log.e(logObjectTag, TAG, "getVersioning: 脚本执行错误, ERROR_MESSAGE: $e")
                 null
             }
         } else null
@@ -73,7 +77,7 @@ class JavaScriptEngine internal constructor(
             try {
                 javaScriptCoreEngine.getChangelog(releaseNum)
             } catch (e: Throwable) {
-                Log.e(LogObjectTag, TAG, "getChangelog: 脚本执行错误, ERROR_MESSAGE: $e")
+                Log.e(logObjectTag, TAG, "getChangelog: 脚本执行错误, ERROR_MESSAGE: $e")
                 null
             }
         } else null
@@ -87,7 +91,7 @@ class JavaScriptEngine internal constructor(
             try {
                 javaScriptCoreEngine.getReleaseDownload(releaseNum)
             } catch (e: Throwable) {
-                Log.e(LogObjectTag, TAG, "getReleaseDownload: 脚本执行错误, ERROR_MESSAGE: $e")
+                Log.e(logObjectTag, TAG, "getReleaseDownload: 脚本执行错误, ERROR_MESSAGE: $e")
                 JSONObject()
             }
         } else JSONObject()
@@ -95,11 +99,6 @@ class JavaScriptEngine internal constructor(
 
     companion object {
         private const val TAG = "JavaScriptEngine"
-        private lateinit var LogObjectTag: Array<String>
         private val Log = ServerContainer.Log
-        private var releaseNumCache = 0
-        private val versionNumberCacheList = ArrayList<String?>()
-        private val changeLogCacheList = ArrayList<String?>()
-        private val releaseDownloadCacheList = ArrayList<JSONObject>()
     }
 }
