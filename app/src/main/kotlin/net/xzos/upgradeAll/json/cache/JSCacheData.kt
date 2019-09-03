@@ -1,8 +1,8 @@
 package net.xzos.upgradeAll.json.cache
 
-import org.json.JSONObject
+import org.jsoup.nodes.Document
 
 data class JSCacheData(
-        val jsoupDomDict: JSONObject = JSONObject(),
-        val httpResponseDict: JSONObject = JSONObject()
+        val httpResponseDict: MutableMap<String, String> = mutableMapOf(),
+        val jsoupDomDict: MutableMap<String, Document> = mutableMapOf()
 )

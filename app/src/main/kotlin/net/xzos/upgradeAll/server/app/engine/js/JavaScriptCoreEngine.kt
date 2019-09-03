@@ -16,10 +16,6 @@ internal class JavaScriptCoreEngine(private val logObjectTag: Array<String>, pri
 
     private val jsUtils: JSUtils = JSUtils(this.logObjectTag)
 
-    init {
-        jsUtils.setJsCacheData(JSCacheData())
-    }
-
     // 加载 JavaScript 代码
     private fun executeVoidScript(): Boolean {
         if (jsCode == null) return false

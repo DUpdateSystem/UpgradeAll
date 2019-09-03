@@ -3,7 +3,6 @@ package net.xzos.upgradeAll.server.app.engine.js.utils
 import net.xzos.upgradeAll.server.ServerContainer
 
 class JSLog(private val LogObjectTag: Array<String>) {
-    private val TAG = "JavaScriptRunning"
 
     fun v(msgObject: Any) {
         Log.v(LogObjectTag, TAG, msgObject)
@@ -26,7 +25,7 @@ class JSLog(private val LogObjectTag: Array<String>) {
     }
 
     companion object {
-
         private val Log = ServerContainer.Log
+        private const val TAG = "JavaScriptRunning"
     }
 }
