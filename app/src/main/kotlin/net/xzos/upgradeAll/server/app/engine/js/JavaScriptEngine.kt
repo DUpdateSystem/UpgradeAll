@@ -1,15 +1,15 @@
 package net.xzos.upgradeAll.server.app.engine.js
 
 import net.xzos.upgradeAll.server.ServerContainer
-import net.xzos.upgradeAll.server.app.engine.api.EngineApi
+import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 import org.json.JSONObject
 
 class JavaScriptEngine internal constructor(
         private val logObjectTag: Array<String>,
-        URL: String,
+        URL: String?,
         jsCode: String,
         enableLogJsCode: Boolean = true
-) : EngineApi() {
+) : CoreApi {
 
     private val javaScriptCoreEngine: JavaScriptCoreEngine = JavaScriptCoreEngine(logObjectTag, URL, jsCode)
 

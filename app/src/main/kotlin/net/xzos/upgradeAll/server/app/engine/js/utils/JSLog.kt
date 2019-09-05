@@ -4,24 +4,24 @@ import net.xzos.upgradeAll.server.ServerContainer
 
 class JSLog(private val LogObjectTag: Array<String>) {
 
-    fun v(msgObject: Any) {
-        Log.v(LogObjectTag, TAG, msgObject)
+    fun v(msg: String) {
+        Log.v(LogObjectTag, TAG, msg)
     }
 
-    fun d(msgObject: Any) {
-        Log.d(LogObjectTag, TAG, msgObject)
+    fun d(msg: String) {
+        Log.d(LogObjectTag, TAG, msg)
     }
 
-    fun i(msgObject: Any) {
-        Log.i(LogObjectTag, TAG, msgObject)
+    fun i(msg: String) {
+        Log.i(LogObjectTag, TAG, msg)
     }
 
-    fun w(msgObject: Any) {
-        Log.w(LogObjectTag, TAG, msgObject)
+    fun w(msg: String) {
+        Log.w(LogObjectTag, TAG, msg)
     }
 
-    fun e(msgObject: Any) {
-        Log.e(LogObjectTag, TAG, msgObject)
+    fun e(msg: String) {
+        Log.e(LogObjectTag, TAG, msg)
     }
 
     companion object {

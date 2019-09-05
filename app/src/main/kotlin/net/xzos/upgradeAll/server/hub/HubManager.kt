@@ -70,7 +70,7 @@ object HubManager {
             null
     }
 
-    fun getJsCode(uuid: String): String {
+    fun getJsCode(uuid: String?): String {
         var jsCode = ""
         val hubDatabases: List<HubDatabase> = LitePal.where("uuid = ?", uuid).find()
         if (hubDatabases.isNotEmpty()) {
