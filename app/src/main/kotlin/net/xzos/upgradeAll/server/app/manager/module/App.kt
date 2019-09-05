@@ -17,7 +17,7 @@ data class App(private val appDatabaseId: Int) {
                 async {
                     val latestVersion = updater.latestVersion
                     val installedVersion = installedVersion
-                    VersionChecker.compareVersionNumber(installedVersion, latestVersion.await())
+                    VersionChecker.compareVersionNumber(installedVersion, latestVersion)
                 }
             }
         }

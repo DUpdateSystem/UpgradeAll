@@ -1,8 +1,5 @@
 package net.xzos.upgradeAll.server.app.manager.module
 
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.database.RepoDatabase
 import net.xzos.upgradeAll.server.ServerContainer
@@ -17,32 +14,26 @@ import org.litepal.extension.find
 class Updater internal constructor(appDatabaseId: Int) {
     private val engine = newEngine((appDatabaseId))
 
-    val isSuccessRenew: Deferred<Boolean>
+    val isSuccessRenew: Boolean
         get() {
             return runBlocking {
-                async {
-                    engine.getVersioning(0) != null
-                }
+                engine.getVersioning(0) != null
             }
         }
 
     // 获取最新版本号
-    val latestVersion: Deferred<String?>
+    val latestVersion: String?
         get() {
-            return runBlocking(Dispatchers.Default) {
-                async {
-                    engine.getVersioning(0)
-                }
+            return runBlocking {
+                engine.getVersioning(0)
             }
         }
 
     // 获取最新下载链接
-    val latestDownloadUrl: Deferred<JSONObject>
+    val latestDownloadUrl: JSONObject
         get() {
-            return runBlocking(Dispatchers.Default) {
-                async {
-                    engine.getReleaseDownload(0)
-                }
+            return runBlocking {
+                engine.getReleaseDownload(0)
             }
         }
 
