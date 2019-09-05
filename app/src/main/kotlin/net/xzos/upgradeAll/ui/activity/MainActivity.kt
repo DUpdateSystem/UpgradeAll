@@ -157,7 +157,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun refreshCardView() {
         swipeRefresh.isRefreshing = true
         refreshAppList()
-        ServerContainer.AppManager.refreshAll(true)
         swipeRefresh.isRefreshing = false
     }
 

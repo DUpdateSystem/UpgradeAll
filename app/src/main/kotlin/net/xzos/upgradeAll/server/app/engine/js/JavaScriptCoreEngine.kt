@@ -1,6 +1,5 @@
 package net.xzos.upgradeAll.server.app.engine.js
 
-import net.xzos.upgradeAll.json.cache.JSCacheData
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
@@ -13,7 +12,6 @@ import org.mozilla.javascript.Scriptable
 import org.mozilla.javascript.ScriptableObject
 
 internal class JavaScriptCoreEngine(private val logObjectTag: Array<String>, private val URL: String, private val jsCode: String?) : CoreApi {
-
     private val jsUtils: JSUtils = JSUtils(this.logObjectTag)
 
     // 加载 JavaScript 代码
@@ -68,27 +66,25 @@ internal class JavaScriptCoreEngine(private val logObjectTag: Array<String>, pri
         return result
     }
 
-    override val defaultName: String?
-        get() {
-            val result = runJS("getDefaultName", arrayOf())
-            val defaultName =
-                    if (result != null) Context.toString(result)
-                    else null
-            Log.d(logObjectTag, TAG, "defaultName: defaultName: $defaultName")
-            return defaultName
-        }
+    override suspend fun getDefaultName(): String? {
+        val result = runJS("getDefaultName", arrayOf())
+        val defaultName =
+                if (result != null) Context.toString(result)
+                else null
+        Log.d(logObjectTag, TAG, "defaultName: defaultName: $defaultName")
+        return defaultName
+    }
 
-    override val releaseNum: Int
-        get() {
-            val result = runJS("getReleaseNum", arrayOf())
-            val releaseNum =
-                    if (result != null) Context.toNumber(result).toInt()
-                    else 0
-            Log.d(logObjectTag, TAG, "releaseNum: releaseNum: $releaseNum")
-            return releaseNum
-        }
+    override suspend fun getReleaseNum(): Int {
+        val result = runJS("getReleaseNum", arrayOf())
+        val releaseNum =
+                if (result != null) Context.toNumber(result).toInt()
+                else 0
+        Log.d(logObjectTag, TAG, "releaseNum: releaseNum: $releaseNum")
+        return releaseNum
+    }
 
-    override fun getVersioning(releaseNum: Int): String? {
+    override suspend fun getVersioning(releaseNum: Int): String? {
         val args = arrayOf<Any>(releaseNum)
         val result = runJS("getVersioning", args) ?: runJS("getVersionNumber", args)
         // TODO: 向下兼容两个主版本后移除，当前版本：0.1.0-alpha.3
@@ -99,7 +95,7 @@ internal class JavaScriptCoreEngine(private val logObjectTag: Array<String>, pri
         return versionNumber
     }
 
-    override fun getChangelog(releaseNum: Int): String? {
+    override suspend fun getChangelog(releaseNum: Int): String? {
         val args = arrayOf<Any>(releaseNum)
         val result = runJS("getChangelog", args)
         val changeLog =
@@ -109,7 +105,7 @@ internal class JavaScriptCoreEngine(private val logObjectTag: Array<String>, pri
         return changeLog
     }
 
-    override fun getReleaseDownload(releaseNum: Int): JSONObject {
+    override suspend fun getReleaseDownload(releaseNum: Int): JSONObject {
         val args = arrayOf<Any>(releaseNum)
         val result = runJS("getReleaseDownload", args)
         val fileJsonString =

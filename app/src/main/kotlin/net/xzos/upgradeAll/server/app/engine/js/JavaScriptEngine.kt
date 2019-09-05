@@ -3,19 +3,13 @@ package net.xzos.upgradeAll.server.app.engine.js
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.api.EngineApi
 import org.json.JSONObject
-import java.util.*
 
 class JavaScriptEngine internal constructor(
-        private var logObjectTag: Array<String>,
+        private val logObjectTag: Array<String>,
         URL: String,
         jsCode: String,
         enableLogJsCode: Boolean = true
 ) : EngineApi() {
-
-    private var releaseNumCache = 0
-    private val versionNumberCacheList = ArrayList<String?>()
-    private val changeLogCacheList = ArrayList<String?>()
-    private val releaseDownloadCacheList = ArrayList<JSONObject>()
 
     private val javaScriptCoreEngine: JavaScriptCoreEngine = JavaScriptCoreEngine(logObjectTag, URL, jsCode)
 
@@ -25,76 +19,61 @@ class JavaScriptEngine internal constructor(
         }
     }
 
-    override fun refreshData() {
-        releaseNumCache = releaseNum
-        for (i in 0 until releaseNum) {
-            versionNumberCacheList.add(getVersioning(i))
-            changeLogCacheList.add(getChangelog(i))
-            releaseDownloadCacheList.add(getReleaseDownload(i))
+    override suspend fun getDefaultName(): String? {
+        return try {
+            javaScriptCoreEngine.getDefaultName()
+        } catch (e: Throwable) {
+            Log.e(logObjectTag, TAG, "defaultName: 脚本执行错误, ERROR_MESSAGE: $e")
+            null
         }
     }
 
-    override val defaultName: String?
-        get() {
-            return try {
-                javaScriptCoreEngine.defaultName
-            } catch (e: Throwable) {
-                Log.e(logObjectTag, TAG, "defaultName: 脚本执行错误, ERROR_MESSAGE: $e")
-                null
-            }
+    override suspend fun getReleaseNum(): Int {
+        return try {
+            javaScriptCoreEngine.getReleaseNum()
+        } catch (e: Throwable) {
+            Log.e(logObjectTag, TAG, "releaseNum: 脚本执行错误, ERROR_MESSAGE: $e")
+            0
         }
-    override val releaseNum: Int
-        get() {
-            return if (releaseNumCache != 0) releaseNumCache
-            else
-                try {
-                    javaScriptCoreEngine.releaseNum
-                } catch (e: Throwable) {
-                    Log.e(logObjectTag, TAG, "releaseNum: 脚本执行错误, ERROR_MESSAGE: $e")
-                    0
-                }
-        }
+    }
 
-    override fun getVersioning(releaseNum: Int): String? {
-        return if (releaseNum < 0) null
-        else if (versionNumberCacheList.isNotEmpty() && releaseNum < versionNumberCacheList.size)
-            versionNumberCacheList[releaseNum]
-        else if (versionNumberCacheList.isEmpty()) {
-            try {
+    override suspend fun getVersioning(releaseNum: Int): String? {
+        return when {
+            releaseNum < 0 -> null
+            releaseNum >= 0 -> try {
                 javaScriptCoreEngine.getVersioning(releaseNum)
             } catch (e: Throwable) {
                 Log.e(logObjectTag, TAG, "getVersioning: 脚本执行错误, ERROR_MESSAGE: $e")
                 null
             }
-        } else null
+            else -> null
+        }
     }
 
-    override fun getChangelog(releaseNum: Int): String? {
-        return if (releaseNum < 0) null
-        else if (changeLogCacheList.isNotEmpty() && releaseNum < changeLogCacheList.size)
-            changeLogCacheList[releaseNum]
-        else if (changeLogCacheList.isEmpty()) {
-            try {
+    override suspend fun getChangelog(releaseNum: Int): String? {
+        return when {
+            releaseNum < 0 -> null
+            releaseNum >= 0 -> try {
                 javaScriptCoreEngine.getChangelog(releaseNum)
             } catch (e: Throwable) {
                 Log.e(logObjectTag, TAG, "getChangelog: 脚本执行错误, ERROR_MESSAGE: $e")
                 null
             }
-        } else null
+            else -> null
+        }
     }
 
-    override fun getReleaseDownload(releaseNum: Int): JSONObject {
-        return if (releaseNum < 0) JSONObject()
-        else if (releaseDownloadCacheList.isNotEmpty() && releaseNum < releaseDownloadCacheList.size)
-            releaseDownloadCacheList[releaseNum]
-        else if (releaseDownloadCacheList.isEmpty()) {
-            try {
+    override suspend fun getReleaseDownload(releaseNum: Int): JSONObject {
+        return when {
+            releaseNum < 0 -> JSONObject()
+            releaseNum >= 0 -> try {
                 javaScriptCoreEngine.getReleaseDownload(releaseNum)
             } catch (e: Throwable) {
                 Log.e(logObjectTag, TAG, "getReleaseDownload: 脚本执行错误, ERROR_MESSAGE: $e")
                 JSONObject()
             }
-        } else JSONObject()
+            else -> JSONObject()
+        }
     }
 
     companion object {

@@ -14,9 +14,11 @@ import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.database.RepoDatabase
 import net.xzos.upgradeAll.server.ServerContainer
@@ -50,10 +52,9 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
                 val cloudReleaseTextView = dialogWindow.findViewById<TextView>(R.id.cloudReleaseTextView)
                 val localReleaseTextView = dialogWindow.findViewById<TextView>(R.id.localReleaseTextView)
                 val latestVersion = updater.latestVersion
-                if (latestVersion != null)
-                    cloudReleaseTextView.text = latestVersion
-                else
-                    cloudReleaseTextView.text = "获取失败"
+                runBlocking {
+                    cloudReleaseTextView.text = latestVersion.await()
+                }
                 // 显示本地版本号
                 val installedVersion = app.installedVersion
                 if (installedVersion != null)
@@ -63,9 +64,9 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
             }
 
             // 获取云端文件
-            Thread {
+            GlobalScope.launch {
                 // 刷新数据库
-                val latestFileDownloadUrl = updater.latestDownloadUrl
+                val latestFileDownloadUrl = updater.latestDownloadUrl.await()
                 Handler(Looper.getMainLooper()).post {
                     val itemList = ArrayList<String>()
                     val sIterator = latestFileDownloadUrl.keys()
@@ -104,7 +105,7 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
                     cloudReleaseList.adapter = adapter
                     dialog.window!!.findViewById<View>(R.id.fileListProgressBar).visibility = View.INVISIBLE  // 隐藏等待提醒条
                 }
-            }.start()
+            }
         }
 
         // 长按菜单
@@ -146,8 +147,8 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
         holder.versionCheckButton.setOnLongClickListener {
             val position = holder.adapterPosition
             val itemCardView = mItemCardViewList[position]
-            val databaseId = itemCardView.extraData.databaseId
-            AppManager.getApp(databaseId).updater.renew(false)
+            val appDatabaseId = itemCardView.extraData.databaseId
+            // TODO: 强制刷新功能
             Toast.makeText(holder.versionCheckButton.context, String.format("检查 %s 的更新", holder.name.text.toString()),
                     Toast.LENGTH_SHORT).show()
             true
@@ -185,36 +186,49 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
     private fun setAppStatusUI(appDatabaseId: Int, holder: CardViewRecyclerViewHolder) {
         val app = AppManager.getApp(appDatabaseId)
         val updater = app.updater
-        val renewing = updater.renewing
-        renewing.observe(mContext as LifecycleOwner, Observer { renew ->
-            if (renew) {
-                holder.versionCheckButton.visibility = View.INVISIBLE
-                holder.versionCheckingBar.visibility = View.VISIBLE
-            } else {
-                holder.versionCheckButton.visibility = View.VISIBLE
-                holder.versionCheckingBar.visibility = View.INVISIBLE
-                //检查是否取得云端版本号
-                if (updater.isSuccessRenew) {
-                    // 检查是否获取本地版本号
-                    if (app.installedVersion != null) {
-                        // 检查本地版本
-                        if (app.isLatest) {
-                            holder.versionCheckButton.setImageResource(R.drawable.ic_check_latest)
+        setUpdateStatus(holder, true)
+        runBlocking {
+            val updateStatus =   // 0: 404; 1: latest; 2: need update; 3: no app
+                    runBlocking(Dispatchers.Default) {
+                        //检查是否取得云端版本号
+                        if (updater.isSuccessRenew.await()) {
+                            // 检查是否获取本地版本号
+                            if (app.installedVersion != null) {
+                                // 检查本地版本
+                                if (app.isLatest.await()) {
+                                    1
+                                } else {
+                                    2
+                                }
+                            } else {
+                                3
+                            }
                         } else {
-                            holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
+                            0
                         }
-                    } else {
-                        holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
                     }
-                } else {
-                    holder.versionCheckButton.setImageResource(R.drawable.ic_404)
-                }
+            when (updateStatus) {
+                0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_404)
+                1 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_latest)
+                2 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
+                3 -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
             }
-        })
+            setUpdateStatus(holder, false)
+        }
     }
 
     override fun getItemCount(): Int {
         return mItemCardViewList.size
+    }
+
+    private fun setUpdateStatus(holder: CardViewRecyclerViewHolder, renew: Boolean) {
+        if (renew) {
+            holder.versionCheckButton.visibility = View.INVISIBLE
+            holder.versionCheckingBar.visibility = View.VISIBLE
+        } else {
+            holder.versionCheckButton.visibility = View.VISIBLE
+            holder.versionCheckingBar.visibility = View.INVISIBLE
+        }
     }
 
     companion object {
