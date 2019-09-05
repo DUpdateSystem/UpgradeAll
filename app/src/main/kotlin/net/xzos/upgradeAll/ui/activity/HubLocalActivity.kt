@@ -18,7 +18,8 @@ import androidx.cardview.widget.CardView
 import androidx.lifecycle.Observer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.json.gson.HubConfig
 import net.xzos.upgradeAll.server.ServerContainer
@@ -325,7 +326,7 @@ class HubLocalActivity : AppCompatActivity() {
         val jsLogTextView = findViewById<TextView>(R.id.jsLogTextView)
         val logObjectTag = arrayOf("DeBug", "0")
         val jsLog = JSLog(logObjectTag)  // 连接日志系统以打印提示信息
-        jsLog.d("")
+        jsLog.d("--------Start--------")
         val logListLiveData = LogDataProxy(Log).getLogMessageListLiveData(logObjectTag)
         logListLiveData.observe(this, Observer { logList ->
             val textViewMessage = StringBuilder()
@@ -334,7 +335,7 @@ class HubLocalActivity : AppCompatActivity() {
             jsLogTextView.text = textViewMessage.toString()
         })
         jsLogTextView.visibility = View.VISIBLE
-        runBlocking {
+        GlobalScope.launch {
             // 初始化 JS 组件
             val javaScriptEngine = JavaScriptEngine(logObjectTag, testUrl, jsCode, enableLogJsCode = false)  // 创建 JS 引擎
             // 分步测试

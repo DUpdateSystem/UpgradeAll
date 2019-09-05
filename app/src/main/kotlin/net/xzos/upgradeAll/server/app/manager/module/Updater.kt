@@ -1,13 +1,12 @@
 package net.xzos.upgradeAll.server.app.manager.module
 
-import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.database.RepoDatabase
 import net.xzos.upgradeAll.server.ServerContainer
-import net.xzos.upgradeAll.server.app.engine.api.EngineApi
+import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.server.hub.HubManager
 import org.json.JSONObject
@@ -47,15 +46,14 @@ class Updater internal constructor(appDatabaseId: Int) {
             }
         }
 
-    private fun newEngine(databaseId: Int): EngineApi {
+    private fun newEngine(databaseId: Int): CoreApi {
         // 添加一个 更新检查器追踪子项
-        val repoDatabase: RepoDatabase = LitePal.find(databaseId.toLong())
-                ?: return EngineApi.emptyEngine
-        val apiUuid = repoDatabase.api_uuid
+        val repoDatabase: RepoDatabase? = LitePal.find(databaseId.toLong())
+        val apiUuid = repoDatabase?.api_uuid
         Log.d(LogObjectTag, TAG, "renewUpdateItem: uuid: $apiUuid")
-        val url = repoDatabase.url
-        val apiName = repoDatabase.api
-        val logObjectTag = arrayOf(apiName, databaseId.toString())
+        val url = repoDatabase?.url
+        val apiName = repoDatabase?.api
+        val logObjectTag = arrayOf(apiName.toString(), databaseId.toString())
         // 查找软件源数据库
         val jsCode = HubManager.getJsCode(apiUuid)
         return JavaScriptEngine(logObjectTag, url, jsCode)

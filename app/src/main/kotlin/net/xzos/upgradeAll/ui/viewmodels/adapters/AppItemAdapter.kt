@@ -52,7 +52,7 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
                 val cloudReleaseTextView = dialogWindow.findViewById<TextView>(R.id.cloudReleaseTextView)
                 val localReleaseTextView = dialogWindow.findViewById<TextView>(R.id.localReleaseTextView)
                 val latestVersion = updater.latestVersion
-                runBlocking {
+                GlobalScope.launch {
                     cloudReleaseTextView.text = latestVersion.await()
                 }
                 // 显示本地版本号
@@ -61,49 +61,49 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
                     localReleaseTextView.text = installedVersion
                 else
                     localReleaseTextView.text = "获取失败"
-            }
 
-            // 获取云端文件
-            GlobalScope.launch {
-                // 刷新数据库
-                val latestFileDownloadUrl = updater.latestDownloadUrl.await()
-                Handler(Looper.getMainLooper()).post {
-                    val itemList = ArrayList<String>()
-                    val sIterator = latestFileDownloadUrl.keys()
-                    while (sIterator.hasNext()) {
-                        val key = sIterator.next()
-                        itemList.add(key)
-                    }
-
-                    // 无Release文件，不显示网络文件列表
-                    if (itemList.size == 0) {
-                        dialog.window!!.findViewById<View>(R.id.releaseFileListLinearLayout).visibility = View.GONE
-                    }
-
-                    // 构建文件列表
-                    val adapter = ArrayAdapter(
-                            dialog.context, android.R.layout.simple_list_item_1, itemList)
-                    val cloudReleaseList = dialog.window!!.findViewById<ListView>(R.id.cloudReleaseList)
-                    // 设置文件列表点击事件
-                    cloudReleaseList.setOnItemClickListener { _, _, i, _ ->
-                        val intent = Intent(Intent.ACTION_VIEW)
-                        var url: String? = null
-                        try {
-                            url = latestFileDownloadUrl.getString(itemList[i])
-                        } catch (e: JSONException) {
-                            e.printStackTrace()
+                // 获取云端文件
+                GlobalScope.launch {
+                    // 刷新数据库
+                    val latestFileDownloadUrl = updater.latestDownloadUrl.await()
+                    Handler(Looper.getMainLooper()).post {
+                        val itemList = ArrayList<String>()
+                        val sIterator = latestFileDownloadUrl.keys()
+                        while (sIterator.hasNext()) {
+                            val key = sIterator.next()
+                            itemList.add(key)
                         }
 
-                        if (url != null && !url.startsWith("http"))
-                            url = "http://$url"
-                        intent.data = Uri.parse(url)
-                        val chooser = Intent.createChooser(intent, "请选择浏览器")
-                        if (intent.resolveActivity(dialog.context.packageManager) != null) {
-                            dialog.context.startActivity(chooser)
+                        // 无Release文件，不显示网络文件列表
+                        if (itemList.size == 0) {
+                            dialogWindow.findViewById<View>(R.id.releaseFileListLinearLayout).visibility = View.GONE
                         }
+
+                        // 构建文件列表
+                        val adapter = ArrayAdapter(
+                                dialog.context, android.R.layout.simple_list_item_1, itemList)
+                        val cloudReleaseList = dialog.window!!.findViewById<ListView>(R.id.cloudReleaseList)
+                        // 设置文件列表点击事件
+                        cloudReleaseList.setOnItemClickListener { _, _, i, _ ->
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            var url: String? = null
+                            try {
+                                url = latestFileDownloadUrl.getString(itemList[i])
+                            } catch (e: JSONException) {
+                                e.printStackTrace()
+                            }
+
+                            if (url != null && !url.startsWith("http"))
+                                url = "http://$url"
+                            intent.data = Uri.parse(url)
+                            val chooser = Intent.createChooser(intent, "请选择浏览器")
+                            if (intent.resolveActivity(dialog.context.packageManager) != null) {
+                                dialog.context.startActivity(chooser)
+                            }
+                        }
+                        cloudReleaseList.adapter = adapter
+                        dialogWindow.findViewById<View>(R.id.fileListProgressBar).visibility = View.INVISIBLE  // 隐藏等待提醒条
                     }
-                    cloudReleaseList.adapter = adapter
-                    dialog.window!!.findViewById<View>(R.id.fileListProgressBar).visibility = View.INVISIBLE  // 隐藏等待提醒条
                 }
             }
         }
@@ -179,34 +179,36 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
             holder.name.text = itemCardView.name
             holder.api.text = itemCardView.api
             holder.descTextView.text = itemCardView.desc
-            setAppStatusUI(appDatabaseId, holder)
+            GlobalScope.launch {
+                setAppStatusUI(appDatabaseId, holder)
+            }
         }
     }
 
-    private fun setAppStatusUI(appDatabaseId: Int, holder: CardViewRecyclerViewHolder) {
+    private suspend fun setAppStatusUI(appDatabaseId: Int, holder: CardViewRecyclerViewHolder) {
         val app = AppManager.getApp(appDatabaseId)
         val updater = app.updater
-        setUpdateStatus(holder, true)
-        runBlocking {
-            val updateStatus =   // 0: 404; 1: latest; 2: need update; 3: no app
-                    runBlocking(Dispatchers.Default) {
-                        //检查是否取得云端版本号
-                        if (updater.isSuccessRenew.await()) {
-                            // 检查是否获取本地版本号
-                            if (app.installedVersion != null) {
-                                // 检查本地版本
-                                if (app.isLatest.await()) {
-                                    1
-                                } else {
-                                    2
-                                }
-                            } else {
-                                3
-                            }
+        runBlocking(Dispatchers.Main) {
+            setUpdateStatus(holder, true)
+        }
+        val updateStatus =   // 0: 404; 1: latest; 2: need update; 3: no app
+                //检查是否取得云端版本号
+                if (updater.isSuccessRenew.await()) {
+                    // 检查是否获取本地版本号
+                    if (app.installedVersion != null) {
+                        // 检查本地版本
+                        if (app.isLatest.await()) {
+                            1
                         } else {
-                            0
+                            2
                         }
+                    } else {
+                        3
                     }
+                } else {
+                    0
+                }
+        runBlocking(Dispatchers.Main) {
             when (updateStatus) {
                 0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_404)
                 1 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_latest)
