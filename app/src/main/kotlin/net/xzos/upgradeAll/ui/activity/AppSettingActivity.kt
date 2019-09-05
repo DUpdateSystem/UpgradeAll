@@ -2,13 +2,12 @@ package net.xzos.upgradeAll.ui.activity
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.database.RepoDatabase
@@ -110,30 +109,22 @@ class AppSettingActivity : AppCompatActivity() {
         val apiNum = apiSpinner.selectedItemPosition
         val versionChecker = versionChecker
         val progressBar = ProgressBar(this)
-        Thread {
-            Handler(Looper.getMainLooper()).post {
-                // 弹出等待框
-                progressBar.visibility = View.VISIBLE
-                window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        // 弹出等待框
+        progressBar.visibility = View.VISIBLE
+        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        // 添加数据库
+        val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)
+        if (addRepoSuccess) {
+            ServerContainer.AppManager.setApp(databaseId)
+            // 强行刷新被修改的子项
+            // 取消等待框
+            if (!addRepoSuccess) {
+                Toast.makeText(this@AppSettingActivity, "什么？数据库添加失败！", Toast.LENGTH_LONG).show()
             }
-            // 添加数据库
-            runBlocking {
-                val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)
-                if (addRepoSuccess) {
-                    ServerContainer.AppManager.setApp(databaseId)
-                }
-                // 强行刷新被修改的子项
-                Handler(Looper.getMainLooper()).post {
-                    // 取消等待框
-                    if (!addRepoSuccess) {
-                        Toast.makeText(this@AppSettingActivity, "什么？数据库添加失败！", Toast.LENGTH_LONG).show()
-                    }
-                    progressBar.visibility = View.GONE
-                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                    onBackPressed()  // 跳转主页面
-                }
-            }
+            progressBar.visibility = View.GONE
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            onBackPressed()  // 跳转主页面
         }
     }
 
@@ -171,7 +162,7 @@ class AppSettingActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun addRepoDatabase(databaseId: Int, name: String, apiNum: Int, URL: String, versionChecker: JSONObject): Boolean {
+    private fun addRepoDatabase(databaseId: Int, name: String, apiNum: Int, URL: String, versionChecker: JSONObject): Boolean {
         // 数据处理
         @Suppress("NAME_SHADOWING") var name: String = name
         val apiUuid = apiSpinnerList[apiNum]
@@ -182,7 +173,9 @@ class AppSettingActivity : AppCompatActivity() {
                 if (jsCode == "")
                     Log.e(LogObjectTag, TAG, "未找到 js 脚本")
                 val logObjectTag = arrayOf("TEMP", "0")
-                val defaultName: String? = JavaScriptEngine(logObjectTag, URL, jsCode).getDefaultName()
+                val defaultName = runBlocking(Dispatchers.Default) {
+                    JavaScriptEngine(logObjectTag, URL, jsCode).getDefaultName()
+                }
                 if (defaultName != null)
                     name = defaultName
             }
