@@ -7,15 +7,6 @@ import java.util.*
 
 abstract class EngineApi : CoreApi {
 
-    var renewTime: Calendar? = null
-        private set
-
-    abstract fun refreshData()
-
-    fun setRenewTime() {
-        this.renewTime = Calendar.getInstance()
-    }
-
     companion object {
 
         protected val Log = ServerContainer.Log
@@ -32,15 +23,13 @@ abstract class EngineApi : CoreApi {
  */
 internal class EmptyEngine : EngineApi() {
 
-    override fun refreshData() {}
+    override suspend fun getDefaultName(): String? = null
 
-    override val defaultName: String? = null
+    override suspend fun getReleaseNum(): Int = 0
 
-    override val releaseNum: Int = 0
+    override suspend fun getVersioning(releaseNum: Int): String? = null
 
-    override fun getVersioning(releaseNum: Int): String? = null
+    override suspend fun getChangelog(releaseNum: Int): String? = null
 
-    override fun getChangelog(releaseNum: Int): String? = null
-
-    override fun getReleaseDownload(releaseNum: Int) = JSONObject()
+    override suspend fun getReleaseDownload(releaseNum: Int) = JSONObject()
 }

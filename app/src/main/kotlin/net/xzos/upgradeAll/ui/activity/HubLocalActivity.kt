@@ -18,6 +18,7 @@ import androidx.cardview.widget.CardView
 import androidx.lifecycle.Observer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.json.gson.HubConfig
 import net.xzos.upgradeAll.server.ServerContainer
@@ -333,21 +334,21 @@ class HubLocalActivity : AppCompatActivity() {
             jsLogTextView.text = textViewMessage.toString()
         })
         jsLogTextView.visibility = View.VISIBLE
-        Thread {
+        runBlocking {
             // 初始化 JS 组件
             val javaScriptEngine = JavaScriptEngine(logObjectTag, testUrl, jsCode, enableLogJsCode = false)  // 创建 JS 引擎
             // 分步测试
-            jsLog.d("1. 获取默认名称(defaultName): ${javaScriptEngine.defaultName} \n")
-            jsLog.d("2. 获取发布版本号总数(releaseNum): ${javaScriptEngine.releaseNum} \n")
-            for (i in 0 until javaScriptEngine.releaseNum) {
+            jsLog.d("1. 获取默认名称(defaultName): ${javaScriptEngine.getDefaultName()} \n")
+            jsLog.d("2. 获取发布版本号总数(releaseNum): ${javaScriptEngine.getReleaseNum()} \n")
+            for (i in 0 until javaScriptEngine.getReleaseNum()) {
                 jsLog.d("3. ($i) 获取发布版本号(getVersioning): ${javaScriptEngine.getVersioning(i)} \n")
                 jsLog.d("4. ($i) 获取发布版本号(getChangelog): ${javaScriptEngine.getChangelog(i)} \n")
             }
-            for (i in 0 until javaScriptEngine.releaseNum) {
+            for (i in 0 until javaScriptEngine.getReleaseNum()) {
                 val releaseDownload = javaScriptEngine.getReleaseDownload(i)
                 jsLog.d("5. ($i) 获取下载链接(getReleaseDownload): $releaseDownload \n")
             }
-        }.start()
+        }
 
     }
 

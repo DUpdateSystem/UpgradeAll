@@ -9,6 +9,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.database.RepoDatabase
 import net.xzos.upgradeAll.server.ServerContainer
@@ -117,22 +118,23 @@ class AppSettingActivity : AppCompatActivity() {
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
             }
             // 添加数据库
-            val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)
-            if (addRepoSuccess) {
-                ServerContainer.AppManager.setApp(databaseId)
-            }
-            // 强行刷新被修改的子项
-            Handler(Looper.getMainLooper()).post {
-                // 取消等待框
-                if (!addRepoSuccess) {
-                    Toast.makeText(this@AppSettingActivity, "什么？数据库添加失败！", Toast.LENGTH_LONG).show()
+            runBlocking {
+                val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)
+                if (addRepoSuccess) {
+                    ServerContainer.AppManager.setApp(databaseId)
                 }
-                progressBar.visibility = View.GONE
-                window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                onBackPressed()  // 跳转主页面
+                // 强行刷新被修改的子项
+                Handler(Looper.getMainLooper()).post {
+                    // 取消等待框
+                    if (!addRepoSuccess) {
+                        Toast.makeText(this@AppSettingActivity, "什么？数据库添加失败！", Toast.LENGTH_LONG).show()
+                    }
+                    progressBar.visibility = View.GONE
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                    onBackPressed()  // 跳转主页面
+                }
             }
-        }.start()
-
+        }
     }
 
     private fun setSettingItem() {
@@ -169,7 +171,7 @@ class AppSettingActivity : AppCompatActivity() {
         }
     }
 
-    private fun addRepoDatabase(databaseId: Int, name: String, apiNum: Int, URL: String, versionChecker: JSONObject): Boolean {
+    private suspend fun addRepoDatabase(databaseId: Int, name: String, apiNum: Int, URL: String, versionChecker: JSONObject): Boolean {
         // 数据处理
         @Suppress("NAME_SHADOWING") var name: String = name
         val apiUuid = apiSpinnerList[apiNum]
@@ -180,7 +182,7 @@ class AppSettingActivity : AppCompatActivity() {
                 if (jsCode == "")
                     Log.e(LogObjectTag, TAG, "未找到 js 脚本")
                 val logObjectTag = arrayOf("TEMP", "0")
-                val defaultName: String? = JavaScriptEngine(logObjectTag, URL, jsCode).defaultName
+                val defaultName: String? = JavaScriptEngine(logObjectTag, URL, jsCode).getDefaultName()
                 if (defaultName != null)
                     name = defaultName
             }

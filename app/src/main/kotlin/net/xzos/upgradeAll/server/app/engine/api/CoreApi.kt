@@ -8,22 +8,22 @@ interface CoreApi {
     /**
      * 返回更新项默认名称
      */
-    val defaultName: String?
+    suspend fun getDefaultName(): String?
 
     /**
      * 返回获取到的云端版本号数量
      */
-    val releaseNum: Int
+    suspend fun getReleaseNum(): Int
 
     /**
      * 返回指定版本的云端版本号
      */
-    fun getVersioning(releaseNum: Int): String?
+    suspend fun getVersioning(releaseNum: Int): String?
 
     /**
      * 返回指定版本的更新日志
      */
-    fun getChangelog(releaseNum: Int): String?
+    suspend fun getChangelog(releaseNum: Int): String?
 
     /**
      * 返回指定版本所包含的文件的下载链接
@@ -35,5 +35,5 @@ interface CoreApi {
      * }
      *
      */
-    fun getReleaseDownload(releaseNum: Int): JSONObject
+    suspend fun getReleaseDownload(releaseNum: Int): JSONObject
 }
