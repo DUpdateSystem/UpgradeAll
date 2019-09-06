@@ -10,7 +10,7 @@
     android:gravity="center">
 
     <TextView
-        android:id="@+id/end_text_view"
+        android:id="@+id/endTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -18,7 +18,7 @@
         android:visibility="gone" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/item_card_view"
+        android:id="@+id/itemCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:foreground="?android:attr/selectableItemBackground"

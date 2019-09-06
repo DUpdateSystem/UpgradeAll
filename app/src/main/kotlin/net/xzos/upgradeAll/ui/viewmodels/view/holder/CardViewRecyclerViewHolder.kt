@@ -4,28 +4,16 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.cardview_item.view.*
 
-import net.xzos.upgradeAll.R
-
-class CardViewRecyclerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    var name: TextView
-    var descTextView: TextView
-    var api: TextView
-    var endTextView: TextView
-    var itemCardView: CardView
-    var versionCheckingBar: ProgressBar
-    var versionCheckButton: ImageView
-
-    init {
-        name = view.findViewById(R.id.nameTextView)
-        descTextView = view.findViewById(R.id.descTextView)
-        api = view.findViewById(R.id.apiTextView)
-        itemCardView = view.findViewById(R.id.item_card_view)
-        versionCheckingBar = view.findViewById(R.id.statusChangingBar)
-        versionCheckButton = view.findViewById(R.id.statusCheckButton)
-        endTextView = view.findViewById(R.id.end_text_view)
-    }
+data class CardViewRecyclerViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+    val name: TextView = view.nameTextView
+    val descTextView: TextView = view.descTextView
+    val api: TextView = view.apiTextView
+    val endTextView: TextView = view.endTextView
+    val itemCardView: CardView = view.itemCardView
+    val versionCheckingBar: ProgressBar = view.statusChangingBar
+    val versionCheckButton: ImageView = view.statusCheckButton
 }
