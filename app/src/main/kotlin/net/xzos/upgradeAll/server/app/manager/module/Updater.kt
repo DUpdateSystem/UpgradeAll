@@ -29,6 +29,14 @@ class Updater internal constructor(appDatabaseId: Int) {
             }
         }
 
+    // 获取最新更新日志
+    val latestChangelog: String?
+        get() {
+            return runBlocking {
+                engine.getChangelog(0)
+            }
+        }
+
     // 获取最新下载链接
     val latestDownloadUrl: JSONObject
         get() {

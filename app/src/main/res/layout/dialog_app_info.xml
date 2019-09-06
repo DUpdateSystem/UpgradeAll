@@ -58,15 +58,54 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_weight="1"
-                android:text="@string/dialog_version_cloud_release_text_view"
+                android:text="@string/renewing"
                 android:textSize="20sp" />
+
+            <ProgressBar
+                android:id="@+id/cloudReleaseProgressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
         </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/releaseChangelogLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/releaseChangelogTextViewLinearLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:text="@string/changelog" />
+
+            <ProgressBar
+                android:id="@+id/changelogProgressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/changelogTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/releaseFileListLinearLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:orientation="vertical">
 

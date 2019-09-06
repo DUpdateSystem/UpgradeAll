@@ -65,7 +65,7 @@ constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleR
                 sharedPref.edit().remove(key).apply()
                 sharedPref.edit().putInt(key, returnValue).apply()
                 Log.e(TAG, "getInt: 已自动更改设置值属性")
-                // TODO: 三个大版本后移除。当前版本：0.1.0，移除版本：0.1.3
+                // 数据类型兼容功能
             }
 
             return returnValue
