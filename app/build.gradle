@@ -80,6 +80,6 @@ dependencies {
     // 界面设计
     implementation 'com.google.android.material:material:1.1.0-alpha09'  // Google MD 库
     implementation 'androidx.cardview:cardview:1.0.0'
-    // Tab 菜单 TODO: 考虑转换项目到kotlin的可行性
+    // Tab 菜单 TODO: 考虑转换项目到kotlin的可行性（核查问题存在）
     implementation 'com.github.kobakei:MaterialFabSpeedDial:master-SNAPSHOT'
 }

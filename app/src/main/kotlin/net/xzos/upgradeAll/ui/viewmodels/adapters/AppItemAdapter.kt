@@ -1,7 +1,6 @@
 package net.xzos.upgradeAll.ui.viewmodels.adapters
 
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Handler
@@ -30,16 +29,14 @@ import org.litepal.LitePal
 import java.util.*
 
 
-class AppItemAdapter(private val mContext: Context, private val mItemCardViewList: MutableList<ItemCardView>) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
+class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.cardview_item, parent, false))
         // 单击展开 Release 详情页
         holder.itemCardView.setOnClickListener {
-            GlobalScope.launch {
-                showDialogWindow(holder)
-            }
+            showDialogWindow(holder)
         }
 
         // 长按菜单
@@ -82,7 +79,11 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
             val position = holder.adapterPosition
             val itemCardView = mItemCardViewList[position]
             val appDatabaseId = itemCardView.extraData.databaseId
-            // TODO: 强制刷新功能
+            AppManager.delApp(appDatabaseId)
+            AppManager.setApp(appDatabaseId)
+            GlobalScope.launch {
+                setAppStatusUI(appDatabaseId, holder)
+            }
             Toast.makeText(holder.versionCheckButton.context, String.format("检查 %s 的更新", holder.name.text.toString()),
                     Toast.LENGTH_SHORT).show()
             true
@@ -167,7 +168,7 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
         }
     }
 
-    private suspend fun showDialogWindow(holder: CardViewRecyclerViewHolder) {
+    private fun showDialogWindow(holder: CardViewRecyclerViewHolder) {
         val position = holder.adapterPosition
         val itemCardView = mItemCardViewList[position]
         val appDatabaseId = itemCardView.extraData.databaseId
@@ -175,29 +176,36 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
         val updater = app.updater
         val builder = AlertDialog.Builder(holder.versionCheckingBar.context)
 
-        // 初始化网络数据
-        val latestVersion = updater.latestVersion
-        val latestVersionString = latestVersion
-        val latestFileDownloadUrl = updater.latestDownloadUrl
+        val dialog = builder.setView(R.layout.dialog_app_info).create()
+        dialog.show()
+        val dialogWindow = dialog.window
+        if (dialogWindow != null) {
+            val localReleaseTextView = dialogWindow.findViewById<TextView>(R.id.localReleaseTextView)
+            // 显示本地版本号
+            val installedVersion = app.installedVersion
+            if (installedVersion != null)
+                localReleaseTextView.text = installedVersion
+            else
+                localReleaseTextView.text = "获取失败"
 
-        runBlocking(Dispatchers.Main) {
-            // TODO: 弹窗提醒加载状态
-            val dialog = builder.setView(R.layout.dialog_app_info).create()
-            dialog.show()
-            val dialogWindow = dialog.window
-            if (dialogWindow != null) {
-                val cloudReleaseTextView = dialogWindow.findViewById<TextView>(R.id.cloudReleaseTextView)
-                val localReleaseTextView = dialogWindow.findViewById<TextView>(R.id.localReleaseTextView)
-                cloudReleaseTextView.text = latestVersionString
-                // 显示本地版本号
-                val installedVersion = app.installedVersion
-                if (installedVersion != null)
-                    localReleaseTextView.text = installedVersion
-                else
-                    localReleaseTextView.text = "获取失败"
-
-                // 获取云端文件
-                // 刷新数据库
+            GlobalScope.launch {
+                val latestVersionString = updater.latestVersion
+                Handler(Looper.getMainLooper()).post {
+                    val cloudReleaseTextView = dialogWindow.findViewById<TextView>(R.id.cloudReleaseTextView)
+                    cloudReleaseTextView.text = latestVersionString
+                    dialogWindow.findViewById<View>(R.id.cloudReleaseProgressBar).visibility = View.INVISIBLE  // 隐藏等待提醒条
+                }
+                val latestVersionChangelogString = updater.latestChangelog
+                Handler(Looper.getMainLooper()).post {
+                    if (latestVersionChangelogString.isNullOrBlank()) {
+                        dialogWindow.findViewById<View>(R.id.releaseChangelogLinearLayout).visibility = View.GONE
+                    } else {
+                        val changelogTextView = dialogWindow.findViewById<TextView>(R.id.changelogTextView)
+                        changelogTextView.text = latestVersionChangelogString
+                        dialogWindow.findViewById<View>(R.id.changelogProgressBar).visibility = View.INVISIBLE  // 隐藏等待提醒条
+                    }
+                }
+                val latestFileDownloadUrl = updater.latestDownloadUrl
                 Handler(Looper.getMainLooper()).post {
                     val itemList = ArrayList<String>()
                     val sIterator = latestFileDownloadUrl.keys()
@@ -209,39 +217,39 @@ class AppItemAdapter(private val mContext: Context, private val mItemCardViewLis
                     // 无Release文件，不显示网络文件列表
                     if (itemList.size == 0) {
                         dialogWindow.findViewById<View>(R.id.releaseFileListLinearLayout).visibility = View.GONE
-                    }
+                    } else {
 
-                    // 构建文件列表
-                    val adapter = ArrayAdapter(
-                            dialog.context, android.R.layout.simple_list_item_1, itemList)
-                    val cloudReleaseList = dialogWindow.findViewById<ListView>(R.id.cloudReleaseList)
-                    // 设置文件列表点击事件
-                    cloudReleaseList.setOnItemClickListener { _, _, i, _ ->
-                        val intent = Intent(Intent.ACTION_VIEW)
-                        var url: String? = null
-                        try {
-                            url = latestFileDownloadUrl.getString(itemList[i])
-                        } catch (e: JSONException) {
-                            e.printStackTrace()
-                        }
+                        // 构建文件列表
+                        val adapter = ArrayAdapter(
+                                dialog.context, android.R.layout.simple_list_item_1, itemList)
+                        val cloudReleaseList = dialogWindow.findViewById<ListView>(R.id.cloudReleaseList)
+                        // 设置文件列表点击事件
+                        cloudReleaseList.setOnItemClickListener { _, _, i, _ ->
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            var url: String? = null
+                            try {
+                                url = latestFileDownloadUrl.getString(itemList[i])
+                            } catch (e: JSONException) {
+                                e.printStackTrace()
+                            }
 
-                        if (url != null && !url.startsWith("http"))
-                            url = "http://$url"
-                        intent.data = Uri.parse(url)
-                        val chooser = Intent.createChooser(intent, "请选择浏览器")
-                        if (intent.resolveActivity(dialog.context.packageManager) != null) {
-                            dialog.context.startActivity(chooser)
+                            if (url != null && !url.startsWith("http"))
+                                url = "http://$url"
+                            intent.data = Uri.parse(url)
+                            val chooser = Intent.createChooser(intent, "请选择浏览器")
+                            if (intent.resolveActivity(dialog.context.packageManager) != null) {
+                                dialog.context.startActivity(chooser)
+                            }
                         }
+                        cloudReleaseList.adapter = adapter
+                        dialogWindow.findViewById<View>(R.id.fileListProgressBar).visibility = View.INVISIBLE  // 隐藏等待提醒条
                     }
-                    cloudReleaseList.adapter = adapter
-                    dialogWindow.findViewById<View>(R.id.fileListProgressBar).visibility = View.INVISIBLE  // 隐藏等待提醒条
                 }
             }
         }
     }
 
     companion object {
-
         private val AppManager = ServerContainer.AppManager
     }
 }

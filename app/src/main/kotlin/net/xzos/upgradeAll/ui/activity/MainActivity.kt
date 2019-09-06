@@ -184,7 +184,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun setRecyclerView() {
         val layoutManager = GridLayoutManager(this, 1)
         recyclerView.layoutManager = layoutManager
-        adapter = AppItemAdapter(this, itemCardViewList)
+        adapter = AppItemAdapter(itemCardViewList)
         recyclerView.adapter = adapter
     }
 

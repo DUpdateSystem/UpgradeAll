@@ -40,9 +40,11 @@ class JSUtils(private val logObjectTag: Array<String>) {
         var response = httpResponseDict[URL]
         if (response == null) {
             response = OkHttpApi.getHttpResponse(logObjectTag, URL).first
+            if (response != null)
+                httpResponseDict[URL] = response
+        } else {
+            Log.d(logObjectTag, TAG, "OkHttp: $URL 已缓存")
         }
-        if (response != null)
-            httpResponseDict[URL] = response
         return response
     }
 
@@ -51,13 +53,15 @@ class JSUtils(private val logObjectTag: Array<String>) {
         val connection = Jsoup.connect(URL)
         if (userAgent != null) connection.userAgent(userAgent)
         var doc = jsoupDomDict[URL]
-        if (doc == null)
-            doc = JsoupApi.getDoc(connection)
         if (doc == null) {
-            Log.e(logObjectTag, TAG, "selNByJsoupXpathJavaList: Jsoup 对象初始化失败")
-            return ArrayList<Any>()
+            doc = JsoupApi.getDoc(connection)
+            if (doc == null) {
+                Log.e(logObjectTag, TAG, "selNByJsoupXpathJavaList: Jsoup 对象初始化失败")
+                return ArrayList<Any>()
+            } else
+                jsoupDomDict[URL] = doc
         } else
-            jsoupDomDict[URL] = doc
+            Log.d(logObjectTag, TAG, "Jsoup: $URL 已缓存")
         val jxDocument = JXDocument.create(doc)
         val nodeStringArrayList = ArrayList<String>()
         for (node in jxDocument.selN(xpath)) {
