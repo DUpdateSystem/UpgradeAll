@@ -16,13 +16,16 @@ internal class JavaScriptCoreEngine(
         private val URL: String?,
         private val jsCode: String?
 ) : CoreApi {
+    private lateinit var cx: Context
+    private lateinit var scope: Scriptable
+
     private val jsUtils: JSUtils = JSUtils(this.logObjectTag)
 
     // 加载 JavaScript 代码
     private fun executeVoidScript(): Boolean {
         if (jsCode == null) return false
         return try {
-            cx.evaluateString(scope, jsCode, null, 1, null)
+            cx.evaluateString(scope, jsCode, logObjectTag.toString(), 1, null)
             true
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, String.format("executeVoidScript: 脚本载入错误, ERROR_MESSAGE: %s", e.toString()))
@@ -60,25 +63,26 @@ internal class JavaScriptCoreEngine(
     // 运行 JS 代码
     private fun runJS(functionName: String, args: Array<Any>): Any? {
         if (!initRhino()) return null // 初始化 J2V8
-        val obj = try {
-            scope.get(functionName, scope) as Function
-        } catch (e: ClassCastException) {
-            return null
-        }
-        val result = obj.call(cx, scope, scope, args)
+        val obj = scope.get(functionName, scope)
+        val result =
+                if (obj is Function)
+                    obj.call(cx, scope, scope, args)
+                else {
+                    null
+                }
         closeRhino() // 销毁 J2V8 对象
         return result
     }
 
     override suspend fun getDefaultName(): String? {
         val result = runJS("getDefaultName", arrayOf())
-        val defaultName = Context.toString(result)
+        val defaultName = Context.toString(result) ?: return null
         Log.d(logObjectTag, TAG, "getDefaultName: defaultName: $defaultName")
         return defaultName
     }
 
     override suspend fun getReleaseNum(): Int {
-        val result = runJS("getReleaseNum", arrayOf())
+        val result = runJS("getReleaseNum", arrayOf()) ?: return 0
         val releaseNum = Context.toNumber(result).toInt()
         Log.d(logObjectTag, TAG, "getReleaseNum: releaseNum: $releaseNum")
         return releaseNum
@@ -86,7 +90,7 @@ internal class JavaScriptCoreEngine(
 
     override suspend fun getVersioning(releaseNum: Int): String? {
         val args = arrayOf<Any>(releaseNum)
-        val result = runJS("getVersioning", args) ?: runJS("getVersionNumber", args)
+        val result = runJS("getVersioning", args) ?: runJS("getVersionNumber", args) ?: return null
         // TODO: 向下兼容两个主版本后移除，当前版本：0.1.0-alpha.3
         val versionNumber = Context.toString(result)
         Log.d(logObjectTag, TAG, "getVersioning: Versioning: $versionNumber")
@@ -95,7 +99,7 @@ internal class JavaScriptCoreEngine(
 
     override suspend fun getChangelog(releaseNum: Int): String? {
         val args = arrayOf<Any>(releaseNum)
-        val result = runJS("getChangelog", args)
+        val result = runJS("getChangelog", args) ?: return null
         val changeLog = Context.toString(result)
         Log.d(logObjectTag, TAG, "getChangelog: Changelog: $changeLog")
         return changeLog
@@ -103,9 +107,9 @@ internal class JavaScriptCoreEngine(
 
     override suspend fun getReleaseDownload(releaseNum: Int): JSONObject {
         val args = arrayOf<Any>(releaseNum)
-        val result = runJS("getReleaseDownload", args)
-        val fileJsonString = Context.toString(result)
         var fileJson = JSONObject()
+        val result = runJS("getReleaseDownload", args) ?: return fileJson
+        val fileJsonString = Context.toString(result)
         try {
             fileJson = JSONObject(fileJsonString)
         } catch (e: JSONException) {
@@ -121,7 +125,5 @@ internal class JavaScriptCoreEngine(
     companion object {
         private const val TAG = "JavaScriptCoreEngine"
         private val Log = ServerContainer.Log
-        private lateinit var cx: Context
-        private lateinit var scope: Scriptable
     }
 }

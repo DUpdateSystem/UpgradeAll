@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,10 +15,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.database.RepoDatabase
 import net.xzos.upgradeAll.server.ServerContainer
@@ -81,9 +80,7 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
             val appDatabaseId = itemCardView.extraData.databaseId
             AppManager.delApp(appDatabaseId)
             AppManager.setApp(appDatabaseId)
-            GlobalScope.launch {
-                setAppStatusUI(appDatabaseId, holder)
-            }
+            setAppStatusUI(appDatabaseId, holder)
             Toast.makeText(holder.versionCheckButton.context, String.format("检查 %s 的更新", holder.name.text.toString()),
                     Toast.LENGTH_SHORT).show()
             true
@@ -114,43 +111,42 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
             holder.name.text = itemCardView.name
             holder.api.text = itemCardView.api
             holder.descTextView.text = itemCardView.desc
-            GlobalScope.launch {
-                setAppStatusUI(appDatabaseId, holder)
-            }
+            setAppStatusUI(appDatabaseId, holder)
         }
     }
 
-    private suspend fun setAppStatusUI(appDatabaseId: Int, holder: CardViewRecyclerViewHolder) {
+    private fun setAppStatusUI(appDatabaseId: Int, holder: CardViewRecyclerViewHolder) {
         val app = AppManager.getApp(appDatabaseId)
         val updater = app.updater
-        runBlocking(Dispatchers.Main) {
-            setUpdateStatus(holder, true)
-        }
-        val updateStatus =   // 0: 404; 1: latest; 2: need update; 3: no app
-                //检查是否取得云端版本号
-                if (updater.isSuccessRenew) {
-                    // 检查是否获取本地版本号
-                    if (app.installedVersion != null) {
-                        // 检查本地版本
-                        if (app.isLatest.await()) {
-                            1
+        setUpdateStatus(holder, true)
+        GlobalScope.launch {
+            val updateStatus =   // 0: 404; 1: latest; 2: need update; 3: no app
+                    //检查是否取得云端版本号
+                    if (updater.isSuccessRenew) {
+                        // 检查是否获取本地版本号
+                        if (app.installedVersion != null) {
+                            // 检查本地版本
+                            if (app.isLatest) {
+                                1
+                            } else {
+                                2
+                            }
                         } else {
-                            2
+                            3
                         }
                     } else {
-                        3
+                        0
                     }
-                } else {
-                    0
+            Log.e("111", "status: $updateStatus")
+            Handler(Looper.getMainLooper()).post {
+                when (updateStatus) {
+                    0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_404)
+                    1 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_latest)
+                    2 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
+                    3 -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
                 }
-        runBlocking(Dispatchers.Main) {
-            when (updateStatus) {
-                0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_404)
-                1 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_latest)
-                2 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
-                3 -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
+                setUpdateStatus(holder, false)
             }
-            setUpdateStatus(holder, false)
         }
     }
 
@@ -193,7 +189,7 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
                 Handler(Looper.getMainLooper()).post {
                     val cloudReleaseTextView = dialogWindow.findViewById<TextView>(R.id.cloudReleaseTextView)
                     cloudReleaseTextView.text = latestVersionString
-                    dialogWindow.findViewById<View>(R.id.cloudReleaseProgressBar).visibility = View.INVISIBLE  // 隐藏等待提醒条
+                    dialogWindow.findViewById<View>(R.id.cloudReleaseProgressBar).visibility = View.GONE// 隐藏等待提醒条
                 }
                 val latestVersionChangelogString = updater.latestChangelog
                 Handler(Looper.getMainLooper()).post {
@@ -202,7 +198,7 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
                     } else {
                         val changelogTextView = dialogWindow.findViewById<TextView>(R.id.changelogTextView)
                         changelogTextView.text = latestVersionChangelogString
-                        dialogWindow.findViewById<View>(R.id.changelogProgressBar).visibility = View.INVISIBLE  // 隐藏等待提醒条
+                        dialogWindow.findViewById<View>(R.id.changelogProgressBar).visibility = View.GONE// 隐藏等待提醒条
                     }
                 }
                 val latestFileDownloadUrl = updater.latestDownloadUrl
@@ -242,7 +238,7 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
                             }
                         }
                         cloudReleaseList.adapter = adapter
-                        dialogWindow.findViewById<View>(R.id.fileListProgressBar).visibility = View.INVISIBLE  // 隐藏等待提醒条
+                        dialogWindow.findViewById<View>(R.id.fileListProgressBar).visibility = View.GONE// 隐藏等待提醒条
                     }
                 }
             }
