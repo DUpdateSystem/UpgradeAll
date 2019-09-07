@@ -137,7 +137,6 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
                     } else {
                         0
                     }
-            Log.e("111", "status: $updateStatus")
             Handler(Looper.getMainLooper()).post {
                 when (updateStatus) {
                     0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_404)

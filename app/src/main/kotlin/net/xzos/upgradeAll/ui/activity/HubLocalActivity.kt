@@ -434,9 +434,9 @@ class HubLocalActivity : AppCompatActivity() {
         val jsCode = HubManager.getJsCode(uuid)
         val jsTestTextView = findViewById<TextView>(R.id.jsTestTextView)
         jsTestTextView.text = jsCode
-        val hubConfig = HubManager.getDatabase(uuid)?.hub_config
-        if (hubConfig != null)
-            loadConfigFromHubConfig(Gson().fromJson(hubConfig, HubConfig::class.java))
+        val hubConfig = HubManager.getDatabase(uuid)?.hubConfig
+        if (hubConfig is HubConfig)
+            loadConfigFromHubConfig(hubConfig)
     }
 
     private fun loadJSFromUri(uri: Uri?) {

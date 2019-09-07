@@ -33,7 +33,7 @@ object HubManager {
                 uuid = hubConfigGson.uuid
             } catch (e: NullPointerException) {
                 val gson = Gson()
-                Log.e(LogObjectTag, TAG, "add: 请确认 hub_config 包含各个必须元素 hubConfigGson: " + gson.toJson(hubConfigGson))
+                Log.e(LogObjectTag, TAG, "add: 请确认 hubConfig 包含各个必须元素 hubConfigGson: " + gson.toJson(hubConfigGson))
             }
 
             // 如果设置了名字与 UUID，则存入数据库
@@ -45,9 +45,9 @@ object HubManager {
                     val hubDatabase = hubDatabases[0]
                     hubDatabase.name = name
                     hubDatabase.uuid = uuid
-                    hubDatabase.hub_config = Gson().toJson(hubConfigGson)
+                    hubDatabase.hubConfig = hubConfigGson
                     // 存储 js 代码
-                    hubDatabase.extra_data = Gson().toJson(hubDatabaseExtraData)
+                    hubDatabase.extraData = hubDatabaseExtraData
                     hubDatabase.save() // 将数据存入 HubDatabase 数据库
                 } else
                     HubDatabase(name = name, uuid = uuid, hub_config = Gson().toJson(hubConfigGson), extra_data = Gson().toJson(hubDatabaseExtraData)).save()
@@ -70,18 +70,16 @@ object HubManager {
             null
     }
 
-    fun getJsCode(uuid: String?): String {
-        var jsCode = ""
+    fun getJsCode(uuid: String?): String? {
         val hubDatabases: List<HubDatabase> = LitePal.where("uuid = ?", uuid).find()
-        if (hubDatabases.isNotEmpty()) {
+        return if (hubDatabases.isNotEmpty()) {
             val hubDatabase = hubDatabases[0]
-            jsCode = getJsCodeFromHubDatabaseItem(hubDatabase)
-        }
-        return jsCode
+            getJsCodeFromHubDatabaseItem(hubDatabase)
+        } else null
     }
 
-    private fun getJsCodeFromHubDatabaseItem(hubDatabase: HubDatabase): String {
-        val extraData: HubDatabaseExtraData = Gson().fromJson(hubDatabase.extra_data, HubDatabaseExtraData::class.java)
-        return extraData.javascript ?: ""
+    private fun getJsCodeFromHubDatabaseItem(hubDatabase: HubDatabase): String? {
+        val extraData: HubDatabaseExtraData = hubDatabase.extraData as HubDatabaseExtraData
+        return extraData.javascript
     }
 }
