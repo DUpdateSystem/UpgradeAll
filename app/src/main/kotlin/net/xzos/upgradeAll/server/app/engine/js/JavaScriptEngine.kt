@@ -7,7 +7,7 @@ import org.json.JSONObject
 class JavaScriptEngine internal constructor(
         private val logObjectTag: Array<String>,
         URL: String?,
-        jsCode: String,
+        jsCode: String?,
         enableLogJsCode: Boolean = true
 ) : CoreApi {
 

@@ -117,11 +117,10 @@ class AppSettingActivity : AppCompatActivity() {
         val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)
         if (addRepoSuccess) {
             ServerContainer.AppManager.setApp(databaseId)
-            // 强行刷新被修改的子项
-            // 取消等待框
             if (!addRepoSuccess) {
                 Toast.makeText(this@AppSettingActivity, "什么？数据库添加失败！", Toast.LENGTH_LONG).show()
             }
+            // 取消等待框
             progressBar.visibility = View.GONE
             window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
             onBackPressed()  // 跳转主页面
