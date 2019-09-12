@@ -9,9 +9,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial
+import kotlinx.android.synthetic.main.content_list.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.json.cache.ItemCardViewExtraData
 import net.xzos.upgradeAll.server.hub.HubManager
@@ -22,9 +21,6 @@ import java.util.*
 class HubListActivity : AppCompatActivity() {
     private val itemCardViewList = ArrayList<ItemCardView>()
     private lateinit var adapter: LocalHubItemAdapter
-
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var swipeRefresh: SwipeRefreshLayout
 
     override fun onResume() {
         super.onResume()
@@ -47,11 +43,8 @@ class HubListActivity : AppCompatActivity() {
             }
         }
 
-        swipeRefresh = findViewById(R.id.swipeRefresh)
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
         swipeRefresh.setOnRefreshListener { this.refreshCardView() }
-
-        recyclerView = findViewById(R.id.update_item_recycler_view)
 
         setRecyclerView()
     }
@@ -87,9 +80,9 @@ class HubListActivity : AppCompatActivity() {
 
     private fun setRecyclerView() {
         val layoutManager = GridLayoutManager(this, 1)
-        recyclerView.layoutManager = layoutManager
+        cardItemRecyclerView.layoutManager = layoutManager
         adapter = LocalHubItemAdapter(itemCardViewList)
-        recyclerView.adapter = adapter
+        cardItemRecyclerView.adapter = adapter
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

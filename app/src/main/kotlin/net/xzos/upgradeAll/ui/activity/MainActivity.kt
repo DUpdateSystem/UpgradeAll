@@ -7,48 +7,28 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.navigation.NavigationView
 import com.yalantis.ucrop.UCrop
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.nav_header_main.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.database.RepoDatabase
-import net.xzos.upgradeAll.json.cache.ItemCardViewExtraData
 import net.xzos.upgradeAll.server.ServerContainer
-import net.xzos.upgradeAll.ui.viewmodels.adapters.AppItemAdapter
-import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
+import net.xzos.upgradeAll.ui.viewmodels.fragment.AppListFragment
 import net.xzos.upgradeAll.utils.FileUtil
-import org.litepal.LitePal
 import java.io.File
-import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-
-    private var enableRenew = true
-
-    private val itemCardViewList = ArrayList<ItemCardView>()
-
-    private lateinit var mDrawerLayout: DrawerLayout
-    private lateinit var navView: NavigationView
-    private lateinit var navViewHeaderImageView: ImageView
-    private lateinit var adapter: AppItemAdapter
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var swipeRefresh: SwipeRefreshLayout
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         super.onActivityResult(requestCode, resultCode, resultData)
@@ -87,52 +67,46 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (enableRenew) {
-            refreshCardView()
-            enableRenew = false
-        }
-        navView.setCheckedItem(R.id.app_list)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
-        swipeRefresh = findViewById(R.id.swipeRefresh)
-        recyclerView = findViewById(R.id.update_item_recycler_view)
-        mDrawerLayout = findViewById(R.id.drawer_layout)
-        navView = findViewById(R.id.nav_view)
         val headerView = navView.getHeaderView(0) as LinearLayout
-        navViewHeaderImageView = headerView.findViewById(R.id.nav_header_imageView)
         headerView.setOnClickListener {
-            Toast.makeText(this@MainActivity, "长按侧滑栏图片可以删除图片", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "长按侧滑栏图片可以删除图片", Toast.LENGTH_SHORT).show()
             setNavImage()
         }
         headerView.setOnLongClickListener {
             delNavImage()
             true
         }
-        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
-        swipeRefresh.setOnRefreshListener { this.refreshCardView() }
         val toggle = ActionBarDrawerToggle(
-                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        mDrawerLayout.addDrawerListener(toggle)
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         navView.setNavigationItemSelectedListener(this)
-        navViewHeaderImageView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        val navHeaderImageView = headerView.findViewById<ImageView>(R.id.navHeaderImageView)
+        navHeaderImageView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                navViewHeaderImageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                val layoutParams = navViewHeaderImageView.layoutParams as LinearLayout.LayoutParams
-                layoutParams.height = navViewHeaderImageView.width / 16 * 9
-                navViewHeaderImageView.layoutParams = layoutParams
+                navHeaderImageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                val layoutParams = navHeaderImageView.layoutParams as LinearLayout.LayoutParams
+                layoutParams.height = navHeaderImageView.width / 16 * 9
+                navHeaderImageView.layoutParams = layoutParams
                 renewNavImage()
             }
         })
-        setRecyclerView()
+        setFrameLayout()
         deleteFile(NAV_IMAGE_FILE_NAME)
+    }
+
+    private fun setFrameLayout() {
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        val fragment = AppListFragment()
+        navView.setCheckedItem(R.id.app_list)
+        fragmentTransaction.replace(R.id.contentFrameLayout, fragment)
+        fragmentTransaction.commit()
+
     }
 
     private fun setNavImage() {
@@ -146,46 +120,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .load(NAV_IMAGE_FILE)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true)
-                .into(navViewHeaderImageView)
+                .into(navHeaderImageView)
     }
 
     private fun delNavImage() {
         NAV_IMAGE_FILE.delete()
-        navViewHeaderImageView.setImageDrawable(null)
-    }
-
-    private fun refreshCardView() {
-        swipeRefresh.isRefreshing = true
-        refreshAppList()
-        swipeRefresh.isRefreshing = false
-    }
-
-    private fun refreshAppList() {
-        val repoDatabase = LitePal.findAll(RepoDatabase::class.java)
-        itemCardViewList.clear()
-        for (updateItem in repoDatabase) {
-            val databaseId = updateItem.id
-            val name = updateItem.name
-            val api = updateItem.api
-            val url = updateItem.url
-            itemCardViewList.add(ItemCardView(name, url, api, ItemCardViewExtraData(databaseId = databaseId)))
-        }
-        val guidelinesTextView = findViewById<TextView>(R.id.guidelinesTextView)
-        if (itemCardViewList.size != 0) {
-            itemCardViewList.add(ItemCardView(null, null, null, ItemCardViewExtraData(isEmpty = true)))
-            setRecyclerView()
-            adapter.notifyDataSetChanged()
-            guidelinesTextView.visibility = View.GONE
-        } else {
-            guidelinesTextView.visibility = View.VISIBLE
-        }
-    }
-
-    private fun setRecyclerView() {
-        val layoutManager = GridLayoutManager(this, 1)
-        recyclerView.layoutManager = layoutManager
-        adapter = AppItemAdapter(itemCardViewList)
-        recyclerView.adapter = adapter
+        navHeaderImageView.setImageDrawable(null)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -198,7 +138,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val intent: Intent
 
         return if (id == R.id.item_add) {
-            enableRenew = true
             intent = Intent(this@MainActivity, AppSettingActivity::class.java)
             startActivity(intent)
             true
@@ -212,8 +151,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         when (id) {
             R.id.item_add -> {
-                enableRenew = true
-                intent = Intent(this@MainActivity, AppSettingActivity::class.java)
+                intent = Intent(this, AppSettingActivity::class.java)
                 startActivity(intent)
             }
             R.id.app_help -> {
@@ -223,26 +161,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(intent)
             }
             R.id.hub_list -> {
-                intent = Intent(this@MainActivity, HubListActivity::class.java)
+                intent = Intent(this, HubListActivity::class.java)
                 startActivity(intent)
             }
             R.id.app_log -> {
-                intent = Intent(this@MainActivity, LogActivity::class.java)
+                intent = Intent(this, LogActivity::class.java)
                 startActivity(intent)
             }
             R.id.app_setting -> {
-                intent = Intent(this@MainActivity, SettingsActivity::class.java)
+                intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
             }
         }
-        mDrawerLayout.closeDrawer(GravityCompat.START)
+        drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
     override fun onBackPressed() {
-        mDrawerLayout = findViewById(R.id.drawer_layout)
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout.closeDrawer(GravityCompat.START)
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
         } else {
             super.onBackPressed()
         }
