@@ -8,7 +8,7 @@
     tools:targetApi="m">
 
     <ImageView
-        android:id="@+id/nav_header_imageView"
+        android:id="@+id/navHeaderImageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"

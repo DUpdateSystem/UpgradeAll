@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial
+import kotlinx.android.synthetic.main.content_list.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.json.cache.ItemCardViewExtraData
 import net.xzos.upgradeAll.server.hub.CloudHub
@@ -22,8 +23,6 @@ class CloudHubListActivity : AppCompatActivity() {
     private val itemCardViewList = ArrayList<ItemCardView>()
     private lateinit var adapter: CloudHubItemAdapter
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var swipeRefresh: SwipeRefreshLayout
     private val cloudHub = CloudHub()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,11 +35,8 @@ class CloudHubListActivity : AppCompatActivity() {
         val fab = findViewById<FabSpeedDial>(R.id.addFab)
         fab.visibility = View.GONE
 
-        swipeRefresh = findViewById(R.id.swipeRefresh)
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
         swipeRefresh.setOnRefreshListener { this.refreshCardView() }
-
-        recyclerView = findViewById(R.id.update_item_recycler_view)
 
         setRecyclerView()
         refreshCardView()
@@ -83,9 +79,9 @@ class CloudHubListActivity : AppCompatActivity() {
 
     private fun setRecyclerView() {
         val layoutManager = GridLayoutManager(this, 1)
-        recyclerView.layoutManager = layoutManager
+        cardItemRecyclerView.layoutManager = layoutManager
         adapter = CloudHubItemAdapter(itemCardViewList, cloudHub)
-        recyclerView.adapter = adapter
+        cardItemRecyclerView.adapter = adapter
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
