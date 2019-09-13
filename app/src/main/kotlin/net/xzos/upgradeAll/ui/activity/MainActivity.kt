@@ -107,7 +107,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val fragmentTransaction = fragmentManager.beginTransaction()
         val fragment = when (id) {
             R.id.app_list -> {
-                navView.setCheckedItem(R.id.app_list)
                 if (::menu.isInitialized) {
                     menu.clear()
                     menuInflater.inflate(R.menu.menu_actionbar_app_list, menu)
@@ -115,7 +114,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 AppListFragment()
             }
             R.id.hub_list -> {
-                navView.setCheckedItem(R.id.hub_list)
                 if (::menu.isInitialized) {
                     menu.clear()
                     menuInflater.inflate(R.menu.menu_actionbar_hub_list, menu)

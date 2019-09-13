@@ -36,12 +36,15 @@ class JSUtils(private val logObjectTag: Array<String>) {
     }
 
     fun getHttpResponse(URL: String): String? {
-        val httpResponseDict = jsCacheData.httpResponseDict
-        var response = httpResponseDict[URL]
-        if (response == null) {
+        val httpResponseMap = jsCacheData.httpResponseDict
+        val time = httpResponseMap[URL]?.first
+        var response = httpResponseMap[URL]?.second
+        if (response == null || !JSCacheData.isFreshness(time)) {
             response = OkHttpApi.getHttpResponse(logObjectTag, URL).first
-            if (response != null)
-                httpResponseDict[URL] = response
+            if (response != null) {
+                httpResponseMap[URL] = Pair(Calendar.getInstance(), response)
+                Log.d(logObjectTag, TAG, "OkHttp: $URL 已刷新")
+            }
         } else {
             Log.d(logObjectTag, TAG, "OkHttp: $URL 已缓存")
         }
@@ -50,16 +53,19 @@ class JSUtils(private val logObjectTag: Array<String>) {
 
     fun selNByJsoupXpath(userAgent: String?, URL: String, xpath: String): ArrayList<*> {
         val jsoupDomDict = jsCacheData.jsoupDomDict
+        val time = jsoupDomDict[URL]?.first
         val connection = Jsoup.connect(URL)
         if (userAgent != null) connection.userAgent(userAgent)
-        var doc = jsoupDomDict[URL]
-        if (doc == null) {
+        var doc = jsoupDomDict[URL]?.second
+        if (doc == null || !JSCacheData.isFreshness(time)) {
             doc = JsoupApi.getDoc(connection)
-            if (doc == null) {
+            if (doc != null) {
+                jsoupDomDict[URL] = Pair(Calendar.getInstance(), doc)
+                Log.d(logObjectTag, TAG, "Jsoup: $URL 已刷新")
+            } else {
                 Log.e(logObjectTag, TAG, "selNByJsoupXpathJavaList: Jsoup 对象初始化失败")
                 return ArrayList<Any>()
-            } else
-                jsoupDomDict[URL] = doc
+            }
         } else
             Log.d(logObjectTag, TAG, "Jsoup: $URL 已缓存")
         val jxDocument = JXDocument.create(doc)
