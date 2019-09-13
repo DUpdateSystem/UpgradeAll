@@ -1,32 +1,46 @@
 package net.xzos.upgradeAll.ui.viewmodels.fragment
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.Toolbar
-import androidx.core.app.ActivityCompat.invalidateOptionsMenu
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
+import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_list.*
-import kotlinx.android.synthetic.main.fragment_app_list.*
+import kotlinx.android.synthetic.main.fragment_app_list.guidelinesTextView
+import kotlinx.android.synthetic.main.fragment_hub_list.*
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.database.RepoDatabase
 import net.xzos.upgradeAll.json.cache.ItemCardViewExtraData
+import net.xzos.upgradeAll.server.hub.HubManager
+import net.xzos.upgradeAll.ui.activity.CloudHubListActivity
+import net.xzos.upgradeAll.ui.activity.HubLocalActivity
 import net.xzos.upgradeAll.ui.viewmodels.adapters.AppItemAdapter
+import net.xzos.upgradeAll.ui.viewmodels.adapters.LocalHubItemAdapter
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
-import org.litepal.LitePal
 
-class AppListFragment : Fragment() {
+class HubListFragment : Fragment() {
     private val itemCardViewList = ArrayList<ItemCardView>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_app_list, container, false)
+        return inflater.inflate(R.layout.fragment_hub_list, container, false)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
     }
 
     override fun onResume() {
         super.onResume()
+        addFab.addOnMenuItemClickListener { floatingActionButton, _, _ ->
+            if (floatingActionButton === addFab.getMiniFab(0)) {
+                startActivity(Intent(activity, HubLocalActivity::class.java))
+            } else if (floatingActionButton === addFab.getMiniFab(1)) {
+                startActivity(Intent(activity, CloudHubListActivity::class.java))
+            }
+        }
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
         swipeRefresh.setOnRefreshListener { this.refreshCardView() }
         refreshCardView()
@@ -34,19 +48,17 @@ class AppListFragment : Fragment() {
 
     private fun refreshCardView() {
         swipeRefresh.isRefreshing = true
-        refreshAppList()
+        refreshHubList()
         swipeRefresh.isRefreshing = false
     }
 
-    private fun refreshAppList() {
-        val repoDatabase = LitePal.findAll(RepoDatabase::class.java)
+    private fun refreshHubList() {
+        val hubDatabase = HubManager.databases
         itemCardViewList.clear()
-        for (updateItem in repoDatabase) {
-            val databaseId = updateItem.id
-            val name = updateItem.name
-            val api = updateItem.api
-            val url = updateItem.url
-            itemCardViewList.add(ItemCardView(name, url, api, ItemCardViewExtraData(databaseId = databaseId)))
+        for (hubItem in hubDatabase) {
+            val name = hubItem.name
+            val uuid = hubItem.uuid
+            itemCardViewList.add(ItemCardView(name, uuid, "", ItemCardViewExtraData(uuid = uuid)))
         }
         if (itemCardViewList.size != 0) {
             itemCardViewList.add(ItemCardView(null, null, null, ItemCardViewExtraData(isEmpty = true)))
@@ -60,7 +72,7 @@ class AppListFragment : Fragment() {
     private fun setRecyclerView() {
         val layoutManager = GridLayoutManager(activity, 1)
         cardItemRecyclerView.layoutManager = layoutManager
-        val adapter = AppItemAdapter(itemCardViewList)
+        val adapter = LocalHubItemAdapter(itemCardViewList)
         cardItemRecyclerView.adapter = adapter
         adapter.notifyDataSetChanged()
     }
