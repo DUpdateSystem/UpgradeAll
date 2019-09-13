@@ -25,10 +25,13 @@ import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.ui.viewmodels.fragment.AppListFragment
+import net.xzos.upgradeAll.ui.viewmodels.fragment.HubListFragment
 import net.xzos.upgradeAll.utils.FileUtil
 import java.io.File
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    private lateinit var menu: Menu
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         super.onActivityResult(requestCode, resultCode, resultData)
@@ -99,14 +102,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         deleteFile(NAV_IMAGE_FILE_NAME)
     }
 
-    private fun setFrameLayout() {
+    private fun setFrameLayout(id: Int = R.id.app_list) {
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
-        val fragment = AppListFragment()
-        navView.setCheckedItem(R.id.app_list)
-        fragmentTransaction.replace(R.id.contentFrameLayout, fragment)
-        fragmentTransaction.commit()
-
+        val fragment = when (id) {
+            R.id.app_list -> {
+                navView.setCheckedItem(R.id.app_list)
+                if (::menu.isInitialized) {
+                    menu.clear()
+                    menuInflater.inflate(R.menu.menu_actionbar_app_list, menu)
+                }
+                AppListFragment()
+            }
+            R.id.hub_list -> {
+                navView.setCheckedItem(R.id.hub_list)
+                if (::menu.isInitialized) {
+                    menu.clear()
+                    menuInflater.inflate(R.menu.menu_actionbar_hub_list, menu)
+                }
+                HubListFragment()
+            }
+            else -> null
+        }
+        if (fragment != null) {
+            fragmentTransaction.replace(R.id.contentFrameLayout, fragment)
+            fragmentTransaction.commit()
+        }
     }
 
     private fun setNavImage() {
@@ -129,7 +150,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_actionbar_main, menu)
+        menuInflater.inflate(R.menu.menu_actionbar_app_list, menu)
+        this.menu = menu
         return true
     }
 
@@ -137,12 +159,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val id = item.itemId
         val intent: Intent
 
-        return if (id == R.id.item_add) {
-            intent = Intent(this@MainActivity, AppSettingActivity::class.java)
-            startActivity(intent)
-            true
-        } else
-            super.onOptionsItemSelected(item)
+        return when (id) {
+            R.id.item_add -> {
+                intent = Intent(this@MainActivity, AppSettingActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.app_help -> {
+                @Suppress("NAME_SHADOWING")
+                var intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse("https://xzos.net/upgradeall-developer-documentation/")
+                intent = Intent.createChooser(intent, "请选择浏览器以查看帮助文档")
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -150,6 +182,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var intent: Intent
 
         when (id) {
+            R.id.app_list -> {
+                setFrameLayout(id)
+            }
+            R.id.hub_list -> {
+                setFrameLayout(id)
+            }
             R.id.item_add -> {
                 intent = Intent(this, AppSettingActivity::class.java)
                 startActivity(intent)
@@ -158,10 +196,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 intent = Intent(Intent.ACTION_VIEW)
                 intent.data = Uri.parse("https://xzos.net/upgradeall-readme/")
                 intent = Intent.createChooser(intent, "请选择浏览器")
-                startActivity(intent)
-            }
-            R.id.hub_list -> {
-                intent = Intent(this, HubListActivity::class.java)
                 startActivity(intent)
             }
             R.id.app_log -> {

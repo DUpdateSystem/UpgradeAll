@@ -8,8 +8,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial
 import kotlinx.android.synthetic.main.content_list.*
 import net.xzos.upgradeAll.R
@@ -27,7 +25,7 @@ class CloudHubListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_hub)
+        setContentView(R.layout.fragment_hub_list)
         // toolbar 点击事件
         val actionBar = supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(true)

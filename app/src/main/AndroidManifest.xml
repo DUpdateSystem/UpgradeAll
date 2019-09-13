@@ -27,9 +27,6 @@
             android:name="net.xzos.upgradeAll.ui.activity.LogActivity"
             android:label="@string/title_activity_log" />
         <activity
-            android:name="net.xzos.upgradeAll.ui.activity.HubListActivity"
-            android:label="@string/hub_list" />
-        <activity
             android:name="net.xzos.upgradeAll.ui.activity.CloudHubListActivity"
             android:label="@string/cloud_hub" />
         <activity
