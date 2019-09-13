@@ -1,14 +1,12 @@
 package net.xzos.upgradeAll.ui.viewmodels.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.Toolbar
-import androidx.core.app.ActivityCompat.invalidateOptionsMenu
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.fragment_app_list.*
 import net.xzos.upgradeAll.R
@@ -27,6 +25,7 @@ class AppListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        activity?.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.app_list)
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
         swipeRefresh.setOnRefreshListener { this.refreshCardView() }
         refreshCardView()

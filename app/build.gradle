@@ -16,8 +16,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 22
-        versionName "0.1.0-alpha.4"
+        versionCode 23
+        versionName "0.1.0-alpha.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     sourceSets {
