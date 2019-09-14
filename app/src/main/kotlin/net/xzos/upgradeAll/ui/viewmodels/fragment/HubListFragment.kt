@@ -14,8 +14,8 @@ import kotlinx.android.synthetic.main.fragment_hub_list.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.json.cache.ItemCardViewExtraData
 import net.xzos.upgradeAll.server.hub.HubManager
-import net.xzos.upgradeAll.ui.activity.CloudHubListActivity
-import net.xzos.upgradeAll.ui.activity.HubLocalActivity
+import net.xzos.upgradeAll.ui.activity.HubCloudListActivity
+import net.xzos.upgradeAll.ui.activity.HubDebugActivity
 import net.xzos.upgradeAll.ui.viewmodels.adapters.LocalHubItemAdapter
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 
@@ -26,16 +26,20 @@ class HubListFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_hub_list, container, false)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        addFab.addOnMenuItemClickListener { floatingActionButton, _, _ ->
+            if (floatingActionButton === addFab.getMiniFab(0)) {
+                startActivity(Intent(activity, HubDebugActivity::class.java))
+            } else if (floatingActionButton === addFab.getMiniFab(1)) {
+                startActivity(Intent(activity, HubCloudListActivity::class.java))
+            }
+        }
+        super.onViewCreated(view, savedInstanceState)
+    }
+
     override fun onResume() {
         super.onResume()
         activity?.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.hub_list)
-        addFab.addOnMenuItemClickListener { floatingActionButton, _, _ ->
-            if (floatingActionButton === addFab.getMiniFab(0)) {
-                startActivity(Intent(activity, HubLocalActivity::class.java))
-            } else if (floatingActionButton === addFab.getMiniFab(1)) {
-                startActivity(Intent(activity, CloudHubListActivity::class.java))
-            }
-        }
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
         swipeRefresh.setOnRefreshListener { this.refreshCardView() }
         refreshCardView()

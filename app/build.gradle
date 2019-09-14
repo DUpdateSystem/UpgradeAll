@@ -44,16 +44,16 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
-    implementation 'com.google.android.material:material:1.1.0-alpha09'
+    implementation 'com.google.android.material:material:1.1.0-alpha10'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.preference:preference:1.1.0-rc01'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha03'
+    implementation 'androidx.preference:preference:1.1.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha04'
     testImplementation 'junit:junit:4.13-beta-3'
     androidTestImplementation 'androidx.test:runner:1.3.0-alpha02'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0-alpha02'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0-beta03'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0-beta04'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.1'
@@ -79,7 +79,7 @@ dependencies {
     implementation 'com.github.yalantis:ucrop:2.2.3'  // 图片裁剪
 
     // 界面设计
-    implementation 'com.google.android.material:material:1.1.0-alpha09'  // Google MD 库
+    implementation 'com.google.android.material:material:1.1.0-alpha10'  // Google MD 库
     implementation 'androidx.cardview:cardview:1.0.0'
     // Tab 菜单 TODO: 考虑转换项目到kotlin的可行性（核查问题存在）
     implementation 'com.github.kobakei:MaterialFabSpeedDial:master-SNAPSHOT'
