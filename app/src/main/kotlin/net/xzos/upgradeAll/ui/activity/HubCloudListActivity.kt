@@ -17,7 +17,7 @@ import net.xzos.upgradeAll.ui.viewmodels.adapters.CloudHubItemAdapter
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import java.util.*
 
-class CloudHubListActivity : AppCompatActivity() {
+class HubCloudListActivity : AppCompatActivity() {
     private val itemCardViewList = ArrayList<ItemCardView>()
     private lateinit var adapter: CloudHubItemAdapter
 

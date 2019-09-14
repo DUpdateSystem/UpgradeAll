@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.server.hub.HubManager
-import net.xzos.upgradeAll.ui.activity.HubLocalActivity
+import net.xzos.upgradeAll.ui.activity.HubDebugActivity
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 
@@ -33,7 +33,7 @@ class LocalHubItemAdapter(private val mItemCardViewList: MutableList<ItemCardVie
                 when (item.itemId) {
                     // 修改按钮
                     R.id.setting_button -> {
-                        val intent = Intent(holder.itemCardView.context, HubLocalActivity::class.java)
+                        val intent = Intent(holder.itemCardView.context, HubDebugActivity::class.java)
                         intent.putExtra("hub_uuid", uuid)
                         holder.itemCardView.context.startActivity(intent)
                     }

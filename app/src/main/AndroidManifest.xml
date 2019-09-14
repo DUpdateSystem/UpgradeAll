@@ -27,10 +27,10 @@
             android:name="net.xzos.upgradeAll.ui.activity.LogActivity"
             android:label="@string/title_activity_log" />
         <activity
-            android:name="net.xzos.upgradeAll.ui.activity.CloudHubListActivity"
+            android:name="net.xzos.upgradeAll.ui.activity.HubCloudListActivity"
             android:label="@string/cloud_hub" />
         <activity
-            android:name="net.xzos.upgradeAll.ui.activity.HubLocalActivity"
+            android:name="net.xzos.upgradeAll.ui.activity.HubDebugActivity"
             android:label="@string/local_repo_manage" />
         <activity
             android:name="net.xzos.upgradeAll.ui.activity.SettingsActivity"
