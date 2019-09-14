@@ -7,8 +7,8 @@ import org.json.JSONObject
 import org.litepal.LitePal
 import java.util.*
 
-class LogDataProxy(Log: LogUtil) {
-    private var logJSONObject: JSONObject = Log.logJSONObject
+class LogDataProxy(val Log: LogUtil) {
+    private val logJSONObject: JSONObject = Log.logJSONObject
     private val logLiveData: LogLiveData = Log.logLiveData
 
     internal val logSort: List<String>
@@ -71,8 +71,8 @@ class LogDataProxy(Log: LogUtil) {
     }
 
     fun clearLogAll() {
-        logJSONObject = JSONObject()
-        logLiveData.setLogJSONObject(JSONObject())
+        Log.logJSONObject = JSONObject()
+        logLiveData.setLogJSONObject(logJSONObject)
     }
 
     fun clearLogSort(logSort: String) {
