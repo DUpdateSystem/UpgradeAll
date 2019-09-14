@@ -59,5 +59,9 @@
     <string name="navigation_drawer_open">开启侧滑菜单</string>
     <string name="navigation_drawer_close">关闭侧滑菜单</string>
     <string name="navigation_head_image">侧滑菜单背景图</string>
+    <string name="clean_sort_log">清空当前分类的日志</string>
+    <string name="clean_all_log">清空全部日志</string>
+    <string name="export_all">全部导出</string>
+    <string name="clean_log">清空日志</string>
 
 </resources>

@@ -3,10 +3,10 @@
 
     <item
         android:id="@+id/log_del_sort"
-        android:title="清空当前分类的日志" />
+        android:title="@string/clean_sort_log" />
 
     <item
         android:id="@+id/log_del_all"
-        android:title="清空全部日志" />
+        android:title="@string/clean_all_log" />
 
 </menu>

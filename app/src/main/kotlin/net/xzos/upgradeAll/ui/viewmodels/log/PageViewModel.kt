@@ -13,6 +13,6 @@ class PageViewModel : ViewModel() {
     internal val logList = Transformations.map(mLogObjectTag) { logObjectTag -> LogDataProxy(ServerContainer.Log).getLogMessageListLiveData(logObjectTag) }
 
     internal fun setLogObjectTag(logObjectTag: Array<String>) {
-        mLogObjectTag.setValue(logObjectTag)
+        mLogObjectTag.value = logObjectTag
     }
 }

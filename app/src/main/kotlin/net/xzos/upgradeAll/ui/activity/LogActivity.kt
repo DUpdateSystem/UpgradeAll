@@ -86,8 +86,8 @@ class LogActivity : AppCompatActivity() {
         val popupMenu: PopupMenu
         val menuInflater: MenuInflater
         when (id) {
-            R.id.log_clear -> {
-                vItem = findViewById(R.id.log_clear)
+            R.id.log_clean-> {
+                vItem = findViewById(R.id.log_clean)
                 popupMenu = PopupMenu(this, vItem)
                 menuInflater = popupMenu.menuInflater
                 menuInflater.inflate(R.menu.menu_del_button, popupMenu.menu)
@@ -99,16 +99,14 @@ class LogActivity : AppCompatActivity() {
                         // 清空当前分类的日志
                         R.id.log_del_sort -> {
                             logDataProxy.clearLogSort(logSort)
-                            setViewPage(logSort)
-                            setFab()
                         }
                         // 清空全部日志
                         R.id.log_del_all -> {
                             logDataProxy.clearLogAll()
-                            setViewPage(logSort)
-                            setFab()
                         }
                     }
+                    setViewPage(logSort)
+                    setFab()
                     true
                 }
                 return true

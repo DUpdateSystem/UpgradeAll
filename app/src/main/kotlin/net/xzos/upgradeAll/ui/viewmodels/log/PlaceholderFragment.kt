@@ -45,7 +45,7 @@ class PlaceholderFragment : Fragment() {
 
     companion object {
 
-        private val ARG_SECTION_NUMBER = "LogObjectTag"
+        private const val ARG_SECTION_NUMBER = "LogObjectTag"
 
         internal fun newInstance(logObjectTag: Array<String>): PlaceholderFragment {
             val fragment = PlaceholderFragment()

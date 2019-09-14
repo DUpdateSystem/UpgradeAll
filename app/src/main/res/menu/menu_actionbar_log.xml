@@ -7,12 +7,12 @@
         android:id="@+id/log_share"
         android:icon="@android:drawable/ic_menu_share"
         android:orderInCategory="100"
-        android:title="全部导出"
+        android:title="@string/export_all"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/log_clear"
+        android:id="@+id/log_clean"
         android:icon="@android:drawable/ic_menu_delete"
         android:orderInCategory="100"
-        android:title="清空日志"
+        android:title="@string/clean_log"
         app:showAsAction="ifRoom" />
 </menu>
