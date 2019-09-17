@@ -25,7 +25,6 @@
     <string name="cloud_rules">云规则</string>
     <string name="cloud_rules_repo_url">Git 仓库地址</string>
 
-    <string name="local_repo_manage">本地软件源管理</string>
     <string name="dialog_repo_config_edit_text">第三方源的配置文本</string>
     <string name="title_activity_hub_setting">HubSettingActivity</string>
     <string name="title_activity_log">日志</string>

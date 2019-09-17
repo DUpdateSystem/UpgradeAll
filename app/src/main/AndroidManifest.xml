@@ -23,6 +23,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name="net.xzos.upgradeAll.ui.activity.LogActivity"
             android:label="@string/title_activity_log" />
@@ -31,7 +32,7 @@
             android:label="@string/cloud_hub" />
         <activity
             android:name="net.xzos.upgradeAll.ui.activity.HubDebugActivity"
-            android:label="@string/local_repo_manage" />
+            android:label="@string/local_debug" />
         <activity
             android:name="net.xzos.upgradeAll.ui.activity.SettingsActivity"
             android:label="@string/setting" />
