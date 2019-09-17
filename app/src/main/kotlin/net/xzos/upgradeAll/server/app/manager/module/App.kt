@@ -5,7 +5,7 @@ import net.xzos.upgradeAll.utils.VersionChecker
 import org.litepal.LitePal
 import org.litepal.extension.find
 
-data class App(private val appDatabaseId: Int) {
+data class App(private val appDatabaseId: Long) {
     val updater: Updater = Updater(appDatabaseId)
 
     val isLatest: Boolean

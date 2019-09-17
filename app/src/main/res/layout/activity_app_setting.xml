@@ -91,18 +91,20 @@
                 android:inputType="text"
                 tools:targetApi="o" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/statusCheckButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:layout_below="@id/versionCheckSpinner"
                 android:layout_alignParentEnd="true"
                 android:text="@string/update_item_setting_versionCheckButton" />
 
         </RelativeLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/saveButton"
+            android:layout_margin="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/save" />

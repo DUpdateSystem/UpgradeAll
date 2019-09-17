@@ -10,5 +10,5 @@ class RepoDatabase(
         var extra_data: String = "",
         var versionChecker: String
 ) : LitePalSupport() {
-    var id: Int = 0
+    val id: Long = 0
 }

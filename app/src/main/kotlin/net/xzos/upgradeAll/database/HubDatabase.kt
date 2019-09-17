@@ -11,7 +11,7 @@ open class HubDatabase(
         private var hub_config: String,
         private var extra_data: String
 ) : LitePalSupport() {
-    var id: Int = 0
+    val id: Long = 0
 
     var hubConfig: Any
         set(value) {
