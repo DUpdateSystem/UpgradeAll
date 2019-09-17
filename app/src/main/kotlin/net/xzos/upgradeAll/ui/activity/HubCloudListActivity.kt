@@ -25,7 +25,7 @@ class HubCloudListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.fragment_hub_list)
+        setContentView(R.layout.activity_cloud_hub)
         // toolbar 点击事件
         val actionBar = supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(true)

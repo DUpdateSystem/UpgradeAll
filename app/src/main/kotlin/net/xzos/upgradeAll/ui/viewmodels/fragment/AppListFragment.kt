@@ -69,7 +69,7 @@ class AppListFragment : Fragment() {
         cardItemRecyclerView.layoutManager = layoutManager
         cardItemRecyclerView.adapter = adapter
         val itemTouchHelperCallback = AppItemTouchHelperCallback(adapter)
-        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback);
+        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(cardItemRecyclerView)
     }
 }

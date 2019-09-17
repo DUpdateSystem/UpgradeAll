@@ -57,8 +57,8 @@ class AppItemTouchHelperCallback(private val mAdapter: AppItemAdapter) : ItemTou
                                         removedItemCardView.extraData.databaseId = newAppDatabaseId
                                     }
                                     mAdapter.onAddItem(adapterPosition, removedItemCardView)
-                                }
-                    }.show()
+                                }.show()
+                    }
                 }
             }
         }
