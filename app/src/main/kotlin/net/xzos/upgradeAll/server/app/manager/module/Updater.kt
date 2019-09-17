@@ -11,8 +11,8 @@ import org.litepal.LitePal
 import org.litepal.extension.find
 
 
-class Updater internal constructor(appDatabaseId: Int) {
-    private val engine = newEngine((appDatabaseId))
+class Updater internal constructor(appDatabaseId: Long) {
+    private val engine = newEngine(appDatabaseId)
 
     val isSuccessRenew: Boolean
         get() {
@@ -45,9 +45,9 @@ class Updater internal constructor(appDatabaseId: Int) {
             }
         }
 
-    private fun newEngine(databaseId: Int): CoreApi {
+    private fun newEngine(databaseId: Long): CoreApi {
         // 添加一个 更新检查器追踪子项
-        val repoDatabase: RepoDatabase? = LitePal.find(databaseId.toLong())
+        val repoDatabase: RepoDatabase? = LitePal.find(databaseId)
         val apiUuid = repoDatabase?.api_uuid
         Log.d(LogObjectTag, TAG, "renewUpdateItem: uuid: $apiUuid")
         val url = repoDatabase?.url

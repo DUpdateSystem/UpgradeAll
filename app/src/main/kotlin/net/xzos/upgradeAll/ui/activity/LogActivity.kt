@@ -53,27 +53,7 @@ class LogActivity : AppCompatActivity() {
         }
     }
 
-    private fun setFab() {
-        val fab = findViewById<FabSpeedDial>(R.id.sortFab)
-        val liveDataLogSortList = LogDataProxy(Log).liveDataLogSortList
-        liveDataLogSortList.observe(this, Observer { logSortList ->
-            val menu = FabSpeedDialMenu(this)
-            for (logSort in logSortList) {
-                if (logSort == "Core")
-                    menu.add(resources.getString(R.string.main_program)).setIcon(R.drawable.ic_core)
-                else
-                    menu.add(logSort).setIcon(R.drawable.ic_cloud)
-            }
-            fab.setMenu(menu)
-            fab.addOnMenuItemClickListener { _, _, integer ->
-                logSort = logSortList[integer - 1]
-                setViewPage(logSort)
-            }
-        })
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_actionbar_log, menu)
         return true
     }
@@ -86,7 +66,7 @@ class LogActivity : AppCompatActivity() {
         val popupMenu: PopupMenu
         val menuInflater: MenuInflater
         when (id) {
-            R.id.log_clean-> {
+            R.id.log_clean -> {
                 vItem = findViewById(R.id.log_clean)
                 popupMenu = PopupMenu(this, vItem)
                 menuInflater = popupMenu.menuInflater
@@ -166,8 +146,27 @@ class LogActivity : AppCompatActivity() {
             }
             else -> return super.onOptionsItemSelected(item)
         }
-
     }
+
+    private fun setFab() {
+        val fab = findViewById<FabSpeedDial>(R.id.sortFab)
+        val liveDataLogSortList = LogDataProxy(Log).liveDataLogSortList
+        liveDataLogSortList.observe(this, Observer { logSortList ->
+            val menu = FabSpeedDialMenu(this)
+            for (logSort in logSortList) {
+                if (logSort == "Core")
+                    menu.add(resources.getString(R.string.main_program)).setIcon(R.drawable.ic_core)
+                else
+                    menu.add(logSort).setIcon(R.drawable.ic_cloud)
+            }
+            fab.setMenu(menu)
+            fab.addOnMenuItemClickListener { _, _, integer ->
+                logSort = logSortList[integer - 1]
+                setViewPage(logSort)
+            }
+        })
+    }
+
 
     private fun setViewPage(sort: String) {
         val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager, sort)

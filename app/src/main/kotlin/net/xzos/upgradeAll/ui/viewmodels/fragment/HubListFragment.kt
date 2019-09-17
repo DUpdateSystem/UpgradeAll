@@ -21,12 +21,17 @@ import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 
 class HubListFragment : Fragment() {
     private val itemCardViewList = ArrayList<ItemCardView>()
+    private val adapter = LocalHubItemAdapter(itemCardViewList)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_hub_list, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
+        swipeRefresh.setOnRefreshListener { this.refreshCardView() }
+        setRecyclerView()
         addFab.addOnMenuItemClickListener { floatingActionButton, _, _ ->
             if (floatingActionButton === addFab.getMiniFab(0)) {
                 startActivity(Intent(activity, HubDebugActivity::class.java))
@@ -34,14 +39,11 @@ class HubListFragment : Fragment() {
                 startActivity(Intent(activity, HubCloudListActivity::class.java))
             }
         }
-        super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onResume() {
         super.onResume()
         activity?.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.hub_list)
-        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
-        swipeRefresh.setOnRefreshListener { this.refreshCardView() }
         refreshCardView()
     }
 
@@ -62,7 +64,7 @@ class HubListFragment : Fragment() {
         if (itemCardViewList.size != 0) {
             itemCardViewList.add(ItemCardView(null, null, null, ItemCardViewExtraData(isEmpty = true)))
             guidelinesTextView.visibility = View.GONE
-            setRecyclerView()
+            adapter.notifyDataSetChanged()
         } else {
             guidelinesTextView.visibility = View.VISIBLE
         }
@@ -71,8 +73,6 @@ class HubListFragment : Fragment() {
     private fun setRecyclerView() {
         val layoutManager = GridLayoutManager(activity, 1)
         cardItemRecyclerView.layoutManager = layoutManager
-        val adapter = LocalHubItemAdapter(itemCardViewList)
         cardItemRecyclerView.adapter = adapter
-        adapter.notifyDataSetChanged()
     }
 }

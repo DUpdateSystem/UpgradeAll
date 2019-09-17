@@ -22,7 +22,7 @@ import java.util.*
 
 class AppSettingActivity : AppCompatActivity() {
 
-    private var databaseId: Int = 0  // 设置页面代表的数据库项目
+    private var databaseId: Long = 0  // 设置页面代表的数据库项目
 
     private// 获取versionChecker
     val versionChecker: JSONObject
@@ -57,7 +57,7 @@ class AppSettingActivity : AppCompatActivity() {
             actionBar.setDisplayHomeAsUpEnabled(true)
         }
         // 获取可能来自修改设置项的请求
-        databaseId = intent.getIntExtra("database_id", 0)
+        databaseId = intent.getLongExtra("database_id", 0)
         // 刷新第三方源列表，获取支持的第三方源列表
         val apiSpinnerStringArray = renewApiJsonObject()
         // 修改 apiSpinner
@@ -129,8 +129,8 @@ class AppSettingActivity : AppCompatActivity() {
 
     private fun setSettingItem() {
         // 如果是设置修改请求，设置预置设置项
-        if (databaseId != 0) {
-            val database = LitePal.find(RepoDatabase::class.java, databaseId.toLong())
+        if (databaseId != 0L) {
+            val database = LitePal.find(RepoDatabase::class.java, databaseId)
             val editName = findViewById<EditText>(R.id.editName)
             editName.setText(database.name)
             val editUrl = findViewById<EditText>(R.id.editUrl)
@@ -161,7 +161,7 @@ class AppSettingActivity : AppCompatActivity() {
         }
     }
 
-    private fun addRepoDatabase(databaseId: Int, name: String, apiNum: Int, URL: String, versionChecker: JSONObject): Boolean {
+    private fun addRepoDatabase(databaseId: Long, name: String, apiNum: Int, URL: String, versionChecker: JSONObject): Boolean {
         // 数据处理
         @Suppress("NAME_SHADOWING") var name: String = name
         val apiUuid = apiSpinnerList[apiNum]
@@ -181,7 +181,7 @@ class AppSettingActivity : AppCompatActivity() {
             val apiSpinner = findViewById<Spinner>(R.id.apiSpinner)
             val api = apiSpinner.selectedItem.toString()
             // 修改数据库
-            var repoDatabase: RepoDatabase? = LitePal.find(RepoDatabase::class.java, databaseId.toLong())
+            var repoDatabase: RepoDatabase? = LitePal.find(RepoDatabase::class.java, databaseId)
             if (repoDatabase != null) {
                 // 开启数据库
                 // 将数据存入 RepoDatabase 数据库

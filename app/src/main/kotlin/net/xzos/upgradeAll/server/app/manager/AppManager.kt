@@ -19,22 +19,22 @@ class AppManager {
         }
     }
 
-    fun getApp(appDatabaseId: Int): App {
+    fun getApp(appDatabaseId: Long): App {
         return appMap[appDatabaseId] ?: App(appDatabaseId)
     }
 
-    fun setApp(appDatabaseId: Int) {
+    fun setApp(appDatabaseId: Long) {
         appMap[appDatabaseId] = App(appDatabaseId)
 
     }
 
-    fun delApp(appDatabaseId: Int) {
+    fun delApp(appDatabaseId: Long) {
         // TODO: initApp自维护，数据来源：独立 UI 数据
         appMap.remove(appDatabaseId)
     }
 
     companion object {
-        private val appMap = mutableMapOf<Int, App>() // 存储 Updater Engine 数据
+        private val appMap = mutableMapOf<Long, App>() // 存储 Updater Engine 数据
 
     }
 }

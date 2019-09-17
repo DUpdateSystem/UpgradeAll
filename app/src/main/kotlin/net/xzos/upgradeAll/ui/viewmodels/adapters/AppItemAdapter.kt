@@ -8,22 +8,16 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.widget.PopupMenu
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.database.RepoDatabase
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.ui.activity.AppSettingActivity
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import org.json.JSONException
-import org.litepal.LitePal
 import java.util.*
 
 
@@ -35,41 +29,6 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
         // 单击展开 Release 详情页
         holder.itemCardView.setOnClickListener {
             showDialogWindow(holder)
-        }
-
-        // 长按菜单
-        holder.itemCardView.setOnLongClickListener { v ->
-            val position = holder.adapterPosition
-            val itemCardView = mItemCardViewList[position]
-            val appDatabaseId = itemCardView.extraData.databaseId
-            val popupMenu = PopupMenu(holder.itemCardView.context, v)
-            val menuInflater = popupMenu.menuInflater
-            menuInflater.inflate(R.menu.menu_long_click_cardview_item, popupMenu.menu)
-            popupMenu.show()
-            //设置item的点击事件
-            popupMenu.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    // 修改按钮
-                    R.id.setting_button -> {
-                        val intent = Intent(holder.itemCardView.context, AppSettingActivity::class.java)
-                        intent.putExtra("database_id", appDatabaseId)
-                        holder.itemCardView.context.startActivity(intent)
-                    }
-                    // 删除按钮
-                    R.id.del_button -> {
-                        // 删除正在运行的跟踪项
-                        AppManager.delApp(appDatabaseId)
-                        // 删除数据库
-                        LitePal.delete(RepoDatabase::class.java, appDatabaseId.toLong())
-                        // 删除指定数据库
-                        mItemCardViewList.removeAt(holder.adapterPosition)
-                        notifyItemRemoved(holder.adapterPosition)
-                        notifyItemRangeChanged(holder.adapterPosition, mItemCardViewList.size)
-                    }
-                }// 删除 CardView
-                true
-            }
-            true
         }
 
         // 长按强制检查版本
@@ -114,7 +73,43 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
         }
     }
 
-    private fun setAppStatusUI(appDatabaseId: Int, holder: CardViewRecyclerViewHolder) {
+    fun onAddItem(position: Int = 0, element: ItemCardView) {
+        if (position < mItemCardViewList.size) {
+            mItemCardViewList.add(position, element)
+            notifyItemRangeChanged(position, itemCount)
+        }
+    }
+
+    fun onItemDismiss(position: Int): ItemCardView? {
+        return if (position != -1 && position < mItemCardViewList.size) {
+            val removedItemCardView = mItemCardViewList[position]
+            mItemCardViewList.removeAt(position)
+            notifyItemRemoved(position)
+            notifyItemRangeChanged(position, itemCount)
+            removedItemCardView
+        } else
+            null
+    }
+
+    fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
+        if (fromPosition < toPosition) {
+            for (i in fromPosition until toPosition) {
+                Collections.swap(mItemCardViewList, i, i + 1)
+            }
+        } else {
+            for (i in fromPosition downTo toPosition + 1) {
+                Collections.swap(mItemCardViewList, i, i - 1)
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition)
+        return true
+    }
+
+    override fun getItemCount(): Int {
+        return mItemCardViewList.size
+    }
+
+    private fun setAppStatusUI(appDatabaseId: Long, holder: CardViewRecyclerViewHolder) {
         val app = AppManager.getApp(appDatabaseId)
         val updater = app.updater
         setUpdateStatus(holder, true)
@@ -148,10 +143,6 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
         }
     }
 
-    override fun getItemCount(): Int {
-        return mItemCardViewList.size
-    }
-
     private fun setUpdateStatus(holder: CardViewRecyclerViewHolder, renew: Boolean) {
         if (renew) {
             holder.versionCheckButton.visibility = View.INVISIBLE
@@ -174,6 +165,13 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
         dialog.show()
         val dialogWindow = dialog.window
         if (dialogWindow != null) {
+            val editButton = dialogWindow.findViewById<Button>(R.id.editButton)
+            editButton.setOnClickListener {
+                // 修改按钮
+                val intent = Intent(holder.itemCardView.context, AppSettingActivity::class.java)
+                intent.putExtra("database_id", appDatabaseId)
+                holder.itemCardView.context.startActivity(intent)
+            }
             val localReleaseTextView = dialogWindow.findViewById<TextView>(R.id.localReleaseTextView)
             // 显示本地版本号
             val installedVersion = app.installedVersion
