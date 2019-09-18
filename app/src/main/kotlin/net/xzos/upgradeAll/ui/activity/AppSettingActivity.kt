@@ -68,7 +68,7 @@ class AppSettingActivity : AppCompatActivity() {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             apiSpinner.adapter = adapter
         } else {
-            Toast.makeText(this@AppSettingActivity, "请先添加软件源", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "请先添加软件源", Toast.LENGTH_LONG).show()
             onBackPressed()
         }
         setSettingItem() // 设置预置设置项
@@ -80,7 +80,7 @@ class AppSettingActivity : AppCompatActivity() {
             val versionChecker = VersionChecker(inputVersionCheckerJsonObject = versionCheckerJsonObject)
             val appVersion = versionChecker.version
             if (appVersion != null) {
-                Toast.makeText(this@AppSettingActivity, "version: $appVersion", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "version: $appVersion", Toast.LENGTH_SHORT).show()
             }
         }
         val addButton = findViewById<Button>(R.id.saveButton)
@@ -115,16 +115,14 @@ class AppSettingActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         // 添加数据库
         val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)
+        // 取消等待框
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        progressBar.visibility = View.GONE
         if (addRepoSuccess) {
             ServerContainer.AppManager.setApp(databaseId)
-            if (!addRepoSuccess) {
-                Toast.makeText(this@AppSettingActivity, "什么？数据库添加失败！", Toast.LENGTH_LONG).show()
-            }
-            // 取消等待框
-            progressBar.visibility = View.GONE
-            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
             onBackPressed()  // 跳转主页面
-        }
+        } else
+            Toast.makeText(this, "什么？添加失败！", Toast.LENGTH_LONG).show()
     }
 
     private fun setSettingItem() {
@@ -165,38 +163,42 @@ class AppSettingActivity : AppCompatActivity() {
         // 数据处理
         @Suppress("NAME_SHADOWING") var name: String = name
         val apiUuid = apiSpinnerList[apiNum]
-        if (URL.isNotEmpty()) {
+        if (URL.isNotBlank()) {
             // Name 为空，获取默认名称
-            if (name.isEmpty()) {
+            if (name.isBlank()) {
                 val jsCode = HubManager.getJsCode(apiUuid)
-                if (jsCode == "")
+                if (jsCode.isNullOrBlank()) {
                     Log.e(LogObjectTag, TAG, "未找到 js 脚本")
-                val logObjectTag = arrayOf("TEMP", "0")
-                val defaultName = runBlocking(Dispatchers.Default) {
-                    JavaScriptEngine(logObjectTag, URL, jsCode).getDefaultName()
+                } else {
+                    val logObjectTag = arrayOf("TEMP", "0")
+                    val defaultName = runBlocking(Dispatchers.Default) {
+                        JavaScriptEngine(logObjectTag, URL, jsCode).getDefaultName()
+                    }
+                    if (!defaultName.isNullOrBlank())
+                        name = defaultName.toString()
                 }
-                if (defaultName != null)
-                    name = defaultName
             }
             val apiSpinner = findViewById<Spinner>(R.id.apiSpinner)
             val api = apiSpinner.selectedItem.toString()
             // 修改数据库
             var repoDatabase: RepoDatabase? = LitePal.find(RepoDatabase::class.java, databaseId)
-            if (repoDatabase != null) {
-                // 开启数据库
-                // 将数据存入 RepoDatabase 数据库
-                repoDatabase.name = name
-                repoDatabase.api = api
-                repoDatabase.api_uuid = apiUuid
-                repoDatabase.url = URL
-                repoDatabase.versionChecker = versionChecker.toString()
-            } else {
-                repoDatabase = RepoDatabase(name = name, api = api, url = URL, api_uuid = apiUuid, versionChecker = versionChecker.toString())
+            if (name.isNotBlank() && api.isNotBlank() && apiUuid.isNotBlank() && URL.isNotBlank()) {
+                if (repoDatabase != null) {
+                    // 开启数据库
+                    // 将数据存入 RepoDatabase 数据库
+                    repoDatabase.name = name
+                    repoDatabase.api = api
+                    repoDatabase.api_uuid = apiUuid
+                    repoDatabase.url = URL
+                    repoDatabase.versionChecker = versionChecker.toString()
+                } else {
+                    repoDatabase = RepoDatabase(name = name, api = api, url = URL, api_uuid = apiUuid, versionChecker = versionChecker.toString())
+                }
+                repoDatabase.save()
+                // 为 databaseId 赋值
+                this.databaseId = repoDatabase.id
+                return true
             }
-            repoDatabase.save()
-            // 为 databaseId 赋值
-            this.databaseId = repoDatabase.id
-            return true
         }
         return false
     }

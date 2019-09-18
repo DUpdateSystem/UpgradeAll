@@ -20,7 +20,7 @@ open class HubDatabase(
         get() {
             return Gson().fromJson(hub_config, HubConfig::class.java)
         }
-    var extraData: Any
+    var extraData: Any?
         set(value) {
             extra_data = Gson().toJson(value)
         }
