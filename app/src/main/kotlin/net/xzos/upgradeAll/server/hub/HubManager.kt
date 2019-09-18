@@ -79,7 +79,9 @@ object HubManager {
     }
 
     private fun getJsCodeFromHubDatabaseItem(hubDatabase: HubDatabase): String? {
-        val extraData: HubDatabaseExtraData = hubDatabase.extraData as HubDatabaseExtraData
-        return extraData.javascript
+        val extraData = hubDatabase.extraData
+        return if (extraData is HubDatabaseExtraData)
+            extraData.javascript
+        else null
     }
 }
