@@ -12,11 +12,13 @@ import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.fragment_app_list.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.database.RepoDatabase
-import net.xzos.upgradeAll.json.cache.ItemCardViewExtraData
+import net.xzos.upgradeAll.json.nongson.ItemCardViewExtraData
+import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.ui.viewmodels.adapters.AppItemAdapter
 import net.xzos.upgradeAll.ui.viewmodels.callback.AppItemTouchHelperCallback
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import org.litepal.LitePal
+import org.litepal.extension.find
 
 class AppListFragment : Fragment() {
     private val itemCardViewList = ArrayList<ItemCardView>()
@@ -45,15 +47,35 @@ class AppListFragment : Fragment() {
         swipeRefresh.isRefreshing = false
     }
 
+    private fun getItemCardView(item: RepoDatabase): ItemCardView {
+        val databaseId = item.id
+        val name = item.name
+        val api = item.api
+        val url = item.url
+        return ItemCardView(name, url, api, ItemCardViewExtraData(databaseId = databaseId))
+    }
+
     private fun refreshAppList() {
         val repoDatabase = LitePal.findAll(RepoDatabase::class.java)
         itemCardViewList.clear()
-        for (updateItem in repoDatabase) {
-            val databaseId = updateItem.id
-            val name = updateItem.name
-            val api = updateItem.api
-            val url = updateItem.url
-            itemCardViewList.add(ItemCardView(name, url, api, ItemCardViewExtraData(databaseId = databaseId)))
+        val uiConfig = ServerContainer.UIConfig
+        val appList = uiConfig.appList
+        if (appList.isEmpty()) {
+            for (updateItem in repoDatabase) {
+                itemCardViewList.add(getItemCardView(updateItem))
+                appList.add(updateItem.id)
+            }
+            uiConfig.appList = appList
+            uiConfig.save()
+        } else {
+            for (item in appList) {
+                if (item is Long) {
+                    val updateItem: RepoDatabase? = LitePal.find(item)
+                    if (updateItem != null) {
+                        itemCardViewList.add(getItemCardView(updateItem))
+                    }
+                }
+            }
         }
         if (itemCardViewList.size != 0) {
             itemCardViewList.add(ItemCardView(null, null, null, ItemCardViewExtraData(isEmpty = true)))

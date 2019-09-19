@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.fragment_app_list.guidelinesTextView
 import kotlinx.android.synthetic.main.fragment_hub_list.*
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.json.cache.ItemCardViewExtraData
+import net.xzos.upgradeAll.json.nongson.ItemCardViewExtraData
 import net.xzos.upgradeAll.server.hub.HubManager
 import net.xzos.upgradeAll.ui.activity.HubCloudListActivity
 import net.xzos.upgradeAll.ui.activity.HubDebugActivity
