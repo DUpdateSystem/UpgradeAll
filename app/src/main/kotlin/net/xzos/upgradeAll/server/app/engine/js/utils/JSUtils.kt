@@ -1,6 +1,6 @@
 package net.xzos.upgradeAll.server.app.engine.js.utils
 
-import net.xzos.upgradeAll.json.cache.JSCacheData
+import net.xzos.upgradeAll.json.nongson.JSCacheData
 import net.xzos.upgradeAll.server.ServerContainer
 import org.json.JSONArray
 import org.json.JSONException

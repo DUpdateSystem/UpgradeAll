@@ -38,12 +38,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 READ_PIC_REQUEST_CODE -> {
-                    val uri = resultData!!.data
+                    val uri = resultData?.data
                     if (uri != null) {
                         val parent = NAV_IMAGE_FILE.parentFile
-                        if (parent != null && !parent.exists()) {
+                        if (parent != null && !parent.exists())
                             parent.mkdirs()
-                        }
                         val destinationUri = Uri.fromFile(NAV_IMAGE_FILE)
                         UCrop.of(uri, destinationUri)
                                 .withAspectRatio(16f, 9f)

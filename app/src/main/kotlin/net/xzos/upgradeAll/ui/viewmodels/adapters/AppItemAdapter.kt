@@ -23,6 +23,8 @@ import java.util.*
 
 class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
 
+    private val uiConfig = ServerContainer.UIConfig
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.cardview_item, parent, false))
@@ -77,6 +79,8 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
         if (position < mItemCardViewList.size) {
             mItemCardViewList.add(position, element)
             notifyItemRangeChanged(position, itemCount)
+            uiConfig.appList.add(position, element.extraData.databaseId)
+            uiConfig.save()
         }
     }
 
@@ -86,22 +90,29 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
             mItemCardViewList.removeAt(position)
             notifyItemRemoved(position)
             notifyItemRangeChanged(position, itemCount)
+            uiConfig.appList.removeAt(position)
+            uiConfig.save()
             removedItemCardView
         } else
             null
     }
 
     fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
+        // TODO: 菜单集成
+        val appList = uiConfig.appList
         if (fromPosition < toPosition) {
             for (i in fromPosition until toPosition) {
                 Collections.swap(mItemCardViewList, i, i + 1)
+                Collections.swap(appList, i, i + 1)
             }
         } else {
             for (i in fromPosition downTo toPosition + 1) {
-                Collections.swap(mItemCardViewList, i, i - 1)
+                Collections.swap(appList, i, i - 1)
             }
         }
         notifyItemMoved(fromPosition, toPosition)
+        uiConfig.appList = appList
+        uiConfig.save()
         return true
     }
 

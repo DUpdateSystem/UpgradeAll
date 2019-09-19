@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial
 import kotlinx.android.synthetic.main.content_list.*
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.json.cache.ItemCardViewExtraData
+import net.xzos.upgradeAll.json.nongson.ItemCardViewExtraData
 import net.xzos.upgradeAll.server.hub.CloudHub
 import net.xzos.upgradeAll.ui.viewmodels.adapters.CloudHubItemAdapter
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
