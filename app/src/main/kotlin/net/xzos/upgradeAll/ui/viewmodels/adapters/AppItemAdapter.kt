@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -99,20 +100,15 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
 
     fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
         // TODO: 菜单集成
+        Log.e("111", "$fromPosition, $toPosition")
         val appList = uiConfig.appList
-        if (fromPosition < toPosition) {
-            for (i in fromPosition until toPosition) {
-                Collections.swap(mItemCardViewList, i, i + 1)
-                Collections.swap(appList, i, i + 1)
-            }
-        } else {
-            for (i in fromPosition downTo toPosition + 1) {
-                Collections.swap(appList, i, i - 1)
-            }
-        }
-        notifyItemMoved(fromPosition, toPosition)
+        appList[fromPosition] = appList[toPosition]
+                .also { appList[toPosition] = appList[fromPosition] }
         uiConfig.appList = appList
         uiConfig.save()
+        mItemCardViewList[fromPosition] = mItemCardViewList[toPosition]
+                .also { mItemCardViewList[toPosition] = mItemCardViewList[fromPosition] }
+        notifyItemMoved(fromPosition, toPosition)
         return true
     }
 

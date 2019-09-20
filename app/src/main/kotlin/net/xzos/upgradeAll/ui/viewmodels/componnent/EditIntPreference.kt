@@ -34,26 +34,25 @@ constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleR
             android.R.attr.editTextPreferenceStyle)) : this(context, attrs, defStyleAttr, 0)
 
     override fun getPersistedString(defaultReturnValue: String?): String {
-        val defaultReturnIntValue: Int
-        if (defaultReturnValue == null) {
-            defaultReturnIntValue = getInt(mKey, 0)  // 已设置值, （修复属性）并返回设置值
+        val defaultReturnIntValue = if (defaultReturnValue == null) {
+            getInt(mKey, 0)  // 已设置值, （修复属性）并返回设置值
         } else
-            defaultReturnIntValue = Integer.valueOf(defaultReturnValue)  // 未设置值，获取默认值
+            Integer.valueOf(defaultReturnValue)
+        // 未设置值，获取默认值
         return getPersistedInt(defaultReturnIntValue).toString()
     }
 
     override fun persistString(value: String): Boolean {
-        try {
-            return persistInt(Integer.valueOf(value))
+        return try {
+            persistInt(Integer.valueOf(value))
         } catch (ignored: NumberFormatException) {
-            return true
+            true
         }
-
     }
 
     companion object {
 
-        private val TAG = "EditIntPreference"
+        private const val TAG = "EditIntPreference"
 
         fun getInt(key: String?, defaultReturnValue: Int): Int {
             var returnValue: Int
@@ -67,7 +66,6 @@ constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleR
                 Log.e(TAG, "getInt: 已自动更改设置值属性")
                 // 数据类型兼容功能
             }
-
             return returnValue
         }
     }
