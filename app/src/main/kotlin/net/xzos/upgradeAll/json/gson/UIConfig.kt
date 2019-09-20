@@ -49,6 +49,35 @@ class UIConfig {
         CONFIG_FILE.writeText(json.toString())
     }
 
+    fun getAppIdUnderNode(indexList: List<Int>): List<Long> {
+        if (indexList.isNotEmpty()) {
+            val obj: Any = appList[indexList[0]]
+            for (i in indexList) {
+                if (obj is Long)
+                    return listOf(obj)
+                else if (obj is AppGroupBean) {
+                    return parseAppIdFromMemberList(obj.member)
+                }
+            }
+        }
+        // 若索引队列为空则返回所有 UI_CONFIG 已记录的 ID
+        return parseAppIdFromMemberList(appList)
+    }
+
+    private fun parseAppIdFromMemberList(member: List<Any>): List<Long> {
+        val idList = mutableListOf<Long>()
+        for (i in member) {
+            if (i is Long)
+                idList.add(i)
+            else if (i is AppGroupBean) {
+                val childMember = i.member
+                val childNodeMemberList = parseAppIdFromMemberList(childMember)
+                idList += childNodeMemberList
+            }
+        }
+        return idList
+    }
+
     private fun parseAppList(): MutableList<Any> {
         val returnList = mutableListOf<Any>()
         val appList = json.getJSONArray("app_list")

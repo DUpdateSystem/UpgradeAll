@@ -56,26 +56,34 @@ class AppListFragment : Fragment() {
     }
 
     private fun refreshAppList() {
+        fun addItemCardView(id: Long): Boolean {
+            val updateItem: RepoDatabase? = LitePal.find(id)
+            if (updateItem != null) {
+                itemCardViewList.add(getItemCardView(updateItem))
+                return true
+            }
+            return false
+        }
+
         val repoDatabase = LitePal.findAll(RepoDatabase::class.java)
+        val appDatabaseIdList = mutableListOf<Long>()
+        for (app in repoDatabase) {
+            appDatabaseIdList.add(app.id)
+        }
         itemCardViewList.clear()
         val uiConfig = ServerContainer.UIConfig
         val appList = uiConfig.appList
-        if (appList.isEmpty()) {
-            for (updateItem in repoDatabase) {
-                itemCardViewList.add(getItemCardView(updateItem))
-                appList.add(updateItem.id)
+        for (id in appList) {
+            if (id is Long)
+                if (addItemCardView(id))
+                    appDatabaseIdList.remove(id)
+        }
+        if (appDatabaseIdList.isNotEmpty()) {
+            for (id in appDatabaseIdList) {
+                addItemCardView(id)
+                appList.add(id)
             }
-            uiConfig.appList = appList
             uiConfig.save()
-        } else {
-            for (item in appList) {
-                if (item is Long) {
-                    val updateItem: RepoDatabase? = LitePal.find(item)
-                    if (updateItem != null) {
-                        itemCardViewList.add(getItemCardView(updateItem))
-                    }
-                }
-            }
         }
         if (itemCardViewList.size != 0) {
             itemCardViewList.add(ItemCardView(null, null, null, ItemCardViewExtraData(isEmpty = true)))
