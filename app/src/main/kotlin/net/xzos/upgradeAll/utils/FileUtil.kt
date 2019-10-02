@@ -5,6 +5,9 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Environment
+import android.os.Environment.DIRECTORY_DOWNLOADS
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -18,6 +21,8 @@ object FileUtil {
 
     private const val TAG = "FileUtil"
     private val LogObjectTag = arrayOf("Core", TAG)
+
+    val AppDownloadCacheDirPath = File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "UpgradeAll")
 
     fun requestPermission(activity: Activity, PERMISSIONS_REQUEST_READ_CONTACTS: Int): Boolean {
         var havePermission = false

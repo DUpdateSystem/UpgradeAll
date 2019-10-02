@@ -76,6 +76,16 @@ class JavaScriptEngine internal constructor(
         }
     }
 
+    override suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String? {
+        return javaScriptCoreEngine.downloadReleaseFile(fileIndex)
+        return try {
+            javaScriptCoreEngine.downloadReleaseFile(fileIndex)
+        } catch (e: Throwable) {
+            Log.e(logObjectTag, TAG, "downloadReleaseFile: 脚本执行错误, ERROR_MESSAGE: $e")
+            null
+        }
+    }
+
     companion object {
         private const val TAG = "JavaScriptEngine"
         private val Log = ServerContainer.Log

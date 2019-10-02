@@ -18,28 +18,32 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/basicInfoTextView"
+                android:id="@+id/basic_info_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:text="@string/update_item_setting_basicInfoTextView"
                 android:textColor="#F44336" />
 
-            <EditText
-                android:id="@+id/editName"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/name_text_input"
+                android:layout_below="@+id/basic_info_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/basicInfoTextView"
-                android:autofillHints="updater_name"
-                android:hint="@string/name"
-                android:inputType="text"
-                tools:targetApi="o" />
+                android:layout_margin="4dp"
+                android:hint="@string/name">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/name_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <EditText
                 android:id="@+id/editUrl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/editName"
+                android:layout_below="@+id/name_text_input"
                 android:autofillHints="desc"
                 android:hint="@string/desc"
                 android:inputType="textUri"
