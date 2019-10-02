@@ -31,7 +31,7 @@ class CloudHub {
 
     fun getCloudConfig(): Boolean {
         var isSuccess = false
-        val jsonText = OkHttpApi.getHttpResponse(LogObjectTag, rulesListJsonFileRawUrl).first
+        val jsonText = okHttpApi.getHttpResponse(rulesListJsonFileRawUrl).first
         // 如果刷新失败，则不记录数据
         if (jsonText != null && jsonText.isNotEmpty()) {
             try {
@@ -45,13 +45,13 @@ class CloudHub {
     }
 
     fun getAppConfig(packageName: String): String? {
-        val appConfigRawUrl = cloudConfig?.listUrl?.appListRawUrl + packageName + ".json"
-        return OkHttpApi.getHttpResponse(LogObjectTag, appConfigRawUrl).first
+        val appConfigRawUrl = """${cloudConfig?.listUrl?.hubListRawUrl}$packageName.json"""
+        return okHttpApi.getHttpResponse(appConfigRawUrl).first
     }
 
     fun getHubConfig(hubConfigName: String): HubConfig? {
         val hubConfigRawUrl = """${cloudConfig?.listUrl?.hubListRawUrl}$hubConfigName.json"""
-        val hubConfigString = OkHttpApi.getHttpResponse(LogObjectTag, hubConfigRawUrl).first
+        val hubConfigString = okHttpApi.getHttpResponse(hubConfigRawUrl).first
         return try {
             Gson().fromJson(hubConfigString, HubConfig::class.java)
         } catch (e: JsonSyntaxException) {
@@ -63,7 +63,7 @@ class CloudHub {
     fun getHubConfigJS(filePath: String): String? {
         val hubListRawUrl = cloudConfig?.listUrl?.hubListRawUrl ?: return null
         val hubConfigJSRawUrl = FileUtil.pathTransformRelativeToAbsolute(hubListRawUrl, filePath)
-        return OkHttpApi.getHttpResponse(LogObjectTag, hubConfigJSRawUrl).first
+        return okHttpApi.getHttpResponse(hubConfigJSRawUrl).first
     }
 
     private fun getRawRootUrl(gitUrl: String?): String {
@@ -93,5 +93,6 @@ class CloudHub {
         private val LogObjectTag = arrayOf("Core", TAG)
 
         private val Log = ServerContainer.Log
+        private val okHttpApi = OkHttpApi(LogObjectTag)
     }
 }

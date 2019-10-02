@@ -122,6 +122,14 @@ internal class JavaScriptCoreEngine(
         return fileJson
     }
 
+    override suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String? {
+        val result = runJS("downloadReleaseFile", arrayOf(fileIndex.first, fileIndex.second))
+                ?: return null
+        val changeLog = Context.toString(result)
+        Log.d(logObjectTag, TAG, "downloadReleaseFile: filePath: $result")
+        return changeLog
+    }
+
     companion object {
         private const val TAG = "JavaScriptCoreEngine"
         private val Log = ServerContainer.Log

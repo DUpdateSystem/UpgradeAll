@@ -1,9 +1,9 @@
 package net.xzos.upgradeAll.ui.activity
 
-import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -12,7 +12,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
@@ -23,12 +22,11 @@ import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.log.LogDataProxy
 import net.xzos.upgradeAll.ui.viewmodels.log.SectionsPagerAdapter
 import net.xzos.upgradeAll.utils.FileUtil
-import java.io.File
-import java.io.IOException
 
 class LogActivity : AppCompatActivity() {
 
     private var logSort = "Core"
+    private var logFileString: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +46,20 @@ class LogActivity : AppCompatActivity() {
                                             permissions: Array<String>, grantResults: IntArray) {
         if (requestCode == PERMISSIONS_REQUEST_WRITE_CONTACTS) {
             if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this@LogActivity, "导出日志文件需要读写本地文件", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "导出日志文件需要读写本地文件", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            val uri = data.data
+            if (uri != null && logFileString != null) {
+                if (FileUtil.writeTextFromUri(uri, logFileString!!)) {
+                    Toast.makeText(this, "已导出日志至", Toast.LENGTH_LONG).show()
+                } else
+                    Toast.makeText(this, "日志导出失败", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -92,19 +103,12 @@ class LogActivity : AppCompatActivity() {
                 return true
             }
             R.id.log_share -> {
-                if (ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    FileUtil.requestPermission(this, PERMISSIONS_REQUEST_WRITE_CONTACTS)
-                    return true
-                }
                 vItem = findViewById(R.id.log_share)
                 popupMenu = PopupMenu(this, vItem)
                 menuInflater = popupMenu.menuInflater
                 menuInflater.inflate(R.menu.menu_share_button, popupMenu.menu)
                 popupMenu.show()
                 //设置item的点击事件
-                val logFilePath = "/sdcard/Download/UpgradeAll/"
-                val logFileName = "Log.txt"
                 popupMenu.setOnMenuItemClickListener { popItem ->
                     var logString: String? = null
                     val logDataProxy = LogDataProxy(Log)
@@ -116,25 +120,8 @@ class LogActivity : AppCompatActivity() {
                     }
                     if (logString != null) {
                         Log.d(LogObjectTag, TAG, "已获取日志")
-                        val logFile = File(logFilePath + logFileName)
-                        val dir = File(logFilePath)
-                        if (!FileUtil.fileIsExistsByPath(logFilePath)) {
-                            Log.d(LogObjectTag, TAG, "创建日志目录")
-                            if (dir.mkdirs())
-                                Log.d(LogObjectTag, TAG, "已创建日志目录")
-                        }
-                        if (!FileUtil.fileIsExistsByPath(logFilePath + logFileName)) {
-                            try {
-                                logFile.createNewFile()
-                            } catch (e: IOException) {
-                                Log.e(LogObjectTag, TAG, "创建文件异常: ERROR_MESSAGE: $e")
-                            }
-
-                        }
-                        if (FileUtil.writeTextFromUri(Uri.fromFile(logFile), logString))
-                            Toast.makeText(this, "已导出日志至: $logFilePath$logFileName", Toast.LENGTH_LONG).show()
-                        else
-                            Toast.makeText(this, "日志导出失败", Toast.LENGTH_LONG).show()
+                        FileUtil.createFile(this, WRITE_LOG_REQUEST_CODE, "text/plain", "Log.txt")
+                        logFileString = logString
                     }
                     true
                 }
@@ -182,5 +169,6 @@ class LogActivity : AppCompatActivity() {
         private val Log = ServerContainer.Log
 
         private const val PERMISSIONS_REQUEST_WRITE_CONTACTS = 1
+        private const val WRITE_LOG_REQUEST_CODE = 2
     }
 }

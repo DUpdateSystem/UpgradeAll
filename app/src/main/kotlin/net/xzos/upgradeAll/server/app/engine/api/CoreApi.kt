@@ -36,4 +36,10 @@ interface CoreApi {
      *
      */
     suspend fun getReleaseDownload(releaseNum: Int): JSONObject
+
+    /**
+     * 下载文件操作
+     * 并 返回文件路径
+     */
+    suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String?
 }

@@ -91,8 +91,10 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
             mItemCardViewList.removeAt(position)
             notifyItemRemoved(position)
             notifyItemRangeChanged(position, itemCount)
-            uiConfig.appList.removeAt(position)
-            uiConfig.save()
+            if (uiConfig.appList.isNullOrEmpty()) {
+                uiConfig.appList.removeAt(position)
+                uiConfig.save()
+            }
             removedItemCardView
         } else
             null
