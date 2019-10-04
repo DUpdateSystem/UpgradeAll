@@ -102,7 +102,6 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
 
     fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
         // TODO: 菜单集成
-        Log.e("111", "$fromPosition, $toPosition")
         val appList = uiConfig.appList
         appList[fromPosition] = appList[toPosition]
                 .also { appList[toPosition] = appList[fromPosition] }

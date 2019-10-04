@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import android.os.Environment.DIRECTORY_DOWNLOADS
-import android.provider.MediaStore
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -23,6 +22,23 @@ object FileUtil {
     private val LogObjectTag = arrayOf("Core", TAG)
 
     val AppDownloadCacheDirPath = File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "UpgradeAll")
+
+    fun renameSameFile(targetFile: File, fileList: List<File>): File {
+        @Suppress("NAME_SHADOWING")
+        var targetFile = targetFile
+        val sameFileNameList = mutableListOf<String>()
+        for (file in fileList) {
+            if (targetFile.parent == file.parent && file.name.contains(targetFile.name)) {
+                sameFileNameList.add(file.name)
+            }
+        }
+        var i = 0
+        while (targetFile.name in sameFileNameList) {
+            targetFile = File(targetFile.parentFile, "$i.${targetFile.name}")
+            i++
+        }
+        return targetFile
+    }
 
     fun requestPermission(activity: Activity, PERMISSIONS_REQUEST_READ_CONTACTS: Int): Boolean {
         var havePermission = false
@@ -168,7 +184,6 @@ object FileUtil {
         } catch (e: IOException) {
             e.printStackTrace()
         }
-
         return null
     }
 

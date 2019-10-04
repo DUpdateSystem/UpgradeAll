@@ -73,7 +73,7 @@ dependencies {
     implementation 'cn.wanghaomiao:JsoupXpath:2.3.2'
     // Aria
     implementation 'com.arialyy.aria:aria-core:3.6.6'
-    annotationProcessor 'com.arialyy.aria:aria-compiler:3.6.6'
+    kapt 'com.arialyy.aria:aria-compiler:3.6.6'
     // JavaScript 引擎
     implementation 'org.mozilla:rhino:1.7.11'
     // 数据处理
