@@ -19,7 +19,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.Observer
-import com.arialyy.annotations.Download
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_hub_debug.*
@@ -297,7 +296,7 @@ class HubDebugActivity : AppCompatActivity() {
         }
         val logObjectTag = arrayOf("DeBug", "0")
         val jsLog = JSLog(logObjectTag)  // 连接日志系统以打印提示信息
-        jsLog.d("--------Start--------")
+        jsLog.d(" \n----------------Start----------------")
         val logListLiveData = LogDataProxy(Log).getLogMessageListLiveData(logObjectTag)
         logListLiveData.observe(this, Observer { logList ->
             val textViewMessage = StringBuilder()
@@ -322,8 +321,8 @@ class HubDebugActivity : AppCompatActivity() {
             }
             val releaseDownloadFilePath = javaScriptEngine.downloadReleaseFile(Pair(0, 0))
             jsLog.d("5. 尝试下载 最新版本的第一个文件(downloadReleaseFile): ${releaseDownloadFilePath != null} \n    下载文件地址: $releaseDownloadFilePath \n")
+            jsLog.d(" \n----------------End----------------")
         }
-
     }
 
     private fun cardViewAnim(titleTextView: TextView, cardView: CardView, contentLayout: RelativeLayout) {

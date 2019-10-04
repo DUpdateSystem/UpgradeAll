@@ -1,19 +1,13 @@
 package net.xzos.upgradeAll.server.app.engine.js.utils
 
 import android.annotation.SuppressLint
-import com.arialyy.annotations.Download
-import com.arialyy.annotations.Upload
-import com.arialyy.aria.core.Aria
-import com.arialyy.aria.core.download.DownloadEntity
-import com.arialyy.aria.core.download.DownloadTarget
-import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.json.nongson.JSCacheData
 import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.utils.AriaDownloader
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.seimicrawler.xpath.JXDocument
-import java.io.File
 import java.util.*
 
 
@@ -87,37 +81,7 @@ class JSUtils(private val logObjectTag: Array<String>) {
 
     @SuppressLint("CheckResult")
     fun downloadFile(fileName: String, URL: String): String {
-        @Download.onTaskFail
-        @Upload.onTaskComplete
-        fun taskFinish(download: DownloadTarget, downloadFile: File) {
-            download.removeRecord()
-            downloadFile.deleteOnExit()
-            // TODO: 可控的下载文件管理
-        }
-        Aria.download(this).load(URL).cancel(true)  // 取消已有任务，避免冲突
-        val cookies = jsCacheData.cookieManager.getCookies(URL)
-        var cookieString = ""
-        for (key in cookies.keys) {
-            cookieString += "$key=${cookies[key]}; "
-        }
-        cookieString = cookieString.substringBeforeLast(";")
-        val file = File(MyApplication.context.externalCacheDir, fileName)
-        val download = Aria.download(this)
-                .load(URL)
-                .useServerFileName(true)
-                .setFilePath(file.path)
-        if (cookieString.isNotBlank()) {
-            download.addHeader("Cookie", cookieString)
-        }
-        val taskList = Aria.download(this).totalTaskList
-        for (task in taskList) {
-            task as DownloadEntity
-            if (task.filePath == file.path)
-                task.deleteData()
-        }
-        taskFinish(download, file)
-        download.start()
-        return file.path
+        return AriaDownloader(jsCacheData.cookieManager).start(fileName, URL).path
     }
 
     companion object {
