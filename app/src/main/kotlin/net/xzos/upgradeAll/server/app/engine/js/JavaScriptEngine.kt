@@ -1,5 +1,6 @@
 package net.xzos.upgradeAll.server.app.engine.js
 
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 import org.json.JSONObject
@@ -76,14 +77,23 @@ class JavaScriptEngine internal constructor(
         }
     }
 
-    override suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String? {
-        return javaScriptCoreEngine.downloadReleaseFile(fileIndex)
-        return try {
+    override fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String? {
+        var filePath = try {
             javaScriptCoreEngine.downloadReleaseFile(fileIndex)
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, "downloadReleaseFile: 脚本执行错误, ERROR_MESSAGE: $e")
             null
         }
+        if (filePath == null) {
+            Log.e(logObjectTag, TAG, "downloadReleaseFile: 尝试直接下载")
+            val jsUtils = javaScriptCoreEngine.jsUtils
+            val releaseDownload = runBlocking {
+                getReleaseDownload(fileIndex.first)
+            }
+            val fileName = jsUtils.getJSONObjectKeyByIndex(releaseDownload, fileIndex.second)
+            filePath = jsUtils.downloadFile(fileName, releaseDownload.getString(fileName))
+        }
+        return filePath
     }
 
     companion object {

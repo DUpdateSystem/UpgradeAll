@@ -41,5 +41,5 @@ interface CoreApi {
      * 下载文件操作
      * 并 返回文件路径
      */
-    suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String?
+    fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String?
 }

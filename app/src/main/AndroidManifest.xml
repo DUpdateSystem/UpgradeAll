@@ -3,6 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.xzos.upgradeAll">
 
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="net.xzos.upgradeAll.permission.ACCESS_NETWORK_STATE"/>
+
+    <uses-permission android:name="com.yourpage.permission.MYSELF_BROADCASTPERMISSION" />
+
     <application
         android:name="net.xzos.upgradeAll.application.MyApplication"
         android:icon="@mipmap/ic_launcher"
@@ -13,6 +21,12 @@
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="m">
+        <receiver android:name=".utils.AriaDownloader$DownloadBroadcastReceiver"  android:exported="true"
+            android:permission="net.xzos.upgradeAll.permission.ACCESS_NETWORK_STATE">
+            <intent-filter>
+                <action android:name="net.xzos.upgradeAll.DOWNLOAD_BROADCAST"/>
+            </intent-filter>
+        </receiver>
         <activity
             android:name="net.xzos.upgradeAll.ui.activity.MainActivity"
             android:label="@string/app_name"
@@ -44,14 +58,5 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
     </application>
-
-    <uses-permission
-        android:name="android.permission.FOREGROUND_SERVICE"
-        tools:ignore="ManifestOrder" />
-
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
 </manifest>

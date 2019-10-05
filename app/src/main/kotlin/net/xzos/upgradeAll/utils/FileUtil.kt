@@ -24,20 +24,23 @@ object FileUtil {
     val AppDownloadCacheDirPath = File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "UpgradeAll")
 
     fun renameSameFile(targetFile: File, fileList: List<File>): File {
-        @Suppress("NAME_SHADOWING")
-        var targetFile = targetFile
-        val sameFileNameList = mutableListOf<String>()
+        val separator = "."
+        val sameFileNameIndexList = mutableListOf<String>()
         for (file in fileList) {
-            if (targetFile.parent == file.parent && file.name.contains(targetFile.name)) {
-                sameFileNameList.add(file.name)
+            if (targetFile.parent == file.parent && file.name.contains("^\\d+.${targetFile.name}\$")) {
+                sameFileNameIndexList.add(file.name.substringBefore(separator))
             }
         }
         var i = 0
-        while (targetFile.name in sameFileNameList) {
-            targetFile = File(targetFile.parentFile, "$i.${targetFile.name}")
+        while (i.toString() in sameFileNameIndexList) {
             i++
         }
-        return targetFile
+        val fileName =
+                if (i == 0)
+                    targetFile.name
+                else
+                    i.toString() + separator + targetFile.name
+        return File(targetFile.parentFile, fileName)
     }
 
     fun requestPermission(activity: Activity, PERMISSIONS_REQUEST_READ_CONTACTS: Int): Boolean {

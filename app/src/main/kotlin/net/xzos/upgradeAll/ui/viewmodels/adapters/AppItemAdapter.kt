@@ -225,21 +225,7 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
                         val cloudReleaseList = dialogWindow.findViewById<ListView>(R.id.cloudReleaseList)
                         // 设置文件列表点击事件
                         cloudReleaseList.setOnItemClickListener { _, _, i, _ ->
-                            val intent = Intent(Intent.ACTION_VIEW)
-                            var url: String? = null
-                            try {
-                                url = latestFileDownloadUrl.getString(itemList[i])
-                            } catch (e: JSONException) {
-                                e.printStackTrace()
-                            }
-
-                            if (url != null && !url.startsWith("http"))
-                                url = "http://$url"
-                            intent.data = Uri.parse(url)
-                            val chooser = Intent.createChooser(intent, "请选择浏览器")
-                            if (intent.resolveActivity(dialog.context.packageManager) != null) {
-                                dialog.context.startActivity(chooser)
-                            }
+                            updater.downloadReleaseFile(Pair(0, i))
                         }
                         cloudReleaseList.adapter = adapter
                         dialogWindow.findViewById<View>(R.id.fileListProgressBar).visibility = View.GONE// 隐藏等待提醒条

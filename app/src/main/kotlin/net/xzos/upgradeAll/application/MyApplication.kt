@@ -16,6 +16,7 @@ class MyApplication : Application() {
         context = applicationContext
         LitePal.initialize(applicationContext)
         Aria.init(this)
+        Aria.download(this).removeAllTask(true) // TODO: 测试防错
     }
 
     companion object {
