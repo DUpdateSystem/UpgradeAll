@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.os.Build
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.arialyy.annotations.Download
@@ -35,6 +36,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
         this.url = URL
         Aria.download(this).register()
         val file = startDownloadTask(fileName, URL)
+        Toast.makeText(context, "${file.name} 任务已添加", Toast.LENGTH_SHORT).show()
         startDownloadNotification(file)
         return file
     }
@@ -87,8 +89,8 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
     @Download.onTaskStart
     fun taskStart(task: DownloadTask?) {
         if (task != null && task.key == url) {
-            val progressCurrent: Int = task.percent    //任务进度百分比
-            val speed = task.convertSpeed    //转换单位后的下载速度，单位转换需要在配置文件中打开
+            val progressCurrent: Int = task.percent
+            val speed = task.convertSpeed
             NotificationManagerCompat.from(context).apply {
                 builder.mActions.clear()
                 builder.setContentTitle("应用下载: ${File(task.filePath).name}")
@@ -141,6 +143,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
     fun taskFail(task: DownloadTask?) {
         if (task != null && task.key == url) {
             NotificationManagerCompat.from(context).apply {
+                builder.mActions.clear()
                 builder.setContentText("下载失败，点击重试")
                         .setSmallIcon(android.R.drawable.stat_sys_download_done)
                         .setProgress(0, 0, false)
@@ -156,7 +159,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
     fun taskFinish(task: DownloadTask?) {
         if (task != null && task.key == url) {
             val file = File(task.filePath)
-            var contentText = "文件路径: ${task.filePath}"
+            val contentText = "文件路径: ${task.filePath}"
             NotificationManagerCompat.from(context).apply {
                 builder = NotificationCompat.Builder(context, CHANNEL_ID).apply {
                     setContentTitle("下载完成: ${file.name}")
@@ -167,12 +170,12 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
                     setProgress(0, 0, false)
                     mActions.clear()
                     if (ApkInstaller(context).isApkFile(file)) {
-                        contentText += " \n"
                         addAction(R.drawable.ic_check_latest, "点击安装 APK 文件",
                                 getSnoozePendingIntent(INSTALL_APK, path = file.path))
                     }
                     addAction(android.R.drawable.ic_menu_delete, "删除",
                             getSnoozePendingIntent(DEL_FILE, path = file.path))
+                    setDeleteIntent(getSnoozePendingIntent(DEL_FILE, path = file.path))
                     setOngoing(false)
                     priority = NotificationCompat.PRIORITY_LOW
 
@@ -250,7 +253,8 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
 
         override fun onReceive(context: Context, intent: Intent) {
             val url = intent.getStringExtra(EXTRA_IDENTIFIER_URL)
-            if (url != null) {
+            val notificationId = intent.getIntExtra(NOTIFICATION_ID, 0)
+            if (url != null && notificationId > 0) {
                 when (intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)) {
                     DOWNLOAD_CANCEL -> {
                         Aria.download(this).load(url).stop()
@@ -264,13 +268,11 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
                         ApkInstaller(context).installApplication(file)
                     }
                     DEL_FILE -> {
-                        val notificationId = intent.getIntExtra(NOTIFICATION_ID, 0)
-                        if (notificationId > 0) {
-                            NotificationManagerCompat.from(Companion.context).cancel(notificationId)
-                            val file = File(url)
-                            file.delete()
-                        }
+                        NotificationManagerCompat.from(Companion.context).cancel(notificationId)
+                        val file = File(url)
+                        file.delete()
                     }
+                    // TODO: 安装并删除功能集成
                 }
             }
         }
