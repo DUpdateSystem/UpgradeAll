@@ -101,7 +101,7 @@ class AppSettingActivity : AppCompatActivity() {
     }
 
     private fun addApp() {
-        val editName = findViewById<EditText>(R.id.name_edit_text)
+        val editName = findViewById<EditText>(R.id.editName)
         val editUrl = findViewById<EditText>(R.id.editUrl)
         val name = editName.text.toString()
         val url = editUrl.text.toString()
@@ -129,7 +129,7 @@ class AppSettingActivity : AppCompatActivity() {
         // 如果是设置修改请求，设置预置设置项
         if (databaseId != 0L) {
             val database = LitePal.find(RepoDatabase::class.java, databaseId)
-            val editName = findViewById<EditText>(R.id.name_edit_text)
+            val editName = findViewById<EditText>(R.id.editName)
             editName.setText(database.name)
             val editUrl = findViewById<EditText>(R.id.editUrl)
             editUrl.setText(database.url)
