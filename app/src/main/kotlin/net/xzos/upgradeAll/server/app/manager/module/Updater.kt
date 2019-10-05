@@ -45,6 +45,11 @@ class Updater internal constructor(appDatabaseId: Long) {
             }
         }
 
+    // 使用内置下载器下载文件
+    fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String? {
+        return engine.downloadReleaseFile(fileIndex)
+    }
+
     private fun newEngine(databaseId: Long): CoreApi {
         // 添加一个 更新检查器追踪子项
         val repoDatabase: RepoDatabase? = LitePal.find(databaseId)

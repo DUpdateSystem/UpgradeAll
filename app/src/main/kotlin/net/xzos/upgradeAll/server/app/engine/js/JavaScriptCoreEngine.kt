@@ -19,7 +19,7 @@ internal class JavaScriptCoreEngine(
     private lateinit var cx: Context
     private lateinit var scope: Scriptable
 
-    private val jsUtils: JSUtils = JSUtils(this.logObjectTag)
+    internal val jsUtils: JSUtils = JSUtils(this.logObjectTag)
 
     // 加载 JavaScript 代码
     private fun executeVoidScript(): Boolean {
@@ -122,12 +122,12 @@ internal class JavaScriptCoreEngine(
         return fileJson
     }
 
-    override suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String? {
+    override fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String? {
         val result = runJS("downloadReleaseFile", arrayOf(fileIndex.first, fileIndex.second))
                 ?: return null
-        val changeLog = Context.toString(result)
+        val filePath = Context.toString(result)
         Log.d(logObjectTag, TAG, "downloadReleaseFile: filePath: $result")
-        return changeLog
+        return filePath
     }
 
     companion object {

@@ -79,9 +79,19 @@ class JSUtils(private val logObjectTag: Array<String>) {
         return nodeStringArrayList
     }
 
-    @SuppressLint("CheckResult")
     fun downloadFile(fileName: String, URL: String): String {
         return AriaDownloader(jsCacheData.cookieManager).start(fileName, URL).path
+    }
+
+    fun getJSONObjectKeyByIndex(JSONObject: JSONObject, index: Int): String {
+        val itemList = mutableListOf<String>()
+        val sIterator = JSONObject.keys()
+        while (sIterator.hasNext()) {
+            val key = sIterator.next()
+            itemList.add(key)
+        }
+        return itemList[index]
+
     }
 
     companion object {
