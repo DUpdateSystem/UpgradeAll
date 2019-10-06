@@ -17,14 +17,15 @@ import com.arialyy.aria.core.Aria
 import com.arialyy.aria.core.download.DownloadEntity
 import com.arialyy.aria.core.download.DownloadTask
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.json.nongson.MyCookieManager
 import java.io.File
 
 
-class AriaDownloader(private val CookieManager: MyCookieManager, private val isDebug: Boolean) {
+class AriaDownloader(private val isDebug: Boolean) {
 
     init {
         notificationIndex++
@@ -34,36 +35,34 @@ class AriaDownloader(private val CookieManager: MyCookieManager, private val isD
     private lateinit var url: String
     private lateinit var builder: NotificationCompat.Builder
 
-    fun start(fileName: String, URL: String): File? {
+    fun start(fileName: String, URL: String, headers: Map<String, String> = mapOf()): File {
         this.url = URL
-        val file = startDownloadTask(fileName, URL)
-        if (file != null) {
-            Aria.download(this).register()
-            runBlocking(Dispatchers.Main) { Toast.makeText(context, "${file.name} 任务已添加", Toast.LENGTH_SHORT).show() }
-            startDownloadNotification(file)
-        } else
-            runBlocking(Dispatchers.Main) { Toast.makeText(context, "重复任务，忽略", Toast.LENGTH_SHORT).show() }
+        val file = startDownloadTask(fileName, URL, headers)
+        Aria.download(this).register()
+        GlobalScope.launch(Dispatchers.Main) {
+            Toast.makeText(context, "${file.name} 任务已添加", Toast.LENGTH_SHORT).show()
+        }
+        startDownloadNotification(file)
         return file
     }
 
-    private fun startDownloadTask(fileName: String, URL: String): File? {
-        val cookies = CookieManager.getCookies(URL)
-        var cookieString = ""
-        for (key in cookies.keys) {
-            cookieString += "$key=${cookies[key]}; "
-        }
-        cookieString = cookieString.substringBeforeLast(";")
+    @SuppressLint("CheckResult")
+    private fun startDownloadTask(fileName: String, URL: String, headers: Map<String, String>): File {
         // 检查冲突任务
         val taskList = Aria.download(this).totalTaskList
         val taskFileList = mutableListOf<File>()
         // 检查重复任务
-        var i = 0
-        while (Aria.download(this).taskExists(URL)) {
-            context.sendBroadcast(getSnoozeIntent(DOWNLOAD_CANCEL, path = URL, notificationId = 0))
-            runBlocking(Dispatchers.Main) { Toast.makeText(context, "尝试终止旧的重复任务", Toast.LENGTH_SHORT).show() }
-            Thread.sleep(blockingTime)
-            i++
-            if (!isDebug && i >= 100) return null
+        if (Aria.download(this).taskExists(URL)) {
+            if (!isDebug) {
+                // 继续 并返回已有任务文件
+                context.sendBroadcast(getSnoozeIntent(DOWNLOAD_CONTINUE, path = URL, notificationId = 0))
+                val filePath = Aria.download(this).getDownloadEntity(URL).filePath
+                return File(filePath)
+            } else {
+                context.sendBroadcast(getSnoozeIntent(DOWNLOAD_CANCEL, path = URL, notificationId = 0))
+                runBlocking(Dispatchers.Main) { Toast.makeText(context, "尝试终止旧的重复任务", Toast.LENGTH_SHORT).show() }
+                Thread.sleep(blockingTime)
+            }
         }
         for (task in taskList) {
             // 检查重复下载文件
@@ -76,10 +75,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager, private val isD
                 .load(URL)
                 .useServerFileName(true)
                 .setFilePath(file.path)
-        @SuppressLint("CheckResult")
-        if (cookieString.isNotBlank()) {
-            downloadTarget.addHeader("Cookie", cookieString)
-        }
+        downloadTarget.addHeaders(headers)
         downloadTarget.start()
         return file
     }
@@ -165,6 +161,8 @@ class AriaDownloader(private val CookieManager: MyCookieManager, private val isD
                         .setContentIntent(getSnoozePendingIntent(DOWNLOAD_RETRY))
                         .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
                                 getSnoozePendingIntent(DOWNLOAD_CANCEL))
+                        .setDeleteIntent(getSnoozePendingIntent(DOWNLOAD_CANCEL))
+                        .setOngoing(false)
                 notify(notificationId, builder.build())
             }
         }

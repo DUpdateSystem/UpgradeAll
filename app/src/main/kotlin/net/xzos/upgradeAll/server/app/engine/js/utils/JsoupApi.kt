@@ -1,12 +1,10 @@
 package net.xzos.upgradeAll.server.app.engine.js.utils
 
-import android.app.backup.BackupAgent
 import net.xzos.upgradeAll.json.nongson.JSCacheData
 import net.xzos.upgradeAll.server.ServerContainer
 import org.jsoup.Connection
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.seimicrawler.xpath.JXDocument
 import java.io.IOException
 import java.util.*
 
@@ -14,6 +12,8 @@ import java.util.*
 internal class JsoupApi(private val logObjectTag: Array<String>, private val jsCacheData: JSCacheData) {
 
     private val cookieManager = jsCacheData.cookieManager
+
+    internal var requestHeaders: Map<String, String> = mapOf()
 
     fun getDoc(URL: String, userAgent: String? = null, method: Connection.Method = Connection.Method.GET): Document? {
         val jsoupDomDict = jsCacheData.jsoupDomDict
@@ -36,6 +36,7 @@ internal class JsoupApi(private val logObjectTag: Array<String>, private val jsC
                 jsoupDomDict[URL] = Pair(Calendar.getInstance(), doc)
                 Log.d(logObjectTag, TAG, "Jsoup: $URL 已刷新")
                 cookieManager.setCookies(URL, res.cookies())
+                requestHeaders = connection.request().headers()
             } else {
                 Log.e(logObjectTag, TAG, "selNByJsoupXpathJavaList: Jsoup 对象初始化失败")
                 return null
