@@ -9,15 +9,16 @@ class JavaScriptEngine internal constructor(
         private val logObjectTag: Array<String>,
         URL: String?,
         jsCode: String?,
-        enableLogJsCode: Boolean = true
+        isDebug: Boolean = false
 ) : CoreApi {
 
     private val javaScriptCoreEngine: JavaScriptCoreEngine = JavaScriptCoreEngine(logObjectTag, URL, jsCode)
 
     init {
-        if (enableLogJsCode) {
+        if (!isDebug) {
             Log.i(this.logObjectTag, TAG, String.format("JavaScriptCoreEngine: jsCode: \n%s", jsCode))  // 只打印一次 JS 脚本
         }
+        javaScriptCoreEngine.jsUtils.isDebug = isDebug
     }
 
     override suspend fun getDefaultName(): String? {
