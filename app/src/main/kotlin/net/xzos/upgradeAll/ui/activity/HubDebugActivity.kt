@@ -31,6 +31,7 @@ import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
 import net.xzos.upgradeAll.server.hub.HubManager
 import net.xzos.upgradeAll.server.log.LogDataProxy
+import net.xzos.upgradeAll.utils.AriaDownloader
 import net.xzos.upgradeAll.utils.FileUtil
 import org.apache.commons.text.StringEscapeUtils
 import java.io.File
@@ -98,7 +99,12 @@ class HubDebugActivity : AppCompatActivity() {
         }
 
         // 运行 JS 脚本
-        jsRunButton.setOnClickListener { runTestJs() }
+        jsRunButton.setOnClickListener {
+            runTestJs()
+            jsRunButton.isClickable = false
+            Thread.sleep(AriaDownloader.blockingTime)
+            jsRunButton.isClickable = true
+        }
 
         jsFilePathEditTextPerformLongClick()
 
