@@ -16,13 +16,15 @@ import com.arialyy.annotations.Download
 import com.arialyy.aria.core.Aria
 import com.arialyy.aria.core.download.DownloadEntity
 import com.arialyy.aria.core.download.DownloadTask
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.json.nongson.MyCookieManager
 import java.io.File
 
 
-class AriaDownloader(private val CookieManager: MyCookieManager) {
+class AriaDownloader(private val CookieManager: MyCookieManager, private val isDebug: Boolean) {
 
     init {
         notificationIndex++
@@ -32,16 +34,19 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
     private lateinit var url: String
     private lateinit var builder: NotificationCompat.Builder
 
-    fun start(fileName: String, URL: String): File {
+    fun start(fileName: String, URL: String): File? {
         this.url = URL
-        Aria.download(this).register()
         val file = startDownloadTask(fileName, URL)
-        Toast.makeText(context, "${file.name} 任务已添加", Toast.LENGTH_SHORT).show()
-        startDownloadNotification(file)
+        if (file != null) {
+            Aria.download(this).register()
+            runBlocking(Dispatchers.Main) { Toast.makeText(context, "${file.name} 任务已添加", Toast.LENGTH_SHORT).show() }
+            startDownloadNotification(file)
+        } else
+            runBlocking(Dispatchers.Main) { Toast.makeText(context, "重复任务，忽略", Toast.LENGTH_SHORT).show() }
         return file
     }
 
-    private fun startDownloadTask(fileName: String, URL: String): File {
+    private fun startDownloadTask(fileName: String, URL: String): File? {
         val cookies = CookieManager.getCookies(URL)
         var cookieString = ""
         for (key in cookies.keys) {
@@ -51,7 +56,17 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
         // 检查冲突任务
         val taskList = Aria.download(this).totalTaskList
         val taskFileList = mutableListOf<File>()
+        // 检查重复任务
+        var i = 0
+        while (Aria.download(this).taskExists(URL)) {
+            context.sendBroadcast(getSnoozeIntent(DOWNLOAD_CANCEL, path = URL))
+            runBlocking(Dispatchers.Main) { Toast.makeText(context, "尝试终止旧的重复任务", Toast.LENGTH_SHORT).show() }
+            Thread.sleep(100)
+            i++
+            if (!isDebug && i >= 100) return null
+        }
         for (task in taskList) {
+            // 检查重复下载文件
             task as DownloadEntity
             taskFileList.add(File(task.filePath))
         }
@@ -72,7 +87,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
     private fun startDownloadNotification(file: File) {
         createNotificationChannel()
         builder = NotificationCompat.Builder(context, CHANNEL_ID).apply {
-            setContentTitle("应用下载: ${file.path}")
+            setContentTitle("应用下载: ${file.name}")
             setContentText("正在准备")
             setSmallIcon(android.R.drawable.stat_sys_download)
             addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
@@ -88,7 +103,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
 
     @Download.onTaskStart
     fun taskStart(task: DownloadTask?) {
-        if (task != null && task.key == url) {
+        if (::builder.isInitialized && task != null && task.key == url) {
             val progressCurrent: Int = task.percent
             val speed = task.convertSpeed
             NotificationManagerCompat.from(context).apply {
@@ -109,7 +124,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
     @Download.onTaskResume
     @Download.onTaskRunning
     fun downloadRunningNotification(task: DownloadTask?) {
-        if (task != null && task.key == url) {
+        if (::builder.isInitialized && task != null && task.key == url) {
             val progressCurrent: Int = task.percent
             val speed = task.convertSpeed
             NotificationManagerCompat.from(context).apply {
@@ -124,10 +139,10 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
 
     @Download.onTaskStop
     fun taskStop(task: DownloadTask?) {
-        if (task != null && task.key == url) {
+        if (::builder.isInitialized && task != null && task.key == url) {
             NotificationManagerCompat.from(context).apply {
                 builder.mActions.clear()
-                builder.setContentTitle("下载已暂停")
+                builder.setContentText("下载已暂停")
                         .setSmallIcon(android.R.drawable.stat_sys_download_done)
                         .addAction(android.R.drawable.ic_media_pause, "继续",
                                 getSnoozePendingIntent(DOWNLOAD_CONTINUE))
@@ -141,7 +156,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
 
     @Download.onTaskFail
     fun taskFail(task: DownloadTask?) {
-        if (task != null && task.key == url) {
+        if (::builder.isInitialized && task != null && task.key == url) {
             NotificationManagerCompat.from(context).apply {
                 builder.mActions.clear()
                 builder.setContentText("下载失败，点击重试")
@@ -189,10 +204,8 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
     @Download.onTaskCancel
     fun taskCancel(task: DownloadTask?) {
         if (task != null && task.key == url) {
+            cancelNotification(notificationId)
             delTaskAndUnRegister()
-            val ns = NOTIFICATION_SERVICE
-            val nMgr = context.getSystemService(ns) as NotificationManager
-            nMgr.cancel(notificationId)
         }
     }
 
@@ -202,19 +215,29 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
         Aria.download(this).unRegister()
     }
 
-    private fun getSnoozePendingIntent(extraIdentifierDownloadControl: Int, path: String? = url): PendingIntent {
-        val snoozeIntent = Intent(context, DownloadBroadcastReceiver::class.java).apply {
-            action = ACTION_SNOOZE
-            putExtra(NOTIFICATION_ID, notificationId)
-            putExtra(EXTRA_IDENTIFIER_URL, path)
-            putExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, extraIdentifierDownloadControl)
-        }
+    private fun getSnoozePendingIntent(extraIdentifierDownloadControl: Int, path: String = url): PendingIntent {
+        val snoozeIntent = getSnoozeIntent(extraIdentifierDownloadControl, path)
         val index =
                 if (PendingIntentIndex != System.currentTimeMillis())
                     System.currentTimeMillis()
                 else
                     PendingIntentIndex + 1
-        return PendingIntent.getBroadcast(context, index.toInt(), snoozeIntent, PendingIntent.FLAG_ONE_SHOT)
+        val flags =
+                if (extraIdentifierDownloadControl == INSTALL_APK)
+                // 安装应用按钮可多次点击
+                    0
+                else
+                    PendingIntent.FLAG_ONE_SHOT
+        return PendingIntent.getBroadcast(context, index.toInt(), snoozeIntent, flags)
+    }
+
+    private fun getSnoozeIntent(extraIdentifierDownloadControl: Int, path: String): Intent {
+        return Intent(context, DownloadBroadcastReceiver::class.java).apply {
+            action = ACTION_SNOOZE
+            putExtra(NOTIFICATION_ID, notificationId)
+            putExtra(EXTRA_IDENTIFIER_URL, path)
+            putExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, extraIdentifierDownloadControl)
+        }
     }
 
     private fun createNotificationChannel() {
@@ -238,15 +261,20 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
         private const val PROGRESS_MAX = 100
         private var notificationIndex = 200
         private var ACTION_SNOOZE = "${context.packageName}.DOWNLOAD_BROADCAST"
-        internal const val EXTRA_IDENTIFIER_URL = "DOWNLOAD_URL"
-        internal const val EXTRA_IDENTIFIER_DOWNLOAD_CONTROL = "DOWNLOAD_CONTROL"
-        internal const val NOTIFICATION_ID = "NOTIFICATION_ID "
-        internal const val DOWNLOAD_CANCEL = 1
-        internal const val DOWNLOAD_RETRY = 2
-        internal const val DOWNLOAD_PAUSE = 3
-        internal const val DOWNLOAD_CONTINUE = 4
-        internal const val INSTALL_APK = 5
-        internal const val DEL_FILE = 6
+        private const val EXTRA_IDENTIFIER_URL = "DOWNLOAD_URL"
+        private const val EXTRA_IDENTIFIER_DOWNLOAD_CONTROL = "DOWNLOAD_CONTROL"
+        private const val NOTIFICATION_ID = "NOTIFICATION_ID "
+        private const val DOWNLOAD_CANCEL = 1
+        private const val DOWNLOAD_RETRY = 2
+        private const val DOWNLOAD_PAUSE = 3
+        private const val DOWNLOAD_CONTINUE = 4
+        private const val INSTALL_APK = 11
+        private const val DEL_FILE = 12
+
+        private fun cancelNotification(notificationId: Int) {
+            val nMgr = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            nMgr.cancel(notificationId)
+        }
     }
 
     class DownloadBroadcastReceiver : BroadcastReceiver() {
@@ -256,10 +284,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
             val notificationId = intent.getIntExtra(NOTIFICATION_ID, 0)
             if (url != null && notificationId > 0) {
                 when (intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)) {
-                    DOWNLOAD_CANCEL -> {
-                        Aria.download(this).load(url).stop()
-                        Aria.download(this).load(url).cancel(true)
-                    }
+                    DOWNLOAD_CANCEL -> cancelTest(url, notificationId)
                     DOWNLOAD_RETRY -> Aria.download(this).load(url).reTry()
                     DOWNLOAD_PAUSE -> Aria.download(this).load(url).stop()
                     DOWNLOAD_CONTINUE -> Aria.download(this).load(url).resume()
@@ -275,6 +300,12 @@ class AriaDownloader(private val CookieManager: MyCookieManager) {
                     // TODO: 安装并删除功能集成
                 }
             }
+        }
+
+        private fun cancelTest(url: String, notificationId: Int) {
+            Aria.download(this).load(url).stop()
+            Aria.download(this).load(url).cancel(true)
+            cancelNotification(notificationId)
         }
     }
 }

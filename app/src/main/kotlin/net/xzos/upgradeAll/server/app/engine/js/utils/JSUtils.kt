@@ -1,6 +1,5 @@
 package net.xzos.upgradeAll.server.app.engine.js.utils
 
-import android.annotation.SuppressLint
 import net.xzos.upgradeAll.json.nongson.JSCacheData
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.utils.AriaDownloader
@@ -16,6 +15,8 @@ import java.util.*
  * For JavaScript
  */
 class JSUtils(private val logObjectTag: Array<String>) {
+
+    internal var isDebug = false
 
     private var jsoupApi = JsoupApi(logObjectTag, jsCacheData)
 
@@ -79,8 +80,8 @@ class JSUtils(private val logObjectTag: Array<String>) {
         return nodeStringArrayList
     }
 
-    fun downloadFile(fileName: String, URL: String): String {
-        return AriaDownloader(jsCacheData.cookieManager).start(fileName, URL).path
+    fun downloadFile(fileName: String, URL: String, isDebug: Boolean = this.isDebug): String? {
+        return AriaDownloader(jsCacheData.cookieManager, isDebug).start(fileName, URL)?.path
     }
 
     fun getJSONObjectKeyByIndex(JSONObject: JSONObject, index: Int): String {
