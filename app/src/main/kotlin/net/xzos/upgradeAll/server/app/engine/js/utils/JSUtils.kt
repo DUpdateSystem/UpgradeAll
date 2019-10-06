@@ -80,8 +80,14 @@ class JSUtils(private val logObjectTag: Array<String>) {
         return nodeStringArrayList
     }
 
-    fun downloadFile(fileName: String, URL: String, isDebug: Boolean = this.isDebug): String? {
-        return AriaDownloader(jsCacheData.cookieManager, isDebug).start(fileName, URL)?.path
+    fun downloadFile(fileName: String, URL: String, headers: Map<String, String> = mapOf(), isDebug: Boolean = this.isDebug): String {
+        val allHeaders: MutableMap<String, String> = mutableMapOf()
+        allHeaders.putAll(headers)
+        allHeaders.putAll(jsoupApi.requestHeaders) // 装载由 Jsoup 生成的正常 header
+        // 装载 Cookies
+        val cookieString = jsCacheData.cookieManager.getCookiesString(URL)
+        allHeaders["Cookie"] = cookieString
+        return AriaDownloader(isDebug).start(fileName, URL, headers = allHeaders).path
     }
 
     fun getJSONObjectKeyByIndex(JSONObject: JSONObject, index: Int): String? {
@@ -91,7 +97,7 @@ class JSUtils(private val logObjectTag: Array<String>) {
             val key = sIterator.next()
             itemList.add(key)
         }
-        return if (itemList.isEmpty())
+        return if (index >= itemList.size)
             null
         else
             itemList[index]

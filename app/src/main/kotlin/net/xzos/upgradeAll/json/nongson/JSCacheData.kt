@@ -1,6 +1,5 @@
 package net.xzos.upgradeAll.json.nongson
 
-import android.util.Log
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.ui.viewmodels.componnent.EditIntPreference
@@ -46,5 +45,14 @@ class MyCookieManager : CookieManager() {
         for (key in cookies.keys) {
             cookieStore.add(URI(URL), HttpCookie(key, cookies[key]))
         }
+    }
+
+    fun getCookiesString(URL: String): String {
+        val cookies = getCookies(URL)
+        var cookieString = ""
+        for (key in cookies.keys) {
+            cookieString += "$key=${cookies[key]}; "
+        }
+        return cookieString.substringBeforeLast(";")
     }
 }
