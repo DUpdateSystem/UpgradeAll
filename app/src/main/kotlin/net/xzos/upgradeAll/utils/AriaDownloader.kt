@@ -59,9 +59,9 @@ class AriaDownloader(private val CookieManager: MyCookieManager, private val isD
         // 检查重复任务
         var i = 0
         while (Aria.download(this).taskExists(URL)) {
-            context.sendBroadcast(getSnoozeIntent(DOWNLOAD_CANCEL, path = URL))
+            context.sendBroadcast(getSnoozeIntent(DOWNLOAD_CANCEL, path = URL, notificationId = 0))
             runBlocking(Dispatchers.Main) { Toast.makeText(context, "尝试终止旧的重复任务", Toast.LENGTH_SHORT).show() }
-            Thread.sleep(100)
+            Thread.sleep(blockingTime)
             i++
             if (!isDebug && i >= 100) return null
         }
@@ -193,7 +193,6 @@ class AriaDownloader(private val CookieManager: MyCookieManager, private val isD
                     setDeleteIntent(getSnoozePendingIntent(DEL_FILE, path = file.path))
                     setOngoing(false)
                     priority = NotificationCompat.PRIORITY_LOW
-
                 }
                 notify(notificationId, builder.build())
             }
@@ -216,7 +215,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager, private val isD
     }
 
     private fun getSnoozePendingIntent(extraIdentifierDownloadControl: Int, path: String = url): PendingIntent {
-        val snoozeIntent = getSnoozeIntent(extraIdentifierDownloadControl, path)
+        val snoozeIntent = getSnoozeIntent(extraIdentifierDownloadControl, path, notificationId)
         val index =
                 if (PendingIntentIndex != System.currentTimeMillis())
                     System.currentTimeMillis()
@@ -231,7 +230,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager, private val isD
         return PendingIntent.getBroadcast(context, index.toInt(), snoozeIntent, flags)
     }
 
-    private fun getSnoozeIntent(extraIdentifierDownloadControl: Int, path: String): Intent {
+    private fun getSnoozeIntent(extraIdentifierDownloadControl: Int, path: String, notificationId: Int): Intent {
         return Intent(context, DownloadBroadcastReceiver::class.java).apply {
             action = ACTION_SNOOZE
             putExtra(NOTIFICATION_ID, notificationId)
@@ -271,9 +270,10 @@ class AriaDownloader(private val CookieManager: MyCookieManager, private val isD
         private const val INSTALL_APK = 11
         private const val DEL_FILE = 12
 
+        internal const val blockingTime: Long = 100
+
         private fun cancelNotification(notificationId: Int) {
-            val nMgr = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            nMgr.cancel(notificationId)
+            NotificationManagerCompat.from(context).cancel(notificationId)
         }
     }
 
@@ -282,7 +282,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager, private val isD
         override fun onReceive(context: Context, intent: Intent) {
             val url = intent.getStringExtra(EXTRA_IDENTIFIER_URL)
             val notificationId = intent.getIntExtra(NOTIFICATION_ID, 0)
-            if (url != null && notificationId > 0) {
+            if (url != null) {
                 when (intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)) {
                     DOWNLOAD_CANCEL -> cancelTest(url, notificationId)
                     DOWNLOAD_RETRY -> Aria.download(this).load(url).reTry()
@@ -292,11 +292,7 @@ class AriaDownloader(private val CookieManager: MyCookieManager, private val isD
                         val file = File(url)
                         ApkInstaller(context).installApplication(file)
                     }
-                    DEL_FILE -> {
-                        NotificationManagerCompat.from(Companion.context).cancel(notificationId)
-                        val file = File(url)
-                        file.delete()
-                    }
+                    DEL_FILE -> delFile(url, notificationId)
                     // TODO: 安装并删除功能集成
                 }
             }
@@ -306,6 +302,12 @@ class AriaDownloader(private val CookieManager: MyCookieManager, private val isD
             Aria.download(this).load(url).stop()
             Aria.download(this).load(url).cancel(true)
             cancelNotification(notificationId)
+        }
+
+        private fun delFile(url: String, notificationId: Int) {
+            cancelNotification(notificationId)
+            val file = File(url)
+            file.delete()
         }
     }
 }

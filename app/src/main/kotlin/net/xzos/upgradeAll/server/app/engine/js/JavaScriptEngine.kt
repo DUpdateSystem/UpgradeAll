@@ -92,6 +92,7 @@ class JavaScriptEngine internal constructor(
                 getReleaseDownload(fileIndex.first)
             }
             val fileName = jsUtils.getJSONObjectKeyByIndex(releaseDownload, fileIndex.second)
+                    ?: return null
             filePath = jsUtils.downloadFile(fileName, releaseDownload.getString(fileName))
         }
         return filePath

@@ -84,14 +84,17 @@ class JSUtils(private val logObjectTag: Array<String>) {
         return AriaDownloader(jsCacheData.cookieManager, isDebug).start(fileName, URL)?.path
     }
 
-    fun getJSONObjectKeyByIndex(JSONObject: JSONObject, index: Int): String {
+    fun getJSONObjectKeyByIndex(JSONObject: JSONObject, index: Int): String? {
         val itemList = mutableListOf<String>()
         val sIterator = JSONObject.keys()
         while (sIterator.hasNext()) {
             val key = sIterator.next()
             itemList.add(key)
         }
-        return itemList[index]
+        return if (itemList.isEmpty())
+            null
+        else
+            itemList[index]
 
     }
 
