@@ -37,17 +37,22 @@ class AriaDownloader(private val isDebug: Boolean) {
 
     fun start(fileName: String, URL: String, headers: Map<String, String> = mapOf()): File {
         this.url = URL
-        val file = startDownloadTask(fileName, URL, headers)
-        Aria.download(this).register()
-        GlobalScope.launch(Dispatchers.Main) {
-            Toast.makeText(context, "${file.name} 任务已添加", Toast.LENGTH_SHORT).show()
-        }
-        startDownloadNotification(file)
+        val (isCreated, file) = startDownloadTask(fileName, URL, headers)
+        if (isCreated) {
+            Aria.download(this).register()
+            GlobalScope.launch(Dispatchers.Main) {
+                Toast.makeText(context, "${file.name} 任务已添加", Toast.LENGTH_SHORT).show()
+            }
+            startDownloadNotification(file)
+        } else
+            GlobalScope.launch(Dispatchers.Main) {
+                Toast.makeText(context, "重复任务，忽略", Toast.LENGTH_SHORT).show()
+            }
         return file
     }
 
     @SuppressLint("CheckResult")
-    private fun startDownloadTask(fileName: String, URL: String, headers: Map<String, String>): File {
+    private fun startDownloadTask(fileName: String, URL: String, headers: Map<String, String>): Pair<Boolean, File> {
         // 检查冲突任务
         val taskList = Aria.download(this).totalTaskList
         val taskFileList = mutableListOf<File>()
@@ -57,7 +62,7 @@ class AriaDownloader(private val isDebug: Boolean) {
                 // 继续 并返回已有任务文件
                 context.sendBroadcast(getSnoozeIntent(DOWNLOAD_CONTINUE, path = URL, notificationId = 0))
                 val filePath = Aria.download(this).getDownloadEntity(URL).filePath
-                return File(filePath)
+                return Pair(false, File(filePath))
             } else {
                 context.sendBroadcast(getSnoozeIntent(DOWNLOAD_CANCEL, path = URL, notificationId = 0))
                 runBlocking(Dispatchers.Main) { Toast.makeText(context, "尝试终止旧的重复任务", Toast.LENGTH_SHORT).show() }
@@ -77,7 +82,7 @@ class AriaDownloader(private val isDebug: Boolean) {
                 .setFilePath(file.path)
         downloadTarget.addHeaders(headers)
         downloadTarget.start()
-        return file
+        return Pair(true, file)
     }
 
     private fun startDownloadNotification(file: File) {
