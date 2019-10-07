@@ -1,5 +1,11 @@
 package net.xzos.upgradeAll.server.app.engine.js.utils
 
+import android.widget.Toast
+import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.json.nongson.JSCacheData
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.utils.AriaDownloader
@@ -80,28 +86,23 @@ class JSUtils(private val logObjectTag: Array<String>) {
         return nodeStringArrayList
     }
 
-    fun downloadFile(fileName: String, URL: String, headers: Map<String, String> = mapOf(), isDebug: Boolean = this.isDebug): String {
+    fun downloadFile(fileName: String, URL: String, headers: Map<String, String> = mapOf(), isDebug: Boolean = this.isDebug): String? {
         val allHeaders: MutableMap<String, String> = mutableMapOf()
         allHeaders.putAll(headers)
         allHeaders.putAll(jsoupApi.requestHeaders) // 装载由 Jsoup 生成的正常 header
         // 装载 Cookies
         val cookieString = jsCacheData.cookieManager.getCookiesString(URL)
         allHeaders["Cookie"] = cookieString
-        return AriaDownloader(isDebug).start(fileName, URL, headers = allHeaders).path
+        val resUrl = jsoupApi.getRedirectsUrl(URL)
+        return if (resUrl == null) {
+            GlobalScope.launch(Dispatchers.Main) { Toast.makeText(MyApplication.context, "无法获取下载链接", Toast.LENGTH_SHORT).show() }
+            null
+        } else
+            AriaDownloader(isDebug).start(fileName, resUrl, headers = allHeaders).path
     }
 
-    fun getJSONObjectKeyByIndex(JSONObject: JSONObject, index: Int): String? {
-        val itemList = mutableListOf<String>()
-        val sIterator = JSONObject.keys()
-        while (sIterator.hasNext()) {
-            val key = sIterator.next()
-            itemList.add(key)
-        }
-        return if (index >= itemList.size)
-            null
-        else
-            itemList[index]
-
+    fun mapOfJsonObject(jsonObject: JSONObject): Map<*, *> {
+        return Gson().fromJson(jsonObject.toString(), Map::class.java)
     }
 
     companion object {

@@ -3,9 +3,10 @@ package net.xzos.upgradeAll.server.app.manager
 import net.xzos.upgradeAll.database.RepoDatabase
 import net.xzos.upgradeAll.server.app.manager.module.App
 import org.litepal.LitePal
+import org.litepal.extension.find
 import org.litepal.extension.findAll
 
-class AppManager {
+internal class AppManager {
 
     init {
         initApp()
@@ -30,7 +31,14 @@ class AppManager {
 
     fun delApp(appDatabaseId: Long) {
         // TODO: initApp自维护，数据来源：独立 UI 数据
+        getApp(appDatabaseId).engineExit()
         appMap.remove(appDatabaseId)
+    }
+
+    fun renewAppInHub(hubUuid: String) {
+        val repoDatabases: List<RepoDatabase> = LitePal.where("api_uuid = ?", hubUuid).find()
+        for(repoDatabase in repoDatabases)
+            setApp(repoDatabase.id)
     }
 
     companion object {

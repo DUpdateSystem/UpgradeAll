@@ -10,14 +10,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.ui.activity.AppSettingActivity
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
-import java.util.*
 
 
 class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
@@ -188,13 +189,13 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
 
             GlobalScope.launch {
                 val latestVersionString = updater.latestVersion
-                Handler(Looper.getMainLooper()).post {
+                runBlocking(Dispatchers.Main) {
                     val cloudReleaseTextView = dialogWindow.findViewById<TextView>(R.id.cloudReleaseTextView)
                     cloudReleaseTextView.text = latestVersionString
                     dialogWindow.findViewById<View>(R.id.cloudReleaseProgressBar).visibility = View.GONE// 隐藏等待提醒条
                 }
                 val latestVersionChangelogString = updater.latestChangelog
-                Handler(Looper.getMainLooper()).post {
+                runBlocking(Dispatchers.Main) {
                     if (latestVersionChangelogString.isNullOrBlank()) {
                         dialogWindow.findViewById<View>(R.id.releaseChangelogLinearLayout).visibility = View.GONE
                     } else {
@@ -203,20 +204,13 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
                         dialogWindow.findViewById<View>(R.id.changelogProgressBar).visibility = View.GONE// 隐藏等待提醒条
                     }
                 }
-                val latestFileDownloadUrl = updater.latestDownloadUrl
-                Handler(Looper.getMainLooper()).post {
-                    val itemList = ArrayList<String>()
-                    val sIterator = latestFileDownloadUrl.keys()
-                    while (sIterator.hasNext()) {
-                        val key = sIterator.next()
-                        itemList.add(key)
-                    }
-
-                    // 无Release文件，不显示网络文件列表
-                    if (itemList.size == 0) {
+                val latestFileDownloadUrl = updater.latestReleaseDownload
+                runBlocking(Dispatchers.Main) {
+                    val itemList = latestFileDownloadUrl.keys.toList()
+                    if (itemList.isEmpty()) {
+                        // 无Release文件，不显示网络文件列表
                         dialogWindow.findViewById<View>(R.id.releaseFileListLinearLayout).visibility = View.GONE
                     } else {
-
                         // 构建文件列表
                         val adapter = ArrayAdapter(
                                 dialog.context, android.R.layout.simple_list_item_1, itemList)

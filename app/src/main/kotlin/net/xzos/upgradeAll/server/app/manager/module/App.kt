@@ -29,4 +29,8 @@ data class App(private val appDatabaseId: Long) {
             val versionChecker = repoDatabase?.versionChecker
             return VersionChecker(inputVersionCheckerString = versionChecker)
         }
+
+    internal fun engineExit(){
+        updater.engineExit()
+    }
 }
