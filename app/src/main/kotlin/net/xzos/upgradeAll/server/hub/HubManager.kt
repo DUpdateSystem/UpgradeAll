@@ -1,12 +1,10 @@
 package net.xzos.upgradeAll.server.hub
 
 import com.google.gson.Gson
-
 import net.xzos.upgradeAll.database.HubDatabase
 import net.xzos.upgradeAll.json.gson.HubConfig
 import net.xzos.upgradeAll.json.gson.HubDatabaseExtraData
 import net.xzos.upgradeAll.server.ServerContainer
-
 import org.jetbrains.annotations.Contract
 import org.litepal.LitePal
 import org.litepal.extension.find
@@ -51,7 +49,8 @@ object HubManager {
                     hubDatabase.save() // 将数据存入 HubDatabase 数据库
                 } else
                     HubDatabase(name = name, uuid = uuid, hub_config = Gson().toJson(hubConfigGson), extra_data = Gson().toJson(hubDatabaseExtraData)).save()
-                // 开启数据库
+                // 更新相关跟踪项
+                ServerContainer.AppManager.renewAppInHub(uuid)
                 return true
             }
         }

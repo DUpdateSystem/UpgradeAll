@@ -1,105 +1,84 @@
 package net.xzos.upgradeAll.server.app.engine.js
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.xzos.upgradeAll.server.ServerContainer
-import net.xzos.upgradeAll.server.app.engine.api.CoreApi
-import org.json.JSONObject
+import java.util.concurrent.Executors
 
 class JavaScriptEngine internal constructor(
         private val logObjectTag: Array<String>,
         URL: String?,
         jsCode: String?,
         isDebug: Boolean = false
-) : CoreApi {
+) {
 
     private val javaScriptCoreEngine: JavaScriptCoreEngine = JavaScriptCoreEngine(logObjectTag, URL, jsCode)
+
+    private val executorCoroutineDispatcher: ExecutorCoroutineDispatcher = javascriptThreadList[javascriptThreadIndex]
 
     init {
         if (!isDebug) {
             Log.i(this.logObjectTag, TAG, String.format("JavaScriptCoreEngine: jsCode: \n%s", jsCode))  // 只打印一次 JS 脚本
         }
         javaScriptCoreEngine.jsUtils.isDebug = isDebug
+        GlobalScope.launch(executorCoroutineDispatcher) { javaScriptCoreEngine.initRhino() }
     }
 
-    override suspend fun getDefaultName(): String? {
-        return try {
-            javaScriptCoreEngine.getDefaultName()
-        } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, "defaultName: 脚本执行错误, ERROR_MESSAGE: $e")
-            null
-        }
+
+    fun getDefaultName(): String? {
+        return runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getDefaultName() }
     }
 
-    override suspend fun getReleaseNum(): Int {
-        return try {
-            javaScriptCoreEngine.getReleaseNum()
-        } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, "releaseNum: 脚本执行错误, ERROR_MESSAGE: $e")
-            0
-        }
+    fun getReleaseNum(): Int {
+        return runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getReleaseNum() }
     }
 
-    override suspend fun getVersioning(releaseNum: Int): String? {
+    fun getVersioning(releaseNum: Int): String? {
         return when {
-            releaseNum < 0 -> null
-            releaseNum >= 0 -> try {
-                javaScriptCoreEngine.getVersioning(releaseNum)
-            } catch (e: Throwable) {
-                Log.e(logObjectTag, TAG, "getVersioning: 脚本执行错误, ERROR_MESSAGE: $e")
-                null
-            }
+            releaseNum >= 0 -> runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getVersioning(releaseNum) }
             else -> null
         }
     }
 
-    override suspend fun getChangelog(releaseNum: Int): String? {
+    fun getChangelog(releaseNum: Int): String? {
         return when {
-            releaseNum < 0 -> null
-            releaseNum >= 0 -> try {
-                javaScriptCoreEngine.getChangelog(releaseNum)
-            } catch (e: Throwable) {
-                Log.e(logObjectTag, TAG, "getChangelog: 脚本执行错误, ERROR_MESSAGE: $e")
-                null
-            }
+            releaseNum >= 0 -> runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getChangelog(releaseNum) }
             else -> null
         }
     }
 
-    override suspend fun getReleaseDownload(releaseNum: Int): JSONObject {
+    fun getReleaseDownload(releaseNum: Int): Map<String, String> {
         return when {
-            releaseNum < 0 -> JSONObject()
-            releaseNum >= 0 -> try {
-                javaScriptCoreEngine.getReleaseDownload(releaseNum)
-            } catch (e: Throwable) {
-                Log.e(logObjectTag, TAG, "getReleaseDownload: 脚本执行错误, ERROR_MESSAGE: $e")
-                JSONObject()
-            }
-            else -> JSONObject()
+            releaseNum >= 0 -> runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getReleaseDownload(releaseNum) }
+            else -> mapOf()
         }
     }
 
-    override fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String? {
-        var filePath = try {
-            javaScriptCoreEngine.downloadReleaseFile(fileIndex)
-        } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, "downloadReleaseFile: 脚本执行错误, ERROR_MESSAGE: $e")
-            null
-        }
-        if (filePath == null) {
-            Log.e(logObjectTag, TAG, "downloadReleaseFile: 尝试直接下载")
-            val jsUtils = javaScriptCoreEngine.jsUtils
-            val releaseDownload = runBlocking {
-                getReleaseDownload(fileIndex.first)
-            }
-            val fileName = jsUtils.getJSONObjectKeyByIndex(releaseDownload, fileIndex.second)
-                    ?: return null
-            filePath = jsUtils.downloadFile(fileName, releaseDownload.getString(fileName))
-        }
-        return filePath
+    fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): String? {
+        return runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.downloadReleaseFile(downloadIndex) }
+    }
+
+    fun exit() {
+        javaScriptCoreEngine.exit()
     }
 
     companion object {
         private const val TAG = "JavaScriptEngine"
         private val Log = ServerContainer.Log
+        private var javascriptThreadList: MutableList<ExecutorCoroutineDispatcher> = mutableListOf()
+
+        private const val threadNumber = 8
+        // TODO: 用户自定义线程池大小
+        private var javascriptThreadIndex: Int = 0
+            get() {
+                field++
+                field %= threadNumber
+                return field
+            }
+
+        init {
+            for (i in 1..threadNumber) {
+                javascriptThreadList.add(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+            }
+        }
     }
 }

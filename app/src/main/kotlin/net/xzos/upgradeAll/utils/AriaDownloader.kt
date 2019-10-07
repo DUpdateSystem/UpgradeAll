@@ -9,6 +9,8 @@ import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -19,7 +21,6 @@ import com.arialyy.aria.core.download.DownloadTask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import java.io.File
@@ -45,7 +46,7 @@ class AriaDownloader(private val isDebug: Boolean) {
             }
             startDownloadNotification(file)
         } else
-            GlobalScope.launch(Dispatchers.Main) {
+            Handler(Looper.getMainLooper()).post {
                 Toast.makeText(context, "重复任务，忽略", Toast.LENGTH_SHORT).show()
             }
         return file
@@ -65,7 +66,7 @@ class AriaDownloader(private val isDebug: Boolean) {
                 return Pair(false, File(filePath))
             } else {
                 context.sendBroadcast(getSnoozeIntent(DOWNLOAD_CANCEL, path = URL, notificationId = 0))
-                runBlocking(Dispatchers.Main) { Toast.makeText(context, "尝试终止旧的重复任务", Toast.LENGTH_SHORT).show() }
+                GlobalScope.launch(Dispatchers.Main) { Toast.makeText(context, "尝试终止旧的重复任务", Toast.LENGTH_SHORT).show() }
                 Thread.sleep(blockingTime)
             }
         }
@@ -219,18 +220,13 @@ class AriaDownloader(private val isDebug: Boolean) {
 
     private fun getSnoozePendingIntent(extraIdentifierDownloadControl: Int, path: String = url): PendingIntent {
         val snoozeIntent = getSnoozeIntent(extraIdentifierDownloadControl, path, notificationId)
-        val index =
-                if (PendingIntentIndex != System.currentTimeMillis())
-                    System.currentTimeMillis()
-                else
-                    PendingIntentIndex + 1
         val flags =
                 if (extraIdentifierDownloadControl == INSTALL_APK)
                 // 安装应用按钮可多次点击
                     0
                 else
                     PendingIntent.FLAG_ONE_SHOT
-        return PendingIntent.getBroadcast(context, index.toInt(), snoozeIntent, flags)
+        return PendingIntent.getBroadcast(context, pendingIntentIndex.toInt(), snoozeIntent, flags)
     }
 
     private fun getSnoozeIntent(extraIdentifierDownloadControl: Int, path: String, notificationId: Int): Intent {
@@ -258,7 +254,11 @@ class AriaDownloader(private val isDebug: Boolean) {
     companion object {
         @SuppressLint("StaticFieldLeak")
         private val context = MyApplication.context
-        private var PendingIntentIndex: Long = 0
+        private var pendingIntentIndex: Long = 0
+            get() {
+                field++
+                return field
+            }
         private const val CHANNEL_ID = "DownloadNotification"
         private const val PROGRESS_MAX = 100
         private var notificationIndex = 200

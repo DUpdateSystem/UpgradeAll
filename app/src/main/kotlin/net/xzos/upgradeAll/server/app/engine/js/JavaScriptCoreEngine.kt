@@ -1,5 +1,6 @@
 package net.xzos.upgradeAll.server.app.engine.js
 
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
@@ -33,7 +34,7 @@ internal class JavaScriptCoreEngine(
         }
     }
 
-    private fun initRhino(): Boolean {
+    internal fun initRhino(): Boolean {
         // 初始化 rhino 对象
         cx = Context.enter()
         cx.optimizationLevel = -1
@@ -46,7 +47,7 @@ internal class JavaScriptCoreEngine(
         return true
     }
 
-    private fun closeRhino() {
+    internal fun exit() {
         Context.exit()
     }
 
@@ -62,16 +63,14 @@ internal class JavaScriptCoreEngine(
 
     // 运行 JS 代码
     private fun runJS(functionName: String, args: Array<Any>): Any? {
-        if (!initRhino()) return null // 初始化 J2V8
         val obj = scope.get(functionName, scope)
-        val result =
-                if (obj is Function)
-                    obj.call(cx, scope, scope, args)
-                else {
-                    null
-                }
-        closeRhino() // 销毁 J2V8 对象
-        return result
+        return try {
+            obj as Function
+            obj.call(cx, scope, scope, args)
+        } catch (e: Throwable) {
+            Log.e(logObjectTag, TAG, "runJS: 脚本执行错误, 函数名: $functionName, ERROR_MESSAGE: $e")
+            null
+        }
     }
 
     override suspend fun getDefaultName(): String? {
@@ -105,28 +104,49 @@ internal class JavaScriptCoreEngine(
         return changeLog
     }
 
-    override suspend fun getReleaseDownload(releaseNum: Int): JSONObject {
+    override suspend fun getReleaseDownload(releaseNum: Int): Map<String, String> {
         val args = arrayOf<Any>(releaseNum)
-        var fileJson = JSONObject()
-        val result = runJS("getReleaseDownload", args) ?: return fileJson
+        val fileMap = mutableMapOf<String, String>()
+        val result = runJS("getReleaseDownload", args) ?: return fileMap
         val fileJsonString = Context.toString(result)
         try {
-            fileJson = JSONObject(fileJsonString)
+            val returnMap = jsUtils.mapOfJsonObject(JSONObject(fileJsonString))
+            for (key in returnMap.keys) {
+                val keyString = key as String
+                fileMap[keyString] = returnMap[key] as String
+            }
         } catch (e: JSONException) {
             Log.e(logObjectTag, TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范, fileJsonString : $fileJsonString")
         } catch (e: NullPointerException) {
             Log.e(logObjectTag, TAG, "getReleaseDownload: 返回值为 NULL, fileJsonString : $fileJsonString")
         }
-
-        Log.d(logObjectTag, TAG, "getReleaseDownload: fileJson: $fileJson")
-        return fileJson
+        Log.d(logObjectTag, TAG, "getReleaseDownload: fileJson: $fileMap")
+        return fileMap
     }
 
-    override fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String? {
-        val result = runJS("downloadReleaseFile", arrayOf(fileIndex.first, fileIndex.second))
-                ?: return null
-        val filePath = Context.toString(result)
-        Log.d(logObjectTag, TAG, "downloadReleaseFile: filePath: $result")
+    override suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): String? {
+        val result = runJS("downloadReleaseFile", arrayOf(downloadIndex.first, downloadIndex.second))
+        val filePath: String? = if (result != null) {
+            Context.toString(result)
+        } else {
+            Log.e(logObjectTag, TAG, "downloadReleaseFile: 尝试直接下载")
+            val downloadReleaseMap = runBlocking {
+                getReleaseDownload(downloadIndex.first)
+            }
+            val fileIndex = downloadIndex.second
+            val fileNameList = downloadReleaseMap.keys.toList()
+            val fileName =
+                    if (fileIndex < fileNameList.size)
+                        fileNameList[fileIndex]
+                    else
+                        null
+            val downloadUrl = downloadReleaseMap[fileName]
+            if (fileName != null && downloadUrl != null)
+                jsUtils.downloadFile(fileName, downloadUrl)
+            else
+                null
+        }
+        Log.d(logObjectTag, TAG, "downloadReleaseFile: filePath: $filePath")
         return filePath
     }
 

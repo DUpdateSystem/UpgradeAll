@@ -1,7 +1,5 @@
 package net.xzos.upgradeAll.server.app.engine.api
 
-import org.json.JSONObject
-
 
 interface CoreApi {
 
@@ -35,11 +33,11 @@ interface CoreApi {
      * }
      *
      */
-    suspend fun getReleaseDownload(releaseNum: Int): JSONObject
+    suspend fun getReleaseDownload(releaseNum: Int): Map<String, String>
 
     /**
      * 下载文件操作
      * 并 返回文件路径
      */
-    fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String?
+    suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): String?
 }

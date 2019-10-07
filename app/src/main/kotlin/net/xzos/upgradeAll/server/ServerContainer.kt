@@ -5,7 +5,7 @@ import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.json.gson.UIConfig
 import org.jetbrains.annotations.Contract
 
-class ServerContainer {
+internal class ServerContainer {
     companion object {
         @get:Contract(pure = true)
         val Log = LogUtil()
