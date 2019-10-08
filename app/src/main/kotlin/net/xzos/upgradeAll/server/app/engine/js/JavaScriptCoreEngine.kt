@@ -1,5 +1,6 @@
 package net.xzos.upgradeAll.server.app.engine.js
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.api.CoreApi
@@ -130,9 +131,7 @@ internal class JavaScriptCoreEngine(
             Context.toString(result)
         } else {
             Log.e(logObjectTag, TAG, "downloadReleaseFile: 尝试直接下载")
-            val downloadReleaseMap = runBlocking {
-                getReleaseDownload(downloadIndex.first)
-            }
+            val downloadReleaseMap = getReleaseDownload(downloadIndex.first)
             val fileIndex = downloadIndex.second
             val fileNameList = downloadReleaseMap.keys.toList()
             val fileName =

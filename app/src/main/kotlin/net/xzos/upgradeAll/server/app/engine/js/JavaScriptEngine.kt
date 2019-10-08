@@ -2,14 +2,15 @@ package net.xzos.upgradeAll.server.app.engine.js
 
 import kotlinx.coroutines.*
 import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 import java.util.concurrent.Executors
 
 class JavaScriptEngine internal constructor(
-        private val logObjectTag: Array<String>,
+        internal val logObjectTag: Array<String>,
         URL: String?,
         jsCode: String?,
         isDebug: Boolean = false
-) {
+) : CoreApi {
 
     private val javaScriptCoreEngine: JavaScriptCoreEngine = JavaScriptCoreEngine(logObjectTag, URL, jsCode)
 
@@ -24,41 +25,41 @@ class JavaScriptEngine internal constructor(
     }
 
 
-    fun getDefaultName(): String? {
+    override suspend fun getDefaultName(): String? {
         return runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getDefaultName() }
     }
 
-    fun getReleaseNum(): Int {
+    override suspend fun getReleaseNum(): Int {
         return runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getReleaseNum() }
     }
 
-    fun getVersioning(releaseNum: Int): String? {
+    override suspend fun getVersioning(releaseNum: Int): String? {
         return when {
             releaseNum >= 0 -> runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getVersioning(releaseNum) }
             else -> null
         }
     }
 
-    fun getChangelog(releaseNum: Int): String? {
+    override suspend fun getChangelog(releaseNum: Int): String? {
         return when {
             releaseNum >= 0 -> runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getChangelog(releaseNum) }
             else -> null
         }
     }
 
-    fun getReleaseDownload(releaseNum: Int): Map<String, String> {
+    override suspend fun getReleaseDownload(releaseNum: Int): Map<String, String> {
         return when {
             releaseNum >= 0 -> runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getReleaseDownload(releaseNum) }
             else -> mapOf()
         }
     }
 
-    fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): String? {
+    override suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): String? {
         return runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.downloadReleaseFile(downloadIndex) }
     }
 
     fun exit() {
-        javaScriptCoreEngine.exit()
+        GlobalScope.launch(executorCoroutineDispatcher) { javaScriptCoreEngine.exit() }
     }
 
     companion object {

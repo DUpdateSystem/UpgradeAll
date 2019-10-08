@@ -71,6 +71,9 @@ internal class JsoupApi(private val logObjectTag: Array<String>, private val jsC
         } catch (e: HttpStatusException){
             Log.e(logObjectTag, TAG, "无法获取链接信息: ${e.url}")
             null
+        } catch (e: Throwable){
+            Log.e(logObjectTag, TAG, "ERROR_MESSAGE: $e")
+            null
         }
     }
 
