@@ -21,8 +21,6 @@ object FileUtil {
     private const val TAG = "FileUtil"
     private val LogObjectTag = arrayOf("Core", TAG)
 
-    val AppDownloadCacheDirPath = File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "UpgradeAll")
-
     fun renameSameFile(targetFile: File, fileList: List<File>): File {
         val separator = "."
         val sameFileNameIndexList = mutableListOf<String>()

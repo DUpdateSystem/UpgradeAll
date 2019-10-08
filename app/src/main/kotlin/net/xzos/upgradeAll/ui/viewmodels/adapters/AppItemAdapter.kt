@@ -10,12 +10,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.AppSettingActivity
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
@@ -118,16 +116,18 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
 
     private fun setAppStatusUI(appDatabaseId: Long, holder: CardViewRecyclerViewHolder) {
         val app = AppManager.getApp(appDatabaseId)
-        val updater = app.updater
+        val updater = Updater(app.engine)
         setUpdateStatus(holder, true)
         GlobalScope.launch {
+            val isSuccessRenew = async { updater.isSuccessRenew() }
+            val isLatest = async { app.isLatest() }
             val updateStatus =   // 0: 404; 1: latest; 2: need update; 3: no app
                     //检查是否取得云端版本号
-                    if (updater.isSuccessRenew) {
+                    if (isSuccessRenew.await()) {
                         // 检查是否获取本地版本号
                         if (app.installedVersion != null) {
                             // 检查本地版本
-                            if (app.isLatest) {
+                            if (isLatest.await()) {
                                 1
                             } else {
                                 2
@@ -165,7 +165,7 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
         val itemCardView = mItemCardViewList[position]
         val appDatabaseId = itemCardView.extraData.databaseId
         val app = AppManager.getApp(appDatabaseId)
-        val updater = app.updater
+        val updater = Updater(app.engine)
         val builder = AlertDialog.Builder(holder.versionCheckingBar.context)
 
         val dialog = builder.setView(R.layout.dialog_app_info).create()
@@ -188,25 +188,26 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
                 localReleaseTextView.text = "获取失败"
 
             GlobalScope.launch {
-                val latestVersionString = updater.latestVersion
+                val latestVersionString = async { updater.getLatestVersion() }
+                val latestVersionChangelogString = async { updater.getLatestChangelog() }
+                val latestFileDownloadUrl = async { updater.getLatestReleaseDownload() }
                 runBlocking(Dispatchers.Main) {
+                    // 版本号
                     val cloudReleaseTextView = dialogWindow.findViewById<TextView>(R.id.cloudReleaseTextView)
-                    cloudReleaseTextView.text = latestVersionString
+                    cloudReleaseTextView.text = latestVersionString.await()
                     dialogWindow.findViewById<View>(R.id.cloudReleaseProgressBar).visibility = View.GONE// 隐藏等待提醒条
-                }
-                val latestVersionChangelogString = updater.latestChangelog
-                runBlocking(Dispatchers.Main) {
-                    if (latestVersionChangelogString.isNullOrBlank()) {
+
+                    // 更新日志
+                    if (latestVersionChangelogString.await().isNullOrBlank()) {
                         dialogWindow.findViewById<View>(R.id.releaseChangelogLinearLayout).visibility = View.GONE
                     } else {
                         val changelogTextView = dialogWindow.findViewById<TextView>(R.id.changelogTextView)
-                        changelogTextView.text = latestVersionChangelogString
+                        changelogTextView.text = latestVersionChangelogString.await()
                         dialogWindow.findViewById<View>(R.id.changelogProgressBar).visibility = View.GONE// 隐藏等待提醒条
                     }
-                }
-                val latestFileDownloadUrl = updater.latestReleaseDownload
-                runBlocking(Dispatchers.Main) {
-                    val itemList = latestFileDownloadUrl.keys.toList()
+
+                    // 云端文件
+                    val itemList = latestFileDownloadUrl.await().keys.toList()
                     if (itemList.isEmpty()) {
                         // 无Release文件，不显示网络文件列表
                         dialogWindow.findViewById<View>(R.id.releaseFileListLinearLayout).visibility = View.GONE
@@ -217,7 +218,8 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
                         val cloudReleaseList = dialogWindow.findViewById<ListView>(R.id.cloudReleaseList)
                         // 设置文件列表点击事件
                         cloudReleaseList.setOnItemClickListener { _, _, i, _ ->
-                            updater.downloadReleaseFile(Pair(0, i))
+                            // 下载文件
+                            GlobalScope.launch { updater.downloadReleaseFile(Pair(0, i)) }
                         }
                         cloudReleaseList.adapter = adapter
                         dialogWindow.findViewById<View>(R.id.fileListProgressBar).visibility = View.GONE// 隐藏等待提醒条

@@ -46,7 +46,7 @@ class AriaDownloader(private val isDebug: Boolean) {
             }
             startDownloadNotification(file)
         } else
-            Handler(Looper.getMainLooper()).post {
+            GlobalScope.launch(Dispatchers.Main) {
                 Toast.makeText(context, "重复任务，忽略", Toast.LENGTH_SHORT).show()
             }
         return file
