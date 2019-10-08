@@ -93,12 +93,17 @@ class JSUtils(private val logObjectTag: Array<String>) {
         // 装载 Cookies
         val cookieString = jsCacheData.cookieManager.getCookiesString(URL)
         allHeaders["Cookie"] = cookieString
+        val ariaDownloader = AriaDownloader(isDebug).apply {
+            waiteGetDownloadTaskNotification(fileName)
+        }
         val resUrl = jsoupApi.getRedirectsUrl(URL)
-        return if (resUrl == null) {
+        return if (resUrl != null) {
+            ariaDownloader.start(fileName, resUrl, headers = allHeaders).path
+        } else {
             GlobalScope.launch(Dispatchers.Main) { Toast.makeText(MyApplication.context, "无法获取下载链接", Toast.LENGTH_SHORT).show() }
+            ariaDownloader.cancel()
             null
-        } else
-            AriaDownloader(isDebug).start(fileName, resUrl, headers = allHeaders).path
+        }
     }
 
     fun mapOfJsonObject(jsonObject: JSONObject): Map<*, *> {

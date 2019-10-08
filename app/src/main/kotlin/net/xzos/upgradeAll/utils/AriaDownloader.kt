@@ -9,8 +9,6 @@ import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -29,14 +27,16 @@ import java.io.File
 class AriaDownloader(private val isDebug: Boolean) {
 
     init {
+        createNotificationChannel()
         notificationIndex++
     }
 
     private val notificationId = notificationIndex
-    private lateinit var url: String
+    private var url: String? = null
     private lateinit var builder: NotificationCompat.Builder
 
     fun start(fileName: String, URL: String, headers: Map<String, String> = mapOf()): File {
+        waiteGetDownloadTaskNotification(fileName)
         this.url = URL
         val (isCreated, file) = startDownloadTask(fileName, URL, headers)
         if (isCreated) {
@@ -45,11 +45,18 @@ class AriaDownloader(private val isDebug: Boolean) {
                 Toast.makeText(context, "${file.name} 任务已添加", Toast.LENGTH_SHORT).show()
             }
             startDownloadNotification(file)
-        } else
+        } else {
+            cancelNotification(notificationId)
             GlobalScope.launch(Dispatchers.Main) {
                 Toast.makeText(context, "重复任务，忽略", Toast.LENGTH_SHORT).show()
             }
+        }
         return file
+    }
+
+    internal fun cancel() {
+        cancelNotification(notificationId)
+        delTaskAndUnRegister()
     }
 
     @SuppressLint("CheckResult")
@@ -86,19 +93,28 @@ class AriaDownloader(private val isDebug: Boolean) {
         return Pair(true, file)
     }
 
-    private fun startDownloadNotification(file: File) {
-        createNotificationChannel()
+    internal fun waiteGetDownloadTaskNotification(fileName: String) {
         builder = NotificationCompat.Builder(context, CHANNEL_ID).apply {
-            setContentTitle("应用下载: ${file.name}")
+            setContentTitle("应用下载: $fileName")
             setContentText("正在准备")
             setSmallIcon(android.R.drawable.stat_sys_download)
-            addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
-                    getSnoozePendingIntent(DOWNLOAD_CANCEL))
             setOngoing(true)
             priority = NotificationCompat.PRIORITY_LOW
 
         }
         NotificationManagerCompat.from(context).apply {
+            notify(notificationId, builder.build())
+        }
+    }
+
+    private fun startDownloadNotification(file: File) {
+        NotificationManagerCompat.from(context).apply {
+            builder.setContentTitle("应用下载: ${file.name}")
+                    .setContentText("正在准备")
+                    .setSmallIcon(android.R.drawable.stat_sys_download)
+                    .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
+                            getSnoozePendingIntent(DOWNLOAD_CANCEL))
+                    .setOngoing(true)
             notify(notificationId, builder.build())
         }
     }
@@ -196,7 +212,6 @@ class AriaDownloader(private val isDebug: Boolean) {
                             getSnoozePendingIntent(DEL_FILE, path = file.path))
                     setDeleteIntent(getSnoozePendingIntent(DEL_FILE, path = file.path))
                     setOngoing(false)
-                    priority = NotificationCompat.PRIORITY_LOW
                 }
                 notify(notificationId, builder.build())
             }
@@ -207,18 +222,19 @@ class AriaDownloader(private val isDebug: Boolean) {
     @Download.onTaskCancel
     fun taskCancel(task: DownloadTask?) {
         if (task != null && task.key == url) {
-            cancelNotification(notificationId)
-            delTaskAndUnRegister()
+            cancel()
         }
     }
 
 
     private fun delTaskAndUnRegister() {
-        Aria.download(this).load(url).cancel(false)
+        if (url != null){
+            Aria.download(this).load(url!!).cancel(false)
+        }
         Aria.download(this).unRegister()
     }
 
-    private fun getSnoozePendingIntent(extraIdentifierDownloadControl: Int, path: String = url): PendingIntent {
+    private fun getSnoozePendingIntent(extraIdentifierDownloadControl: Int, path: String? = url): PendingIntent {
         val snoozeIntent = getSnoozeIntent(extraIdentifierDownloadControl, path, notificationId)
         val flags =
                 if (extraIdentifierDownloadControl == INSTALL_APK)
@@ -229,7 +245,7 @@ class AriaDownloader(private val isDebug: Boolean) {
         return PendingIntent.getBroadcast(context, pendingIntentIndex.toInt(), snoozeIntent, flags)
     }
 
-    private fun getSnoozeIntent(extraIdentifierDownloadControl: Int, path: String, notificationId: Int): Intent {
+    private fun getSnoozeIntent(extraIdentifierDownloadControl: Int, path: String?, notificationId: Int): Intent {
         return Intent(context, DownloadBroadcastReceiver::class.java).apply {
             action = ACTION_SNOOZE
             putExtra(NOTIFICATION_ID, notificationId)
