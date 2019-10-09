@@ -1,9 +1,9 @@
 package net.xzos.upgradeAll.server.app.engine.js
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.api.CoreApi
-import java.util.concurrent.Executors
+import net.xzos.upgradeAll.server.app.manager.module.JSThread
 
 class JavaScriptEngine internal constructor(
         internal val logObjectTag: Array<String>,
@@ -14,14 +14,13 @@ class JavaScriptEngine internal constructor(
 
     private val javaScriptCoreEngine: JavaScriptCoreEngine = JavaScriptCoreEngine(logObjectTag, URL, jsCode)
 
-    private val executorCoroutineDispatcher: ExecutorCoroutineDispatcher = javascriptThreadList[javascriptThreadIndex]
+    private val executorCoroutineDispatcher = JSThread.getJavascriptThread()
 
     init {
         if (!isDebug) {
             Log.i(this.logObjectTag, TAG, String.format("JavaScriptCoreEngine: jsCode: \n%s", jsCode))  // 只打印一次 JS 脚本
         }
         javaScriptCoreEngine.jsUtils.isDebug = isDebug
-        GlobalScope.launch(executorCoroutineDispatcher) { javaScriptCoreEngine.initRhino() }
     }
 
 
@@ -58,28 +57,8 @@ class JavaScriptEngine internal constructor(
         return runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.downloadReleaseFile(downloadIndex) }
     }
 
-    fun exit() {
-        GlobalScope.launch(executorCoroutineDispatcher) { javaScriptCoreEngine.exit() }
-    }
-
     companion object {
         private const val TAG = "JavaScriptEngine"
         private val Log = ServerContainer.Log
-        private var javascriptThreadList: MutableList<ExecutorCoroutineDispatcher> = mutableListOf()
-
-        private const val threadNumber = 8
-        // TODO: 用户自定义线程池大小
-        private var javascriptThreadIndex: Int = 0
-            get() {
-                field++
-                field %= threadNumber
-                return field
-            }
-
-        init {
-            for (i in 1..threadNumber) {
-                javascriptThreadList.add(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
-            }
-        }
     }
 }

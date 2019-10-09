@@ -1,7 +1,5 @@
 package net.xzos.upgradeAll.server.app.engine.js
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
@@ -21,7 +19,8 @@ internal class JavaScriptCoreEngine(
     private lateinit var cx: Context
     private lateinit var scope: Scriptable
 
-    internal val jsUtils: JSUtils = JSUtils(this.logObjectTag)
+    private val jsLog = JSLog(logObjectTag)
+    internal val jsUtils = JSUtils(logObjectTag)
 
     // 加载 JavaScript 代码
     private fun executeVoidScript(): Boolean {
@@ -35,7 +34,7 @@ internal class JavaScriptCoreEngine(
         }
     }
 
-    internal fun initRhino(): Boolean {
+    private fun initRhino(): Boolean {
         // 初始化 rhino 对象
         cx = Context.enter()
         cx.optimizationLevel = -1
@@ -48,7 +47,7 @@ internal class JavaScriptCoreEngine(
         return true
     }
 
-    internal fun exit() {
+    private fun exit() {
         Context.exit()
     }
 
@@ -58,20 +57,23 @@ internal class JavaScriptCoreEngine(
         val rhinoJSUtils = Context.javaToJS(jsUtils, scope)
         ScriptableObject.putProperty(scope, "JSUtils", rhinoJSUtils)
         // Log
-        val rhinoLogUtils = Context.javaToJS(JSLog(logObjectTag), scope)
+        val rhinoLogUtils = Context.javaToJS(jsLog, scope)
         ScriptableObject.putProperty(scope, "Log", rhinoLogUtils)
     }
 
     // 运行 JS 代码
     private fun runJS(functionName: String, args: Array<Any>): Any? {
+        if (!initRhino()) return null
         val obj = scope.get(functionName, scope)
-        return try {
+        val result = try {
             obj as Function
             obj.call(cx, scope, scope, args)
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, "runJS: 脚本执行错误, 函数名: $functionName, ERROR_MESSAGE: $e")
             null
         }
+        exit()
+        return result
     }
 
     override suspend fun getDefaultName(): String? {

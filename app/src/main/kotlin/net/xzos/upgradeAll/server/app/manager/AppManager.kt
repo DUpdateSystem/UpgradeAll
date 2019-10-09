@@ -31,7 +31,6 @@ internal class AppManager {
 
     fun delApp(appDatabaseId: Long) {
         // TODO: initApp自维护，数据来源：独立 UI 数据
-        getApp(appDatabaseId).engineExit()
         appMap.remove(appDatabaseId)
     }
 
