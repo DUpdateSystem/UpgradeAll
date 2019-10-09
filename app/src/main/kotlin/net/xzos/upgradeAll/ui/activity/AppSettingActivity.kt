@@ -176,7 +176,7 @@ class AppSettingActivity : AppCompatActivity() {
                         JavaScriptEngine(logObjectTag, URL, jsCode).getDefaultName()
                     }
                     if (!defaultName.isNullOrBlank())
-                        name = defaultName.toString()
+                        name = defaultName
                 }
             }
             val apiSpinner = findViewById<Spinner>(R.id.apiSpinner)

@@ -33,10 +33,6 @@ data class App(private val appDatabaseId: Long) {
             return VersionChecker(inputVersionCheckerString = versionChecker)
         }
 
-    internal fun engineExit() {
-        engine.exit()
-    }
-
     // 添加一个 更新检查器追踪子项
     private fun newEngine(databaseId: Long): JavaScriptEngine {
         val repoDatabase: RepoDatabase? = LitePal.find(databaseId)
