@@ -77,10 +77,17 @@ internal class JavaScriptCoreEngine(
     }
 
     override suspend fun getDefaultName(): String? {
-        val result = runJS("getDefaultName", arrayOf())
-        val defaultName = Context.toString(result) ?: return null
+        val result = runJS("getDefaultName", arrayOf()) ?: return null
+        val defaultName = Context.toString(result)
         Log.d(logObjectTag, TAG, "getDefaultName: defaultName: $defaultName")
         return defaultName
+    }
+
+    override suspend fun getAppIconUrl(): String? {
+        val result = runJS("getAppIconUrl", arrayOf()) ?: return null
+        val appIconUrl = Context.toString(result)
+        Log.d(logObjectTag, TAG, "getAppIconUrl: appIconUrl: $appIconUrl")
+        return appIconUrl
     }
 
     override suspend fun getReleaseNum(): Int {
@@ -131,22 +138,7 @@ internal class JavaScriptCoreEngine(
         val result = runJS("downloadReleaseFile", arrayOf(downloadIndex.first, downloadIndex.second))
         val filePath: String? = if (result != null) {
             Context.toString(result)
-        } else {
-            Log.e(logObjectTag, TAG, "downloadReleaseFile: 尝试直接下载")
-            val downloadReleaseMap = getReleaseDownload(downloadIndex.first)
-            val fileIndex = downloadIndex.second
-            val fileNameList = downloadReleaseMap.keys.toList()
-            val fileName =
-                    if (fileIndex < fileNameList.size)
-                        fileNameList[fileIndex]
-                    else
-                        null
-            val downloadUrl = downloadReleaseMap[fileName]
-            if (fileName != null && downloadUrl != null)
-                jsUtils.downloadFile(fileName, downloadUrl)
-            else
-                null
-        }
+        } else null
         Log.d(logObjectTag, TAG, "downloadReleaseFile: filePath: $filePath")
         return filePath
     }

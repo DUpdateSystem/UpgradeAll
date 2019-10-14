@@ -2,14 +2,18 @@ package net.xzos.upgradeAll.ui.viewmodels.adapters
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.server.ServerContainer
@@ -17,9 +21,19 @@ import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.AppSettingActivity
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
+import net.xzos.upgradeAll.utils.IconPalette
 
 
-class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
+class AppItemAdapter(private val needUpdateAppIdLiveLiveData: MutableLiveData<MutableList<Long>>, itemCardViewLiveData: LiveData<MutableList<ItemCardView>>, owner: LifecycleOwner) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
+
+    private var mItemCardViewList: MutableList<ItemCardView> = mutableListOf()
+
+    init {
+        itemCardViewLiveData.observe(owner, Observer { list ->
+            mItemCardViewList = list
+            notifyDataSetChanged()
+        })
+    }
 
     private val uiConfig = ServerContainer.UIConfig
 
@@ -60,17 +74,22 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
         val itemCardView = mItemCardViewList[position]
         // 底栏设置
         if (itemCardView.extraData.isEmpty) {
+            holder.appPlaceholderImageView.setImageDrawable(IconPalette.AppItemPlaceholder)
+            holder.appPlaceholderImageView.visibility = View.VISIBLE
             holder.itemCardView.visibility = View.GONE
-            holder.endTextView.visibility = View.VISIBLE
         } else {
             holder.itemCardView.visibility = View.VISIBLE
-            holder.endTextView.visibility = View.GONE
+            holder.appPlaceholderImageView.visibility = View.GONE
+            setAppIcon(holder.appIconImageView, itemCardView.iconInfo)
             val appDatabaseId = itemCardView.extraData.databaseId
             holder.name.text = itemCardView.name
-            holder.api.text = itemCardView.api
             holder.descTextView.text = itemCardView.desc
             setAppStatusUI(appDatabaseId, holder)
         }
+    }
+
+    override fun getItemCount(): Int {
+        return mItemCardViewList.size
     }
 
     fun onAddItem(position: Int = 0, element: ItemCardView) {
@@ -110,8 +129,24 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
         return true
     }
 
-    override fun getItemCount(): Int {
-        return mItemCardViewList.size
+    private fun setAppIcon(iconImageView: ImageView, iconInfo: Pair<String?, String?>) {
+        if (iconInfo.first != null) {
+            Glide.with(iconImageView)
+                    .load(iconInfo.first)
+                    .into(iconImageView)
+        } else if (iconInfo.second != null) {
+            val packageName = iconInfo.second!!
+            val packageManager = iconImageView.context.packageManager
+            try {
+                packageManager.getPackageInfo(packageName, 0)
+                val icon = packageManager.getApplicationIcon(packageName)
+                Glide.with(iconImageView)
+                        .load("")
+                        .placeholder(icon)
+                        .into(iconImageView)
+            } catch (e: PackageManager.NameNotFoundException) {
+            }
+        }
     }
 
     private fun setAppStatusUI(appDatabaseId: Long, holder: CardViewRecyclerViewHolder) {
@@ -121,11 +156,13 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
         GlobalScope.launch {
             val isSuccessRenew = async { updater.isSuccessRenew() }
             val isLatest = async { app.isLatest() }
+            val latestVersioning = async { app.latestVersioning }
+            val installedVersioning = async { app.installedVersioning }
             val updateStatus =   // 0: 404; 1: latest; 2: need update; 3: no app
                     //检查是否取得云端版本号
                     if (isSuccessRenew.await()) {
                         // 检查是否获取本地版本号
-                        if (app.installedVersion != null) {
+                        if (app.installedVersioning != null) {
                             // 检查本地版本
                             if (isLatest.await()) {
                                 1
@@ -138,14 +175,26 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
                     } else {
                         0
                     }
-            Handler(Looper.getMainLooper()).post {
+            runBlocking(Dispatchers.Main) {
                 when (updateStatus) {
-                    0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_404)
-                    1 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_latest)
+                    0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error)
+                    1 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_mark)
                     2 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
                     3 -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
                 }
+                with(needUpdateAppIdLiveLiveData) {
+                    this.value?.let {
+                        if (updateStatus == 2 && !it.contains(appDatabaseId)) {
+                            it.add(appDatabaseId)
+                        } else if (updateStatus != 2 && it.contains(appDatabaseId)) {
+                            it.remove(appDatabaseId)
+                        }
+                        return@let
+                    }
+                }
                 setUpdateStatus(holder, false)
+                holder.versioningTextView.text = installedVersioning.await()
+                        ?: "NEW: ${latestVersioning.await()}" ?: ""
             }
         }
     }
@@ -181,7 +230,7 @@ class AppItemAdapter(private val mItemCardViewList: MutableList<ItemCardView>) :
             }
             val localReleaseTextView = dialogWindow.findViewById<TextView>(R.id.localReleaseTextView)
             // 显示本地版本号
-            val installedVersion = app.installedVersion
+            val installedVersion = app.installedVersioning
             if (installedVersion != null)
                 localReleaseTextView.text = installedVersion
             else

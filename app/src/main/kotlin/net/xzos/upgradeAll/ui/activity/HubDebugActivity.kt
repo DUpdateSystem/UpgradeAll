@@ -54,7 +54,7 @@ class HubDebugActivity : AppCompatActivity() {
             try {
                 hubConfig.baseVersion = Integer.parseInt(configBaseVersionEditText.text.toString())
             } catch (e: NumberFormatException) {
-                Toast.makeText(this@HubDebugActivity, "请填写 适配配置版本", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@HubDebugActivity, "请填写正确整数", Toast.LENGTH_LONG).show()
                 return null
             }
 
@@ -64,7 +64,7 @@ class HubDebugActivity : AppCompatActivity() {
             try {
                 hubConfig.info.configVersion = Integer.parseInt(configVersionEditText.text.toString())
             } catch (e: NumberFormatException) {
-                Toast.makeText(this@HubDebugActivity, "请填写 配置版本", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@HubDebugActivity, "请填写正确整数", Toast.LENGTH_LONG).show()
                 return null
             }
 

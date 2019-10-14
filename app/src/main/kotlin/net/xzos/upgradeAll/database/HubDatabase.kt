@@ -8,23 +8,27 @@ import org.litepal.crud.LitePalSupport
 open class HubDatabase(
         var name: String,
         var uuid: String,
-        private var hub_config: String,
-        private var extra_data: String
+        private var hub_config: String?,
+        private var extra_data: String?
 ) : LitePalSupport() {
     val id: Long = 0
 
-    var hubConfig: Any
+    var hubConfig: Any?
         set(value) {
-            hub_config = Gson().toJson(value)
+            if (value != null && value is HubConfig)
+                hub_config = Gson().toJson(value)
         }
         get() {
-            return Gson().fromJson(hub_config, HubConfig::class.java)
+            return if (hub_config != null) Gson().fromJson(hub_config, HubConfig::class.java)
+            else null
         }
     var extraData: Any?
         set(value) {
-            extra_data = Gson().toJson(value)
+            if (value != null && value is HubDatabaseExtraData)
+                extra_data = Gson().toJson(value)
         }
         get() {
-            return Gson().fromJson(extra_data, HubDatabaseExtraData::class.java)
+            return if (extra_data != null) Gson().fromJson(extra_data, HubDatabaseExtraData::class.java)
+            else null
         }
 }

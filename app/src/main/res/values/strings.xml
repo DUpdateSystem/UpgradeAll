@@ -29,9 +29,8 @@
     <string name="title_activity_hub_setting">HubSettingActivity</string>
     <string name="title_activity_log">日志</string>
     <string name="local_debug">本地调试</string>
-    <string name="cloud_hub">云端仓库</string>
+    <string name="cloud_hub_list">云端仓库</string>
     <string name="download">下载</string>
-    <string name="end">End</string>
     <string name="js_test">JS 脚本测试</string>
     <string name="selected_file_address">已选中的文件:\ </string>
     <string name="run">运行</string>
@@ -54,7 +53,7 @@
     <string name="save_to_file_and_database">保存到文件与数据库</string>
     <string name="main_program">主程序</string>
     <string name="usage_guidelines_main"><![CDATA[这里好像什么也没有(>﹏<)\n点开右上角菜单看看帮助文档吧~]]></string>
-    <string name="usage_guidelines_hub">Tips：点击右下角 + 添加云端规则~</string>
+    <string name="click_to_add_something">按下加号添加应用/源吧</string>
     <string name="navigation_drawer_open">开启侧滑菜单</string>
     <string name="navigation_drawer_close">关闭侧滑菜单</string>
     <string name="navigation_head_image">侧滑菜单背景图</string>
@@ -62,5 +61,21 @@
     <string name="clean_all_log">清空全部日志</string>
     <string name="export_all">全部导出</string>
     <string name="clean_log">清空日志</string>
+    <string name="others">其他</string>
+    <string name="backdrop_image">背景图片</string>
+    <string name="group_logo">分组图标</string>
+    <string name="del_group">删除分组</string>
+    <string name="apps_logo">软件图标</string>
+    <string name="update_status_identifier">更新状态标识</string>
+    <string name="nothing_in_there">空无一物</string>
+    <string name="end">到底啦</string>
+    <string name="example_name">ExampleName</string>
+    <string name="example_versioning">0.0.0</string>
+    <string name="example_package_name">com.example.app</string>
+    <string name="add_group_or_hub">添加分组/软件源</string>
+    <string name="add_group">添加源</string>
+    <string name="example_number">0</string>
+    <string name="example_update_overview">0 个应用中的 0 个需要升级</string>
+    <string name="update_status_prompt">升级提示符</string>
 
 </resources>

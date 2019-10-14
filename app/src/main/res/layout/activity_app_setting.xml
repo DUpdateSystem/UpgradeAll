@@ -86,14 +86,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/versionCheckSpinner"
                 android:layout_alignParentStart="true"
-                android:layout_toStartOf="@+id/statusCheckButton"
+                android:layout_toStartOf="@+id/statusCheckImageView"
                 android:autofillHints="versionCheckText"
                 android:hint="@string/update_item_setting_editVersionCheckerText"
                 android:inputType="text"
                 tools:targetApi="o" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/statusCheckButton"
+                android:id="@+id/statusCheckImageView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"

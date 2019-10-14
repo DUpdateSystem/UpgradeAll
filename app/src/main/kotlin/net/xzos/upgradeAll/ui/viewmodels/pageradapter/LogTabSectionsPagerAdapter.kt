@@ -1,4 +1,4 @@
-package net.xzos.upgradeAll.ui.viewmodels.log
+package net.xzos.upgradeAll.ui.viewmodels.pageradapter
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -8,9 +8,11 @@ import androidx.lifecycle.Observer
 import androidx.viewpager.widget.PagerAdapter
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.log.LogDataProxy
+import net.xzos.upgradeAll.ui.viewmodels.fragment.LogPlaceholderFragment
 import java.util.*
 
-class SectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, private val logSort: String) : FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, private val logSort: String) :
+        FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     private var mLogObjectIdList: List<String>? = null
 
     init {
@@ -29,7 +31,7 @@ class SectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, private v
 
     override fun getItem(position: Int): Fragment {
         val logObjectTag = arrayOf(logSort, mLogObjectIdList!![position])
-        return PlaceholderFragment.newInstance(logObjectTag)
+        return LogPlaceholderFragment.newInstance(logObjectTag)
     }
 
     override fun getPageTitle(position: Int): CharSequence? {

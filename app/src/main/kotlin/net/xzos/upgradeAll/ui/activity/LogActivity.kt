@@ -13,14 +13,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Observer
-import androidx.viewpager.widget.ViewPager
-import com.google.android.material.tabs.TabLayout
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial
 import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
+import kotlinx.android.synthetic.main.activity_log.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.log.LogDataProxy
-import net.xzos.upgradeAll.ui.viewmodels.log.SectionsPagerAdapter
+import net.xzos.upgradeAll.ui.viewmodels.pageradapter.LogTabSectionsPagerAdapter
 import net.xzos.upgradeAll.utils.FileUtil
 
 class LogActivity : AppCompatActivity() {
@@ -156,11 +155,9 @@ class LogActivity : AppCompatActivity() {
 
 
     private fun setViewPage(sort: String) {
-        val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager, sort)
-        val viewPager = findViewById<ViewPager>(R.id.view_pager)
+        val sectionsPagerAdapter = LogTabSectionsPagerAdapter(this, supportFragmentManager, sort)
         viewPager.adapter = sectionsPagerAdapter
-        val tabs = findViewById<TabLayout>(R.id.tabs)
-        tabs.setupWithViewPager(viewPager)
+        logTabs.setupWithViewPager(viewPager)
     }
 
     companion object {
