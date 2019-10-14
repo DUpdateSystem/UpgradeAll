@@ -4,32 +4,39 @@
     tools:showIn="navigation_view">
 
     <group
-        android:id="@+id/nav_group_1"
         android:checkableBehavior="single">
         <item
             android:id="@+id/app_list"
             android:icon="@drawable/ic_app_list"
             android:title="@string/app_list" />
         <item
-            android:id="@+id/hub_list"
-            android:icon="@drawable/ic_hub_list"
-            android:title="@string/hub_list" />
+            android:id="@+id/cloud_hub_list"
+            android:icon="@drawable/ic_cloud_list"
+            android:title="@string/cloud_hub_list" />
+        <item
+            android:id="@+id/local_hub_debug"
+            android:icon="@drawable/ic_local_hub_debug"
+            android:title="@string/local_debug" />
     </group>
 
     <group
-        android:id="@+id/nav_group_2"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/app_help"
-            android:icon="@drawable/ic_help"
-            android:title="@string/help" />
-        <item
-            android:id="@+id/app_log"
-            android:icon="@drawable/ic_log"
-            android:title="@string/log" />
-        <item
-            android:id="@+id/app_setting"
-            android:icon="@drawable/ic_setting"
-            android:title="@string/setting" />
+            android:title="@string/others">
+            <menu>
+                <item
+                    android:id="@+id/app_help"
+                    android:icon="@drawable/ic_help"
+                    android:title="@string/help" />
+                <item
+                    android:id="@+id/app_log"
+                    android:icon="@drawable/ic_log"
+                    android:title="@string/log" />
+                <item
+                    android:id="@+id/app_setting"
+                    android:icon="@drawable/ic_setting"
+                    android:title="@string/setting" />
+            </menu>
+        </item>
     </group>
 </menu>

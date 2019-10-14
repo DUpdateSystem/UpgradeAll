@@ -9,11 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.cardview_item.view.*
 
 data class CardViewRecyclerViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+    val appIconImageView: ImageView = view.appIconImageView
     val name: TextView = view.nameTextView
+    val versioningTextView: TextView = view.versioningTextView
     val descTextView: TextView = view.descTextView
-    val api: TextView = view.apiTextView
-    val endTextView: TextView = view.endTextView
-    val itemCardView: CardView = view.itemCardView
     val versionCheckingBar: ProgressBar = view.statusChangingBar
-    val versionCheckButton: ImageView = view.statusCheckButton
+    val versionCheckButton: ImageView = view.statusCheckImageView
+    val itemCardView: CardView = view.itemCardView
+    val appPlaceholderImageView: ImageView = view.AppPlaceholderImageView
 }

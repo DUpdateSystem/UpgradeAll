@@ -6,17 +6,11 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".ui.activity.MainActivity"
-    tools:showIn="@layout/app_bar_main">
+    tools:showIn="@layout/layout_main">
 
-    <LinearLayout
+    <FrameLayout
+        android:id="@+id/contentFrameLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
-
-        <FrameLayout
-            android:id="@+id/contentFrameLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
+        android:layout_height="match_parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,6 +9,10 @@ interface CoreApi {
     suspend fun getDefaultName(): String?
 
     /**
+     * 返回更新项默认图标
+     */
+    suspend fun getAppIconUrl(): String?
+    /**
      * 返回获取到的云端版本号数量
      */
     suspend fun getReleaseNum(): Int

@@ -1,4 +1,4 @@
-package net.xzos.upgradeAll.ui.viewmodels.log
+package net.xzos.upgradeAll.ui.viewmodels.fragment
 
 import android.content.Context
 import android.os.Bundle
@@ -9,37 +9,33 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.ui.viewmodels.adapters.LogItemAdapter
+import net.xzos.upgradeAll.ui.viewmodels.viewmodel.LogPageViewModel
 
-/**
- * A placeholder fragment containing a simple view.
- */
-class PlaceholderFragment : Fragment() {
+class LogPlaceholderFragment : Fragment() {
 
     private lateinit var mContext: Context
-
-    private lateinit var pageViewModel: PageViewModel
+    private lateinit var logPageViewModel: LogPageViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mContext = context!!
-        pageViewModel = ViewModelProvider(this).get(PageViewModel::class.java)
+        logPageViewModel = ViewModelProvider(this).get(LogPageViewModel::class.java)
         if (arguments != null) {
             val logObjectTag = arguments?.getStringArray(ARG_SECTION_NUMBER)
             if (logObjectTag != null)
-                pageViewModel.setLogObjectTag(logObjectTag)
+                logPageViewModel.setLogObjectTag(logObjectTag)
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_log, container, false)
-        val logListView = root.findViewById<RecyclerView>(R.id.log_list)
+        val logListRecyclerView = root.findViewById<RecyclerView>(R.id.logListRecyclerView)
         val layoutManager = GridLayoutManager(mContext, 1)
-        logListView.layoutManager = layoutManager
-        val adapter = LogItemAdapter(pageViewModel.logList, this)
-        logListView.adapter = adapter
+        logListRecyclerView.layoutManager = layoutManager
+        val adapter = LogItemAdapter(logPageViewModel.logList, this)
+        logListRecyclerView.adapter = adapter
         return root
     }
 
@@ -47,8 +43,8 @@ class PlaceholderFragment : Fragment() {
 
         private const val ARG_SECTION_NUMBER = "LogObjectTag"
 
-        internal fun newInstance(logObjectTag: Array<String>): PlaceholderFragment {
-            val fragment = PlaceholderFragment()
+        internal fun newInstance(logObjectTag: Array<String>): LogPlaceholderFragment {
+            val fragment = LogPlaceholderFragment()
             val bundle = Bundle()
             bundle.putStringArray(ARG_SECTION_NUMBER, logObjectTag)
             fragment.arguments = bundle

@@ -205,7 +205,7 @@ class AriaDownloader(private val isDebug: Boolean) {
                     setProgress(0, 0, false)
                     mActions.clear()
                     if (ApkInstaller(context).isApkFile(file)) {
-                        addAction(R.drawable.ic_check_latest, "点击安装 APK 文件",
+                        addAction(R.drawable.ic_check_mark, "点击安装 APK 文件",
                                 getSnoozePendingIntent(INSTALL_APK, path = file.path))
                     }
                     addAction(android.R.drawable.ic_menu_delete, "删除",

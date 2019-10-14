@@ -8,16 +8,15 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.database.RepoDatabase
+import net.xzos.upgradeAll.json.gson.VersionCheckerGson
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.server.hub.HubManager
 import net.xzos.upgradeAll.utils.VersionChecker
 import org.json.JSONException
-import org.json.JSONObject
 import org.litepal.LitePal
 import java.util.*
 
@@ -26,9 +25,8 @@ class AppSettingActivity : AppCompatActivity() {
     private var databaseId: Long = 0  // 设置页面代表的数据库项目
 
     private// 获取versionChecker
-    val versionChecker: JSONObject
+    val versionCheckerGson: VersionCheckerGson
         get() {
-            val versionChecker = JSONObject()
             val versionCheckSpinner = findViewById<Spinner>(R.id.versionCheckSpinner)
             val editVersionCheckText = findViewById<EditText>(R.id.editVersionCheckText)
             val versionCheckerText = editVersionCheckText.text.toString()
@@ -39,14 +37,7 @@ class AppSettingActivity : AppCompatActivity() {
                 "自定义 Shell 命令" -> versionCheckerApi = "Shell"
                 "自定义 Shell 命令（ROOT）" -> versionCheckerApi = "Shell_ROOT"
             }
-            try {
-                versionChecker.put("api", versionCheckerApi)
-                versionChecker.put("text", versionCheckerText)
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
-
-            return versionChecker
+            return VersionCheckerGson(versionCheckerApi, versionCheckerText)
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,11 +65,11 @@ class AppSettingActivity : AppCompatActivity() {
         }
         setSettingItem() // 设置预置设置项
         // 以下是按键事件
-        val versionCheckButton = findViewById<Button>(R.id.statusCheckButton)
+        val versionCheckButton = findViewById<Button>(R.id.statusCheckImageView)
         versionCheckButton.setOnClickListener {
             // 版本检查设置
-            val versionCheckerJsonObject = versionChecker
-            val versionChecker = VersionChecker(inputVersionCheckerJsonObject = versionCheckerJsonObject)
+            val versionCheckerJsonObject = versionCheckerGson
+            val versionChecker = VersionChecker(versionCheckerGson = versionCheckerJsonObject)
             val appVersion = versionChecker.version
             if (appVersion != null) {
                 Toast.makeText(this, "version: $appVersion", Toast.LENGTH_SHORT).show()
@@ -108,7 +99,7 @@ class AppSettingActivity : AppCompatActivity() {
         val url = editUrl.text.toString()
         val apiSpinner = findViewById<Spinner>(R.id.apiSpinner)
         val apiNum = apiSpinner.selectedItemPosition
-        val versionChecker = versionChecker
+        val versionChecker = versionCheckerGson
         val progressBar = ProgressBar(this)
         // 弹出等待框
         progressBar.visibility = View.VISIBLE
@@ -140,27 +131,31 @@ class AppSettingActivity : AppCompatActivity() {
             val spinnerIndex = apiSpinnerList.indexOf(apiUuid)
             if (spinnerIndex != -1) apiSpinner.setSelection(spinnerIndex)
             val versionCheckSpinner = findViewById<Spinner>(R.id.versionCheckSpinner)
-            val versionChecker = JSONObject(database.versionChecker)
-            var versionCheckerApi = ""
-            var versionCheckerText = ""
+            val versionCheckerGson = database.versionCheckerGson
+            val versionChecker = if (versionCheckerGson is VersionCheckerGson)
+                versionCheckerGson
+            else VersionCheckerGson()
+            var versionCheckerApi: String? = null
+            var versionCheckerText: String? = null
             try {
-                versionCheckerApi = versionChecker.getString("api")
-                versionCheckerText = versionChecker.getString("text")
+                versionCheckerApi = versionChecker.api
+                versionCheckerText = versionChecker.text
             } catch (e: JSONException) {
-                Log.e(LogObjectTag, TAG, String.format("onCreate: 数据库损坏！  versionChecker: %s", versionChecker))
+                Log.e(LogObjectTag, TAG, String.format("onCreate: 数据库损坏！  versionCheckerGson: %s", versionChecker))
             }
 
-            @SuppressLint("DefaultLocale")
-            when (versionCheckerApi.toLowerCase()) {
-                "app" -> versionCheckSpinner.setSelection(0)
-                "magisk" -> versionCheckSpinner.setSelection(1)
-            }
+            if (versionCheckerApi != null)
+                @SuppressLint("DefaultLocale")
+                when (versionCheckerApi.toLowerCase()) {
+                    "app" -> versionCheckSpinner.setSelection(0)
+                    "magisk" -> versionCheckSpinner.setSelection(1)
+                }
             val editVersionCheckText = findViewById<EditText>(R.id.editVersionCheckText)
             editVersionCheckText.setText(versionCheckerText)
         }
     }
 
-    private fun addRepoDatabase(databaseId: Long, name: String, apiNum: Int, URL: String, versionChecker: JSONObject): Boolean {
+    private fun addRepoDatabase(databaseId: Long, name: String, apiNum: Int, URL: String, versionChecker: VersionCheckerGson): Boolean {
         // 数据处理
         @Suppress("NAME_SHADOWING") var name: String = name
         val apiUuid = apiSpinnerList[apiNum]
@@ -191,9 +186,11 @@ class AppSettingActivity : AppCompatActivity() {
                     repoDatabase.api = api
                     repoDatabase.api_uuid = apiUuid
                     repoDatabase.url = URL
-                    repoDatabase.versionChecker = versionChecker.toString()
+                    repoDatabase.versionCheckerGson = versionChecker
                 } else {
-                    repoDatabase = RepoDatabase(name = name, api = api, url = URL, api_uuid = apiUuid, versionChecker = versionChecker.toString())
+                    repoDatabase = RepoDatabase(name = name, api = api, url = URL, api_uuid = apiUuid).apply {
+                        versionCheckerGson = versionChecker
+                    }
                 }
                 repoDatabase.save()
                 // 为 databaseId 赋值

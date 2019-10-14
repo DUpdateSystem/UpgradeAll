@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_margin="8dp">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/addGroupCardView"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_centerInParent="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            app:cardBackgroundColor="@color/light_gray"
+            app:cardCornerRadius="32dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/add_group_or_hub"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_plus"
+                android:tint="@color/gray" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/groupCardView"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_centerInParent="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            app:cardBackgroundColor="@color/light_gray"
+            app:cardCornerRadius="32dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:id="@+id/groupIconImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:contentDescription="@string/group_logo"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_android_placeholder" />
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/delGroupCardView"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            app:cardBackgroundColor="@color/light_gray"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                app:cardCornerRadius="11dp"
+                app:cardElevation="0dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/del_group"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_del_or_error" />
+
+            </androidx.cardview.widget.CardView>
+
+        </androidx.cardview.widget.CardView>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/groupNameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:text="@string/add_group"
+        android:textColor="@color/text_low_priority_color"
+        android:textSize="12sp" />
+</LinearLayout>

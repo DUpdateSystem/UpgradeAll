@@ -1,92 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="75dp"
-    android:layout_marginStart="10dp"
-    android:layout_marginTop="7dp"
-    android:layout_marginEnd="10dp"
-    android:gravity="center">
-
-    <TextView
-        android:id="@+id/endTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="@string/end"
-        android:visibility="gone" />
+    android:layout_height="wrap_content">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/itemCardView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="72dp"
         android:foreground="?android:attr/selectableItemBackground"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/statusCheckButton"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_alignEnd="@+id/statusChangingBar"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="0dp"
-                android:visibility="gone"
-                app:srcCompat="@android:color/transparent"
-                tools:ignore="ContentDescription" />
+                android:id="@+id/appIconImageView"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerInParent="true"
+                android:contentDescription="@string/apps_logo"
+                android:src="@drawable/ic_android_placeholder" />
 
-            <ProgressBar
-                android:id="@+id/statusChangingBar"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="5dp"
-                android:visibility="invisible" />
-
-            <TextView
-                android:id="@+id/nameTextView"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:maxLines="1"
-                android:textSize="30sp"
-                tools:text="ExampleName" />
+                android:layout_centerInParent="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="100dp"
+                android:layout_toStartOf="@+id/statusLayout"
+                android:layout_toEndOf="@+id/appIconImageView"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/descTextView"
-                android:layout_width="254dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginEnd="75dp"
-                android:layout_toStartOf="@+id/apiTextView"
-                android:onClick="onClick"
-                android:singleLine="true"
-                tools:text="https://github.com/owner/itemCardView" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/apiTextView"
+                    <TextView
+                        android:id="@+id/nameTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:text="@string/example_name"
+                        android:textColor="@color/text_color"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/versioningTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10sp"
+                        android:maxLines="1"
+                        android:text="@string/example_versioning"
+                        android:textColor="@color/text_lowest_priority_color"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/descTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:onClick="onClick"
+                    android:singleLine="true"
+                    android:text="@string/example_package_name"
+                    android:textColor="@color/text_low_priority_color" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/statusLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentBottom="true"
-                tools:ignore="RelativeOverlap"
-                tools:text="GitHub" />
+                android:layout_centerInParent="true">
+
+                <ImageView
+                    android:id="@+id/statusCheckImageView"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@string/update_status_identifier" />
+
+                <ProgressBar
+                    android:id="@+id/statusChangingBar"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:visibility="visible" />
+            </RelativeLayout>
 
         </RelativeLayout>
 
     </androidx.cardview.widget.CardView>
+
+    <ImageView
+        android:id="@+id/AppPlaceholderImageView"
+        android:layout_width="48dp"
+        android:layout_height="40dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="32dp"
+        android:contentDescription="@string/end"
+        android:src="@drawable/ic_check_mark"
+        android:visibility="visible" />
 
 </RelativeLayout>

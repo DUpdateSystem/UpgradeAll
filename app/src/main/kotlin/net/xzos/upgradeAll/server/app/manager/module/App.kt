@@ -1,6 +1,8 @@
 package net.xzos.upgradeAll.server.app.manager.module
 
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.database.RepoDatabase
+import net.xzos.upgradeAll.json.gson.VersionCheckerGson
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.server.hub.HubManager
@@ -14,23 +16,30 @@ data class App(private val appDatabaseId: Long) {
 
     suspend fun isLatest(): Boolean {
         val latestVersion = Updater(engine).getLatestVersion()
-        val installedVersion = installedVersion
+        val installedVersion = installedVersioning
         return VersionChecker.compareVersionNumber(installedVersion, latestVersion)
     }
 
-    // 获取已安装版本号
-    val installedVersion: String?
+    // 获取最新版本号
+    val latestVersioning: String?
         get() {
-            val versionChecker = versionChecker
+            return runBlocking { Updater(engine).getLatestVersion() }
+        }
+
+    // 获取已安装版本号
+    val installedVersioning: String?
+        get() {
             return versionChecker?.version
         }
 
-    // 获取数据库 VersionChecker 数据
+    // 获取数据库 VersionCheckerGson 数据
     private val versionChecker: VersionChecker?
         get() {
             val repoDatabase: RepoDatabase? = LitePal.find(appDatabaseId)
-            val versionChecker = repoDatabase?.versionChecker
-            return VersionChecker(inputVersionCheckerString = versionChecker)
+            val versionChecker = repoDatabase?.versionCheckerGson
+            return if (versionChecker is VersionCheckerGson)
+                VersionChecker(versionChecker)
+            else null
         }
 
     // 添加一个 更新检查器追踪子项

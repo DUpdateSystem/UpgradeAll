@@ -28,6 +28,10 @@ class JavaScriptEngine internal constructor(
         return runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getDefaultName() }
     }
 
+    override suspend fun getAppIconUrl(): String? {
+        return runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getAppIconUrl() }
+    }
+
     override suspend fun getReleaseNum(): Int {
         return runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.getReleaseNum() }
     }
@@ -54,7 +58,26 @@ class JavaScriptEngine internal constructor(
     }
 
     override suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): String? {
-        return runBlocking(executorCoroutineDispatcher) { javaScriptCoreEngine.downloadReleaseFile(downloadIndex) }
+        return runBlocking(executorCoroutineDispatcher) {
+            javaScriptCoreEngine.downloadReleaseFile(downloadIndex) ?: downloadFile(downloadIndex)
+        }
+    }
+
+    private suspend fun downloadFile(downloadIndex: Pair<Int, Int>): String? {
+        Log.e(logObjectTag, TAG, "downloadReleaseFile: 尝试直接下载")
+        val downloadReleaseMap = getReleaseDownload(downloadIndex.first)
+        val fileIndex = downloadIndex.second
+        val fileNameList = downloadReleaseMap.keys.toList()
+        val fileName =
+                if (fileIndex < fileNameList.size)
+                    fileNameList[fileIndex]
+                else
+                    null
+        val downloadUrl = downloadReleaseMap[fileName]
+        return if (fileName != null && downloadUrl != null)
+            javaScriptCoreEngine.jsUtils.downloadFile(fileName, downloadUrl)
+        else
+            null
     }
 
     companion object {

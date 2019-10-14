@@ -61,7 +61,7 @@ object HubManager {
         LitePal.deleteAll(HubDatabase::class.java, "uuid = ?", uuid)
     }
 
-    fun getDatabase(uuid: String): HubDatabase? {
+    fun getDatabase(uuid: String?): HubDatabase? {
         val hubDatabases: List<HubDatabase> = LitePal.where("uuid = ?", uuid).find()
         return if (hubDatabases.isNotEmpty())
             hubDatabases[0]
@@ -81,6 +81,13 @@ object HubManager {
         val extraData = hubDatabase.extraData
         return if (extraData is HubDatabaseExtraData)
             extraData.javascript
+        else null
+    }
+
+    fun getHubIconUrl(uuid: String?): String? {
+        val hubConfig = getDatabase(uuid)?.hubConfig
+        return if (hubConfig is HubConfig)
+            hubConfig.info.hubIconUrl
         else null
     }
 }
