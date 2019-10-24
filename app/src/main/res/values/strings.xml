@@ -77,5 +77,6 @@
     <string name="example_number">0</string>
     <string name="example_update_overview">0 个应用中的 0 个需要升级</string>
     <string name="update_status_prompt">升级提示符</string>
+    <string name="waiting_check_update">检查更新中…</string>
 
 </resources>

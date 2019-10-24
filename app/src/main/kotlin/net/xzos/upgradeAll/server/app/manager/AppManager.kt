@@ -42,6 +42,5 @@ internal class AppManager {
 
     companion object {
         private val appMap = mutableMapOf<Long, App>() // 存储 Updater Engine 数据
-
     }
 }
