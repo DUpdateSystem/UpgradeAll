@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.ui.viewmodels.adapters.AppItemAdapter
@@ -69,12 +70,22 @@ class AppListPlaceholderFragment : Fragment() {
         return root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
+        //swipeRefresh.setOnRefreshListener { this.renewCardView() }
+    }
+
     override fun onResume() {
         super.onResume()
         appListPageViewModel.appCardViewList.value?.let {
             if (it.isNullOrEmpty()) {
                 updateOverviewLayout.visibility = View.GONE
                 placeholderLayout.visibility = View.VISIBLE
+                placeholderImageVew.setImageResource(R.drawable.ic_isnothing_placeholder)
+                with(placeholderTextView) {
+                    text = this.context.getText(R.string.click_to_add_something)
+                }
             } else {
                 updateOverviewLayout.visibility = View.VISIBLE
                 placeholderLayout.visibility = View.GONE

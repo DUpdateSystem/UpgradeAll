@@ -8,13 +8,13 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="24dp">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
+            android:layout_marginTop="24dp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -84,24 +84,27 @@
 
         <LinearLayout
             android:id="@+id/placeholderLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
+            android:background="@color/white"
             android:gravity="center"
             android:orientation="vertical"
             tools:ignore="UseCompoundDrawables">
 
             <ImageView
+                android:id="@+id/placeholderImageVew"
                 android:layout_width="170dp"
                 android:layout_height="170dp"
                 android:layout_marginBottom="16dp"
                 android:contentDescription="@string/nothing_in_there"
-                app:srcCompat="@drawable/ic_isnothing_placeholder" />
+                android:src="@drawable/ic_checking_update" />
 
             <TextView
+                android:id="@+id/placeholderTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/click_to_add_something"
+                android:text="@string/waiting_check_update"
                 android:textColor="@color/text_low_priority_color"
                 android:textSize="14sp" />
         </LinearLayout>
