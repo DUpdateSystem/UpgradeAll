@@ -1,8 +1,6 @@
 package net.xzos.upgradeAll.ui.viewmodels.fragment
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,9 +23,6 @@ import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 class HubCloudFragment : Fragment() {
     private val mCloudHub = CloudHub()
 
-    private val itemCardViewList = ArrayList<ItemCardView>()
-    private val adapter = CloudHubItemAdapter(itemCardViewList, mCloudHub)
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_cloud_hub_list, container, false)
     }
@@ -36,12 +31,12 @@ class HubCloudFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
         swipeRefresh.setOnRefreshListener { this.renewCardView() }
+        renewCardView()
     }
 
     override fun onResume() {
         super.onResume()
         activity?.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.cloud_hub_list)
-        renewCardView()
     }
 
     private fun renewCardView() {
@@ -53,24 +48,17 @@ class HubCloudFragment : Fragment() {
     }
 
     private fun renewCloudHubList() {
-        val isSuccess = mCloudHub.getCloudConfig()
-        Handler(Looper.getMainLooper()).post {
-            if (!isSuccess) {
-                Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
-            } else {
-                val hubList = mCloudHub.hubList
-                if (hubList != null) {
-                    itemCardViewList.clear()
-                    for (hubItem in hubList) {
-                        getCloudHubItemCardView(hubItem)
-                    }
-                    if (itemCardViewList.isNotEmpty()) {
-                        itemCardViewList.add(ItemCardView(Pair(null, null), null, null, ItemCardViewExtraData(isEmpty = true)))
-                    }
-                    setRecyclerView()
-                    adapter.notifyDataSetChanged()
+        val itemCardViewList = mCloudHub.hubList?.map { getCloudHubItemCardView(it) }
+                ?.plus(ItemCardView(Pair(null, null), null, null, ItemCardViewExtraData(isEmpty = true)))
+                ?: run {
+                    Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
+                    return@run listOf<ItemCardView>()
                 }
-            }
+        runBlocking(Dispatchers.Main) {
+            val layoutManager = GridLayoutManager(activity, 1)
+            cardItemRecyclerView.layoutManager = layoutManager
+            val adapter = CloudHubItemAdapter(itemCardViewList, mCloudHub)
+            cardItemRecyclerView.adapter = adapter
         }
     }
 
@@ -80,11 +68,5 @@ class HubCloudFragment : Fragment() {
         val configFileName = item.hubConfigFileName
         val iconInfo: Pair<String?, String?> = Pair(configFileName, null)
         return ItemCardView(iconInfo, name, hubUuid, ItemCardViewExtraData(uuid = hubUuid, configFileName = configFileName))
-    }
-
-    private fun setRecyclerView() {
-        val layoutManager = GridLayoutManager(activity, 1)
-        cardItemRecyclerView.layoutManager = layoutManager
-        cardItemRecyclerView.adapter = adapter
     }
 }
