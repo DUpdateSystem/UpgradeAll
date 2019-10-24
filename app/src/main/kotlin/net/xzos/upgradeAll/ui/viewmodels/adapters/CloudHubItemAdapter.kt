@@ -4,6 +4,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +30,18 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.cardview_item, parent, false))
+        // 禁用无用按钮/信息
+        holder.versioningTextView.visibility = View.GONE
+        holder.versionCheckingBar.visibility = View.GONE
+        holder.versionCheckButton.visibility = View.GONE
+        with(holder.descTextView.parent as LinearLayout) {
+            this.viewTreeObserver.addOnGlobalLayoutListener {
+                this.layoutParams = (this.layoutParams as RelativeLayout.LayoutParams).apply {
+                    this.marginEnd = 0
+                }
+                this.invalidate()
+            }
+        }
         // 长按菜单
         holder.itemCardView.setOnLongClickListener { v ->
             val position = holder.adapterPosition

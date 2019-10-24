@@ -3,6 +3,8 @@ package net.xzos.upgradeAll.server.hub
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.json.gson.CloudConfig
@@ -14,6 +16,11 @@ import net.xzos.upgradeAll.utils.FileUtil
 class CloudHub {
     private var rulesListJsonFileRawUrl: String
     private var cloudConfig: CloudConfig? = null
+        get() {
+            if (field == null)
+                field = renewCloudConfig()
+            return field
+        }
 
     val appList: List<CloudConfig.AppListBean>?
         get() = cloudConfig?.appList
@@ -29,19 +36,17 @@ class CloudHub {
         rulesListJsonFileRawUrl = baseRawUrl + "rules/rules_list.json"
     }
 
-    fun getCloudConfig(): Boolean {
-        var isSuccess = false
-        val jsonText = okHttpApi.getHttpResponse(rulesListJsonFileRawUrl).first
+    private fun renewCloudConfig(): CloudConfig? {
+        val jsonText = runBlocking(Dispatchers.Default) { okHttpApi.getHttpResponse(rulesListJsonFileRawUrl).first }
         // 如果刷新失败，则不记录数据
-        if (jsonText != null && jsonText.isNotEmpty()) {
+        return if (jsonText != null && jsonText.isNotEmpty()) {
             try {
-                cloudConfig = Gson().fromJson(jsonText, CloudConfig::class.java)
-                isSuccess = true
+                Gson().fromJson(jsonText, CloudConfig::class.java)
             } catch (e: JsonSyntaxException) {
                 Log.e(LogObjectTag, TAG, "refreshData: ERROR_MESSAGE: $e")
+                null
             }
-        }
-        return isSuccess
+        } else null
     }
 
     fun getAppConfig(packageName: String): String? {
