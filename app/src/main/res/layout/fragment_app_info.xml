@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginStart="16dp"
+    android:layout_marginTop="16dp"
+    android:layout_marginEnd="24dp"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/appIconImageView"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/apps_logo"
+            android:src="@drawable/ic_android_placeholder" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="50dp"
+            android:layout_toStartOf="@+id/editImageButton"
+            android:layout_toEndOf="@+id/appIconImageView"
+            android:gravity="center|start"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:id="@+id/nameTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:text="@string/example_name"
+                    android:textColor="@color/text_color"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/versioningTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:maxLines="1"
+                    android:text="@string/example_versioning"
+                    android:textColor="@color/text_lowest_priority_color"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/appModuleName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:onClick="onClick"
+                android:singleLine="true"
+                android:text="@string/example_package_name"
+                android:textColor="@color/text_low_priority_color" />
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/editImageButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerInParent="true"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@android:color/transparent"
+            android:contentDescription="@string/edit"
+            android:scaleType="fitCenter"
+            android:tint="@color/text_lowest_priority_color"
+            tool:src="@drawable/ic_edit" />
+
+    </RelativeLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="32dp">
+
+        <ImageView
+            android:id="@+id/local_versioning_image_view"
+            android:layout_width="17dp"
+            android:layout_height="17dp"
+            android:contentDescription="@string/local_versioning"
+            android:src="@drawable/ic_local"
+            app:layout_constraintBottom_toTopOf="@+id/localVersioningTextView"
+            app:layout_constraintStart_toStartOf="@id/localVersioningTextView"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/local_versioning"
+            app:layout_constraintBottom_toTopOf="@+id/localVersioningTextView"
+            app:layout_constraintLeft_toRightOf="@id/local_versioning_image_view"
+            app:layout_constraintStart_toEndOf="@+id/local_versioning_image_view" />
+
+        <TextView
+            android:id="@+id/localVersioningTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="@string/example_versioning"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/local_versioning_image_view" />
+
+        <ImageView
+            android:id="@+id/arrow_image_view"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@string/direction"
+            android:rotation="90"
+            android:src="@drawable/ic_arrow"
+            app:layout_constraintBottom_toBottomOf="@+id/localVersioningTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/localVersioningTextView" />
+
+        <ImageView
+            android:id="@+id/cloud_versioning_image_view"
+            android:layout_width="17dp"
+            android:layout_height="17dp"
+            android:contentDescription="@string/latest_versioning"
+            android:src="@drawable/ic_download"
+            android:tint="@color/light_coolapk_green"
+            app:layout_constraintBottom_toTopOf="@+id/cloudVersioningTextView"
+            app:layout_constraintStart_toStartOf="@id/cloudVersioningTextView" />
+
+        <TextView
+            android:id="@+id/cloud_versioning_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/latest_versioning"
+            android:textColor="@color/light_coolapk_green"
+            app:layout_constraintBottom_toTopOf="@+id/cloudVersioningTextView"
+            app:layout_constraintLeft_toRightOf="@id/cloud_versioning_image_view"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/cloudVersioningTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:text="@string/example_versioning"
+            android:textColor="@color/coolapk_green"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/localVersioningTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <ImageView
+            android:id="@+id/update_info_image_view"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="40dp"
+            android:contentDescription="@string/update_info"
+            android:src="@drawable/ic_load"
+            android:tint="@color/coolapk_green"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/localVersioningTextView" />
+
+        <ImageView
+            android:id="@+id/app_url_image_view"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="60dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="@string/app_main_url"
+            android:src="@drawable/ic_url"
+            android:tint="@color/text_low_priority_color"
+            app:layout_constraintBottom_toTopOf="@+id/appChangelogTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/update_info_title_text_view"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/update_info_title_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/update_info"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="@+id/update_info_image_view"
+            app:layout_constraintStart_toEndOf="@+id/update_info_image_view"
+            app:layout_constraintTop_toTopOf="@+id/update_info_image_view" />
+
+        <TextView
+            android:id="@+id/appUrlTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/example_app_url"
+            android:textColor="@color/text_low_priority_color"
+            app:layout_constraintBottom_toBottomOf="@+id/app_url_image_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/app_url_image_view"
+            app:layout_constraintTop_toTopOf="@+id/app_url_image_view" />
+
+        <TextView
+            android:id="@+id/appChangelogTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_textview_background_fillet"
+            android:text="@string/example_changelog"
+            android:textColor="@color/text_low_priority_color"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@+id/appUrlTextView"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/app_url_image_view"
+            app:layout_constraintTop_toBottomOf="@+id/app_url_image_view" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

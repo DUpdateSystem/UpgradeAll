@@ -9,15 +9,15 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
         android:theme="@style/AppTheme.AppBarOverlay"
-        app:elevation="0dp">
+        app:elevation="0dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/groupTabs"
             android:layout_width="match_parent"
             android:layout_height="108dp"
             android:layout_gravity="center"
-            android:background="?attr/colorPrimary"
-            android:backgroundTint="@color/white"
+            android:background="@drawable/ic_list_header_background"
             app:tabIndicatorColor="@android:color/transparent"
             app:tabMode="scrollable" />
     </com.google.android.material.appbar.AppBarLayout>

@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -91,7 +92,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
         val itemCardView = mItemCardViewList[position]
         // 底栏设置
         if (itemCardView.extraData.isEmpty) {
-            holder.appPlaceholderImageView.setImageDrawable(IconPalette.AppItemPlaceholder)
+            holder.appPlaceholderImageView.setImageDrawable(IconPalette.appItemPlaceholder)
             holder.appPlaceholderImageView.visibility = View.VISIBLE
             holder.itemCardView.visibility = View.GONE
         } else {
@@ -113,7 +114,10 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
             cloudHubConfigGson = mCloudHub.getHubConfig(configFileName)
             val hubIconUrl = cloudHubConfigGson?.info?.hubIconUrl
             if (hubIconUrl != null)
-                Glide.with(iconImageView).load(hubIconUrl).into(iconImageView)
+                Glide.with(iconImageView)
+                        .load(hubIconUrl)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(iconImageView)
         }
     }
 }

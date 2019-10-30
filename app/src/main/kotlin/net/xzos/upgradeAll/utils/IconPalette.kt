@@ -10,7 +10,7 @@ import net.xzos.upgradeAll.application.MyApplication
 
 object IconPalette {
 
-    val AppItemPlaceholder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    val appItemPlaceholder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         val context = MyApplication.context
         getCheckMark(
                 context.getColor(R.color.white),
@@ -19,24 +19,41 @@ object IconPalette {
     } else {
         val context = MyApplication.context
         @Suppress("DEPRECATION")
-        getCheckMark(
+        (getCheckMark(
                 context.resources.getColor(R.color.white),
                 context.resources.getColor(R.color.light_gray)
+        ))
+    }
+
+    val editIcon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val context = MyApplication.context
+        getEdit(
+                context.getColor(R.color.text_lowest_priority_color)
         )
+    } else {
+        val context = MyApplication.context
+        @Suppress("DEPRECATION")
+        (getEdit(
+                context.resources.getColor(R.color.text_lowest_priority_color)
+        ))
     }
 
     private fun getCheckMark(bodyColor: Int, backgroundColor: Int): Drawable {
         return changeDrawableColor(bodyColor, backgroundColor, R.drawable.ic_check_mark)
     }
 
-    private fun changeDrawableColor(bodyColor: Int, backgroundColor: Int, drawableId: Int): Drawable {
+    private fun getEdit(bodyColor: Int): Drawable {
+        return changeDrawableColor(bodyColor, null, R.drawable.ic_edit)
+    }
+
+    private fun changeDrawableColor(bodyColor: Int?, backgroundColor: Int?, drawableId: Int): Drawable {
         val context = MyApplication.context
         return ImageView(context).also { iv ->
             VectorChildFinder(context, drawableId, iv).also { vector ->
-                vector.findPathByName("body").also {
+                if (bodyColor != null) vector.findPathByName("body").also {
                     it.fillColor = bodyColor
                 }
-                vector.findPathByName("background").also {
+                if (backgroundColor != null) vector.findPathByName("background").also {
                     it.fillColor = backgroundColor
                 }
             }

@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
@@ -19,7 +18,7 @@ import net.xzos.upgradeAll.ui.activity.AppSettingActivity
 import net.xzos.upgradeAll.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 
 
-class AppListFragment(private val navigationItemId: MutableLiveData<Int>) : Fragment() {
+class AppListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_app_list, container, false)
@@ -28,35 +27,38 @@ class AppListFragment(private val navigationItemId: MutableLiveData<Int>) : Frag
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setViewPage()
-        with(activity?.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)) {
-            this?.setOnClickListener {
-                startActivity(Intent(activity, AppSettingActivity::class.java))
-            }
-            this?.visibility = View.VISIBLE
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        with(activity?.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)) {
-            this?.setOnClickListener(null)
-            this?.visibility = View.GONE
-        }
     }
 
     override fun onResume() {
         super.onResume()
         activity?.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.app_list)
+        activity?.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.let {
+            it.setOnClickListener {
+                startActivity(Intent(activity, AppSettingActivity::class.java))
+            }
+            it.setImageResource(R.drawable.ic_plus)
+            it.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        activity?.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.let {
+            it.setOnClickListener(null)
+            it.visibility = View.GONE
+        }
     }
 
     private fun setViewPage() {
         activity?.supportFragmentManager?.let {
-            val sectionsPagerAdapter = AppTabSectionsPagerAdapter(it, navigationItemId)
+            val sectionsPagerAdapter = AppTabSectionsPagerAdapter(it)
             viewPager.adapter = sectionsPagerAdapter
             with(groupTabs) {
                 this.setupWithViewPager(viewPager)
                 for (i in 0 until this.tabCount) {
                     this.getTabAt(i)?.let { tab ->
+                        if (tab.position == tabSelectedPosition)
+                            tab.select()
                         tab.customView = sectionsPagerAdapter.getCustomTabView(i, this).apply {
                             if (i == 0) {
                                 @Suppress("DEPRECATION")
@@ -77,6 +79,7 @@ class AppListFragment(private val navigationItemId: MutableLiveData<Int>) : Frag
                 @Suppress("DEPRECATION")
                 addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                     override fun onTabSelected(tab: TabLayout.Tab) {
+                        tabSelectedPosition = tab.position
                         tab.customView?.findViewById<TextView>(R.id.groupNameTextView)?.setTextColor(
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                     context.getColor(R.color.text_color)
@@ -99,5 +102,9 @@ class AppListFragment(private val navigationItemId: MutableLiveData<Int>) : Frag
                 })
             }
         }
+    }
+
+    companion object {
+        internal var tabSelectedPosition = 0
     }
 }

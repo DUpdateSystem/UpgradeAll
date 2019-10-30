@@ -1,6 +1,5 @@
 package net.xzos.upgradeAll.server.app.manager.module
 
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.database.RepoDatabase
 import net.xzos.upgradeAll.json.gson.VersionCheckerGson
 import net.xzos.upgradeAll.server.ServerContainer
@@ -15,16 +14,10 @@ data class App(private val appDatabaseId: Long) {
     internal val engine = newEngine(appDatabaseId)
 
     suspend fun isLatest(): Boolean {
-        val latestVersion = Updater(engine).getLatestVersion()
+        val latestVersion = Updater(engine).getLatestVersioning()
         val installedVersion = installedVersioning
         return VersionChecker.compareVersionNumber(installedVersion, latestVersion)
     }
-
-    // 获取最新版本号
-    val latestVersioning: String?
-        get() {
-            return runBlocking { Updater(engine).getLatestVersion() }
-        }
 
     // 获取已安装版本号
     val installedVersioning: String?

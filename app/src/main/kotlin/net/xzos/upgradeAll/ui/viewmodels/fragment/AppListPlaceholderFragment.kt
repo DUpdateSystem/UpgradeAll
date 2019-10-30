@@ -6,12 +6,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.*
 import net.xzos.upgradeAll.R
@@ -32,48 +30,55 @@ class AppListPlaceholderFragment : Fragment() {
             appListPageViewModel.setHubUuid(hubUuid)
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val root = inflater.inflate(R.layout.pageview_app_list, container, false)
-        root.findViewById<TextView>(R.id.updateOverviewNumberTextView)?.let {
-            appListPageViewModel.needUpdateAppIdLiveLiveData.observe(this,
+        return inflater.inflate(R.layout.pageview_app_list, container, false)
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
+        swipeRefreshLayout.setOnRefreshListener { this.renewCardView() }
+        with(updateOverviewNumberTextView) {
+            appListPageViewModel.needUpdateAppIdLiveLiveData.observe(viewLifecycleOwner,
                     Observer<MutableList<Long>> { list ->
-                        it.text = list.size.toString()
+                        this.text = list.size.toString()
                     })
         }
-        root.findViewById<TextView>(R.id.updateOverviewTextView)?.let {
-            val updateOverviewStringList = it.context.getString(R.string.example_update_overview).split("0")
+        with(updateOverviewTextView) {
+            val updateOverviewStringList = this.context.getString(R.string.example_update_overview).split("0")
                     .filter { element -> element.isNotBlank() }
             var appListNum = 0
             var needUpdateAppNum = 0
-            appListPageViewModel.appCardViewList.observe(this, Observer { list ->
+            appListPageViewModel.appCardViewList.observe(viewLifecycleOwner, Observer { list ->
                 with(list.size) {
                     appListNum = if (this > 0)
                         this - 1
                     else
                         this
                 }
-                it.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
+                this.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
             })
-            appListPageViewModel.needUpdateAppIdLiveLiveData.observe(this,
+            appListPageViewModel.needUpdateAppIdLiveLiveData.observe(viewLifecycleOwner,
                     Observer<MutableList<Long>> { num ->
                         needUpdateAppNum = num.size
-                        it.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
+                        this.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
                     })
         }
+        renewCardView()
+    }
 
+    private fun renewCardView() {
+        swipeRefreshLayout?.isRefreshing = true
+        renewAppList()
+        swipeRefreshLayout?.isRefreshing = false
+    }
+
+    private fun renewAppList() {
         val layoutManager = GridLayoutManager(activity, 1)
-        val cardItemRecyclerView = root.findViewById<RecyclerView>(R.id.cardItemRecyclerView)
         cardItemRecyclerView.layoutManager = layoutManager
         val adapter = AppItemAdapter(appListPageViewModel.needUpdateAppIdLiveLiveData, appListPageViewModel.appCardViewList, this)
         cardItemRecyclerView.adapter = adapter
-        return root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
-        //swipeRefresh.setOnRefreshListener { this.renewCardView() }
     }
 
     override fun onResume() {
