@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/app_list_nav_graph"
+    app:startDestination="@id/appListFragment">
+
+    <fragment
+        android:id="@+id/appListFragment"
+        android:name="net.xzos.upgradeAll.ui.viewmodels.fragment.AppListFragment"
+        android:label="AppListFragment">
+        <action
+            android:id="@+id/action_appListFragment_to_appInfoFragment"
+            app:destination="@id/appInfoFragment" />
+        <action
+            android:id="@+id/action_appListFragment_to_hubCloudFragment"
+            app:destination="@id/hubCloudFragment"
+            app:popUpTo="@+id/hubCloudFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/appInfoFragment"
+        android:name="net.xzos.upgradeAll.ui.viewmodels.fragment.AppInfoFragment"
+        android:label="AppInfoFragment">
+        <action
+            android:id="@+id/action_appInfoFragment_to_appListFragment"
+            app:destination="@id/appListFragment"
+            app:launchSingleTop="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/hubCloudFragment"
+        android:name="net.xzos.upgradeAll.ui.viewmodels.fragment.HubCloudFragment"
+        android:label="HubCloudFragment">
+        <action
+            android:id="@+id/action_hubCloudFragment_to_appListFragment"
+            app:destination="@id/appListFragment"
+            app:launchSingleTop="true" />
+    </fragment>
+</navigation>

@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group
-        android:checkableBehavior="single">
+    <group android:checkableBehavior="single">
         <item
             android:id="@+id/app_list"
             android:icon="@drawable/ic_app_list"
@@ -19,10 +18,8 @@
             android:title="@string/local_debug" />
     </group>
 
-    <group
-        android:checkableBehavior="single">
-        <item
-            android:title="@string/others">
+    <group android:checkableBehavior="single">
+        <item android:title="@string/others">
             <menu>
                 <item
                     android:id="@+id/app_help"

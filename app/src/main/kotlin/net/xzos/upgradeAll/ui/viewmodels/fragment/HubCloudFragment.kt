@@ -29,8 +29,8 @@ class HubCloudFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
-        swipeRefresh.setOnRefreshListener { this.renewCardView() }
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
+        swipeRefreshLayout.setOnRefreshListener { this.renewCardView() }
         renewCardView()
     }
 
@@ -41,24 +41,24 @@ class HubCloudFragment : Fragment() {
 
     private fun renewCardView() {
         GlobalScope.launch {
-            runBlocking(Dispatchers.Main) { swipeRefresh.isRefreshing = true }
+            runBlocking(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = true }
             renewCloudHubList()
-            runBlocking(Dispatchers.Main) { swipeRefresh.isRefreshing = false }
+            runBlocking(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = false }
         }
     }
 
     private fun renewCloudHubList() {
         val itemCardViewList = mCloudHub.hubList?.map { getCloudHubItemCardView(it) }
                 ?.plus(ItemCardView(Pair(null, null), null, null, ItemCardViewExtraData(isEmpty = true)))
-                ?: run {
+                ?: runBlocking(Dispatchers.Main) {
                     Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
-                    return@run listOf<ItemCardView>()
+                    return@runBlocking listOf<ItemCardView>()
                 }
         runBlocking(Dispatchers.Main) {
             val layoutManager = GridLayoutManager(activity, 1)
-            cardItemRecyclerView.layoutManager = layoutManager
+            cardItemRecyclerView?.layoutManager = layoutManager
             val adapter = CloudHubItemAdapter(itemCardViewList, mCloudHub)
-            cardItemRecyclerView.adapter = adapter
+            cardItemRecyclerView?.adapter = adapter
         }
     }
 

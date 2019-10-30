@@ -78,5 +78,13 @@
     <string name="example_update_overview">0 个应用中的 0 个需要升级</string>
     <string name="update_status_prompt">升级提示符</string>
     <string name="waiting_check_update">检查更新中…</string>
+    <string name="local_versioning">本地版本</string>
+    <string name="direction">指向</string>
+    <string name="update_info">更新数据</string>
+    <string name="app_main_url">软件主页网址</string>
+    <string name="example_app_url">www.example.com/com.example.app</string>
+    <string name="example_changelog">this is a example changelog for example app.</string>
+    <string name="latest_versioning">最新版本</string>
+    <string name="null_english">NULL</string>
 
 </resources>

@@ -6,7 +6,6 @@ import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.lifecycle.MutableLiveData
 import androidx.viewpager.widget.PagerAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -14,10 +13,11 @@ import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.group_item.view.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.server.hub.HubManager
+import net.xzos.upgradeAll.ui.activity.MainActivity.Companion.navigationItemId
 import net.xzos.upgradeAll.ui.viewmodels.fragment.AppListPlaceholderFragment
 
 
-class AppTabSectionsPagerAdapter(fm: FragmentManager, private val navigationItemId: MutableLiveData<Int>) :
+class AppTabSectionsPagerAdapter(fm: FragmentManager) :
         FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     private val mHubUuidList: MutableList<String> = mutableListOf()
 
@@ -45,7 +45,7 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager, private val navigationItem
         return mHubUuidList.size
     }
 
-    fun getCustomTabView(position: Int, rootLayout: TabLayout): View {
+    internal fun getCustomTabView(position: Int, rootLayout: TabLayout): View {
         return LayoutInflater.from(rootLayout.context).inflate(R.layout.group_item, rootLayout, false).apply {
             this.delGroupCardView.visibility = View.GONE
             if (position >= 0) {
@@ -78,7 +78,7 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager, private val navigationItem
                 with(this.addGroupCardView) {
                     visibility = View.VISIBLE
                     setOnClickListener {
-                        navigationItemId.value = R.id.cloud_hub_list
+                        navigationItemId.value = Pair(R.id.hubCloudFragment, null)
                     }
                 }
             }

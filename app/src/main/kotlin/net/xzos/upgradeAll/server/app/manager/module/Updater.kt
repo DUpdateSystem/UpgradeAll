@@ -9,7 +9,7 @@ class Updater internal constructor(private val engine: JavaScriptEngine) {
     }
 
     // 获取最新版本号
-    suspend fun getLatestVersion(): String? {
+    suspend fun getLatestVersioning(): String? {
         return engine.getVersioning(0)
     }
 
