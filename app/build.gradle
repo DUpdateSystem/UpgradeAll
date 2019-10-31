@@ -37,11 +37,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.main
-            resValue("bool", "FIREBASE_CRASH_ENABLED", "true")
+            manifestPlaceholders = [enableCrashReporting:"true"]
         }
         debug {
             signingConfig signingConfigs.main
-            resValue("bool", "FIREBASE_CRASH_ENABLED", "false")
+            manifestPlaceholders = [enableCrashReporting:"false"]
         }
     }
     compileOptions {
