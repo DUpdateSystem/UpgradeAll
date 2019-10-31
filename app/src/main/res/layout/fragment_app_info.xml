@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tool="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginStart="16dp"
@@ -28,7 +28,7 @@
             android:layout_centerInParent="true"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="50dp"
-            android:layout_toStartOf="@+id/editImageButton"
+            android:layout_toStartOf="@+id/editImageView"
             android:layout_toEndOf="@+id/appIconImageView"
             android:gravity="center|start"
             android:orientation="vertical">
@@ -71,8 +71,8 @@
 
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/editImageButton"
+        <ImageView
+            android:id="@+id/editImageView"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_alignParentEnd="true"
@@ -81,8 +81,8 @@
             android:backgroundTint="@android:color/transparent"
             android:contentDescription="@string/edit"
             android:scaleType="fitCenter"
-            android:tint="@color/text_lowest_priority_color"
-            tool:src="@drawable/ic_edit" />
+            android:src="@drawable/ic_edit"
+            android:tint="@color/text_lowest_priority_color" />
 
     </RelativeLayout>
 
@@ -106,19 +106,23 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:text="@string/local_versioning"
+            android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/localVersioningTextView"
             app:layout_constraintLeft_toRightOf="@id/local_versioning_image_view"
             app:layout_constraintStart_toEndOf="@+id/local_versioning_image_view" />
 
         <TextView
             android:id="@+id/localVersioningTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
             android:layout_marginStart="4dp"
+            android:gravity="center|start"
             android:text="@string/example_versioning"
-            android:textSize="40sp"
             android:textStyle="bold"
+            app:autoSizeMaxTextSize="40sp"
+            app:autoSizeTextType="uniform"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/local_versioning_image_view" />
 
@@ -148,24 +152,58 @@
             android:id="@+id/cloud_versioning_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:text="@string/latest_versioning"
             android:textColor="@color/light_coolapk_green"
+            android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/cloudVersioningTextView"
             app:layout_constraintLeft_toRightOf="@id/cloud_versioning_image_view"
             app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
             android:id="@+id/cloudVersioningTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
             android:layout_marginEnd="4dp"
+            android:gravity="center|start"
             android:text="@string/example_versioning"
             android:textColor="@color/coolapk_green"
-            android:textSize="40sp"
             android:textStyle="bold"
+            app:autoSizeMaxTextSize="40sp"
+            app:autoSizeTextType="uniform"
             app:layout_constraintBottom_toBottomOf="@+id/localVersioningTextView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView" />
+            app:layout_constraintTop_toTopOf="@+id/localVersioningTextView" />
+
+        <LinearLayout
+            android:id="@+id/versioningSelectLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="16sp"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/cloud_versioning_text_view"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toStartOf="@+id/cloudVersioningTextView"
+            app:layout_constraintTop_toBottomOf="@+id/cloudVersioningTextView"
+            tools:ignore="UseCompoundDrawables">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="2dp"
+                android:text="@string/more_other_versioning"
+                android:textColor="@color/coolapk_green" />
+
+            <ImageView
+                android:layout_width="14sp"
+                android:layout_height="14sp"
+                android:contentDescription="@string/more_other_versioning"
+                android:rotation="90"
+                android:src="@drawable/ic_arrow_small"
+                android:tint="@color/coolapk_green" />
+
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/update_info_image_view"
@@ -226,7 +264,8 @@
             app:layout_constraintEnd_toEndOf="@+id/appUrlTextView"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="@+id/app_url_image_view"
-            app:layout_constraintTop_toBottomOf="@+id/app_url_image_view" />
+            app:layout_constraintTop_toBottomOf="@+id/appUrlTextView" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

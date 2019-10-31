@@ -2,13 +2,11 @@ package net.xzos.upgradeAll.server.log
 
 import android.annotation.SuppressLint
 import android.util.Log
-
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 
 /**
  * 自定义的日志打印工具类
@@ -78,7 +76,7 @@ class LogUtil {
         return when (msgObject) {
             null -> "NULL"
             Double::class.java -> msgObject.toString()
-            else -> (msgObject as String?).toString()
+            else -> msgObject.toString()
         }
     }
 

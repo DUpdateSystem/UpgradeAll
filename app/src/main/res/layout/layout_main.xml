@@ -60,15 +60,26 @@
     <include layout="@layout/content_main" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addFloatingActionButton"
+        style="@style/Widget.MaterialComponents.FloatingActionButton"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        app:background="@color/bright_yellow"
+        app:maxImageSize="16dp"
+        app:srcCompat="@drawable/ic_plus"
+        tools:tint="@color/light_gray" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton"
         style="@style/Widget.MaterialComponents.FloatingActionButton"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        app:backgroundTint="@color/bright_yellow"
-        app:maxImageSize="16dp"
+        app:background="@color/bright_yellow"
         app:srcCompat="@drawable/ic_plus"
-        app:tint="@color/light_gray" />
+        tools:tint="@color/light_gray" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
