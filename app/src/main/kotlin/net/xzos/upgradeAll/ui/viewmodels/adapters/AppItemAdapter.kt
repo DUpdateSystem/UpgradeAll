@@ -67,16 +67,6 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                     Toast.LENGTH_SHORT).show()
             true
         }
-
-        // 打开指向Url
-        holder.descTextView.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(holder.descTextView.text.toString())
-            val chooser = Intent.createChooser(intent, "请选择浏览器")
-            if (intent.resolveActivity(holder.descTextView.context.packageManager) != null) {
-                holder.descTextView.context.startActivity(chooser)
-            }
-        }
         return holder
     }
 

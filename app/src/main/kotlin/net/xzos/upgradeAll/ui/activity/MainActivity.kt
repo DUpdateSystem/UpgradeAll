@@ -33,6 +33,7 @@ import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.ui.viewmodels.fragment.AppInfoFragment
 import net.xzos.upgradeAll.utils.FileUtil
 import java.io.File
+import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -56,6 +57,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navigationItemId.observe(this, Observer { pair ->
             setFrameLayout(pair)
         })
+        showToast()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
@@ -263,6 +265,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun delNavImage() {
         NAV_IMAGE_FILE.delete()
         navHeaderImageView.setImageDrawable(null)
+    }
+
+    private fun showToast() {
+        val cal = Calendar.getInstance()
+        val month = cal.get(Calendar.MONTH) + 1
+        val day = cal.get(Calendar.DATE)
+        if (month == 10 && day == 31)
+            Toast.makeText(this, "\uD83E\uDD70\uD83D\uDE0B\uD83D\uDE1D\uD83D\uDE09", Toast.LENGTH_LONG).show()
     }
 
     companion object {

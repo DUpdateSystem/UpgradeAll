@@ -65,7 +65,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
-                    android:onClick="onClick"
                     android:singleLine="true"
                     android:text="@string/example_package_name"
                     android:textColor="@color/text_low_priority_color" />

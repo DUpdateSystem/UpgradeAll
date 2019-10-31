@@ -100,7 +100,6 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
             holder.appPlaceholderImageView.visibility = View.GONE
             holder.name.text = itemCardView.name
             holder.descTextView.text = itemCardView.desc
-            holder.descTextView.isEnabled = false
             GlobalScope.launch { loadCloudHubIcon(holder.appIconImageView, itemCardView.extraData.configFileName) }
         }
     }

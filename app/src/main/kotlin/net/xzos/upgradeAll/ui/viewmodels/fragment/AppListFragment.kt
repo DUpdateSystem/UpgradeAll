@@ -1,12 +1,15 @@
 package net.xzos.upgradeAll.ui.viewmodels.fragment
 
+import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
@@ -16,6 +19,7 @@ import kotlinx.android.synthetic.main.group_item.view.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.ui.activity.AppSettingActivity
 import net.xzos.upgradeAll.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
+import net.xzos.upgradeAll.utils.IconPalette
 
 
 class AppListFragment : Fragment() {
@@ -29,23 +33,21 @@ class AppListFragment : Fragment() {
         setViewPage()
     }
 
+    @SuppressLint("ResourceAsColor")
     override fun onResume() {
         super.onResume()
-        activity?.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.app_list)
-        activity?.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.let {
-            it.setOnClickListener {
-                startActivity(Intent(activity, AppSettingActivity::class.java))
+        (activity as AppCompatActivity).let {
+            it.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.visibility = View.GONE
+            it.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.app_list)
+            it.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.let { fab ->
+                fab.setOnClickListener {
+                    startActivity(Intent(activity, AppSettingActivity::class.java))
+                }
+                fab.setImageDrawable(IconPalette.fabAddIcon)
+                fab.backgroundTintList = ColorStateList.valueOf((IconPalette.getColorInt(R.color.bright_yellow)))
+                fab.setColorFilter(IconPalette.getColorInt(R.color.light_gray))
+                fab.visibility = View.VISIBLE
             }
-            it.setImageResource(R.drawable.ic_plus)
-            it.visibility = View.VISIBLE
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        activity?.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.let {
-            it.setOnClickListener(null)
-            it.visibility = View.GONE
         }
     }
 
@@ -57,17 +59,16 @@ class AppListFragment : Fragment() {
                 this.setupWithViewPager(viewPager)
                 for (i in 0 until this.tabCount) {
                     this.getTabAt(i)?.let { tab ->
-                        if (tab.position == tabSelectedPosition)
-                            tab.select()
                         tab.customView = sectionsPagerAdapter.getCustomTabView(i, this).apply {
                             if (i == 0) {
                                 @Suppress("DEPRECATION")
-                                this.groupNameTextView.setTextColor(
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                            context.getColor(R.color.text_color)
-                                        } else
-                                            context.resources.getColor(R.color.text_color))
+                                this.groupNameTextView.setTextColor(IconPalette.getColorInt(R.color.text_color))
                             }
+                        }
+                        if (tab.position == tabSelectedPosition) {
+                            tab.customView?.findViewById<TextView>(R.id.groupNameTextView)
+                                    ?.setTextColor(IconPalette.getColorInt(R.color.text_color))
+                            tab.select()
                         }
                     }
                 }
@@ -80,21 +81,13 @@ class AppListFragment : Fragment() {
                 addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                     override fun onTabSelected(tab: TabLayout.Tab) {
                         tabSelectedPosition = tab.position
-                        tab.customView?.findViewById<TextView>(R.id.groupNameTextView)?.setTextColor(
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    context.getColor(R.color.text_color)
-                                } else
-                                    context.resources.getColor(R.color.text_color)
-                        )
+                        tab.customView?.findViewById<TextView>(R.id.groupNameTextView)
+                                ?.setTextColor(IconPalette.getColorInt(R.color.text_color))
                     }
 
                     override fun onTabUnselected(tab: TabLayout.Tab) {
-                        tab.customView?.findViewById<TextView>(R.id.groupNameTextView)?.setTextColor(
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    context.getColor(R.color.text_low_priority_color)
-                                } else
-                                    context.resources.getColor(R.color.text_low_priority_color)
-                        )
+                        tab.customView?.findViewById<TextView>(R.id.groupNameTextView)
+                                ?.setTextColor(IconPalette.getColorInt(R.color.text_low_priority_color))
                     }
 
                     override fun onTabReselected(tab: TabLayout.Tab) {
@@ -105,6 +98,6 @@ class AppListFragment : Fragment() {
     }
 
     companion object {
-        internal var tabSelectedPosition = 0
+        private var tabSelectedPosition = 0
     }
 }

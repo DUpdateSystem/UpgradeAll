@@ -82,7 +82,7 @@ class VersionChecker(private val versionCheckerGson: VersionCheckerGson?) {
             var versionNumber0 = versionNumber0
             @Suppress("NAME_SHADOWING")
             var versionNumber1 = versionNumber1
-            Log.i(LogObjectTag, TAG, String.format("compareVersionNumber: versionNumber0: %s , versionNumber1: %s", versionNumber0, versionNumber1))
+            Log.i(LogObjectTag, TAG, String.format("compareVersionNumber: versionNumber0: %s, versionNumber1: %s", versionNumber0, versionNumber1))
             versionNumber0 = getVersionNumberString(versionNumber0)
             versionNumber1 = getVersionNumberString(versionNumber1)
             if (versionNumber0 != null && versionNumber1 != null) {
