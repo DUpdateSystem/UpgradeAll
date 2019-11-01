@@ -1,14 +1,13 @@
 package net.xzos.upgradeAll.ui.viewmodels.adapters
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,12 +19,14 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
+import net.xzos.upgradeAll.database.RepoDatabase
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeAll.utils.IconPalette
+import org.litepal.LitePal
 
 
 class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<MutableList<Long>>,
@@ -34,6 +35,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
     : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
 
     private var mItemCardViewList: MutableList<ItemCardView> = mutableListOf()
+    // TODO: 数据无法自动更新（需修复）
 
     init {
         itemCardViewLiveData.observe(owner, Observer { list ->
@@ -52,7 +54,23 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
             val position = holder.adapterPosition
             val itemCardView = mItemCardViewList[position]
             MainActivity.navigationItemId.value = Pair(R.id.appInfoFragment, itemCardView.extraData.databaseId)
-            //showDialogWindow(holder)
+        }
+        // TODO: 长按删除，暂时添加删除功能
+        holder.itemCardView.setOnClickListener {
+            PopupMenu(it.context, it).let { popupMenu ->
+                popupMenu.menu.add(it.context.getString(R.string.delete)).let { menuItem ->
+                    menuItem.setOnMenuItemClickListener {
+                        val position = holder.adapterPosition
+                        val itemCardView = mItemCardViewList[position]
+                        val appDatabaseId = itemCardView.extraData.databaseId
+                        AppManager.delApp(appDatabaseId)
+                        LitePal.delete(RepoDatabase::class.java, appDatabaseId)
+                        onItemDismiss(position)
+                        true
+                    }
+                    popupMenu.show()
+                }
+            }
         }
 
         // 长按强制检查版本

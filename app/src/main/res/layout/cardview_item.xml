@@ -82,7 +82,8 @@
                     android:id="@+id/statusCheckImageView"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:contentDescription="@string/update_status_identifier" />
+                    android:contentDescription="@string/update_status_identifier"
+                    android:src="@drawable/ic_check_mark" />
 
                 <ProgressBar
                     android:id="@+id/statusChangingBar"

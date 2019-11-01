@@ -7,6 +7,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_app_setting.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
@@ -65,7 +66,6 @@ class AppSettingActivity : AppCompatActivity() {
         }
         setSettingItem() // 设置预置设置项
         // 以下是按键事件
-        val versionCheckButton = findViewById<Button>(R.id.statusCheckImageView)
         versionCheckButton.setOnClickListener {
             // 版本检查设置
             val versionCheckerJsonObject = versionCheckerGson

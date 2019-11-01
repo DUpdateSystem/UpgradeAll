@@ -21,6 +21,10 @@ object HubManager {
     val databases: List<HubDatabase>
         get() = LitePal.findAll()
 
+    fun exists(uuid: String?): Boolean {
+        return LitePal.where("uuid = ?", uuid).find<HubDatabase>().isNotEmpty()
+    }
+
     @Contract("null, _ -> false; !null, null -> false")
     fun add(hubConfigGson: HubConfig?, jsCode: String?): Boolean {
         if (hubConfigGson != null && jsCode != null) {
