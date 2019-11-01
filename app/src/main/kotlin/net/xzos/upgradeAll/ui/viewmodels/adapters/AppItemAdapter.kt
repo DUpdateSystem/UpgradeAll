@@ -56,7 +56,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
             MainActivity.navigationItemId.value = Pair(R.id.appInfoFragment, itemCardView.extraData.databaseId)
         }
         // TODO: 长按删除，暂时添加删除功能
-        holder.itemCardView.setOnClickListener {
+        holder.itemCardView.setOnLongClickListener{
             PopupMenu(it.context, it).let { popupMenu ->
                 popupMenu.menu.add(it.context.getString(R.string.delete)).let { menuItem ->
                     menuItem.setOnMenuItemClickListener {
@@ -71,6 +71,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                     popupMenu.show()
                 }
             }
+            return@setOnLongClickListener true
         }
 
         // 长按强制检查版本

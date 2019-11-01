@@ -6,6 +6,7 @@ import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.lifecycle.MutableLiveData
 import androidx.viewpager.widget.PagerAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -26,6 +27,7 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
         for (hubDatabase in hubDatabases) {
             mHubUuidList.add(hubDatabase.uuid)
         }
+        renewViewPage.value = false
     }
 
     override fun getItem(position: Int): Fragment {
@@ -61,7 +63,7 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
                             .into(this.groupIconImageView)
                 setOnClickListener(View.OnClickListener {
                     if (delGroupCardView.visibility == View.VISIBLE)
-                        waiteDel(rootLayout, position, delGroupCardView, hubUuid, false)
+                        waiteDel(delGroupCardView, hubUuid, false)
                     else if (rootLayout.selectedTabPosition != position) {
                         // TODO: 进入分组实现后删除该点击事件
                         rootLayout.getTabAt(position)?.select()
@@ -70,7 +72,7 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
                     return@OnClickListener
                 })
                 setOnLongClickListener(View.OnLongClickListener {
-                    waiteDel(rootLayout, position, delGroupCardView, hubUuid, true)
+                    waiteDel(delGroupCardView, hubUuid, true)
                     return@OnLongClickListener true
                 })
             } else {
@@ -85,19 +87,22 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
         }
     }
 
-    private fun waiteDel(rootLayout: TabLayout, position: Int, delGroupCardView: CardView, hubUuid: String, needDel: Boolean) {
+    private fun waiteDel(delGroupCardView: CardView, hubUuid: String, needDel: Boolean) {
         with(delGroupCardView) {
             if (needDel) {
                 visibility = View.VISIBLE
                 setOnClickListener {
                     HubManager.del(hubUuid)
-                    mHubUuidList.remove(hubUuid)
-                    rootLayout.removeTabAt(position)
+                    renewViewPage.value = true
                 }
             } else {
                 visibility = View.GONE
                 setOnClickListener(null)
             }
         }
+    }
+
+    companion object {
+        internal val renewViewPage = MutableLiveData<Boolean>(true)
     }
 }
