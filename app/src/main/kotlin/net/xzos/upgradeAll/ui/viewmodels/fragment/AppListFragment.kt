@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,10 +35,11 @@ class AppListFragment : Fragment() {
     @SuppressLint("ResourceAsColor")
     override fun onResume() {
         super.onResume()
-        (activity as AppCompatActivity).let {
-            it.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.visibility = View.GONE
-            it.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.app_list)
-            it.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.let { fab ->
+        activity?.apply {
+            this as AppCompatActivity
+            this.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.app_list)
+            this.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.visibility = View.GONE
+            this.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.let { fab ->
                 fab.setOnClickListener {
                     startActivity(Intent(activity, AppSettingActivity::class.java))
                 }

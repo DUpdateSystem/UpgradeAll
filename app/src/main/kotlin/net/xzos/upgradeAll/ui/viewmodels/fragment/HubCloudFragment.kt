@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +31,11 @@ class HubCloudFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        activity?.apply {
+            this as AppCompatActivity
+            this.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.visibility = View.GONE
+            this.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.visibility = View.GONE
+        }
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
         swipeRefreshLayout.setOnRefreshListener { this.renewCardView() }
         renewCardView()
@@ -51,7 +58,9 @@ class HubCloudFragment : Fragment() {
         val itemCardViewList = mCloudHub.hubList?.map { getCloudHubItemCardView(it) }
                 ?.plus(ItemCardView(Pair(null, null), null, null, ItemCardViewExtraData(isEmpty = true)))
                 ?: runBlocking(Dispatchers.Main) {
-                    Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
+                    activity?.let {
+                        Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
+                    }
                     return@runBlocking listOf<ItemCardView>()
                 }
         runBlocking(Dispatchers.Main) {
