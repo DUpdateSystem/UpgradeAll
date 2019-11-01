@@ -16,7 +16,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.json.gson.HubConfig
 import net.xzos.upgradeAll.server.hub.CloudHub
 import net.xzos.upgradeAll.server.hub.HubManager
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
@@ -26,15 +25,12 @@ import net.xzos.upgradeAll.utils.IconPalette
 
 class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>, private val mCloudHub: CloudHub) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
 
-    private var cloudHubConfigGson: HubConfig? = null
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.cardview_item, parent, false))
         // 禁用无用按钮/信息
         holder.versioningTextView.visibility = View.GONE
         holder.versionCheckingBar.visibility = View.GONE
-        holder.versionCheckButton.visibility = View.GONE
         with(holder.descTextView.parent as LinearLayout) {
             this.viewTreeObserver.addOnGlobalLayoutListener {
                 this.layoutParams = (this.layoutParams as RelativeLayout.LayoutParams).apply {
@@ -57,14 +53,14 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
                     // 下载
                     Toast.makeText(holder.itemCardView.context, "开始下载", Toast.LENGTH_LONG).show()
                     // 下载数据
+                    holder.versionCheckingBar.visibility = View.VISIBLE
                     GlobalScope.launch {
-                        if (cloudHubConfigGson == null)
-                            cloudHubConfigGson = mCloudHub.getHubConfig(itemCardView.extraData.configFileName!!)
+                        val cloudHubConfigGson = mCloudHub.getHubConfig(itemCardView.extraData.configFileName!!)
                         // TODO: 配置文件地址与仓库地址分离
                         // addHubStatus: 1 获取 HubConfig 成功, 2 获取 JS 成功, 3 添加数据库成功, -1 获取 HubConfig 失败, -2 解析 JS 失败, -3 添加数据库失败
                         val addHubStatus: Int =
                                 if (cloudHubConfigGson != null) {
-                                    val cloudHubConfigJS = mCloudHub.getHubConfigJS(cloudHubConfigGson?.webCrawler?.filePath
+                                    val cloudHubConfigJS = mCloudHub.getHubConfigJS(cloudHubConfigGson.webCrawler.filePath
                                             ?: "")
                                     if (cloudHubConfigJS != null) {
                                         if (HubManager.add(cloudHubConfigGson, cloudHubConfigJS)) {
@@ -73,8 +69,12 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
                                     } else -2
                                 } else -1
                         runBlocking(Dispatchers.Main) {
+                            holder.versionCheckingBar.visibility = View.GONE
                             when (addHubStatus) {
-                                3 -> Toast.makeText(holder.itemCardView.context, "数据添加成功", Toast.LENGTH_LONG).show()
+                                3 -> {
+                                    Toast.makeText(holder.itemCardView.context, "数据添加成功", Toast.LENGTH_LONG).show()
+                                    holder.versionCheckButton.visibility = View.VISIBLE
+                                }
                                 -2 -> Toast.makeText(holder.itemCardView.context, "获取 JS 代码失败", Toast.LENGTH_LONG).show()
                                 -3 -> Toast.makeText(holder.itemCardView.context, "什么？数据库添加失败！", Toast.LENGTH_LONG).show()
                             }
@@ -96,11 +96,16 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
             holder.appPlaceholderImageView.visibility = View.VISIBLE
             holder.itemCardView.visibility = View.GONE
         } else {
-            holder.itemCardView.visibility = View.VISIBLE
             holder.appPlaceholderImageView.visibility = View.GONE
+            holder.itemCardView.visibility = View.VISIBLE
+            // 加载仓库信息
             holder.name.text = itemCardView.name
             holder.descTextView.text = itemCardView.desc
             GlobalScope.launch { loadCloudHubIcon(holder.appIconImageView, itemCardView.extraData.configFileName) }
+            holder.versionCheckButton.visibility = if (HubManager.exists(itemCardView.extraData.uuid))
+                View.VISIBLE
+            else
+                View.GONE
         }
     }
 
@@ -110,7 +115,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
 
     private fun loadCloudHubIcon(iconImageView: ImageView, configFileName: String?) {
         if (configFileName != null) {
-            cloudHubConfigGson = mCloudHub.getHubConfig(configFileName)
+            val cloudHubConfigGson = mCloudHub.getHubConfig(configFileName)
             val hubIconUrl = cloudHubConfigGson?.info?.hubIconUrl
             if (hubIconUrl != null)
                 Glide.with(iconImageView)

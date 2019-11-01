@@ -61,7 +61,7 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
                             .into(this.groupIconImageView)
                 setOnClickListener(View.OnClickListener {
                     if (delGroupCardView.visibility == View.VISIBLE)
-                        waiteDel(delGroupCardView, hubUuid, false)
+                        waiteDel(rootLayout, position, delGroupCardView, hubUuid, false)
                     else if (rootLayout.selectedTabPosition != position) {
                         // TODO: 进入分组实现后删除该点击事件
                         rootLayout.getTabAt(position)?.select()
@@ -70,7 +70,7 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
                     return@OnClickListener
                 })
                 setOnLongClickListener(View.OnLongClickListener {
-                    waiteDel(delGroupCardView, hubUuid, true)
+                    waiteDel(rootLayout, position, delGroupCardView, hubUuid, true)
                     return@OnLongClickListener true
                 })
             } else {
@@ -85,12 +85,14 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
         }
     }
 
-    private fun waiteDel(delGroupCardView: CardView, hubUuid: String, needDel: Boolean) {
+    private fun waiteDel(rootLayout: TabLayout, position: Int, delGroupCardView: CardView, hubUuid: String, needDel: Boolean) {
         with(delGroupCardView) {
             if (needDel) {
                 visibility = View.VISIBLE
                 setOnClickListener {
                     HubManager.del(hubUuid)
+                    mHubUuidList.remove(hubUuid)
+                    rootLayout.removeTabAt(position)
                 }
             } else {
                 visibility = View.GONE
