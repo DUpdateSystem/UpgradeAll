@@ -86,9 +86,10 @@ class AppInfoFragment : Fragment() {
                 }
             }
         }
-        (activity as AppCompatActivity).let {
-            it.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.visibility = View.GONE
-            it.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.let { fab ->
+        activity?.apply {
+            this as AppCompatActivity
+            this.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.visibility = View.GONE
+            this.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.let { fab ->
                 fab.setOnClickListener {
                     showDownloadDialog()
                 }
