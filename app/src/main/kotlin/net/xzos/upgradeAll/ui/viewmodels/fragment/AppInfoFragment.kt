@@ -192,7 +192,7 @@ class AppInfoFragment : Fragment() {
 
     private fun loadAppVersioningInfo(versioningPosition: Int) {
         this.versioningPosition = versioningPosition
-        LitePal.find<RepoDatabase>(appDatabaseId)?.let { appDatabase ->
+        LitePal.find<RepoDatabase>(appDatabaseId)?.let {
             GlobalScope.launch {
                 val engine = AppManager.getApp(appDatabaseId).engine
                 val latestVersioning = engine.getVersioning(versioningPosition)

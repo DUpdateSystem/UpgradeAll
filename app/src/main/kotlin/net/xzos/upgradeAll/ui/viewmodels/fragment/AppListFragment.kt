@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
@@ -29,7 +31,14 @@ class AppListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setViewPage()
+        AppTabSectionsPagerAdapter.renewViewPage.let {
+            it.value = true
+            it.observe(viewLifecycleOwner, Observer { renew ->
+                if (renew) {
+                    setViewPage()
+                }
+            })
+        }
     }
 
     @SuppressLint("ResourceAsColor")
@@ -57,7 +66,10 @@ class AppListFragment : Fragment() {
             viewPager.adapter = sectionsPagerAdapter
             with(groupTabs) {
                 this.setupWithViewPager(viewPager)
-                for (i in 0 until this.tabCount) {
+                val count = this.tabCount
+                if (tabSelectedPosition >= count)
+                    tabSelectedPosition = count
+                for (i in 0 until count) {
                     this.getTabAt(i)?.let { tab ->
                         tab.customView = sectionsPagerAdapter.getCustomTabView(i, this).apply {
                             if (i == 0) {

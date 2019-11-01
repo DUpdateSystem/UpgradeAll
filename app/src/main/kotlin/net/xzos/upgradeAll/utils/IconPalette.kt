@@ -21,6 +21,7 @@ object IconPalette {
 
     val editIcon = getEdit(getColorInt(R.color.text_lowest_priority_color))
 
+    @Suppress("DEPRECATION")
     fun getColorInt(colorRes: Int) = run {
         val context = MyApplication.context
         return@run if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
