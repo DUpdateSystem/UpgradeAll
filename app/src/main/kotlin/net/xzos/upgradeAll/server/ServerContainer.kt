@@ -11,7 +11,5 @@ internal class ServerContainer {
         val Log = LogUtil()
         @get:Contract(pure = true)
         val AppManager = AppManager()
-        @get:Contract(pure = true)
-        val UIConfig = UIConfig()
     }
 }
