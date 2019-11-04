@@ -44,8 +44,6 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
         })
     }
 
-    private val uiConfig = ServerContainer.UIConfig
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.cardview_item, parent, false))
@@ -56,7 +54,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
             MainActivity.navigationItemId.value = Pair(R.id.appInfoFragment, itemCardView.extraData.databaseId)
         }
         // TODO: 长按删除，暂时添加删除功能
-        holder.itemCardView.setOnLongClickListener{
+        holder.itemCardView.setOnLongClickListener {
             PopupMenu(it.context, it).let { popupMenu ->
                 popupMenu.menu.add(it.context.getString(R.string.delete)).let { menuItem ->
                     menuItem.setOnMenuItemClickListener {
@@ -115,8 +113,6 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
         if (position < mItemCardViewList.size) {
             mItemCardViewList.add(position, element)
             notifyItemRangeChanged(position, itemCount)
-            uiConfig.appList.add(position, element.extraData.databaseId)
-            uiConfig.save()
         }
     }
 
@@ -126,10 +122,6 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
             mItemCardViewList.removeAt(position)
             notifyItemRemoved(position)
             notifyItemRangeChanged(position, itemCount)
-            if (uiConfig.appList.isNullOrEmpty()) {
-                uiConfig.appList.removeAt(position)
-                uiConfig.save()
-            }
             removedItemCardView
         } else
             null
@@ -137,11 +129,6 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
 
     fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
         // TODO: 菜单集成
-        val appList = uiConfig.appList
-        appList[fromPosition] = appList[toPosition]
-                .also { appList[toPosition] = appList[fromPosition] }
-        uiConfig.appList = appList
-        uiConfig.save()
         mItemCardViewList[fromPosition] = mItemCardViewList[toPosition]
                 .also { mItemCardViewList[toPosition] = mItemCardViewList[fromPosition] }
         notifyItemMoved(fromPosition, toPosition)
@@ -171,6 +158,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
         holder.versioningTextView.text = installedVersioning ?: ""
 
         // 检查新版本
+        setUpdateStatus(holder, true)
         GlobalScope.launch {
             val isSuccessRenew = updater.isSuccessRenew()
             val isLatest = app.isLatest()
@@ -193,7 +181,6 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                         0
                     }
             runBlocking(Dispatchers.Main) {
-                setUpdateStatus(holder, true)
                 when (updateStatus) {
                     0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error)
                     1 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_mark)
@@ -221,11 +208,11 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
 
     private fun setUpdateStatus(holder: CardViewRecyclerViewHolder, renew: Boolean) {
         if (renew) {
-            holder.versionCheckButton.visibility = View.INVISIBLE
+            holder.versionCheckButton.visibility = View.GONE
             holder.versionCheckingBar.visibility = View.VISIBLE
         } else {
             holder.versionCheckButton.visibility = View.VISIBLE
-            holder.versionCheckingBar.visibility = View.INVISIBLE
+            holder.versionCheckingBar.visibility = View.GONE
         }
     }
 

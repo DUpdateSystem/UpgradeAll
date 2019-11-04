@@ -11,10 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.content_list.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.json.gson.CloudConfig
 import net.xzos.upgradeAll.json.nongson.ItemCardViewExtraData
@@ -24,6 +21,8 @@ import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 
 class HubCloudFragment : Fragment() {
     private val mCloudHub = CloudHub()
+
+    private var job: Job? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_cloud_hub_list, container, false)
@@ -46,8 +45,13 @@ class HubCloudFragment : Fragment() {
         activity?.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.cloud_hub_list)
     }
 
+    override fun onDestroy() {
+        job?.cancel()
+        super.onDestroy()
+    }
+
     private fun renewCardView() {
-        GlobalScope.launch {
+        job = GlobalScope.launch {
             runBlocking(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = true }
             renewCloudHubList()
             runBlocking(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = false }
@@ -55,19 +59,22 @@ class HubCloudFragment : Fragment() {
     }
 
     private fun renewCloudHubList() {
-        val itemCardViewList = mCloudHub.hubList?.map { getCloudHubItemCardView(it) }
-                ?.plus(ItemCardView(Pair(null, null), null, null, ItemCardViewExtraData(isEmpty = true)))
-                ?: runBlocking(Dispatchers.Main) {
-                    activity?.let {
-                        Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
+        runBlocking {
+            val itemCardViewList = mCloudHub.hubList?.map { getCloudHubItemCardView(it) }
+                    ?.plus(ItemCardView(Pair(null, null), null, null, ItemCardViewExtraData(isEmpty = true)))
+                    ?: runBlocking(Dispatchers.Main) {
+                        activity?.let {
+                            Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
+                        }
+                        listOf<ItemCardView>()
                     }
-                    return@runBlocking listOf<ItemCardView>()
+            if (isActive)
+                runBlocking(Dispatchers.Main) {
+                    val layoutManager = GridLayoutManager(activity, 1)
+                    cardItemRecyclerView?.layoutManager = layoutManager
+                    val adapter = CloudHubItemAdapter(itemCardViewList, mCloudHub)
+                    cardItemRecyclerView?.adapter = adapter
                 }
-        runBlocking(Dispatchers.Main) {
-            val layoutManager = GridLayoutManager(activity, 1)
-            cardItemRecyclerView?.layoutManager = layoutManager
-            val adapter = CloudHubItemAdapter(itemCardViewList, mCloudHub)
-            cardItemRecyclerView?.adapter = adapter
         }
     }
 
