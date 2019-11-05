@@ -84,13 +84,9 @@ class AppInfoFragment : Fragment() {
     }
 
     override fun onPause() {
+        cancelJobs()
         super.onPause()
         (activity as AppCompatActivity).findViewById<FloatingActionButton>(R.id.floatingActionButton)?.visibility = View.GONE
-    }
-
-    override fun onDestroy() {
-        cancelJobs()
-        super.onDestroy()
     }
 
     private fun cancelJobs() {
