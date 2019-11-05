@@ -12,6 +12,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_app_info.*
@@ -63,6 +64,8 @@ class AppInfoFragment : Fragment() {
         activity?.apply {
             this as AppCompatActivity
             this.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.visibility = View.GONE
+            this.findViewById<ImageView>(R.id.toolbar_backdrop_image)?.setBackgroundColor(IconPalette.getColorInt(R.color.coolapk_green))
+            this.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout)?.contentScrim = getDrawable(R.color.coolapk_green)
             this.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.let { fab ->
                 fab.setOnClickListener {
                     showDownloadDialog()
@@ -182,7 +185,6 @@ class AppInfoFragment : Fragment() {
                                 IconPalette.loadAppIconView(it, appDatabaseId = appDatabaseId)
                                 it.visibility = View.VISIBLE
                             }
-                            this.findViewById<ImageView>(R.id.toolbar_backdrop_image)?.setBackgroundColor(IconPalette.getColorInt(R.color.coolapk_green))
                         }
                         nameTextView.text = appDatabase.name
                         appModuleName.text = appDatabase.versionCheckerGson?.text ?: ""
