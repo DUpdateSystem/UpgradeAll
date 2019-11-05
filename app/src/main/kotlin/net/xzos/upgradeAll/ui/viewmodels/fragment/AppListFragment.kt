@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
@@ -49,6 +50,7 @@ class AppListFragment : Fragment() {
             this.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.app_list)
             this.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.visibility = View.GONE
             this.findViewById<ImageView>(R.id.app_logo_image_view)?.visibility = View.GONE
+            this.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout)?.contentScrim = getDrawable(R.color.colorPrimary)
             this.findViewById<ImageView>(R.id.toolbar_backdrop_image)?.setBackgroundColor(IconPalette.getColorInt(R.color.colorPrimary))
             this.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.let { fab ->
                 fab.setOnClickListener {
