@@ -4,10 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -48,6 +48,8 @@ class AppListFragment : Fragment() {
             this as AppCompatActivity
             this.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.app_list)
             this.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.visibility = View.GONE
+            this.findViewById<ImageView>(R.id.app_logo_image_view)?.visibility = View.GONE
+            this.findViewById<ImageView>(R.id.toolbar_backdrop_image)?.setBackgroundColor(IconPalette.getColorInt(R.color.colorPrimary))
             this.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.let { fab ->
                 fab.setOnClickListener {
                     startActivity(Intent(activity, AppSettingActivity::class.java))

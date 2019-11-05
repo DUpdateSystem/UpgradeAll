@@ -97,7 +97,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
         } else {
             holder.itemCardView.visibility = View.VISIBLE
             holder.appPlaceholderImageView.visibility = View.GONE
-            setAppIcon(holder.appIconImageView, itemCardView.iconInfo)
+            IconPalette.loadAppIconView(holder.appIconImageView, iconInfo = itemCardView.iconInfo)
             val appDatabaseId = itemCardView.extraData.databaseId
             holder.name.text = itemCardView.name
             holder.descTextView.text = itemCardView.desc
@@ -133,21 +133,6 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                 .also { mItemCardViewList[toPosition] = mItemCardViewList[fromPosition] }
         notifyItemMoved(fromPosition, toPosition)
         return true
-    }
-
-    private fun setAppIcon(iconImageView: ImageView, iconInfo: Pair<String?, String?>) {
-        Glide.with(iconImageView).load(iconInfo.first ?: "").let {
-            if (iconInfo.first == null) {
-                try {
-                    it.placeholder(
-                            iconImageView.context.packageManager.getApplicationIcon(iconInfo.second!!)
-                    )
-                } catch (e: PackageManager.NameNotFoundException) {
-                    return@let
-                }
-            }
-            it.into(iconImageView)
-        }
     }
 
     private fun setAppStatusUI(appDatabaseId: Long, holder: CardViewRecyclerViewHolder) {

@@ -53,7 +53,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
                     // 下载
                     Toast.makeText(holder.itemCardView.context, "开始下载", Toast.LENGTH_LONG).show()
                     // 下载数据
-                    holder.versionCheckingBar.visibility = View.VISIBLE
+                    setDownloadStatus(holder, true)
                     GlobalScope.launch {
                         val cloudHubConfigGson = mCloudHub.getHubConfig(itemCardView.extraData.configFileName!!)
                         // TODO: 配置文件地址与仓库地址分离
@@ -69,7 +69,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
                                     } else -2
                                 } else -1
                         runBlocking(Dispatchers.Main) {
-                            holder.versionCheckingBar.visibility = View.GONE
+                            setDownloadStatus(holder, false)
                             when (addHubStatus) {
                                 3 -> {
                                     Toast.makeText(holder.itemCardView.context, "数据添加成功", Toast.LENGTH_LONG).show()
@@ -122,6 +122,17 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
                         .load(hubIconUrl)
                         .apply(RequestOptions.circleCropTransform())
                         .into(iconImageView)
+        }
+    }
+
+    private fun setDownloadStatus(holder: CardViewRecyclerViewHolder, renew: Boolean) {
+        // TODO: 并入一个工具类
+        if (renew) {
+            holder.versionCheckButton.visibility = View.GONE
+            holder.versionCheckingBar.visibility = View.VISIBLE
+        } else {
+            holder.versionCheckButton.visibility = View.VISIBLE
+            holder.versionCheckingBar.visibility = View.GONE
         }
     }
 }
