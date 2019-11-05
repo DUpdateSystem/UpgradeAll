@@ -15,4 +15,5 @@
         android:background="@color/colorPrimary"
         android:contentDescription="@string/navigation_head_image"
         android:scaleType="centerCrop" />
+
 </LinearLayout>

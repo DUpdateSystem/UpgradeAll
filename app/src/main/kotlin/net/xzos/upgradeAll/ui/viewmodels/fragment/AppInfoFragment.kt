@@ -2,7 +2,6 @@ package net.xzos.upgradeAll.ui.viewmodels.fragment
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
@@ -13,7 +12,6 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_app_info.*
@@ -84,9 +82,13 @@ class AppInfoFragment : Fragment() {
     }
 
     override fun onPause() {
-        cancelJobs()
         super.onPause()
         (activity as AppCompatActivity).findViewById<FloatingActionButton>(R.id.floatingActionButton)?.visibility = View.GONE
+    }
+
+    override fun onDestroy() {
+        cancelJobs()
+        super.onDestroy()
     }
 
     private fun cancelJobs() {
@@ -174,7 +176,14 @@ class AppInfoFragment : Fragment() {
                 val installedVersioning = app.installedVersioning
                 if (isActive)
                     runBlocking(Dispatchers.Main) {
-                        loadAppIconView(appDatabase, appIconImageView)
+                        IconPalette.loadAppIconView(appIconImageView, appDatabaseId = appDatabaseId)
+                        activity?.apply {
+                            this.findViewById<ImageView>(R.id.app_logo_image_view)?.let {
+                                IconPalette.loadAppIconView(it, appDatabaseId = appDatabaseId)
+                                it.visibility = View.VISIBLE
+                            }
+                            this.findViewById<ImageView>(R.id.toolbar_backdrop_image)?.setBackgroundColor(IconPalette.getColorInt(R.color.coolapk_green))
+                        }
                         nameTextView.text = appDatabase.name
                         appModuleName.text = appDatabase.versionCheckerGson?.text ?: ""
                         versioningTextView.text = installedVersioning ?: ""
@@ -219,33 +228,6 @@ class AppInfoFragment : Fragment() {
                                 ?: getString(R.string.null_english)
                     }
             })
-        }
-    }
-
-    private fun loadAppIconView(appDatabase: RepoDatabase, imageView: ImageView) {
-        GlobalScope.launch {
-            val (appIconUrl, appModuleName) = Pair(
-                    runBlocking { AppManager.getApp(appDatabaseId).engine.getAppIconUrl() }
-                    , appDatabase.versionCheckerGson?.text
-            )
-            launch(Dispatchers.Main) {
-                if (appIconUrl != null) {
-                    Glide.with(imageView)
-                            .load(appIconUrl)
-                            .into(imageView)
-                } else if (appModuleName != null) {
-                    val packageManager = imageView.context.packageManager
-                    try {
-                        packageManager.getPackageInfo(appModuleName, 0)
-                        val icon = packageManager.getApplicationIcon(appModuleName)
-                        Glide.with(imageView)
-                                .load("")
-                                .placeholder(icon)
-                                .into(imageView)
-                    } catch (e: PackageManager.NameNotFoundException) {
-                    }
-                }
-            }
         }
     }
 

@@ -1,11 +1,21 @@
 package net.xzos.upgradeAll.utils
 
+import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.widget.ImageView
+import com.bumptech.glide.Glide
 import com.devs.vectorchildfinder.VectorChildFinder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
+import net.xzos.upgradeAll.database.RepoDatabase
+import net.xzos.upgradeAll.server.ServerContainer
+import org.litepal.LitePal
+import org.litepal.extension.find
 
 
 object IconPalette {
@@ -55,5 +65,29 @@ object IconPalette {
                 }
             }
         }.drawable
+    }
+
+    fun loadAppIconView(iconImageView: ImageView, appDatabaseId: Long = 0, iconInfo: Pair<String?, String?>? = null) {
+        GlobalScope.launch {
+            val appDatabase: RepoDatabase? = LitePal.find(appDatabaseId)
+            val (appIconUrl, appModuleName) = iconInfo ?: Pair(
+                    runBlocking { ServerContainer.AppManager.getApp(appDatabaseId).engine.getAppIconUrl() }
+                    , appDatabase?.versionCheckerGson?.text
+            )
+            launch(Dispatchers.Main) {
+                Glide.with(iconImageView).load(appIconUrl ?: "").let {
+                    if (appIconUrl == null) {
+                        try {
+                            it.placeholder(
+                                    iconImageView.context.packageManager.getApplicationIcon(appModuleName!!)
+                            )
+                        } catch (e: PackageManager.NameNotFoundException) {
+                            return@let
+                        }
+                    }
+                    it.into(iconImageView)
+                }
+            }
+        }
     }
 }
