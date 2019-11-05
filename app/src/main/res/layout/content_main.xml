@@ -8,11 +8,19 @@
     tools:context=".ui.activity.MainActivity"
     tools:showIn="@layout/layout_main">
 
-    <fragment
-        android:id="@+id/nav_host_fragment"
-        android:name="androidx.navigation.fragment.NavHostFragment"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:navGraph="@navigation/app_list_nav_graph" />
+        android:layout_gravity="fill_vertical"
+        android:fillViewport="true">
+
+        <fragment
+            android:id="@+id/nav_host_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:navGraph="@navigation/app_list_nav_graph" />
+
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
