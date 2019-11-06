@@ -83,6 +83,7 @@ class AppListPlaceholderFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        // 占位符修改
         appListPageViewModel.appCardViewList.value?.let {
             if (it.isNullOrEmpty()) {
                 updateOverviewLayout.visibility = View.GONE

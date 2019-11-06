@@ -51,8 +51,10 @@ class AppInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        progressContainer.visibility = View.VISIBLE
         loadAllAppInfo()
         loadAppVersioningInfo(0)
+        progressContainer.visibility = View.GONE
         editImageView.setOnClickListener {
             it.context.startActivity(
                     Intent(it.context, AppSettingActivity::class.java).apply {

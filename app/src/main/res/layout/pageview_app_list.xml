@@ -6,109 +6,105 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/placeholderLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@color/white"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:id="@+id/placeholderImageVew"
+            android:layout_width="170dp"
+            android:layout_height="170dp"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="@string/nothing_in_there"
+            android:src="@drawable/ic_checking_update" />
+
+        <TextView
+            android:id="@+id/placeholderTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/waiting_check_update"
+            android:textColor="@color/text_low_priority_color"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="24dp"
+        android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/updateOverviewLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:layout_marginTop="24dp"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center|start">
 
-            <LinearLayout
-                android:id="@+id/updateOverviewLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center|start"
-                android:visibility="invisible">
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="60dp"
-                    android:layout_height="24dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:foreground="?android:attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/coolapk_green"
-                    app:cardCornerRadius="4dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center">
-
-                        <ImageView
-                            android:id="@+id/updateOverviewStatusImageView"
-                            android:layout_width="8dp"
-                            android:layout_height="8dp"
-                            android:contentDescription="@string/update_status_prompt"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_up"
-                            android:tint="@color/white" />
-
-                        <TextView
-                            android:id="@+id/updateOverviewNumberTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:maxLines="1"
-                            android:text="@string/example_number"
-                            android:textColor="@color/white"
-                            android:textSize="12sp" />
-
-                    </LinearLayout>
-
-                </androidx.cardview.widget.CardView>
-
-                <TextView
-                    android:id="@+id/updateOverviewTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:maxLines="1"
-                    android:text="@string/example_update_overview"
-                    android:textColor="@color/text_low_priority_color"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <include
-                layout="@layout/content_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+            <androidx.cardview.widget.CardView
+                android:layout_width="60dp"
+                android:layout_height="24dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp" />
+                android:layout_marginEnd="16dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="@color/coolapk_green"
+                app:cardCornerRadius="4dp">
 
-        </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center">
 
-        <LinearLayout
-            android:id="@+id/placeholderLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:background="@color/white"
-            android:gravity="center"
-            android:orientation="vertical"
-            tools:ignore="UseCompoundDrawables">
+                    <ImageView
+                        android:id="@+id/updateOverviewStatusImageView"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:contentDescription="@string/update_status_prompt"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_up"
+                        android:tint="@color/white" />
 
-            <ImageView
-                android:id="@+id/placeholderImageVew"
-                android:layout_width="170dp"
-                android:layout_height="170dp"
-                android:layout_marginBottom="16dp"
-                android:contentDescription="@string/nothing_in_there"
-                android:src="@drawable/ic_checking_update" />
+                    <TextView
+                        android:id="@+id/updateOverviewNumberTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:maxLines="1"
+                        android:text="@string/example_number"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
 
             <TextView
-                android:id="@+id/placeholderTextView"
+                android:id="@+id/updateOverviewTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/waiting_check_update"
+                android:layout_marginStart="8dp"
+                android:maxLines="1"
+                android:text="@string/example_update_overview"
                 android:textColor="@color/text_low_priority_color"
-                android:textSize="14sp" />
+                android:textSize="12sp" />
+
         </LinearLayout>
 
-    </RelativeLayout>
+        <include
+            layout="@layout/content_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
