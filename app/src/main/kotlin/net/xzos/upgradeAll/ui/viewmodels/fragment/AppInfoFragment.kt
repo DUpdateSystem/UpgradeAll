@@ -21,7 +21,7 @@ import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.database.RepoDatabase
 import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.Updater
-import net.xzos.upgradeAll.ui.activity.AppSettingActivity
+import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.utils.IconPalette
 import org.litepal.LitePal
 import org.litepal.extension.find
@@ -45,29 +45,25 @@ class AppInfoFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_app_info, container, false)
-    }
+                              savedInstanceState: Bundle?): View? =
+            inflater.inflate(R.layout.fragment_app_info, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = false  // 禁止开启侧滑栏，启用返回按钮响应事件
         progressContainer.visibility = View.VISIBLE
         loadAllAppInfo()
         loadAppVersioningInfo(0)
         progressContainer.visibility = View.GONE
         editImageView.setOnClickListener {
-            it.context.startActivity(
-                    Intent(it.context, AppSettingActivity::class.java).apply {
-                        this.putExtra("database_id", appDatabaseId)
-                    }
-            )
+            MainActivity.navigationItemId.value = Pair(R.id.appSettingFragment, appDatabaseId)
         }
         showVersioningPopupMenu(versioningSelectLayout)
         activity?.apply {
             this as AppCompatActivity
-            this.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.visibility = View.GONE
             this.findViewById<ImageView>(R.id.toolbar_backdrop_image)?.setBackgroundColor(IconPalette.getColorInt(R.color.coolapk_green))
             this.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout)?.contentScrim = getDrawable(R.color.coolapk_green)
+            this.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.visibility = View.GONE
             this.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.let { fab ->
                 fab.setOnClickListener {
                     showDownloadDialog()

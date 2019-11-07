@@ -16,6 +16,7 @@ import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.json.gson.CloudConfig
 import net.xzos.upgradeAll.json.nongson.ItemCardViewExtraData
 import net.xzos.upgradeAll.server.hub.CloudHub
+import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.adapters.CloudHubItemAdapter
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 
@@ -24,12 +25,13 @@ class HubCloudFragment : Fragment() {
 
     private var job: Job? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_cloud_hub_list, container, false)
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? =
+            inflater.inflate(R.layout.fragment_cloud_hub_list, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = true  // 默认允许侧滑
         activity?.apply {
             this as AppCompatActivity
             this.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.visibility = View.GONE

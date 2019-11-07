@@ -11,6 +11,7 @@
     <color name="bright_yellow">#FFF8BC26</color>
     <color name="light_gray">#FFF2F2F2</color>
     <color name="gray">#FFCCCCCC</color>
+    <color name="taupe">#FF54555C</color>
     <color name="text_color">#FF666666</color>
     <color name="text_low_priority_color">#FFB2B2B2</color>
     <color name="text_lowest_priority_color">#FFE5E5E5</color>

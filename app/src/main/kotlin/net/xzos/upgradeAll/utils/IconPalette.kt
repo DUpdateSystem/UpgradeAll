@@ -48,7 +48,7 @@ object IconPalette {
             changeDrawableColor(bodyColor, null, R.drawable.ic_download)
 
     private fun getCheckMark(bodyColor: Int, backgroundColor: Int) =
-            changeDrawableColor(bodyColor, backgroundColor, R.drawable.ic_check_mark)
+            changeDrawableColor(bodyColor, backgroundColor, R.drawable.ic_check_mark_circle)
 
     private fun getEdit(bodyColor: Int) =
             changeDrawableColor(bodyColor, null, R.drawable.ic_edit)

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/app_list_nav_graph"
     app:startDestination="@id/appListFragment">
 
     <fragment
         android:id="@+id/appListFragment"
         android:name="net.xzos.upgradeAll.ui.viewmodels.fragment.AppListFragment"
-        android:label="AppListFragment">
+        android:label="AppListFragment"
+        app:popUpToInclusive="true">
         <action
             android:id="@+id/action_appListFragment_to_appInfoFragment"
             app:destination="@id/appInfoFragment" />
@@ -16,23 +18,31 @@
             app:destination="@id/hubCloudFragment"
             app:popUpTo="@+id/hubCloudFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_appListFragment_to_appSettingFragment"
+            app:destination="@id/appSettingFragment" />
     </fragment>
     <fragment
         android:id="@+id/appInfoFragment"
         android:name="net.xzos.upgradeAll.ui.viewmodels.fragment.AppInfoFragment"
         android:label="AppInfoFragment">
         <action
-            android:id="@+id/action_appInfoFragment_to_appListFragment"
-            app:destination="@id/appListFragment"
-            app:launchSingleTop="true" />
+            android:id="@+id/action_appInfoFragment_to_appSettingFragment"
+            app:destination="@id/appSettingFragment" />
     </fragment>
     <fragment
         android:id="@+id/hubCloudFragment"
         android:name="net.xzos.upgradeAll.ui.viewmodels.fragment.HubCloudFragment"
-        android:label="HubCloudFragment">
+        android:label="@string/cloud_hub_list">
         <action
             android:id="@+id/action_hubCloudFragment_to_appListFragment"
             app:destination="@id/appListFragment"
-            app:launchSingleTop="true" />
+            app:popUpTo="@+id/appListFragment"
+            app:popUpToInclusive="true" />
     </fragment>
+    <fragment
+        android:id="@+id/appSettingFragment"
+        android:name="net.xzos.upgradeAll.ui.viewmodels.fragment.AppSettingFragment"
+        android:label="@string/add_apps"
+        tools:layout="@layout/fragment_apps_setting" />
 </navigation>

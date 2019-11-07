@@ -30,9 +30,9 @@ class AppListPlaceholderFragment : Fragment() {
             appListPageViewModel.setHubUuid(hubUuid)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.pageview_app_list, container, false)
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? =
+            inflater.inflate(R.layout.pageview_app_list, container, false)
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
