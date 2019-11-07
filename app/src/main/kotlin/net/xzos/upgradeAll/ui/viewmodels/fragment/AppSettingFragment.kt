@@ -1,13 +1,21 @@
-package net.xzos.upgradeAll.ui.activity
+package net.xzos.upgradeAll.ui.viewmodels.fragment
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.os.Bundle
-import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_app_setting.*
+import androidx.fragment.app.Fragment
+import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.android.synthetic.main.fragment_apps_setting.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
@@ -16,53 +24,58 @@ import net.xzos.upgradeAll.json.gson.VersionCheckerGson
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.server.hub.HubManager
+import net.xzos.upgradeAll.ui.activity.MainActivity
+import net.xzos.upgradeAll.utils.IconPalette
 import net.xzos.upgradeAll.utils.VersionChecker
 import org.json.JSONException
 import org.litepal.LitePal
 import java.util.*
 
-class AppSettingActivity : AppCompatActivity() {
+class AppSettingFragment : Fragment() {
 
     private var databaseId: Long = 0  // 设置页面代表的数据库项目
 
-    private// 获取versionChecker
-    val versionCheckerGson: VersionCheckerGson
-        get() {
-            val versionCheckSpinner = findViewById<Spinner>(R.id.versionCheckSpinner)
-            val editVersionCheckText = findViewById<EditText>(R.id.editVersionCheckText)
-            val versionCheckerText = editVersionCheckText.text.toString()
-            var versionCheckerApi = versionCheckSpinner.selectedItem.toString()
-            when (versionCheckerApi) {
-                "APP 版本" -> versionCheckerApi = "APP"
-                "Magisk 模块" -> versionCheckerApi = "Magisk"
-                "自定义 Shell 命令" -> versionCheckerApi = "Shell"
-                "自定义 Shell 命令（ROOT）" -> versionCheckerApi = "Shell_ROOT"
-            }
-            return VersionCheckerGson(versionCheckerApi, versionCheckerText)
-        }
+    // 获取versionChecker
+    private val versionCheckerGson: VersionCheckerGson
+        get() =
+            VersionCheckerGson(
+                    when (versionCheckSpinner.selectedItem.toString()) {
+                        "APP 版本" -> "APP"
+                        "Magisk 模块" -> "Magisk"
+                        "自定义 Shell 命令" -> "Shell"
+                        "自定义 Shell 命令（ROOT）" -> "Shell_ROOT"
+                        else -> null
+                    },
+                    editVersioningCheckText.text.toString()
+            )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_app_setting)
-        val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.setTitle(R.string.add)
-            actionBar.setDisplayHomeAsUpEnabled(true)
-        }
         // 获取可能来自修改设置项的请求
-        databaseId = intent.getLongExtra("database_id", 0)
+        arguments?.let {
+            databaseId = it.getLong(AppInfoFragment.APP_DATABASE_ID, 0)
+        }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? =
+            inflater.inflate(R.layout.fragment_apps_setting, container, false)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = false  // 禁止开启侧滑栏，启用返回按钮响应事件
         // 刷新第三方源列表，获取支持的第三方源列表
         val apiSpinnerStringArray = renewApiJsonObject()
         // 修改 apiSpinner
         if (apiSpinnerStringArray.isNotEmpty()) {
-            val apiSpinner = findViewById<Spinner>(R.id.apiSpinner)
-            val adapter = ArrayAdapter(this,
+            val adapter = ArrayAdapter(context!!,
                     android.R.layout.simple_spinner_item, apiSpinnerStringArray)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             apiSpinner.adapter = adapter
         } else {
-            Toast.makeText(this, "请先添加软件源", Toast.LENGTH_LONG).show()
-            onBackPressed()
+            // TODO: 返回处理
+            Toast.makeText(context, "请先添加软件源", Toast.LENGTH_LONG).show()
+            activity?.onBackPressed()
         }
         setSettingItem() // 设置预置设置项
         // 以下是按键事件
@@ -72,65 +85,60 @@ class AppSettingActivity : AppCompatActivity() {
             val versionChecker = VersionChecker(versionCheckerGson = versionCheckerJsonObject)
             val appVersion = versionChecker.version
             if (appVersion != null) {
-                Toast.makeText(this, "version: $appVersion", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "version: $appVersion", Toast.LENGTH_SHORT).show()
             }
         }
-        val addButton = findViewById<Button>(R.id.saveButton)
-        addButton.setOnClickListener {
-            addButton.isEnabled = false
-            addApp()
-            addButton.isEnabled = true
+        activity?.let {
+            it as AppCompatActivity
+            it.findViewById<ImageView>(R.id.toolbar_backdrop_image)?.setBackgroundColor(IconPalette.getColorInt(R.color.taupe))
+            it.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout)?.contentScrim = it.getDrawable(R.color.taupe)
+            it.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.visibility = View.GONE
+            it.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.let { fab ->
+                fab.setOnClickListener {
+                    addApp()
+                }
+                fab.setImageDrawable(it.getDrawable(R.drawable.ic_check_mark))
+                fab.backgroundTintList = ColorStateList.valueOf((IconPalette.getColorInt(R.color.taupe)))
+                fab.setColorFilter(IconPalette.getColorInt(R.color.white))
+                fab.visibility = View.VISIBLE
+            }
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if (id == android.R.id.home) {
-            onBackPressed()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     private fun addApp() {
-        val editName = findViewById<EditText>(R.id.editName)
-        val editUrl = findViewById<EditText>(R.id.editUrl)
         val name = editName.text.toString()
         val url = editUrl.text.toString()
-        val apiSpinner = findViewById<Spinner>(R.id.apiSpinner)
         val apiNum = apiSpinner.selectedItemPosition
         val versionChecker = versionCheckerGson
-        val progressBar = ProgressBar(this)
+        val progressBar = ProgressBar(context)
         // 弹出等待框
         progressBar.visibility = View.VISIBLE
-        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-        // 添加数据库
-        val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)
-        // 取消等待框
-        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        activity?.window?.let {
+            it.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            // 添加数据库
+            val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)
+            // 取消等待框
+            if (addRepoSuccess) {
+                ServerContainer.AppManager.setApp(databaseId)
+                activity?.onBackPressed()  // 跳转主页面
+            } else
+                Toast.makeText(context, "什么？添加失败！", Toast.LENGTH_LONG).show()
+            it.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        }
         progressBar.visibility = View.GONE
-        if (addRepoSuccess) {
-            ServerContainer.AppManager.setApp(databaseId)
-            onBackPressed()  // 跳转主页面
-        } else
-            Toast.makeText(this, "什么？添加失败！", Toast.LENGTH_LONG).show()
     }
 
     private fun setSettingItem() {
         // 如果是设置修改请求，设置预置设置项
         if (databaseId != 0L) {
             val database = LitePal.find(RepoDatabase::class.java, databaseId)
-            val editName = findViewById<EditText>(R.id.editName)
             editName.setText(database.name)
-            val editUrl = findViewById<EditText>(R.id.editUrl)
             editUrl.setText(database.url)
-            val apiSpinner = findViewById<Spinner>(R.id.apiSpinner)
             val apiUuid = database.api_uuid
             // 设置 apiSpinner 位置
             val spinnerIndex = apiSpinnerList.indexOf(apiUuid)
             if (spinnerIndex != -1) apiSpinner.setSelection(spinnerIndex)
-            val versionCheckSpinner = findViewById<Spinner>(R.id.versionCheckSpinner)
             val versionCheckerGson = database.versionCheckerGson
             val versionChecker = if (versionCheckerGson is VersionCheckerGson)
                 versionCheckerGson
@@ -150,8 +158,7 @@ class AppSettingActivity : AppCompatActivity() {
                     "app" -> versionCheckSpinner.setSelection(0)
                     "magisk" -> versionCheckSpinner.setSelection(1)
                 }
-            val editVersionCheckText = findViewById<EditText>(R.id.editVersionCheckText)
-            editVersionCheckText.setText(versionCheckerText)
+            editVersioningCheckText.setText(versionCheckerText)
         }
     }
 
@@ -174,7 +181,6 @@ class AppSettingActivity : AppCompatActivity() {
                         name = defaultName
                 }
             }
-            val apiSpinner = findViewById<Spinner>(R.id.apiSpinner)
             val api = apiSpinner.selectedItem.toString()
             // 修改数据库
             var repoDatabase: RepoDatabase? = LitePal.find(RepoDatabase::class.java, databaseId)

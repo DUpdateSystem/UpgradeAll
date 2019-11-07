@@ -165,7 +165,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
             runBlocking(Dispatchers.Main) {
                 when (updateStatus) {
                     0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error)
-                    1 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_mark)
+                    1 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_mark_circle)
                     2 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
                     3 -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
                 }

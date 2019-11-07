@@ -14,7 +14,7 @@ import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.group_item.view.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.server.hub.HubManager
-import net.xzos.upgradeAll.ui.activity.MainActivity.Companion.navigationItemId
+import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.fragment.AppListPlaceholderFragment
 
 
@@ -80,7 +80,7 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
                 with(this.addGroupCardView) {
                     visibility = View.VISIBLE
                     setOnClickListener {
-                        navigationItemId.value = Pair(R.id.hubCloudFragment, null)
+                        MainActivity.navigationItemId.value = Pair(R.id.hubCloudFragment, null)
                     }
                 }
             }

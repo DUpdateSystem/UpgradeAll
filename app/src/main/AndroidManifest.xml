@@ -49,7 +49,6 @@
         <activity
             android:name="net.xzos.upgradeAll.ui.activity.SettingsActivity"
             android:label="@string/setting" />
-        <activity android:name="net.xzos.upgradeAll.ui.activity.AppSettingActivity" />
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"

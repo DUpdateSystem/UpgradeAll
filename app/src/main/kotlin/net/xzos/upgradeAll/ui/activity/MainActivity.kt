@@ -39,7 +39,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private lateinit var menu: Menu
     private lateinit var navController: NavController
-    private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -159,28 +158,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
         } else {
-            if (findNavController(R.id.nav_host_fragment).currentDestination?.id != R.id.appListFragment) {
-                navigationItemId.value = Pair(R.id.appListFragment, null)
-            } else
-                super.onBackPressed()
+            super.onBackPressed()
         }
     }
 
     private fun setFrameLayout(pair: Pair<Int, Long?>) {
-        actionBarDrawerToggle.isDrawerIndicatorEnabled = true  // 默认允许侧滑
         with(navController) {
             val currentDestination = this.currentDestination?.id
             if (currentDestination != null) {
                 when (pair.first) {
                     R.id.appListFragment -> {
-                        when (currentDestination) {
-                            R.id.hubCloudFragment -> {
-                                this.navigate(R.id.action_hubCloudFragment_to_appListFragment)
-                                setToolbarByNavigation(R.id.appListFragment)
-                            }
-                            R.id.appInfoFragment -> this.navigate(R.id.action_appInfoFragment_to_appListFragment)
+                        if (currentDestination == R.id.hubCloudFragment) {
+                            this.navigate(R.id.action_hubCloudFragment_to_appListFragment)
+                            setToolbarByNavigation(R.id.appListFragment)
                         }
-
                     }
                     R.id.hubCloudFragment -> {
                         if (currentDestination == R.id.appListFragment) {
@@ -189,14 +180,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                     }
                     R.id.appInfoFragment -> {
-                        actionBarDrawerToggle.isDrawerIndicatorEnabled = false  // 禁止开启侧滑栏，启用返回按钮响应事件
                         pair.second?.let {
-                            if (currentDestination == R.id.appListFragment)
+                            if (currentDestination == R.id.appListFragment) {
                                 this.navigate(R.id.action_appListFragment_to_appInfoFragment,
                                         Bundle().apply {
                                             putLong(AppInfoFragment.APP_DATABASE_ID, it)
                                         }
                                 )
+                            }
+                        }
+                    }
+                    R.id.appSettingFragment -> {
+                        when (currentDestination) {
+                            R.id.appListFragment -> {
+                                this.navigate(R.id.action_appListFragment_to_appSettingFragment)
+                            }
+                            R.id.appInfoFragment -> {
+                                pair.second?.let {
+                                    this.navigate(R.id.action_appInfoFragment_to_appSettingFragment,
+                                            Bundle().apply {
+                                                putLong(AppInfoFragment.APP_DATABASE_ID, it)
+                                            }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -288,5 +295,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // Pair(Fragment ID, Bundle)
         internal val navigationItemId: MutableLiveData<Pair<Int, Long?>> = MutableLiveData(Pair(R.id.appListFragment, null))
+
+        internal lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     }
 }

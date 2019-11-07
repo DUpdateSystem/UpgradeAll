@@ -10,8 +10,8 @@
     <string name="name">名称</string>
     <string name="update_item_setting_editVersionCheckerText">跟踪目标</string>
     <string name="update_item_setting_editVersionCheckRegular">版本号正则表达式匹配规则</string>
-    <string name="update_item_setting_basicInfoTextView">基础信息</string>
-    <string name="update_item_setting_versionCheckTextView">版本控制设置</string>
+    <string name="basic_info">基础信息</string>
+    <string name="versioning_check_setting">版本控制设置</string>
     <string name="update_item_setting_versionCheckButton">测试</string>
     <string name="delete">删除</string>
     <string name="edit">编辑</string>
@@ -89,5 +89,6 @@
     <string name="null_english">NULL</string>
     <string name="more_other_versioning">更多版本</string>
     <string name="loading">加载中…</string>
+    <string name="add_apps">添加应用</string>
 
 </resources>

@@ -19,7 +19,6 @@
             android:layout_gravity="center"
             android:background="@drawable/ic_list_header_background"
             android:fitsSystemWindows="true"
-            app:tabIndicatorColor="@android:color/transparent"
             app:tabMode="scrollable" />
     </com.google.android.material.appbar.AppBarLayout>
 
