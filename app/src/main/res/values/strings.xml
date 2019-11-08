@@ -91,4 +91,10 @@
     <string name="loading">加载中…</string>
     <string name="add_apps">添加应用</string>
 
+    <string name="setting_help_web_page">\n详细帮助：https://xzos.net/upgradeall-readme</string>
+
+    <string name="setting_app_name_explain">应用名称（选填）\n留空则调用软件源脚本，以获取默认应用名称</string>
+    <string name="setting_app_url_explain">应用项目主页网址（必填）\n通过该网址获取应用信息</string>
+    <string name="setting_app_versioning_explain">应用目标指向字符（必填）\n通过该字符串确认本地应用信息\n 例如：net.xzos.upgradeall</string>
+
 </resources>

@@ -7,14 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.ArrayAdapter
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.fragment_apps_setting.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -103,6 +102,29 @@ class AppSettingFragment : Fragment() {
                 fab.visibility = View.VISIBLE
             }
         }
+        setEndHelpIcon()
+    }
+
+    private fun setEndHelpIcon() {
+        setEndIconOnClickListener(name_input_layout)
+        setEndIconOnClickListener(url_input_layout)
+        setEndIconOnClickListener(versioning_input_layout)
+    }
+
+    private fun setEndIconOnClickListener(textInputLayout: TextInputLayout) {
+        (getString(when (textInputLayout.id) {
+            R.id.name_input_layout -> R.string.setting_app_name_explain
+            R.id.url_input_layout -> R.string.setting_app_url_explain
+            R.id.versioning_input_layout -> R.string.setting_app_versioning_explain
+            else -> R.string.null_english
+        }) + getString(R.string.setting_help_web_page)).let { text ->
+            textInputLayout.setEndIconOnClickListener {
+                AlertDialog.Builder(it.context).setView(R.layout.simple_textview).create().let { dialog ->
+                    dialog.show()
+                    dialog.findViewById<TextView>(R.id.text)?.text = text
+                }
+            }
+        }
     }
 
     private fun addApp() {
@@ -149,7 +171,7 @@ class AppSettingFragment : Fragment() {
                 versionCheckerApi = versionChecker.api
                 versionCheckerText = versionChecker.text
             } catch (e: JSONException) {
-                Log.e(LogObjectTag, TAG, String.format("onCreate: 数据库损坏！  versionCheckerGson: %s", versionChecker))
+                Log.e(logObjectTag, TAG, String.format("onCreate: 数据库损坏！  versionCheckerGson: %s", versionChecker))
             }
 
             if (versionCheckerApi != null)
@@ -171,7 +193,7 @@ class AppSettingFragment : Fragment() {
             if (name.isBlank()) {
                 val jsCode = HubManager.getJsCode(apiUuid)
                 if (jsCode.isNullOrBlank()) {
-                    Log.e(LogObjectTag, TAG, "未找到 js 脚本")
+                    Log.e(logObjectTag, TAG, "未找到 js 脚本")
                 } else {
                     val logObjectTag = arrayOf("TEMP", "0")
                     val defaultName = runBlocking(Dispatchers.Default) {
@@ -227,7 +249,7 @@ class AppSettingFragment : Fragment() {
 
         private val Log = ServerContainer.Log
         private const val TAG = "UpdateItemSetting"
-        private val LogObjectTag = arrayOf("Core", TAG)
+        private val logObjectTag = arrayOf("Core", TAG)
 
         private val apiSpinnerList = ArrayList<String>()
     }
