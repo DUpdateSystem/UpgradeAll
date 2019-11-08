@@ -46,15 +46,16 @@ class AppInfoFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.fragment_app_info, container, false)
+            inflater.inflate(R.layout.fragment_app_info, container, false).apply {
+                this.findViewById<LinearLayout>(R.id.placeholderLayout).visibility = View.VISIBLE
+            }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = false  // 禁止开启侧滑栏，启用返回按钮响应事件
-        progressContainer.visibility = View.VISIBLE
         loadAllAppInfo()
         loadAppVersioningInfo(0)
-        progressContainer.visibility = View.GONE
+        placeholderLayout.visibility = View.GONE
         editImageView.setOnClickListener {
             MainActivity.navigationItemId.value = Pair(R.id.appSettingFragment, appDatabaseId)
         }
@@ -76,16 +77,6 @@ class AppInfoFragment : Fragment() {
         }
     }
 
-
-    @SuppressLint("ResourceAsColor")
-    override fun onResume() {
-        super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        (activity as AppCompatActivity).findViewById<FloatingActionButton>(R.id.floatingActionButton)?.visibility = View.GONE
-    }
 
     override fun onDestroy() {
         cancelJobs()
@@ -130,7 +121,7 @@ class AppInfoFragment : Fragment() {
                         layoutInflater.inflate(R.layout.list_content, null)
                 )
                 dialog.show()
-                dialog.findViewById<LinearLayout>(R.id.progressContainer)?.visibility = View.VISIBLE
+                dialog.findViewById<LinearLayout>(R.id.placeholderLayout)?.visibility = View.VISIBLE
                 jobs.add(GlobalScope.launch {
                     val engine = AppManager.getApp(appDatabaseId).engine
                     val itemList = engine.getReleaseDownload(versioningPosition).keys.toList()
@@ -148,7 +139,7 @@ class AppInfoFragment : Fragment() {
                             } else {
                                 dialog.findViewById<TextView>(R.id.isEmptyTextView)?.visibility = View.VISIBLE
                             }
-                            dialog.findViewById<LinearLayout>(R.id.progressContainer)?.visibility = View.GONE
+                            dialog.findViewById<LinearLayout>(R.id.placeholderLayout)?.visibility = View.GONE
                         }
                 })
             }
