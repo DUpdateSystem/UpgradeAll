@@ -39,6 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:hint="@string/name"
+        app:endIconCheckable="true"
         app:endIconContentDescription="@string/help"
         app:endIconDrawable="@drawable/ic_help"
         app:endIconMode="custom">
@@ -58,6 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:hint="@string/desc"
+        app:endIconCheckable="true"
         app:endIconContentDescription="@string/help"
         app:endIconDrawable="@drawable/ic_help"
         app:endIconMode="custom">
@@ -125,6 +127,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="@string/update_item_setting_editVersionCheckerText"
+                app:endIconCheckable="true"
                 app:endIconContentDescription="@string/help"
                 app:endIconDrawable="@drawable/ic_help"
                 app:endIconMode="custom">
