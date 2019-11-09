@@ -13,7 +13,6 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.fragment_app_list.*
-import kotlinx.android.synthetic.main.group_item.view.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
@@ -63,14 +62,7 @@ class AppListFragment : Fragment() {
             this.setupWithViewPager(viewPager)
             val count = this.tabCount
             for (i in 0 until count) {
-                this.getTabAt(i)?.let { tab ->
-                    tab.customView = sectionsPagerAdapter.getCustomTabView(i, this).apply {
-                        if (i == 0) {
-                            @Suppress("DEPRECATION")
-                            this.groupNameTextView.setTextColor(IconPalette.getColorInt(R.color.text_color))
-                        }
-                    }
-                }
+                this.getTabAt(i)?.customView = sectionsPagerAdapter.getCustomTabView(i, this)
             }
             addTab(
                     this.newTab().apply {

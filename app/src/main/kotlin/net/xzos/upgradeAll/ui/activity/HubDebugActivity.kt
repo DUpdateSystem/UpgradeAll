@@ -54,7 +54,7 @@ class HubDebugActivity : AppCompatActivity() {
             try {
                 hubConfig.baseVersion = Integer.parseInt(configBaseVersionEditText.text.toString())
             } catch (e: NumberFormatException) {
-                Toast.makeText(this@HubDebugActivity, "请填写正确整数", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "请填写正确整数", Toast.LENGTH_LONG).show()
                 return null
             }
 
@@ -64,7 +64,7 @@ class HubDebugActivity : AppCompatActivity() {
             try {
                 hubConfig.info.configVersion = Integer.parseInt(configVersionEditText.text.toString())
             } catch (e: NumberFormatException) {
-                Toast.makeText(this@HubDebugActivity, "请填写正确整数", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "请填写正确整数", Toast.LENGTH_LONG).show()
                 return null
             }
 
@@ -73,6 +73,11 @@ class HubDebugActivity : AppCompatActivity() {
             hubConfig.webCrawler.filePath = jsFilePathEditText.text.toString()
             return hubConfig
         }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_actionbar_debug, menu)
+        return true
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -292,12 +297,12 @@ class HubDebugActivity : AppCompatActivity() {
         }
         val jsCode = jsTestTextView.text.toString()
         if (jsCode == "") {
-            Toast.makeText(this@HubDebugActivity, "请选择一个正确的 JS 脚本文件", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "请选择一个正确的 JS 脚本文件", Toast.LENGTH_LONG).show()
             return
         }
         val testUrl = testUrlEditText.text.toString()
         if (testUrl == "") {
-            Toast.makeText(this@HubDebugActivity, "请填写 测试网址", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "请填写 测试网址", Toast.LENGTH_LONG).show()
             return
         }
         val logObjectTag = arrayOf("DeBug", "0")
@@ -446,7 +451,7 @@ class HubDebugActivity : AppCompatActivity() {
         try {
             hubConfig = Gson().fromJson(configString, HubConfig::class.java)
         } catch (e: RuntimeException) {
-            Toast.makeText(this@HubDebugActivity, "请选择一个正确的配置文件", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "请选择一个正确的配置文件", Toast.LENGTH_LONG).show()
             return
         }
 
@@ -476,11 +481,11 @@ class HubDebugActivity : AppCompatActivity() {
             if (jsCode != "") {
                 val addHubSuccess = HubManager.add(hubConfigGson, jsCode)
                 if (addHubSuccess) {
-                    Toast.makeText(this@HubDebugActivity, "数据库添加成功", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "数据库添加成功", Toast.LENGTH_LONG).show()
                 } else
-                    Toast.makeText(this@HubDebugActivity, "什么？数据库添加失败！", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "什么？数据库添加失败！", Toast.LENGTH_LONG).show()
             } else
-                Toast.makeText(this@HubDebugActivity, "JS 代码为空", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "JS 代码为空", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -491,13 +496,13 @@ class HubDebugActivity : AppCompatActivity() {
         val gsonText = gson.toJson(hubConfigGson)
         // 存入数据
         if (hubConfigUri == null)
-            Toast.makeText(this@HubDebugActivity, "请选择配置文件，若无配置文件，你可以长按文件选择框创建新文件", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "请选择配置文件，若无配置文件，你可以长按文件选择框创建新文件", Toast.LENGTH_LONG).show()
         else if (hubConfigUri?.path != null && hubConfigGson != null) {
             val writeSuccess: Boolean = FileUtil.writeTextFromUri(hubConfigUri!!, gsonText)
             if (writeSuccess) {
-                Toast.makeText(this@HubDebugActivity, "文件保存成功", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "文件保存成功", Toast.LENGTH_LONG).show()
             } else
-                Toast.makeText(this@HubDebugActivity, "什么？文件保存失败！", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "什么？文件保存失败！", Toast.LENGTH_LONG).show()
         }
     }
 

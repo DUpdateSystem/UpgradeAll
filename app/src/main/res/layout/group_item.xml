@@ -90,6 +90,6 @@
         android:layout_height="wrap_content"
         android:maxLines="1"
         android:text="@string/add_group"
-        android:textColor="@color/text_low_priority_color"
+        android:textColor="@color/text_color"
         android:textSize="12sp" />
 </LinearLayout>
