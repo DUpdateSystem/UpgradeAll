@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewTreeObserver
 import android.widget.ImageView
@@ -37,7 +36,6 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var menu: Menu
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,11 +93,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        this.menu = menu
-        return true
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.dev_help -> {
@@ -129,10 +122,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 navigationItemId.value = Pair(R.id.hubCloudFragment, null)
             }
             R.id.local_hub_debug -> {
-                if (::menu.isInitialized) {
-                    menu.clear()
-                    menuInflater.inflate(R.menu.menu_actionbar_debug, menu)
-                }
                 startActivity(Intent(this, HubDebugActivity::class.java))
             }
             R.id.app_help -> {
