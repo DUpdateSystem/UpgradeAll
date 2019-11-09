@@ -94,7 +94,9 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
         } else {
             holder.itemCardView.visibility = View.VISIBLE
             holder.appPlaceholderImageView.visibility = View.GONE
-            IconPalette.loadAppIconView(holder.appIconImageView, iconInfo = itemCardView.iconInfo)
+            holder.appIconImageView.let {
+                IconPalette.loadAppIconView(it, defaultSrc = it.context.getDrawable(R.drawable.ic_android_placeholder), iconInfo = itemCardView.iconInfo)
+            }
             val appDatabaseId = itemCardView.extraData.databaseId
             holder.name.text = itemCardView.name
             holder.descTextView.text = itemCardView.desc

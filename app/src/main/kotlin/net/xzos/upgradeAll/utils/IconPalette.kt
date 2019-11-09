@@ -3,6 +3,7 @@ package net.xzos.upgradeAll.utils
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.devs.vectorchildfinder.VectorChildFinder
@@ -67,7 +68,7 @@ object IconPalette {
         }.drawable
     }
 
-    fun loadAppIconView(iconImageView: ImageView, appDatabaseId: Long = 0, iconInfo: Pair<String?, String?>? = null) {
+    fun loadAppIconView(iconImageView: ImageView, defaultSrc: Drawable? = null, appDatabaseId: Long = 0, iconInfo: Pair<String?, String?>? = null) {
         GlobalScope.launch {
             val appDatabase: RepoDatabase? = LitePal.find(appDatabaseId)
             val (appIconUrl, appModuleName) = iconInfo ?: Pair(
@@ -75,17 +76,19 @@ object IconPalette {
                     , appDatabase?.versionCheckerGson?.text
             )
             launch(Dispatchers.Main) {
+                iconImageView.visibility = View.GONE
                 Glide.with(iconImageView).load(appIconUrl ?: "").let {
                     if (appIconUrl == null) {
-                        try {
-                            it.placeholder(
+                        it.placeholder(
+                                try {
                                     iconImageView.context.packageManager.getApplicationIcon(appModuleName!!)
-                            )
-                        } catch (e: PackageManager.NameNotFoundException) {
-                            return@let
-                        }
+                                } catch (e: PackageManager.NameNotFoundException) {
+                                    defaultSrc ?: return@let
+                                }
+                        )
                     }
                     it.into(iconImageView)
+                    iconImageView.visibility = View.VISIBLE
                 }
             }
         }
