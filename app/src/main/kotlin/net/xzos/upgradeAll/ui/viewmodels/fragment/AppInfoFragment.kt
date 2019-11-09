@@ -168,7 +168,9 @@ class AppInfoFragment : Fragment() {
                 val installedVersioning = app.installedVersioning
                 if (isActive)
                     runBlocking(Dispatchers.Main) {
-                        IconPalette.loadAppIconView(appIconImageView, appDatabaseId = appDatabaseId)
+                        appIconImageView.let {
+                            IconPalette.loadAppIconView(it, it.context.getDrawable(R.drawable.ic_android_placeholder), appDatabaseId = appDatabaseId)
+                        }
                         activity?.apply {
                             this.findViewById<ImageView>(R.id.app_logo_image_view)?.let {
                                 IconPalette.loadAppIconView(it, appDatabaseId = appDatabaseId)
