@@ -38,6 +38,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private lateinit var navController: NavController
 
+    init {
+        navigationItemId = MutableLiveData<Pair<Int, Long?>>(Pair(R.id.appListFragment, null)).apply {
+            this.observe(this@MainActivity, Observer { pair ->
+                setFrameLayout(pair)
+            })
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -51,9 +59,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setNavController()
         setNavHeaderView()
         navView.setNavigationItemSelectedListener(this)
-        navigationItemId.observe(this, Observer { pair ->
-            setFrameLayout(pair)
-        })
         showToast()
     }
 
@@ -154,28 +159,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun setFrameLayout(pair: Pair<Int, Long?>) {
         with(navController) {
             val currentDestination = this.currentDestination?.id
-            if (currentDestination != null) {
-                when (pair.first) {
+            val targetDestination = pair.first
+            val bundle = if (pair.second != null) Bundle().apply {
+                putLong(AppInfoFragment.APP_DATABASE_ID, pair.second!!)
+            } else null
+            if (currentDestination != null && currentDestination != targetDestination) {
+                when (targetDestination) {
                     R.id.appListFragment -> {
                         if (currentDestination == R.id.hubCloudFragment) {
                             this.navigate(R.id.action_hubCloudFragment_to_appListFragment)
                             setToolbarByNavigation(R.id.appListFragment)
+                        } else {
+                            navController.popBackStack(R.id.appListFragment, false)
                         }
                     }
                     R.id.hubCloudFragment -> {
-                        if (currentDestination == R.id.appListFragment) {
-                            this.navigate(R.id.action_appListFragment_to_hubCloudFragment)
-                            setToolbarByNavigation(R.id.hubCloudFragment)
-                        }
+                        if (currentDestination != R.id.appListFragment)
+                            navController.popBackStack(R.id.appListFragment, false)
+                        this.navigate(R.id.action_appListFragment_to_hubCloudFragment)
+                        setToolbarByNavigation(R.id.hubCloudFragment)
                     }
                     R.id.appInfoFragment -> {
                         pair.second?.let {
                             if (currentDestination == R.id.appListFragment) {
-                                this.navigate(R.id.action_appListFragment_to_appInfoFragment,
-                                        Bundle().apply {
-                                            putLong(AppInfoFragment.APP_DATABASE_ID, it)
-                                        }
-                                )
+                                this.navigate(R.id.action_appListFragment_to_appInfoFragment, bundle)
                             }
                         }
                     }
@@ -186,11 +193,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             }
                             R.id.appInfoFragment -> {
                                 pair.second?.let {
-                                    this.navigate(R.id.action_appInfoFragment_to_appSettingFragment,
-                                            Bundle().apply {
-                                                putLong(AppInfoFragment.APP_DATABASE_ID, it)
-                                            }
-                                    )
+                                    this.navigate(R.id.action_appInfoFragment_to_appSettingFragment, bundle)
                                 }
                             }
                         }
@@ -283,7 +286,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private const val READ_PIC_REQUEST_CODE = 2
 
         // Pair(Fragment ID, Bundle)
-        internal val navigationItemId: MutableLiveData<Pair<Int, Long?>> = MutableLiveData(Pair(R.id.appListFragment, null))
+        internal lateinit var navigationItemId: MutableLiveData<Pair<Int, Long?>>
 
         internal lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     }
