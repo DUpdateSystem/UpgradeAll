@@ -32,7 +32,7 @@
     </fragment>
     <fragment
         android:id="@+id/hubCloudFragment"
-        android:name="net.xzos.upgradeAll.ui.viewmodels.fragment.HubCloudFragment"
+        android:name="net.xzos.upgradeAll.ui.viewmodels.fragment.CloudConfigFragment"
         android:label="@string/cloud_hub_list">
         <action
             android:id="@+id/action_hubCloudFragment_to_appListFragment"

@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.json.nongson.JSCacheData
+import net.xzos.upgradeAll.data.json.nongson.JSCacheData
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.utils.AriaDownloader
 import org.json.JSONArray

@@ -1,7 +1,6 @@
 package net.xzos.upgradeAll.ui.viewmodels.fragment
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,14 +16,12 @@ import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.ui.viewmodels.adapters.AppItemAdapter
 import net.xzos.upgradeAll.ui.viewmodels.viewmodel.AppListPageViewModel
 
-class AppListPlaceholderFragment : Fragment() {
+internal class AppListPlaceholderFragment : Fragment() {
 
-    private lateinit var mContext: Context
     private lateinit var appListPageViewModel: AppListPageViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mContext = context!!
         appListPageViewModel = ViewModelProvider(this).get(AppListPageViewModel::class.java)
         val hubUuid = arguments?.getString(ARG_SECTION_NUMBER)
         if (hubUuid != null)

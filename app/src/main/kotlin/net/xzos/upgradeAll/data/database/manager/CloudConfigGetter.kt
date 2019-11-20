@@ -1,20 +1,30 @@
-package net.xzos.upgradeAll.server.hub
+package net.xzos.upgradeAll.data.database.manager
 
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.json.gson.CloudConfig
-import net.xzos.upgradeAll.json.gson.HubConfig
+import net.xzos.upgradeAll.data.json.gson.AppConfig
+import net.xzos.upgradeAll.data.json.gson.CloudConfig
+import net.xzos.upgradeAll.data.json.gson.HubConfig
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.utils.OkHttpApi
 import net.xzos.upgradeAll.utils.FileUtil
 
-class CloudHub {
-    private var rulesListJsonFileRawUrl: String
+object CloudConfigGetter {
+    private const val TAG = "CloudConfigGetter"
+    private val LogObjectTag = arrayOf("Core", TAG)
+    private val Log = ServerContainer.Log
+
+    private val okHttpApi = OkHttpApi(LogObjectTag)
+
+    private var rulesListJsonFileRawUrl: String = getRawRootUrl(
+            PreferenceManager.getDefaultSharedPreferences(MyApplication.context).getString(
+                    "cloud_rules_hub_url",
+                    MyApplication.context.resources.getString(R.string.default_cloud_rules_hub_url)
+            )
+    ) + "rules/rules_list.json"
     private var cloudConfig: CloudConfig? = null
         get() {
             if (field == null)
@@ -22,23 +32,12 @@ class CloudHub {
             return field
         }
 
-    val appList: List<CloudConfig.AppListBean>?
-        get() = cloudConfig?.appList
+    val appList: List<CloudConfig.AppListBean>? = cloudConfig?.appList
 
-    val hubList: List<CloudConfig.HubListBean>?
-        get() = cloudConfig?.hubList
-
-    init {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.context)
-        val defCloudRulesHubUrl = MyApplication.context.resources.getString(R.string.default_cloud_rules_hub_url)
-        val gitUrl = sharedPref.getString("cloud_rules_hub_url", defCloudRulesHubUrl)
-        val baseRawUrl = getRawRootUrl(gitUrl)
-        rulesListJsonFileRawUrl = baseRawUrl + "rules/rules_list.json"
-    }
+    val hubList: List<CloudConfig.HubListBean>? = cloudConfig?.hubList
 
     private fun renewCloudConfig(): CloudConfig? {
-        val jsonText = runBlocking(Dispatchers.Default) { okHttpApi.getHttpResponse(rulesListJsonFileRawUrl).first }
-        // 如果刷新失败，则不记录数据
+        val jsonText = okHttpApi.getHttpResponse(rulesListJsonFileRawUrl).first
         return if (jsonText != null && jsonText.isNotEmpty()) {
             try {
                 Gson().fromJson(jsonText, CloudConfig::class.java)
@@ -49,14 +48,21 @@ class CloudHub {
         } else null
     }
 
-    fun getAppConfig(packageName: String): String? {
-        val appConfigRawUrl = """${cloudConfig?.listUrl?.hubListRawUrl}$packageName.json"""
-        return okHttpApi.getHttpResponse(appConfigRawUrl).first
+    fun getAppConfig(appConfigName: String): AppConfig? {
+        val appConfigString = okHttpApi.getHttpResponse(
+                "${cloudConfig?.listUrl?.appListRawUrl}$appConfigName.json"
+        ).first
+        return try {
+            Gson().fromJson(appConfigString, AppConfig::class.java)
+        } catch (e: JsonSyntaxException) {
+            null
+        }
     }
 
     fun getHubConfig(hubConfigName: String): HubConfig? {
-        val hubConfigRawUrl = """${cloudConfig?.listUrl?.hubListRawUrl}$hubConfigName.json"""
-        val hubConfigString = okHttpApi.getHttpResponse(hubConfigRawUrl).first
+        val hubConfigString = okHttpApi.getHttpResponse(
+                "${cloudConfig?.listUrl?.hubListRawUrl}$hubConfigName.json"
+        ).first
         return try {
             Gson().fromJson(hubConfigString, HubConfig::class.java)
         } catch (e: JsonSyntaxException) {
@@ -90,14 +96,5 @@ class CloudHub {
             }
         }
         return ""
-    }
-
-    companion object {
-
-        private const val TAG = "CloudHub"
-        private val LogObjectTag = arrayOf("Core", TAG)
-
-        private val Log = ServerContainer.Log
-        private val okHttpApi = OkHttpApi(LogObjectTag)
     }
 }

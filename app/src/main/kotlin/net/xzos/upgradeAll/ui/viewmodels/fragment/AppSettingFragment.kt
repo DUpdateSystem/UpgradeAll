@@ -18,15 +18,14 @@ import kotlinx.android.synthetic.main.fragment_apps_setting.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.database.RepoDatabase
-import net.xzos.upgradeAll.json.gson.VersionCheckerGson
+import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
+import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
+import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
-import net.xzos.upgradeAll.server.hub.HubManager
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.utils.IconPalette
 import net.xzos.upgradeAll.utils.VersionChecker
-import org.json.JSONException
 import org.litepal.LitePal
 import java.util.*
 
@@ -35,12 +34,12 @@ class AppSettingFragment : Fragment() {
     private var databaseId: Long = 0  // 设置页面代表的数据库项目
 
     // 获取versionChecker
-    private val versionCheckerGson: VersionCheckerGson
+    private val targetChecker: AppConfig.AppConfigBean.TargetCheckerBean
         get() =
-            VersionCheckerGson(
+            AppConfig.AppConfigBean.TargetCheckerBean(
                     when (versionCheckSpinner.selectedItem.toString()) {
-                        "APP 版本" -> "APP"
-                        "Magisk 模块" -> "Magisk"
+                        "APP 版本" -> "app_package"
+                        "Magisk 模块" -> "magisk_module"
                         "自定义 Shell 命令" -> "Shell"
                         "自定义 Shell 命令（ROOT）" -> "Shell_ROOT"
                         else -> null
@@ -80,8 +79,7 @@ class AppSettingFragment : Fragment() {
         // 以下是按键事件
         versionCheckButton.setOnClickListener {
             // 版本检查设置
-            val versionCheckerJsonObject = versionCheckerGson
-            val versionChecker = VersionChecker(versionCheckerGson = versionCheckerJsonObject)
+            val versionChecker = VersionChecker(targetChecker)
             val appVersion = versionChecker.version
             if (appVersion != null) {
                 Toast.makeText(context, "version: $appVersion", Toast.LENGTH_SHORT).show()
@@ -131,7 +129,7 @@ class AppSettingFragment : Fragment() {
         val name = editName.text.toString()
         val url = editUrl.text.toString()
         val apiNum = apiSpinner.selectedItemPosition
-        val versionChecker = versionCheckerGson
+        val versionChecker = targetChecker
         val progressBar = ProgressBar(context)
         // 弹出等待框
         progressBar.visibility = View.VISIBLE
@@ -161,18 +159,9 @@ class AppSettingFragment : Fragment() {
             // 设置 apiSpinner 位置
             val spinnerIndex = apiSpinnerList.indexOf(apiUuid)
             if (spinnerIndex != -1) apiSpinner.setSelection(spinnerIndex)
-            val versionCheckerGson = database.versionCheckerGson
-            val versionChecker = if (versionCheckerGson is VersionCheckerGson)
-                versionCheckerGson
-            else VersionCheckerGson()
-            var versionCheckerApi: String? = null
-            var versionCheckerText: String? = null
-            try {
-                versionCheckerApi = versionChecker.api
-                versionCheckerText = versionChecker.text
-            } catch (e: JSONException) {
-                Log.e(logObjectTag, TAG, String.format("onCreate: 数据库损坏！  versionCheckerGson: %s", versionChecker))
-            }
+            val versionCheckerGson = database.targetChecker
+            val versionCheckerApi = versionCheckerGson?.api
+            val versionCheckerText = versionCheckerGson?.extraString
 
             if (versionCheckerApi != null)
                 @SuppressLint("DefaultLocale")
@@ -184,14 +173,14 @@ class AppSettingFragment : Fragment() {
         }
     }
 
-    private fun addRepoDatabase(databaseId: Long, name: String, apiNum: Int, URL: String, versionChecker: VersionCheckerGson): Boolean {
+    private fun addRepoDatabase(databaseId: Long, name: String, apiNum: Int, URL: String, targetChecker: AppConfig.AppConfigBean.TargetCheckerBean): Boolean {
         // 数据处理
         @Suppress("NAME_SHADOWING") var name: String = name
         val apiUuid = apiSpinnerList[apiNum]
         if (URL.isNotBlank()) {
             // Name 为空，获取默认名称
             if (name.isBlank()) {
-                val jsCode = HubManager.getJsCode(apiUuid)
+                val jsCode = HubDatabaseManager.getJsCode(apiUuid)
                 if (jsCode.isNullOrBlank()) {
                     Log.e(logObjectTag, TAG, "未找到 js 脚本")
                 } else {
@@ -211,13 +200,16 @@ class AppSettingFragment : Fragment() {
                     // 开启数据库
                     // 将数据存入 RepoDatabase 数据库
                     repoDatabase.name = name
-                    repoDatabase.api = api
                     repoDatabase.api_uuid = apiUuid
                     repoDatabase.url = URL
-                    repoDatabase.versionCheckerGson = versionChecker
+                    repoDatabase.targetChecker = targetChecker
                 } else {
-                    repoDatabase = RepoDatabase(name = name, api = api, url = URL, api_uuid = apiUuid).apply {
-                        versionCheckerGson = versionChecker
+                    repoDatabase = RepoDatabase(
+                            name = name,
+                            url = URL,
+                            api_uuid = apiUuid
+                    ).apply {
+                        this.targetChecker = targetChecker
                     }
                 }
                 repoDatabase.save()
@@ -234,7 +226,7 @@ class AppSettingFragment : Fragment() {
         // 清空 apiSpinnerList
         val nameStringList = ArrayList<String>()
         // 获取自定义源
-        val hubList = HubManager.databases  // 读取 hub 数据库
+        val hubList = HubDatabaseManager.databases  // 读取 hub 数据库
         for (hubDatabase in hubList) {
             val name: String = hubDatabase.name
             val apiUuid: String = hubDatabase.uuid

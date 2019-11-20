@@ -1,6 +1,6 @@
 package net.xzos.upgradeAll.server.app.manager
 
-import net.xzos.upgradeAll.database.RepoDatabase
+import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.server.app.manager.module.App
 import org.litepal.LitePal
 import org.litepal.extension.find

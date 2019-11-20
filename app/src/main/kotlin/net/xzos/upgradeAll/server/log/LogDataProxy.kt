@@ -1,7 +1,7 @@
 package net.xzos.upgradeAll.server.log
 
 import androidx.lifecycle.LiveData
-import net.xzos.upgradeAll.database.RepoDatabase
+import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import org.json.JSONException
 import org.json.JSONObject
 import org.litepal.LitePal

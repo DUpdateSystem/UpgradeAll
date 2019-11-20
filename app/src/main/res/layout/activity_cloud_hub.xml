@@ -4,6 +4,6 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <include layout="@layout/fragment_cloud_hub_list" />
+    <include layout="@layout/fragment_cloud_config" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

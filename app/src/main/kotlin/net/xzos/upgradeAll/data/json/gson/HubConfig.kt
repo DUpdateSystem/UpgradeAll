@@ -1,12 +1,12 @@
-package net.xzos.upgradeAll.json.gson
+package net.xzos.upgradeAll.data.json.gson
 
 import com.google.gson.annotations.SerializedName
 
 /**
- * base_version : 1
- * uuid :
- * info : {"hub_name":"","config_version":1}
- * web_crawler : {"tool":"","file_path":""}
+ * base_version: 1
+ * uuid:
+ * info: {"hub_name": "", "config_version": 1}
+ * web_crawler: {"tool": "", "file_path": ""}
  */
 data class HubConfig(
         @SerializedName("base_version") var baseVersion: Int = 0,
@@ -16,9 +16,9 @@ data class HubConfig(
 ) {
 
     /**
-     * hub_name :
-     * config_version : 1
-     * hub_icon_url : ""
+     * hub_name:
+     * config_version: 1
+     * hub_icon_url: ""
      */
     data class InfoBean(
             @SerializedName("hub_name") var hubName: String? = null,
@@ -27,8 +27,8 @@ data class HubConfig(
     )
 
     /**
-     * tool :
-     * file_path :
+     * tool:
+     * file_path:
      */
     data class WebCrawlerBean(
             @SerializedName("tool") var tool: String? = null,

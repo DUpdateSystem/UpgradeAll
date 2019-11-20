@@ -18,7 +18,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_app_info.*
 import kotlinx.coroutines.*
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.database.RepoDatabase
+import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.MainActivity
@@ -169,7 +169,7 @@ class AppInfoFragment : Fragment() {
                 if (isActive)
                     runBlocking(Dispatchers.Main) {
                         appIconImageView.let {
-                            IconPalette.loadAppIconView(it, it.context.getDrawable(R.drawable.ic_android_placeholder), appDatabaseId = appDatabaseId)
+                            IconPalette.loadAppIconView(it, appDatabaseId = appDatabaseId)
                         }
                         activity?.apply {
                             this.findViewById<ImageView>(R.id.app_logo_image_view)?.let {
@@ -178,7 +178,7 @@ class AppInfoFragment : Fragment() {
                             }
                         }
                         nameTextView.text = appDatabase.name
-                        appModuleName.text = appDatabase.versionCheckerGson?.text ?: ""
+                        appModuleName.text = appDatabase.targetChecker?.extraString?: ""
                         versioningTextView.text = installedVersioning ?: ""
                         localVersioningTextView.text = installedVersioning
                                 ?: getString(R.string.null_english)

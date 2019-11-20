@@ -1,6 +1,5 @@
 package net.xzos.upgradeAll.utils
 
-import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.View
@@ -10,10 +9,9 @@ import com.devs.vectorchildfinder.VectorChildFinder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.database.RepoDatabase
+import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.server.ServerContainer
 import org.litepal.LitePal
 import org.litepal.extension.find
@@ -68,12 +66,25 @@ object IconPalette {
         }.drawable
     }
 
-    fun loadAppIconView(iconImageView: ImageView, defaultSrc: Drawable? = null, appDatabaseId: Long = 0, iconInfo: Pair<String?, String?>? = null) {
+    fun loadHubIconView(iconImageView: ImageView, hubIconUrl: String?) =
+            loadIconView(iconImageView,
+                    defaultSrc = MyApplication.context.getDrawable(R.drawable.ic_android_placeholder),
+                    iconInfo = Pair(hubIconUrl, null)
+            )
+
+    fun loadAppIconView(iconImageView: ImageView, appDatabaseId: Long = 0, iconInfo: Pair<String?, String?>? = null) =
+            loadIconView(iconImageView,
+                    defaultSrc = MyApplication.context.getDrawable(R.drawable.ic_android_placeholder),
+                    appDatabaseId = appDatabaseId,
+                    iconInfo = iconInfo
+            )
+
+    private fun loadIconView(iconImageView: ImageView, defaultSrc: Drawable? = null, appDatabaseId: Long = 0, iconInfo: Pair<String?, String?>? = null) {
         GlobalScope.launch {
             val appDatabase: RepoDatabase? = LitePal.find(appDatabaseId)
             val (appIconUrl, appModuleName) = iconInfo ?: Pair(
-                    runBlocking { ServerContainer.AppManager.getApp(appDatabaseId).engine.getAppIconUrl() }
-                    , appDatabase?.versionCheckerGson?.text
+                    ServerContainer.AppManager.getApp(appDatabaseId).engine.getAppIconUrl()
+                    , appDatabase?.targetChecker?.extraString
             )
             launch(Dispatchers.Main) {
                 iconImageView.visibility = View.GONE
@@ -82,7 +93,7 @@ object IconPalette {
                         it.placeholder(
                                 try {
                                     iconImageView.context.packageManager.getApplicationIcon(appModuleName!!)
-                                } catch (e: PackageManager.NameNotFoundException) {
+                                } catch (e: Throwable) {
                                     defaultSrc ?: return@let
                                 }
                         )

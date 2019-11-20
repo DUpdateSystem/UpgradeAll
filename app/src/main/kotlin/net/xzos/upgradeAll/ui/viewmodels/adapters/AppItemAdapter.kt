@@ -11,17 +11,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.database.RepoDatabase
+import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
+import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
+import net.xzos.upgradeAll.utils.FileUtil
 import net.xzos.upgradeAll.utils.IconPalette
 import org.litepal.LitePal
 
@@ -52,16 +55,34 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
         }
         // TODO: 长按删除，暂时添加删除功能
         holder.itemCardView.setOnLongClickListener {
-            PopupMenu(it.context, it).let { popupMenu ->
-                popupMenu.menu.add(it.context.getString(R.string.delete)).let { menuItem ->
-                    menuItem.setOnMenuItemClickListener {
-                        val position = holder.adapterPosition
-                        val itemCardView = mItemCardViewList[position]
-                        val appDatabaseId = itemCardView.extraData.databaseId
-                        AppManager.delApp(appDatabaseId)
-                        LitePal.delete(RepoDatabase::class.java, appDatabaseId)
-                        onItemDismiss(position)
-                        true
+            val context = it.context
+            PopupMenu(context, it).let { popupMenu ->
+                popupMenu.menu.let { menu ->
+                    // 删除
+                    menu.add(context.getString(R.string.delete)).let { menuItem ->
+                        menuItem.setOnMenuItemClickListener {
+                            val position = holder.adapterPosition
+                            val itemCardView = mItemCardViewList[position]
+                            val appDatabaseId = itemCardView.extraData.databaseId
+                            AppManager.delApp(appDatabaseId)
+                            LitePal.delete(RepoDatabase::class.java, appDatabaseId)
+                            onItemDismiss(position)
+                            true
+                        }
+                    }
+                    // 导出
+                    menu.add(context.getString(R.string.export)).let { menuItem ->
+                        menuItem.setOnMenuItemClickListener {
+                            val position = holder.adapterPosition
+                            val itemCardView = mItemCardViewList[position]
+                            val appDatabaseId = itemCardView.extraData.databaseId
+                            val appConfigGson = AppDatabaseManager.getAppConfig(appDatabaseId)
+                            FileUtil.clipStringToClipboard(
+                                    GsonBuilder().setPrettyPrinting().create().toJson(appConfigGson),
+                                    context
+                            )
+                            true
+                        }
                     }
                     popupMenu.show()
                 }
@@ -95,7 +116,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
             holder.itemCardView.visibility = View.VISIBLE
             holder.appPlaceholderImageView.visibility = View.GONE
             holder.appIconImageView.let {
-                IconPalette.loadAppIconView(it, defaultSrc = it.context.getDrawable(R.drawable.ic_android_placeholder), iconInfo = itemCardView.iconInfo)
+                IconPalette.loadAppIconView(it, iconInfo = itemCardView.iconInfo)
             }
             val appDatabaseId = itemCardView.extraData.databaseId
             holder.name.text = itemCardView.name
