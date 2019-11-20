@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeAll.database.RepoDatabase
-import net.xzos.upgradeAll.json.nongson.ItemCardViewExtraData
+import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
+import net.xzos.upgradeAll.data.json.nongson.ItemCardViewExtraData
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import org.litepal.LitePal
@@ -36,7 +36,7 @@ class AppListPageViewModel : ViewModel() {
     private fun getAppItemCardView(item: RepoDatabase): ItemCardView {
         val iconInfo: Pair<String?, String?> = Pair(
                 runBlocking { ServerContainer.AppManager.getApp(item.id).engine.getAppIconUrl() }
-                , item.versionCheckerGson?.text
+                , item.targetChecker?.extraString
         )
         val databaseId = item.id
         val name = item.name

@@ -25,11 +25,11 @@ import kotlinx.android.synthetic.main.activity_hub_debug.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.json.gson.HubConfig
+import net.xzos.upgradeAll.data.json.gson.HubConfig
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
-import net.xzos.upgradeAll.server.hub.HubManager
+import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.server.log.LogDataProxy
 import net.xzos.upgradeAll.utils.AriaDownloader
 import net.xzos.upgradeAll.utils.FileUtil
@@ -413,9 +413,9 @@ class HubDebugActivity : AppCompatActivity() {
     }
 
     private fun loadFromDatabase(uuid: String) {
-        val jsCode = HubManager.getJsCode(uuid)
+        val jsCode = HubDatabaseManager.getJsCode(uuid)
         jsTestTextView.text = jsCode
-        val hubConfig = HubManager.getDatabase(uuid)?.hubConfig
+        val hubConfig = HubDatabaseManager.getDatabase(uuid)?.hubConfig
         if (hubConfig is HubConfig)
             loadConfigFromHubConfig(hubConfig)
     }
@@ -479,7 +479,7 @@ class HubDebugActivity : AppCompatActivity() {
             loadJSFromUri(jsUri)
             val jsCode = jsTestTextView.text.toString()
             if (jsCode != "") {
-                val addHubSuccess = HubManager.add(hubConfigGson, jsCode)
+                val addHubSuccess = HubDatabaseManager.addDatabase(hubConfigGson, jsCode)
                 if (addHubSuccess) {
                     Toast.makeText(this, "数据库添加成功", Toast.LENGTH_LONG).show()
                 } else

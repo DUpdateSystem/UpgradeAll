@@ -47,7 +47,6 @@ class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, pri
     }
 
     companion object {
-
         private val TAB_TITLES = ArrayList<String>()
     }
 }

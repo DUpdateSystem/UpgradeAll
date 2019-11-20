@@ -1,27 +1,30 @@
 package net.xzos.upgradeAll.utils
 
 import android.annotation.SuppressLint
+import com.google.gson.Gson
 import com.jaredrummler.android.shell.Shell
+import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.json.gson.VersionCheckerGson
+import net.xzos.upgradeAll.data.json.gson.AppConfig
+import net.xzos.upgradeAll.data.json.gson.VersionCheckerGson
 import net.xzos.upgradeAll.server.ServerContainer
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion
 import java.util.regex.Pattern
 
-class VersionChecker(private val versionCheckerGson: VersionCheckerGson?) {
+class VersionChecker(private val versionCheckerGson: AppConfig.AppConfigBean.TargetCheckerBean?) {
 
     val version: String?
         get() {
             val versionCheckerApi: String? = versionCheckerGson?.api
             var version: String? = null
             if (versionCheckerApi != null) {
-                val shellCommand: String? = versionCheckerGson?.text
+                val shellCommand: String? = versionCheckerGson?.extraString
 
                 if (shellCommand != null)
                     @SuppressLint("DefaultLocale")
                     when (versionCheckerApi.toLowerCase()) {
-                        "app" -> version = getAppVersion()
-                        "magisk" -> version = getMagiskModuleVersion()
+                        "app_package" -> version = getAppVersion()
+                        "magisk_module" -> version = getMagiskModuleVersion()
                         "shell" -> version = Shell.run(shellCommand).getStdout()
                         "shell_root" -> version = Shell.SU.run(shellCommand).getStdout()
                     }
@@ -32,7 +35,7 @@ class VersionChecker(private val versionCheckerGson: VersionCheckerGson?) {
     private fun getAppVersion(): String? {
         // 获取软件版本
         return try {
-            val packageInfo = MyApplication.context.packageManager.getPackageInfo(versionCheckerGson?.text!!, 0)
+            val packageInfo = MyApplication.context.packageManager.getPackageInfo(versionCheckerGson?.extraString!!, 0)
             packageInfo.versionName
         } catch (e: Throwable) {
             null
@@ -41,7 +44,7 @@ class VersionChecker(private val versionCheckerGson: VersionCheckerGson?) {
 
     private fun getMagiskModuleVersion(): String? {
         var magiskModuleVersion: String? = null
-        val modulePropFilePath = "/data/adb/modules/${versionCheckerGson?.text}/module.prop"
+        val modulePropFilePath = "/data/adb/modules/${versionCheckerGson?.extraString}/module.prop"
         val command = "cat $modulePropFilePath"
         val result = Shell.SU.run(command)
         val resultList = result.getStdout().split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
@@ -62,7 +65,7 @@ class VersionChecker(private val versionCheckerGson: VersionCheckerGson?) {
 
         private fun getVersionNumberString(versionString: String?): String? {
             var versionMatchString: String? = null
-            val regexString = "(\\d+(\\.\\d+)*)(([-|_|.]|[0-9A-Za-z])*)"
+            val regexString = MyApplication.context.getString(R.string.versioning_regex_match)
             if (versionString != null) {
                 val p = Pattern.compile(regexString)
                 val m = p.matcher(versionString)
@@ -91,6 +94,26 @@ class VersionChecker(private val versionCheckerGson: VersionCheckerGson?) {
                 return version0 >= version1
             }
             return false
+        }
+
+        /** 修补老标准格式
+         * TODO: 修改版本: 0.1.0-alpha.beta
+         */
+        @SuppressLint("DefaultLocale")
+        fun fixJson(jsonString: String): AppConfig.AppConfigBean.TargetCheckerBean {
+            return AppConfig.AppConfigBean.TargetCheckerBean().apply {
+                val versionCheckerGson = Gson().fromJson(jsonString, VersionCheckerGson::class.java)
+                val extraString = versionCheckerGson.text
+                val versionCheckerApi = versionCheckerGson.api
+                if (extraString != null && versionCheckerApi != null) {
+                    this.extraString = versionCheckerGson.text
+                    this.api = when (versionCheckerApi.toLowerCase()) {
+                        "app" -> "App_Package"
+                        "magisk" -> "Magisk_Module"
+                        else -> versionCheckerApi
+                    }
+                }
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-package net.xzos.upgradeAll.json.nongson
+package net.xzos.upgradeAll.data.json.nongson
 
 data class ItemCardViewExtraData(
         var databaseId: Long = 0,

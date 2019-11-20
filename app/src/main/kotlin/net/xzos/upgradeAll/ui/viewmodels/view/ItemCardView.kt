@@ -1,6 +1,6 @@
 package net.xzos.upgradeAll.ui.viewmodels.view
 
-import net.xzos.upgradeAll.json.nongson.ItemCardViewExtraData
+import net.xzos.upgradeAll.data.json.nongson.ItemCardViewExtraData
 
 class ItemCardView internal constructor(
         // appIconInfo: Pair<Url, moduleName>

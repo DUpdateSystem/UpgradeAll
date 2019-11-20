@@ -2,6 +2,8 @@ package net.xzos.upgradeAll.server.log
 
 import android.annotation.SuppressLint
 import android.util.Log
+import net.xzos.upgradeAll.R
+import net.xzos.upgradeAll.application.MyApplication
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -146,6 +148,6 @@ class LogUtil {
          * 假如当前LEVEL的值为常量2（DEBUG），那么你只能打印从DEBUG（2）到ERROR（5）之间的日志信息；
          * 假如你要是不想让日志信息打印出现，那么将LEVEL的值置为NOTHING即可。
          */
-        private const val LEVEL = VERBOSE  // TODO: 设置中加入对该值的自定义
+        private var LEVEL = MyApplication.context.resources.getInteger(R.integer.log_level)  // TODO: 设置中加入对该值的自定义
     }
 }

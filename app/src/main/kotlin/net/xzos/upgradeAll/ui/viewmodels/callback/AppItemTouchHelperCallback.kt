@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeAll.database.RepoDatabase
+import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
 import net.xzos.upgradeAll.ui.viewmodels.adapters.AppItemAdapter
 import org.litepal.LitePal

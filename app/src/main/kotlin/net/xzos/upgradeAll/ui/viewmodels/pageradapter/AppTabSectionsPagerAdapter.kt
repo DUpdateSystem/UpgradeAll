@@ -8,14 +8,13 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.MutableLiveData
 import androidx.viewpager.widget.PagerAdapter
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.group_item.view.*
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.server.hub.HubManager
+import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.fragment.AppListPlaceholderFragment
+import net.xzos.upgradeAll.utils.IconPalette
 
 
 class AppTabSectionsPagerAdapter(fm: FragmentManager) :
@@ -23,7 +22,7 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
     private val mHubUuidList: MutableList<String> = mutableListOf()
 
     init {
-        val hubDatabases = HubManager.databases
+        val hubDatabases = HubDatabaseManager.databases
         for (hubDatabase in hubDatabases) {
             mHubUuidList.add(hubDatabase.uuid)
         }
@@ -54,13 +53,12 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
                 val hubUuid = mHubUuidList[position]
                 this.groupCardView.visibility = View.VISIBLE
                 this.addGroupCardView.visibility = View.GONE
-                this.groupNameTextView.text = HubManager.getDatabase(hubUuid)?.name
-                val hubIconUrl = HubManager.getHubIconUrl(hubUuid)
-                if (hubIconUrl != null)
-                    Glide.with(this)
-                            .load(hubIconUrl)
-                            .apply(RequestOptions.circleCropTransform())
-                            .into(this.groupIconImageView)
+                val hubDatabase = HubDatabaseManager.getDatabase(hubUuid)
+                this.groupNameTextView.text = hubDatabase?.name
+                IconPalette.loadHubIconView(
+                        this.groupIconImageView,
+                        hubDatabase?.hubConfig?.info?.hubIconUrl
+                )
                 setOnClickListener(View.OnClickListener {
                     if (delGroupCardView.visibility == View.VISIBLE)
                         waiteDel(delGroupCardView, hubUuid, false)
@@ -92,7 +90,7 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
             if (needDel) {
                 visibility = View.VISIBLE
                 setOnClickListener {
-                    HubManager.del(hubUuid)
+                    HubDatabaseManager.del(hubUuid)
                     renewViewPage.value = true
                 }
             } else {

@@ -1,8 +1,5 @@
 package net.xzos.upgradeAll.ui.viewmodels.adapters
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
@@ -11,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.LogRecyclerViewHolder
+import net.xzos.upgradeAll.utils.FileUtil
 import org.apache.commons.text.StringEscapeUtils
 import java.util.*
 
@@ -45,10 +43,7 @@ class LogItemAdapter(mLogList: LiveData<LiveData<List<String>>>, owner: Lifecycl
         val logTextView = holder.logTextView
         logTextView.setOnClickListener {
             val context = logTextView.context
-            val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val mClipData = ClipData.newPlainText("Label", logTextView.text)
-            cm.setPrimaryClip(mClipData)
-            Toast.makeText(context, "已复制到粘贴板", Toast.LENGTH_SHORT).show()
+            FileUtil.clipStringToClipboard(logTextView.text, context)
         }
         return holder
     }

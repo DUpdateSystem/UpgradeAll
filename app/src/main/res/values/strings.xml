@@ -2,7 +2,8 @@
     <string name="app_name">UpgradeAll</string>
     <string name="help">帮助</string>
     <string name="app_list">软件列表</string>
-    <string name="hub_list">软件源</string>
+    <string name="app">软件</string>
+    <string name="app_hub">软件源</string>
     <string name="log">日志</string>
     <string name="setting">设置</string>
     <string name="add">添加</string>
@@ -14,6 +15,7 @@
     <string name="versioning_check_setting">版本控制设置</string>
     <string name="update_item_setting_versionCheckButton">测试</string>
     <string name="delete">删除</string>
+    <string name="export">导出</string>
     <string name="edit">编辑</string>
     <string name="sync_header">数据刷新</string>
     <string name="initiative_sync_time">数据过期时间(min)</string>

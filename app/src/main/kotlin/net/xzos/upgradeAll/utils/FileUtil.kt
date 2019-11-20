@@ -2,11 +2,12 @@ package net.xzos.upgradeAll.utils
 
 import android.Manifest
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Environment
-import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -213,5 +214,12 @@ object FileUtil {
         intent.type = "image/*"
         intent.action = Intent.ACTION_GET_CONTENT
         activity.startActivityForResult(intent, REQUEST_CODE_LOAD_IMAGE)
+    }
+
+    fun clipStringToClipboard(s: CharSequence, context: Context = MyApplication.context, showToast: Boolean = true) {
+        val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val mClipData = ClipData.newPlainText("Label", s)
+        cm.setPrimaryClip(mClipData)
+        if (showToast) Toast.makeText(context, "已复制到粘贴板", Toast.LENGTH_SHORT).show()
     }
 }

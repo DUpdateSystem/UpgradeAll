@@ -1,4 +1,4 @@
-package net.xzos.upgradeAll.json.nongson
+package net.xzos.upgradeAll.data.json.nongson
 
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication

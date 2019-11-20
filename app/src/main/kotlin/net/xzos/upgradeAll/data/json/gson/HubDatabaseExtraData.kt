@@ -1,4 +1,4 @@
-package net.xzos.upgradeAll.json.gson
+package net.xzos.upgradeAll.data.json.gson
 
 import com.google.gson.annotations.SerializedName
 

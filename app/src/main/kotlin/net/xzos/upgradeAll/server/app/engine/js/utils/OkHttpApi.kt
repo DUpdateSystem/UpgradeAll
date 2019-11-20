@@ -1,6 +1,6 @@
 package net.xzos.upgradeAll.server.app.engine.js.utils
 
-import net.xzos.upgradeAll.json.nongson.JSCacheData
+import net.xzos.upgradeAll.data.json.nongson.JSCacheData
 import net.xzos.upgradeAll.server.ServerContainer
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
@@ -10,13 +10,11 @@ import java.io.IOException
 
 class OkHttpApi(private val logObjectTag: Array<String>, private val jsCacheData: JSCacheData = JSCacheData()) {
 
-    fun getHttpResponse(url: String?): Pair<String?, OkHttpClient> {
+    fun getHttpResponse(url: String): Pair<String?, OkHttpClient> {
         val client = OkHttpClient().newBuilder().cookieJar(JavaNetCookieJar(jsCacheData.cookieManager)).build()
         var response: Response? = null
         val builder = Request.Builder()
-        if (url != null) {
-            builder.url(url)
-        }
+        builder.url(url)
         val request = builder.build()
         try {
             response = client.newCall(request).execute()
