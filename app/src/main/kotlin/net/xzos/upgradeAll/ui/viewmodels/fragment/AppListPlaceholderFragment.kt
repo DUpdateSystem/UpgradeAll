@@ -39,12 +39,6 @@ internal class AppListPlaceholderFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
         swipeRefreshLayout.setOnRefreshListener { this.renewCardView() }
-        with(updateOverviewNumberTextView) {
-            appListPageViewModel.needUpdateAppIdLiveLiveData.observe(viewLifecycleOwner,
-                    Observer<MutableList<Long>> { list ->
-                        this.text = list.size.toString()
-                    })
-        }
         with(updateOverviewTextView) {
             val updateOverviewStringList = this.context.getString(R.string.example_update_overview).split("0")
                     .filter { element -> element.isNotBlank() }
@@ -60,8 +54,8 @@ internal class AppListPlaceholderFragment : Fragment() {
                 this.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
             })
             appListPageViewModel.needUpdateAppIdLiveLiveData.observe(viewLifecycleOwner,
-                    Observer<MutableList<Long>> { num ->
-                        needUpdateAppNum = num.size
+                    Observer<MutableList<Long>> { list ->
+                        needUpdateAppNum = list.size
                         this.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
                     })
         }

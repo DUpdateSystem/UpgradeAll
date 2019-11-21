@@ -199,8 +199,8 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                             it.add(appDatabaseId)
                         } else if (updateStatus != 2 && it.contains(appDatabaseId)) {
                             it.remove(appDatabaseId)
-                        }
-                        return@let
+                        } else return@let
+                        this.notifyObserver()
                     }
                 }
                 // 如果本地未安装，则显示最新版本号
@@ -223,5 +223,12 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
 
     companion object {
         private val AppManager = ServerContainer.AppManager
+
+        /**
+         * 拓展 LiveData 监听列表元素添加、删除操作的支持
+         */
+        private fun <T> MutableLiveData<T>.notifyObserver() {
+            this.value = this.value
+        }
     }
 }
