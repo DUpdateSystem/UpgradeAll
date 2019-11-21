@@ -58,18 +58,6 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
             val context = it.context
             PopupMenu(context, it).let { popupMenu ->
                 popupMenu.menu.let { menu ->
-                    // 删除
-                    menu.add(context.getString(R.string.delete)).let { menuItem ->
-                        menuItem.setOnMenuItemClickListener {
-                            val position = holder.adapterPosition
-                            val itemCardView = mItemCardViewList[position]
-                            val appDatabaseId = itemCardView.extraData.databaseId
-                            AppManager.delApp(appDatabaseId)
-                            LitePal.delete(RepoDatabase::class.java, appDatabaseId)
-                            onItemDismiss(position)
-                            true
-                        }
-                    }
                     // 导出
                     menu.add(context.getString(R.string.export)).let { menuItem ->
                         menuItem.setOnMenuItemClickListener {
@@ -81,7 +69,19 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                                     GsonBuilder().setPrettyPrinting().create().toJson(appConfigGson),
                                     context
                             )
-                            true
+                            return@setOnMenuItemClickListener true
+                        }
+                    }
+                    // 删除
+                    menu.add(context.getString(R.string.delete)).let { menuItem ->
+                        menuItem.setOnMenuItemClickListener {
+                            val position = holder.adapterPosition
+                            val itemCardView = mItemCardViewList[position]
+                            val appDatabaseId = itemCardView.extraData.databaseId
+                            AppManager.delApp(appDatabaseId)
+                            LitePal.delete(RepoDatabase::class.java, appDatabaseId)
+                            onItemDismiss(position)
+                            return@setOnMenuItemClickListener true
                         }
                     }
                     popupMenu.show()
