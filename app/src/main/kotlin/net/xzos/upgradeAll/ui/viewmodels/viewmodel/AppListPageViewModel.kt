@@ -27,8 +27,6 @@ class AppListPageViewModel : ViewModel() {
         }
     }
 
-    internal val needUpdateAppIdLiveLiveData = MutableLiveData(mutableListOf<Long>())
-
     internal fun setHubUuid(hubUuid: String) {
         mHubUuid.value = hubUuid
     }
@@ -43,4 +41,6 @@ class AppListPageViewModel : ViewModel() {
         val url = item.url
         return ItemCardView(iconInfo, name, url, ItemCardViewExtraData(databaseId = databaseId))
     }
+
+    internal val needUpdateAppIdLiveLiveData = MutableLiveData(mutableListOf<Long>())
 }
