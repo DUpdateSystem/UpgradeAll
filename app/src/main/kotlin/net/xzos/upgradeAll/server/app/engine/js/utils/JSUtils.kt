@@ -9,6 +9,7 @@ import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.data.json.nongson.JSCacheData
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.utils.AriaDownloader
+import net.xzos.upgradeAll.utils.VersionChecker
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -86,6 +87,13 @@ class JSUtils(private val logObjectTag: Array<String>) {
         return nodeStringArrayList
     }
 
+    fun mapOfJsonObject(jsonObject: JSONObject): Map<*, *> {
+        return Gson().fromJson(jsonObject.toString(), Map::class.java)
+    }
+
+    fun matchVersioningString(versionString: String?): String? =
+            VersionChecker.matchVersioningString(versionString)
+
     fun downloadFile(fileName: String, URL: String, headers: Map<String, String> = mapOf(), isDebug: Boolean = this.isDebug): String? {
         val allHeaders: MutableMap<String, String> = mutableMapOf()
         allHeaders.putAll(headers)
@@ -104,10 +112,6 @@ class JSUtils(private val logObjectTag: Array<String>) {
             ariaDownloader.cancel()
             null
         }
-    }
-
-    fun mapOfJsonObject(jsonObject: JSONObject): Map<*, *> {
-        return Gson().fromJson(jsonObject.toString(), Map::class.java)
     }
 
     companion object {

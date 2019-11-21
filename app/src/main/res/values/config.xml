@@ -6,5 +6,7 @@
     <integer name="default_data_expiration_time">10</integer>
     <string name="default_cloud_rules_hub_url">https://github.com/xz-dev/UpgradeAll-rules</string>
 
-    <string name="versioning_regex_match">(\d+(\.\d+)*)(([–|_|.]|[0–9A-Za-z])*)</string>
+    <string xmlns:tools="http://schemas.android.com/tools" name="versioning_regex_match" tools:ignore="TypographyDashes">
+        (\\d+(\\.\\d+)*)(([-|_|.|+]|[0-9A-Za-z])*)
+    </string>
 </resources>
