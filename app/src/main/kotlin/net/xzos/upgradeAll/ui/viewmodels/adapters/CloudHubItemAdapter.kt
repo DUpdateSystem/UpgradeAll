@@ -6,13 +6,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.manager.CloudConfigGetter
 import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
@@ -48,37 +46,16 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
             //设置item的点击事件
             popupMenu.setOnMenuItemClickListener { item ->
                 if (item.itemId == R.id.download) {
-                    // 下载
-                    Toast.makeText(holder.itemCardView.context, "开始下载", Toast.LENGTH_LONG).show()
-                    // 下载数据
                     setDownloadStatus(holder, true)
                     GlobalScope.launch {
-                        val cloudHubConfigGson = CloudConfigGetter.getHubConfig(itemCardView.extraData.configFileName!!)
-                        // TODO: 配置文件地址与仓库地址分离
-                        // addHubStatus: 1 获取 HubConfig 成功, 2 获取 JS 成功, 3 添加数据库成功, -1 获取 HubConfig 失败, -2 解析 JS 失败, -3 添加数据库失败
-                        val addHubStatus: Int =
-                                if (cloudHubConfigGson != null) {
-                                    val cloudHubConfigJS = CloudConfigGetter.getHubConfigJS(cloudHubConfigGson.webCrawler.filePath
-                                            ?: "")
-                                    if (cloudHubConfigJS != null) {
-                                        if (HubDatabaseManager.addDatabase(cloudHubConfigGson, cloudHubConfigJS)) {
-                                            3
-                                        } else -3
-                                    } else -2
-                                } else -1
-                        runBlocking(Dispatchers.Main) {
+                        val addHubStatus = CloudConfigGetter.downloadCloudHubConfig(itemCardView.extraData.uuid)  // 下载数据
+                        launch(Dispatchers.Main) {
                             setDownloadStatus(holder, false)
-                            when (addHubStatus) {
-                                3 -> {
-                                    Toast.makeText(holder.itemCardView.context, "数据添加成功", Toast.LENGTH_LONG).show()
-                                    holder.versionCheckButton.visibility = View.VISIBLE
-                                }
-                                -1 -> Toast.makeText(holder.itemCardView.context, "获取基础配置文件失败", Toast.LENGTH_LONG).show()
-                                -2 -> Toast.makeText(holder.itemCardView.context, "获取 JS 代码失败", Toast.LENGTH_LONG).show()
-                                -3 -> Toast.makeText(holder.itemCardView.context, "什么？数据库添加失败！", Toast.LENGTH_LONG).show()
+                            if (addHubStatus == 3) {
+                                holder.versionCheckButton.visibility = View.VISIBLE
                             }
                         }
-                    }// 添加数据库
+                    }
                 }
                 return@setOnMenuItemClickListener true
             }
@@ -101,7 +78,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
             holder.name.text = itemCardView.name
             holder.descTextView.text = itemCardView.desc
             GlobalScope.launch {
-                loadCloudHubIcon(holder.appIconImageView, itemCardView.extraData.configFileName)
+                loadCloudHubIcon(holder.appIconImageView, itemCardView.extraData.uuid)
             }
             holder.versionCheckButton.visibility = if (HubDatabaseManager.exists(itemCardView.extraData.uuid))
                 View.VISIBLE
@@ -114,9 +91,9 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
         return mItemCardViewList.size
     }
 
-    private fun loadCloudHubIcon(iconImageView: ImageView, configFileName: String?) {
-        if (configFileName != null) {
-            val cloudHubConfigGson = CloudConfigGetter.getHubConfig(configFileName)
+    private fun loadCloudHubIcon(iconImageView: ImageView, hubUuid: String?) {
+        if (hubUuid != null) {
+            val cloudHubConfigGson = CloudConfigGetter.getHubCloudConfig(hubUuid)
             val hubIconUrl = cloudHubConfigGson?.info?.hubIconUrl
             IconPalette.loadHubIconView(iconImageView, hubIconUrl)
         }

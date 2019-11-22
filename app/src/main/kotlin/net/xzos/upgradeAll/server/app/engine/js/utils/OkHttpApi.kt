@@ -5,23 +5,29 @@ import net.xzos.upgradeAll.server.ServerContainer
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
 import java.io.IOException
 
 class OkHttpApi(private val logObjectTag: Array<String>, private val jsCacheData: JSCacheData = JSCacheData()) {
 
     fun getHttpResponse(url: String): Pair<String?, OkHttpClient> {
         val client = OkHttpClient().newBuilder().cookieJar(JavaNetCookieJar(jsCacheData.cookieManager)).build()
-        var response: Response? = null
-        val builder = Request.Builder()
-        builder.url(url)
-        val request = builder.build()
         try {
-            response = client.newCall(request).execute()
-        } catch (e: IOException) {
-            Log.e(logObjectTag, TAG, "getHttpResponse:  网络错误")
+            Request.Builder().url(url)
+        } catch (e: IllegalArgumentException) {
+            Log.e(logObjectTag, TAG, """getHttpResponse: ${e.printStackTrace()}
+                |URL: $url """.trimMargin())
+            null
+        }?.let { builder ->
+            val request = builder.build()
+            val response = try {
+                client.newCall(request).execute()
+            } catch (e: IOException) {
+                Log.e(logObjectTag, TAG, "getHttpResponse:  网络错误")
+                null
+            }
+            return Pair(response?.body?.string(), client)
         }
-        return Pair(response?.body?.string(), client)
+        return Pair(null, client)
     }
 
     companion object {

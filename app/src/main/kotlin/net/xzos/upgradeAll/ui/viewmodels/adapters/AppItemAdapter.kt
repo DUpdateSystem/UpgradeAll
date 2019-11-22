@@ -166,7 +166,6 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
         setUpdateStatus(holder, true)
         GlobalScope.launch {
             val isSuccessRenew = updater.isSuccessRenew()
-            val isLatest = app.isLatest()
             val latestVersioning = updater.getLatestVersioning()
             val updateStatus =  // 0: 404; 1: latest; 2: need update; 3: no app
                     //检查是否取得云端版本号
@@ -174,7 +173,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                         // 检查是否获取本地版本号
                         if (installedVersioning != null) {
                             // 检查本地版本
-                            if (isLatest) {
+                            if (app.isLatest()) {
                                 1
                             } else {
                                 2

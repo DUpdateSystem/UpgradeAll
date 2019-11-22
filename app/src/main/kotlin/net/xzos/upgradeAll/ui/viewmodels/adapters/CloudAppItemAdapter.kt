@@ -1,5 +1,6 @@
 package net.xzos.upgradeAll.ui.viewmodels.adapters
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,20 +8,22 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
+import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.database.manager.CloudConfigGetter
+import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeAll.utils.IconPalette
 
-class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
+class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, private val context: Context?) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = CardViewRecyclerViewHolder(
@@ -48,31 +51,20 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
             popupMenu.setOnMenuItemClickListener { item ->
                 if (item.itemId == R.id.download) {
                     // 下载
-                    val configFileName = itemCardView.extraData.configFileName
-                    if (configFileName != null) {
+                    val appUuid = itemCardView.extraData.uuid
+                    if (appUuid != null) {
                         Toast.makeText(holder.itemCardView.context, "开始下载", Toast.LENGTH_LONG).show()
                         // 下载数据
                         setDownloadStatus(holder, true)
                         GlobalScope.launch {
-                            val cloudHubConfigGson = CloudConfigGetter.getAppConfig(configFileName)
-                            // TODO: 配置文件地址与仓库地址分离
-                            // addHubStatus: 1 获取 AppConfig 成功, 2 添加数据库成功, -1 获取 AppConfig 失败, -2 添加数据库失败
-                            val addHubStatus: Int =
-                                    if (cloudHubConfigGson != null) {
-                                        // 添加数据库
-                                        if (AppDatabaseManager.setDatabase(0, cloudHubConfigGson)) {
-                                            2
-                                        } else -2
-                                    } else -1
-                            runBlocking(Dispatchers.Main) {
+                            val addAppStatus = CloudConfigGetter.downloadCloudAppConfig(appUuid)  // 下载数据
+                            launch(Dispatchers.Main) {
                                 setDownloadStatus(holder, false)
-                                when (addHubStatus) {
-                                    2 -> {
-                                        Toast.makeText(holder.itemCardView.context, "数据添加成功", Toast.LENGTH_LONG).show()
-                                        holder.versionCheckButton.visibility = View.VISIBLE
+                                if (addAppStatus == 2) {
+                                    holder.versionCheckButton.visibility = View.VISIBLE
+                                    AppDatabaseManager.getDatabase(uuid = appUuid)?.let {
+                                        checkHubDependency(hubUuid = it.api_uuid)
                                     }
-                                    -1 -> Toast.makeText(holder.itemCardView.context, "获取基础配置文件失败", Toast.LENGTH_LONG).show()
-                                    -2 -> Toast.makeText(holder.itemCardView.context, "什么？数据库添加失败！", Toast.LENGTH_LONG).show()
                                 }
                             }
                         }
@@ -99,7 +91,7 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
             holder.name.text = itemCardView.name
             holder.descTextView.text = itemCardView.desc
             GlobalScope.launch {
-                loadCloudAppIcon(holder.appIconImageView, itemCardView.extraData.configFileName)
+                loadCloudAppIcon(holder.appIconImageView, itemCardView.extraData.uuid)
             }
             holder.versionCheckButton.visibility = if (AppDatabaseManager.exists(itemCardView.extraData.uuid))
                 View.VISIBLE
@@ -112,9 +104,9 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
         return mItemCardViewList.size
     }
 
-    private fun loadCloudAppIcon(iconImageView: ImageView, configFileName: String?) {
-        if (configFileName != null) {
-            val cloudAppConfigGson = CloudConfigGetter.getAppConfig(configFileName)
+    private fun loadCloudAppIcon(iconImageView: ImageView, appUuid: String?) {
+        if (appUuid != null) {
+            val cloudAppConfigGson = CloudConfigGetter.getAppCloudConfig(appUuid)
             val appModule = cloudAppConfigGson?.appConfig?.targetChecker?.extraString
             IconPalette.loadAppIconView(iconImageView, iconInfo = Pair(null, appModule))
         }
@@ -128,6 +120,26 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
         } else {
             holder.versionCheckButton.visibility = View.VISIBLE
             holder.versionCheckingBar.visibility = View.GONE
+        }
+    }
+
+    private fun checkHubDependency(hubUuid: String?) {
+        if (!HubDatabaseManager.exists(hubUuid)) {
+            context?.let {
+                AlertDialog.Builder(it).apply {
+                    setMessage(R.string.whether_download_dependency_hub)
+                    setNegativeButton(R.string.ok) { dialog, _ ->
+                        Toast.makeText(MyApplication.context, R.string.start_download_dependency_hub, Toast.LENGTH_LONG).show()
+                        GlobalScope.launch { CloudConfigGetter.downloadCloudHubConfig(hubUuid) }
+                        dialog.cancel()
+                    }
+                    setPositiveButton(R.string.cancel) { dialog, _ ->
+                        dialog.cancel()
+                    }
+
+                    setCancelable(false)
+                }.create().show()
+            }
         }
     }
 }
