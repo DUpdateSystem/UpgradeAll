@@ -31,6 +31,7 @@ import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.ui.viewmodels.fragment.AppInfoFragment
 import net.xzos.upgradeAll.utils.FileUtil
+import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import java.io.File
 import java.util.*
 
@@ -130,10 +131,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(Intent(this, HubDebugActivity::class.java))
             }
             R.id.app_help -> {
-                intent = Intent(Intent.ACTION_VIEW)
-                intent.data = Uri.parse("https://xzos.net/upgradeall-readme/")
-                intent = Intent.createChooser(intent, "请选择浏览器")
-                startActivity(intent)
+                MiscellaneousUtils.accessByBrowser(
+                        "https://xzos.net/upgradeall-readme/",
+                        this
+                )
             }
             R.id.app_log -> {
                 intent = Intent(this, LogActivity::class.java)
