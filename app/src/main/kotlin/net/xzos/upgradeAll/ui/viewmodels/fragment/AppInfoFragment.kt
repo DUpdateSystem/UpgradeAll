@@ -23,6 +23,7 @@ import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.utils.IconPalette
+import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import org.litepal.LitePal
 import org.litepal.extension.find
 
@@ -93,7 +94,7 @@ class AppInfoFragment : Fragment() {
         jobs.add(GlobalScope.launch {
             val versioningList = getVersioningList()
             if (isActive)
-                runBlocking(Dispatchers.Main) {
+                launch(Dispatchers.Main) {
                     versioningSelectLayout.setOnClickListener { view ->
                         // 选择版本号
                         PopupMenu(view.context, view).let { popupMenu ->
@@ -121,19 +122,28 @@ class AppInfoFragment : Fragment() {
                         layoutInflater.inflate(R.layout.list_content, null)
                 )
                 dialog.show()
+                Toast.makeText(context, R.string.long_click_to_open_in_browser, Toast.LENGTH_LONG).show()
                 dialog.findViewById<LinearLayout>(R.id.placeholderLayout)?.visibility = View.VISIBLE
                 jobs.add(GlobalScope.launch {
                     val engine = AppManager.getApp(appDatabaseId).engine
-                    val itemList = engine.getReleaseDownload(versioningPosition).keys.toList()
+                    val releaseDownloadMap = engine.getReleaseDownload(versioningPosition)
+                    val itemList = releaseDownloadMap.keys.toList()
                     if (isActive)
-                        runBlocking(Dispatchers.Main) {
+                        launch(Dispatchers.Main) {
                             if (itemList.isNotEmpty()) {
                                 dialog.findViewById<ListView>(android.R.id.list)?.let { list ->
                                     list.adapter =
                                             ArrayAdapter(dialog.context, android.R.layout.simple_list_item_1, itemList)
-                                    list.setOnItemClickListener { _, _, i, _ ->
+                                    list.setOnItemClickListener { _, _, position, _ ->
                                         // 下载文件
-                                        GlobalScope.launch { Updater(engine).downloadReleaseFile(Pair(versioningPosition, i)) }
+                                        launch { Updater(engine).downloadReleaseFile(Pair(versioningPosition, position)) }
+                                    }
+                                    list.setOnItemLongClickListener { _, _, position, _ ->
+                                        MiscellaneousUtils.accessByBrowser(
+                                                releaseDownloadMap[itemList[position]],
+                                                context
+                                        )
+                                        return@setOnItemLongClickListener true
                                     }
                                 }
                             } else {
@@ -167,7 +177,7 @@ class AppInfoFragment : Fragment() {
                 val app = AppManager.getApp(appDatabaseId)
                 val installedVersioning = app.installedVersioning
                 if (isActive)
-                    runBlocking(Dispatchers.Main) {
+                    launch(Dispatchers.Main) {
                         appIconImageView.let {
                             IconPalette.loadAppIconView(it, appDatabaseId = appDatabaseId)
                         }
@@ -178,7 +188,7 @@ class AppInfoFragment : Fragment() {
                             }
                         }
                         nameTextView.text = appDatabase.name
-                        appModuleName.text = appDatabase.targetChecker?.extraString?: ""
+                        appModuleName.text = appDatabase.targetChecker?.extraString ?: ""
                         versioningTextView.text = installedVersioning ?: ""
                         localVersioningTextView.text = installedVersioning
                                 ?: getString(R.string.null_english)
@@ -210,7 +220,7 @@ class AppInfoFragment : Fragment() {
                 val latestVersioning = engine.getVersioning(versioningPosition)
                 val latestChangeLog = engine.getChangelog(versioningPosition)
                 if (isActive)
-                    runBlocking(Dispatchers.Main) {
+                    launch(Dispatchers.Main) {
                         cloud_versioning_text_view.text = if (versioningPosition == 0) {
                             getString(R.string.latest_versioning)
                         } else {

@@ -25,14 +25,15 @@ import kotlinx.android.synthetic.main.activity_hub_debug.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
+import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.data.json.gson.HubConfig
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
-import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.server.log.LogDataProxy
 import net.xzos.upgradeAll.utils.AriaDownloader
 import net.xzos.upgradeAll.utils.FileUtil
+import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import org.apache.commons.text.StringEscapeUtils
 import java.io.File
 
@@ -73,11 +74,6 @@ class HubDebugActivity : AppCompatActivity() {
             hubConfig.webCrawler.filePath = jsFilePathEditText.text.toString()
             return hubConfig
         }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_actionbar_debug, menu)
-        return true
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -177,13 +173,18 @@ class HubDebugActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_actionbar_debug, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.app_help -> {
-                var intent = Intent(Intent.ACTION_VIEW)
-                intent.data = Uri.parse("https://xzos.net/the-customizing-configuration-rules-for-a-software-depot/")
-                intent = Intent.createChooser(intent, "请选择浏览器以查看帮助文档")
-                startActivity(intent)
+            R.id.dev_help -> {
+                MiscellaneousUtils.accessByBrowser(
+                        "https://xzos.net/the-customizing-configuration-rules-for-a-software-depot/",
+                        this
+                )
                 true
             }
             android.R.id.home -> {
