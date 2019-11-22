@@ -3,7 +3,7 @@ package net.xzos.upgradeAll.data.database.litepal
 import com.google.gson.Gson
 import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.data.json.gson.AppDatabaseExtraData
-import net.xzos.upgradeAll.utils.VersionChecker
+import net.xzos.upgradeAll.utils.VersioningUtils
 import org.litepal.crud.LitePalSupport
 
 class RepoDatabase(
@@ -34,7 +34,7 @@ class RepoDatabase(
                 // 修补老标准格式
                 // TODO: 修改版本: 0.1.0-alpha.beta
                 if (it.extraString == null) {
-                    val fixChecker = VersionChecker.fixJson(versionChecker!!)
+                    val fixChecker = VersioningUtils.fixJson(versionChecker!!)
                     it.api = fixChecker.api
                     it.extraString = fixChecker.extraString
                     targetChecker = it

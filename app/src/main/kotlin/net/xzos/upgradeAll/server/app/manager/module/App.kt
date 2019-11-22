@@ -4,7 +4,7 @@ import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
-import net.xzos.upgradeAll.utils.VersionChecker
+import net.xzos.upgradeAll.utils.VersioningUtils
 import org.litepal.LitePal
 import org.litepal.extension.find
 
@@ -15,21 +15,21 @@ data class App(private val appDatabaseId: Long) {
     suspend fun isLatest(): Boolean {
         val latestVersion = Updater(engine).getLatestVersioning()
         val installedVersion = installedVersioning
-        return VersionChecker.compareVersionNumber(installedVersion, latestVersion)
+        return VersioningUtils.compareVersionNumber(installedVersion, latestVersion)
     }
 
     // 获取已安装版本号
     val installedVersioning: String?
         get() {
-            return versionChecker?.version
+            return versioningUtils?.version
         }
 
     // 获取数据库 VersionCheckerGson 数据
-    private val versionChecker: VersionChecker?
+    private val versioningUtils: VersioningUtils.VersionChecker?
         get() {
             val repoDatabase: RepoDatabase? = LitePal.find(appDatabaseId)
             val versionChecker = repoDatabase?.targetChecker
-            return VersionChecker(versionChecker)
+            return VersioningUtils.VersionChecker(versionChecker)
         }
 
     // 添加一个 更新检查器追踪子项
