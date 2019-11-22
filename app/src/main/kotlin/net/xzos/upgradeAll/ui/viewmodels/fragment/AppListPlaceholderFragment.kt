@@ -39,26 +39,35 @@ internal class AppListPlaceholderFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
         swipeRefreshLayout.setOnRefreshListener { this.renewCardView() }
-        with(updateOverviewTextView) {
-            val updateOverviewStringList = this.context.getString(R.string.example_update_overview).split("0")
-                    .filter { element -> element.isNotBlank() }
-            var appListNum = 0
-            var needUpdateAppNum = 0
-            appListPageViewModel.appCardViewList.observe(viewLifecycleOwner, Observer { list ->
-                with(list.size) {
-                    appListNum = if (this > 0)
-                        this - 1
-                    else
-                        this
-                }
-                this.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
-            })
-            appListPageViewModel.needUpdateAppIdLiveLiveData.observe(viewLifecycleOwner,
-                    Observer<MutableList<Long>> { list ->
-                        needUpdateAppNum = list.size
-                        this.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
+        context?.getString(R.string.example_update_overview)
+                ?.split("0")
+                ?.filter { element -> element.isNotBlank() }
+                ?.let { updateOverviewStringList ->
+                    var appListNum = 0
+                    var needUpdateAppNum = 0
+                    appListPageViewModel.appCardViewList.observe(viewLifecycleOwner, Observer { list ->
+                        with(list.size) {
+                            appListNum = if (this > 0)
+                                this - 1
+                            else
+                                this
+                        }
+                        updateOverviewTextView.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
                     })
-        }
+                    appListPageViewModel.needUpdateAppIdLiveLiveData.observe(viewLifecycleOwner,
+                            Observer<MutableList<Long>> { list ->
+                                needUpdateAppNum = list.size
+                                updateOverviewTextView.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
+                                if (needUpdateAppNum == 0) {
+                                    updateOverviewStatusImageView.setImageResource(R.drawable.ic_check_mark)
+                                    updateOverviewNumberTextView.visibility = View.GONE
+                                } else {
+                                    updateOverviewStatusImageView.setImageResource(R.drawable.ic_up)
+                                    updateOverviewNumberTextView.visibility = View.VISIBLE
+                                    updateOverviewNumberTextView.text = needUpdateAppNum.toString()
+                                }
+                            })
+                }
         renewCardView()
     }
 
