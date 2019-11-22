@@ -7,6 +7,6 @@
     <string name="default_cloud_rules_hub_url">https://github.com/xz-dev/UpgradeAll-rules</string>
 
     <string xmlns:tools="http://schemas.android.com/tools" name="versioning_regex_match" tools:ignore="TypographyDashes">
-        (\\d+(\\.\\d+)*)(([-|_|.|+]|[0-9A-Za-z])*)
+        (\\d+(\\.\\d+)*)(([\\.|\\-|\\+|_| ]|[0-9A-Za-z])*)
     </string>
 </resources>

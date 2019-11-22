@@ -9,7 +9,7 @@ import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.data.json.nongson.JSCacheData
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.utils.AriaDownloader
-import net.xzos.upgradeAll.utils.VersionChecker
+import net.xzos.upgradeAll.utils.VersioningUtils
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -92,7 +92,7 @@ class JSUtils(private val logObjectTag: Array<String>) {
     }
 
     fun matchVersioningString(versionString: String?): String? =
-            VersionChecker.matchVersioningString(versionString)
+            VersioningUtils.matchVersioningString(versionString)
 
     fun downloadFile(fileName: String, URL: String, headers: Map<String, String> = mapOf(), isDebug: Boolean = this.isDebug): String? {
         val allHeaders: MutableMap<String, String> = mutableMapOf()

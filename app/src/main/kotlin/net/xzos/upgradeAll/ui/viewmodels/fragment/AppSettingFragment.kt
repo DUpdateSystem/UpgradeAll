@@ -25,7 +25,7 @@ import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.utils.IconPalette
-import net.xzos.upgradeAll.utils.VersionChecker
+import net.xzos.upgradeAll.utils.VersioningUtils
 import org.litepal.LitePal
 import java.util.*
 
@@ -79,7 +79,7 @@ class AppSettingFragment : Fragment() {
         // 以下是按键事件
         versionCheckButton.setOnClickListener {
             // 版本检查设置
-            val versionChecker = VersionChecker(targetChecker)
+            val versionChecker = VersioningUtils.VersionChecker(targetChecker)
             val appVersion = versionChecker.version
             if (appVersion != null) {
                 Toast.makeText(context, "version: $appVersion", Toast.LENGTH_SHORT).show()
