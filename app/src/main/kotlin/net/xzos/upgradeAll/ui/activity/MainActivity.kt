@@ -254,11 +254,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun renewNavImage() {
-        Glide.with(this)
-                .load(NAV_IMAGE_FILE)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
-                .into(navHeaderImageView)
+        if (NAV_IMAGE_FILE.exists())
+            Glide.with(this)
+                    .load(NAV_IMAGE_FILE)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .into(navHeaderImageView)
     }
 
     private fun delNavImage() {

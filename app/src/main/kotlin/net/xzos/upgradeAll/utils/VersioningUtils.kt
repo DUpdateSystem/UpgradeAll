@@ -30,20 +30,17 @@ object VersioningUtils {
     internal fun compareVersionNumber(versioning0: String?, versioning1: String?): Boolean {
         val matchVersioning0 = matchVersioningString(versioning0)
         val matchVersioning1 = matchVersioningString(versioning1)
-        Log.i(logObjectTag, TAG,
-                """original versioning:
-                0: $versioning0, 1: $versioning1
-                0: $matchVersioning0, 1: $matchVersioning1"""
-        )
-        if (matchVersioning0 != null && matchVersioning1 != null) {
+        Log.i(logObjectTag, TAG, """original versioning: 
+                |0: $versioning0, 1: $versioning1
+                |0: $matchVersioning0, 1: $matchVersioning1""".trimMargin())
+        return if (matchVersioning0 != null && matchVersioning1 != null) {
             val version0 = DefaultArtifactVersion(matchVersioning0)
             val version1 = DefaultArtifactVersion(matchVersioning1)
-            return version0 >= version1
-        }
-        return false
+            version0 >= version1
+        } else false
     }
 
-    /** 修补老标准格式
+    /** 修补老格式标准
      * TODO: 修改版本: 0.1.0-alpha.beta
      */
     @SuppressLint("DefaultLocale")

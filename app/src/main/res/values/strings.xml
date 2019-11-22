@@ -98,5 +98,10 @@
     <string name="setting_app_name_explain">应用名称（选填）\n留空则调用软件源脚本，以获取默认应用名称</string>
     <string name="setting_app_url_explain">应用项目主页网址（必填）\n通过该网址获取应用信息</string>
     <string name="setting_app_versioning_explain">应用目标指向字符（必填）\n通过该字符串确认本地应用信息\n 例如：net.xzos.upgradeall</string>
+    <string name="ok">确认</string>
+    <string name="cancel">取消</string>
+
+    <string name="whether_download_dependency_hub">是否下载缺失的依赖软件源</string>
+    <string name="start_download_dependency_hub">开始下载缺失的依赖软件源</string>
 
 </resources>

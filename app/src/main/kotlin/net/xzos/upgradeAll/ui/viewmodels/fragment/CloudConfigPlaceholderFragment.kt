@@ -75,22 +75,23 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                     null,
                     null,
                     extraData = ItemCardViewExtraData(isEmpty = true)))
-                    ?.let {
-                        if (isActive)
-                            runBlocking(Dispatchers.Main) {
-                                if (it.size == 1) {
-                                    activity?.let {
-                                        Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
+                    ?.apply {
+                        launch(Dispatchers.Main) {
+                            if (isActive)
                                 cardItemRecyclerView?.let { view ->
                                     view.layoutManager = GridLayoutManager(activity, 1)
                                     view.adapter = when {
-                                        isAppList -> CloudAppItemAdapter(it)
-                                        isHubList -> CloudHubItemAdapter(it)
+                                        isAppList -> CloudAppItemAdapter(this@apply, context)
+                                        isHubList -> CloudHubItemAdapter(this@apply)
                                         else -> null
                                     }
                                 }
+                        }
+                    }
+                    ?: launch(Dispatchers.Main) {
+                        if (isActive)
+                            activity?.let {
+                                Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
                             }
                     }
         }
@@ -106,7 +107,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         val appUuid = item.appConfigUuid
         val configFileName = item.appConfigFileName
         val iconInfo: Pair<String?, String?> = Pair(configFileName, null)
-        return ItemCardView(iconInfo, name, appUuid, ItemCardViewExtraData(uuid = appUuid, configFileName = configFileName))
+        return ItemCardView(iconInfo, name, appUuid, ItemCardViewExtraData(uuid = appUuid))
     }
 
     private fun getCloudHubItemCardView(item: CloudConfig.HubListBean): ItemCardView {
@@ -114,7 +115,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         val hubUuid = item.hubConfigUuid
         val configFileName = item.hubConfigFileName
         val iconInfo: Pair<String?, String?> = Pair(configFileName, null)
-        return ItemCardView(iconInfo, name, hubUuid, ItemCardViewExtraData(uuid = hubUuid, configFileName = configFileName))
+        return ItemCardView(iconInfo, name, hubUuid, ItemCardViewExtraData(uuid = hubUuid))
     }
 
     companion object {
