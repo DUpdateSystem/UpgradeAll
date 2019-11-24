@@ -77,13 +77,9 @@ object AppDatabaseManager {
             }
             uuid != null -> {
                 for (appDatabase in appDatabases) {
-                    appDatabase.extraData?.cloudAppConfig?.let { s ->
-                        Gson().fromJson(s, AppConfig::class.java).uuid?.let {
-                            if (it == uuid) {
-                                return appDatabase
-                            }
-                        }
-                    }
+                    val itemUuid = appDatabase.extraData?.getCloudAppConfig()?.uuid
+                    if (itemUuid == uuid)
+                        return appDatabase
                 }
                 return null
             }

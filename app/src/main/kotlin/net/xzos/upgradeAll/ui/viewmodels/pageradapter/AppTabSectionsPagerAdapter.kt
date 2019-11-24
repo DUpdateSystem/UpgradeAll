@@ -57,7 +57,7 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
                 this.groupNameTextView.text = hubDatabase?.name
                 IconPalette.loadHubIconView(
                         this.groupIconImageView,
-                        hubDatabase?.hubConfig?.info?.hubIconUrl
+                        hubDatabase?.cloudHubConfig?.info?.hubIconUrl
                 )
                 setOnClickListener(View.OnClickListener {
                     if (delGroupCardView.visibility == View.VISIBLE)

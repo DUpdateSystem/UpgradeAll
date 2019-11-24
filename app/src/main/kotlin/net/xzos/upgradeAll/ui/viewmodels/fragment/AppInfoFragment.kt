@@ -122,7 +122,7 @@ class AppInfoFragment : Fragment() {
                         layoutInflater.inflate(R.layout.list_content, null)
                 )
                 dialog.show()
-                Toast.makeText(context, R.string.long_click_to_open_in_browser, Toast.LENGTH_LONG).show()
+                Toast.makeText(context, R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG).show()
                 dialog.findViewById<LinearLayout>(R.id.placeholderLayout)?.visibility = View.VISIBLE
                 jobs.add(GlobalScope.launch {
                     val engine = AppManager.getApp(appDatabaseId).engine

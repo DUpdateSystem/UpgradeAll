@@ -21,7 +21,7 @@ object HubDatabaseManager {
         get() = LitePal.findAll()
 
     fun addDatabase(hubConfigGson: HubConfig, jsCode: String): Boolean {
-        val name: String? = hubConfigGson.info.hubName
+        val name: String? = hubConfigGson.info?.hubName
         val uuid: String? = hubConfigGson.uuid
 
         // 如果设置了名字与 UUID，则存入数据库
@@ -31,7 +31,7 @@ object HubDatabaseManager {
             getDatabase(uuid)?.let {
                 it.name = name
                 it.uuid = uuid
-                it.hubConfig = hubConfigGson
+                it.cloudHubConfig = hubConfigGson
                 // 存储 js 代码
                 it.extraData = hubDatabaseExtraData
                 it.save() // 将数据存入 HubDatabase 数据库

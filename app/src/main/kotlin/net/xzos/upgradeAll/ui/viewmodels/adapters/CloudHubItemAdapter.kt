@@ -77,13 +77,8 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
             // 加载仓库信息
             holder.name.text = itemCardView.name
             holder.descTextView.text = itemCardView.desc
-            GlobalScope.launch {
-                loadCloudHubIcon(holder.appIconImageView, itemCardView.extraData.uuid)
-            }
-            holder.versionCheckButton.visibility = if (HubDatabaseManager.exists(itemCardView.extraData.uuid))
-                View.VISIBLE
-            else
-                View.GONE
+            checkHubConfigLocalStatus(holder, itemCardView.extraData.uuid)
+            GlobalScope.launch { loadCloudHubIcon(holder.appIconImageView, itemCardView.extraData.uuid) }
         }
     }
 
@@ -97,6 +92,27 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
             val hubIconUrl = cloudHubConfigGson?.info?.hubIconUrl
             IconPalette.loadHubIconView(iconImageView, hubIconUrl)
         }
+    }
+
+    private fun checkHubConfigLocalStatus(holder: CardViewRecyclerViewHolder, hubUuid: String?) {
+        val versionCheckButton = holder.versionCheckButton
+        if (HubDatabaseManager.exists(hubUuid)) {
+            versionCheckButton.visibility = View.VISIBLE
+            setDownloadStatus(holder, true)
+            GlobalScope.launch {
+                val hubConfigGson = CloudConfigGetter.getHubCloudConfig(hubUuid)
+                HubDatabaseManager.getDatabase(uuid = hubUuid)?.cloudHubConfig?.let {
+                    val cloudHubVersion = it.info?.configVersion
+                    val localHubVersion = hubConfigGson?.info?.configVersion
+                    launch(Dispatchers.Main) {
+                        if (cloudHubVersion != null && localHubVersion != null && cloudHubVersion > localHubVersion)
+                            versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
+                        setDownloadStatus(holder, false)
+                    }
+                }
+            }
+        } else
+            versionCheckButton.visibility = View.GONE
     }
 
     private fun setDownloadStatus(holder: CardViewRecyclerViewHolder, renew: Boolean) {

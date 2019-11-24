@@ -13,7 +13,7 @@ open class HubDatabase(
 ) : LitePalSupport() {
     val id: Long = 0
 
-    var hubConfig: HubConfig?
+    var cloudHubConfig: HubConfig?
         set(value) {
             if (value != null)
                 hub_config = Gson().toJson(value)
