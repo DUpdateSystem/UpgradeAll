@@ -136,7 +136,7 @@ object CloudConfigGetter {
         val cloudHubConfigGson = getHubCloudConfig(hubUuid)
         // TODO: 配置文件地址与仓库地址分离
         return (if (cloudHubConfigGson != null) {
-            val cloudHubConfigJS = getCloudHubConfigJS(cloudHubConfigGson.webCrawler.filePath
+            val cloudHubConfigJS = getCloudHubConfigJS(cloudHubConfigGson.webCrawler?.filePath
                     ?: "")
             if (cloudHubConfigJS != null) {
                 // 添加数据库

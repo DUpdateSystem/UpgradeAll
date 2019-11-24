@@ -11,8 +11,8 @@ import com.google.gson.annotations.SerializedName
 data class HubConfig(
         @SerializedName("base_version") var baseVersion: Int = 0,
         @SerializedName("uuid") var uuid: String? = null,
-        @SerializedName("info") var info: InfoBean = InfoBean(),
-        @SerializedName("web_crawler") var webCrawler: WebCrawlerBean = WebCrawlerBean()
+        @SerializedName("info") var info: InfoBean? = null,
+        @SerializedName("web_crawler") var webCrawler: WebCrawlerBean? = null
 ) {
 
     /**
