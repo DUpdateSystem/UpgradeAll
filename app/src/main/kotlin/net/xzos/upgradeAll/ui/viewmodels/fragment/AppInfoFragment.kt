@@ -16,7 +16,10 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_app_info.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
@@ -36,7 +39,6 @@ import org.litepal.extension.find
 class AppInfoFragment : Fragment() {
     private var appDatabaseId: Long = 0
     private var versioningPosition: Int = 0
-    private var jobs: MutableList<Job> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,22 +80,11 @@ class AppInfoFragment : Fragment() {
         }
     }
 
-
-    override fun onDestroy() {
-        cancelJobs()
-        super.onDestroy()
-    }
-
-    private fun cancelJobs() {
-        for (job in jobs)
-            job.cancel()
-    }
-
     private fun showVersioningPopupMenu(versioningSelectLayout: LinearLayout) {
         versioningSelectLayout.visibility = View.GONE
-        jobs.add(GlobalScope.launch {
+        GlobalScope.launch {
             val versioningList = getVersioningList()
-            if (isActive)
+            if (activity?.isFinishing != true)
                 launch(Dispatchers.Main) {
                     versioningSelectLayout.setOnClickListener { view ->
                         // 选择版本号
@@ -110,7 +101,7 @@ class AppInfoFragment : Fragment() {
                     }
                     versioningSelectLayout.visibility = View.VISIBLE
                 }
-        })
+        }
     }
 
     @SuppressLint("InflateParams")
@@ -124,11 +115,11 @@ class AppInfoFragment : Fragment() {
                 dialog.show()
                 Toast.makeText(context, R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG).show()
                 dialog.findViewById<LinearLayout>(R.id.placeholderLayout)?.visibility = View.VISIBLE
-                jobs.add(GlobalScope.launch {
+                GlobalScope.launch {
                     val engine = AppManager.getApp(appDatabaseId).engine
                     val releaseDownloadMap = engine.getReleaseDownload(versioningPosition)
                     val itemList = releaseDownloadMap.keys.toList()
-                    if (isActive)
+                    if (activity?.isFinishing != true)
                         launch(Dispatchers.Main) {
                             if (itemList.isNotEmpty()) {
                                 dialog.findViewById<ListView>(android.R.id.list)?.let { list ->
@@ -151,7 +142,7 @@ class AppInfoFragment : Fragment() {
                             }
                             dialog.findViewById<LinearLayout>(R.id.placeholderLayout)?.visibility = View.GONE
                         }
-                })
+                }
             }
         }
     }
@@ -173,10 +164,10 @@ class AppInfoFragment : Fragment() {
 
     private fun loadAllAppInfo() {
         LitePal.find<RepoDatabase>(appDatabaseId)?.let { appDatabase ->
-            jobs.add(GlobalScope.launch {
+            GlobalScope.launch {
                 val app = AppManager.getApp(appDatabaseId)
                 val installedVersioning = app.installedVersioning
-                if (isActive)
+                if (activity?.isFinishing != true)
                     launch(Dispatchers.Main) {
                         appIconImageView.let {
                             IconPalette.loadAppIconView(it, appDatabaseId = appDatabaseId)
@@ -208,18 +199,18 @@ class AppInfoFragment : Fragment() {
                             }
                         }
                     }
-            })
+            }
         }
     }
 
     private fun loadAppVersioningInfo(versioningPosition: Int) {
         this.versioningPosition = versioningPosition
         LitePal.find<RepoDatabase>(appDatabaseId)?.let {
-            jobs.add(GlobalScope.launch {
+            GlobalScope.launch {
                 val engine = AppManager.getApp(appDatabaseId).engine
                 val latestVersioning = engine.getVersioning(versioningPosition)
                 val latestChangeLog = engine.getChangelog(versioningPosition)
-                if (isActive)
+                if (activity?.isFinishing != true)
                     launch(Dispatchers.Main) {
                         cloud_versioning_text_view.text = if (versioningPosition == 0) {
                             getString(R.string.latest_versioning)
@@ -230,7 +221,7 @@ class AppInfoFragment : Fragment() {
                         appChangelogTextView.text = latestChangeLog
                                 ?: getString(R.string.null_english)
                     }
-            })
+            }
         }
     }
 
