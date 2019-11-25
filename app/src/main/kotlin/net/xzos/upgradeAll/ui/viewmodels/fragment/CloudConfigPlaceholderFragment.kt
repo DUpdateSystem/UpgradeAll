@@ -8,7 +8,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.data.database.manager.CloudConfigGetter
@@ -19,8 +22,6 @@ import net.xzos.upgradeAll.ui.viewmodels.adapters.CloudHubItemAdapter
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 
 internal class CloudConfigPlaceholderFragment : Fragment() {
-
-    private var job: Job? = null
 
     private var pageModelIndex = 0
 
@@ -44,13 +45,8 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         renewCardView()
     }
 
-    override fun onDestroy() {
-        job?.cancel()
-        super.onDestroy()
-    }
-
     private fun renewCardView() {
-        job = GlobalScope.launch {
+        GlobalScope.launch {
             runBlocking(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = true }
             if (pageModelIndex == CLOUD_APP_CONFIG)
                 renewCloudList(isAppList = true)
@@ -77,7 +73,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                     extraData = ItemCardViewExtraData(isEmpty = true)))
                     ?.apply {
                         launch(Dispatchers.Main) {
-                            if (isActive)
+                            if (activity?.isFinishing != true)
                                 cardItemRecyclerView?.let { view ->
                                     view.layoutManager = GridLayoutManager(activity, 1)
                                     view.adapter = when {
@@ -89,7 +85,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                         }
                     }
                     ?: launch(Dispatchers.Main) {
-                        if (isActive)
+                        if (activity?.isFinishing != true)
                             activity?.let {
                                 Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
                             }

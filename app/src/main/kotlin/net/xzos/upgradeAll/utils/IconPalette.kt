@@ -1,7 +1,11 @@
 package net.xzos.upgradeAll.utils
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
@@ -87,21 +91,35 @@ object IconPalette {
                     , appDatabase?.targetChecker?.extraString
             )
             launch(Dispatchers.Main) {
-                iconImageView.visibility = View.GONE
-                Glide.with(iconImageView).load(appIconUrl ?: "").let {
-                    if (appIconUrl == null) {
-                        it.placeholder(
-                                try {
-                                    iconImageView.context.packageManager.getApplicationIcon(appModuleName!!)
-                                } catch (e: Throwable) {
-                                    defaultSrc ?: return@let
-                                }
-                        )
+                val activity = getActivity(iconImageView)
+                if (activity?.isFinishing != true) {
+                    iconImageView.visibility = View.GONE
+                    Glide.with(iconImageView).load(appIconUrl ?: "").let {
+                        if (appIconUrl == null) {
+                            it.placeholder(
+                                    try {
+                                        iconImageView.context.packageManager.getApplicationIcon(appModuleName!!)
+                                    } catch (e: Throwable) {
+                                        defaultSrc ?: return@let
+                                    }
+                            )
+                        }
+                        it.into(iconImageView)
+                        iconImageView.visibility = View.VISIBLE
                     }
-                    it.into(iconImageView)
-                    iconImageView.visibility = View.VISIBLE
                 }
             }
         }
+    }
+
+    private fun getActivity(view: View): Activity? {
+        var context: Context = view.context
+        while (context is ContextWrapper) {
+            if (context is Activity) {
+                return context
+            }
+            context = context.baseContext
+        }
+        return null
     }
 }
