@@ -169,7 +169,7 @@ class AppInfoFragment : Fragment() {
                 val installedVersioning = app.installedVersioning
                 if (activity?.isFinishing != true)
                     launch(Dispatchers.Main) {
-                        appIconImageView.let {
+                        appIconImageView?.let {
                             IconPalette.loadAppIconView(it, appDatabaseId = appDatabaseId)
                         }
                         activity?.apply {
@@ -178,12 +178,12 @@ class AppInfoFragment : Fragment() {
                                 it.visibility = View.VISIBLE
                             }
                         }
-                        nameTextView.text = appDatabase.name
-                        appModuleName.text = appDatabase.targetChecker?.extraString ?: ""
-                        versioningTextView.text = installedVersioning ?: ""
-                        localVersioningTextView.text = installedVersioning
+                        nameTextView?.text = appDatabase.name
+                        appModuleName?.text = appDatabase.targetChecker?.extraString ?: ""
+                        versioningTextView?.text = installedVersioning ?: ""
+                        localVersioningTextView?.text = installedVersioning
                                 ?: getString(R.string.null_english)
-                        appUrlTextView.let {
+                        appUrlTextView?.let {
                             val url = appDatabase.url
                             val context = it.context
                             it.text = url
