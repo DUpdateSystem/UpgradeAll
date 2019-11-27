@@ -31,9 +31,8 @@ object CloudConfigGetter {
                         MyApplication.context.resources.getString(R.string.default_cloud_rules_hub_url)
                 ).apply {
                     val separator = '/'
-                    if (this?.last() != separator) {
+                    if (this?.last() != separator)
                         this.plus(separator)
-                    }
                 }
         ) + "rules/rules_list.json"
 

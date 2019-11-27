@@ -7,15 +7,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.fragment_apps_setting.*
+import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
@@ -24,28 +29,33 @@ import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.ui.activity.MainActivity
+import net.xzos.upgradeAll.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeAll.utils.IconPalette
+import net.xzos.upgradeAll.utils.SearchUtils
 import net.xzos.upgradeAll.utils.VersioningUtils
 import org.litepal.LitePal
 import java.util.*
+
 
 class AppSettingFragment : Fragment() {
 
     private var databaseId: Long = 0  // 设置页面代表的数据库项目
 
+    private val targetCheckerApi: String?
+        get() = when (versionCheckSpinner.selectedItem.toString()) {
+            "APP 版本" -> "app_package"
+            "Magisk 模块" -> "magisk_module"
+            "自定义 Shell 命令" -> "Shell"
+            "自定义 Shell 命令（ROOT）" -> "Shell_ROOT"
+            else -> null
+        }
+
     // 获取versionChecker
     private val targetChecker: AppConfig.AppConfigBean.TargetCheckerBean
-        get() =
-            AppConfig.AppConfigBean.TargetCheckerBean(
-                    when (versionCheckSpinner.selectedItem.toString()) {
-                        "APP 版本" -> "app_package"
-                        "Magisk 模块" -> "magisk_module"
-                        "自定义 Shell 命令" -> "Shell"
-                        "自定义 Shell 命令（ROOT）" -> "Shell_ROOT"
-                        else -> null
-                    },
-                    editVersioningCheckText.text.toString()
-            )
+        get() = AppConfig.AppConfigBean.TargetCheckerBean(
+                targetCheckerApi,
+                editTarget.text.toString()
+        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +81,6 @@ class AppSettingFragment : Fragment() {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             apiSpinner.adapter = adapter
         } else {
-            // TODO: 返回处理
             Toast.makeText(context, "请先添加软件源", Toast.LENGTH_LONG).show()
             activity?.onBackPressed()
         }
@@ -85,12 +94,24 @@ class AppSettingFragment : Fragment() {
                 Toast.makeText(context, "version: $appVersion", Toast.LENGTH_SHORT).show()
             }
         }
+        editTarget.threshold = 1
+        editTarget.addTextChangedListener {
+            if (targetCheckerApi != "Shell" && targetCheckerApi != "Shell_ROOT")
+                GlobalScope.launch {
+                    val searchInfoList = SearchUtils.searchTargetByAllApi(editTarget.text.toString())
+                    if (activity?.isFinishing != true && context != null)
+                        launch(Dispatchers.Main) {
+                            editTarget.setAdapter(SearchResultItemAdapter(context!!, searchInfoList))
+                            editTarget.showDropDown()
+                        }
+                }
+        }
         activity?.let {
             it as AppCompatActivity
-            it.findViewById<ImageView>(R.id.toolbar_backdrop_image)?.setBackgroundColor(IconPalette.getColorInt(R.color.taupe))
-            it.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout)?.contentScrim = it.getDrawable(R.color.taupe)
-            it.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.visibility = View.GONE
-            it.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.let { fab ->
+            it.toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.taupe))
+            it.collapsingToolbarLayout.contentScrim = it.getDrawable(R.color.taupe)
+            it.addFloatingActionButton.visibility = View.GONE
+            it.floatingActionButton.let { fab ->
                 fab.setOnClickListener {
                     addApp()
                 }
@@ -101,6 +122,11 @@ class AppSettingFragment : Fragment() {
             }
         }
         setEndHelpIcon()
+    }
+
+    override fun onPause() {
+        SearchUtils.clearResultCache()
+        super.onPause()
     }
 
     private fun setEndHelpIcon() {
@@ -169,7 +195,7 @@ class AppSettingFragment : Fragment() {
                     "app" -> versionCheckSpinner.setSelection(0)
                     "magisk" -> versionCheckSpinner.setSelection(1)
                 }
-            editVersioningCheckText.setText(versionCheckerText)
+            editTarget.setText(versionCheckerText)
         }
     }
 

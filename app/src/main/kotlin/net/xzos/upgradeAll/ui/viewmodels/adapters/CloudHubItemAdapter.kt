@@ -75,7 +75,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
             holder.appPlaceholderImageView.visibility = View.GONE
             holder.itemCardView.visibility = View.VISIBLE
             // 加载仓库信息
-            holder.name.text = itemCardView.name
+            holder.nameTextView.text = itemCardView.name
             holder.descTextView.text = itemCardView.desc
             checkHubConfigLocalStatus(holder, itemCardView.extraData.uuid)
             GlobalScope.launch { loadCloudHubIcon(holder.appIconImageView, itemCardView.extraData.uuid) }

@@ -15,7 +15,6 @@ import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
@@ -98,7 +97,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
             AppManager.delApp(appDatabaseId)
             AppManager.setApp(appDatabaseId)
             setAppStatusUI(appDatabaseId, holder)
-            Toast.makeText(holder.versionCheckButton.context, String.format("检查 %s 的更新", holder.name.text.toString()),
+            Toast.makeText(holder.versionCheckButton.context, String.format("检查 %s 的更新", holder.nameTextView.text.toString()),
                     Toast.LENGTH_SHORT).show()
             true
         }
@@ -119,15 +118,14 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                 IconPalette.loadAppIconView(it, iconInfo = itemCardView.iconInfo)
             }
             val appDatabaseId = itemCardView.extraData.databaseId
-            holder.name.text = itemCardView.name
+            holder.nameTextView.text = itemCardView.name
             holder.descTextView.text = itemCardView.desc
             setAppStatusUI(appDatabaseId, holder)
         }
     }
 
-    override fun getItemCount(): Int {
-        return mItemCardViewList.size
-    }
+    override fun getItemCount() =
+            mItemCardViewList.size
 
     fun onAddItem(position: Int = 0, element: ItemCardView) {
         if (position < mItemCardViewList.size) {
@@ -184,7 +182,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                     } else {
                         0
                     }
-            runBlocking(Dispatchers.Main) {
+            launch(Dispatchers.Main) {
                 when (updateStatus) {
                     0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error)
                     1 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_mark_circle)
