@@ -243,12 +243,7 @@ class HubDebugActivity : AppCompatActivity() {
                 cardViewAnim(jsTextView, jsTestCardView, jsContentLayout)
             }
         })
-        hubConfigCardView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                hubConfigCardView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                configCardViewWrapHeight = hubConfigCardView.height
-            }
-        })
+        hubConfigCardView.viewTreeObserver.addOnGlobalLayoutListener { configCardViewWrapHeight = hubConfigCardView.height }
     }
 
     // 自定义 jsFilePathEditText 长按菜单

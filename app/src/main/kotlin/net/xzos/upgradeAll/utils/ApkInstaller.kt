@@ -11,7 +11,6 @@ import androidx.core.content.FileProvider
 import net.xzos.upgradeAll.BuildConfig
 import java.io.File
 
-
 class ApkInstaller(private val context: Context) {
 
     fun installApplication(file: File) {
@@ -56,5 +55,4 @@ class ApkInstaller(private val context: Context) {
             false
         }
     }
-
 }

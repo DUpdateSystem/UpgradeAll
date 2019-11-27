@@ -26,7 +26,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 29
-        versionName "0.1.0-beta.4"
+        versionName "0.1.0-beta.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     sourceSets {
@@ -96,7 +96,7 @@ dependencies {
     implementation 'org.litepal.android:kotlin:3.0.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.apache.maven:maven-artifact:3.6.2'  // 版本比较
-    implementation 'org.apache.commons:commons-text:1.8'  // 去除转义字符
+    implementation 'org.apache.commons:commons-text:1.8'  // 日志打印去除转义字符；字符串匹配
     implementation 'com.jaredrummler:android-shell:1.0.0'  // shell
 
     // 图片加载

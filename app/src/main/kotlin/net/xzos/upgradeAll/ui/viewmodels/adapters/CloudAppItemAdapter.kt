@@ -88,7 +88,7 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
             holder.appPlaceholderImageView.visibility = View.GONE
             holder.itemCardView.visibility = View.VISIBLE
             // 加载跟踪项信息
-            holder.name.text = itemCardView.name
+            holder.nameTextView.text = itemCardView.name
             holder.descTextView.text = itemCardView.desc
             checkAppConfigLocalStatus(holder, itemCardView.extraData.uuid)
             GlobalScope.launch { loadCloudAppIcon(holder.appIconImageView, itemCardView.extraData.uuid) }

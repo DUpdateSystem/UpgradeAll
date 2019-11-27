@@ -122,7 +122,7 @@ class AppInfoFragment : Fragment() {
                     if (activity?.isFinishing != true)
                         launch(Dispatchers.Main) {
                             if (itemList.isNotEmpty()) {
-                                dialog.findViewById<ListView>(android.R.id.list)?.let { list ->
+                                dialog.findViewById<ListView>(R.id.list)?.let { list ->
                                     list.adapter =
                                             ArrayAdapter(dialog.context, android.R.layout.simple_list_item_1, itemList)
                                     list.setOnItemClickListener { _, _, position, _ ->
