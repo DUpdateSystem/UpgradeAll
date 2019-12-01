@@ -1,30 +1,30 @@
 package net.xzos.upgradeAll.server.app.manager.module
 
+import android.content.Context
+import android.widget.Toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
+
 
 class Updater internal constructor(private val engine: JavaScriptEngine) {
 
-    suspend fun isSuccessRenew(): Boolean {
-        return engine.getVersioning(0) != null
-    }
+    suspend fun isSuccessRenew(): Boolean = engine.getVersioning(0) != null
 
     // 获取最新版本号
-    suspend fun getLatestVersioning(): String? {
-        return engine.getVersioning(0)
-    }
+    suspend fun getLatestVersioning(): String? = engine.getVersioning(0)
 
-    // 获取最新更新日志
-    suspend fun getLatestChangelog(): String? {
-        return engine.getChangelog(0)
-    }
-
-    // 获取最新下载链接
-    suspend fun getLatestReleaseDownload(): Map<String, String> {
-        return engine.getReleaseDownload(0)
-    }
+    internal fun nonBlockingDownloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false, context: Context? = null) =
+            GlobalScope.launch {
+                if (context != null)
+                    launch(Dispatchers.Main) { Toast.makeText(context, R.string.ready_to_download, Toast.LENGTH_LONG).show() }
+                downloadReleaseFile(fileIndex, externalDownloader)
+            }
 
     // 使用内置下载器下载文件
-    suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>): String? {
-        return engine.downloadReleaseFile(fileIndex)
-    }
+    private suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false): String? =
+            if (!externalDownloader) engine.downloadReleaseFile(fileIndex)
+            else engine.downloadFile(fileIndex, externalDownloader = externalDownloader)
 }

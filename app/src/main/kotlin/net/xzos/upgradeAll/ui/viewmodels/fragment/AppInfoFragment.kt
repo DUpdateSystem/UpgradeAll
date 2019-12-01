@@ -26,7 +26,6 @@ import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.utils.IconPalette
-import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import org.litepal.LitePal
 import org.litepal.extension.find
 
@@ -125,15 +124,12 @@ class AppInfoFragment : Fragment() {
                                 dialog.findViewById<ListView>(R.id.list)?.let { list ->
                                     list.adapter =
                                             ArrayAdapter(dialog.context, android.R.layout.simple_list_item_1, itemList)
+                                    // 下载文件
                                     list.setOnItemClickListener { _, _, position, _ ->
-                                        // 下载文件
-                                        launch { Updater(engine).downloadReleaseFile(Pair(versioningPosition, position)) }
+                                        Updater(engine).nonBlockingDownloadReleaseFile(Pair(versioningPosition, position), context = context)
                                     }
                                     list.setOnItemLongClickListener { _, _, position, _ ->
-                                        MiscellaneousUtils.accessByBrowser(
-                                                releaseDownloadMap[itemList[position]],
-                                                context
-                                        )
+                                        Updater(engine).nonBlockingDownloadReleaseFile(Pair(versioningPosition, position), externalDownloader = true, context = context)
                                         return@setOnItemLongClickListener true
                                     }
                                 }

@@ -99,11 +99,14 @@ class AppSettingFragment : Fragment() {
             if (targetCheckerApi != "Shell" && targetCheckerApi != "Shell_ROOT")
                 GlobalScope.launch {
                     val searchInfoList = SearchUtils.searchTargetByAllApi(editTarget.text.toString())
-                    if (activity?.isFinishing != true && context != null)
+                    if (activity?.isFinishing != true && context != null) {
                         launch(Dispatchers.Main) {
-                            editTarget.setAdapter(SearchResultItemAdapter(context!!, searchInfoList))
-                            editTarget.showDropDown()
+                            if (searchInfoList.isNotEmpty()) {
+                                editTarget.setAdapter(SearchResultItemAdapter(context!!, searchInfoList))
+                                editTarget.showDropDown()
+                            } else Toast.makeText(context, R.string.no_completion_results, Toast.LENGTH_SHORT).show()
                         }
+                    }
                 }
         }
         activity?.let {
