@@ -20,8 +20,8 @@
             android:layout_height="250dp"
             android:fitsSystemWindows="true"
             app:contentScrim="@color/colorPrimary"
-            app:statusBarScrim="@android:color/transparent"
-            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
+            app:statusBarScrim="@android:color/transparent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

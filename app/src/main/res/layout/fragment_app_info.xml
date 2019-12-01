@@ -67,7 +67,8 @@
                     android:maxLines="1"
                     android:text="@string/example_name"
                     android:textColor="@color/text_color"
-                    android:textSize="24sp" />
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/versioningTextView"
@@ -77,7 +78,8 @@
                     android:maxLines="1"
                     android:text="@string/example_versioning"
                     android:textColor="@color/text_lowest_priority_color"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
@@ -119,6 +121,7 @@
             android:layout_height="17dp"
             android:contentDescription="@string/local_versioning"
             android:src="@drawable/ic_local"
+            android:tint="@color/text_low_priority_color"
             app:layout_constraintBottom_toTopOf="@+id/localVersioningTextView"
             app:layout_constraintStart_toStartOf="@id/localVersioningTextView"
             app:layout_constraintTop_toTopOf="parent"
@@ -130,16 +133,17 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="@string/local_versioning"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/localVersioningTextView"
-            app:layout_constraintLeft_toRightOf="@id/local_versioning_image_view"
-            app:layout_constraintStart_toEndOf="@+id/local_versioning_image_view" />
+            android:textColor="@color/text_low_priority_color"
+            app:layout_constraintBottom_toBottomOf="@+id/local_versioning_image_view"
+            app:layout_constraintStart_toEndOf="@+id/local_versioning_image_view"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/localVersioningTextView"
             android:layout_width="100dp"
             android:layout_height="50dp"
             android:layout_marginStart="4dp"
+            android:layout_marginTop="16dp"
             android:gravity="center|start"
             android:text="@string/example_versioning"
             android:textStyle="bold"
@@ -155,6 +159,7 @@
             android:contentDescription="@string/direction"
             android:rotation="90"
             android:src="@drawable/ic_arrow"
+            android:tint="@color/text_low_priority_color"
             app:layout_constraintBottom_toBottomOf="@+id/localVersioningTextView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -167,8 +172,8 @@
             android:contentDescription="@string/latest_versioning"
             android:src="@drawable/ic_download"
             android:tint="@color/light_coolapk_green"
-            app:layout_constraintBottom_toTopOf="@+id/cloudVersioningTextView"
-            app:layout_constraintStart_toStartOf="@id/cloudVersioningTextView" />
+            app:layout_constraintStart_toStartOf="@id/cloudVersioningTextView"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/cloud_versioning_text_view"
@@ -177,10 +182,8 @@
             android:layout_marginStart="8dp"
             android:text="@string/latest_versioning"
             android:textColor="@color/light_coolapk_green"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/cloudVersioningTextView"
-            app:layout_constraintLeft_toRightOf="@id/cloud_versioning_image_view"
-            app:layout_constraintVertical_chainStyle="packed" />
+            app:layout_constraintStart_toEndOf="@+id/cloud_versioning_image_view"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/cloudVersioningTextView"
@@ -200,8 +203,8 @@
         <LinearLayout
             android:id="@+id/versioningSelectLayout"
             android:layout_width="wrap_content"
-            android:layout_height="16sp"
-            android:layout_marginTop="4dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
             android:gravity="center"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="@+id/cloud_versioning_text_view"
@@ -212,7 +215,7 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="2dp"
                 android:text="@string/more_other_versioning"
                 android:textColor="@color/coolapk_green" />
@@ -280,6 +283,7 @@
             android:id="@+id/appChangelogTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:autoLink="web"
             android:background="@drawable/ic_textview_background_fillet"
             android:linksClickable="true"

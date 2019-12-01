@@ -1,5 +1,6 @@
 package net.xzos.upgradeAll.data.json.nongson
 
+import android.util.Log
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.ui.viewmodels.componnent.EditIntPreference
@@ -14,7 +15,7 @@ internal class JSCache(logObjectTag: Array<String>) {
 
     fun getJsoupDomCache(URL: String): Document? {
         val (time, dom) = jsCacheData.jsoupDomDict[URL] ?: return null
-        return if (isFreshness(time)) {
+        return if (isExpired(time)) {
             jsCacheData.jsoupDomDict.remove(URL)
             null
         } else dom
@@ -26,7 +27,7 @@ internal class JSCache(logObjectTag: Array<String>) {
 
     fun getHttpResponseCache(URL: String): String? {
         val (time, response) = jsCacheData.httpResponseDict[URL] ?: return null
-        return if (isFreshness(time)) {
+        return if (isExpired(time)) {
             jsCacheData.httpResponseDict.remove(URL)
             null
         } else response
@@ -43,15 +44,13 @@ internal class JSCache(logObjectTag: Array<String>) {
             jsCacheDataSet.remove(logObjectTag)
         }
 
-        private fun isFreshness(time: Calendar?): Boolean {
-            return if (time == null)
-                false
-            else {
+        private fun isExpired(time: Calendar?): Boolean {
+            return if (time != null) {
                 val defaultDataExpirationTime = MyApplication.context.resources.getInteger(R.integer.default_data_expiration_time)  // 默认自动刷新时间 10min
                 val autoRefreshMinute = EditIntPreference.getInt("sync_time", defaultDataExpirationTime)
                 time.add(Calendar.MINUTE, autoRefreshMinute)
-                Calendar.getInstance().before(time)
-            }
+                Calendar.getInstance().after(time)
+            } else false
         }
     }
 }
