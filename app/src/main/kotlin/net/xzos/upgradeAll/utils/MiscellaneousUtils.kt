@@ -4,19 +4,22 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import net.xzos.upgradeAll.application.MyApplication
 import java.io.StringReader
 import java.util.*
 
 object MiscellaneousUtils {
     fun accessByBrowser(url: String?, context: Context?) {
         if (url != null && context != null) {
-            Intent(Intent.ACTION_VIEW).apply {
-                this.data = Uri.parse(url)
-            }.let {
-                context.startActivity(
-                        Intent.createChooser(it, "请选择浏览器以打开网页")
-                )
-            }
+            context.startActivity(
+                    Intent.createChooser(
+                            Intent(Intent.ACTION_VIEW).apply {
+                                this.data = Uri.parse(url)
+                            }, "请选择浏览器以打开网页").apply {
+                        if (context == MyApplication.context)
+                            this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+            )
         }
     }
 

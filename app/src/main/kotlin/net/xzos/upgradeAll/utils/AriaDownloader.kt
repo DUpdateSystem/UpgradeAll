@@ -24,7 +24,7 @@ import net.xzos.upgradeAll.application.MyApplication
 import java.io.File
 
 
-class AriaDownloader(private val isDebug: Boolean) {
+class AriaDownloader(private val renewMode: Boolean) {
 
     init {
         createNotificationChannel()
@@ -35,7 +35,7 @@ class AriaDownloader(private val isDebug: Boolean) {
     private var url: String? = null
     private lateinit var builder: NotificationCompat.Builder
 
-    fun start(fileName: String, URL: String, headers: Map<String, String> = mapOf()): File {
+    fun start(fileName: String, URL: String, headers: HashMap<String, String> = hashMapOf()): File {
         waiteGetDownloadTaskNotification(fileName)
         this.url = URL
         val (isCreated, file) = startDownloadTask(fileName, URL, headers)
@@ -54,19 +54,19 @@ class AriaDownloader(private val isDebug: Boolean) {
         return file
     }
 
-    internal fun cancel() {
+    private fun cancel() {
         cancelNotification(notificationId)
         delTaskAndUnRegister()
     }
 
     @SuppressLint("CheckResult")
-    private fun startDownloadTask(fileName: String, URL: String, headers: Map<String, String>): Pair<Boolean, File> {
+    private fun startDownloadTask(fileName: String, URL: String, headers: HashMap<String, String>): Pair<Boolean, File> {
         // 检查冲突任务
         val taskList = Aria.download(this).totalTaskList
         val taskFileList = mutableListOf<File>()
         // 检查重复任务
         if (Aria.download(this).taskExists(URL)) {
-            if (!isDebug) {
+            if (!renewMode) {
                 // 继续 并返回已有任务文件
                 context.sendBroadcast(getSnoozeIntent(DOWNLOAD_CONTINUE, path = URL, notificationId = 0))
                 val filePath = Aria.download(this).getDownloadEntity(URL).filePath
@@ -88,7 +88,7 @@ class AriaDownloader(private val isDebug: Boolean) {
                 .load(URL)
                 .useServerFileName(true)
                 .setFilePath(file.path)
-        downloadTarget.addHeaders(headers)
+                .addHeaders(headers)
         downloadTarget.start()
         return Pair(true, file)
     }
@@ -228,7 +228,7 @@ class AriaDownloader(private val isDebug: Boolean) {
 
 
     private fun delTaskAndUnRegister() {
-        if (url != null){
+        if (url != null) {
             Aria.download(this).load(url!!).cancel(false)
         }
         Aria.download(this).unRegister()

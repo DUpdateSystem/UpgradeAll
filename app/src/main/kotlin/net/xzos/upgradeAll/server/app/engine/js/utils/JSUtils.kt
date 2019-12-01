@@ -1,14 +1,11 @@
 package net.xzos.upgradeAll.server.app.engine.js.utils
 
-import android.widget.Toast
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.data.json.nongson.JSCacheData
+import net.xzos.upgradeAll.data.json.nongson.MyCookieManager
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.utils.AriaDownloader
+import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import net.xzos.upgradeAll.utils.VersioningUtils
 import org.json.JSONArray
 import org.json.JSONException
@@ -23,9 +20,10 @@ import java.util.*
  */
 class JSUtils(private val logObjectTag: Array<String>) {
 
-    internal var isDebug = false
+    internal var debugMode = false
 
-    private var jsoupApi = JsoupApi(logObjectTag, jsCacheData)
+    private val jsoupApi = JsoupApi(logObjectTag)
+    private val okHttpApi = OkHttpApi(logObjectTag)
 
     fun getJSONObject(): JSONObject {
         return JSONObject()
@@ -47,37 +45,11 @@ class JSUtils(private val logObjectTag: Array<String>) {
         else JSONArray()
     }
 
-    fun getHttpResponse(URL: String): String? {
-        val httpResponseMap = jsCacheData.httpResponseDict
-        val time = httpResponseMap[URL]?.first
-        var response = httpResponseMap[URL]?.second
-        if (response == null || !JSCacheData.isFreshness(time)) {
-            response = OkHttpApi(logObjectTag, jsCacheData = jsCacheData).getHttpResponse(URL).first
-            if (response != null) {
-                httpResponseMap[URL] = Pair(Calendar.getInstance(), response)
-                Log.d(logObjectTag, TAG, "OkHttp: $URL 已刷新")
-            }
-        } else {
-            Log.d(logObjectTag, TAG, "OkHttp: $URL 已缓存")
-        }
-        return response
-    }
+    fun getHttpResponse(URL: String): String? =
+            okHttpApi.getHttpResponse(URL)
 
     fun selNByJsoupXpath(userAgent: String?, URL: String, xpath: String): ArrayList<*> {
-        val jsoupDomDict = jsCacheData.jsoupDomDict
-        val time = jsoupDomDict[URL]?.first
-        var doc = jsoupDomDict[URL]?.second
-        if (doc == null || !JSCacheData.isFreshness(time)) {
-            doc = jsoupApi.getDoc(URL, userAgent = userAgent)
-            if (doc != null) {
-                jsoupDomDict[URL] = Pair(Calendar.getInstance(), doc)
-                Log.d(logObjectTag, TAG, "Jsoup: $URL 已刷新")
-            } else {
-                Log.e(logObjectTag, TAG, "selNByJsoupXpathJavaList: Jsoup 对象初始化失败")
-                return ArrayList<Any>()
-            }
-        } else
-            Log.d(logObjectTag, TAG, "Jsoup: $URL 已缓存")
+        val doc = jsoupApi.getDoc(URL, userAgent = userAgent) ?: return arrayListOf<Any>()
         val jxDocument = JXDocument.create(doc)
         val nodeStringArrayList = ArrayList<String>()
         for (node in jxDocument.selN(xpath)) {
@@ -94,22 +66,27 @@ class JSUtils(private val logObjectTag: Array<String>) {
     fun matchVersioningString(versionString: String?): String? =
             VersioningUtils.matchVersioningString(versionString)
 
-    fun downloadFile(fileName: String, URL: String, headers: Map<String, String> = mapOf(), isDebug: Boolean = this.isDebug): String? {
-        val allHeaders: MutableMap<String, String> = mutableMapOf()
-        allHeaders.putAll(headers)
-        allHeaders.putAll(jsoupApi.requestHeaders) // 装载由 Jsoup 生成的正常 header
-        // 装载 Cookies
-        val cookieString = jsCacheData.cookieManager.getCookiesString(URL)
-        allHeaders["Cookie"] = cookieString
-        val ariaDownloader = AriaDownloader(isDebug).apply {
-            waiteGetDownloadTaskNotification(fileName)
+    fun downloadFile(fileName: String, URL: String, headers: Map<String, String> = mapOf(), isDebug: Boolean = this.debugMode, externalDownloader: Boolean = false): String? {
+        val allHeaders = hashMapOf<String, String>().apply {
+            this.putAll(headers)
+            this.putAll(jsoupApi.requestHeaders) // 装载由 Jsoup 生成的正常 header
+            this.putAll(okHttpApi.requestHeaders) // 装载由 Jsoup 生成的正常 header
+            MyCookieManager.getCookiesString(URL)?.let {
+                this["Cookie"] = it
+            }  // 装载 Cookies
         }
-        val resUrl = jsoupApi.getRedirectsUrl(URL)
-        return if (resUrl != null) {
-            ariaDownloader.start(fileName, resUrl, headers = allHeaders).path
-        } else {
-            GlobalScope.launch(Dispatchers.Main) { Toast.makeText(MyApplication.context, "无法获取下载链接", Toast.LENGTH_SHORT).show() }
-            ariaDownloader.cancel()
+        val resUrl = jsoupApi.getRedirectsUrl(URL, headers = allHeaders)
+        return if (!externalDownloader)
+            AriaDownloader(isDebug).apply {
+                waiteGetDownloadTaskNotification(fileName)
+            }.start(
+                    fileName, resUrl ?: URL,
+                    headers = allHeaders).path
+        else {
+            MiscellaneousUtils.accessByBrowser(
+                    resUrl ?: URL,
+                    MyApplication.context
+            )
             null
         }
     }
@@ -117,7 +94,5 @@ class JSUtils(private val logObjectTag: Array<String>) {
     companion object {
         private val Log = ServerContainer.Log
         private const val TAG = "JSUtils"
-
-        private val jsCacheData = JSCacheData()
     }
 }

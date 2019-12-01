@@ -314,7 +314,7 @@ class HubDebugActivity : AppCompatActivity() {
         jsLogTextView.visibility = View.VISIBLE
         GlobalScope.launch {
             // 初始化 JS 组件
-            val javaScriptEngine = JavaScriptEngine(logObjectTag, testUrl, jsCode, isDebug = true)  // 创建 JS 引擎
+            val javaScriptEngine = JavaScriptEngine(logObjectTag, testUrl, jsCode, debugMode = true)  // 创建 JS 引擎
             // 分步测试
             jsLog.d("1. 获取默认名称(defaultName): ${javaScriptEngine.getDefaultName()} \n")
             jsLog.d("2. 获取发布版本号总数(releaseNum): ${javaScriptEngine.getReleaseNum()} \n")

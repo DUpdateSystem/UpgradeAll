@@ -44,7 +44,7 @@ object CloudConfigGetter {
     val hubList: List<CloudConfig.HubListBean>? = cloudConfig?.hubList
 
     private fun renewCloudConfig(): CloudConfig? {
-        val jsonText = okHttpApi.getHttpResponse(rulesListJsonFileRawUrl).first
+        val jsonText = okHttpApi.getHttpResponse(rulesListJsonFileRawUrl)
         return if (jsonText != null && jsonText.isNotEmpty()) {
             try {
                 Gson().fromJson(jsonText, CloudConfig::class.java)
@@ -59,7 +59,7 @@ object CloudConfigGetter {
         getAppCloudConfigUrl(appUuid)?.let { appCloudConfigUrl ->
             val appConfigString = okHttpApi.getHttpResponse(
                     appCloudConfigUrl
-            ).first
+            )
             return try {
                 Gson().fromJson(appConfigString, AppConfig::class.java)
             } catch (e: JsonSyntaxException) {
@@ -72,7 +72,7 @@ object CloudConfigGetter {
         getHubCloudConfigUrl(hubUuid)?.let { hubCloudConfigUrl ->
             val hubConfigString = okHttpApi.getHttpResponse(
                     hubCloudConfigUrl
-            ).first
+            )
             return try {
                 Gson().fromJson(hubConfigString, HubConfig::class.java)
             } catch (e: JsonSyntaxException) {
@@ -102,7 +102,7 @@ object CloudConfigGetter {
     private fun getCloudHubConfigJS(filePath: String): String? {
         val hubListRawUrl = cloudConfig?.listUrl?.hubListRawUrl ?: return null
         val hubConfigJSRawUrl = FileUtil.pathTransformRelativeToAbsolute(hubListRawUrl, filePath)
-        return okHttpApi.getHttpResponse(hubConfigJSRawUrl).first
+        return okHttpApi.getHttpResponse(hubConfigJSRawUrl)
     }
 
     private fun getRawRootUrl(gitUrl: String?): String {
