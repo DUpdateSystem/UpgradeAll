@@ -19,13 +19,12 @@ import net.xzos.upgradeAll.ui.viewmodels.viewmodel.AppListPageViewModel
 internal class AppListPlaceholderFragment : Fragment() {
 
     private lateinit var appListPageViewModel: AppListPageViewModel
+    private var hubUuid: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appListPageViewModel = ViewModelProvider(this).get(AppListPageViewModel::class.java)
-        val hubUuid = arguments?.getString(ARG_SECTION_NUMBER)
-        if (hubUuid != null)
-            appListPageViewModel.setHubUuid(hubUuid)
+        hubUuid = arguments?.getString(ARG_SECTION_NUMBER)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -68,7 +67,6 @@ internal class AppListPlaceholderFragment : Fragment() {
                                 }
                             })
                 }
-        renewCardView()
     }
 
     private fun renewCardView() {
@@ -78,6 +76,8 @@ internal class AppListPlaceholderFragment : Fragment() {
     }
 
     private fun renewAppList() {
+        if (hubUuid != null)
+            appListPageViewModel.setHubUuid(hubUuid!!)  // 重新刷新跟踪项列表
         val layoutManager = GridLayoutManager(activity, 1)
         cardItemRecyclerView.layoutManager = layoutManager
         val adapter = AppItemAdapter(appListPageViewModel.needUpdateAppIdLiveLiveData, appListPageViewModel.appCardViewList, this)
@@ -86,6 +86,7 @@ internal class AppListPlaceholderFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        renewCardView()
         // 占位符修改
         appListPageViewModel.appCardViewList.value?.let {
             if (it.isNullOrEmpty()) {

@@ -34,7 +34,8 @@
                 android:maxLines="1"
                 android:text="@string/example_name"
                 android:textColor="@color/text_color"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/versioningTextView"
@@ -44,7 +45,8 @@
                 android:maxLines="1"
                 android:text="@string/example_versioning"
                 android:textColor="@color/text_lowest_priority_color"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 

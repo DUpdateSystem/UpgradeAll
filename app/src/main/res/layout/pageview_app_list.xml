@@ -78,7 +78,8 @@
                         android:maxLines="1"
                         android:text="@string/example_number"
                         android:textColor="@color/white"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                 </LinearLayout>
 
@@ -92,7 +93,8 @@
                 android:maxLines="1"
                 android:text="@string/example_update_overview"
                 android:textColor="@color/text_low_priority_color"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
