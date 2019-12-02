@@ -2,7 +2,6 @@ package net.xzos.upgradeAll.utils
 
 import android.annotation.SuppressLint
 import com.google.gson.Gson
-import com.jaredrummler.android.shell.Shell
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.data.json.gson.AppConfig
@@ -74,8 +73,8 @@ object VersioningUtils {
                         when (versionCheckerApi.toLowerCase()) {
                             "app_package" -> version = getAppVersion()
                             "magisk_module" -> version = getMagiskModuleVersion()
-                            "shell" -> version = Shell.run(shellCommand).getStdout()
-                            "shell_root" -> version = Shell.SU.run(shellCommand).getStdout()
+                            "shell" -> version = MiscellaneousUtils.runShellCommand(shellCommand)?.getStdout()
+                            "shell_root" -> version = MiscellaneousUtils.runShellCommand(shellCommand, su = true)?.getStdout()
                         }
                 }
                 return version
@@ -95,12 +94,13 @@ object VersioningUtils {
             var magiskModuleVersion: String? = null
             val modulePropFilePath = "/data/adb/modules/${targetCheckerGson?.extraString}/module.prop"
             val command = "cat $modulePropFilePath"
-            val result = Shell.SU.run(command)
-            val resultList = result.getStdout().split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            val keyWords = "version="
-            for (resultLine in resultList) {
-                if (resultLine.indexOf(keyWords) == 0) {
-                    magiskModuleVersion = resultLine.substring(keyWords.length)
+            MiscellaneousUtils.runShellCommand(command, su = true)?.let { result ->
+                val resultList = result.getStdout().split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                val keyWords = "version="
+                for (resultLine in resultList) {
+                    if (resultLine.indexOf(keyWords) == 0) {
+                        magiskModuleVersion = resultLine.substring(keyWords.length)
+                    }
                 }
             }
             return magiskModuleVersion

@@ -4,11 +4,18 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
+import com.jaredrummler.android.shell.CommandResult
+import com.jaredrummler.android.shell.Shell
+import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
+import net.xzos.upgradeAll.application.MyApplication.Companion.context
 import java.io.StringReader
 import java.util.*
 
 object MiscellaneousUtils {
+    private val suAvailable = Shell.SU.available()
+
     fun accessByBrowser(url: String?, context: Context?) {
         if (url != null && context != null) {
             context.startActivity(
@@ -37,4 +44,16 @@ object MiscellaneousUtils {
             this.load(StringReader(s))
         }
     }
+
+    fun runShellCommand(command: String, su: Boolean = false): CommandResult? =
+            if (su)
+                if (suAvailable)
+                    Shell.SU.run(command)
+                else {
+                    Toast.makeText(context, R.string.no_root_and_restart_to_use_root,
+                            Toast.LENGTH_LONG).show()
+                    null
+                }
+            else Shell.run(command)
+
 }
