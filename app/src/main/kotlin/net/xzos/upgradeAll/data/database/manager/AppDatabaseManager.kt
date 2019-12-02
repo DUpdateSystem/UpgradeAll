@@ -8,6 +8,7 @@ import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.data.json.gson.AppDatabaseExtraData
 import net.xzos.upgradeAll.server.ServerContainer
 import org.litepal.LitePal
+import org.litepal.extension.find
 import org.litepal.extension.findAll
 
 object AppDatabaseManager {
@@ -18,7 +19,7 @@ object AppDatabaseManager {
     private val LogObjectTag = arrayOf("Core", TAG)
 
     // 读取 apps 数据库
-    private val appDatabases: List<RepoDatabase>
+    internal val appDatabases: List<RepoDatabase>
         get() = LitePal.findAll()
 
     /**
@@ -71,19 +72,30 @@ object AppDatabaseManager {
     }
 
     fun getDatabase(id: Long = 0, uuid: String? = null): RepoDatabase? {
+        val databaseList = getDatabaseList(id = id, uuid = uuid)
+        return if (databaseList.isNotEmpty())
+            databaseList[0]
+        else null
+    }
+
+    fun getDatabaseList(id: Long = 0, uuid: String? = null, hubUuid: String? = null): List<RepoDatabase?> {
         return when {
             id != 0L -> {
-                LitePal.find(RepoDatabase::class.java, id)
+                listOf<RepoDatabase>(LitePal.find(RepoDatabase::class.java, id))
             }
             uuid != null -> {
-                for (appDatabase in appDatabases) {
-                    val itemUuid = appDatabase.extraData?.getCloudAppConfig()?.uuid
-                    if (itemUuid == uuid)
-                        return appDatabase
+                return mutableListOf<RepoDatabase?>().apply {
+                    for (appDatabase in appDatabases) {
+                        val itemUuid = appDatabase.extraData?.getCloudAppConfig()?.uuid
+                        if (itemUuid == uuid)
+                            this.add(appDatabase)
+                    }
                 }
-                return null
             }
-            else -> null
+            hubUuid != null -> {
+                LitePal.where("api_uuid = ?", hubUuid).find()
+            }
+            else -> listOf()
         }
     }
 

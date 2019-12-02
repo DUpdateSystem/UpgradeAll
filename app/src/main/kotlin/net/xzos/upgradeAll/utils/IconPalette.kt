@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
@@ -15,10 +14,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
+import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.server.ServerContainer
-import org.litepal.LitePal
-import org.litepal.extension.find
 
 
 object IconPalette {
@@ -85,7 +82,7 @@ object IconPalette {
 
     private fun loadIconView(iconImageView: ImageView, defaultSrc: Drawable? = null, appDatabaseId: Long = 0, iconInfo: Pair<String?, String?>? = null) {
         GlobalScope.launch {
-            val appDatabase: RepoDatabase? = LitePal.find(appDatabaseId)
+            val appDatabase = AppDatabaseManager.getDatabase(appDatabaseId)
             val (appIconUrl, appModuleName) = iconInfo ?: Pair(
                     ServerContainer.AppManager.getApp(appDatabaseId).engine.getAppIconUrl()
                     , appDatabase?.targetChecker?.extraString

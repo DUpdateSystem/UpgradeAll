@@ -21,15 +21,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.json.gson.AppDatabaseExtraData
 import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.utils.IconPalette
-import org.litepal.LitePal
-import org.litepal.extension.find
 
 /**
  * 更新项详细数据展示页面
@@ -85,8 +82,8 @@ class AppInfoFragment : Fragment() {
         versioningSelectLayout.visibility = View.GONE
         GlobalScope.launch {
             val versioningList = getVersioningList()
-            if (activity?.isFinishing != true)
-                launch(Dispatchers.Main) {
+            launch(Dispatchers.Main) {
+                if (this@AppInfoFragment.isVisible) {
                     val markProcessedVersionNumber = AppManager.getApp(appDatabaseId).markProcessedVersionNumber
                     versioningSelectLayout.setOnClickListener { view ->
                         // 选择版本号
@@ -107,6 +104,7 @@ class AppInfoFragment : Fragment() {
                     }
                     versioningSelectLayout.visibility = View.VISIBLE
                 }
+            }
         }
     }
 
@@ -125,8 +123,8 @@ class AppInfoFragment : Fragment() {
                     val engine = AppManager.getApp(appDatabaseId).engine
                     val releaseDownloadMap = engine.getReleaseDownload(versioningPosition)
                     val itemList = releaseDownloadMap.keys.toList()
-                    if (activity?.isFinishing != true)
-                        launch(Dispatchers.Main) {
+                    launch(Dispatchers.Main) {
+                        if (this@AppInfoFragment.isVisible) {
                             if (itemList.isNotEmpty()) {
                                 dialog.findViewById<ListView>(R.id.list)?.let { list ->
                                     list.adapter =
@@ -145,6 +143,7 @@ class AppInfoFragment : Fragment() {
                             }
                             dialog.findViewById<LinearLayout>(R.id.placeholderLayout)?.visibility = View.GONE
                         }
+                    }
                 }
             }
         }
@@ -166,27 +165,27 @@ class AppInfoFragment : Fragment() {
     }
 
     private fun loadAllAppInfo() {
-        LitePal.find<RepoDatabase>(appDatabaseId)?.let { appDatabase ->
+        AppDatabaseManager.getDatabase(appDatabaseId)?.let { appDatabase ->
             GlobalScope.launch {
                 val app = AppManager.getApp(appDatabaseId)
                 val installedVersioning = app.installedVersioning
-                if (activity?.isFinishing != true)
-                    launch(Dispatchers.Main) {
-                        appIconImageView?.let {
+                launch(Dispatchers.Main) {
+                    if (this@AppInfoFragment.isVisible) {
+                        appIconImageView.let {
                             IconPalette.loadAppIconView(it, appDatabaseId = appDatabaseId)
                         }
-                        activity?.apply {
+                        activity?.run {
                             this.findViewById<ImageView>(R.id.app_logo_image_view)?.let {
                                 IconPalette.loadAppIconView(it, appDatabaseId = appDatabaseId)
                                 it.visibility = View.VISIBLE
                             }
                         }
-                        nameTextView?.text = appDatabase.name
-                        appModuleName?.text = appDatabase.targetChecker?.extraString ?: ""
-                        versioningTextView?.text = installedVersioning ?: ""
-                        localVersioningTextView?.text = installedVersioning
+                        nameTextView.text = appDatabase.name
+                        appModuleName.text = appDatabase.targetChecker?.extraString ?: ""
+                        versioningTextView.text = installedVersioning ?: ""
+                        localVersioningTextView.text = installedVersioning
                                 ?: getString(R.string.null_english)
-                        appUrlTextView?.let {
+                        appUrlTextView.let {
                             val url = appDatabase.url
                             val context = it.context
                             it.text = url
@@ -202,19 +201,21 @@ class AppInfoFragment : Fragment() {
                             }
                         }
                     }
+                }
             }
         }
     }
 
     private fun loadAppVersioningInfo(versioningPosition: Int) {
         this.versioningPosition = versioningPosition
-        LitePal.find<RepoDatabase>(appDatabaseId)?.let {
+        versionMarkImageView.visibility = View.GONE
+        AppDatabaseManager.getDatabase(appDatabaseId)?.let {
             GlobalScope.launch {
                 val engine = AppManager.getApp(appDatabaseId).engine
                 val latestVersioning = engine.getVersioning(versioningPosition)
                 val latestChangeLog = engine.getChangelog(versioningPosition)
-                if (activity?.isFinishing != true)
-                    launch(Dispatchers.Main) {
+                launch(Dispatchers.Main) {
+                    if (this@AppInfoFragment.isVisible) {
                         cloud_versioning_text_view.text = if (versioningPosition == 0) {
                             getString(R.string.latest_version_number)
                         } else {
@@ -229,9 +230,10 @@ class AppInfoFragment : Fragment() {
                             })
                             renewVersionRelatedItems()
                         }
+                        appChangelogTextView.text = latestChangeLog
+                                ?: getString(R.string.null_english)
                     }
-                appChangelogTextView.text = latestChangeLog
-                        ?: getString(R.string.null_english)
+                }
             }
         }
     }

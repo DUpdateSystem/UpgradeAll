@@ -1,10 +1,7 @@
 package net.xzos.upgradeAll.server.app.manager
 
-import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
+import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.server.app.manager.module.App
-import org.litepal.LitePal
-import org.litepal.extension.find
-import org.litepal.extension.findAll
 
 internal class AppManager {
 
@@ -13,7 +10,7 @@ internal class AppManager {
     }
 
     private fun initApp() {
-        val repoDatabase: List<RepoDatabase> = LitePal.findAll()
+        val repoDatabase = AppDatabaseManager.appDatabases
         for (updateItem in repoDatabase) {
             val appDatabaseId = updateItem.id
             setApp(appDatabaseId)
@@ -35,9 +32,9 @@ internal class AppManager {
     }
 
     fun renewAppInHub(hubUuid: String) {
-        val repoDatabases: List<RepoDatabase> = LitePal.where("api_uuid = ?", hubUuid).find()
-        for(repoDatabase in repoDatabases)
-            setApp(repoDatabase.id)
+        val repoDatabases = AppDatabaseManager.getDatabaseList(hubUuid = hubUuid)
+        for (repoDatabase in repoDatabases)
+            repoDatabase?.let { setApp(it.id) }
     }
 
     companion object {

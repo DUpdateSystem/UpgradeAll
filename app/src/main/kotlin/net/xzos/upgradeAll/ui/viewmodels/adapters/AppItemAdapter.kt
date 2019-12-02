@@ -16,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.manager.module.Updater
@@ -25,7 +24,6 @@ import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeAll.utils.FileUtil
 import net.xzos.upgradeAll.utils.IconPalette
-import org.litepal.LitePal
 
 
 class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<MutableList<Long>>,
@@ -78,7 +76,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                             val itemCardView = mItemCardViewList[position]
                             val appDatabaseId = itemCardView.extraData.databaseId
                             AppManager.delApp(appDatabaseId)
-                            LitePal.delete(RepoDatabase::class.java, appDatabaseId)
+                            AppDatabaseManager.del(appDatabaseId)
                             onItemDismiss(position)
                             return@setOnMenuItemClickListener true
                         }
@@ -94,7 +92,6 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
             val position = holder.adapterPosition
             val itemCardView = mItemCardViewList[position]
             val appDatabaseId = itemCardView.extraData.databaseId
-            AppManager.delApp(appDatabaseId)
             AppManager.setApp(appDatabaseId)
             setAppStatusUI(appDatabaseId, holder)
             Toast.makeText(holder.versionCheckButton.context, "检查 ${holder.nameTextView.text} 的更新",

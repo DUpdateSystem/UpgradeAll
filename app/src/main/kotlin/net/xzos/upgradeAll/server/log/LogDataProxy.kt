@@ -1,10 +1,9 @@
 package net.xzos.upgradeAll.server.log
 
 import androidx.lifecycle.LiveData
-import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
+import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import org.json.JSONException
 import org.json.JSONObject
-import org.litepal.LitePal
 import java.util.*
 
 class LogDataProxy(val Log: LogUtil) {
@@ -119,13 +118,10 @@ class LogDataProxy(val Log: LogUtil) {
 
     companion object {
 
-        fun getNameFromId(databaseIdString: String): String? {
-            return try {
-                val repoDatabase = LitePal.find(RepoDatabase::class.java, Integer.parseInt(databaseIdString).toLong())
-                repoDatabase.name
-            } catch (e: Throwable) {
-                databaseIdString
-            }
+        fun getNameFromId(databaseIdString: String): String? = try {
+            AppDatabaseManager.getDatabase(Integer.parseInt(databaseIdString).toLong())?.name
+        } catch (e: Throwable) {
+            databaseIdString
         }
     }
 }
