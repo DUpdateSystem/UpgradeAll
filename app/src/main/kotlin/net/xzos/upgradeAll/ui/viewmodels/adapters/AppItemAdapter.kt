@@ -181,7 +181,9 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                     }
             launch(Dispatchers.Main) {
                 when (updateStatus) {
-                    0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error)
+                    0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error).also {
+                        AppManager.delApp(appDatabaseId)  // 刷新错误删除缓存数据
+                    }
                     1 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_mark_circle)
                     2 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
                     3 -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)

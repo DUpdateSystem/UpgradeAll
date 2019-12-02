@@ -17,13 +17,11 @@ internal class AppManager {
         }
     }
 
-    fun getApp(appDatabaseId: Long): App {
-        return appMap[appDatabaseId] ?: App(appDatabaseId)
-    }
+    fun getApp(appDatabaseId: Long): App =
+        appMap[appDatabaseId] ?: App(appDatabaseId).also { appMap[appDatabaseId] = it }
 
     fun setApp(appDatabaseId: Long) {
         appMap[appDatabaseId] = App(appDatabaseId)
-
     }
 
     fun delApp(appDatabaseId: Long) {
