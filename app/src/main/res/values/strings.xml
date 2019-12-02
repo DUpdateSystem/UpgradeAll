@@ -107,6 +107,7 @@
     <string name="long_click_to_use_external_downloader">长按以使用外部下载器下载</string>
     <string name="ready_to_download">开始准备下载</string>
     <string name="no_completion_results">无补全结果</string>
+    <string name="no_root_and_restart_to_use_root">无 ROOT 权限 \n如果需使用，请给予本软件权限并重启本软件</string>
     <string name="version_number_is_marked_as_processed">版本号标注为已处理</string>
     <string name="long_click_version_number_to_mark_as_processed">长按云端版本号可标记为“已处理”，即跳过此次更新 \n标记后再次长按已标记的版本号即可取消标记</string>
     <string name="marked_version_number_is_behind_latest">标注已处理的版本号已落后于最新版本</string>

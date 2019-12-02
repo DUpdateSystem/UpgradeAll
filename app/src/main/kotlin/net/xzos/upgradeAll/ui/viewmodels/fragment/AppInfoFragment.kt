@@ -247,7 +247,7 @@ class AppInfoFragment : Fragment() {
                 else R.string.long_click_version_number_to_mark_as_processed
             }?.let {
                 launch(Dispatchers.Main) {
-                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                    context?.run { Toast.makeText(this, it, Toast.LENGTH_LONG).show() }
                 }
             }
         }
