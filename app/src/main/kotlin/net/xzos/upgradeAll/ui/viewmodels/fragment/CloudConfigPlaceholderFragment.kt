@@ -66,19 +66,18 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                     CloudConfigGetter.hubList?.map { getCloudHubItemCardView(it) }
                 }
                 else -> null
-            }?.plus(ItemCardView(
-                    Pair(null, null),
-                    null,
-                    null,
+            }?.plus(ItemCardView(Pair(null, null), null, null,
                     extraData = ItemCardViewExtraData(isEmpty = true)))
-                    ?.apply {
+                    .apply {
                         launch(Dispatchers.Main) {
                             if (this@CloudConfigPlaceholderFragment.isVisible) {
                                 cardItemRecyclerView?.let { view ->
                                     view.layoutManager = GridLayoutManager(activity, 1)
                                     view.adapter = when {
-                                        isAppList -> CloudAppItemAdapter(this@apply, context)
-                                        isHubList -> CloudHubItemAdapter(this@apply)
+                                        isAppList -> CloudAppItemAdapter(this@apply
+                                                ?: listOf(), context)
+                                        isHubList -> CloudHubItemAdapter(this@apply
+                                                ?: listOf())
                                         else -> null
                                     }
                                 }
@@ -86,9 +85,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                         }
                     }
                     ?: launch(Dispatchers.Main) {
-                        activity?.let {
-                            Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
-                        }
+                        Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
                     }
         }
     }

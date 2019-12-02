@@ -39,9 +39,11 @@ object CloudConfigGetter {
     private val cloudConfig: CloudConfig?
         get() = renewCloudConfig()
 
-    val appList: List<CloudConfig.AppListBean>? = cloudConfig?.appList
+    val appList: List<CloudConfig.AppListBean>?
+        get() = cloudConfig?.appList
 
-    val hubList: List<CloudConfig.HubListBean>? = cloudConfig?.hubList
+    val hubList: List<CloudConfig.HubListBean>?
+        get() = cloudConfig?.hubList
 
     private fun renewCloudConfig(): CloudConfig? {
         val jsonText = okHttpApi.getHttpResponse(rulesListJsonFileRawUrl)
@@ -82,20 +84,22 @@ object CloudConfigGetter {
     }
 
     private fun getAppCloudConfigUrl(appUuid: String?): String? {
-        if (appList != null)
-            for (appItem in appList) {
+        appList?.let {
+            for (appItem in it) {
                 if (appItem.appConfigUuid == appUuid)
                     return "${cloudConfig?.listUrl?.appListRawUrl}${appItem.appConfigFileName}.json"
             }
+        }
         return null
     }
 
     private fun getHubCloudConfigUrl(hubUuid: String?): String? {
-        if (hubList != null)
-            for (hubItem in hubList) {
+        hubList?.let {
+            for (hubItem in it) {
                 if (hubItem.hubConfigUuid == hubUuid)
                     return "${cloudConfig?.listUrl?.hubListRawUrl}${hubItem.hubConfigFileName}.json"
             }
+        }
         return null
     }
 
