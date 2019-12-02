@@ -97,7 +97,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
             AppManager.delApp(appDatabaseId)
             AppManager.setApp(appDatabaseId)
             setAppStatusUI(appDatabaseId, holder)
-            Toast.makeText(holder.versionCheckButton.context, String.format("检查 %s 的更新", holder.nameTextView.text.toString()),
+            Toast.makeText(holder.versionCheckButton.context, "检查 ${holder.nameTextView.text} 的更新",
                     Toast.LENGTH_SHORT).show()
             true
         }
@@ -169,7 +169,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                     //检查是否取得云端版本号
                     if (isSuccessRenew) {
                         // 检查是否获取本地版本号
-                        if (installedVersioning != null) {
+                        if (installedVersioning != null || app.markProcessedVersionNumber != null) {
                             // 检查本地版本
                             if (app.isLatest()) {
                                 1

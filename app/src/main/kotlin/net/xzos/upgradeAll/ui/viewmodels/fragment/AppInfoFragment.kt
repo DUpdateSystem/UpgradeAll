@@ -22,6 +22,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
+import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
+import net.xzos.upgradeAll.data.json.gson.AppDatabaseExtraData
 import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.MainActivity
@@ -56,12 +58,12 @@ class AppInfoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = false  // 禁止开启侧滑栏，启用返回按钮响应事件
         loadAllAppInfo()
+        toastPromptMarkedVersionNumber()
         loadAppVersioningInfo(0)
         placeholderLayout.visibility = View.GONE
         editImageView.setOnClickListener {
             MainActivity.navigationItemId.value = Pair(R.id.appSettingFragment, appDatabaseId)
         }
-        showVersioningPopupMenu(versioningSelectLayout)
         activity?.apply {
             this as AppCompatActivity
             this.findViewById<ImageView>(R.id.toolbar_backdrop_image)?.setBackgroundColor(IconPalette.getColorInt(R.color.coolapk_green))
@@ -79,17 +81,22 @@ class AppInfoFragment : Fragment() {
         }
     }
 
-    private fun showVersioningPopupMenu(versioningSelectLayout: LinearLayout) {
+    private fun loadVersioningPopupMenu() {
         versioningSelectLayout.visibility = View.GONE
         GlobalScope.launch {
             val versioningList = getVersioningList()
             if (activity?.isFinishing != true)
                 launch(Dispatchers.Main) {
+                    val markProcessedVersionNumber = AppManager.getApp(appDatabaseId).markProcessedVersionNumber
                     versioningSelectLayout.setOnClickListener { view ->
                         // 选择版本号
                         PopupMenu(view.context, view).let { popupMenu ->
                             for (i in versioningList.indices)
-                                popupMenu.menu.add(versioningList[i]).let {
+                                popupMenu.menu.add(versioningList[i].plus(
+                                        if (markProcessedVersionNumber == versioningList[i])
+                                            getString(R.string.o_mark)
+                                        else ""
+                                )).let {
                                     it.setOnMenuItemClickListener {
                                         loadAppVersioningInfo(i)
                                         true
@@ -209,16 +216,58 @@ class AppInfoFragment : Fragment() {
                 if (activity?.isFinishing != true)
                     launch(Dispatchers.Main) {
                         cloud_versioning_text_view.text = if (versioningPosition == 0) {
-                            getString(R.string.latest_versioning)
+                            getString(R.string.latest_version_number)
                         } else {
-                            getString(R.string.cloud_versioning)
+                            getString(R.string.cloud_version_number)
                         }
-                        cloudVersioningTextView.text = latestVersioning
-                        appChangelogTextView.text = latestChangeLog
-                                ?: getString(R.string.null_english)
+                        cloudVersioningTextView.let {
+                            it.text = latestVersioning
+                            it.setOnLongClickListener(View.OnLongClickListener {
+                                markVersionNumber(latestVersioning)
+                                renewVersionRelatedItems()
+                                return@OnLongClickListener true
+                            })
+                            renewVersionRelatedItems()
+                        }
                     }
+                appChangelogTextView.text = latestChangeLog
+                        ?: getString(R.string.null_english)
             }
         }
+    }
+
+    private fun toastPromptMarkedVersionNumber() {
+        GlobalScope.launch {
+            if (AppManager.getApp(appDatabaseId).isLatest()) null
+            else {
+                if (AppDatabaseManager.getDatabase(appDatabaseId)?.extraData?.markProcessedVersionNumber != null)
+                    R.string.marked_version_number_is_behind_latest
+                else R.string.long_click_version_number_to_mark_as_processed
+            }?.let {
+                launch(Dispatchers.Main) {
+                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun markVersionNumber(versionNumber: String?) {
+        AppDatabaseManager.getDatabase(appDatabaseId)?.also {
+            (it.extraData ?: AppDatabaseExtraData(null, null))
+                    .apply {
+                        this.markProcessedVersionNumber =
+                                if (this.markProcessedVersionNumber != versionNumber) versionNumber
+                                else null
+                    }.run { it.extraData = this }
+        }?.save()
+    }
+
+    private fun renewVersionRelatedItems() {
+        versionMarkImageView.visibility =
+                if (AppDatabaseManager.getDatabase(appDatabaseId)?.extraData?.markProcessedVersionNumber == cloudVersioningTextView.text)
+                    View.VISIBLE
+                else View.GONE
+        loadVersioningPopupMenu()
     }
 
     companion object {
