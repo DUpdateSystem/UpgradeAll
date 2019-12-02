@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10sp"
                 android:maxLines="1"
-                android:text="@string/example_versioning"
+                android:text="@string/example_version_number"
                 android:textColor="@color/text_lowest_priority_color"
                 android:textSize="12sp"
                 android:textStyle="bold" />

@@ -76,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:maxLines="1"
-                    android:text="@string/example_versioning"
+                    android:text="@string/example_version_number"
                     android:textColor="@color/text_lowest_priority_color"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -119,7 +119,7 @@
             android:id="@+id/local_versioning_image_view"
             android:layout_width="17dp"
             android:layout_height="17dp"
-            android:contentDescription="@string/local_versioning"
+            android:contentDescription="@string/local_version_number"
             android:src="@drawable/ic_local"
             android:tint="@color/text_low_priority_color"
             app:layout_constraintBottom_toTopOf="@+id/localVersioningTextView"
@@ -132,7 +132,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@string/local_versioning"
+            android:text="@string/local_version_number"
             android:textColor="@color/text_low_priority_color"
             app:layout_constraintBottom_toBottomOf="@+id/local_versioning_image_view"
             app:layout_constraintStart_toEndOf="@+id/local_versioning_image_view"
@@ -145,7 +145,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="16dp"
             android:gravity="center|start"
-            android:text="@string/example_versioning"
+            android:text="@string/example_version_number"
             android:textStyle="bold"
             app:autoSizeMaxTextSize="40sp"
             app:autoSizeTextType="uniform"
@@ -169,7 +169,7 @@
             android:id="@+id/cloud_versioning_image_view"
             android:layout_width="17dp"
             android:layout_height="17dp"
-            android:contentDescription="@string/latest_versioning"
+            android:contentDescription="@string/latest_version_number"
             android:src="@drawable/ic_download"
             android:tint="@color/light_coolapk_green"
             app:layout_constraintStart_toStartOf="@id/cloudVersioningTextView"
@@ -180,10 +180,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@string/latest_versioning"
+            android:text="@string/latest_version_number"
             android:textColor="@color/light_coolapk_green"
             app:layout_constraintStart_toEndOf="@+id/cloud_versioning_image_view"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/versionMarkImageView"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:contentDescription="@string/version_number_is_marked_as_processed"
+            app:layout_constraintBottom_toBottomOf="@+id/cloud_versioning_text_view"
+            app:layout_constraintStart_toEndOf="@+id/cloud_versioning_text_view"
+            app:layout_constraintTop_toTopOf="@+id/cloud_versioning_text_view"
+            app:srcCompat="@drawable/ic_dot" />
 
         <TextView
             android:id="@+id/cloudVersioningTextView"
@@ -191,7 +201,7 @@
             android:layout_height="50dp"
             android:layout_marginEnd="4dp"
             android:gravity="center|start"
-            android:text="@string/example_versioning"
+            android:text="@string/example_version_number"
             android:textColor="@color/coolapk_green"
             android:textStyle="bold"
             app:autoSizeMaxTextSize="40sp"
@@ -217,13 +227,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="2dp"
-                android:text="@string/more_other_versioning"
+                android:text="@string/more_other_version_number"
                 android:textColor="@color/coolapk_green" />
 
             <ImageView
                 android:layout_width="14sp"
                 android:layout_height="14sp"
-                android:contentDescription="@string/more_other_versioning"
+                android:contentDescription="@string/more_other_version_number"
                 android:rotation="90"
                 android:src="@drawable/ic_arrow_small"
                 android:tint="@color/coolapk_green" />

@@ -18,7 +18,7 @@ object AppDatabaseManager {
     private val LogObjectTag = arrayOf("Core", TAG)
 
     // 读取 apps 数据库
-    val appDatabases: List<RepoDatabase>
+    private val appDatabases: List<RepoDatabase>
         get() = LitePal.findAll()
 
     /**

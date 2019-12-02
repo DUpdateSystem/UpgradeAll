@@ -1,6 +1,7 @@
 package net.xzos.upgradeAll.server.app.manager.module
 
 import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
+import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
@@ -10,25 +11,27 @@ import org.litepal.extension.find
 
 data class App(private val appDatabaseId: Long) {
     private lateinit var logObjectTag: Array<String>
+    private val appDatabase
+        get() = AppDatabaseManager.getDatabase(appDatabaseId)
     internal val engine = newEngine(appDatabaseId)
 
     suspend fun isLatest(): Boolean {
         val latestVersion = Updater(engine).getLatestVersioning()
-        val installedVersion = installedVersioning
-        return VersioningUtils.compareVersionNumber(installedVersion, latestVersion)
+        return VersioningUtils.compareVersionNumber(
+                markProcessedVersionNumber ?: installedVersioning, latestVersion)
     }
 
     // 获取已安装版本号
     val installedVersioning: String?
-        get() {
-            return versioningUtils?.version
-        }
+        get() = versioningUtils?.version
+
+    val markProcessedVersionNumber: String?
+        get() = appDatabase?.extraData?.markProcessedVersionNumber
 
     // 获取数据库 VersionCheckerGson 数据
     private val versioningUtils: VersioningUtils.VersionChecker?
         get() {
-            val repoDatabase: RepoDatabase? = LitePal.find(appDatabaseId)
-            val versionChecker = repoDatabase?.targetChecker
+            val versionChecker = appDatabase?.targetChecker
             return VersioningUtils.VersionChecker(versionChecker)
         }
 
