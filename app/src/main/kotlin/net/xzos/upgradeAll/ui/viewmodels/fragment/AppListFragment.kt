@@ -30,7 +30,6 @@ class AppListFragment : Fragment() {
         MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = true  // 默认允许侧滑
         activity?.apply {
             this as AppCompatActivity
-            this.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.app_list)
             this.findViewById<ImageView>(R.id.app_logo_image_view)?.visibility = View.GONE
             this.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout)?.contentScrim = getDrawable(R.color.colorPrimary)
             this.findViewById<ImageView>(R.id.toolbar_backdrop_image)?.setBackgroundColor(IconPalette.getColorInt(R.color.colorPrimary))
@@ -53,6 +52,11 @@ class AppListFragment : Fragment() {
                 }
             })
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        activity?.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.app_list)
     }
 
     private fun setViewPage() {
