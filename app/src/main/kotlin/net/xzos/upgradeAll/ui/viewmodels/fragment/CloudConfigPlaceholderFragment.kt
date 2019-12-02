@@ -47,12 +47,12 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
 
     private fun renewCardView() {
         GlobalScope.launch {
-            runBlocking(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = true }
+            launch(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = true }
             if (pageModelIndex == CLOUD_APP_CONFIG)
                 renewCloudList(isAppList = true)
             else if (pageModelIndex == CLOUD_HUB_CONFIG)
                 renewCloudList(isHubList = true)
-            runBlocking(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = false }
+            launch(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = false }
         }
     }
 
@@ -73,7 +73,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                     extraData = ItemCardViewExtraData(isEmpty = true)))
                     ?.apply {
                         launch(Dispatchers.Main) {
-                            if (activity?.isFinishing != true)
+                            if (this@CloudConfigPlaceholderFragment.isVisible) {
                                 cardItemRecyclerView?.let { view ->
                                     view.layoutManager = GridLayoutManager(activity, 1)
                                     view.adapter = when {
@@ -82,13 +82,13 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                                         else -> null
                                     }
                                 }
+                            }
                         }
                     }
                     ?: launch(Dispatchers.Main) {
-                        if (activity?.isFinishing != true)
-                            activity?.let {
-                                Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
-                            }
+                        activity?.let {
+                            Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
+                        }
                     }
         }
     }

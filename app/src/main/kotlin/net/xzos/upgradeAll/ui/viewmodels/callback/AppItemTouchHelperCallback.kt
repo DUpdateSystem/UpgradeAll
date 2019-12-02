@@ -8,10 +8,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
+import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
 import net.xzos.upgradeAll.ui.viewmodels.adapters.AppItemAdapter
-import org.litepal.LitePal
 
 
 class AppItemTouchHelperCallback(private val mAdapter: AppItemAdapter) : ItemTouchHelper.Callback() {
@@ -42,7 +41,7 @@ class AppItemTouchHelperCallback(private val mAdapter: AppItemAdapter) : ItemTou
         val removedItemCardView = mAdapter.onItemDismiss(adapterPosition)
         if (removedItemCardView != null) {
             val appDatabaseId = removedItemCardView.extraData.databaseId
-            val repoDatabase: RepoDatabase? = LitePal.find(RepoDatabase::class.java, appDatabaseId)
+            val repoDatabase = AppDatabaseManager.getDatabase(appDatabaseId)
             if (repoDatabase != null) {
                 AppManager.delApp(appDatabaseId) // 删除正在运行的跟踪项
                 GlobalScope.launch(Dispatchers.IO) {

@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
+import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.server.ServerContainer
@@ -33,7 +34,6 @@ import net.xzos.upgradeAll.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeAll.utils.IconPalette
 import net.xzos.upgradeAll.utils.SearchUtils
 import net.xzos.upgradeAll.utils.VersioningUtils
-import org.litepal.LitePal
 import java.util.*
 
 
@@ -181,24 +181,23 @@ class AppSettingFragment : Fragment() {
     private fun setSettingItem() {
         // 如果是设置修改请求，设置预置设置项
         if (databaseId != 0L) {
-            val database = LitePal.find(RepoDatabase::class.java, databaseId)
-            editName.setText(database.name)
-            editUrl.setText(database.url)
-            val apiUuid = database.api_uuid
-            // 设置 apiSpinner 位置
-            val spinnerIndex = apiSpinnerList.indexOf(apiUuid)
-            if (spinnerIndex != -1) apiSpinner.setSelection(spinnerIndex)
-            val versionCheckerGson = database.targetChecker
-            val versionCheckerApi = versionCheckerGson?.api
-            val versionCheckerText = versionCheckerGson?.extraString
-
-            if (versionCheckerApi != null)
-                @SuppressLint("DefaultLocale")
-                when (versionCheckerApi.toLowerCase()) {
-                    "app" -> versionCheckSpinner.setSelection(0)
-                    "magisk" -> versionCheckSpinner.setSelection(1)
-                }
-            editTarget.setText(versionCheckerText)
+            AppDatabaseManager.getDatabase(databaseId)?.run {
+                editName.setText(this.name)
+                editUrl.setText(this.url)
+                val apiUuid = this.api_uuid
+                val spinnerIndex = apiSpinnerList.indexOf(apiUuid)
+                if (spinnerIndex != -1) apiSpinner.setSelection(spinnerIndex)
+                val versionCheckerGson = this.targetChecker
+                val versionCheckerApi = versionCheckerGson?.api
+                val versionCheckerText = versionCheckerGson?.extraString
+                if (versionCheckerApi != null)
+                    @SuppressLint("DefaultLocale")
+                    when (versionCheckerApi.toLowerCase()) {
+                        "app" -> versionCheckSpinner.setSelection(0)
+                        "magisk" -> versionCheckSpinner.setSelection(1)
+                    }
+                editTarget.setText(versionCheckerText)
+            }
         }
     }
 
@@ -223,7 +222,7 @@ class AppSettingFragment : Fragment() {
             }
             val api = apiSpinner.selectedItem.toString()
             // 修改数据库
-            var repoDatabase: RepoDatabase? = LitePal.find(RepoDatabase::class.java, databaseId)
+            var repoDatabase = AppDatabaseManager.getDatabase(databaseId)
             if (name.isNotBlank() && api.isNotBlank() && apiUuid.isNotBlank() && URL.isNotBlank()) {
                 if (repoDatabase != null) {
                     // 开启数据库
