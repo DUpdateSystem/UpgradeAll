@@ -30,7 +30,7 @@ import net.xzos.upgradeAll.data.json.gson.HubConfig
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
-import net.xzos.upgradeAll.server.log.LogDataProxy
+import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.utils.AriaDownloader
 import net.xzos.upgradeAll.utils.FileUtil
 import net.xzos.upgradeAll.utils.MiscellaneousUtils
@@ -169,7 +169,7 @@ class HubDebugActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        LogDataProxy(Log).clearLogSort("DeBug")
+        LogUtil.logDataProxy.clearLogSort("DeBug")
         super.onDestroy()
     }
 
@@ -304,7 +304,7 @@ class HubDebugActivity : AppCompatActivity() {
         val logObjectTag = arrayOf("DeBug", "0")
         val jsLog = JSLog(logObjectTag)  // 连接日志系统以打印提示信息
         jsLog.d(" \n----------------Start----------------")
-        val logListLiveData = LogDataProxy(Log).getLogMessageListLiveData(logObjectTag)
+        val logListLiveData = LogUtil.logDataProxy.getLogMessageListLiveData(logObjectTag)
         logListLiveData.observe(this, Observer { logList ->
             val textViewMessage = StringBuilder()
             for (logMessage in logList)

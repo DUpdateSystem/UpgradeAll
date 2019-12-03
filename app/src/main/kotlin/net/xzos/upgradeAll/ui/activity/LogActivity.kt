@@ -18,7 +18,7 @@ import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
 import kotlinx.android.synthetic.main.activity_log.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.server.ServerContainer
-import net.xzos.upgradeAll.server.log.LogDataProxy
+import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.ui.viewmodels.pageradapter.LogTabSectionsPagerAdapter
 import net.xzos.upgradeAll.utils.FileUtil
 
@@ -84,7 +84,7 @@ class LogActivity : AppCompatActivity() {
                 popupMenu.show()
                 //设置item的点击事件
                 popupMenu.setOnMenuItemClickListener { popItem ->
-                    val logDataProxy = LogDataProxy(Log)
+                    val logDataProxy = LogUtil.logDataProxy
                     when (popItem.itemId) {
                         // 清空当前分类的日志
                         R.id.log_del_sort -> {
@@ -110,7 +110,7 @@ class LogActivity : AppCompatActivity() {
                 //设置item的点击事件
                 popupMenu.setOnMenuItemClickListener { popItem ->
                     var logString: String? = null
-                    val logDataProxy = LogDataProxy(Log)
+                    val logDataProxy = LogUtil.logDataProxy
                     when (popItem.itemId) {
                         // 导出当前分类日志
                         R.id.log_share_sort -> logString = logDataProxy.getLogStringBySort(logSort)
@@ -136,7 +136,7 @@ class LogActivity : AppCompatActivity() {
 
     private fun setFab() {
         val fab = findViewById<FabSpeedDial>(R.id.sortFab)
-        val liveDataLogSortList = LogDataProxy(Log).liveDataLogSortList
+        val liveDataLogSortList = LogUtil.logDataProxy.liveDataLogSortList
         liveDataLogSortList.observe(this, Observer { logSortList ->
             val menu = FabSpeedDialMenu(this)
             for (logSort in logSortList) {
@@ -147,7 +147,7 @@ class LogActivity : AppCompatActivity() {
             }
             fab.setMenu(menu)
             fab.addOnMenuItemClickListener { _, _, integer ->
-                logSort = logSortList[integer - 1]
+                logSort = logSortList.toList()[integer - 1]
                 setViewPage(logSort)
             }
         })

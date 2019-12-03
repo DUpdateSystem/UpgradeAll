@@ -2,11 +2,12 @@ package net.xzos.upgradeAll.server.log
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -21,9 +22,6 @@ class LogUtil {
      * repo_database_id: [String_Log1, String_Log2, ]
      * }
      */
-    internal var logJSONObject = JSONObject()
-
-    internal val logLiveData = LogLiveData()
 
     private fun addLogMessage(LogLevel: Int, logObjectTag: Array<String>, tag: String, msg: String) {
         // 确定日志等级标志
@@ -37,100 +35,65 @@ class LogUtil {
         }
         // 获取时间
         @SuppressLint("SimpleDateFormat") val ft = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
-        // 生成日志信息
-        val logMessage = String.format("%s %s %s/%s: %s", ft.format(Date()), logObjectTag[1], logLevelString, tag, msg)
         // 获取日志列表
         val logSortString = logObjectTag[0]
-        val logObjectId = logObjectTag[1]
-        var logMessageArray = JSONArray()
-        var logSortJson = JSONObject()
-        if (logJSONObject.has(logSortString)) {
-            try {
-                logSortJson = logJSONObject.getJSONObject(logSortString)
-            } catch (e: JSONException) {
-                Log.e(TAG, "addLogMessage: 出乎意料的错误,  logJSONObject: $logJSONObject")
-                e.printStackTrace()
-            }
+        val logObjectIdString = logObjectTag[1]
+        val logMessage = "${ft.format(Date())} $logObjectIdString $logLevelString/$tag: $msg"  // 生成日志信息
+        (logMap[logSortString]?.get(logObjectIdString)
+                ?: mutableListOf<String>().apply {
+                    ((logMap[logSortString]
+                            ?: mutableMapOf()).also { logMap[logSortString] = it }
+                            )[logObjectIdString] = this
+                }).add(logMessage)
 
-            if (logSortJson.has(logObjectId)) {
-                try {
-                    logMessageArray = logSortJson.getJSONArray(logObjectId)
-                } catch (e: JSONException) {
-                    Log.e(TAG, "addLogMessage: 出乎意料的错误, logSortJson: $logJSONObject")
-                    e.printStackTrace()
-                }
-
-            }
-        }
-        // 向日志列表载入新日志
-        logMessageArray.put(logMessage)
-        try {
-            logSortJson.put(logObjectId, logMessageArray)
-            logJSONObject.put(logSortString, logSortJson)
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
-
-        logLiveData.setLogJSONObject(logJSONObject)
+        notifyObserver()
     }
 
-    private fun preMsg(msgObject: Any?): String {
-        return when (msgObject) {
-            null -> "NULL"
-            Double::class.java -> msgObject.toString()
-            else -> msgObject.toString()
-        }
+    internal fun notifyObserver() {
+        logLiveData.mLogMapLiveData.notifyObserver()
     }
 
     // 调用Log.v()方法打印日志
-    fun v(logObjectTag: Array<String>, tag: String, msgObject: Any) {
+    fun v(logObjectTag: Array<String>, tag: String, msg: String) {
         if (LEVEL <= VERBOSE) {
-            val msg = preMsg(msgObject)
             Log.v(tag, msg)
             addLogMessage(VERBOSE, logObjectTag, tag, msg)
         }
     }
 
     // 调用Log.d()方法打印日志
-    fun d(logObjectTag: Array<String>, tag: String, msgObject: Any) {
+    fun d(logObjectTag: Array<String>, tag: String, msg: String) {
         if (LEVEL <= DEBUG) {
-            val msg = preMsg(msgObject)
             Log.d(tag, msg)
             addLogMessage(DEBUG, logObjectTag, tag, msg)
         }
     }
 
     // 调用Log.i()方法打印日志
-    fun i(logObjectTag: Array<String>, tag: String, msgObject: Any) {
+    fun i(logObjectTag: Array<String>, tag: String, msg: String) {
         if (LEVEL <= INFO) {
-            val msg = preMsg(msgObject)
             Log.i(tag, msg)
             addLogMessage(INFO, logObjectTag, tag, msg)
         }
     }
 
     // 调用Log.w()方法打印日志
-    fun w(logObjectTag: Array<String>, tag: String, msgObject: Any) {
+    fun w(logObjectTag: Array<String>, tag: String, msg: String) {
         if (LEVEL <= WARN) {
-            val msg = preMsg(msgObject)
             Log.w(tag, msg)
             addLogMessage(WARN, logObjectTag, tag, msg)
         }
     }
 
     // 调用Log.e()方法打印日志
-    fun e(logObjectTag: Array<String>, tag: String, msgObject: Any) {
+    fun e(logObjectTag: Array<String>, tag: String, msg: String) {
         if (LEVEL <= ERROR) {
-            val msg = preMsg(msgObject)
             Log.e(tag, msg)
             addLogMessage(ERROR, logObjectTag, tag, msg)
         }
     }
 
     companion object {
-
-        private const val TAG = "LogUtil"
-
         /**
          * 定义6个静态常量，用来表示日志信息的打印等级
          * 由1到5打印等级依次升高
@@ -149,5 +112,16 @@ class LogUtil {
          * 假如你要是不想让日志信息打印出现，那么将LEVEL的值置为NOTHING即可。
          */
         private var LEVEL = MyApplication.context.resources.getInteger(R.integer.log_level)  // TODO: 设置中加入对该值的自定义
+
+        private val logMap = mutableMapOf<String, MutableMap<String, MutableList<String>>>()
+
+        internal val logLiveData = LogLiveData(logMap)
+        internal val logDataProxy = LogDataProxy(logMap)
+
+        private fun <T> MutableLiveData<T>.notifyObserver() {
+            GlobalScope.launch(Dispatchers.Main) {
+                this@notifyObserver.value = this@notifyObserver.value
+            }
+        }
     }
 }
