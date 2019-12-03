@@ -7,6 +7,9 @@ import android.os.Build
 import android.widget.Toast
 import com.jaredrummler.android.shell.CommandResult
 import com.jaredrummler.android.shell.Shell
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.application.MyApplication.Companion.context
@@ -50,10 +53,11 @@ object MiscellaneousUtils {
                 if (suAvailable)
                     Shell.SU.run(command)
                 else {
-                    Toast.makeText(context, R.string.no_root_and_restart_to_use_root,
-                            Toast.LENGTH_LONG).show()
+                    GlobalScope.launch(Dispatchers.Main) {
+                        Toast.makeText(context, R.string.no_root_and_restart_to_use_root,
+                                Toast.LENGTH_LONG).show()
+                    }
                     null
                 }
             else Shell.run(command)
-
 }
