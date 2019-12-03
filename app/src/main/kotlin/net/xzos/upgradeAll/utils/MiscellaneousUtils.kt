@@ -49,15 +49,17 @@ object MiscellaneousUtils {
     }
 
     fun runShellCommand(command: String, su: Boolean = false): CommandResult? =
-            if (su)
-                if (suAvailable)
-                    Shell.SU.run(command)
-                else {
-                    GlobalScope.launch(Dispatchers.Main) {
-                        Toast.makeText(context, R.string.no_root_and_restart_to_use_root,
-                                Toast.LENGTH_LONG).show()
+            if (command.isNotBlank())
+                if (su)
+                    if (suAvailable)
+                        Shell.SU.run(command)
+                    else {
+                        GlobalScope.launch(Dispatchers.Main) {
+                            Toast.makeText(context, R.string.no_root_and_restart_to_use_root,
+                                    Toast.LENGTH_LONG).show()
+                        }
+                        null
                     }
-                    null
-                }
-            else Shell.run(command)
+                else Shell.run(command)
+            else null
 }
