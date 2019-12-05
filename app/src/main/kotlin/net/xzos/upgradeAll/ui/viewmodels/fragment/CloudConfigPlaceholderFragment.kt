@@ -13,7 +13,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.data.database.manager.CloudConfigGetter
 import net.xzos.upgradeAll.data.json.gson.CloudConfig
 import net.xzos.upgradeAll.data.json.nongson.ItemCardViewExtraData
@@ -85,7 +84,8 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                         }
                     }
                     ?: launch(Dispatchers.Main) {
-                        Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show()
+                        if (this@CloudConfigPlaceholderFragment.isVisible)
+                            Toast.makeText(context, "网络错误", Toast.LENGTH_SHORT).show()
                     }
         }
     }
@@ -93,10 +93,6 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
     private fun getCloudAppItemCardView(item: CloudConfig.AppListBean): ItemCardView {
         val name = item.appConfigName
         // TODO: 提醒用户使用 dev 分支，正式版删除
-        if (name == null) {
-            runBlocking(Dispatchers.Main) { Toast.makeText(MyApplication.context, "请使用云端配置仓库的 dev 分支", Toast.LENGTH_LONG).show() }
-            return ItemCardView(Pair(null, null), null, null, extraData = ItemCardViewExtraData(isEmpty = true))
-        }
         val appUuid = item.appConfigUuid
         val configFileName = item.appConfigFileName
         val iconInfo: Pair<String?, String?> = Pair(configFileName, null)

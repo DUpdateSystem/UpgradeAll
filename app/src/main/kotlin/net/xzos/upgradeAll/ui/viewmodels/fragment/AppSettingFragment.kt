@@ -99,7 +99,7 @@ class AppSettingFragment : Fragment() {
             if (targetCheckerApi != "Shell" && targetCheckerApi != "Shell_ROOT")
                 GlobalScope.launch {
                     val searchInfoList = SearchUtils.searchTargetByAllApi(editTarget.text.toString())
-                    if (activity?.isFinishing != true && context != null) {
+                    if (this@AppSettingFragment.isVisible) {
                         launch(Dispatchers.Main) {
                             if (searchInfoList.isNotEmpty()) {
                                 editTarget.setAdapter(SearchResultItemAdapter(context!!, searchInfoList))
@@ -129,6 +129,10 @@ class AppSettingFragment : Fragment() {
 
     override fun onPause() {
         SearchUtils.clearResultCache()
+        activity?.floatingActionButton?.run {
+            this.setOnClickListener(null)
+            this.visibility = View.GONE
+        }
         super.onPause()
     }
 
