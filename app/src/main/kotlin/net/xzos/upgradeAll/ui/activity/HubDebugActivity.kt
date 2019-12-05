@@ -301,7 +301,7 @@ class HubDebugActivity : AppCompatActivity() {
             Toast.makeText(this, "请填写 测试网址", Toast.LENGTH_LONG).show()
             return
         }
-        val logObjectTag = arrayOf("DeBug", "0")
+        val logObjectTag = Pair("DeBug", "0")
         val jsLog = JSLog(logObjectTag)  // 连接日志系统以打印提示信息
         jsLog.d(" \n----------------Start----------------")
         val logListLiveData = LogUtil.logDataProxy.getLogMessageListLiveData(logObjectTag)

@@ -20,7 +20,7 @@ internal class LogLiveData(logMap: MutableMap<String, MutableMap<String, Mutable
         }
     }
 
-    fun getLogMassageList(logObjectTag: Array<String>): LiveData<List<String>> {
+    fun getLogMassageList(logObjectTag: Pair<String, String>): LiveData<List<String>> {
         return Transformations.map(mLogMapLiveData) {
             LogUtil.logDataProxy.getLogMessageList(logObjectTag)
         }

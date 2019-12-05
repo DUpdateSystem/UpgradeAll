@@ -18,7 +18,7 @@ import java.util.*
  * 爬虫相关库的打包集合
  * For JavaScript
  */
-class JSUtils(private val logObjectTag: Array<String>) {
+class JSUtils(private val logObjectTag: Pair<String, String>) {
 
     internal var debugMode = false
 

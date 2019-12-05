@@ -23,7 +23,7 @@ class LogUtil {
      * }
      */
 
-    private fun addLogMessage(LogLevel: Int, logObjectTag: Array<String>, tag: String, msg: String) {
+    private fun addLogMessage(LogLevel: Int, logObjectTag: Pair<String, String>, tag: String, msg: String) {
         // 确定日志等级标志
         val logLevelString: String = when (LogLevel) {
             VERBOSE -> "V"
@@ -36,8 +36,8 @@ class LogUtil {
         // 获取时间
         @SuppressLint("SimpleDateFormat") val ft = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
         // 获取日志列表
-        val logSortString = logObjectTag[0]
-        val logObjectIdString = logObjectTag[1]
+        val logSortString = logObjectTag.first
+        val logObjectIdString = logObjectTag.second
         val logMessage = "${ft.format(Date())} $logObjectIdString $logLevelString/$tag: $msg"  // 生成日志信息
         (logMap[logSortString]?.get(logObjectIdString)
                 ?: mutableListOf<String>().apply {
@@ -54,7 +54,7 @@ class LogUtil {
     }
 
     // 调用Log.v()方法打印日志
-    fun v(logObjectTag: Array<String>, tag: String, msg: String) {
+    fun v(logObjectTag: Pair<String, String>, tag: String, msg: String) {
         if (LEVEL <= VERBOSE) {
             Log.v(tag, msg)
             addLogMessage(VERBOSE, logObjectTag, tag, msg)
@@ -62,7 +62,7 @@ class LogUtil {
     }
 
     // 调用Log.d()方法打印日志
-    fun d(logObjectTag: Array<String>, tag: String, msg: String) {
+    fun d(logObjectTag: Pair<String, String>, tag: String, msg: String) {
         if (LEVEL <= DEBUG) {
             Log.d(tag, msg)
             addLogMessage(DEBUG, logObjectTag, tag, msg)
@@ -70,7 +70,7 @@ class LogUtil {
     }
 
     // 调用Log.i()方法打印日志
-    fun i(logObjectTag: Array<String>, tag: String, msg: String) {
+    fun i(logObjectTag: Pair<String, String>, tag: String, msg: String) {
         if (LEVEL <= INFO) {
             Log.i(tag, msg)
             addLogMessage(INFO, logObjectTag, tag, msg)
@@ -78,7 +78,7 @@ class LogUtil {
     }
 
     // 调用Log.w()方法打印日志
-    fun w(logObjectTag: Array<String>, tag: String, msg: String) {
+    fun w(logObjectTag: Pair<String, String>, tag: String, msg: String) {
         if (LEVEL <= WARN) {
             Log.w(tag, msg)
             addLogMessage(WARN, logObjectTag, tag, msg)
@@ -86,7 +86,7 @@ class LogUtil {
     }
 
     // 调用Log.e()方法打印日志
-    fun e(logObjectTag: Array<String>, tag: String, msg: String) {
+    fun e(logObjectTag: Pair<String, String>, tag: String, msg: String) {
         if (LEVEL <= ERROR) {
             Log.e(tag, msg)
             addLogMessage(ERROR, logObjectTag, tag, msg)

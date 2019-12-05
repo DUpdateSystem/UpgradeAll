@@ -10,7 +10,7 @@ import org.litepal.LitePal
 import org.litepal.extension.find
 
 data class App(private val appDatabaseId: Long) {
-    private lateinit var logObjectTag: Array<String>
+    private lateinit var logObjectTag: Pair<String, String>
     private val appDatabase
         get() = AppDatabaseManager.getDatabase(appDatabaseId)
     internal val engine = newEngine(appDatabaseId)
@@ -41,7 +41,7 @@ data class App(private val appDatabaseId: Long) {
         val apiUuid = repoDatabase?.api_uuid
         val url = repoDatabase?.url
         val apiName = HubDatabaseManager.getDatabase(apiUuid)?.name
-        logObjectTag = arrayOf(apiName.toString(), databaseId.toString())
+        logObjectTag = Pair(apiName.toString(), databaseId.toString())
         // 查找软件源数据库
         val jsCode = HubDatabaseManager.getJsCode(apiUuid)
         Log.d(logObjectTag, TAG, "renewUpdateItem: uuid: $apiUuid")

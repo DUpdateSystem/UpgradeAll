@@ -12,7 +12,7 @@ import org.mozilla.javascript.Scriptable
 import org.mozilla.javascript.ScriptableObject
 
 internal class JavaScriptCoreEngine(
-        private val logObjectTag: Array<String>,
+        private val logObjectTag: Pair<String, String>,
         private val URL: String?,
         private val jsCode: String?
 ) : CoreApi {

@@ -162,7 +162,7 @@ class LogActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "LogActivity"
-        private val LogObjectTag = arrayOf("Core", TAG)
+        private val LogObjectTag = Pair("Core", TAG)
         private val Log = ServerContainer.Log
 
         private const val PERMISSIONS_REQUEST_WRITE_CONTACTS = 1

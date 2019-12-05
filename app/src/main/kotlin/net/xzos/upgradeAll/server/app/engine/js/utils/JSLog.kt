@@ -2,7 +2,7 @@ package net.xzos.upgradeAll.server.app.engine.js.utils
 
 import net.xzos.upgradeAll.server.ServerContainer
 
-class JSLog(private val LogObjectTag: Array<String>) {
+class JSLog(private val LogObjectTag: Pair<String, String>) {
 
     fun v(msg: String) {
         Log.v(LogObjectTag, TAG, msg)

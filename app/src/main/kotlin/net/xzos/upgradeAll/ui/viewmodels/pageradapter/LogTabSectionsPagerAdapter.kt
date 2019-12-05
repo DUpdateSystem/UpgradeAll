@@ -6,7 +6,6 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.viewpager.widget.PagerAdapter
-import net.xzos.upgradeAll.server.log.LogDataProxy
 import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.ui.viewmodels.fragment.LogPlaceholderFragment
 import java.util.*
@@ -21,7 +20,7 @@ class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, pri
         liveDataLogObjectIdList.observe(owner, Observer { logObjectIdList ->
             TAB_TITLES.clear()
             for (databaseIdString in logObjectIdList) {
-                val name = LogDataProxy.getNameFromId(databaseIdString)
+                val name = LogUtil.logDataProxy.getNameFromId(databaseIdString)
                 if (name != null) TAB_TITLES.add(name)
             }
             mLogObjectIdList = logObjectIdList.toList()
@@ -30,7 +29,7 @@ class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, pri
     }
 
     override fun getItem(position: Int): Fragment {
-        val logObjectTag = arrayOf(logSort, mLogObjectIdList[position])
+        val logObjectTag = Pair(logSort, mLogObjectIdList[position])
         return LogPlaceholderFragment.newInstance(logObjectTag)
     }
 
