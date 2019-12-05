@@ -19,7 +19,7 @@ import net.xzos.upgradeAll.utils.FileUtil
 
 object CloudConfigGetter {
     private const val TAG = "CloudConfigGetter"
-    private val LogObjectTag = arrayOf("Core", TAG)
+    private val LogObjectTag = Pair("Core", TAG)
     private val Log = ServerContainer.Log
 
     private val okHttpApi = OkHttpApi(LogObjectTag)

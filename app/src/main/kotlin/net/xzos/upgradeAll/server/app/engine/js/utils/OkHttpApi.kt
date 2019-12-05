@@ -9,7 +9,7 @@ import okhttp3.Request
 import java.io.IOException
 
 
-class OkHttpApi(private val logObjectTag: Array<String>) {
+class OkHttpApi(private val logObjectTag: Pair<String, String>) {
 
     private val jsCache = JSCache(logObjectTag)
 

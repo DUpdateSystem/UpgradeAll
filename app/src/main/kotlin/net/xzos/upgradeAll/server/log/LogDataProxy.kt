@@ -27,9 +27,9 @@ internal class LogDataProxy(private val logMap: MutableMap<String, MutableMap<St
     internal fun getLogObjectId(logSort: String): MutableSet<String> =
             this.logMap[logSort]?.keys ?: mutableSetOf()
 
-    internal fun getLogMessageList(logObjectTag: Array<String>): List<String> {
-        val logSortString = logObjectTag[0]
-        val logObjectIdString = logObjectTag[1]
+    internal fun getLogMessageList(logObjectTag: Pair<String, String>): List<String> {
+        val logSortString = logObjectTag.first
+        val logObjectIdString = logObjectTag.second
         return logMap[logSortString]?.get(logObjectIdString) ?: listOf()
     }
 
@@ -37,7 +37,7 @@ internal class LogDataProxy(private val logMap: MutableMap<String, MutableMap<St
         return logLiveData.getIdListInSort(logSort)
     }
 
-    fun getLogMessageListLiveData(logObjectTag: Array<String>): LiveData<List<String>> {
+    fun getLogMessageListLiveData(logObjectTag: Pair<String, String>): LiveData<List<String>> {
         return logLiveData.getLogMassageList(logObjectTag)
     }
 
@@ -51,9 +51,9 @@ internal class LogDataProxy(private val logMap: MutableMap<String, MutableMap<St
         Log.notifyObserver()
     }
 
-    fun clearLogMessage(logObjectTag: Array<String>) {
-        val logSortString = logObjectTag[0]
-        val logObjectId = logObjectTag[1]
+    fun clearLogMessage(logObjectTag: Pair<String, String>) {
+        val logSortString = logObjectTag.first
+        val logObjectId = logObjectTag.second
         this.logMap[logSortString]?.remove(logObjectId)
         Log.notifyObserver()
     }
@@ -62,7 +62,7 @@ internal class LogDataProxy(private val logMap: MutableMap<String, MutableMap<St
         val fullLogString = StringBuilder(logSort + "\n")
         val sortDatabaseIdList = getLogObjectId(logSort)
         for (databaseIdString in sortDatabaseIdList) {
-            var logString = getLogMessageToString(arrayOf(logSort, databaseIdString))
+            var logString = getLogMessageToString(Pair(logSort, databaseIdString))
             logString = if (logString != null)
                 logString.split("\n".toRegex(), 2).toTypedArray()[1]
             else
@@ -72,9 +72,9 @@ internal class LogDataProxy(private val logMap: MutableMap<String, MutableMap<St
         return fullLogString.toString()
     }
 
-    private fun getLogMessageToString(logObjectTag: Array<String>): String? {
-        val sort = logObjectTag[0]
-        val name = "    " + getNameFromId(logObjectTag[1])!!
+    private fun getLogMessageToString(logObjectTag: Pair<String, String>): String? {
+        val sort = logObjectTag.first
+        val name = "    " + getNameFromId(logObjectTag.second)
         val logMessageString = StringBuilder()
         val logMessageArray: List<String>
         try {
@@ -88,12 +88,9 @@ internal class LogDataProxy(private val logMap: MutableMap<String, MutableMap<St
         return sort + "\n" + name + "\n" + logMessageString
     }
 
-    companion object {
-
-        fun getNameFromId(databaseIdString: String): String? = try {
-            AppDatabaseManager.getDatabase(Integer.parseInt(databaseIdString).toLong())?.name
-        } catch (e: Throwable) {
-            databaseIdString
-        }
+    internal fun getNameFromId(databaseIdString: String): String? = try {
+        AppDatabaseManager.getDatabase(Integer.parseInt(databaseIdString).toLong())?.name
+    } catch (e: Throwable) {
+        databaseIdString
     }
 }

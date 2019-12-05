@@ -5,7 +5,7 @@ import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 
 class JavaScriptEngine internal constructor(
-        internal val logObjectTag: Array<String>,
+        internal val logObjectTag: Pair<String, String>,
         URL: String?,
         jsCode: String?,
         debugMode: Boolean = false

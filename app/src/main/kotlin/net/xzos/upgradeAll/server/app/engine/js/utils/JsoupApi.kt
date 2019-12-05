@@ -11,7 +11,7 @@ import org.jsoup.nodes.Document
 import java.io.IOException
 
 
-internal class JsoupApi(private val logObjectTag: Array<String>) {
+internal class JsoupApi(private val logObjectTag: Pair<String, String>) {
 
     private val jsCache = JSCache(logObjectTag)
 

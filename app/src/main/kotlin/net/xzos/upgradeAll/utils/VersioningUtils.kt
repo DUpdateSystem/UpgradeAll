@@ -12,7 +12,7 @@ import org.apache.maven.artifact.versioning.DefaultArtifactVersion
 object VersioningUtils {
 
     private const val TAG = "VersionCheckerGson"
-    private val logObjectTag = arrayOf("Core", TAG)
+    private val logObjectTag = Pair("Core", TAG)
     private val Log = ServerContainer.Log
 
     internal fun matchVersioningString(versionString: CharSequence?): String? {

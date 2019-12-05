@@ -1,6 +1,5 @@
 package net.xzos.upgradeAll.data.json.nongson
 
-import android.util.Log
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.ui.viewmodels.componnent.EditIntPreference
@@ -8,7 +7,7 @@ import org.jsoup.nodes.Document
 import java.net.*
 import java.util.*
 
-internal class JSCache(logObjectTag: Array<String>) {
+internal class JSCache(logObjectTag: Pair<String, String>) {
     private val jsCacheData = jsCacheDataSet[logObjectTag] ?: JSCacheData().also {
         jsCacheDataSet[logObjectTag] = it
     }
@@ -38,9 +37,9 @@ internal class JSCache(logObjectTag: Array<String>) {
     }
 
     companion object {
-        private val jsCacheDataSet = hashMapOf<Array<String>, JSCacheData>()
+        private val jsCacheDataSet = hashMapOf<Pair<String, String>, JSCacheData>()
 
-        internal fun clearCache(logObjectTag: Array<String>) {
+        internal fun clearCache(logObjectTag: Pair<String, String>) {
             jsCacheDataSet.remove(logObjectTag)
         }
 

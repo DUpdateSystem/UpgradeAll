@@ -212,7 +212,7 @@ class AppSettingFragment : Fragment() {
                 if (jsCode.isNullOrBlank()) {
                     Log.e(logObjectTag, TAG, "未找到 js 脚本")
                 } else {
-                    val logObjectTag = arrayOf("TEMP", "0")
+                    val logObjectTag = Pair("TEMP", "0")
                     val defaultName = runBlocking(Dispatchers.Default) {
                         JavaScriptEngine(logObjectTag, URL, jsCode).getDefaultName()
                     }
@@ -269,7 +269,7 @@ class AppSettingFragment : Fragment() {
 
         private val Log = ServerContainer.Log
         private const val TAG = "UpdateItemSetting"
-        private val logObjectTag = arrayOf("Core", TAG)
+        private val logObjectTag = Pair("Core", TAG)
 
         private val apiSpinnerList = ArrayList<String>()
     }

@@ -20,7 +20,7 @@ object FileUtil {
     private val Log = ServerContainer.Log
 
     private const val TAG = "FileUtil"
-    private val LogObjectTag = arrayOf("Core", TAG)
+    private val LogObjectTag = Pair("Core", TAG)
 
     fun renameSameFile(targetFile: File, fileList: List<File>): File {
         val separator = "."

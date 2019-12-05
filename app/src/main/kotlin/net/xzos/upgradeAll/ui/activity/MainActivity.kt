@@ -279,7 +279,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     companion object {
         private val Log = ServerContainer.Log
         private const val TAG = "MainActivity"
-        private val logObjectTag = arrayOf("Core", TAG)
+        private val logObjectTag = Pair("Core", TAG)
 
         private const val NAV_IMAGE_FILE_NAME = "nav_image.png"
         private val NAV_IMAGE_FILE = File(File(MyApplication.context.filesDir, "images"), NAV_IMAGE_FILE_NAME)

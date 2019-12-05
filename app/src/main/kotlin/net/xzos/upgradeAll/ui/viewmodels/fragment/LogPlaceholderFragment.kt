@@ -27,9 +27,10 @@ class LogPlaceholderFragment : Fragment() {
         mContext = context!!
         logPageViewModel = ViewModelProvider(this).get(LogPageViewModel::class.java)
         if (arguments != null) {
-            val logObjectTag = arguments?.getStringArray(ARG_SECTION_NUMBER)
-            if (logObjectTag != null)
+            arguments?.getStringArray(ARG_SECTION_NUMBER)?.run {
+                val logObjectTag = Pair(this[0], this[1])
                 logPageViewModel.setLogObjectTag(logObjectTag)
+            }
         }
     }
 
@@ -49,10 +50,10 @@ class LogPlaceholderFragment : Fragment() {
 
         private const val ARG_SECTION_NUMBER = "LogObjectTag"
 
-        internal fun newInstance(logObjectTag: Array<String>): LogPlaceholderFragment {
+        internal fun newInstance(logObjectTag: Pair<String, String>): LogPlaceholderFragment {
             val fragment = LogPlaceholderFragment()
             val bundle = Bundle()
-            bundle.putStringArray(ARG_SECTION_NUMBER, logObjectTag)
+            bundle.putStringArray(ARG_SECTION_NUMBER, logObjectTag.toList().toTypedArray())
             fragment.arguments = bundle
             return fragment
         }
