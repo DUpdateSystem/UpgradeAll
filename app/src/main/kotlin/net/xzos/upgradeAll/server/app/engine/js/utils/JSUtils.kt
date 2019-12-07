@@ -46,7 +46,7 @@ class JSUtils(private val logObjectTag: Pair<String, String>) {
     }
 
     fun getHttpResponse(URL: String): String? =
-            okHttpApi.getHttpResponse(URL)
+            okHttpApi.getHttpResponse(URL, catchError = false)
 
     fun selNByJsoupXpath(userAgent: String?, URL: String, xpath: String): ArrayList<*> {
         val doc = jsoupApi.getDoc(URL, userAgent = userAgent) ?: return arrayListOf<Any>()

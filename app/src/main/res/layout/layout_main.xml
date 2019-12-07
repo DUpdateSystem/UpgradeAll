@@ -98,4 +98,12 @@
         app:srcCompat="@drawable/ic_plus"
         tools:tint="@color/light_gray" />
 
+    <ProgressBar
+        android:id="@+id/loadingBar"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:visibility="gone" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
