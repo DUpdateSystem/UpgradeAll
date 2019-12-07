@@ -7,6 +7,7 @@ import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
+import java.net.SocketException
 
 
 class OkHttpApi(private val logObjectTag: Pair<String, String>) {
@@ -15,19 +16,19 @@ class OkHttpApi(private val logObjectTag: Pair<String, String>) {
 
     internal var requestHeaders = hashMapOf<String, String>()
 
-    fun getHttpResponse(url: String): String? =
+    fun getHttpResponse(url: String, catchError: Boolean = true): String? =
             jsCache.getHttpResponseCache(url)
-                    ?: getRawHttpResponse(url)
+                    ?: getRawHttpResponse(url, catchError)
                             ?.also {
                                 jsCache.cacheHttpResponse(url, it)
                             }
 
-    private fun getRawHttpResponse(url: String): String? {
+    private fun getRawHttpResponse(url: String, catchError: Boolean): String? {
         try {
             Request.Builder().url(url)
         } catch (e: IllegalArgumentException) {
-            Log.e(logObjectTag, TAG, """getHttpResponse: ${e.printStackTrace()}
-                |URL: $url """.trimMargin())
+            Log.e(logObjectTag, TAG, """getHttpResponse: URL: $url
+                | $e """.trimMargin())
             null
         }?.let { builder ->
             val request = builder.build()
@@ -44,7 +45,13 @@ class OkHttpApi(private val logObjectTag: Pair<String, String>) {
                     }
                 }
             }
-            return response?.body?.string()
+            return try {
+                response?.body?.string()
+            } catch (e: SocketException) {
+                if (!catchError) throw e
+                Log.e(logObjectTag, TAG, "getHttpResponse:  网络错误")
+                null
+            }
         }
         return null
     }

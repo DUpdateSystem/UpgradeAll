@@ -6,9 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.ArrayAdapter
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -128,12 +126,16 @@ class AppSettingFragment : Fragment() {
     }
 
     override fun onPause() {
+        super.onPause()
         SearchUtils.clearResultCache()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         activity?.floatingActionButton?.run {
             this.setOnClickListener(null)
             this.visibility = View.GONE
         }
-        super.onPause()
     }
 
     private fun setEndHelpIcon() {
@@ -159,27 +161,34 @@ class AppSettingFragment : Fragment() {
     }
 
     private fun addApp() {
-        val name = editName.text.toString()
-        val url = editUrl.text.toString()
-        val apiNum = apiSpinner.selectedItemPosition
-        val versionChecker = targetChecker
-        val progressBar = ProgressBar(context)
-        // 弹出等待框
-        progressBar.visibility = View.VISIBLE
         activity?.window?.let {
-            it.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-            // 添加数据库
-            val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)
-            // 取消等待框
-            if (addRepoSuccess) {
-                ServerContainer.AppManager.setApp(databaseId)
-                activity?.onBackPressed()  // 跳转主页面
-            } else
-                Toast.makeText(context, "什么？添加失败！", Toast.LENGTH_LONG).show()
-            it.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            GlobalScope.launch {
+                val name = editName.text.toString()
+                val url = editUrl.text.toString()
+                val apiNum = apiSpinner.selectedItemPosition
+                val versionChecker = targetChecker
+                launch(Dispatchers.Main) {
+                    // 弹出等待框
+                    activity?.run {
+                        this.floatingActionButton?.visibility = View.GONE
+                        this.loadingBar?.visibility = View.VISIBLE
+                    }
+                }
+                val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)  // 添加数据库
+                launch(Dispatchers.Main) {
+                    if (addRepoSuccess) {
+                        ServerContainer.AppManager.setApp(databaseId)
+                        activity?.onBackPressed()  // 跳转主页面
+                    } else
+                        Toast.makeText(context, "什么？添加失败！", Toast.LENGTH_LONG).show()
+                    // 取消等待框
+                    activity?.run {
+                        this.floatingActionButton?.visibility = View.VISIBLE
+                        this.loadingBar?.visibility = View.GONE
+                    }
+                }
+            }
         }
-        progressBar.visibility = View.GONE
     }
 
     private fun setSettingItem() {
