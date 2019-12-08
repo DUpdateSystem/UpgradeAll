@@ -7,7 +7,11 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -21,6 +25,8 @@ object FileUtil {
 
     private const val TAG = "FileUtil"
     private val LogObjectTag = Pair("Core", TAG)
+
+    fun clearCache() = MyApplication.context.externalCacheDir?.deleteRecursively()
 
     fun renameSameFile(targetFile: File, fileList: List<File>): File {
         val separator = "."
@@ -221,5 +227,36 @@ object FileUtil {
         val mClipData = ClipData.newPlainText("Label", s)
         cm.setPrimaryClip(mClipData)
         if (showToast) Toast.makeText(context, "已复制到粘贴板", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun convertBitmapToFile(destinationFile: File, bitmap: Bitmap) {
+        //create a file to write bitmap data
+        destinationFile.createNewFile()
+        //Convert bitmap to byte array
+        val bos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 50, bos)
+        val bitmapData = bos.toByteArray()
+        //write the bytes in file
+        val fos = FileOutputStream(destinationFile)
+        fos.write(bitmapData)
+        fos.flush()
+        fos.close()
+    }
+
+    fun imageUriDump(selectedImageUri: Uri, activity: Activity): Uri {
+        //Later we will use this bitmap to create the File.
+        val selectedBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ImageDecoder.decodeBitmap(
+                    ImageDecoder.createSource(activity.contentResolver, selectedImageUri))
+        } else {
+            @Suppress("DEPRECATION")
+            MediaStore.Images.Media.getBitmap(activity.contentResolver, selectedImageUri)
+        }
+
+        /*We can access getExternalFileDir() without asking any storage permission.*/
+        val selectedImgFile = File(activity.externalCacheDir, "_selectedImg.png")
+
+        convertBitmapToFile(selectedImgFile, selectedBitmap)
+        return Uri.fromFile(selectedImgFile)
     }
 }

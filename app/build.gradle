@@ -102,7 +102,7 @@ dependencies {
     // 图片加载
     implementation 'com.github.bumptech.glide:glide:4.10.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0'
-    implementation 'com.github.yalantis:ucrop:2.2.3'  // 图片裁剪
+    implementation 'com.github.yalantis:ucrop:2.2.4'  // 图片裁剪
 
     // 界面设计
     implementation 'com.google.android.material:material:1.2.0-alpha02'  // Google MD 库

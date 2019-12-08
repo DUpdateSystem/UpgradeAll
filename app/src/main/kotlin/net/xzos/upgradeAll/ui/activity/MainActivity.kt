@@ -74,12 +74,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         if (parent != null && !parent.exists())
                             parent.mkdirs()
                         val destinationUri = Uri.fromFile(NAV_IMAGE_FILE)
-                        UCrop.of(uri, destinationUri)
+                        UCrop.of(FileUtil.imageUriDump(uri, this), destinationUri)
                                 .withAspectRatio(16f, 9f)
                                 .start(this, UCrop.REQUEST_CROP)
                     }
                 }
-                UCrop.REQUEST_CROP -> renewNavImage()
+                UCrop.REQUEST_CROP -> {
+                    FileUtil.clearCache()
+                    renewNavImage()
+                }
                 UCrop.RESULT_ERROR -> {
                     val cropError = UCrop.getError(resultData!!)
                     if (cropError != null)
