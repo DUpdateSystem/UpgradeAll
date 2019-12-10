@@ -144,12 +144,12 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
             context?.let {
                 AlertDialog.Builder(it).apply {
                     setMessage(R.string.whether_download_dependency_hub)
-                    setNegativeButton(R.string.ok) { dialog, _ ->
+                    setPositiveButton(R.string.ok) { dialog, _ ->
                         Toast.makeText(MyApplication.context, R.string.start_download_dependency_hub, Toast.LENGTH_LONG).show()
                         GlobalScope.launch { CloudConfigGetter.downloadCloudHubConfig(hubUuid) }
                         dialog.cancel()
                     }
-                    setPositiveButton(R.string.cancel) { dialog, _ ->
+                    setNegativeButton(R.string.cancel) { dialog, _ ->
                         dialog.cancel()
                     }
 
