@@ -11,6 +11,7 @@ import androidx.core.content.FileProvider
 import net.xzos.upgradeAll.BuildConfig
 import java.io.File
 
+
 class ApkInstaller(private val context: Context) {
 
     fun installApplication(file: File) {
@@ -22,20 +23,16 @@ class ApkInstaller(private val context: Context) {
                 e.printStackTrace()
             }
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val downloadedApk = Uri.fromFile(file)
-            val intent = Intent(Intent.ACTION_VIEW).setDataAndType(downloadedApk,
-                    "application/vnd.android.package-archive")
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    .addFlags(FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
-        } else {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(Uri.fromFile(file),
-                    "application/vnd.android.package-archive")
-            intent.flags = FLAG_ACTIVITY_NEW_TASK
-            context.startActivity(intent)
-        }
+        context.startActivity(
+                Intent(Intent.ACTION_INSTALL_PACKAGE)
+                        .setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive")
+                        .apply {
+                            this.flags = FLAG_ACTIVITY_NEW_TASK
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                this.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                        }
+        )
     }
 
     private fun uriFromFile(file: File): Uri {
