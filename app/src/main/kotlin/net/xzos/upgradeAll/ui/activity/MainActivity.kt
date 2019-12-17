@@ -80,7 +80,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                 }
                 UCrop.REQUEST_CROP -> {
-                    FileUtil.clearCache()
                     renewNavImage()
                 }
                 UCrop.RESULT_ERROR -> {
@@ -258,6 +257,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun renewNavImage() {
+        FileUtil.clearCache(FileUtil.imageCacheFileName)
         if (NAV_IMAGE_FILE.exists())
             Glide.with(this)
                     .load(NAV_IMAGE_FILE)

@@ -26,7 +26,9 @@ object FileUtil {
     private const val TAG = "FileUtil"
     private val LogObjectTag = Pair("Core", TAG)
 
-    fun clearCache() = MyApplication.context.externalCacheDir?.deleteRecursively()
+    internal const val imageCacheFileName = "_selectedImg.png"
+
+    fun clearCache(filePath: String) = File(MyApplication.context.externalCacheDir, filePath).deleteRecursively()
 
     fun renameSameFile(targetFile: File, fileList: List<File>): File {
         val separator = "."
@@ -254,7 +256,7 @@ object FileUtil {
         }
 
         /*We can access getExternalFileDir() without asking any storage permission.*/
-        val selectedImgFile = File(activity.externalCacheDir, "_selectedImg.png")
+        val selectedImgFile = File(activity.externalCacheDir, imageCacheFileName)
 
         convertBitmapToFile(selectedImgFile, selectedBitmap)
         return Uri.fromFile(selectedImgFile)
