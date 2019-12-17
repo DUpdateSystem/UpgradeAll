@@ -82,8 +82,9 @@ class AriaDownloader(private val renewMode: Boolean) {
             task as DownloadEntity
             taskFileList.add(File(task.filePath))
         }
-        var file = File(context.externalCacheDir, fileName)
-        file = FileUtil.renameSameFile(file, taskFileList)
+        val file = FileUtil.renameSameFile(
+                File(downloadDir, fileName), taskFileList
+        )
         val downloadTarget = Aria.download(this)
                 .load(URL)
                 .useServerFileName(true)
@@ -290,6 +291,9 @@ class AriaDownloader(private val renewMode: Boolean) {
         private const val DEL_FILE = 12
 
         internal const val blockingTime: Long = 100
+
+        private const val downloadDirName = "Download"
+        private val downloadDir = File(context.externalCacheDir, downloadDirName)
 
         private fun cancelNotification(notificationId: Int) {
             NotificationManagerCompat.from(context).cancel(notificationId)
