@@ -4,7 +4,6 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 // Firebase
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'io.fabric'
 apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
@@ -25,8 +24,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 31
-        versionName "0.1.0-rc.2"
+        versionCode 32
+        versionName "0.1.0-rc.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     sourceSets {

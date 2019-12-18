@@ -111,6 +111,7 @@
     <string name="version_number_is_marked_as_processed">版本号标注为已处理</string>
     <string name="long_click_version_number_to_mark_as_processed">长按云端版本号可标记为“已处理”，即跳过此次更新 \n标记后再次长按已标记的版本号即可取消标记</string>
     <string name="marked_version_number_is_behind_latest">标注已处理的版本号已落后于最新版本</string>
+    <string name="auto_fixed_wrong_configuration">已自动修复错误配置</string>
     <string name="o_mark">⭕</string>
 
 </resources>
