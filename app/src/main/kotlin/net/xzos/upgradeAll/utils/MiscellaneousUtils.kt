@@ -17,7 +17,8 @@ import java.io.StringReader
 import java.util.*
 
 object MiscellaneousUtils {
-    private val suAvailable = Shell.SU.available()
+    private var suAvailable: Boolean? = null
+        get() = field ?: Shell.SU.available().also { field = it }
 
     fun accessByBrowser(url: String?, context: Context?) {
         if (url != null && context != null) {
@@ -51,7 +52,7 @@ object MiscellaneousUtils {
     fun runShellCommand(command: String, su: Boolean = false): CommandResult? =
             if (command.isNotBlank())
                 if (su)
-                    if (suAvailable)
+                    if (suAvailable!!)
                         Shell.SU.run(command)
                     else {
                         GlobalScope.launch(Dispatchers.Main) {

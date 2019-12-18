@@ -1,9 +1,7 @@
 package net.xzos.upgradeAll.ui.viewmodels.fragment
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.res.ColorStateList
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,6 +25,7 @@ import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.utils.IconPalette
+import net.xzos.upgradeAll.utils.MiscellaneousUtils
 
 /**
  * 更新项详细数据展示页面
@@ -192,12 +191,7 @@ class AppInfoFragment : Fragment() {
 
                             // 打开指向Url
                             it.setOnClickListener {
-                                val intent = Intent(Intent.ACTION_VIEW)
-                                intent.data = Uri.parse(url)
-                                val chooser = Intent.createChooser(intent, "请选择浏览器")
-                                if (intent.resolveActivity(context.packageManager) != null) {
-                                    context.startActivity(chooser)
-                                }
+                                MiscellaneousUtils.accessByBrowser(url, context)
                             }
                         }
                     }

@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import java.text.SimpleDateFormat
@@ -39,14 +41,17 @@ class LogUtil {
         val logSortString = logObjectTag.first
         val logObjectIdString = logObjectTag.second
         val logMessage = "${ft.format(Date())} $logObjectIdString $logLevelString/$tag: $msg"  // 生成日志信息
-        (logMap[logSortString]?.get(logObjectIdString)
-                ?: mutableListOf<String>().apply {
-                    ((logMap[logSortString]
-                            ?: mutableMapOf()).also { logMap[logSortString] = it }
-                            )[logObjectIdString] = this
-                }).add(logMessage)
-
-        notifyObserver()
+        GlobalScope.launch {
+            mutex.withLock {
+                (logMap[logSortString]?.get(logObjectIdString)
+                        ?: mutableListOf<String>().apply {
+                            ((logMap[logSortString]
+                                    ?: mutableMapOf()).also { logMap[logSortString] = it }
+                                    )[logObjectIdString] = this
+                        }).add(logMessage)
+                notifyObserver()
+            }
+        }
     }
 
     internal fun notifyObserver() {
@@ -107,13 +112,14 @@ class LogUtil {
 
         /**
          * 该静态常量的值用来控制你想打印的日志等级；
-         * 比如当前LEVEL的值为常量1（VERBOSE），那么你以上5个日志等级都是可以打印的；
+         * 比如当前LEVEL的值为常量1（VERBOSE），那么你以上5个日志https://discuss.kotlinlang.org/t/are-kotlins-immutable-collections-thread-safe/35等级都是可以打印的；
          * 假如当前LEVEL的值为常量2（DEBUG），那么你只能打印从DEBUG（2）到ERROR（5）之间的日志信息；
          * 假如你要是不想让日志信息打印出现，那么将LEVEL的值置为NOTHING即可。
          */
         private var LEVEL = MyApplication.context.resources.getInteger(R.integer.log_level)  // TODO: 设置中加入对该值的自定义
 
         private val logMap = mutableMapOf<String, MutableMap<String, MutableList<String>>>()
+        internal val mutex = Mutex()
 
         internal val logLiveData = LogLiveData(logMap)
         internal val logDataProxy = LogDataProxy(logMap)
