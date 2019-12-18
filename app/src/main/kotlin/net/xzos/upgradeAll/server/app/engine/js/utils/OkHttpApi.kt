@@ -7,7 +7,6 @@ import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import java.net.SocketException
 
 
 class OkHttpApi(private val logObjectTag: Pair<String, String>) {
@@ -35,7 +34,7 @@ class OkHttpApi(private val logObjectTag: Pair<String, String>) {
             val response = try {
                 okHttpClient.newCall(request).execute()
             } catch (e: IOException) {
-                Log.e(logObjectTag, TAG, "getHttpResponse:  网络错误")
+                Log.e(logObjectTag, TAG, "getHttpResponse: 网络错误")
                 null
             }?.also {
                 requestHeaders = hashMapOf()
@@ -47,9 +46,9 @@ class OkHttpApi(private val logObjectTag: Pair<String, String>) {
             }
             return try {
                 response?.body?.string()
-            } catch (e: SocketException) {
+            } catch (e: Throwable) {
                 if (!catchError) throw e
-                Log.e(logObjectTag, TAG, "getHttpResponse:  网络错误")
+                Log.e(logObjectTag, TAG, "getHttpResponse: 网络错误")
                 null
             }
         }
