@@ -2,11 +2,14 @@ package net.xzos.upgradeAll.ui.viewmodels.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
+import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.LogRecyclerViewHolder
 import net.xzos.upgradeAll.utils.FileUtil
 import org.apache.commons.text.StringEscapeUtils
@@ -18,23 +21,31 @@ class LogItemAdapter(mLogList: LiveData<LiveData<List<String>>>, owner: Lifecycl
     init {
         mLogList.observe(owner, Observer { logListLiveData ->
             logListLiveData.observe(owner, Observer { stringList ->
-                if (mLogMessages != stringList) {
-                    val startChangeIndex: Int
-                    val index = mLogMessages.size - 1
-                    if (index == -1 || index > stringList.size || mLogMessages[index] != stringList[index]) {
-                        startChangeIndex = 0
-                        mLogMessages.clear()
-                        for (logMessage in stringList)
-                            mLogMessages.add(StringEscapeUtils.unescapeJava(logMessage))
-                    } else {
-                        startChangeIndex = index + 1
-                        for (i in index + 1 until stringList.size)
-                            mLogMessages.add(StringEscapeUtils.unescapeJava(stringList[i]))
+                GlobalScope.launch {
+                    LogUtil.mutex.withLock {
+                        renewLogMessage(stringList)
                     }
-                    notifyItemRangeChanged(startChangeIndex, mLogMessages.size)
                 }
             })
         })
+    }
+
+    private fun renewLogMessage(stringList: List<String>) {
+        if (mLogMessages != stringList) {
+            val startChangeIndex: Int
+            val index = mLogMessages.size - 1
+            if (index == -1 || index > stringList.size || mLogMessages[index] != stringList[index]) {
+                startChangeIndex = 0
+                mLogMessages.clear()
+                for (logMessage in stringList)
+                    mLogMessages.add(StringEscapeUtils.unescapeJava(logMessage))
+            } else {
+                startChangeIndex = index + 1
+                for (i in index + 1 until stringList.size)
+                    mLogMessages.add(StringEscapeUtils.unescapeJava(stringList[i]))
+            }
+            notifyItemRangeChanged(startChangeIndex, mLogMessages.size)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogRecyclerViewHolder {
