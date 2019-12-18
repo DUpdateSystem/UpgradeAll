@@ -91,18 +91,21 @@ object IconPalette {
                 val activity = getActivity(iconImageView)
                 if (activity?.isFinishing != true) {
                     iconImageView.visibility = View.GONE
-                    Glide.with(iconImageView).load(appIconUrl ?: "").let {
-                        if (appIconUrl == null) {
-                            it.placeholder(
-                                    try {
-                                        iconImageView.context.packageManager.getApplicationIcon(appModuleName!!)
-                                    } catch (e: Throwable) {
-                                        defaultSrc ?: return@let
-                                    }
-                            )
+                    try {
+                        Glide.with(iconImageView).load(appIconUrl ?: "").let {
+                            if (appIconUrl == null) {
+                                it.placeholder(
+                                        try {
+                                            iconImageView.context.packageManager.getApplicationIcon(appModuleName!!)
+                                        } catch (e: Throwable) {
+                                            defaultSrc ?: return@let
+                                        }
+                                )
+                            }
+                            it.into(iconImageView)
+                            iconImageView.visibility = View.VISIBLE
                         }
-                        it.into(iconImageView)
-                        iconImageView.visibility = View.VISIBLE
+                    } catch (e: IllegalArgumentException) {
                     }
                 }
             }
