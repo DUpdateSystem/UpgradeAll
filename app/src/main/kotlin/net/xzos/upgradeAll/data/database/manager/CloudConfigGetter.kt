@@ -7,9 +7,8 @@ import com.google.gson.JsonSyntaxException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.application.MyApplication
+import net.xzos.upgradeAll.application.MyApplication.Companion.context
 import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.data.json.gson.CloudConfig
 import net.xzos.upgradeAll.data.json.gson.HubConfig
@@ -25,16 +24,24 @@ object CloudConfigGetter {
     private val okHttpApi = OkHttpApi(LogObjectTag)
 
     private val rulesListJsonFileRawUrl: String
-        get() = getRawRootUrl(
-                PreferenceManager.getDefaultSharedPreferences(MyApplication.context).getString(
-                        "cloud_rules_hub_url",
-                        MyApplication.context.resources.getString(R.string.default_cloud_rules_hub_url)
-                ).apply {
-                    val separator = '/'
-                    if (this?.last() != separator)
-                        this.plus(separator)
-                }
-        ) + "rules/rules_list.json"
+        get() {
+            val prefKey = "cloud_rules_hub_url"
+            val defaultCloudRulesHubUrl = context.resources.getString(R.string.default_cloud_rules_hub_url)
+            val pref = PreferenceManager.getDefaultSharedPreferences(context)
+            val cloudRulesHubUrl = pref.getString(prefKey, defaultCloudRulesHubUrl)
+            return try {
+                getRawRootUrl(cloudRulesHubUrl)
+            } catch (e: Throwable) {
+                getRawRootUrl(
+                        defaultCloudRulesHubUrl.also {
+                            pref.edit().putString(prefKey, defaultCloudRulesHubUrl).apply()
+                            GlobalScope.launch(Dispatchers.Main) {
+                                Toast.makeText(context, context.resources.getString(R.string.auto_fixed_wrong_configuration), Toast.LENGTH_LONG).show()
+                            }
+                        }
+                )
+            } + "rules/rules_list.json"
+        }
 
     private val cloudConfig: CloudConfig?
         get() = renewCloudConfig()
@@ -109,7 +116,12 @@ object CloudConfigGetter {
         return okHttpApi.getHttpResponse(hubConfigJSRawUrl)
     }
 
-    private fun getRawRootUrl(gitUrl: String?): String {
+    private fun getRawRootUrl(rawGitUrl: String?): String {
+        val gitUrl = rawGitUrl.apply {
+            val separator = '/'
+            if (this?.last() != separator)
+                this.plus(separator)
+        }
         if (gitUrl != null) {
             val list = gitUrl.split("github\\.com".toRegex())[1].split("/".toRegex()).filter { it.isNotEmpty() }
             if (list.size >= 2) {
@@ -134,7 +146,7 @@ object CloudConfigGetter {
      * @return 1 获取 HubConfig 成功, 2 获取 JS 成功, 3 添加数据库成功, -1 获取 HubConfig 失败, -2 解析 JS 失败, -3 添加数据库失败
      */
     fun downloadCloudHubConfig(hubUuid: String?): Int {
-        val context = MyApplication.context
+        val context = context
         GlobalScope.launch(Dispatchers.Main) { Toast.makeText(context, "开始下载", Toast.LENGTH_LONG).show() }  // 下载
         val cloudHubConfigGson = getHubCloudConfig(hubUuid)
         // TODO: 配置文件地址与仓库地址分离
@@ -163,7 +175,6 @@ object CloudConfigGetter {
      * @return 1 获取 AppConfig 成功, 2 添加数据库成功, -1 获取 AppConfig 失败, -2 添加数据库失败
      */
     fun downloadCloudAppConfig(appUuid: String?): Int {
-        val context = MyApplication.context
         GlobalScope.launch(Dispatchers.Main) { Toast.makeText(context, "开始下载", Toast.LENGTH_LONG).show() }  // 下载
         val cloudHubConfigGson = getAppCloudConfig(appUuid)
         return (if (cloudHubConfigGson != null) {
@@ -172,7 +183,7 @@ object CloudConfigGetter {
                 2
             } else -2
         } else -1).apply {
-            runBlocking(Dispatchers.Main) {
+            GlobalScope.launch(Dispatchers.Main) {
                 when (this@apply) {
                     2 -> Toast.makeText(context, "数据添加成功", Toast.LENGTH_LONG).show()
                     -1 -> Toast.makeText(context, "获取基础配置文件失败", Toast.LENGTH_LONG).show()
