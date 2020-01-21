@@ -11,10 +11,10 @@ import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 
 class Updater internal constructor(private val engine: JavaScriptEngine) {
 
-    suspend fun isSuccessRenew(): Boolean = engine.getVersioning(0) != null
+    suspend fun isSuccessRenew(): Boolean = engine.getVersionNumber(0) != null
 
     // 获取最新版本号
-    suspend fun getLatestVersioning(): String? = engine.getVersioning(0)
+    suspend fun getLatestVersioning(): String? = engine.getVersionNumber(0)
 
     internal fun nonBlockingDownloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false, context: Context? = null) =
             GlobalScope.launch {

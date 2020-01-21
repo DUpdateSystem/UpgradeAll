@@ -1,5 +1,8 @@
 package net.xzos.upgradeAll.server.app.engine.js
 
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
+import net.xzos.upgradeAll.data.json.gson.JSReturnData
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
@@ -91,27 +94,27 @@ internal class JavaScriptCoreEngine(
     }
 
     override suspend fun getReleaseNum(): Int {
-        val result = runJS("getReleaseNum", arrayOf())
+        val result = getReleaseInfo()?.releaseInfoList?.size
+                ?: runJS("getReleaseNum", arrayOf())
                 ?: return 0
         val releaseNum = Context.toNumber(result).toInt()
         Log.d(logObjectTag, TAG, "getReleaseNum: releaseNum: $releaseNum")
         return releaseNum
     }
 
-    override suspend fun getVersioning(releaseNum: Int): String? {
-        val args = arrayOf<Any>(releaseNum)
-        val result = runJS("getVersioning", args)
-                ?: runJS("getVersionNumber", args)
+    override suspend fun getVersionNumber(releaseNum: Int): String? {
+        val result = getReleaseInfo()?.releaseInfoList?.get(releaseNum)?.version_number
+                ?: runJS("getVersionNumber", arrayOf(releaseNum))
                 ?: return null
         // TODO: 向下兼容两个主版本后移除，当前版本：0.1.0-alpha.3
         val versionNumber = Context.toString(result)
-        Log.d(logObjectTag, TAG, "getVersioning: Versioning: $versionNumber")
+        Log.d(logObjectTag, TAG, "getVersionNumber: getVersionNumber: $versionNumber")
         return versionNumber
     }
 
     override suspend fun getChangelog(releaseNum: Int): String? {
-        val args = arrayOf<Any>(releaseNum)
-        val result = runJS("getChangelog", args)
+        val result = getReleaseInfo()?.releaseInfoList?.get(releaseNum)?.change_log
+                ?: runJS("getChangelog", arrayOf(releaseNum))
                 ?: return null
         val changeLog = Context.toString(result)
         Log.d(logObjectTag, TAG, "getChangelog: Changelog: $changeLog")
@@ -119,22 +122,37 @@ internal class JavaScriptCoreEngine(
     }
 
     override suspend fun getReleaseDownload(releaseNum: Int): Map<String, String> {
-        val args = arrayOf<Any>(releaseNum)
         val fileMap = mutableMapOf<String, String>()
-        val result = runJS("getReleaseDownload", args)
-                ?: return fileMap
-        val fileJsonString = Context.toString(result)
-        try {
-            val returnMap = jsUtils.mapOfJsonObject(fileJsonString)
-            for (key in returnMap.keys) {
-                val keyString = key as String
-                fileMap[keyString] = returnMap[key] as String
+        getReleaseInfo()?.releaseInfoList?.get(releaseNum)?.assets?.also { assets ->
+            for (asset in assets)
+                fileMap[asset.name] = asset.download_url
+        } ?: kotlin.run {
+            val result = runJS("getReleaseDownload", arrayOf(releaseNum))
+                    ?: return fileMap
+            val fileJsonString = Context.toString(result)
+            try {
+                val returnMap = jsUtils.mapOfJsonObject(fileJsonString)
+                for (key in returnMap.keys) {
+                    val keyString = key as String
+                    fileMap[keyString] = returnMap[key] as String
+                }
+            } catch (e: NullPointerException) {
+                Log.e(logObjectTag, TAG, "getReleaseDownload: 返回值为 NULL, fileJsonString : $fileJsonString")
             }
-        } catch (e: NullPointerException) {
-            Log.e(logObjectTag, TAG, "getReleaseDownload: 返回值为 NULL, fileJsonString : $fileJsonString")
+            Log.d(logObjectTag, TAG, "getReleaseDownload: fileJson: $fileMap")
         }
-        Log.d(logObjectTag, TAG, "getReleaseDownload: fileJson: $fileMap")
         return fileMap
+    }
+
+    override suspend fun getReleaseInfo(): JSReturnData? {
+        val result = runJS("getReleaseInfo", arrayOf())
+                ?: return null
+        val versionInfoJsonString: String = Context.toString(result)
+        return try {
+            Gson().fromJson(versionInfoJsonString, JSReturnData::class.java)
+        } catch (e: JsonSyntaxException) {
+            null
+        }
     }
 
     override suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): String? {

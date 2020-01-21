@@ -1,5 +1,6 @@
 package net.xzos.upgradeAll.server.app.engine.js
 
+import net.xzos.upgradeAll.data.json.gson.JSReturnData
 import net.xzos.upgradeAll.data.json.nongson.JSCache
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.api.CoreApi
@@ -28,8 +29,8 @@ class JavaScriptEngine internal constructor(
 
     override suspend fun getReleaseNum(): Int = javaScriptCoreEngine.getReleaseNum()
 
-    override suspend fun getVersioning(releaseNum: Int): String? = when {
-        releaseNum >= 0 -> javaScriptCoreEngine.getVersioning(releaseNum)
+    override suspend fun getVersionNumber(releaseNum: Int): String? = when {
+        releaseNum >= 0 -> javaScriptCoreEngine.getVersionNumber(releaseNum)
         else -> null
     }
 
@@ -46,6 +47,9 @@ class JavaScriptEngine internal constructor(
     override suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): String? =
             javaScriptCoreEngine.downloadReleaseFile(downloadIndex)
                     ?: downloadFile(downloadIndex)
+
+    // TODO: 无用接口
+    override suspend fun getReleaseInfo(): JSReturnData? = null
 
     internal suspend fun downloadFile(downloadIndex: Pair<Int, Int>, externalDownloader: Boolean = false): String? {
         Log.e(logObjectTag, TAG, "downloadFile: 尝试直接下载")

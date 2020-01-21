@@ -13,8 +13,6 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.mozilla.javascript.Context
-import org.mozilla.javascript.NativeArray
-import org.mozilla.javascript.Scriptable
 import org.mozilla.javascript.ScriptableObject
 import org.seimicrawler.xpath.JXDocument
 
@@ -62,16 +60,17 @@ class JSUtils(
     fun getHttpResponse(URL: String): String? =
             okHttpApi.getHttpResponse(URL, catchError = false)
 
-    fun selNByJsoupXpath(userAgent: String?, URL: String, xpath: String): NativeArray {
+    fun selNByJsoupXpath(userAgent: String?, URL: String, xpath: String): MutableList<String> {
         val doc = jsoupApi.getDoc(URL, userAgent = userAgent)
-                ?: return NativeArray(0)
+                ?: return mutableListOf()
         val jxDocument = JXDocument.create(doc)
-        val nodeStringList = mutableListOf<String>()
-        for (node in jxDocument.selN(xpath)) {
-            nodeStringList.add(node.toString())
+        val nodeStringList = mutableListOf<String>().apply {
+            for (node in jxDocument.selN(xpath)) {
+                this.add(node.toString())
+            }
         }
         Log.d(logObjectTag, TAG, "selNByJsoupXpath: node_list number: " + nodeStringList.size)
-        return NativeArray(nodeStringList.toTypedArray())
+        return nodeStringList
     }
 
     fun matchVersioningString(versionString: String?): String? =
