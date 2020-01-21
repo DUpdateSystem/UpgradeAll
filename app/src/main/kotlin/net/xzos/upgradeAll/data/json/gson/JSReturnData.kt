@@ -8,7 +8,7 @@ package net.xzos.upgradeAll.data.json.gson
  * ]
  */
 data class JSReturnData(
-        var releaseInfoList: List<ReleaseInfoBean> = listOf()
+        var releaseInfoList: List<ReleaseInfoBean>
 ) {
 
     /**

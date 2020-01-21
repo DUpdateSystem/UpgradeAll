@@ -149,9 +149,15 @@ internal class JavaScriptCoreEngine(
         val result = runJS("getReleaseInfo", arrayOf())
                 ?: return null
         val versionInfoJsonString: String = Context.toString(result)
+        Log.d(logObjectTag, TAG, "getReleaseInfo: JSON 字符串: $versionInfoJsonString")
         return try {
-            Gson().fromJson(versionInfoJsonString, JSReturnData::class.java)
+            JSReturnData(
+                    Gson().fromJson(versionInfoJsonString, Array<JSReturnData.ReleaseInfoBean>::class.java).also {
+                        Log.e(logObjectTag, TAG, "getReleaseInfo: JSON 解析成功")
+                    }.toList()
+            )
         } catch (e: JsonSyntaxException) {
+            Log.e(logObjectTag, TAG, "getReleaseInfo: JSON 解析失败, ERROR_MESSAGE: $e")
             null
         }
     }

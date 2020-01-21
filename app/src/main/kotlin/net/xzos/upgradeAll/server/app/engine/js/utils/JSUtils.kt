@@ -8,10 +8,9 @@ import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import net.xzos.upgradeAll.utils.VersioningUtils
 import net.xzos.upgradeAll.utils.network.JsoupApi
 import net.xzos.upgradeAll.utils.network.OkHttpApi
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
 import org.mozilla.javascript.Context
+import org.mozilla.javascript.NativeArray
+import org.mozilla.javascript.NativeStringIterator
 import org.mozilla.javascript.ScriptableObject
 import org.seimicrawler.xpath.JXDocument
 
@@ -34,26 +33,6 @@ class JSUtils(
 
     fun get(cx: Context): JSUtils = this.also {
         this.cx = cx
-    }
-
-    fun getJSONObject(): JSONObject {
-        return JSONObject()
-    }
-
-    fun getJSONArray(): JSONArray {
-        return JSONArray()
-    }
-
-    @Throws(JSONException::class)
-    fun getJSONObject(jsonString: String? = null): JSONObject {
-        return if (jsonString != null) JSONObject(jsonString)
-        else JSONObject()
-    }
-
-    @Throws(JSONException::class)
-    fun getJSONArray(jsonString: String? = null): JSONArray {
-        return if (jsonString != null) JSONArray(jsonString)
-        else JSONArray()
     }
 
     fun getHttpResponse(URL: String): String? =
