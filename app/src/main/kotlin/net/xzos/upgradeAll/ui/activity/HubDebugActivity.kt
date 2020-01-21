@@ -319,7 +319,7 @@ class HubDebugActivity : AppCompatActivity() {
             jsLog.d("1. 获取默认名称(defaultName): ${javaScriptEngine.getDefaultName()} \n")
             jsLog.d("2. 获取发布版本号总数(releaseNum): ${javaScriptEngine.getReleaseNum()} \n")
             for (i in 0 until javaScriptEngine.getReleaseNum()) {
-                jsLog.d("3. ($i) 获取发布版本号(getVersioning): ${javaScriptEngine.getVersioning(i)} \n")
+                jsLog.d("3. ($i) 获取发布版本号(getVersioning): ${javaScriptEngine.getVersionNumber(i)} \n")
                 jsLog.d("4. ($i) 获取发布版本号(getChangelog): ${javaScriptEngine.getChangelog(i)} \n")
             }
             for (i in 0 until javaScriptEngine.getReleaseNum()) {

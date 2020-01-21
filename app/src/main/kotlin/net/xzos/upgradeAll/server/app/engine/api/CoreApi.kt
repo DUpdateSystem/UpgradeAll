@@ -1,5 +1,7 @@
 package net.xzos.upgradeAll.server.app.engine.api
 
+import net.xzos.upgradeAll.data.json.gson.JSReturnData
+
 
 interface CoreApi {
 
@@ -12,6 +14,7 @@ interface CoreApi {
      * 返回更新项默认图标
      */
     suspend fun getAppIconUrl(): String?
+
     /**
      * 返回获取到的云端版本号数量
      */
@@ -20,7 +23,7 @@ interface CoreApi {
     /**
      * 返回指定版本的云端版本号
      */
-    suspend fun getVersioning(releaseNum: Int): String?
+    suspend fun getVersionNumber(releaseNum: Int): String?
 
     /**
      * 返回指定版本的更新日志
@@ -44,4 +47,9 @@ interface CoreApi {
      * 并 返回文件路径
      */
     suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): String?
+
+    /**
+     * 返回由 JavaScript 函数返回的固定 JSON 格式生成的版本信息数据类
+     */
+    suspend fun getReleaseInfo(): JSReturnData?
 }

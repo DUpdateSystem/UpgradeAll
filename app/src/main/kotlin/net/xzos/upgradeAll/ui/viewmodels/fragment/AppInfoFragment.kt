@@ -154,7 +154,7 @@ class AppInfoFragment : Fragment() {
             runBlocking(Dispatchers.Default) {
                 val versioningNum = engine.getReleaseNum()
                 for (i in 0 until versioningNum) {
-                    engine.getVersioning(i)?.let {
+                    engine.getVersionNumber(i)?.let {
                         this@apply.add(it)
                     }
                 }
@@ -206,7 +206,7 @@ class AppInfoFragment : Fragment() {
         AppDatabaseManager.getDatabase(appDatabaseId)?.let {
             GlobalScope.launch {
                 val engine = AppManager.getApp(appDatabaseId).engine
-                val latestVersioning = engine.getVersioning(versioningPosition)
+                val latestVersioning = engine.getVersionNumber(versioningPosition)
                 val latestChangeLog = engine.getChangelog(versioningPosition)
                 launch(Dispatchers.Main) {
                     if (this@AppInfoFragment.isVisible) {
