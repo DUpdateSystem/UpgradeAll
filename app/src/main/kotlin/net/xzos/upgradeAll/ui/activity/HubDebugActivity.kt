@@ -327,8 +327,7 @@ class HubDebugActivity : AppCompatActivity() {
                 jsLog.d("5. ($i) 获取下载链接(getReleaseDownload): $releaseDownload \n")
             }
             val releaseDownloadFilePath = javaScriptEngine.downloadReleaseFile(Pair(0, 0))
-            jsLog.d("5. 尝试下载 最新版本的第一个文件(downloadReleaseFile): ${releaseDownloadFilePath != null} \n    下载文件地址: $releaseDownloadFilePath \n")
-            if (releaseDownloadFilePath != null) File(releaseDownloadFilePath).deleteOnExit()
+            jsLog.d("5. 尝试下载 最新版本的第一个文件(downloadReleaseFile): ${if(releaseDownloadFilePath) "下载成功" else "下载失败"}")
             jsLog.d(" \n----------------End----------------")
         }
     }

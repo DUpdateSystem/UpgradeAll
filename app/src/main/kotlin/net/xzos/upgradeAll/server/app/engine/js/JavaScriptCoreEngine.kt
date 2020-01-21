@@ -7,6 +7,7 @@ import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSUtils
+import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Function
 import org.mozilla.javascript.ScriptableObject
@@ -131,7 +132,7 @@ internal class JavaScriptCoreEngine(
                     ?: return fileMap
             val fileJsonString = Context.toString(result)
             try {
-                val returnMap = jsUtils.mapOfJsonObject(fileJsonString)
+                val returnMap = MiscellaneousUtils.mapOfJsonObject(fileJsonString)
                 for (key in returnMap.keys) {
                     val keyString = key as String
                     fileMap[keyString] = returnMap[key] as String
@@ -155,13 +156,8 @@ internal class JavaScriptCoreEngine(
         }
     }
 
-    override suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): String? {
-        val result = runJS("downloadReleaseFile", arrayOf(downloadIndex.first, downloadIndex.second))
-                ?: return null
-        val filePath: String = Context.toString(result)
-        Log.d(logObjectTag, TAG, "downloadReleaseFile: filePath: $filePath")
-        return filePath
-    }
+    override suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): Boolean =
+            runJS("downloadReleaseFile", arrayOf(downloadIndex.first, downloadIndex.second)) != null
 
     companion object {
         private const val TAG = "JavaScriptCoreEngine"

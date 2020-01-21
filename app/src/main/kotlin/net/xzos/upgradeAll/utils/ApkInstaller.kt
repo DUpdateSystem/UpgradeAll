@@ -14,7 +14,7 @@ import java.io.File
 class ApkInstaller(private val context: Context) {
 
     fun installApplication(file: File) {
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             try {
                 val m = StrictMode::class.java.getMethod("disableDeathOnFileUriExposure")
                 m.invoke(null)
@@ -22,9 +22,9 @@ class ApkInstaller(private val context: Context) {
                 e.printStackTrace()
             }
         }
-        var fileUri = Uri.fromFile(file)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            fileUri = FileProvider.getUriForFile(context, context.packageName + ".fileprovider", file)
+        val fileUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            FileProvider.getUriForFile(context, context.packageName + ".fileprovider", file)
+        else Uri.fromFile(file)
         val intent = Intent(Intent.ACTION_INSTALL_PACKAGE)
                 .setDataAndType(fileUri, "application/vnd.android.package-archive")
                 .putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)

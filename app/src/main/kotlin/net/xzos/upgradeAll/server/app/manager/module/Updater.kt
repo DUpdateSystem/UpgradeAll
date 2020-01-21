@@ -24,7 +24,7 @@ class Updater internal constructor(private val engine: JavaScriptEngine) {
             }
 
     // 使用内置下载器下载文件
-    private suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false): String? =
+    private suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false): Boolean =
             if (!externalDownloader) engine.downloadReleaseFile(fileIndex)
             else engine.downloadFile(fileIndex, externalDownloader = externalDownloader)
 }
