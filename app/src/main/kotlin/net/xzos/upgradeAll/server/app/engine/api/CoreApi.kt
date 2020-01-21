@@ -44,9 +44,9 @@ interface CoreApi {
 
     /**
      * 下载文件操作
-     * 并 返回文件路径
+     * 操作成功返回 true
      */
-    suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): String?
+    suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): Boolean
 
     /**
      * 返回由 JavaScript 函数返回的固定 JSON 格式生成的版本信息数据类

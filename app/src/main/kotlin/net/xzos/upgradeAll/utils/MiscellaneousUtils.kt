@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
+import com.google.gson.Gson
 import com.jaredrummler.android.shell.CommandResult
 import com.jaredrummler.android.shell.Shell
 import kotlinx.coroutines.Dispatchers
@@ -12,6 +13,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication.Companion.context
+import net.xzos.upgradeAll.server.app.engine.js.utils.JSUtils
+import org.json.JSONException
 import java.io.StringReader
 import java.util.*
 
@@ -59,4 +62,12 @@ object MiscellaneousUtils {
                     }
                 else Shell.run(command)
             else null
+
+    fun mapOfJsonObject(jsonObjectString: String): Map<*, *> {
+        return try {
+            Gson().fromJson(jsonObjectString, Map::class.java)
+        } catch (e: JSONException) {
+            mapOf<Any, Any>()
+        }
+    }
 }

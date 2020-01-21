@@ -44,14 +44,18 @@ class JavaScriptEngine internal constructor(
         else -> mapOf()
     }
 
-    override suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): String? =
-            javaScriptCoreEngine.downloadReleaseFile(downloadIndex)
-                    ?: downloadFile(downloadIndex)
+    override suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): Boolean {
+        val jsSuccessDownload = javaScriptCoreEngine.downloadReleaseFile(downloadIndex)
+        return if (jsSuccessDownload)
+            true
+        else
+            downloadFile(downloadIndex)
+    }
 
     // TODO: 无用接口
     override suspend fun getReleaseInfo(): JSReturnData? = null
 
-    internal suspend fun downloadFile(downloadIndex: Pair<Int, Int>, externalDownloader: Boolean = false): String? {
+    internal suspend fun downloadFile(downloadIndex: Pair<Int, Int>, externalDownloader: Boolean = false): Boolean {
         Log.e(logObjectTag, TAG, "downloadFile: 尝试直接下载")
         val downloadReleaseMap = getReleaseDownload(downloadIndex.first)
         val fileIndex = downloadIndex.second
@@ -62,10 +66,11 @@ class JavaScriptEngine internal constructor(
                 else
                     null
         val downloadUrl = downloadReleaseMap[fileName]
-        return if (fileName != null && downloadUrl != null)
+        return if (fileName != null && downloadUrl != null) {
             javaScriptCoreEngine.jsUtils.downloadFile(fileName, downloadUrl, externalDownloader = externalDownloader)
-        else
-            null
+            true
+        } else
+            false
     }
 
     companion object {

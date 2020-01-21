@@ -1,6 +1,5 @@
 package net.xzos.upgradeAll.server.app.engine.js.utils
 
-import com.google.gson.Gson
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.data.json.nongson.MyCookieManager
 import net.xzos.upgradeAll.server.ServerContainer
@@ -77,8 +76,7 @@ class JSUtils(
             VersioningUtils.matchVersioningString(versionString)
 
     fun downloadFile(fileName: String, URL: String, headers: Map<String, String> = mapOf(),
-                     isDebug: Boolean = this.debugMode, externalDownloader: Boolean = false)
-            : String? {
+                     isDebug: Boolean = this.debugMode, externalDownloader: Boolean = false) {
         val allHeaders = hashMapOf<String, String>().apply {
             this.putAll(headers)
             this.putAll(jsoupApi.requestHeaders) // 装载由 Jsoup 生成的正常 header
@@ -88,27 +86,18 @@ class JSUtils(
             }  // 装载 Cookies
         }
         val resUrl = jsoupApi.getRedirectsUrl(URL, headers = allHeaders)
-        return if (!externalDownloader)
+        if (!externalDownloader)
             AriaDownloader(isDebug).apply {
                 waiteGetDownloadTaskNotification(fileName)
             }.start(
                     fileName, resUrl ?: URL,
-                    headers = allHeaders).path
+                    headers = allHeaders)
+        // debug 模式下自动删除
         else {
             MiscellaneousUtils.accessByBrowser(
                     resUrl ?: URL,
                     MyApplication.context
             )
-            null
-        }
-    }
-
-    internal fun mapOfJsonObject(jsonObjectString: String): Map<*, *> {
-        return try {
-            Gson().fromJson(jsonObjectString, Map::class.java)
-        } catch (e: JSONException) {
-            Log.e(logObjectTag, TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范, fileJsonString : $jsonObjectString")
-            mapOf<Any, Any>()
         }
     }
 
