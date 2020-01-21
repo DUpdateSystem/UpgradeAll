@@ -1,4 +1,4 @@
-package net.xzos.upgradeAll.server.app.engine.js.utils
+package net.xzos.upgradeAll.utils.network
 
 import net.xzos.upgradeAll.data.json.nongson.JSCache
 import net.xzos.upgradeAll.data.json.nongson.MyCookieManager

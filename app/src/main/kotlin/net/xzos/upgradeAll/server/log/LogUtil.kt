@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeAll.R
@@ -125,7 +126,7 @@ class LogUtil {
         internal val logDataProxy = LogDataProxy(logMap)
 
         private fun <T> MutableLiveData<T>.notifyObserver() {
-            GlobalScope.launch(Dispatchers.Main) {
+            runBlocking(Dispatchers.Main) {
                 this@notifyObserver.value = this@notifyObserver.value
             }
         }

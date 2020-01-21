@@ -2,6 +2,7 @@ package net.xzos.upgradeAll.ui.viewmodels.fragment
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,7 +38,7 @@ internal class AppListPlaceholderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
-        swipeRefreshLayout.setOnRefreshListener { this.renewCardView() }
+        swipeRefreshLayout.setOnRefreshListener { renewPage() }
         context?.getString(R.string.example_update_overview)
                 ?.split("0")
                 ?.filter { element -> element.isNotBlank() }
@@ -67,6 +68,7 @@ internal class AppListPlaceholderFragment : Fragment() {
                                 }
                             })
                 }
+        renewPage()
     }
 
     private fun renewCardView() {
@@ -76,19 +78,18 @@ internal class AppListPlaceholderFragment : Fragment() {
     }
 
     private fun renewAppList() {
-        if (hubUuid != null)
-            appListPageViewModel.setHubUuid(hubUuid!!)  // 重新刷新跟踪项列表
         val layoutManager = GridLayoutManager(activity, 1)
         cardItemRecyclerView.layoutManager = layoutManager
         val adapter = AppItemAdapter(appListPageViewModel.needUpdateAppIdLiveLiveData, appListPageViewModel.appCardViewList, this)
         cardItemRecyclerView.adapter = adapter
     }
 
-    override fun onResume() {
-        super.onResume()
-        renewCardView()
-        // 占位符修改
-        appListPageViewModel.appCardViewList.value?.let {
+    private fun renewPage() {
+        if (hubUuid != null)
+            appListPageViewModel.setHubUuid(hubUuid!!)  // 重新刷新跟踪项列表
+        appListPageViewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
+            // 列表显示刷新
+            Log.e("111", it.toString())
             if (it.isNullOrEmpty()) {
                 updateOverviewLayout.visibility = View.GONE
                 placeholderLayout.visibility = View.VISIBLE
@@ -99,8 +100,12 @@ internal class AppListPlaceholderFragment : Fragment() {
             } else {
                 updateOverviewLayout.visibility = View.VISIBLE
                 placeholderLayout.visibility = View.GONE
+                renewCardView()
             }
-        }
+
+        })
+        updateOverviewLayout.visibility = View.VISIBLE
+        placeholderLayout.visibility = View.GONE
     }
 
     companion object {
