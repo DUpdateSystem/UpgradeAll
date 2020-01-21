@@ -7,23 +7,37 @@ import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.utils.AriaDownloader
 import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import net.xzos.upgradeAll.utils.VersioningUtils
+import net.xzos.upgradeAll.utils.network.JsoupApi
+import net.xzos.upgradeAll.utils.network.OkHttpApi
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import org.mozilla.javascript.Context
+import org.mozilla.javascript.NativeArray
+import org.mozilla.javascript.Scriptable
+import org.mozilla.javascript.ScriptableObject
 import org.seimicrawler.xpath.JXDocument
-import java.util.*
 
 
 /**
  * 爬虫相关库的打包集合
  * For JavaScript
  */
-class JSUtils(private val logObjectTag: Pair<String, String>) {
+class JSUtils(
+        private val logObjectTag: Pair<String, String>,
+        private val scope: ScriptableObject
+) {
 
     internal var debugMode = false
 
+    private lateinit var cx: Context
+
     private val jsoupApi = JsoupApi(logObjectTag)
     private val okHttpApi = OkHttpApi(logObjectTag)
+
+    fun get(cx: Context): JSUtils = this.also {
+        this.cx = cx
+    }
 
     fun getJSONObject(): JSONObject {
         return JSONObject()
@@ -48,25 +62,24 @@ class JSUtils(private val logObjectTag: Pair<String, String>) {
     fun getHttpResponse(URL: String): String? =
             okHttpApi.getHttpResponse(URL, catchError = false)
 
-    fun selNByJsoupXpath(userAgent: String?, URL: String, xpath: String): ArrayList<*> {
-        val doc = jsoupApi.getDoc(URL, userAgent = userAgent) ?: return arrayListOf<Any>()
+    fun selNByJsoupXpath(userAgent: String?, URL: String, xpath: String): NativeArray {
+        val doc = jsoupApi.getDoc(URL, userAgent = userAgent)
+                ?: return NativeArray(0)
         val jxDocument = JXDocument.create(doc)
-        val nodeStringArrayList = ArrayList<String>()
+        val nodeStringList = mutableListOf<String>()
         for (node in jxDocument.selN(xpath)) {
-            nodeStringArrayList.add(node.toString())
+            nodeStringList.add(node.toString())
         }
-        Log.d(logObjectTag, TAG, "selNByJsoupXpath: node_list number: " + nodeStringArrayList.size)
-        return nodeStringArrayList
-    }
-
-    fun mapOfJsonObject(jsonObject: JSONObject): Map<*, *> {
-        return Gson().fromJson(jsonObject.toString(), Map::class.java)
+        Log.d(logObjectTag, TAG, "selNByJsoupXpath: node_list number: " + nodeStringList.size)
+        return NativeArray(nodeStringList.toTypedArray())
     }
 
     fun matchVersioningString(versionString: String?): String? =
             VersioningUtils.matchVersioningString(versionString)
 
-    fun downloadFile(fileName: String, URL: String, headers: Map<String, String> = mapOf(), isDebug: Boolean = this.debugMode, externalDownloader: Boolean = false): String? {
+    fun downloadFile(fileName: String, URL: String, headers: Map<String, String> = mapOf(),
+                     isDebug: Boolean = this.debugMode, externalDownloader: Boolean = false)
+            : String? {
         val allHeaders = hashMapOf<String, String>().apply {
             this.putAll(headers)
             this.putAll(jsoupApi.requestHeaders) // 装载由 Jsoup 生成的正常 header
@@ -88,6 +101,15 @@ class JSUtils(private val logObjectTag: Pair<String, String>) {
                     MyApplication.context
             )
             null
+        }
+    }
+
+    internal fun mapOfJsonObject(jsonObjectString: String): Map<*, *> {
+        return try {
+            Gson().fromJson(jsonObjectString, Map::class.java)
+        } catch (e: JSONException) {
+            Log.e(logObjectTag, TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范, fileJsonString : $jsonObjectString")
+            mapOf<Any, Any>()
         }
     }
 

@@ -13,7 +13,7 @@ import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.data.json.gson.CloudConfig
 import net.xzos.upgradeAll.data.json.gson.HubConfig
 import net.xzos.upgradeAll.server.ServerContainer
-import net.xzos.upgradeAll.server.app.engine.js.utils.OkHttpApi
+import net.xzos.upgradeAll.utils.network.OkHttpApi
 import net.xzos.upgradeAll.utils.FileUtil
 
 object CloudConfigGetter {

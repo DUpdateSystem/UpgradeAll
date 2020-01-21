@@ -4,11 +4,8 @@ import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSUtils
-import org.json.JSONException
-import org.json.JSONObject
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Function
-import org.mozilla.javascript.Scriptable
 import org.mozilla.javascript.ScriptableObject
 
 internal class JavaScriptCoreEngine(
@@ -18,23 +15,29 @@ internal class JavaScriptCoreEngine(
 ) : CoreApi {
 
     private val jsLog = JSLog(logObjectTag)
-    internal val jsUtils = JSUtils(logObjectTag)
-    private var scope: ScriptableObject? = null
+    internal lateinit var jsUtils: JSUtils
+    private lateinit var scope: ScriptableObject
 
-    private fun initRhino(cx: Context, scope: Scriptable) {
+    init {
+        runJS(null, arrayOf())  // 空运行初始化基础 JavaScript 运行环境
+    }
+
+    private fun initRhino(cx: Context, scope: ScriptableObject) {
         // 初始化 rhino 对象
         cx.optimizationLevel = -1
         // 载入 JavaScript 实例
-        registerJavaMethods(scope)
+        registerJavaMethods(cx, scope)
         val methodsSuccess = executeVoidScript(cx, scope)
         if (methodsSuccess)
             ScriptableObject.putProperty(scope, "URL", URL)  // 初始化 URL
     }
 
     // 注册 Java 代码
-    private fun registerJavaMethods(scope: Scriptable) {
+    private fun registerJavaMethods(cx: Context, scope: ScriptableObject) {
         // 爬虫库
-        val rhinoJSUtils = Context.javaToJS(jsUtils, scope)
+        if (!::jsUtils.isInitialized)
+            jsUtils = JSUtils(logObjectTag, scope)
+        val rhinoJSUtils = Context.javaToJS(jsUtils.get(cx), scope)
         ScriptableObject.putProperty(scope, "JSUtils", rhinoJSUtils)
         // Log
         val rhinoLogUtils = Context.javaToJS(jsLog, scope)
@@ -42,7 +45,7 @@ internal class JavaScriptCoreEngine(
     }
 
     // 加载 JavaScript 代码
-    private fun executeVoidScript(cx: Context, scope: Scriptable): Boolean {
+    private fun executeVoidScript(cx: Context, scope: ScriptableObject): Boolean {
         if (jsCode == null) return false
         return try {
             cx.evaluateString(scope, jsCode, logObjectTag.toString(), 1, null)
@@ -54,14 +57,16 @@ internal class JavaScriptCoreEngine(
     }
 
     // 运行 JS 代码
-    private fun runJS(functionName: String, args: Array<Any>): Any? {
+    private fun runJS(functionName: String?, args: Array<Any>): Any? {
         val cx = Context.enter()
-        val scope = scope ?: cx.initStandardObjects().also {
+        val scope = cx.initStandardObjects().also {
             initRhino(cx, it)
             scope = it
         }
         return try {
-            (scope.get(functionName, scope) as Function).call(cx, scope, scope, args)
+            if (functionName != null) {
+                (scope.get(functionName, scope) as Function).call(cx, scope, scope, args)
+            } else null
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, "runJS: 脚本执行错误, 函数名: $functionName, ERROR_MESSAGE: $e")
             null
@@ -120,13 +125,11 @@ internal class JavaScriptCoreEngine(
                 ?: return fileMap
         val fileJsonString = Context.toString(result)
         try {
-            val returnMap = jsUtils.mapOfJsonObject(JSONObject(fileJsonString))
+            val returnMap = jsUtils.mapOfJsonObject(fileJsonString)
             for (key in returnMap.keys) {
                 val keyString = key as String
                 fileMap[keyString] = returnMap[key] as String
             }
-        } catch (e: JSONException) {
-            Log.e(logObjectTag, TAG, "getReleaseDownload: 返回值不符合 JsonObject 规范, fileJsonString : $fileJsonString")
         } catch (e: NullPointerException) {
             Log.e(logObjectTag, TAG, "getReleaseDownload: 返回值为 NULL, fileJsonString : $fileJsonString")
         }
