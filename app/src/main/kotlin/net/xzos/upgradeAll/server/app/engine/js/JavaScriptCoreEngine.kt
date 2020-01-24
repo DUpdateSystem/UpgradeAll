@@ -104,8 +104,10 @@ internal class JavaScriptCoreEngine(
     }
 
     override suspend fun getVersionNumber(releaseNum: Int): String? {
-        val result = getReleaseInfo()?.releaseInfoList?.get(releaseNum)?.version_number
-                ?: runJS("getVersionNumber", arrayOf(releaseNum))
+        val releaseInfoList = getReleaseInfo()?.releaseInfoList
+        val result = if (!releaseInfoList.isNullOrEmpty())
+            releaseInfoList[releaseNum].version_number
+        else runJS("getVersionNumber", arrayOf(releaseNum))
                 ?: return null
         // TODO: 向下兼容两个主版本后移除，当前版本：0.1.0-alpha.3
         val versionNumber = Context.toString(result)
@@ -114,8 +116,10 @@ internal class JavaScriptCoreEngine(
     }
 
     override suspend fun getChangelog(releaseNum: Int): String? {
-        val result = getReleaseInfo()?.releaseInfoList?.get(releaseNum)?.change_log
-                ?: runJS("getChangelog", arrayOf(releaseNum))
+        val releaseInfoList = getReleaseInfo()?.releaseInfoList
+        val result = if (!releaseInfoList.isNullOrEmpty())
+            releaseInfoList[releaseNum].change_log
+        else runJS("getChangelog", arrayOf(releaseNum))
                 ?: return null
         val changeLog = Context.toString(result)
         Log.d(logObjectTag, TAG, "getChangelog: Changelog: $changeLog")
@@ -123,11 +127,14 @@ internal class JavaScriptCoreEngine(
     }
 
     override suspend fun getReleaseDownload(releaseNum: Int): Map<String, String> {
+        val releaseInfoList = getReleaseInfo()?.releaseInfoList
         val fileMap = mutableMapOf<String, String>()
-        getReleaseInfo()?.releaseInfoList?.get(releaseNum)?.assets?.also { assets ->
-            for (asset in assets)
-                fileMap[asset.name] = asset.download_url
-        } ?: kotlin.run {
+        if (!releaseInfoList.isNullOrEmpty()) {
+            releaseInfoList[releaseNum].assets.also { assets ->
+                for (asset in assets)
+                    fileMap[asset.name] = asset.download_url
+            }
+        } else {
             val result = runJS("getReleaseDownload", arrayOf(releaseNum))
                     ?: return fileMap
             val fileJsonString = Context.toString(result)
