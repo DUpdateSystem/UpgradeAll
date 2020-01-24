@@ -1,6 +1,10 @@
 package net.xzos.upgradeAll.server.app.engine.js.utils
 
+import android.widget.Toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.application.MyApplication
+import net.xzos.upgradeAll.application.MyApplication.Companion.context
 import net.xzos.upgradeAll.data.json.nongson.MyCookieManager
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.utils.AriaDownloader
@@ -9,8 +13,6 @@ import net.xzos.upgradeAll.utils.VersioningUtils
 import net.xzos.upgradeAll.utils.network.JsoupApi
 import net.xzos.upgradeAll.utils.network.OkHttpApi
 import org.mozilla.javascript.Context
-import org.mozilla.javascript.NativeArray
-import org.mozilla.javascript.NativeStringIterator
 import org.mozilla.javascript.ScriptableObject
 import org.seimicrawler.xpath.JXDocument
 
@@ -64,18 +66,28 @@ class JSUtils(
                 this["Cookie"] = it
             }  // 装载 Cookies
         }
-        val resUrl = jsoupApi.getRedirectsUrl(URL, headers = allHeaders)
+        val ariaDownloader = AriaDownloader(isDebug).apply {
+            waiteGetDownloadTaskNotification(fileName)
+        }
+        val resUrl = jsoupApi.getRedirectsUrl(URL, headers = allHeaders) ?: URL
         if (!externalDownloader)
-            AriaDownloader(isDebug).apply {
-                waiteGetDownloadTaskNotification(fileName)
-            }.start(
-                    fileName, resUrl ?: URL,
-                    headers = allHeaders)
-        // debug 模式下自动删除
+            try {
+                ariaDownloader.start(
+                        fileName, resUrl,
+                        headers = allHeaders)
+            } catch (e: IllegalArgumentException) {
+                Log.e(logObjectTag, TAG, """ downloadFile: 下载任务失败
+                        |下载参数: URL: $resUrl, FileName: $fileName, headers: $allHeaders
+                        |ERROR_MESSAGE: $e""".trimIndent())
+                ariaDownloader.cancel()
+                runBlocking(Dispatchers.Main) {
+                    Toast.makeText(context, "下载失败: $fileName", Toast.LENGTH_SHORT).show()
+                }
+            }
         else {
             MiscellaneousUtils.accessByBrowser(
-                    resUrl ?: URL,
-                    MyApplication.context
+                    resUrl,
+                    context
             )
         }
     }
