@@ -2,12 +2,11 @@ package net.xzos.upgradeAll.server.app.engine.js
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.data.json.gson.JSReturnData
 import net.xzos.upgradeAll.server.ServerContainer
-import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSUtils
-import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Function
 import org.mozilla.javascript.ScriptableObject
@@ -16,14 +15,14 @@ internal class JavaScriptCoreEngine(
         private val logObjectTag: Pair<String, String>,
         private val URL: String?,
         private val jsCode: String?
-) : CoreApi {
+) : JavaScriptApi {
 
     private val jsLog = JSLog(logObjectTag)
     internal lateinit var jsUtils: JSUtils
     private lateinit var scope: ScriptableObject
 
     init {
-        runJS(null, arrayOf())  // 空运行初始化基础 JavaScript 运行环境
+        runBlocking { runJS(null, arrayOf()) }  // 空运行初始化基础 JavaScript 运行环境
     }
 
     private fun initRhino(cx: Context, scope: ScriptableObject) {
@@ -79,6 +78,9 @@ internal class JavaScriptCoreEngine(
         }
     }
 
+    /**
+     * 返回更新项默认名称
+     */
     override suspend fun getDefaultName(): String? {
         val result = runJS("getDefaultName", arrayOf()) ?: return null
         val defaultName = Context.toString(result)
@@ -86,6 +88,9 @@ internal class JavaScriptCoreEngine(
         return defaultName
     }
 
+    /**
+     * 返回更新项默认图标 URL
+     */
     override suspend fun getAppIconUrl(): String? {
         val result = runJS("getAppIconUrl", arrayOf())
                 ?: return null
@@ -94,67 +99,12 @@ internal class JavaScriptCoreEngine(
         return appIconUrl
     }
 
-    override suspend fun getReleaseNum(): Int {
-        val result = getReleaseInfo()?.releaseInfoList?.size
-                ?: runJS("getReleaseNum", arrayOf())
-                ?: return 0
-        val releaseNum = Context.toNumber(result).toInt()
-        Log.d(logObjectTag, TAG, "getReleaseNum: releaseNum: $releaseNum")
-        return releaseNum
-    }
-
-    override suspend fun getVersionNumber(releaseNum: Int): String? {
-        val releaseInfoList = getReleaseInfo()?.releaseInfoList
-        val result = if (!releaseInfoList.isNullOrEmpty())
-            releaseInfoList[releaseNum].version_number
-        else runJS("getVersionNumber", arrayOf(releaseNum))
-                ?: return null
-        // TODO: 向下兼容两个主版本后移除，当前版本：0.1.0-alpha.3
-        val versionNumber = Context.toString(result)
-        Log.d(logObjectTag, TAG, "getVersionNumber: getVersionNumber: $versionNumber")
-        return versionNumber
-    }
-
-    override suspend fun getChangelog(releaseNum: Int): String? {
-        val releaseInfoList = getReleaseInfo()?.releaseInfoList
-        val result = if (!releaseInfoList.isNullOrEmpty())
-            releaseInfoList[releaseNum].change_log
-        else runJS("getChangelog", arrayOf(releaseNum))
-                ?: return null
-        val changeLog = Context.toString(result)
-        Log.d(logObjectTag, TAG, "getChangelog: Changelog: $changeLog")
-        return changeLog
-    }
-
-    override suspend fun getReleaseDownload(releaseNum: Int): Map<String, String> {
-        val releaseInfoList = getReleaseInfo()?.releaseInfoList
-        val fileMap = mutableMapOf<String, String>()
-        if (!releaseInfoList.isNullOrEmpty()) {
-            releaseInfoList[releaseNum].assets.also { assets ->
-                for (asset in assets)
-                    fileMap[asset.name] = asset.download_url
-            }
-        } else {
-            val result = runJS("getReleaseDownload", arrayOf(releaseNum))
-                    ?: return fileMap
-            val fileJsonString = Context.toString(result)
-            try {
-                val returnMap = MiscellaneousUtils.mapOfJsonObject(fileJsonString)
-                for (key in returnMap.keys) {
-                    val keyString = key as String
-                    fileMap[keyString] = returnMap[key] as String
-                }
-            } catch (e: NullPointerException) {
-                Log.e(logObjectTag, TAG, "getReleaseDownload: 返回值为 NULL, fileJsonString : $fileJsonString")
-            }
-            Log.d(logObjectTag, TAG, "getReleaseDownload: fileJson: $fileMap")
-        }
-        return fileMap
-    }
-
-    override suspend fun getReleaseInfo(): JSReturnData? {
+    /**
+     * 返回由 JavaScript 函数返回的固定 JSON 格式生成的版本信息数据类
+     */
+    override suspend fun getReleaseInfo(): JSReturnData {
         val result = runJS("getReleaseInfo", arrayOf())
-                ?: return null
+                ?: return JSReturnData()
         val versionInfoJsonString: String = Context.toString(result)
         Log.d(logObjectTag, TAG, "getReleaseInfo: JSON 字符串: $versionInfoJsonString")
         return try {
@@ -165,10 +115,14 @@ internal class JavaScriptCoreEngine(
             )
         } catch (e: JsonSyntaxException) {
             Log.e(logObjectTag, TAG, "getReleaseInfo: JSON 解析失败, ERROR_MESSAGE: $e")
-            null
+            JSReturnData()
         }
     }
 
+    /**
+     * 下载文件操作
+     * 操作成功返回 true
+     */
     override suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): Boolean =
             runJS("downloadReleaseFile", arrayOf(downloadIndex.first, downloadIndex.second)) != null
 
@@ -176,4 +130,12 @@ internal class JavaScriptCoreEngine(
         private const val TAG = "JavaScriptCoreEngine"
         private val Log = ServerContainer.Log
     }
+
+}
+
+private interface JavaScriptApi {
+    suspend fun getDefaultName(): String?
+    suspend fun getAppIconUrl(): String?
+    suspend fun getReleaseInfo(): JSReturnData?
+    suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): Boolean
 }

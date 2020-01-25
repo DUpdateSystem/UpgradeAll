@@ -1,5 +1,8 @@
 package net.xzos.upgradeAll.utils.network
 
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeAll.data.json.nongson.JSCache
 import net.xzos.upgradeAll.data.json.nongson.MyCookieManager
 import net.xzos.upgradeAll.server.ServerContainer
@@ -15,7 +18,25 @@ class OkHttpApi(private val logObjectTag: Pair<String, String>) {
 
     internal var requestHeaders = hashMapOf<String, String>()
 
-    fun getHttpResponse(url: String, catchError: Boolean = true): String? =
+    fun getHttpResponse(url: String, catchError: Boolean = true): String? {
+        val mutex =
+                mutexMap[url]
+                        ?: Mutex().also {
+                            mutexMap[url] = it
+                        }
+        // 获取锁
+        return runBlocking {
+            // 阻塞获取数据
+            mutex.withLock {
+                getHttpResponseNoBlock(url, catchError)
+                        .also {
+                            mutexMap.remove(url)
+                        }
+            }
+        }
+    }
+
+    private fun getHttpResponseNoBlock(url: String, catchError: Boolean = true): String? =
             jsCache.getHttpResponseCache(url)
                     ?: getRawHttpResponse(url, catchError)
                             ?.also {
@@ -59,5 +80,6 @@ class OkHttpApi(private val logObjectTag: Pair<String, String>) {
         private val Log = ServerContainer.Log
         private const val TAG = "OkHttpApi"
         private val okHttpClient = OkHttpClient().newBuilder().cookieJar(JavaNetCookieJar(MyCookieManager)).build()
+        private val mutexMap: HashMap<String, Mutex> = hashMapOf()
     }
 }

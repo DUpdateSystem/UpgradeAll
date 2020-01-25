@@ -3,14 +3,13 @@ package net.xzos.upgradeAll.server.app.engine.js
 import net.xzos.upgradeAll.data.json.gson.JSReturnData
 import net.xzos.upgradeAll.data.json.nongson.JSCache
 import net.xzos.upgradeAll.server.ServerContainer
-import net.xzos.upgradeAll.server.app.engine.api.CoreApi
 
 class JavaScriptEngine internal constructor(
         internal val logObjectTag: Pair<String, String>,
         URL: String?,
         jsCode: String?,
         debugMode: Boolean = false
-) : CoreApi {
+) {
 
     private val javaScriptCoreEngine = JavaScriptCoreEngine(logObjectTag, URL, jsCode)
 
@@ -22,55 +21,41 @@ class JavaScriptEngine internal constructor(
         JSCache.clearCache(logObjectTag)
     }
 
+    suspend fun getDefaultName(): String? = javaScriptCoreEngine.getDefaultName()
 
-    override suspend fun getDefaultName(): String? = javaScriptCoreEngine.getDefaultName()
+    suspend fun getAppIconUrl(): String? = javaScriptCoreEngine.getAppIconUrl()
 
-    override suspend fun getAppIconUrl(): String? = javaScriptCoreEngine.getAppIconUrl()
+    /**
+     * 返回包含版本信息的数据类列表
+     */
+    private suspend fun getReleasesInfo(): List<JSReturnData.ReleaseInfoBean> =
+            javaScriptCoreEngine.getReleaseInfo().releaseInfoList
 
-    override suspend fun getReleaseNum(): Int = javaScriptCoreEngine.getReleaseNum()
+    suspend fun getReleaseNum(): Int = getReleasesInfo().size
 
-    override suspend fun getVersionNumber(releaseNum: Int): String? = when {
-        releaseNum >= 0 -> javaScriptCoreEngine.getVersionNumber(releaseNum)
-        else -> null
+    suspend fun getReleaseInfo(releaseNum: Int): JSReturnData.ReleaseInfoBean? {
+        val releasesInfo = getReleasesInfo()
+        return if (releasesInfo.isNotEmpty() && releaseNum < releasesInfo.size)
+            releasesInfo[releaseNum]
+        else null
     }
 
-    override suspend fun getChangelog(releaseNum: Int): String? = when {
-        releaseNum >= 0 -> javaScriptCoreEngine.getChangelog(releaseNum)
-        else -> null
-    }
-
-    override suspend fun getReleaseDownload(releaseNum: Int): Map<String, String> = when {
-        releaseNum >= 0 -> javaScriptCoreEngine.getReleaseDownload(releaseNum)
-        else -> mapOf()
-    }
-
-    override suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): Boolean {
+    suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): Boolean {
         val jsSuccessDownload = javaScriptCoreEngine.downloadReleaseFile(downloadIndex)
         return if (jsSuccessDownload)
             true
         else
-            downloadFile(downloadIndex)
+            downloadFileByReleaseInfo(downloadIndex)
     }
 
-    // TODO: 无用接口
-    override suspend fun getReleaseInfo(): JSReturnData? = null
-
-    internal suspend fun downloadFile(downloadIndex: Pair<Int, Int>, externalDownloader: Boolean = false): Boolean {
+    suspend fun downloadFileByReleaseInfo(downloadIndex: Pair<Int, Int>, externalDownloader: Boolean = false): Boolean {
         Log.e(logObjectTag, TAG, "downloadFile: 尝试直接下载")
-        val downloadReleaseMap = getReleaseDownload(downloadIndex.first)
+        val assets = getReleasesInfo()[downloadIndex.first].assets
         val fileIndex = downloadIndex.second
-        val fileNameList = downloadReleaseMap.keys.toList()
-        val fileName =
-                if (fileIndex < fileNameList.size)
-                    fileNameList[fileIndex]
-                else
-                    null
-        val downloadUrl = downloadReleaseMap[fileName]
-        return if (fileName != null && downloadUrl != null) {
-            javaScriptCoreEngine.jsUtils.downloadFile(fileName, downloadUrl, externalDownloader = externalDownloader)
-            true
-        } else
-            false
+        val fileName = assets[fileIndex].name
+        val downloadUrl = assets[fileIndex].download_url
+        javaScriptCoreEngine.jsUtils.downloadFile(fileName, downloadUrl, externalDownloader = externalDownloader)
+        return true
     }
 
     companion object {

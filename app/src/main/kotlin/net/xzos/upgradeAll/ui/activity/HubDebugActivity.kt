@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.data.json.gson.HubConfig
+import net.xzos.upgradeAll.data.json.gson.JSReturnData
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
@@ -318,16 +319,21 @@ class HubDebugActivity : AppCompatActivity() {
             // 分步测试
             jsLog.d("1. 获取默认名称(defaultName): ${javaScriptEngine.getDefaultName()} \n")
             jsLog.d("2. 获取发布版本号总数(releaseNum): ${javaScriptEngine.getReleaseNum()} \n")
-            for (i in 0 until javaScriptEngine.getReleaseNum()) {
-                jsLog.d("3. ($i) 获取发布版本号(getVersioning): ${javaScriptEngine.getVersionNumber(i)} \n")
-                jsLog.d("4. ($i) 获取发布版本号(getChangelog): ${javaScriptEngine.getChangelog(i)} \n")
+            val releasesInfo = mutableListOf<JSReturnData.ReleaseInfoBean>().apply {
+                for (i in 0..javaScriptEngine.getReleaseNum())
+                    javaScriptEngine.getReleaseInfo(i)?.let {
+                        this.add(it)
+                    }
             }
-            for (i in 0 until javaScriptEngine.getReleaseNum()) {
-                val releaseDownload = javaScriptEngine.getReleaseDownload(i)
-                jsLog.d("5. ($i) 获取下载链接(getReleaseDownload): $releaseDownload \n")
+            jsLog.d("3. 获取发布版本信息列表(getReleaseInfo): \n")
+            for (release in releasesInfo) {
+                jsLog.d("\t 3.1. 版本号:${release.version_number} \n")
+                jsLog.d("\t 3.1. 更新日志:${release.change_log} \n")
+                for (asset in release.assets)
+                    jsLog.d("\t 3.2. 发布文件下载:${asset.name}: ${asset.download_url} \n")
             }
             val releaseDownloadFilePath = javaScriptEngine.downloadReleaseFile(Pair(0, 0))
-            jsLog.d("5. 尝试下载 最新版本的第一个文件(downloadReleaseFile): ${if(releaseDownloadFilePath) "下载成功" else "下载失败"}")
+            jsLog.d("5. 尝试下载 最新版本的第一个文件(downloadReleaseFile): ${if (releaseDownloadFilePath) "下载成功" else "下载失败"}")
             jsLog.d(" \n----------------End----------------")
         }
     }

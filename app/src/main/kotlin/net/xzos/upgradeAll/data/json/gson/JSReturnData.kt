@@ -8,7 +8,7 @@ package net.xzos.upgradeAll.data.json.gson
  * ]
  */
 data class JSReturnData(
-        var releaseInfoList: List<ReleaseInfoBean>
+        var releaseInfoList: List<ReleaseInfoBean> = listOf()
 ) {
 
     /**
@@ -24,7 +24,7 @@ data class JSReturnData(
 
         /**
          * name:
-         * download_url:
+         * download_url:  下载地址(最好为直链，否则提供直接导向网址)
          */
         data class AssetsBean(
                 var name: String,

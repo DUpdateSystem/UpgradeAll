@@ -2,7 +2,6 @@ package net.xzos.upgradeAll.ui.viewmodels.fragment
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -89,7 +88,6 @@ internal class AppListPlaceholderFragment : Fragment() {
             appListPageViewModel.setHubUuid(hubUuid!!)  // 重新刷新跟踪项列表
         appListPageViewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
             // 列表显示刷新
-            Log.e("111", it.toString())
             if (it.isNullOrEmpty()) {
                 updateOverviewLayout.visibility = View.GONE
                 placeholderLayout.visibility = View.VISIBLE
