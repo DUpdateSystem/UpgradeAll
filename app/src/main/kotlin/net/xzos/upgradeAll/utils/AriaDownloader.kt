@@ -15,14 +15,13 @@ import androidx.core.app.NotificationManagerCompat
 import com.arialyy.annotations.Download
 import com.arialyy.aria.core.Aria
 import com.arialyy.aria.core.download.DownloadEntity
-import com.arialyy.aria.core.download.DownloadTarget
 import com.arialyy.aria.core.download.DownloadTask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.DEL_FILE
+import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.DEL_TASK
 import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.DOWNLOAD_CANCEL
 import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.DOWNLOAD_CONTINUE
 import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.DOWNLOAD_PAUSE
@@ -35,7 +34,7 @@ import java.io.File
 
 class AriaDownloader(private val debugMode: Boolean) {
 
-    private var downloadTarget: DownloadTarget? = null
+    private var url: String = ""
     private val downloaderId = notificationIndex
     private lateinit var downloadFile: File
     private lateinit var builder: NotificationCompat.Builder
@@ -71,15 +70,19 @@ class AriaDownloader(private val debugMode: Boolean) {
     }
 
     fun retry() {
-        downloadTarget?.reTry()
+        Aria.download(this).load(url).reTry()
     }
 
     fun stop() {
-        downloadTarget?.stop()
+        Aria.download(this).load(url).stop()
     }
 
     fun resume() {
-        downloadTarget?.resume()
+        Aria.download(this).load(url).resume()
+    }
+
+    fun install() {
+        ApkInstaller(context).installApplication(downloadFile)
     }
 
     @SuppressLint("CheckResult")
@@ -108,12 +111,15 @@ class AriaDownloader(private val debugMode: Boolean) {
         downloadFile = FileUtil.renameSameFile(
                 File(downloadDir, fileName), taskFileList
         )
-        downloadTarget = Aria.download(this)
+        Aria.download(this)
                 .load(URL)
                 .useServerFileName(true)
                 .setFilePath(downloadFile.path)
                 .addHeaders(headers)
-        downloadTarget?.start()
+                .apply {
+                    url = URL
+                    this.start()
+                }
         return Pair(true, downloadFile)
     }
 
@@ -147,7 +153,7 @@ class AriaDownloader(private val debugMode: Boolean) {
 
     @Download.onTaskStart
     fun taskStart(task: DownloadTask?) {
-        if (task != null && task == downloadTarget) {
+        if (task?.key == url) {
             val progressCurrent: Int = task.percent
             val speed = task.convertSpeed
             NotificationManagerCompat.from(context).apply {
@@ -168,7 +174,7 @@ class AriaDownloader(private val debugMode: Boolean) {
     @Download.onTaskResume
     @Download.onTaskRunning
     fun downloadRunningNotification(task: DownloadTask?) {
-        if (task != null && task == downloadTarget) {
+        if (task?.key == url) {
             val progressCurrent: Int = task.percent
             val speed = task.convertSpeed
             NotificationManagerCompat.from(context).apply {
@@ -183,7 +189,7 @@ class AriaDownloader(private val debugMode: Boolean) {
 
     @Download.onTaskStop
     fun taskStop(task: DownloadTask?) {
-        if (task == downloadTarget) {
+        if (task?.key == url) {
             NotificationManagerCompat.from(context).apply {
                 builder.mActions.clear()
                 builder.setContentText("下载已暂停")
@@ -200,7 +206,7 @@ class AriaDownloader(private val debugMode: Boolean) {
 
     @Download.onTaskFail
     fun taskFail(task: DownloadTask?) {
-        if (task != null && task == downloadTarget) {
+        if (task?.key == url) {
             NotificationManagerCompat.from(context).apply {
                 builder.mActions.clear()
                 builder.setContentText("下载失败，点击重试")
@@ -218,7 +224,7 @@ class AriaDownloader(private val debugMode: Boolean) {
 
     @Download.onTaskComplete
     fun taskFinish(task: DownloadTask?) {
-        if (task != null && task == downloadTarget) {
+        if (task?.key == url) {
             val file = File(task.filePath)
             val contentText = "文件路径: ${task.filePath}"
             NotificationManagerCompat.from(context).apply {
@@ -235,8 +241,8 @@ class AriaDownloader(private val debugMode: Boolean) {
                                 getSnoozePendingIntent(INSTALL_APK))
                     }
                     addAction(android.R.drawable.ic_menu_delete, "删除",
-                            getSnoozePendingIntent(DEL_FILE))
-                    setDeleteIntent(getSnoozePendingIntent(DEL_FILE))
+                            getSnoozePendingIntent(DEL_TASK))
+                    setDeleteIntent(getSnoozePendingIntent(DEL_TASK))
                     setOngoing(false)
                 }
             }
@@ -248,15 +254,17 @@ class AriaDownloader(private val debugMode: Boolean) {
 
     @Download.onTaskCancel
     fun taskCancel(task: DownloadTask?) {
-        if (task == downloadTarget) {
+        if (task?.key == url) {
             cancel()
         }
     }
 
 
     private fun delTaskAndUnRegister() {
-        downloadTarget?.cancel(false)
-        Aria.download(this).unRegister()
+        with(Aria.download(this)) {
+            this.load(url).cancel(false)
+            this.unRegister()
+        }
     }
 
     private fun getSnoozePendingIntent(extraIdentifierDownloadControlId: Int): PendingIntent {
@@ -295,7 +303,7 @@ class AriaDownloader(private val debugMode: Boolean) {
         NotificationManagerCompat.from(context).cancel(notificationId)
     }
 
-    private fun delDownloadFile() {
+    private fun delTask() {
         cancel()
         downloadFile.delete()
     }
@@ -330,23 +338,15 @@ class AriaDownloader(private val debugMode: Boolean) {
 
         override fun onReceive(context: Context, intent: Intent) {
             val downloaderId = intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOADER_ID, -1)
-            val downloadFilePath = intent.getStringExtra(EXTRA_IDENTIFIER_DOWNLOAD_FILE_PATH)
             downloaderMap[downloaderId]?.run {
                 when (intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)) {
                     DOWNLOAD_CANCEL -> this.cancel()
                     DOWNLOAD_RETRY -> this.retry()
                     DOWNLOAD_PAUSE -> this.stop()
                     DOWNLOAD_CONTINUE -> this.resume()
-                    INSTALL_APK -> {
-                        if (!downloadFilePath.isNullOrBlank()) {
-                            val file = File(downloadFilePath)
-                            ApkInstaller(context).installApplication(file)
-                        }
-                    }
-                    DEL_FILE -> {
-                        if (!downloadFilePath.isNullOrBlank())
-                            this.delDownloadFile()
-                    }
+                    INSTALL_APK -> this.install()
+                    DEL_TASK -> this.delTask()
+
                     // TODO: 安装并删除功能集成
                 }
             }
@@ -355,15 +355,13 @@ class AriaDownloader(private val debugMode: Boolean) {
         companion object {
             internal const val EXTRA_IDENTIFIER_DOWNLOADER_ID = "DOWNLOADER_ID"
 
-            internal const val EXTRA_IDENTIFIER_DOWNLOAD_FILE_PATH = "DOWNLOAD_FILE_PATH"
-
             internal const val EXTRA_IDENTIFIER_DOWNLOAD_CONTROL = "DOWNLOAD_CONTROL"
             internal const val DOWNLOAD_CANCEL = 1
             internal const val DOWNLOAD_RETRY = 2
             internal const val DOWNLOAD_PAUSE = 3
             internal const val DOWNLOAD_CONTINUE = 4
             internal const val INSTALL_APK = 11
-            internal const val DEL_FILE = 12
+            internal const val DEL_TASK = 12
         }
     }
 }

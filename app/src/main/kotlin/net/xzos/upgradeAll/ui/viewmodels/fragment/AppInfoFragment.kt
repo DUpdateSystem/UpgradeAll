@@ -17,11 +17,11 @@ import kotlinx.android.synthetic.main.fragment_app_info.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.json.gson.AppDatabaseExtraData
 import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
+import net.xzos.upgradeAll.server.app.manager.module.App
 import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.utils.IconPalette
@@ -34,13 +34,15 @@ import net.xzos.upgradeAll.utils.MiscellaneousUtils
  * 使用 [net.xzos.upgradeAll.ui.activity.MainActivity.setFrameLayout] 方法跳转
  */
 class AppInfoFragment : Fragment() {
-    private var appDatabaseId: Long = 0
     private var versioningPosition: Int = 0
+    private var appDatabaseId: Long = 0
+    private lateinit var app: App
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             appDatabaseId = it.getLong(APP_DATABASE_ID)
+            app = AppManager.getApp(appDatabaseId)
         }
     }
 
@@ -80,16 +82,22 @@ class AppInfoFragment : Fragment() {
     private fun loadVersioningPopupMenu() {
         versioningSelectLayout.visibility = View.GONE
         GlobalScope.launch {
-            val versioningList = getVersioningList()
+            val engine = app.engine
+            val versionNumberList: MutableList<String> = mutableListOf()
+            for (i in 0..engine.getReleaseNum())
+                engine.getReleaseInfo(i)?.version_number?.run {
+                    versionNumberList.add(this)
+                }
+
             launch(Dispatchers.Main) {
                 if (this@AppInfoFragment.isVisible) {
-                    val markProcessedVersionNumber = AppManager.getApp(appDatabaseId).markProcessedVersionNumber
+                    val markProcessedVersionNumber = app.markProcessedVersionNumber
                     versioningSelectLayout.setOnClickListener { view ->
                         // 选择版本号
                         PopupMenu(view.context, view).let { popupMenu ->
-                            for (i in versioningList.indices)
-                                popupMenu.menu.add(versioningList[i].plus(
-                                        if (markProcessedVersionNumber == versioningList[i])
+                            for (i in versionNumberList.indices)
+                                popupMenu.menu.add(versionNumberList[i].plus(
+                                        if (markProcessedVersionNumber == versionNumberList[i])
                                             getString(R.string.o_mark)
                                         else ""
                                 )).let {
@@ -119,15 +127,17 @@ class AppInfoFragment : Fragment() {
                 Toast.makeText(context, R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG).show()
                 dialog.findViewById<LinearLayout>(R.id.placeholderLayout)?.visibility = View.VISIBLE
                 GlobalScope.launch {
-                    val engine = AppManager.getApp(appDatabaseId).engine
-                    val releaseDownloadMap = engine.getReleaseDownload(versioningPosition)
-                    val itemList = releaseDownloadMap.keys.toList()
+                    val engine = app.engine
+                    val releaseAsset = engine.getReleaseInfo(versioningPosition)
+                    val nameList = releaseAsset?.assets?.map { asset ->
+                        asset.name
+                    } ?: return@launch
                     launch(Dispatchers.Main) {
                         if (this@AppInfoFragment.isVisible) {
-                            if (itemList.isNotEmpty()) {
+                            if (nameList.isNotEmpty()) {
                                 dialog.findViewById<ListView>(R.id.list)?.let { list ->
                                     list.adapter =
-                                            ArrayAdapter(dialog.context, android.R.layout.simple_list_item_1, itemList)
+                                            ArrayAdapter(dialog.context, android.R.layout.simple_list_item_1, nameList)
                                     // 下载文件
                                     list.setOnItemClickListener { _, _, position, _ ->
                                         Updater(engine).nonBlockingDownloadReleaseFile(Pair(versioningPosition, position), context = context)
@@ -148,25 +158,9 @@ class AppInfoFragment : Fragment() {
         }
     }
 
-    private fun getVersioningList(): List<String> {
-        val engine = AppManager.getApp(appDatabaseId).engine
-        return mutableListOf<String>().apply {
-            runBlocking(Dispatchers.Default) {
-                val versioningNum = engine.getReleaseNum()
-                for (i in 0 until versioningNum) {
-                    engine.getVersionNumber(i)?.let {
-                        this@apply.add(it)
-                    }
-                }
-            }
-
-        }
-    }
-
     private fun loadAllAppInfo() {
         AppDatabaseManager.getDatabase(appDatabaseId)?.let { appDatabase ->
             GlobalScope.launch {
-                val app = AppManager.getApp(appDatabaseId)
                 val installedVersioning = app.installedVersioning
                 launch(Dispatchers.Main) {
                     if (this@AppInfoFragment.isVisible) {
@@ -205,9 +199,10 @@ class AppInfoFragment : Fragment() {
         versionMarkImageView.visibility = View.GONE
         AppDatabaseManager.getDatabase(appDatabaseId)?.let {
             GlobalScope.launch {
-                val engine = AppManager.getApp(appDatabaseId).engine
-                val latestVersioning = engine.getVersionNumber(versioningPosition)
-                val latestChangeLog = engine.getChangelog(versioningPosition)
+                val engine = app.engine
+                if (!Updater(app.engine).isSuccessRenew()) return@launch
+                val latestVersionNumber = engine.getReleaseInfo(versioningPosition)?.version_number
+                val latestChangeLog = engine.getReleaseInfo(versioningPosition)?.change_log
                 launch(Dispatchers.Main) {
                     if (this@AppInfoFragment.isVisible) {
                         cloud_versioning_text_view.text = if (versioningPosition == 0) {
@@ -216,9 +211,9 @@ class AppInfoFragment : Fragment() {
                             getString(R.string.cloud_version_number)
                         }
                         cloudVersioningTextView.let {
-                            it.text = latestVersioning
+                            it.text = latestVersionNumber
                             it.setOnLongClickListener(View.OnLongClickListener {
-                                markVersionNumber(latestVersioning)
+                                markVersionNumber(latestVersionNumber)
                                 renewVersionRelatedItems()
                                 return@OnLongClickListener true
                             })
