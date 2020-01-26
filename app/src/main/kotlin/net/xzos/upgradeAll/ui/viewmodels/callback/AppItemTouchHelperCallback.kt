@@ -9,7 +9,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
-import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
+import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.ui.viewmodels.adapters.AppItemAdapter
 
 

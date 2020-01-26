@@ -21,14 +21,14 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.DEL_TASK
-import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.DOWNLOAD_CANCEL
-import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.DOWNLOAD_CONTINUE
-import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.DOWNLOAD_PAUSE
-import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.DOWNLOAD_RETRY
-import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOADER_ID
-import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOAD_CONTROL
-import net.xzos.upgradeAll.utils.AriaDownloader.DownloadBroadcastReceiver.Companion.INSTALL_APK
+import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DEL_TASK
+import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_CANCEL
+import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_CONTINUE
+import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_PAUSE
+import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_RETRY
+import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOADER_ID
+import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOAD_CONTROL
+import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.INSTALL_APK
 import java.io.File
 
 
@@ -46,7 +46,7 @@ class AriaDownloader(private val debugMode: Boolean) {
     }
 
     fun start(fileName: String, URL: String, headers: HashMap<String, String> = hashMapOf()): File {
-        waiteGetDownloadTaskNotification(fileName)
+        createDownloadTaskNotification(fileName)
         val (isCreated, file) = startDownloadTask(fileName, URL, headers)
         if (isCreated) {
             Aria.download(this).register()
@@ -63,22 +63,27 @@ class AriaDownloader(private val debugMode: Boolean) {
         return file
     }
 
-    fun cancel() {
-        cancelNotification(downloaderId)
-        delTaskAndUnRegister()
-        downloaderMap.remove(downloaderId)
-    }
-
-    fun retry() {
-        Aria.download(this).load(url).reTry()
+    fun resume() {
+        Aria.download(this).load(url).resume()
     }
 
     fun stop() {
         Aria.download(this).load(url).stop()
     }
 
-    fun resume() {
-        Aria.download(this).load(url).resume()
+    fun retry() {
+        Aria.download(this).load(url).reTry()
+    }
+
+    fun cancel() {
+        cancelNotification(downloaderId)
+        delTaskAndUnRegister()
+        downloaderMap.remove(downloaderId)
+    }
+
+    fun delTask() {
+        cancel()
+        downloadFile.delete()
     }
 
     fun install() {
@@ -123,11 +128,12 @@ class AriaDownloader(private val debugMode: Boolean) {
         return Pair(true, downloadFile)
     }
 
-    internal fun waiteGetDownloadTaskNotification(fileName: String) {
+    internal fun createDownloadTaskNotification(fileName: String) {
         builder = NotificationCompat.Builder(context, CHANNEL_ID).apply {
             setContentTitle("应用下载: $fileName")
             setContentText("正在准备")
             setSmallIcon(android.R.drawable.stat_sys_download)
+            setProgress(0, PROGRESS_MAX, true)
             setOngoing(true)
             priority = NotificationCompat.PRIORITY_LOW
 
@@ -140,6 +146,7 @@ class AriaDownloader(private val debugMode: Boolean) {
             builder.setContentTitle("应用下载: ${file.name}")
                     .setContentText("正在准备")
                     .setSmallIcon(android.R.drawable.stat_sys_download)
+                    .setProgress(0, PROGRESS_MAX, true)
                     .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
                             getSnoozePendingIntent(DOWNLOAD_CANCEL))
                     .setOngoing(true)
@@ -228,7 +235,7 @@ class AriaDownloader(private val debugMode: Boolean) {
             val file = File(task.filePath)
             val contentText = "文件路径: ${task.filePath}"
             NotificationManagerCompat.from(context).apply {
-                builder = NotificationCompat.Builder(context, CHANNEL_ID).apply {
+                builder.run {
                     setContentTitle("下载完成: ${file.name}")
                     setContentText(contentText)
                     setStyle(NotificationCompat.BigTextStyle()
@@ -286,26 +293,8 @@ class AriaDownloader(private val debugMode: Boolean) {
         }
     }
 
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "应用下载", NotificationManager.IMPORTANCE_LOW)
-            channel.description = "显示更新文件的下载状态"
-            channel.enableLights(true)
-            channel.enableVibration(false)
-            channel.setShowBadge(false)
-            val notificationManager = context.getSystemService(
-                    NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
-
     private fun cancelNotification(notificationId: Int) {
         NotificationManagerCompat.from(context).cancel(notificationId)
-    }
-
-    private fun delTask() {
-        cancel()
-        downloadFile.delete()
     }
 
     companion object {
@@ -331,37 +320,51 @@ class AriaDownloader(private val debugMode: Boolean) {
         private val downloadDir = File(context.externalCacheDir, downloadDirName)
 
         private val downloaderMap: HashMap<Int, AriaDownloader> = hashMapOf()
+        internal fun getDownload(downloadId: Int): AriaDownloader? = downloaderMap[downloadId]
 
-    }
-
-    class DownloadBroadcastReceiver : BroadcastReceiver() {
-
-        override fun onReceive(context: Context, intent: Intent) {
-            val downloaderId = intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOADER_ID, -1)
-            downloaderMap[downloaderId]?.run {
-                when (intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)) {
-                    DOWNLOAD_CANCEL -> this.cancel()
-                    DOWNLOAD_RETRY -> this.retry()
-                    DOWNLOAD_PAUSE -> this.stop()
-                    DOWNLOAD_CONTINUE -> this.resume()
-                    INSTALL_APK -> this.install()
-                    DEL_TASK -> this.delTask()
-
-                    // TODO: 安装并删除功能集成
-                }
+        private fun createNotificationChannel() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(CHANNEL_ID, "应用下载", NotificationManager.IMPORTANCE_LOW)
+                channel.description = "显示更新文件的下载状态"
+                channel.enableLights(true)
+                channel.enableVibration(false)
+                channel.setShowBadge(false)
+                val notificationManager = context.getSystemService(
+                        NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.createNotificationChannel(channel)
             }
         }
+    }
+}
 
-        companion object {
-            internal const val EXTRA_IDENTIFIER_DOWNLOADER_ID = "DOWNLOADER_ID"
+class DownloadBroadcastReceiver : BroadcastReceiver() {
 
-            internal const val EXTRA_IDENTIFIER_DOWNLOAD_CONTROL = "DOWNLOAD_CONTROL"
-            internal const val DOWNLOAD_CANCEL = 1
-            internal const val DOWNLOAD_RETRY = 2
-            internal const val DOWNLOAD_PAUSE = 3
-            internal const val DOWNLOAD_CONTINUE = 4
-            internal const val INSTALL_APK = 11
-            internal const val DEL_TASK = 12
+    override fun onReceive(context: Context, intent: Intent) {
+        val downloaderId = intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOADER_ID, -1)
+        AriaDownloader.getDownload(downloaderId)?.run {
+            when (intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)) {
+                DOWNLOAD_CANCEL -> this.cancel()
+                DOWNLOAD_RETRY -> this.retry()
+                DOWNLOAD_PAUSE -> this.stop()
+                DOWNLOAD_CONTINUE -> this.resume()
+                INSTALL_APK -> this.install()
+                DEL_TASK -> this.delTask()
+
+                // TODO: 安装并删除功能集成
+            }
         }
+    }
+
+    companion object {
+        internal const val EXTRA_IDENTIFIER_DOWNLOADER_ID = "DOWNLOADER_ID"
+
+        internal const val EXTRA_IDENTIFIER_DOWNLOAD_CONTROL = "DOWNLOAD_CONTROL"
+        internal const val DOWNLOAD_CANCEL = 1
+        internal const val DOWNLOAD_RETRY = 2
+        internal const val DOWNLOAD_PAUSE = 3
+        internal const val DOWNLOAD_CONTINUE = 4
+        internal const val INSTALL_APK = 11
+        internal const val DEL_TASK = 12
+
     }
 }

@@ -17,8 +17,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.Updater
+import net.xzos.upgradeAll.server.update.UpdateManager
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
@@ -160,7 +161,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
         // 检查新版本
         setUpdateStatus(holder, true)
         GlobalScope.launch {
-            val isSuccessRenew = updater.isSuccessRenew()
+            val isSuccessRenew = UpdateManager.renewApp(appDatabaseId)
             val latestVersioning = updater.getLatestVersioning()
             val updateStatus =  // 0: 404; 1: latest; 2: need update; 3: no app
                     //检查是否取得云端版本号
@@ -218,8 +219,6 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
     }
 
     companion object {
-        private val AppManager = ServerContainer.AppManager
-
         /**
          * 拓展 LiveData 监听列表元素添加、删除操作的支持
          */

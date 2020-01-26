@@ -3,7 +3,9 @@ package net.xzos.upgradeAll.server.app.manager
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.server.app.manager.module.App
 
-internal class AppManager {
+internal object AppManager {
+
+    private val appMap = mutableMapOf<Long, App>() // 存储 Updater Engine 数据
 
     init {
         initApp()
@@ -17,8 +19,11 @@ internal class AppManager {
         }
     }
 
+    fun getAppIds(): MutableSet<Long> =
+            appMap.keys
+
     fun getApp(appDatabaseId: Long): App =
-        appMap[appDatabaseId] ?: App(appDatabaseId).also { appMap[appDatabaseId] = it }
+            appMap[appDatabaseId] ?: App(appDatabaseId).also { appMap[appDatabaseId] = it }
 
     fun setApp(appDatabaseId: Long) {
         appMap[appDatabaseId] = App(appDatabaseId)
@@ -33,9 +38,5 @@ internal class AppManager {
         val repoDatabases = AppDatabaseManager.getDatabaseList(hubUuid = hubUuid)
         for (repoDatabase in repoDatabases)
             repoDatabase?.let { setApp(it.id) }
-    }
-
-    companion object {
-        private val appMap = mutableMapOf<Long, App>() // 存储 Updater Engine 数据
     }
 }

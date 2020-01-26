@@ -7,6 +7,7 @@ import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.data.json.gson.AppDatabaseExtraData
 import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.server.app.manager.AppManager
 import org.litepal.LitePal
 import org.litepal.extension.find
 import org.litepal.extension.findAll
@@ -44,7 +45,7 @@ object AppDatabaseManager {
                 it.extraData = appDatabaseExtraData
                 it.targetChecker = targetChecker
                 it.save() // 将数据存入 RepoDatabase数据库
-                ServerContainer.AppManager.setApp(it.id)  // 更新相关跟踪项
+                AppManager.setApp(it.id)  // 更新相关跟踪项
                 return true
             } ?: if (id == 0L) {
                 RepoDatabase(

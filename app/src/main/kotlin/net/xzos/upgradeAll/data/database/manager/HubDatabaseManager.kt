@@ -5,6 +5,7 @@ import net.xzos.upgradeAll.data.database.litepal.HubDatabase
 import net.xzos.upgradeAll.data.json.gson.HubConfig
 import net.xzos.upgradeAll.data.json.gson.HubDatabaseExtraData
 import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.server.app.manager.AppManager
 import org.litepal.LitePal
 import org.litepal.extension.find
 import org.litepal.extension.findAll
@@ -41,7 +42,7 @@ object HubDatabaseManager {
                     hub_config = Gson().toJson(hubConfigGson),
                     extra_data = Gson().toJson(hubDatabaseExtraData)
             ).save()
-            ServerContainer.AppManager.renewAppInHub(uuid)  // 更新相关跟踪项
+            AppManager.renewAppInHub(uuid)  // 更新相关跟踪项
             return true
         }
         return false

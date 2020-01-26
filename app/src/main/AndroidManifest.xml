@@ -31,7 +31,7 @@
         </provider>
 
         <receiver
-            android:name=".utils.AriaDownloader$DownloadBroadcastReceiver"
+            android:name=".utils.DownloadBroadcastReceiver"
             android:exported="true"
             android:permission="net.xzos.upgradeAll.permission.ACCESS_NETWORK_STATE">
             <intent-filter>

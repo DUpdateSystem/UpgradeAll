@@ -9,6 +9,7 @@ import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.json.nongson.ItemCardViewExtraData
 import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 
 class AppListPageViewModel : ViewModel() {
@@ -32,7 +33,7 @@ class AppListPageViewModel : ViewModel() {
 
     private fun getAppItemCardView(item: RepoDatabase): ItemCardView {
         val iconInfo: Pair<String?, String?> = Pair(
-                runBlocking { ServerContainer.AppManager.getApp(item.id).engine.getAppIconUrl() }
+                runBlocking { AppManager.getApp(item.id).engine.getAppIconUrl() }
                 , item.targetChecker?.extraString
         )
         val databaseId = item.id

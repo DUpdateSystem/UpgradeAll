@@ -27,6 +27,7 @@ import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.server.ServerContainer
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
+import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeAll.utils.IconPalette
@@ -177,7 +178,7 @@ class AppSettingFragment : Fragment() {
                 val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)  // 添加数据库
                 launch(Dispatchers.Main) {
                     if (addRepoSuccess) {
-                        ServerContainer.AppManager.setApp(databaseId)
+                        AppManager.setApp(databaseId)
                         activity?.onBackPressed()  // 跳转主页面
                     } else
                         Toast.makeText(context, "什么？添加失败！", Toast.LENGTH_LONG).show()
