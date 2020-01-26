@@ -3,7 +3,6 @@ package net.xzos.upgradeAll.server.app.engine.js.utils
 import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.application.MyApplication.Companion.context
 import net.xzos.upgradeAll.data.json.nongson.MyCookieManager
 import net.xzos.upgradeAll.server.ServerContainer
@@ -67,7 +66,7 @@ class JSUtils(
             }  // 装载 Cookies
         }
         val ariaDownloader = AriaDownloader(isDebug).apply {
-            waiteGetDownloadTaskNotification(fileName)
+            createDownloadTaskNotification(fileName)
         }
         val resUrl = jsoupApi.getRedirectsUrl(URL, headers = allHeaders) ?: URL
         if (!externalDownloader)

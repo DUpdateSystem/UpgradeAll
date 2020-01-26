@@ -29,6 +29,7 @@ import kotlinx.android.synthetic.main.nav_header_main.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.server.update.UpdateManager
 import net.xzos.upgradeAll.ui.viewmodels.fragment.AppInfoFragment
 import net.xzos.upgradeAll.utils.FileUtil
 import net.xzos.upgradeAll.utils.MiscellaneousUtils
@@ -40,6 +41,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var navController: NavController
 
     init {
+        UpdateManager.renewAll()
+
         navigationItemId = MutableLiveData<Pair<Int, Long?>>(Pair(R.id.appListFragment, null)).apply {
             this.observe(this@MainActivity, Observer { pair ->
                 setFrameLayout(pair)

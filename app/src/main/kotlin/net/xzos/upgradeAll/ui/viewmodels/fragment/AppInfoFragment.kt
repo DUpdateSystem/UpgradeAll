@@ -20,9 +20,10 @@ import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.json.gson.AppDatabaseExtraData
-import net.xzos.upgradeAll.server.ServerContainer.Companion.AppManager
+import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.App
 import net.xzos.upgradeAll.server.app.manager.module.Updater
+import net.xzos.upgradeAll.server.update.UpdateManager
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.utils.IconPalette
 import net.xzos.upgradeAll.utils.MiscellaneousUtils
@@ -200,7 +201,7 @@ class AppInfoFragment : Fragment() {
         AppDatabaseManager.getDatabase(appDatabaseId)?.let {
             GlobalScope.launch {
                 val engine = app.engine
-                if (!Updater(app.engine).isSuccessRenew()) return@launch
+                if (!UpdateManager.renewApp(appDatabaseId)) return@launch
                 val latestVersionNumber = engine.getReleaseInfo(versioningPosition)?.version_number
                 val latestChangeLog = engine.getReleaseInfo(versioningPosition)?.change_log
                 launch(Dispatchers.Main) {

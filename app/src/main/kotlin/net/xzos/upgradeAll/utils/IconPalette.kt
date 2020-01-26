@@ -16,6 +16,7 @@ import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.server.app.manager.AppManager
 
 
 object IconPalette {
@@ -84,7 +85,7 @@ object IconPalette {
         GlobalScope.launch {
             val appDatabase = AppDatabaseManager.getDatabase(appDatabaseId)
             val (appIconUrl, appModuleName) = iconInfo ?: Pair(
-                    ServerContainer.AppManager.getApp(appDatabaseId).engine.getAppIconUrl()
+                    AppManager.getApp(appDatabaseId).engine.getAppIconUrl()
                     , appDatabase?.targetChecker?.extraString
             )
             launch(Dispatchers.Main) {
