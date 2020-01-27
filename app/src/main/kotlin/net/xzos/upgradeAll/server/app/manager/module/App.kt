@@ -16,7 +16,7 @@ data class App(private val appDatabaseId: Long) {
     internal val engine = newEngine(appDatabaseId)
 
     suspend fun isLatest(): Boolean {
-        val latestVersion = Updater(engine).getLatestVersioning()
+        val latestVersion = Updater(appDatabaseId).getLatestVersioning()
         return VersioningUtils.compareVersionNumber(
                 markProcessedVersionNumber ?: installedVersioning, latestVersion)
     }

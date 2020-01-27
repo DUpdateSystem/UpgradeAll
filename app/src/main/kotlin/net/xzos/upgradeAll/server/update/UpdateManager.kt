@@ -1,25 +1,38 @@
 package net.xzos.upgradeAll.server.update
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.app.*
+import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.os.Build
+import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.lifecycle.MutableLiveData
+import androidx.core.app.TaskStackBuilder
 import kotlinx.coroutines.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication.Companion.context
 import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.Updater
+import net.xzos.upgradeAll.ui.activity.MainActivity
+import net.xzos.upgradeAll.ui.viewmodels.componnent.EditIntPreference
 import java.util.concurrent.Executors
 
 object UpdateManager {
     private val appIds = AppManager.getAppIds()
-    private val jobMapLiveData = MutableLiveData(hashMapOf<Long, Job>())
+    private val jobMap = hashMapOf<Long, Job>()
+    private fun removeJobFromMap(appDatabaseId: Long) {
+        jobMap.remove(appDatabaseId)
+        if (jobMap.isEmpty()) finishCheckUpdate()
+    }
+
+    private var needUpdateAppNum: Long = 0
     private val executorCoroutineDispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
     private const val CHANNEL_ID = "UpdateServiceNotification"
-    private const val updateNotification = 0
+    private const val updateNotificationId = 0
+
     private val builder = NotificationCompat.Builder(context, CHANNEL_ID).apply {
         setContentTitle("UpgradeAll 更新服务运行中")
         setOngoing(true)
@@ -28,53 +41,44 @@ object UpdateManager {
     }
 
     init {
+        UpdateServiceReceiver.initAlarms()
         createNotificationChannel()
-        GlobalScope.launch(Dispatchers.Main) {
-            jobMapLiveData.observeForever {
-                if (it.isEmpty()) initUpdateNotification()
-                else checkUpdateStatusNotification()
-            }
-        }
     }
 
     fun renewAll() {
-        GlobalScope.launch {
-            for (appId in appIds) {
-                startJob(appId)
-            }
+        startUpdateNotification()
+        needUpdateAppNum = 0
+        for (appId in appIds) {
+            startJob(appId)
         }
-        checkUpdateStatusNotification()
     }
 
     fun renewApp(appId: Long): Boolean {
-        jobMapLiveData.value?.also {
-            it[appId]?.cancel()
-            it.remove(appId)
-        }
-        runBlocking(Dispatchers.Main) {
-            jobMapLiveData.notifyObserver()
-        }
+        jobMap[appId]?.cancel()
+        removeJobFromMap(appId)
         return runBlocking(executorCoroutineDispatcher) {
-            Updater(AppManager.getApp(appId).engine).isSuccessRenew()
+            Updater(appId).isSuccessRenew()
         }
     }
 
-    private suspend fun startJob(appId: Long) {
-        jobMapLiveData.value?.let {
-            it[appId] = GlobalScope.launch(Dispatchers.IO) {
-                Updater(AppManager.getApp(appId).engine).isSuccessRenew()
-                it.remove(appId)
-                withContext(Dispatchers.Main) {
-                    jobMapLiveData.notifyObserver()
-                }
-            }
-            withContext(Dispatchers.Main) {
-                jobMapLiveData.notifyObserver()
-            }
+    private fun finishCheckUpdate() {
+        if (needUpdateAppNum != 0L)
+            updateNotification(needUpdateAppNum)
+        else
+            NotificationManagerCompat.from(context).cancel(updateNotificationId)
+    }
+
+    private fun startJob(appId: Long) {
+        jobMap[appId] = GlobalScope.launch(Dispatchers.IO) {
+            if (Updater(appId).getUpdateStatus() == Updater.APP_OUTDATED)
+                needUpdateAppNum++
+            removeJobFromMap(appId)
+            if (jobMap.isEmpty()) finishCheckUpdate()
+            else updateStatusNotification()
         }
     }
 
-    private fun initUpdateNotification() {
+    private fun startUpdateNotification() {
         NotificationManagerCompat.from(context).apply {
             builder.setContentTitle("UpgradeAll 更新服务运行中")
                     .setContentText(null)
@@ -84,13 +88,37 @@ object UpdateManager {
         notificationNotify()
     }
 
-    private fun checkUpdateStatusNotification() {
+    private fun updateStatusNotification() {
         val appNum = AppManager.getAppIds().size
-        val renewedNum = appNum - (jobMapLiveData.value?.size ?: 0)
+        val renewedNum = appNum - jobMap.size
         NotificationManagerCompat.from(context).apply {
             builder.setContentTitle("检查更新中")
                     .setContentText("后台任务: $renewedNum/$appNum")
                     .setProgress(appNum, renewedNum, false)
+        }
+        notificationNotify()
+    }
+
+    private fun updateNotification(needUpdateAppNum: Long) {
+        val resultIntent = Intent(context, MainActivity::class.java)
+        val resultPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
+            addNextIntentWithParentStack(resultIntent)
+            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+
+        NotificationManagerCompat.from(context).apply {
+            builder.run {
+                setContentTitle("$needUpdateAppNum 个应用需要更新")
+                setProgress(0, 0, false)
+                setOngoing(false)
+                val appProcessInfo = ActivityManager.RunningAppProcessInfo()
+                ActivityManager.getMyMemoryState(appProcessInfo)
+                if (appProcessInfo.importance != IMPORTANCE_FOREGROUND && appProcessInfo.importance != IMPORTANCE_VISIBLE) {
+                    setContentText("点按打开应用主页")
+                    setContentIntent(resultPendingIntent)
+                } else
+                    setContentText(null)
+            }
         }
         notificationNotify()
     }
@@ -109,13 +137,34 @@ object UpdateManager {
     }
 
     private fun notificationNotify() {
-        NotificationManagerCompat.from(context).notify(updateNotification, builder.build())
+        NotificationManagerCompat.from(context).notify(updateNotificationId, builder.build())
+    }
+}
+
+class UpdateServiceReceiver : BroadcastReceiver() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+        UpdateManager.renewAll()
     }
 
-    /**
-     * 拓展 LiveData 监听列表元素添加、删除操作的支持
-     */
-    private fun <T> MutableLiveData<T>.notifyObserver() {
-        this.value = this.value
+    companion object {
+        private val ACTION_SNOOZE = "${context.packageName}.UPDATE_SERVICE_BROADCAST"
+        fun initAlarms() {
+            val defaultBackgroundSyncTime = context.resources.getInteger(R.integer.default_background_sync_data_time)  // 默认自动刷新时间 18h
+            val alarmTime: Long = EditIntPreference.getInt("background_sync_time", defaultBackgroundSyncTime).toLong() * 60 * 60 * 1000
+            val alarmIntent = PendingIntent.getBroadcast(context, 0,
+                    Intent(context, UpdateServiceReceiver::class.java).apply {
+                        action = ACTION_SNOOZE
+                    },
+                    PendingIntent.FLAG_UPDATE_CURRENT)
+            (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
+                    .setInexactRepeating(
+                            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                            SystemClock.elapsedRealtime() + alarmTime,
+                            alarmTime,
+                            alarmIntent
+                    )
+        }
+
     }
 }

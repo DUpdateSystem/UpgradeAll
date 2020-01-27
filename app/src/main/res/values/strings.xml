@@ -19,6 +19,7 @@
     <string name="edit">编辑</string>
     <string name="sync_header">数据刷新</string>
     <string name="initiative_sync_time">数据过期时间(min)</string>
+    <string name="background_sync_time">后台数据刷新时间(h)</string>
     <string name="update_item_setting_editVersionCheckRegularText">\\d+(\\.\\d+)*</string>
     <string name="changelog">更新日志</string>
     <string name="dialog_version_releaseTextView">最新版本的云端文件</string>
