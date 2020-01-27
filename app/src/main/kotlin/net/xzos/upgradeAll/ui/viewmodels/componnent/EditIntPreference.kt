@@ -34,11 +34,8 @@ constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleR
             android.R.attr.editTextPreferenceStyle)) : this(context, attrs, defStyleAttr, 0)
 
     override fun getPersistedString(defaultReturnValue: String?): String {
-        val defaultReturnIntValue = if (defaultReturnValue == null) {
-            getInt(mKey, 0)  // 已设置值, （修复属性）并返回设置值
-        } else
-            Integer.valueOf(defaultReturnValue)
-        // 未设置值，获取默认值
+        val defaultReturnIntValue = defaultReturnValue?.toInt()  // 已设置值, （修复属性）并返回设置值
+                ?: getInt(mKey, 0) // 未设置值，获取默认值
         return getPersistedInt(defaultReturnIntValue).toString()
     }
 

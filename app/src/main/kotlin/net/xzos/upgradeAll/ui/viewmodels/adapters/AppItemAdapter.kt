@@ -19,7 +19,6 @@ import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.Updater
-import net.xzos.upgradeAll.server.update.UpdateManager
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
@@ -153,7 +152,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
 
     private fun setAppStatusUI(appDatabaseId: Long, holder: CardViewRecyclerViewHolder) {
         val app = AppManager.getApp(appDatabaseId)
-        val updater = Updater(app.engine)
+        val updater = Updater(appDatabaseId)
         // 预先显示本地版本号，避免 0.0.0 example 版本号
         val installedVersioning = app.installedVersioning
         holder.versioningTextView.text = installedVersioning ?: ""
@@ -161,33 +160,15 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
         // 检查新版本
         setUpdateStatus(holder, true)
         GlobalScope.launch {
-            val isSuccessRenew = UpdateManager.renewApp(appDatabaseId)
-            val latestVersioning = updater.getLatestVersioning()
-            val updateStatus =  // 0: 404; 1: latest; 2: need update; 3: no app
-                    //检查是否取得云端版本号
-                    if (isSuccessRenew) {
-                        // 检查是否获取本地版本号
-                        if (installedVersioning != null || app.markProcessedVersionNumber != null) {
-                            // 检查本地版本
-                            if (app.isLatest()) {
-                                1
-                            } else {
-                                2
-                            }
-                        } else {
-                            3
-                        }
-                    } else {
-                        0
-                    }
+            val updateStatus = Updater(appDatabaseId).getUpdateStatus()
             launch(Dispatchers.Main) {
                 when (updateStatus) {
-                    0 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error).also {
+                    Updater.NETWORK_404 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error).also {
                         AppManager.delApp(appDatabaseId)  // 刷新错误删除缓存数据
                     }
-                    1 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_mark_circle)
-                    2 -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
-                    3 -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
+                    Updater.APP_LATEST -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_mark_circle)
+                    Updater.APP_OUTDATED -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
+                    Updater.APP_NO_LOCAL -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
                 }
                 setUpdateStatus(holder, false)
                 with(needUpdateAppIdLiveData) {
@@ -201,6 +182,7 @@ class AppItemAdapter(private val needUpdateAppIdLiveData: MutableLiveData<Mutabl
                     }
                 }
                 // 如果本地未安装，则显示最新版本号
+                val latestVersioning = updater.getLatestVersioning()
                 if (installedVersioning == null)
                     @SuppressLint("SetTextI18n")
                     holder.versioningTextView.text = "NEW: $latestVersioning"

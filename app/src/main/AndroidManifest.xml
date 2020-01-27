@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="net.xzos.upgradeAll.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE" />
 
     <application
         android:name=".application.MyApplication"
@@ -31,9 +31,20 @@
         </provider>
 
         <receiver
-            android:name=".utils.DownloadBroadcastReceiver"
+            android:name=".server.update.UpdateServiceReceiver"
+            android:enabled="true"
             android:exported="true"
-            android:permission="net.xzos.upgradeAll.permission.ACCESS_NETWORK_STATE">
+            android:permission="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE">
+            <intent-filter>
+                <action android:name="net.xzos.upgradeAll.UPDATE_SERVICE_BROADCAST" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".utils.DownloadBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE">
             <intent-filter>
                 <action android:name="net.xzos.upgradeAll.DOWNLOAD_BROADCAST" />
             </intent-filter>

@@ -6,10 +6,35 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
+import net.xzos.upgradeAll.server.app.manager.AppManager
+import net.xzos.upgradeAll.server.update.UpdateManager
 
 
-class Updater internal constructor(private val engine: JavaScriptEngine) {
+class Updater internal constructor(private val appDatabaseId: Long) {
+
+    val app = AppManager.getApp(appDatabaseId)
+    private val engine = app.engine
+
+    suspend fun getUpdateStatus(): Int {
+        val installedVersioning = app.installedVersioning
+        val isSuccessRenew = UpdateManager.renewApp(appDatabaseId)
+        return if (isSuccessRenew) {
+            //检查是否取得云端版本号
+            if (installedVersioning != null || app.markProcessedVersionNumber != null) {
+                // 检查是否获取本地版本号
+                if (app.isLatest()) {
+                    // 检查本地版本
+                    APP_LATEST
+                } else {
+                    APP_OUTDATED
+                }
+            } else {
+                APP_NO_LOCAL
+            }
+        } else {
+            NETWORK_404
+        }
+    }
 
     suspend fun isSuccessRenew(): Boolean = engine.getReleaseInfo(0) != null
 
@@ -27,4 +52,12 @@ class Updater internal constructor(private val engine: JavaScriptEngine) {
     private suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false): Boolean =
             if (!externalDownloader) engine.downloadReleaseFile(fileIndex)
             else engine.downloadFileByReleaseInfo(fileIndex, externalDownloader = externalDownloader)
+
+    companion object {
+        internal const val NETWORK_404 = 0
+        internal const val APP_LATEST = 1
+        internal const val APP_OUTDATED = 2
+        internal const val APP_NO_LOCAL = 3
+
+    }
 }

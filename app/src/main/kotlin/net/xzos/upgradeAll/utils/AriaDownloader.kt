@@ -21,6 +21,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
+import net.xzos.upgradeAll.application.MyApplication.Companion.context
+import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.ACTION_SNOOZE
 import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DEL_TASK
 import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_CANCEL
 import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_CONTINUE
@@ -293,8 +295,8 @@ class AriaDownloader(private val debugMode: Boolean) {
         }
     }
 
-    private fun cancelNotification(notificationId: Int) {
-        NotificationManagerCompat.from(context).cancel(notificationId)
+    private fun cancelNotification(downloadNotificationId: Int) {
+        NotificationManagerCompat.from(context).cancel(downloadNotificationId)
     }
 
     companion object {
@@ -311,7 +313,6 @@ class AriaDownloader(private val debugMode: Boolean) {
                 return field
             }
         private const val CHANNEL_ID = "DownloadNotification"
-        private var ACTION_SNOOZE = "${context.packageName}.DOWNLOAD_BROADCAST"
         private const val PROGRESS_MAX = 100
 
         internal const val blockingTime: Long = 100
@@ -356,6 +357,8 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
     }
 
     companion object {
+        internal val ACTION_SNOOZE = "${context.packageName}.DOWNLOAD_BROADCAST"
+
         internal const val EXTRA_IDENTIFIER_DOWNLOADER_ID = "DOWNLOADER_ID"
 
         internal const val EXTRA_IDENTIFIER_DOWNLOAD_CONTROL = "DOWNLOAD_CONTROL"
