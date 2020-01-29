@@ -13,7 +13,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication.Companion.context
-import net.xzos.upgradeAll.server.app.engine.js.utils.JSUtils
 import org.json.JSONException
 import java.io.StringReader
 import java.util.*
