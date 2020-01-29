@@ -13,8 +13,9 @@ import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.data.json.gson.CloudConfig
 import net.xzos.upgradeAll.data.json.gson.HubConfig
 import net.xzos.upgradeAll.server.ServerContainer
-import net.xzos.upgradeAll.utils.network.OkHttpApi
 import net.xzos.upgradeAll.utils.FileUtil
+import net.xzos.upgradeAll.utils.GitUrlTranslation
+import net.xzos.upgradeAll.utils.network.OkHttpApi
 
 object CloudConfigGetter {
     private const val TAG = "CloudConfigGetter"
@@ -23,16 +24,16 @@ object CloudConfigGetter {
 
     private val okHttpApi = OkHttpApi(LogObjectTag)
 
-    private val rulesListJsonFileRawUrl: String
+    private val cloudHubGitUrlTranslation: GitUrlTranslation
         get() {
             val prefKey = "cloud_rules_hub_url"
             val defaultCloudRulesHubUrl = context.resources.getString(R.string.default_cloud_rules_hub_url)
             val pref = PreferenceManager.getDefaultSharedPreferences(context)
             val cloudRulesHubUrl = pref.getString(prefKey, defaultCloudRulesHubUrl)
-            return try {
-                getRawRootUrl(cloudRulesHubUrl)
-            } catch (e: Throwable) {
-                getRawRootUrl(
+                    ?: defaultCloudRulesHubUrl
+            var cloudHubGitUrlTranslation = GitUrlTranslation(cloudRulesHubUrl)
+            if (!cloudHubGitUrlTranslation.testUrl()) {
+                cloudHubGitUrlTranslation = GitUrlTranslation(
                         defaultCloudRulesHubUrl.also {
                             pref.edit().putString(prefKey, defaultCloudRulesHubUrl).apply()
                             GlobalScope.launch(Dispatchers.Main) {
@@ -40,7 +41,18 @@ object CloudConfigGetter {
                             }
                         }
                 )
-            } + "rules/rules_list.json"
+            }
+            return cloudHubGitUrlTranslation
+        }
+
+    private val hubListRawUrl: String
+        get() {
+            return cloudHubGitUrlTranslation.getGitRawUrl("rules/hub/")!!
+        }
+
+    private val rulesListJsonFileRawUrl: String
+        get() {
+            return cloudHubGitUrlTranslation.getGitRawUrl("rules/rules_list.json")!!
         }
 
     private val cloudConfig: CloudConfig?
@@ -94,7 +106,7 @@ object CloudConfigGetter {
         appList?.let {
             for (appItem in it) {
                 if (appItem.appConfigUuid == appUuid)
-                    return "${cloudConfig?.listUrl?.appListRawUrl}${appItem.appConfigFileName}.json"
+                    return cloudHubGitUrlTranslation.getGitRawUrl("rules/apps/${appItem.appConfigFileName}.json")
             }
         }
         return null
@@ -104,42 +116,15 @@ object CloudConfigGetter {
         hubList?.let {
             for (hubItem in it) {
                 if (hubItem.hubConfigUuid == hubUuid)
-                    return "${cloudConfig?.listUrl?.hubListRawUrl}${hubItem.hubConfigFileName}.json"
+                    return cloudHubGitUrlTranslation.getGitRawUrl("rules/hub/${hubItem.hubConfigFileName}.json")
             }
         }
         return null
     }
 
     private fun getCloudHubConfigJS(filePath: String): String? {
-        val hubListRawUrl = cloudConfig?.listUrl?.hubListRawUrl ?: return null
         val hubConfigJSRawUrl = FileUtil.pathTransformRelativeToAbsolute(hubListRawUrl, filePath)
         return okHttpApi.getHttpResponse(hubConfigJSRawUrl)
-    }
-
-    private fun getRawRootUrl(rawGitUrl: String?): String {
-        val gitUrl = rawGitUrl.apply {
-            val separator = '/'
-            if (this?.last() != separator)
-                this.plus(separator)
-        }
-        if (gitUrl != null) {
-            val list = gitUrl.split("github\\.com".toRegex())[1].split("/".toRegex()).filter { it.isNotEmpty() }
-            if (list.size >= 2) {
-                val owner = list[0]
-                val repo = list[1]
-                var branch: String? = null
-                if (list.size == 2) {
-                    branch = "master"
-                    // 分割网址
-                } else if (list.size == 4 && list.contains("tree")) {
-                    branch = list[3]
-                    // 分割网址
-                }
-                if (branch != null)
-                    return "https://raw.githubusercontent.com/$owner/$repo/$branch/"
-            }
-        }
-        return ""
     }
 
     /**

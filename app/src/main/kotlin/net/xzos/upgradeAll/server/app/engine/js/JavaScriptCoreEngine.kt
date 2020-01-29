@@ -110,7 +110,7 @@ internal class JavaScriptCoreEngine(
         return try {
             JSReturnData(
                     Gson().fromJson(versionInfoJsonString, Array<JSReturnData.ReleaseInfoBean>::class.java).also {
-                        Log.e(logObjectTag, TAG, "getReleaseInfo: JSON 解析成功")
+                        Log.d(logObjectTag, TAG, "getReleaseInfo: JSON 解析成功")
                     }.toList()
             )
         } catch (e: JsonSyntaxException) {
