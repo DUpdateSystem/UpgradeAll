@@ -1,8 +1,9 @@
 package net.xzos.upgradeAll.server.update
 
-import android.app.*
-import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
-import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
+import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -18,6 +19,7 @@ import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.componnent.EditIntPreference
+import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import java.util.concurrent.Executors
 
 object UpdateManager {
@@ -111,9 +113,7 @@ object UpdateManager {
                 setContentTitle("$needUpdateAppNum 个应用需要更新")
                 setProgress(0, 0, false)
                 setOngoing(false)
-                val appProcessInfo = ActivityManager.RunningAppProcessInfo()
-                ActivityManager.getMyMemoryState(appProcessInfo)
-                if (appProcessInfo.importance != IMPORTANCE_FOREGROUND && appProcessInfo.importance != IMPORTANCE_VISIBLE) {
+                if (!MiscellaneousUtils.isBackground()) {
                     setContentText("点按打开应用主页")
                     setContentIntent(resultPendingIntent)
                 } else

@@ -2,7 +2,7 @@ package net.xzos.upgradeAll.server.log
 
 import androidx.lifecycle.LiveData
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
-import net.xzos.upgradeAll.server.ServerContainer.Companion.Log
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 import org.json.JSONException
 
 internal class LogDataProxy(private val logMap: MutableMap<String, MutableMap<String, MutableList<String>>>) {
@@ -27,42 +27,42 @@ internal class LogDataProxy(private val logMap: MutableMap<String, MutableMap<St
     internal fun getLogObjectId(logSort: String): MutableSet<String> =
             this.logMap[logSort]?.keys ?: mutableSetOf()
 
-    internal fun getLogMessageList(logObjectTag: Pair<String, String>): List<String> {
-        val logSortString = logObjectTag.first
-        val logObjectIdString = logObjectTag.second
-        return logMap[logSortString]?.get(logObjectIdString) ?: listOf()
+    internal fun getLogMessageList(objectTag: ObjectTag): List<String> {
+        val logSort = objectTag.sort
+        val logObjectId = objectTag.id
+        return logMap[logSort]?.get(logObjectId) ?: listOf()
     }
 
     fun getLiveDataLogObjectIdList(logSort: String): LiveData<MutableSet<String>> {
         return logLiveData.getIdListInSort(logSort)
     }
 
-    fun getLogMessageListLiveData(logObjectTag: Pair<String, String>): LiveData<List<String>> {
-        return logLiveData.getLogMassageList(logObjectTag)
+    fun getLogMessageListLiveData(objectTag: ObjectTag): LiveData<List<String>> {
+        return logLiveData.getLogMassageList(objectTag)
     }
 
     fun clearLogAll() {
         logMap.clear()
-        Log.notifyObserver()
+        LogUtil.notifyObserver()
     }
 
     fun clearLogSort(logSort: String) {
         logMap.remove(logSort)
-        Log.notifyObserver()
+        LogUtil.notifyObserver()
     }
 
     fun clearLogMessage(logObjectTag: Pair<String, String>) {
         val logSortString = logObjectTag.first
         val logObjectId = logObjectTag.second
         this.logMap[logSortString]?.remove(logObjectId)
-        Log.notifyObserver()
+        LogUtil.notifyObserver()
     }
 
     fun getLogStringBySort(logSort: String): String {
         val fullLogString = StringBuilder(logSort + "\n")
         val sortDatabaseIdList = getLogObjectId(logSort)
         for (databaseIdString in sortDatabaseIdList) {
-            var logString = getLogMessageToString(Pair(logSort, databaseIdString))
+            var logString = getLogMessageToString(ObjectTag(logSort, databaseIdString))
             logString = if (logString != null)
                 logString.split("\n".toRegex(), 2).toTypedArray()[1]
             else
@@ -72,9 +72,9 @@ internal class LogDataProxy(private val logMap: MutableMap<String, MutableMap<St
         return fullLogString.toString()
     }
 
-    private fun getLogMessageToString(logObjectTag: Pair<String, String>): String? {
-        val sort = logObjectTag.first
-        val name = "    " + getNameFromId(logObjectTag.second)
+    private fun getLogMessageToString(logObjectTag: ObjectTag): String? {
+        val sort = logObjectTag.sort
+        val name = "    " + getNameFromId(logObjectTag.id)
         val logMessageString = StringBuilder()
         val logMessageArray: List<String>
         try {

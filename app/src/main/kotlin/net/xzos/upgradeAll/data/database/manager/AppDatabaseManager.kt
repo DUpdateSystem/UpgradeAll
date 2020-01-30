@@ -6,19 +6,19 @@ import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.data.json.gson.AppDatabaseExtraData
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 import net.xzos.upgradeAll.server.app.manager.AppManager
+import net.xzos.upgradeAll.server.log.LogUtil
 import org.litepal.LitePal
 import org.litepal.extension.find
 import org.litepal.extension.findAll
 
 object AppDatabaseManager {
 
-    private val Log = ServerContainer.Log
-
     private const val TAG = "AppDatabaseManager"
-    private val LogObjectTag = arrayOf("Core", TAG)
+    private val objectTag = ObjectTag("Core", TAG)
 
+    private val Log = LogUtil
     // 读取 apps 数据库
     internal val appDatabases: List<RepoDatabase>
         get() = LitePal.findAll()

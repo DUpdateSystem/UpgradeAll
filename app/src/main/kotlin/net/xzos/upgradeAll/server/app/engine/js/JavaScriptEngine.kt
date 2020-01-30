@@ -2,23 +2,26 @@ package net.xzos.upgradeAll.server.app.engine.js
 
 import net.xzos.upgradeAll.data.json.gson.JSReturnData
 import net.xzos.upgradeAll.data.json.nongson.JSCache
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
+import net.xzos.upgradeAll.server.log.LogUtil
 
 class JavaScriptEngine internal constructor(
-        internal val logObjectTag: Pair<String, String>,
+        private val objectTag: ObjectTag,
         URL: String?,
         jsCode: String?,
         debugMode: Boolean = false
 ) {
 
-    private val javaScriptCoreEngine = JavaScriptCoreEngine(logObjectTag, URL, jsCode)
+    private val jsCache = JSCache(objectTag)
+    private val javaScriptCoreEngine = JavaScriptCoreEngine(objectTag, URL, jsCode, jsCache)
 
     init {
         if (!debugMode) {
-            Log.i(this.logObjectTag, TAG, String.format("JavaScriptCoreEngine: jsCode: \n%s", jsCode))  // 只打印一次 JS 脚本
+            Log.i(objectTag, TAG, "JavaScriptCoreEngine: jsCode: \n$jsCode")  // 只打印一次 JS 脚本
         }
         javaScriptCoreEngine.jsUtils.debugMode = debugMode
-        JSCache.clearCache(logObjectTag)
+
+        jsCache.clearCache()  // 初始化类时，清除旧的缓存
     }
 
     suspend fun getDefaultName(): String? = javaScriptCoreEngine.getDefaultName()
@@ -28,17 +31,11 @@ class JavaScriptEngine internal constructor(
     /**
      * 返回包含版本信息的数据类列表
      */
-    private suspend fun getReleasesInfo(): List<JSReturnData.ReleaseInfoBean> =
-            javaScriptCoreEngine.getReleaseInfo().releaseInfoList
-
-    suspend fun getReleaseNum(): Int = getReleasesInfo().size
-
-    suspend fun getReleaseInfo(releaseNum: Int): JSReturnData.ReleaseInfoBean? {
-        val releasesInfo = getReleasesInfo()
-        return if (releasesInfo.isNotEmpty() && releaseNum < releasesInfo.size)
-            releasesInfo[releaseNum]
-        else null
-    }
+    suspend fun getJsReturnData(): JSReturnData =
+            jsCache.getJsReturnData()
+                    ?: javaScriptCoreEngine.getReleaseInfo().also {
+                        jsCache.cacheJsReturnData(it)
+                    }
 
     suspend fun downloadReleaseFile(downloadIndex: Pair<Int, Int>): Boolean {
         val jsSuccessDownload = javaScriptCoreEngine.downloadReleaseFile(downloadIndex)
@@ -49,8 +46,8 @@ class JavaScriptEngine internal constructor(
     }
 
     suspend fun downloadFileByReleaseInfo(downloadIndex: Pair<Int, Int>, externalDownloader: Boolean = false): Boolean {
-        Log.e(logObjectTag, TAG, "downloadFile: 尝试直接下载")
-        val assets = getReleasesInfo()[downloadIndex.first].assets
+        Log.e(objectTag, TAG, "downloadFile: 尝试直接下载")
+        val assets = getJsReturnData().releaseInfoList[downloadIndex.first].assets
         val fileIndex = downloadIndex.second
         val fileName = assets[fileIndex].name
         val downloadUrl = assets[fileIndex].download_url
@@ -60,6 +57,6 @@ class JavaScriptEngine internal constructor(
 
     companion object {
         private const val TAG = "JavaScriptEngine"
-        private val Log = ServerContainer.Log
+        private val Log = LogUtil
     }
 }

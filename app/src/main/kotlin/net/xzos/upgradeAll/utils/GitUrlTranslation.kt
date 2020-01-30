@@ -16,7 +16,7 @@ internal class GitUrlTranslation(private val gitUrl: String) {
             gitUrl.contains("coding.net") -> MyApplication.context.getString(R.string.coding_url)
             else -> return null
         }
-        val agsMap = matchAgs(gitUrl, urlTemplate)?.apply {
+        val argsMap = matchArgs(gitUrl, urlTemplate)?.apply {
             this["%path"] = if (path.indexOf("/") == 0)
                 path.substring(1)
             else path
@@ -26,45 +26,45 @@ internal class GitUrlTranslation(private val gitUrl: String) {
             gitUrl.contains("coding.net") -> MyApplication.context.getString(R.string.coding_raw_url)
             else -> return null
         }
-        return fillAgs(rawUrlTemplate, agsMap)
+        return fillArgs(rawUrlTemplate, argsMap)
     }
 
-    private fun matchAgs(gitUrl: String, urlTemplate: String): HashMap<String, String>? {
+    private fun matchArgs(gitUrl: String, urlTemplate: String): HashMap<String, String>? {
         val gitUrlPre = preUrl(gitUrl) ?: return null
         val urlTemplatePre = preUrl(urlTemplate) ?: return null
         // 预处理
-        val agsMap = hashMapOf<String, String>()
+        val argsMap = hashMapOf<String, String>()
         for (i in urlTemplatePre.second.indices) {
             val urlTemplateFragment = urlTemplatePre.second[i]
-            val keyword = getAgsKeyword(urlTemplateFragment)
+            val keyword = getArgsKeyword(urlTemplateFragment)
             if (keyword != null) {
                 val value = if (i < gitUrlPre.second.size) {
                     deleteSameString(gitUrlPre.second[i], urlTemplateFragment.split(keyword))
                 } else ""
                 if (value.isBlank()) {
                     if (keyword == "%branch")
-                        agsMap[keyword] = "master"
+                        argsMap[keyword] = "master"
                     else return null
                 } else
-                    agsMap[keyword] = value
+                    argsMap[keyword] = value
             }
         }
-        return agsMap
+        return argsMap
     }
 
-    private fun fillAgs(s: String, agsMap: HashMap<String, String>): String {
+    private fun fillArgs(s: String, argsMap: HashMap<String, String>): String {
         var returnString = s
-        for (key in agsMap.keys) {
-            agsMap[key]?.run {
+        for (key in argsMap.keys) {
+            argsMap[key]?.run {
                 returnString = returnString.replace(key, this)
             }
         }
         return returnString
     }
 
-    private fun getAgsKeyword(s: String): String? {
+    private fun getArgsKeyword(s: String): String? {
         if (s.contains("%")) {
-            val regexString = MyApplication.context.getString(R.string.git_url_ags_regex)
+            val regexString = MyApplication.context.getString(R.string.git_url_arg_regex)
             val regex = regexString.toRegex()
             val matchString = regex.find(s)?.value
             if (!matchString.isNullOrBlank()) {

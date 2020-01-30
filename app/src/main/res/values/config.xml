@@ -13,7 +13,7 @@
     <string name="coding_url">https://%owner.coding.net/p/%project/d/%repo/git/tree/%branch</string>
     <string name="coding_raw_url">https://%owner.coding.net/p/%project/d/%repo/git/raw/%branch/%path</string>
 
-    <string name="git_url_ags_regex">(%.*?)\\w*</string>
+    <string name="git_url_arg_regex">(%.*?)\\w*</string>
     <string xmlns:tools="http://schemas.android.com/tools" name="versioning_regex_match" tools:ignore="TypographyDashes">
         (\\d+(\\.\\d+)*)(([\\.|\\-|\\+|_| ]|[0-9A-Za-z])*)
     </string>

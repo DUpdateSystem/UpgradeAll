@@ -4,18 +4,19 @@ import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.application.MyApplication.Companion.context
+import net.xzos.upgradeAll.data.json.nongson.JSCache
 import net.xzos.upgradeAll.data.json.nongson.MyCookieManager
-import net.xzos.upgradeAll.server.ServerContainer
-import net.xzos.upgradeAll.utils.AriaDownloader
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
+import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import net.xzos.upgradeAll.utils.VersioningUtils
+import net.xzos.upgradeAll.utils.network.AriaDownloader
 import net.xzos.upgradeAll.utils.network.JsoupApi
 import net.xzos.upgradeAll.utils.network.OkHttpApi
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.mozilla.javascript.Context
-import org.mozilla.javascript.ScriptableObject
 import org.seimicrawler.xpath.JXDocument
 
 
@@ -23,17 +24,16 @@ import org.seimicrawler.xpath.JXDocument
  * 爬虫相关库的打包集合
  * For JavaScript
  */
-class JSUtils(
-        private val logObjectTag: Pair<String, String>,
-        private val scope: ScriptableObject
+internal class JSUtils(
+        private val objectTag: ObjectTag,
+        internal var debugMode: Boolean = false,
+        jsCache: JSCache = JSCache(objectTag)
 ) {
-
-    internal var debugMode = false
 
     private lateinit var cx: Context
 
-    private val jsoupApi = JsoupApi(logObjectTag)
-    private val okHttpApi = OkHttpApi(logObjectTag)
+    private val jsoupApi = JsoupApi(objectTag, jsCache)
+    private val okHttpApi = OkHttpApi(objectTag, jsCache)
 
     fun get(cx: Context): JSUtils = this.also {
         this.cx = cx
@@ -71,7 +71,7 @@ class JSUtils(
                 this.add(node.toString())
             }
         }
-        Log.d(logObjectTag, TAG, "selNByJsoupXpath: node_list number: " + nodeStringList.size)
+        Log.d(objectTag, TAG, "selNByJsoupXpath: node_list number: " + nodeStringList.size)
         return nodeStringList
     }
 
@@ -79,7 +79,7 @@ class JSUtils(
             VersioningUtils.matchVersioningString(versionString)
 
     fun downloadFile(fileName: String, URL: String, headers: Map<String, String> = mapOf(),
-                     isDebug: Boolean = this.debugMode, externalDownloader: Boolean = false) {
+                     isDebug: Boolean = debugMode, externalDownloader: Boolean = false) {
         val allHeaders = hashMapOf<String, String>().apply {
             this.putAll(headers)
             this.putAll(jsoupApi.requestHeaders) // 装载由 Jsoup 生成的正常 header
@@ -98,7 +98,7 @@ class JSUtils(
                         fileName, resUrl,
                         headers = allHeaders)
             } catch (e: IllegalArgumentException) {
-                Log.e(logObjectTag, TAG, """ downloadFile: 下载任务失败
+                Log.e(objectTag, TAG, """ downloadFile: 下载任务失败
                         |下载参数: URL: $resUrl, FileName: $fileName, headers: $allHeaders
                         |ERROR_MESSAGE: $e""".trimIndent())
                 ariaDownloader.cancel()
@@ -115,7 +115,7 @@ class JSUtils(
     }
 
     companion object {
-        private val Log = ServerContainer.Log
+        private val Log = LogUtil
         private const val TAG = "JSUtils"
     }
 }

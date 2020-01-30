@@ -17,9 +17,12 @@ import kotlinx.android.synthetic.main.fragment_app_info.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.json.gson.AppDatabaseExtraData
+import net.xzos.upgradeAll.data.json.gson.JSReturnData
+import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.App
 import net.xzos.upgradeAll.server.app.manager.module.Updater
@@ -38,12 +41,22 @@ class AppInfoFragment : Fragment() {
     private var versioningPosition: Int = 0
     private var appDatabaseId: Long = 0
     private lateinit var app: App
+    private lateinit var engine: JavaScriptEngine
+    private var jsReturnData: JSReturnData? = null
+        get() {
+            return field ?: runBlocking {
+                engine.getJsReturnData().also {
+                    field = it
+                }
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             appDatabaseId = it.getLong(APP_DATABASE_ID)
             app = AppManager.getApp(appDatabaseId)
+            engine = app.engine
         }
     }
 
@@ -83,12 +96,9 @@ class AppInfoFragment : Fragment() {
     private fun loadVersioningPopupMenu() {
         versioningSelectLayout.visibility = View.GONE
         GlobalScope.launch {
-            val engine = app.engine
-            val versionNumberList: MutableList<String> = mutableListOf()
-            for (i in 0..engine.getReleaseNum())
-                engine.getReleaseInfo(i)?.version_number?.run {
-                    versionNumberList.add(this)
-                }
+            val versionNumberList = jsReturnData!!.releaseInfoList.map {
+                it.version_number
+            }
 
             launch(Dispatchers.Main) {
                 if (this@AppInfoFragment.isVisible) {
@@ -128,11 +138,9 @@ class AppInfoFragment : Fragment() {
                 Toast.makeText(context, R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG).show()
                 dialog.findViewById<LinearLayout>(R.id.placeholderLayout)?.visibility = View.VISIBLE
                 GlobalScope.launch {
-                    val engine = app.engine
-                    val releaseAsset = engine.getReleaseInfo(versioningPosition)
-                    val nameList = releaseAsset?.assets?.map { asset ->
+                    val nameList = jsReturnData!!.releaseInfoList[versioningPosition].assets.map { asset ->
                         asset.name
-                    } ?: return@launch
+                    }
                     launch(Dispatchers.Main) {
                         if (this@AppInfoFragment.isVisible) {
                             if (nameList.isNotEmpty()) {
@@ -200,10 +208,10 @@ class AppInfoFragment : Fragment() {
         versionMarkImageView.visibility = View.GONE
         AppDatabaseManager.getDatabase(appDatabaseId)?.let {
             GlobalScope.launch {
-                val engine = app.engine
                 if (!UpdateManager.renewApp(appDatabaseId)) return@launch
-                val latestVersionNumber = engine.getReleaseInfo(versioningPosition)?.version_number
-                val latestChangeLog = engine.getReleaseInfo(versioningPosition)?.change_log
+                val releaseInfoBean = jsReturnData!!.releaseInfoList[versioningPosition]
+                val latestVersionNumber = releaseInfoBean.version_number
+                val latestChangeLog = releaseInfoBean.change_log
                 launch(Dispatchers.Main) {
                     if (this@AppInfoFragment.isVisible) {
                         cloud_versioning_text_view.text = if (versioningPosition == 0) {
@@ -230,7 +238,7 @@ class AppInfoFragment : Fragment() {
 
     private fun toastPromptMarkedVersionNumber() {
         GlobalScope.launch {
-            if (AppManager.getApp(appDatabaseId).isLatest()) null
+            if (app.isLatest()) null
             else {
                 if (AppDatabaseManager.getDatabase(appDatabaseId)?.extraData?.markProcessedVersionNumber != null)
                     R.string.marked_version_number_is_behind_latest

@@ -2,46 +2,67 @@ package net.xzos.upgradeAll.data.json.nongson
 
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
+import net.xzos.upgradeAll.data.json.gson.JSReturnData
 import net.xzos.upgradeAll.ui.viewmodels.componnent.EditIntPreference
+import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import org.jsoup.nodes.Document
 import java.net.*
 import java.util.*
 
-internal class JSCache(logObjectTag: Pair<String, String>) {
-    private val jsCacheData = jsCacheDataSet[logObjectTag] ?: JSCacheData().also {
-        jsCacheDataSet[logObjectTag] = it
+
+internal class JSCache(private val objectTag: ObjectTag) {
+
+    fun clearCache() {
+        jsNetworkCacheIdMap[objectTag]?.run {
+            for (url in this) {
+                jsCacheData.httpResponseDict.remove(url)
+                jsCacheData.jsoupDomDict.remove(url)
+            }
+            jsNetworkCacheIdMap.remove(objectTag)
+        }
     }
 
-    fun getJsoupDomCache(URL: String): Document? {
-        val (time, dom) = jsCacheData.jsoupDomDict[URL] ?: return null
+    fun getJsoupDomCache(url: String): Document? {
+        val (time, dom) = jsCacheData.jsoupDomDict[url] ?: return null
         return if (isExpired(time)) {
-            jsCacheData.jsoupDomDict.remove(URL)
+            jsCacheData.jsoupDomDict.remove(url)
             null
         } else dom
     }
 
-    fun cacheJsoupDom(URL: String, dom: Document) {
-        jsCacheData.jsoupDomDict[URL] = Pair(Calendar.getInstance(), dom)
+    fun cacheJsoupDom(url: String, dom: Document) {
+        jsNetworkCacheIdMap[objectTag]?.add(url)
+        jsCacheData.jsoupDomDict[url] = Pair(Calendar.getInstance(), dom)
     }
 
-    fun getHttpResponseCache(URL: String): String? {
-        val (time, response) = jsCacheData.httpResponseDict[URL] ?: return null
+    fun getHttpResponseCache(url: String): String? {
+        val (time, response) = jsCacheData.httpResponseDict[url] ?: return null
         return if (isExpired(time)) {
-            jsCacheData.httpResponseDict.remove(URL)
+            jsCacheData.httpResponseDict.remove(url)
             null
         } else response
     }
 
-    fun cacheHttpResponse(URL: String, response: String) {
-        jsCacheData.httpResponseDict[URL] = Pair(Calendar.getInstance(), response)
+    fun cacheHttpResponse(url: String, response: String) {
+        jsNetworkCacheIdMap[objectTag]?.add(url)
+        jsCacheData.httpResponseDict[url] = Pair(Calendar.getInstance(), response)
+    }
+
+    fun getJsReturnData(): JSReturnData? {
+        val jsReturnData = jsCacheData.jsReturnData[objectTag] ?: return null
+        return if (MiscellaneousUtils.isBackground()) {
+            jsCacheData.jsReturnData.remove(objectTag)
+            null
+        } else jsReturnData
+    }
+
+    fun cacheJsReturnData(jsReturnData: JSReturnData) {
+        jsCacheData.jsReturnData[objectTag] = jsReturnData
     }
 
     companion object {
-        private val jsCacheDataSet = hashMapOf<Pair<String, String>, JSCacheData>()
-
-        internal fun clearCache(logObjectTag: Pair<String, String>) {
-            jsCacheDataSet.remove(logObjectTag)
-        }
+        private val jsCacheData = JSCacheData()
+        private val jsNetworkCacheIdMap = hashMapOf<ObjectTag, MutableList<String>>()
 
         private fun isExpired(time: Calendar?): Boolean {
             return if (time != null) {
@@ -52,12 +73,13 @@ internal class JSCache(logObjectTag: Pair<String, String>) {
             } else false
         }
     }
-}
 
-private data class JSCacheData(
-        internal val httpResponseDict: MutableMap<String, Pair<Calendar, String>> = mutableMapOf(),
-        internal val jsoupDomDict: MutableMap<String, Pair<Calendar, Document>> = mutableMapOf()
-)
+    private data class JSCacheData(
+            internal val httpResponseDict: MutableMap<String, Pair<Calendar, String>> = mutableMapOf(),
+            internal val jsoupDomDict: MutableMap<String, Pair<Calendar, Document>> = mutableMapOf(),
+            internal val jsReturnData: MutableMap<ObjectTag, JSReturnData> = mutableMapOf()
+    )
+}
 
 object MyCookieManager : CookieManager() {
 

@@ -3,14 +3,15 @@ package net.xzos.upgradeAll.server.app.manager.module
 import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
+import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.utils.VersioningUtils
 import org.litepal.LitePal
 import org.litepal.extension.find
 
 data class App(private val appDatabaseId: Long) {
-    private lateinit var logObjectTag: Pair<String, String>
+    private lateinit var objectTag: ObjectTag
     private val appDatabase
         get() = AppDatabaseManager.getDatabase(appDatabaseId)
     internal val engine = newEngine(appDatabaseId)
@@ -41,15 +42,15 @@ data class App(private val appDatabaseId: Long) {
         val apiUuid = repoDatabase?.api_uuid
         val url = repoDatabase?.url
         val apiName = HubDatabaseManager.getDatabase(apiUuid)?.name
-        logObjectTag = Pair(apiName.toString(), databaseId.toString())
+        objectTag = ObjectTag(apiName.toString(), databaseId.toString())
         // 查找软件源数据库
         val jsCode = HubDatabaseManager.getJsCode(apiUuid)
-        Log.d(logObjectTag, TAG, "renewUpdateItem: uuid: $apiUuid")
-        return JavaScriptEngine(logObjectTag, url, jsCode)
+        Log.d(objectTag, TAG, "renewUpdateItem: uuid: $apiUuid")
+        return JavaScriptEngine(objectTag, url, jsCode)
     }
 
     companion object {
-        private val Log = ServerContainer.Log
+        private val Log = LogUtil
         private const val TAG = "App"
     }
 }
