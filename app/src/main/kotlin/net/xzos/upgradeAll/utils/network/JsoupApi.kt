@@ -5,7 +5,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeAll.data.json.nongson.JSCache
 import net.xzos.upgradeAll.data.json.nongson.MyCookieManager
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
+import net.xzos.upgradeAll.server.log.LogUtil
 import org.jsoup.Connection
 import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
@@ -14,20 +15,20 @@ import org.jsoup.nodes.Document
 import java.io.IOException
 
 
-internal class JsoupApi(private val logObjectTag: Pair<String, String>) {
-
-    private val jsCache = JSCache(logObjectTag)
+internal class JsoupApi(private val objectTag: ObjectTag,
+                        private val jsCache: JSCache = JSCache(objectTag)
+) {
 
     internal var requestHeaders: HashMap<String, String> = hashMapOf()
 
     fun getDoc(url: String, userAgent: String? = null,
                method: Connection.Method = Connection.Method.GET): Document? =
-            jsCache.getJsoupDomCache(url)?.also {
-                Log.d(logObjectTag, TAG, "getDoc: $url 已缓存")
+            jsCache.getJsoupDomCache(url).also {
+                Log.d(objectTag, TAG, "getDoc: $url 已缓存")
             } ?: getRawDoc(url, userAgent = userAgent, method = method)
                     ?.also {
                         jsCache.cacheJsoupDom(url, it)
-                        Log.d(logObjectTag, TAG, "getDoc: $url 已刷新")
+                        Log.d(objectTag, TAG, "getDoc: $url 已刷新")
                     }
 
     private fun getRawDoc(url: String, userAgent: String? = null,
@@ -36,7 +37,7 @@ internal class JsoupApi(private val logObjectTag: Pair<String, String>) {
             getRes(url, userAgent, method).parse()
         } catch (e: IOException) {
             e.printStackTrace()
-            Log.e(logObjectTag, TAG, "getRawDoc: Jsoup 对象初始化失败")
+            Log.e(objectTag, TAG, "getRawDoc: Jsoup 对象初始化失败")
             null
         }
     }
@@ -48,13 +49,13 @@ internal class JsoupApi(private val logObjectTag: Pair<String, String>) {
         return try {
             getRes(url, userAgent, method, headers).url().toString()
         } catch (e: UnsupportedMimeTypeException) {
-            Log.d(logObjectTag, TAG, "getRedirectsUrl: 非文本链接指向（下载链接已获取）: $e")
+            Log.d(objectTag, TAG, "getRedirectsUrl: 非文本链接指向（下载链接已获取）: $e")
             e.url
         } catch (e: HttpStatusException) {
-            Log.e(logObjectTag, TAG, "getRedirectsUrl: 无法获取链接信息: $e")
+            Log.e(objectTag, TAG, "getRedirectsUrl: 无法获取链接信息: $e")
             null
         } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, "getRedirectsUrl: ERROR_MESSAGE: $e")
+            Log.e(objectTag, TAG, "getRedirectsUrl: ERROR_MESSAGE: $e")
             null
         }
     }
@@ -99,7 +100,7 @@ internal class JsoupApi(private val logObjectTag: Pair<String, String>) {
     }
 
     companion object {
-        private val Log = ServerContainer.Log
+        private val Log = LogUtil
         private const val TAG = "JsoupApi"
         private val mutexMap: HashMap<String, Mutex> = hashMapOf()
     }

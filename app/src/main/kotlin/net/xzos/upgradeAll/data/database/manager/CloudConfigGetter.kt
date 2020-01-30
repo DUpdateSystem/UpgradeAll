@@ -12,17 +12,18 @@ import net.xzos.upgradeAll.application.MyApplication.Companion.context
 import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.data.json.gson.CloudConfig
 import net.xzos.upgradeAll.data.json.gson.HubConfig
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
+import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.utils.FileUtil
 import net.xzos.upgradeAll.utils.GitUrlTranslation
 import net.xzos.upgradeAll.utils.network.OkHttpApi
 
-object CloudConfigGetter {
+internal object CloudConfigGetter {
     private const val TAG = "CloudConfigGetter"
-    private val LogObjectTag = Pair("Core", TAG)
-    private val Log = ServerContainer.Log
+    private val objectTag = ObjectTag("Core", TAG)
+    private val Log = LogUtil
 
-    private val okHttpApi = OkHttpApi(LogObjectTag)
+    private val okHttpApi = OkHttpApi(objectTag)
 
     private val cloudHubGitUrlTranslation: GitUrlTranslation
         get() {
@@ -70,7 +71,7 @@ object CloudConfigGetter {
             try {
                 Gson().fromJson(jsonText, CloudConfig::class.java)
             } catch (e: JsonSyntaxException) {
-                Log.e(LogObjectTag, TAG, "refreshData: ERROR_MESSAGE: $e")
+                Log.e(objectTag, TAG, "refreshData: ERROR_MESSAGE: $e")
                 null
             }
         } else null

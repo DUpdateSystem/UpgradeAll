@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.fragment_log.*
 import net.xzos.upgradeAll.R
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 import net.xzos.upgradeAll.ui.viewmodels.adapters.LogItemAdapter
 import net.xzos.upgradeAll.ui.viewmodels.viewmodel.LogPageViewModel
 
@@ -28,7 +29,7 @@ class LogPlaceholderFragment : Fragment() {
         logPageViewModel = ViewModelProvider(this).get(LogPageViewModel::class.java)
         if (arguments != null) {
             arguments?.getStringArray(ARG_SECTION_NUMBER)?.run {
-                val logObjectTag = Pair(this[0], this[1])
+                val logObjectTag = ObjectTag(this[0], this[1])
                 logPageViewModel.setLogObjectTag(logObjectTag)
             }
         }

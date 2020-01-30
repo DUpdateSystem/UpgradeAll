@@ -2,20 +2,27 @@ package net.xzos.upgradeAll.server.app.manager.module
 
 import android.content.Context
 import android.widget.Toast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.xzos.upgradeAll.R
+import net.xzos.upgradeAll.data.json.gson.JSReturnData
 import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.server.update.UpdateManager
 
 
-class Updater internal constructor(private val appDatabaseId: Long) {
+internal class Updater internal constructor(private val appDatabaseId: Long) : UpdaterApi {
 
     val app = AppManager.getApp(appDatabaseId)
     private val engine = app.engine
+    private var jsReturnData: JSReturnData? = null
+        get() {
+            return field ?: runBlocking {
+                engine.getJsReturnData().also {
+                    field = it
+                }
+            }
+        }
 
-    suspend fun getUpdateStatus(): Int {
+    override suspend fun getUpdateStatus(): Int {
         val installedVersioning = app.installedVersioning
         val isSuccessRenew = UpdateManager.renewApp(appDatabaseId)
         return if (isSuccessRenew) {
@@ -36,12 +43,17 @@ class Updater internal constructor(private val appDatabaseId: Long) {
         }
     }
 
-    suspend fun isSuccessRenew(): Boolean = engine.getReleaseInfo(0) != null
+    override suspend fun isSuccessRenew(): Boolean = jsReturnData!!.releaseInfoList.isNotEmpty()
 
     // 获取最新版本号
-    suspend fun getLatestVersioning(): String? = engine.getReleaseInfo(0)?.version_number
+    override suspend fun getLatestVersioning(): String? {
+        val releasesInfo = jsReturnData!!.releaseInfoList
+        return if (releasesInfo.isNotEmpty())
+            releasesInfo[0].version_number
+        else null
+    }
 
-    internal fun nonBlockingDownloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false, context: Context? = null) =
+    override fun nonBlockingDownloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean, context: Context?) =
             GlobalScope.launch {
                 if (context != null)
                     launch(Dispatchers.Main) { Toast.makeText(context, R.string.ready_to_download, Toast.LENGTH_LONG).show() }
@@ -60,4 +72,11 @@ class Updater internal constructor(private val appDatabaseId: Long) {
         internal const val APP_NO_LOCAL = 3
 
     }
+}
+
+private interface UpdaterApi {
+    suspend fun isSuccessRenew(): Boolean
+    suspend fun getUpdateStatus(): Int
+    suspend fun getLatestVersioning(): String?
+    fun nonBlockingDownloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false, context: Context? = null): Job
 }

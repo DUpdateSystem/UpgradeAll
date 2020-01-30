@@ -41,7 +41,7 @@
         </receiver>
 
         <receiver
-            android:name=".utils.DownloadBroadcastReceiver"
+            android:name=".utils.network.DownloadBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE">

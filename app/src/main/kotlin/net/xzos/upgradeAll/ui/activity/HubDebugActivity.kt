@@ -27,14 +27,13 @@ import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.data.json.gson.HubConfig
-import net.xzos.upgradeAll.data.json.gson.JSReturnData
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
-import net.xzos.upgradeAll.server.app.engine.js.utils.JSLog
 import net.xzos.upgradeAll.server.log.LogUtil
-import net.xzos.upgradeAll.utils.AriaDownloader
+import net.xzos.upgradeAll.server.log.LogUtilProxy
 import net.xzos.upgradeAll.utils.FileUtil
 import net.xzos.upgradeAll.utils.MiscellaneousUtils
+import net.xzos.upgradeAll.utils.network.AriaDownloader
 import org.apache.commons.text.StringEscapeUtils
 import java.io.File
 
@@ -302,10 +301,10 @@ class HubDebugActivity : AppCompatActivity() {
             Toast.makeText(this, "请填写 测试网址", Toast.LENGTH_LONG).show()
             return
         }
-        val logObjectTag = Pair("DeBug", "0")
-        val jsLog = JSLog(logObjectTag)  // 连接日志系统以打印提示信息
+        val objectTag = ObjectTag("DeBug", "0")
+        val jsLog = LogUtilProxy(objectTag, LogUtilProxy.JS_TAG)  // 连接日志系统以打印提示信息
         jsLog.d(" \n----------------Start----------------")
-        val logListLiveData = LogUtil.logDataProxy.getLogMessageListLiveData(logObjectTag)
+        val logListLiveData = LogUtil.logDataProxy.getLogMessageListLiveData(objectTag)
         logListLiveData.observe(this, Observer { logList ->
             val textViewMessage = StringBuilder()
             for (logMessage in logList)
@@ -315,16 +314,11 @@ class HubDebugActivity : AppCompatActivity() {
         jsLogTextView.visibility = View.VISIBLE
         GlobalScope.launch {
             // 初始化 JS 组件
-            val javaScriptEngine = JavaScriptEngine(logObjectTag, testUrl, jsCode, debugMode = true)  // 创建 JS 引擎
+            val javaScriptEngine = JavaScriptEngine(objectTag, testUrl, jsCode, debugMode = true)  // 创建 JS 引擎
             // 分步测试
             jsLog.d("1. 获取默认名称(defaultName): ${javaScriptEngine.getDefaultName()} \n")
-            jsLog.d("2. 获取发布版本号总数(releaseNum): ${javaScriptEngine.getReleaseNum()} \n")
-            val releasesInfo = mutableListOf<JSReturnData.ReleaseInfoBean>().apply {
-                for (i in 0..javaScriptEngine.getReleaseNum())
-                    javaScriptEngine.getReleaseInfo(i)?.let {
-                        this.add(it)
-                    }
-            }
+            val releasesInfo = javaScriptEngine.getJsReturnData().releaseInfoList
+            jsLog.d("2. 获取发布版本号总数(releaseNum): ${releasesInfo.size} \n")
             jsLog.d("3. 获取发布版本信息列表(getReleaseInfo): \n")
             for (release in releasesInfo) {
                 jsLog.d("\t 3.1. 版本号:${release.version_number} \n")
@@ -508,7 +502,7 @@ class HubDebugActivity : AppCompatActivity() {
     }
 
     companion object {
-        private val Log = ServerContainer.Log
+        private val Log = LogUtil
 
         private const val PERMISSIONS_REQUEST_READ_CONTACTS = 1
 

@@ -1,4 +1,4 @@
-package net.xzos.upgradeAll.utils
+package net.xzos.upgradeAll.utils.network
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
@@ -22,15 +22,17 @@ import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.application.MyApplication.Companion.context
-import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.ACTION_SNOOZE
-import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DEL_TASK
-import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_CANCEL
-import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_CONTINUE
-import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_PAUSE
-import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_RETRY
-import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOADER_ID
-import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOAD_CONTROL
-import net.xzos.upgradeAll.utils.DownloadBroadcastReceiver.Companion.INSTALL_APK
+import net.xzos.upgradeAll.utils.ApkInstaller
+import net.xzos.upgradeAll.utils.FileUtil
+import net.xzos.upgradeAll.utils.network.DownloadBroadcastReceiver.Companion.ACTION_SNOOZE
+import net.xzos.upgradeAll.utils.network.DownloadBroadcastReceiver.Companion.DEL_TASK
+import net.xzos.upgradeAll.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_CANCEL
+import net.xzos.upgradeAll.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_CONTINUE
+import net.xzos.upgradeAll.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_PAUSE
+import net.xzos.upgradeAll.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_RETRY
+import net.xzos.upgradeAll.utils.network.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOADER_ID
+import net.xzos.upgradeAll.utils.network.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOAD_CONTROL
+import net.xzos.upgradeAll.utils.network.DownloadBroadcastReceiver.Companion.INSTALL_APK
 import java.io.File
 
 

@@ -28,7 +28,8 @@ import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
+import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.server.update.UpdateManager
 import net.xzos.upgradeAll.ui.viewmodels.fragment.AppInfoFragment
 import net.xzos.upgradeAll.utils.FileUtil
@@ -283,9 +284,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     companion object {
-        private val Log = ServerContainer.Log
+        private val Log = LogUtil
         private const val TAG = "MainActivity"
-        private val logObjectTag = Pair("Core", TAG)
+        private val logObjectTag = ObjectTag("UI", TAG)
 
         private const val NAV_IMAGE_FILE_NAME = "nav_image.png"
         private val NAV_IMAGE_FILE = File(File(MyApplication.context.filesDir, "images"), NAV_IMAGE_FILE_NAME)

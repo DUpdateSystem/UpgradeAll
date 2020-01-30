@@ -5,16 +5,17 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeAll.data.json.nongson.JSCache
 import net.xzos.upgradeAll.data.json.nongson.MyCookieManager
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
+import net.xzos.upgradeAll.server.log.LogUtil
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 
 
-class OkHttpApi(private val logObjectTag: Pair<String, String>) {
-
-    private val jsCache = JSCache(logObjectTag)
+internal class OkHttpApi(private val objectTag: ObjectTag,
+                         private val jsCache: JSCache = JSCache(objectTag)
+) {
 
     internal var requestHeaders = hashMapOf<String, String>()
 
@@ -47,7 +48,7 @@ class OkHttpApi(private val logObjectTag: Pair<String, String>) {
         try {
             Request.Builder().url(url)
         } catch (e: IllegalArgumentException) {
-            Log.e(logObjectTag, TAG, """getHttpResponse: URL: $url
+            Log.e(objectTag, TAG, """getHttpResponse: URL: $url
                 | $e """.trimMargin())
             null
         }?.let { builder ->
@@ -55,7 +56,7 @@ class OkHttpApi(private val logObjectTag: Pair<String, String>) {
             val response = try {
                 okHttpClient.newCall(request).execute()
             } catch (e: IOException) {
-                Log.e(logObjectTag, TAG, "getHttpResponse: 网络错误")
+                Log.e(objectTag, TAG, "getHttpResponse: 网络错误")
                 null
             }?.also {
                 requestHeaders = hashMapOf()
@@ -69,7 +70,7 @@ class OkHttpApi(private val logObjectTag: Pair<String, String>) {
                 response?.body?.string()
             } catch (e: Throwable) {
                 if (!catchError) throw e
-                Log.e(logObjectTag, TAG, "getHttpResponse: 网络错误")
+                Log.e(objectTag, TAG, "getHttpResponse: 网络错误")
                 null
             }
         }
@@ -77,8 +78,8 @@ class OkHttpApi(private val logObjectTag: Pair<String, String>) {
     }
 
     companion object {
-        private val Log = ServerContainer.Log
         private const val TAG = "OkHttpApi"
+        private val Log = LogUtil
         private val okHttpClient = OkHttpClient().newBuilder().cookieJar(JavaNetCookieJar(MyCookieManager)).build()
         private val mutexMap: HashMap<String, Mutex> = hashMapOf()
     }

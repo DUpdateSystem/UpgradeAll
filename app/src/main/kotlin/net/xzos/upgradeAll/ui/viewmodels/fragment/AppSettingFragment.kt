@@ -25,9 +25,10 @@ import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.data.json.gson.AppConfig
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.server.app.manager.AppManager
+import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeAll.utils.IconPalette
@@ -226,9 +227,9 @@ class AppSettingFragment : Fragment() {
                 if (jsCode.isNullOrBlank()) {
                     Log.e(logObjectTag, TAG, "未找到 js 脚本")
                 } else {
-                    val logObjectTag = Pair("TEMP", "0")
+                    val objectTag = ObjectTag("TEMP", "0")
                     val defaultName = runBlocking(Dispatchers.Default) {
-                        JavaScriptEngine(logObjectTag, URL, jsCode).getDefaultName()
+                        JavaScriptEngine(objectTag, URL, jsCode).getDefaultName()
                     }
                     if (!defaultName.isNullOrBlank())
                         name = defaultName
@@ -281,9 +282,9 @@ class AppSettingFragment : Fragment() {
 
     companion object {
 
-        private val Log = ServerContainer.Log
+        private val Log = LogUtil
         private const val TAG = "UpdateItemSetting"
-        private val logObjectTag = Pair("Core", TAG)
+        private val logObjectTag = ObjectTag("UI", TAG)
 
         private val apiSpinnerList = ArrayList<String>()
     }

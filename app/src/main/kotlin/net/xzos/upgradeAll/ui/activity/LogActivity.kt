@@ -17,7 +17,7 @@ import io.github.kobakei.materialfabspeeddial.FabSpeedDial
 import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
 import kotlinx.android.synthetic.main.activity_log.*
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.ui.viewmodels.pageradapter.LogTabSectionsPagerAdapter
 import net.xzos.upgradeAll.utils.FileUtil
@@ -118,7 +118,7 @@ class LogActivity : AppCompatActivity() {
                         R.id.log_share_all -> logString = logDataProxy.logAllToString
                     }
                     if (logString != null) {
-                        Log.d(LogObjectTag, TAG, "已获取日志")
+                        Log.d(objectTag, TAG, "已获取日志")
                         FileUtil.createFile(this, WRITE_LOG_REQUEST_CODE, "text/plain", "Log.txt")
                         logFileString = logString
                     }
@@ -162,8 +162,8 @@ class LogActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "LogActivity"
-        private val LogObjectTag = Pair("Core", TAG)
-        private val Log = ServerContainer.Log
+        private val objectTag = ObjectTag("UI", TAG)
+        private val Log = LogUtil
 
         private const val PERMISSIONS_REQUEST_WRITE_CONTACTS = 1
         private const val WRITE_LOG_REQUEST_CODE = 2

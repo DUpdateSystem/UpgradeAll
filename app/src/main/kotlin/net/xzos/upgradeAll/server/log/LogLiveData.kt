@@ -3,6 +3,7 @@ package net.xzos.upgradeAll.server.log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 
 
 internal class LogLiveData(logMap: MutableMap<String, MutableMap<String, MutableList<String>>>) {
@@ -20,9 +21,9 @@ internal class LogLiveData(logMap: MutableMap<String, MutableMap<String, Mutable
         }
     }
 
-    fun getLogMassageList(logObjectTag: Pair<String, String>): LiveData<List<String>> {
+    fun getLogMassageList(objectTag: ObjectTag): LiveData<List<String>> {
         return Transformations.map(mLogMapLiveData) {
-            LogUtil.logDataProxy.getLogMessageList(logObjectTag)
+            LogUtil.logDataProxy.getLogMessageList(objectTag)
         }
     }
 }

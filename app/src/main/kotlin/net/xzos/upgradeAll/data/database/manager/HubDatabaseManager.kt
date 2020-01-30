@@ -4,18 +4,18 @@ import com.google.gson.Gson
 import net.xzos.upgradeAll.data.database.litepal.HubDatabase
 import net.xzos.upgradeAll.data.json.gson.HubConfig
 import net.xzos.upgradeAll.data.json.gson.HubDatabaseExtraData
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 import net.xzos.upgradeAll.server.app.manager.AppManager
+import net.xzos.upgradeAll.server.log.LogUtil
 import org.litepal.LitePal
 import org.litepal.extension.find
 import org.litepal.extension.findAll
 
 object HubDatabaseManager {
 
-    private val Log = ServerContainer.Log
-
     private const val TAG = "HubDatabaseManager"
-    private val LogObjectTag = arrayOf("Core", TAG)
+    private val objectTag = ObjectTag("Core", TAG)
+    private val Log = LogUtil
 
     // 读取 hub 数据库
     val databases: List<HubDatabase>

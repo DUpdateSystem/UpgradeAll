@@ -16,15 +16,15 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.server.ServerContainer
+import net.xzos.upgradeAll.data.json.nongson.ObjectTag
+import net.xzos.upgradeAll.server.log.LogUtil
 import java.io.*
 
 object FileUtil {
 
-    private val Log = ServerContainer.Log
-
+    private val Log = LogUtil
     private const val TAG = "FileUtil"
-    private val LogObjectTag = Pair("Core", TAG)
+    private val logObjectTag = ObjectTag("Core", TAG)
 
     internal const val imageCacheFileName = "_selectedImg.png"
 
@@ -85,7 +85,7 @@ object FileUtil {
 
     fun uriToPath(uri: Uri): String {
         var path = uri.path
-        Log.d(LogObjectTag, TAG, String.format(" uriToPath: uri: %s, path: %s", uri, path))
+        Log.d(logObjectTag, TAG, String.format(" uriToPath: uri: %s, path: %s", uri, path))
         return if (path != null && path.contains(":")) {
             path = path.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
             path
@@ -113,7 +113,7 @@ object FileUtil {
      */
     fun pathTransformRelativeToAbsolute(absolutePath: String, relativePath: String): String {
         @Suppress("NAME_SHADOWING") var absolutePath = absolutePath
-        Log.e(LogObjectTag, TAG, String.format("pathTransformRelativeToAbsolute: absolutePath: %s, relativePath: %s", absolutePath, relativePath))
+        Log.e(logObjectTag, TAG, String.format("pathTransformRelativeToAbsolute: absolutePath: %s, relativePath: %s", absolutePath, relativePath))
         if (absolutePath != "/") {
             if (absolutePath.endsWith("/"))
                 absolutePath = absolutePath.substring(0, absolutePath.length - 1)  // 去除末尾的 /
@@ -210,8 +210,8 @@ object FileUtil {
                 writeSuccess = true
             }
         } catch (e: IOException) {
-            Log.d(LogObjectTag, TAG, "writeTextFromUri: " + uri.path!!)
-            Log.e(LogObjectTag, TAG, "writeTextFromUri: 写入文件异常: ERROR_MESSAGE: $e")
+            Log.d(logObjectTag, TAG, "writeTextFromUri: " + uri.path!!)
+            Log.e(logObjectTag, TAG, "writeTextFromUri: 写入文件异常: ERROR_MESSAGE: $e")
         }
 
         return writeSuccess
