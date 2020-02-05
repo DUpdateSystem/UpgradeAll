@@ -89,7 +89,7 @@ internal class LogDataProxy(private val logMap: MutableMap<String, MutableMap<St
     }
 
     internal fun getNameFromId(databaseIdString: String): String? = try {
-        AppDatabaseManager.getDatabase(Integer.parseInt(databaseIdString).toLong())?.name
+        AppDatabaseManager.getDatabase(databaseId = databaseIdString.toInt()).name
     } catch (e: Throwable) {
         databaseIdString
     }

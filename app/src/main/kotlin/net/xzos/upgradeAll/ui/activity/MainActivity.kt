@@ -27,14 +27,13 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.data.json.nongson.ObjectTag
+import net.xzos.upgradeAll.server.app.manager.module.App
 import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.server.update.UpdateManager
-import net.xzos.upgradeAll.ui.viewmodels.fragment.AppInfoFragment
 import net.xzos.upgradeAll.utils.FileUtil
+import net.xzos.upgradeAll.utils.FileUtil.NAV_IMAGE_FILE
 import net.xzos.upgradeAll.utils.MiscellaneousUtils
-import java.io.File
 import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -44,9 +43,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     init {
         UpdateManager.renewAll()
 
-        navigationItemId = MutableLiveData<Pair<Int, Long?>>(Pair(R.id.appListFragment, null)).apply {
-            this.observe(this@MainActivity, Observer { pair ->
-                setFrameLayout(pair)
+        navigationItemId = MutableLiveData<Int>(R.id.appListFragment).apply {
+            this.observe(this@MainActivity, Observer { itemId ->
+                setFrameLayout(itemId)
             })
         }
     }
@@ -125,13 +124,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        navigationItemId.value = Pair(item.itemId, null)
+        navigationItemId.value = item.itemId
         when (item.itemId) {
             R.id.app_list -> {
-                navigationItemId.value = Pair(R.id.appListFragment, null)
+                navigationItemId.value = R.id.appListFragment
             }
             R.id.cloud_hub_list -> {
-                navigationItemId.value = Pair(R.id.hubCloudFragment, null)
+                navigationItemId.value = R.id.hubCloudFragment
             }
             R.id.local_hub_debug -> {
                 startActivity(Intent(this, HubDebugActivity::class.java))
@@ -163,15 +162,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun setFrameLayout(pair: Pair<Int, Long?>) {
+    private fun setFrameLayout(fragmentId: Int) {
         with(navController) {
             val currentDestination = this.currentDestination?.id
-            val targetDestination = pair.first
-            val bundle = if (pair.second != null) Bundle().apply {
-                putLong(AppInfoFragment.APP_DATABASE_ID, pair.second!!)
-            } else null
-            if (currentDestination != null && currentDestination != targetDestination) {
-                when (targetDestination) {
+            if (currentDestination != null && currentDestination != fragmentId) {
+                when (fragmentId) {
                     R.id.appListFragment -> {
                         if (currentDestination == R.id.hubCloudFragment) {
                             this.navigate(R.id.action_hubCloudFragment_to_appListFragment)
@@ -187,9 +182,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         setToolbarByNavigation(R.id.hubCloudFragment)
                     }
                     R.id.appInfoFragment -> {
-                        pair.second?.let {
+                        bundleApp.also {
+                            bundleApp = it
+                        }?.let {
                             if (currentDestination == R.id.appListFragment) {
-                                this.navigate(R.id.action_appListFragment_to_appInfoFragment, bundle)
+                                this.navigate(R.id.action_appListFragment_to_appInfoFragment)
                             }
                         }
                     }
@@ -199,8 +196,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 this.navigate(R.id.action_appListFragment_to_appSettingFragment)
                             }
                             R.id.appInfoFragment -> {
-                                pair.second?.let {
-                                    this.navigate(R.id.action_appInfoFragment_to_appSettingFragment, bundle)
+                                bundleApp.also {
+                                    bundleApp = it
+                                }?.let {
+                                    this.navigate(R.id.action_appInfoFragment_to_appSettingFragment)
                                 }
                             }
                         }
@@ -261,7 +260,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun renewNavImage() {
-        FileUtil.clearCache(FileUtil.imageCacheFileName)
+        FileUtil.clearCache(FileUtil.imageCacheFile.name)
         if (NAV_IMAGE_FILE.exists())
             Glide.with(this)
                     .load(NAV_IMAGE_FILE)
@@ -288,14 +287,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private const val TAG = "MainActivity"
         private val logObjectTag = ObjectTag("UI", TAG)
 
-        private const val NAV_IMAGE_FILE_NAME = "nav_image.png"
-        private val NAV_IMAGE_FILE = File(File(MyApplication.context.filesDir, "images"), NAV_IMAGE_FILE_NAME)
-
         private const val PERMISSIONS_REQUEST_WRITE_CONTACTS = 1
         private const val READ_PIC_REQUEST_CODE = 2
 
-        // Pair(Fragment ID, Bundle)
-        internal lateinit var navigationItemId: MutableLiveData<Pair<Int, Long?>>
+        // Fragment 跳转
+        internal lateinit var navigationItemId: MutableLiveData<Int>
+        internal var bundleApp: App? = null
+            get() {
+                val app = field
+                field = null
+                return app
+            }
 
         internal lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     }

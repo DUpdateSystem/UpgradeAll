@@ -1,45 +1,67 @@
 package net.xzos.upgradeAll.ui.viewmodels.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
-import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
-import net.xzos.upgradeAll.data.json.nongson.ItemCardViewExtraData
+import net.xzos.upgradeAll.data.json.gson.UIConfig.Companion.uiConfig
 import net.xzos.upgradeAll.server.app.manager.AppManager
+import net.xzos.upgradeAll.server.app.manager.module.App
+import net.xzos.upgradeAll.server.update.UpdateManager
+import net.xzos.upgradeAll.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
+import net.xzos.upgradeAll.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
+import net.xzos.upgradeAll.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
+import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardViewExtraData
+
 
 class AppListPageViewModel : ViewModel() {
 
-    private val mHubUuid = MutableLiveData<String>()
-    internal val appCardViewList: LiveData<MutableList<ItemCardView>> = Transformations.map(mHubUuid) { hubUuid ->
+    private val mTabPageIndex = MutableLiveData<Int>()
+    internal val appCardViewList: LiveData<MutableList<ItemCardView>> = Transformations.map(mTabPageIndex) { tabPageIndex ->
         return@map mutableListOf<ItemCardView>().apply {
-            val repoDatabases = AppDatabaseManager.getDatabaseList(hubUuid = hubUuid)
-            for (repoDatabase in repoDatabases) {
-                repoDatabase?.let { this.add(getAppItemCardView(it)) }
+            val apps: HashSet<App> = when (tabPageIndex) {
+                UPDATE_PAGE_INDEX -> {
+                    UpdateManager.blockRenewAll()
+                }
+                ALL_APP_PAGE_INDEX -> {
+                    AppManager.getApps()
+                }
+                else -> {
+                    val itemList =
+                            if (tabPageIndex == USER_STAR_PAGE_INDEX)
+                                uiConfig.userStarTab.itemList
+                            else uiConfig.userTabList[tabPageIndex].itemList
+                    hashSetOf<App>().apply {
+                        for (item in itemList) {
+                            if (item.type == "app")
+                                AppManager.getApp(databaseId = item.appIdList[0])?.let {
+                                    this.add(it)
+                                }
+                        }
+                    }
+                }
             }
-            if (this.isNotEmpty()) {
-                this.add(ItemCardView(Pair(null, null), null, null, ItemCardViewExtraData(isEmpty = true)))
+            for (app in apps) {
+                this.add(getAppItemCardView(app))
+            }
+            if (apps.isNotEmpty()) {
+                this.add(ItemCardView())
             }
         }
     }
 
-    internal fun setHubUuid(hubUuid: String) {
-        mHubUuid.value = hubUuid
+    internal fun setTabPageIndex(tabPageIndex: Int) {
+        mTabPageIndex.value = tabPageIndex
     }
 
-    private fun getAppItemCardView(item: RepoDatabase): ItemCardView {
-        val iconInfo: Pair<String?, String?> = Pair(
-                runBlocking { AppManager.getApp(item.id).engine.getAppIconUrl() }
-                , item.targetChecker?.extraString
-        )
-        val databaseId = item.id
-        val name = item.name
-        val url = item.url
-        return ItemCardView(iconInfo, name, url, ItemCardViewExtraData(databaseId = databaseId))
+    private fun getAppItemCardView(app: App): ItemCardView {
+        return ItemCardView(
+                app.appDatabase.name,
+                app.appDatabase.url,
+                extraData = ItemCardViewExtraData(app = app))
     }
 
-    internal val needUpdateAppIdLiveLiveData = MutableLiveData(mutableListOf<Long>())
+    internal val needUpdateAppsLiveLiveData = MutableLiveData(mutableListOf<App>())
 }

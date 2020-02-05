@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
@@ -28,7 +27,7 @@ class AppListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = true  // 默认允许侧滑
-        activity?.apply {
+        activity?.run {
             this as AppCompatActivity
             this.findViewById<ImageView>(R.id.app_logo_image_view)?.visibility = View.GONE
             this.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout)?.contentScrim = getDrawable(R.color.colorPrimary)
@@ -36,7 +35,7 @@ class AppListFragment : Fragment() {
             this.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.visibility = View.GONE
             this.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.let { fab ->
                 fab.setOnClickListener {
-                    MainActivity.navigationItemId.value = Pair(R.id.appSettingFragment, null)
+                    MainActivity.navigationItemId.value = R.id.appSettingFragment
                 }
                 fab.setImageDrawable(IconPalette.fabAddIcon)
                 fab.backgroundTintList = ColorStateList.valueOf((IconPalette.getColorInt(R.color.bright_yellow)))
@@ -44,14 +43,7 @@ class AppListFragment : Fragment() {
                 fab.visibility = View.VISIBLE
             }
         }
-        AppTabSectionsPagerAdapter.renewViewPage.let {
-            it.value = true
-            it.observe(viewLifecycleOwner, Observer { renew ->
-                if (renew) {
-                    setViewPage()
-                }
-            })
-        }
+        AppTabSectionsPagerAdapter.setViewPage(groupTabs, viewPager, childFragmentManager, viewLifecycleOwner)
     }
 
     override fun onResume() {
@@ -59,20 +51,4 @@ class AppListFragment : Fragment() {
         activity?.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.app_list)
     }
 
-    private fun setViewPage() {
-        val sectionsPagerAdapter = AppTabSectionsPagerAdapter(childFragmentManager)
-        viewPager.adapter = sectionsPagerAdapter
-        with(groupTabs) {
-            this.setupWithViewPager(viewPager)
-            val count = this.tabCount
-            for (i in 0 until count) {
-                this.getTabAt(i)?.customView = sectionsPagerAdapter.getCustomTabView(i, this)
-            }
-            addTab(
-                    this.newTab().apply {
-                        customView = sectionsPagerAdapter.getCustomTabView(-1, this@with)
-                    }
-            )
-        }
-    }
 }

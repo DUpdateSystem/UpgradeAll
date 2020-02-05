@@ -67,7 +67,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
     override fun onBindViewHolder(holder: CardViewRecyclerViewHolder, position: Int) {
         val itemCardView = mItemCardViewList[position]
         // 底栏设置
-        if (itemCardView.extraData.isEmpty) {
+        if (itemCardView.extraData.uuid == null) {
             holder.appPlaceholderImageView.setImageDrawable(IconPalette.appItemPlaceholder)
             holder.appPlaceholderImageView.visibility = View.VISIBLE
             holder.itemCardView.visibility = View.GONE

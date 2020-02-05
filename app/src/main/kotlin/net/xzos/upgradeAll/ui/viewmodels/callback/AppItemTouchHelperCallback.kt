@@ -37,29 +37,6 @@ class AppItemTouchHelperCallback(private val mAdapter: AppItemAdapter) : ItemTou
     }
 
     override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
-        val adapterPosition = viewHolder.adapterPosition
-        val removedItemCardView = mAdapter.onItemDismiss(adapterPosition)
-        if (removedItemCardView != null) {
-            val appDatabaseId = removedItemCardView.extraData.databaseId
-            val repoDatabase = AppDatabaseManager.getDatabase(appDatabaseId)
-            if (repoDatabase != null) {
-                AppManager.delApp(appDatabaseId) // 删除正在运行的跟踪项
-                GlobalScope.launch(Dispatchers.IO) {
-                    repoDatabase.delete() // 删除数据库
-                    runBlocking(Dispatchers.Main) {
-                        Snackbar.make(viewHolder.itemView, "App 项已删除", Snackbar.LENGTH_INDEFINITE)
-                                .setAction("撤销") {
-                                    runBlocking(Dispatchers.IO) {
-                                        repoDatabase.save() // 恢复数据库
-                                        val newAppDatabaseId = repoDatabase.id
-                                        AppManager.setApp(newAppDatabaseId) // 恢复正在运行的跟踪项
-                                        removedItemCardView.extraData.databaseId = newAppDatabaseId
-                                    }
-                                    mAdapter.onAddItem(adapterPosition, removedItemCardView)
-                                }.show()
-                    }
-                }
-            }
-        }
+
     }
 }

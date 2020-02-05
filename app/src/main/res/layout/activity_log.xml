@@ -32,7 +32,9 @@
         android:layout_margin="@dimen/fab_margin"
         android:fitsSystemWindows="true"
         app:fab_fabBackgroundColor="@color/colorPrimary"
+        app:fab_fabDrawableTint="@android:color/white"
         app:fab_miniFabBackgroundColor="@color/colorPrimary"
+        app:fab_miniFabDrawableTint="@android:color/white"
         app:fab_miniFabTextBackground="@color/colorPrimary"
         app:fab_miniFabTextColor="@android:color/white" />
 

@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import kotlinx.android.synthetic.main.cardview_content.view.*
 import net.xzos.upgradeAll.R
+import net.xzos.upgradeAll.utils.IconInfo
 import net.xzos.upgradeAll.utils.IconPalette
 import net.xzos.upgradeAll.utils.SearchUtils
 
@@ -24,7 +25,7 @@ class SearchResultItemAdapter(context: Context, searchInfoList: List<SearchUtils
                 ).also { view ->
             val searchInfo = getItem(position)
             val targetId = searchInfo?.matchInfo?.targetId
-            IconPalette.loadAppIconView(view.appIconImageView, iconInfo = Pair(null, targetId))
+            IconPalette.loadAppIconView(view.appIconImageView, iconInfo = IconInfo(app_package = targetId))
             view.nameTextView.text = searchInfo?.matchInfo?.groupName
             view.versioningTextView.text = searchInfo?.targetApi
             view.descTextView.let {

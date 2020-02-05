@@ -5,13 +5,11 @@ import android.widget.Toast
 import kotlinx.coroutines.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.json.gson.JSReturnData
-import net.xzos.upgradeAll.server.app.manager.AppManager
-import net.xzos.upgradeAll.server.update.UpdateManager
+import net.xzos.upgradeAll.utils.VersioningUtils
 
 
-internal class Updater internal constructor(private val appDatabaseId: Long) : UpdaterApi {
+internal class Updater internal constructor(private val app: App) : UpdaterApi {
 
-    val app = AppManager.getApp(appDatabaseId)
     private val engine = app.engine
     private var jsReturnData: JSReturnData? = null
         get() {
@@ -24,12 +22,12 @@ internal class Updater internal constructor(private val appDatabaseId: Long) : U
 
     override suspend fun getUpdateStatus(): Int {
         val installedVersioning = app.installedVersioning
-        val isSuccessRenew = UpdateManager.renewApp(appDatabaseId)
+        val isSuccessRenew = isSuccessRenew()
         return if (isSuccessRenew) {
             //检查是否取得云端版本号
             if (installedVersioning != null || app.markProcessedVersionNumber != null) {
                 // 检查是否获取本地版本号
-                if (app.isLatest()) {
+                if (isLatest()) {
                     // 检查本地版本
                     APP_LATEST
                 } else {
@@ -41,6 +39,12 @@ internal class Updater internal constructor(private val appDatabaseId: Long) : U
         } else {
             NETWORK_404
         }
+    }
+
+    private suspend fun isLatest(): Boolean {
+        val latestVersion = getLatestVersioning()
+        return VersioningUtils.compareVersionNumber(
+                app.markProcessedVersionNumber ?: app.installedVersioning, latestVersion)
     }
 
     override suspend fun isSuccessRenew(): Boolean = jsReturnData!!.releaseInfoList.isNotEmpty()

@@ -12,10 +12,10 @@ import com.devs.vectorchildfinder.VectorChildFinder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
-import net.xzos.upgradeAll.server.app.manager.AppManager
+import net.xzos.upgradeAll.application.MyApplication.Companion.context
+import net.xzos.upgradeAll.server.app.manager.module.App
 
 
 object IconPalette {
@@ -33,7 +33,6 @@ object IconPalette {
 
     @Suppress("DEPRECATION")
     fun getColorInt(colorRes: Int) = run {
-        val context = MyApplication.context
         return@run if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             context.getColor(colorRes)
         else
@@ -54,7 +53,6 @@ object IconPalette {
             changeDrawableColor(bodyColor, null, R.drawable.ic_edit)
 
     private fun changeDrawableColor(bodyColor: Int?, backgroundColor: Int?, drawableId: Int): Drawable {
-        val context = MyApplication.context
         return ImageView(context).also { iv ->
             VectorChildFinder(context, drawableId, iv).also { vector ->
                 if (bodyColor != null) vector.findPathByName("body").also {
@@ -67,26 +65,27 @@ object IconPalette {
         }.drawable
     }
 
-    fun loadHubIconView(iconImageView: ImageView, hubIconUrl: String?) =
+    fun loadHubIconView(iconImageView: ImageView, hubIconUrl: String? = null, hubIconDrawableId: Int = R.drawable.ic_android_placeholder) =
             loadIconView(iconImageView,
-                    defaultSrc = MyApplication.context.getDrawable(R.drawable.ic_android_placeholder),
-                    iconInfo = Pair(hubIconUrl, null)
+                    IconInfo(
+                            hubIconUrl,
+                            context.getDrawable(hubIconDrawableId),
+                            null)
             )
 
-    fun loadAppIconView(iconImageView: ImageView, appDatabaseId: Long = 0, iconInfo: Pair<String?, String?>? = null) =
+    fun loadAppIconView(iconImageView: ImageView, iconInfo: IconInfo? = null, app: App? = null) =
             loadIconView(iconImageView,
-                    defaultSrc = MyApplication.context.getDrawable(R.drawable.ic_android_placeholder),
-                    appDatabaseId = appDatabaseId,
-                    iconInfo = iconInfo
+                    (iconInfo ?: IconInfo(
+                            url = runBlocking { app?.engine?.getAppIconUrl() },
+                            app_package = app?.appDatabase?.targetChecker?.extraString
+                    )).also {
+                        it.drawable = context.getDrawable(R.drawable.ic_android_placeholder)
+                    }
             )
 
-    private fun loadIconView(iconImageView: ImageView, defaultSrc: Drawable? = null, appDatabaseId: Long = 0, iconInfo: Pair<String?, String?>? = null) {
+    private fun loadIconView(iconImageView: ImageView, iconInfo: IconInfo) {
         GlobalScope.launch {
-            val appDatabase = AppDatabaseManager.getDatabase(appDatabaseId)
-            val (appIconUrl, appModuleName) = iconInfo ?: Pair(
-                    AppManager.getApp(appDatabaseId).engine.getAppIconUrl()
-                    , appDatabase?.targetChecker?.extraString
-            )
+            val (appIconUrl, drawable, appModuleName) = iconInfo
             launch(Dispatchers.Main) {
                 val activity = getActivity(iconImageView)
                 if (activity?.isFinishing != true) {
@@ -98,7 +97,7 @@ object IconPalette {
                                         try {
                                             iconImageView.context.packageManager.getApplicationIcon(appModuleName!!)
                                         } catch (e: Throwable) {
-                                            defaultSrc ?: return@let
+                                            drawable ?: return@let
                                         }
                                 )
                             }
@@ -123,3 +122,11 @@ object IconPalette {
         return null
     }
 }
+
+data class IconInfo(
+        // appIconInfo: Pair<Url, moduleName>
+        // cloudHubIconInfo: Pair<hubConfigUrl(configFileName), null>
+        val url: String? = null,
+        var drawable: Drawable? = null,
+        val app_package: String? = null
+)

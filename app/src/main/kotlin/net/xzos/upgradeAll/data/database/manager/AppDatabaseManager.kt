@@ -10,7 +10,6 @@ import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.server.log.LogUtil
 import org.litepal.LitePal
-import org.litepal.extension.find
 import org.litepal.extension.findAll
 
 object AppDatabaseManager {
@@ -24,102 +23,60 @@ object AppDatabaseManager {
         get() = LitePal.findAll()
 
     /**
-     * appConfigGson: 软件 json 数据输入
-     * id: 指定预期的数据库 ID，若 ID 为 0，表示新建数据库
+     * appConfig: 软件数据库的 json 数据输入
      */
-    fun setDatabase(id: Long, appConfigGson: AppConfig): Boolean {
-        val name = appConfigGson.info?.appName
-        val url = appConfigGson.info?.url
-        val uuid = appConfigGson.uuid
-        val apiUuid = appConfigGson.appConfig?.hubInfo?.hubUuid
+    fun setDatabase(appConfig: AppConfig): RepoDatabase? {
+        val name = appConfig.info?.appName ?: ""
+        val url = appConfig.info?.url ?: ""
+        val uuid = appConfig.uuid ?: ""
+        val apiUuid = appConfig.appConfig?.hubInfo?.hubUuid ?: ""
         // 如果设置了名字与 UUID，则存入数据库
-        if (name != null && url != null && apiUuid != null) {
-            val appDatabaseExtraData = AppDatabaseExtraData(Gson().toJson(appConfigGson))
-            val targetChecker = appConfigGson.appConfig?.targetChecker
-            // 修改数据库
-            getDatabase(id = id, uuid = uuid)?.also {
-                it.name = name
-                it.url = url
-                it.api_uuid = apiUuid
-                // 存储 js 代码
-                it.extraData = appDatabaseExtraData
-                it.targetChecker = targetChecker
-                it.save() // 将数据存入 RepoDatabase数据库
-                AppManager.setApp(it.id)  // 更新相关跟踪项
-                return true
-            } ?: if (id == 0L) {
-                RepoDatabase(
-                        name = name,
-                        url = url,
-                        api_uuid = apiUuid
-                ).apply {
-                    this.extraData = appDatabaseExtraData
-                    this.targetChecker = targetChecker
-                }.also {
-                    it.save()
-                }
-                return true
-            }
+        val appDatabaseExtraData = AppDatabaseExtraData(Gson().toJson(appConfig))
+        val targetChecker = appConfig.appConfig?.targetChecker
+        // 修改数据库
+        val appDatabase = getDatabase(uuid = uuid).also {
+            it.name = name
+            it.url = url
+            it.api_uuid = apiUuid
+            // 存储 js 代码
+            it.extraData = appDatabaseExtraData
+            it.targetChecker = targetChecker
         }
-        return false
-    }
-
-    fun del(id: Long) {
-        LitePal.delete(RepoDatabase::class.java, id)
-    }
-
-    fun exists(uuid: String?): Boolean {
-        return getDatabase(uuid = uuid) != null
-    }
-
-    fun getDatabase(id: Long = 0, uuid: String? = null): RepoDatabase? {
-        val databaseList = getDatabaseList(id = id, uuid = uuid)
-        return if (databaseList.isNotEmpty())
-            databaseList[0]
+        // 将数据存入 RepoDatabase数据库
+        return if (appDatabase.save())
+            appDatabase
         else null
     }
 
-    fun getDatabaseList(id: Long = 0, uuid: String? = null, hubUuid: String? = null): List<RepoDatabase?> {
-        return when {
-            id != 0L -> {
-                listOf<RepoDatabase>(LitePal.find(RepoDatabase::class.java, id))
-            }
-            uuid != null -> {
-                return mutableListOf<RepoDatabase?>().apply {
-                    for (appDatabase in appDatabases) {
-                        val itemUuid = appDatabase.extraData?.getCloudAppConfig()?.uuid
-                        if (itemUuid == uuid)
-                            this.add(appDatabase)
-                    }
-                }
-            }
-            hubUuid != null -> {
-                LitePal.where("api_uuid = ?", hubUuid).find()
-            }
-            else -> listOf()
-        }
+    fun del(appDatabase: RepoDatabase) = appDatabase.delete()
+
+    fun getDatabase(databaseId: Int? = null, uuid: String? = null): RepoDatabase {
+        var appDatabase: RepoDatabase? = null
+        if (uuid != null)
+            appDatabase = AppManager.getApp(databaseId, uuid)?.appDatabase
+        if (appDatabase == null)
+            appDatabase = RepoDatabase("", "", "")
+        return appDatabase
     }
 
-    fun getAppConfig(id: Long): AppConfig? {
-        getDatabase(id = id)?.let {
-            val appBaseVersion = MyApplication.context.resources.getInteger(R.integer.app_config_version)
-            return AppConfig(
-                    baseVersion = appBaseVersion,
-                    uuid = null,
-                    info = AppConfig.InfoBean(
-                            appName = it.name,
-                            configVersion = 1,
-                            url = it.url
-                    ),
-                    appConfig = AppConfig.AppConfigBean(
-                            hubInfo = AppConfig.AppConfigBean.HubInfoBean(
-                                    hubUuid = it.api_uuid
-                            ),
-                            targetChecker = AppConfig.AppConfigBean.TargetCheckerBean(
-                                    api = it.targetChecker?.api,
-                                    extraString = it.targetChecker?.extraString
-                            )
-                    ))
-        } ?: return null
+    fun translateAppConfig(appDatabase: RepoDatabase): AppConfig {
+        val appBaseVersion = MyApplication.context.resources.getInteger(R.integer.app_config_version)
+        return AppConfig(
+                baseVersion = appBaseVersion,
+                uuid = null,
+                info = AppConfig.InfoBean(
+                        appName = appDatabase.name,
+                        configVersion = 1,
+                        url = appDatabase.url
+                ),
+                appConfig = AppConfig.AppConfigBean(
+                        hubInfo = AppConfig.AppConfigBean.HubInfoBean(
+                                hubUuid = appDatabase.api_uuid
+                        ),
+                        targetChecker = AppConfig.AppConfigBean.TargetCheckerBean(
+                                api = appDatabase.targetChecker?.api,
+                                extraString = appDatabase.targetChecker?.extraString
+                        )
+                ))
     }
 }

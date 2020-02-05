@@ -16,11 +16,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication
-import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.database.manager.CloudConfigGetter
 import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
+import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
+import net.xzos.upgradeAll.utils.IconInfo
 import net.xzos.upgradeAll.utils.IconPalette
 
 class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, private val context: Context?) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
@@ -57,14 +58,13 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
                         // 下载数据
                         setDownloadStatus(holder, true)
                         GlobalScope.launch {
-                            val addAppStatus = CloudConfigGetter.downloadCloudAppConfig(appUuid)  // 下载数据
+                            val appDatabase = CloudConfigGetter.downloadCloudAppConfig(appUuid)  // 下载数据
                             launch(Dispatchers.Main) {
                                 setDownloadStatus(holder, false)
-                                if (addAppStatus == 2) {
+                                if (appDatabase != null) {
                                     holder.versionCheckButton.visibility = View.VISIBLE
-                                    AppDatabaseManager.getDatabase(uuid = appUuid)?.let {
-                                        checkHubDependency(hubUuid = it.api_uuid)
-                                    }
+                                    checkHubDependency(hubUuid = appDatabase.api_uuid)
+                                    AppManager.setApp(appDatabase)
                                 }
                             }
                         }
@@ -80,7 +80,7 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
     override fun onBindViewHolder(holder: CardViewRecyclerViewHolder, position: Int) {
         val itemCardView = mItemCardViewList[position]
         // 底栏设置
-        if (itemCardView.extraData.isEmpty) {
+        if (itemCardView.extraData.uuid == null) {
             holder.appPlaceholderImageView.setImageDrawable(IconPalette.appItemPlaceholder)
             holder.appPlaceholderImageView.visibility = View.VISIBLE
             holder.itemCardView.visibility = View.GONE
@@ -103,19 +103,19 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
         if (appUuid != null) {
             val cloudAppConfigGson = CloudConfigGetter.getAppCloudConfig(appUuid)
             val appModule = cloudAppConfigGson?.appConfig?.targetChecker?.extraString
-            IconPalette.loadAppIconView(iconImageView, iconInfo = Pair(null, appModule))
+            IconPalette.loadAppIconView(iconImageView, iconInfo = IconInfo(app_package = appModule))
         }
     }
 
-    private fun checkAppConfigLocalStatus(holder: CardViewRecyclerViewHolder, appUuid: String?) {
+    private fun checkAppConfigLocalStatus(holder: CardViewRecyclerViewHolder, appUuid: String) {
         val versionCheckButton = holder.versionCheckButton
-        if (AppDatabaseManager.exists(appUuid)) {
+        AppManager.getApp(uuid = appUuid)?.run {
             versionCheckButton.visibility = View.VISIBLE
             setDownloadStatus(holder, true)
             GlobalScope.launch {
                 val appConfigGson = CloudConfigGetter.getAppCloudConfig(appUuid)
-                AppDatabaseManager.getDatabase(uuid = appUuid)?.extraData?.let {
-                    val cloudAppVersion = it.getCloudAppConfig()?.info?.configVersion
+                this@run.appDatabase.extraData?.let {
+                    val cloudAppVersion = it.cloudAppConfig?.info?.configVersion
                     val localAppVersion = appConfigGson?.info?.configVersion
                     launch(Dispatchers.Main) {
                         if (cloudAppVersion != null && localAppVersion != null && cloudAppVersion > localAppVersion)
@@ -124,8 +124,9 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
                     }
                 }
             }
-        } else
+        } ?: kotlin.run {
             versionCheckButton.visibility = View.GONE
+        }
     }
 
     private fun setDownloadStatus(holder: CardViewRecyclerViewHolder, renew: Boolean) {

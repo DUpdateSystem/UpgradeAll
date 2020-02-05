@@ -13,9 +13,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication.Companion.context
 import net.xzos.upgradeAll.server.app.manager.AppManager
+import net.xzos.upgradeAll.server.app.manager.module.App
 import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.componnent.EditIntPreference
@@ -23,14 +25,17 @@ import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import java.util.concurrent.Executors
 
 object UpdateManager {
-    private val appIds = AppManager.getAppIds()
-    private val jobMap = hashMapOf<Long, Job>()
-    private fun removeJobFromMap(appDatabaseId: Long) {
-        jobMap.remove(appDatabaseId)
+    private val apps: HashSet<App>
+        get() = AppManager.getApps()
+    private val jobMap = hashMapOf<App, Job>()
+    private fun cancelJob(app: App) {
+        jobMap.remove(app)
         if (jobMap.isEmpty()) finishCheckUpdate()
     }
 
-    private var needUpdateAppNum: Long = 0
+    private val mutex = Mutex()
+
+    private val needUpdateAppList = hashSetOf<App>()
     private val executorCoroutineDispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
     private const val CHANNEL_ID = "UpdateServiceNotification"
     private const val updateNotificationId = 0
@@ -47,36 +52,53 @@ object UpdateManager {
         createNotificationChannel()
     }
 
+    // 刷新所有软件并等待，返回需要更新的软件数量
+    fun blockRenewAll(): HashSet<App> {
+        runBlocking {
+            // 尝试刷新全部软件
+            renewAll()
+            // 等待刷新完成
+            mutex.lock()
+            mutex.unlock()
+        }
+        return needUpdateAppList
+    }
+
     fun renewAll() {
+        runBlocking {
+            mutex.lock()
+        }
         startUpdateNotification()
-        needUpdateAppNum = 0
-        for (appId in appIds) {
+        needUpdateAppList.clear()
+        for (appId in apps) {
             startJob(appId)
         }
     }
 
-    fun renewApp(appId: Long): Boolean {
-        jobMap[appId]?.cancel()
-        removeJobFromMap(appId)
+    fun renewApp(app: App): Boolean {
+        cancelJob(app)
         return runBlocking(executorCoroutineDispatcher) {
-            Updater(appId).isSuccessRenew()
+            Updater(app).isSuccessRenew()
         }
     }
 
     private fun finishCheckUpdate() {
-        if (needUpdateAppNum != 0L)
-            updateNotification(needUpdateAppNum)
+        if (needUpdateAppList.isNotEmpty())
+            updateNotification(needUpdateAppList.size)
         else
             NotificationManagerCompat.from(context).cancel(updateNotificationId)
     }
 
-    private fun startJob(appId: Long) {
-        jobMap[appId] = GlobalScope.launch(Dispatchers.IO) {
-            if (Updater(appId).getUpdateStatus() == Updater.APP_OUTDATED)
-                needUpdateAppNum++
-            removeJobFromMap(appId)
-            if (jobMap.isEmpty()) finishCheckUpdate()
-            else updateStatusNotification()
+    private fun startJob(app: App) {
+        jobMap[app] = GlobalScope.launch(Dispatchers.IO) {
+            if (Updater(app).getUpdateStatus() == Updater.APP_OUTDATED)
+                needUpdateAppList.add(app)
+            cancelJob(app)
+            if (jobMap.isEmpty()) {
+                finishCheckUpdate()
+                if (mutex.isLocked)
+                    mutex.unlock()
+            } else updateStatusNotification()
         }
     }
 
@@ -91,7 +113,7 @@ object UpdateManager {
     }
 
     private fun updateStatusNotification() {
-        val appNum = AppManager.getAppIds().size
+        val appNum = apps.size
         val renewedNum = appNum - jobMap.size
         NotificationManagerCompat.from(context).apply {
             builder.setContentTitle("检查更新中")
@@ -101,7 +123,7 @@ object UpdateManager {
         notificationNotify()
     }
 
-    private fun updateNotification(needUpdateAppNum: Long) {
+    private fun updateNotification(needUpdateAppNum: Int) {
         val resultIntent = Intent(context, MainActivity::class.java)
         val resultPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(resultIntent)
