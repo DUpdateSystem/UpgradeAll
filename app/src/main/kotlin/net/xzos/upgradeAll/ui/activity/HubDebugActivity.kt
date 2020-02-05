@@ -326,8 +326,10 @@ class HubDebugActivity : AppCompatActivity() {
                 for (asset in release.assets)
                     jsLog.d("\t 3.2. 发布文件下载:${asset.name}: ${asset.download_url} \n")
             }
-            val releaseDownloadFilePath = javaScriptEngine.downloadReleaseFile(Pair(0, 0))
-            jsLog.d("5. 尝试下载 最新版本的第一个文件(downloadReleaseFile): ${if (releaseDownloadFilePath) "下载成功" else "下载失败"}")
+            if (releasesInfo.isNotEmpty()) {
+                val releaseDownloadFilePath = javaScriptEngine.downloadReleaseFile(Pair(0, 0))
+                jsLog.d("5. 尝试下载 最新版本的第一个文件(downloadReleaseFile): ${if (releaseDownloadFilePath) "下载成功" else "下载失败"}")
+            }
             jsLog.d(" \n----------------End----------------")
         }
     }

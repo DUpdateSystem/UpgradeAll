@@ -54,7 +54,7 @@ internal class JavaScriptCoreEngine(
             cx.evaluateString(scope, jsCode, objectTag.toString(), 1, null)
             true
         } catch (e: Throwable) {
-            Log.e(objectTag, TAG, String.format("executeVoidScript: 脚本载入错误, ERROR_MESSAGE: %s", e.toString()))
+            Log.e(objectTag, TAG, "executeVoidScript: 脚本载入错误, ERROR_MESSAGE: $e")
             false
         }
     }

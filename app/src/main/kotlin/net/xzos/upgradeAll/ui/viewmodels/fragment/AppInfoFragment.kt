@@ -19,11 +19,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.json.gson.AppDatabaseExtraData
 import net.xzos.upgradeAll.data.json.gson.JSReturnData
 import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
-import net.xzos.upgradeAll.server.app.manager.AppManager
 import net.xzos.upgradeAll.server.app.manager.module.App
 import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.server.update.UpdateManager
@@ -38,10 +36,10 @@ import net.xzos.upgradeAll.utils.MiscellaneousUtils
  * 使用 [net.xzos.upgradeAll.ui.activity.MainActivity.setFrameLayout] 方法跳转
  */
 class AppInfoFragment : Fragment() {
-    private var versioningPosition: Int = 0
-    private var appDatabaseId: Long = 0
     private lateinit var app: App
     private lateinit var engine: JavaScriptEngine
+
+    private var versioningPosition: Int = 0
     private var jsReturnData: JSReturnData? = null
         get() {
             return field ?: runBlocking {
@@ -54,8 +52,10 @@ class AppInfoFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            appDatabaseId = it.getLong(APP_DATABASE_ID)
-            app = AppManager.getApp(appDatabaseId)
+            MainActivity.bundleApp?.also {
+                app = it
+            } ?: activity?.onBackPressed()
+
             engine = app.engine
         }
     }
@@ -74,7 +74,7 @@ class AppInfoFragment : Fragment() {
         loadAppVersioningInfo(0)
         placeholderLayout.visibility = View.GONE
         editImageView.setOnClickListener {
-            MainActivity.navigationItemId.value = Pair(R.id.appSettingFragment, appDatabaseId)
+            MainActivity.navigationItemId.value = R.id.appSettingFragment
         }
         activity?.apply {
             this as AppCompatActivity
@@ -149,10 +149,10 @@ class AppInfoFragment : Fragment() {
                                             ArrayAdapter(dialog.context, android.R.layout.simple_list_item_1, nameList)
                                     // 下载文件
                                     list.setOnItemClickListener { _, _, position, _ ->
-                                        Updater(appDatabaseId).nonBlockingDownloadReleaseFile(Pair(versioningPosition, position), context = context)
+                                        Updater(app).nonBlockingDownloadReleaseFile(Pair(versioningPosition, position), context = context)
                                     }
                                     list.setOnItemLongClickListener { _, _, position, _ ->
-                                        Updater(appDatabaseId).nonBlockingDownloadReleaseFile(Pair(versioningPosition, position), externalDownloader = true, context = context)
+                                        Updater(app).nonBlockingDownloadReleaseFile(Pair(versioningPosition, position), externalDownloader = true, context = context)
                                         return@setOnItemLongClickListener true
                                     }
                                 }
@@ -168,17 +168,17 @@ class AppInfoFragment : Fragment() {
     }
 
     private fun loadAllAppInfo() {
-        AppDatabaseManager.getDatabase(appDatabaseId)?.let { appDatabase ->
+        app.appDatabase.let { appDatabase ->
             GlobalScope.launch {
                 val installedVersioning = app.installedVersioning
                 launch(Dispatchers.Main) {
                     if (this@AppInfoFragment.isVisible) {
                         appIconImageView.let {
-                            IconPalette.loadAppIconView(it, appDatabaseId = appDatabaseId)
+                            IconPalette.loadAppIconView(it, app = app)
                         }
                         activity?.run {
                             this.findViewById<ImageView>(R.id.app_logo_image_view)?.let {
-                                IconPalette.loadAppIconView(it, appDatabaseId = appDatabaseId)
+                                IconPalette.loadAppIconView(it, app = app)
                                 it.visibility = View.VISIBLE
                             }
                         }
@@ -206,9 +206,9 @@ class AppInfoFragment : Fragment() {
     private fun loadAppVersioningInfo(versioningPosition: Int) {
         this.versioningPosition = versioningPosition
         versionMarkImageView.visibility = View.GONE
-        AppDatabaseManager.getDatabase(appDatabaseId)?.let {
+        app.appDatabase.let {
             GlobalScope.launch {
-                if (!UpdateManager.renewApp(appDatabaseId)) return@launch
+                if (!UpdateManager.renewApp(app)) return@launch
                 val releaseInfoBean = jsReturnData!!.releaseInfoList[versioningPosition]
                 val latestVersionNumber = releaseInfoBean.version_number
                 val latestChangeLog = releaseInfoBean.change_log
@@ -238,9 +238,9 @@ class AppInfoFragment : Fragment() {
 
     private fun toastPromptMarkedVersionNumber() {
         GlobalScope.launch {
-            if (app.isLatest()) null
+            if (Updater(app).getUpdateStatus() == Updater.APP_LATEST) null
             else {
-                if (AppDatabaseManager.getDatabase(appDatabaseId)?.extraData?.markProcessedVersionNumber != null)
+                if (app.appDatabase.extraData?.markProcessedVersionNumber != null)
                     R.string.marked_version_number_is_behind_latest
                 else R.string.long_click_version_number_to_mark_as_processed
             }?.let {
@@ -252,25 +252,21 @@ class AppInfoFragment : Fragment() {
     }
 
     private fun markVersionNumber(versionNumber: String?) {
-        AppDatabaseManager.getDatabase(appDatabaseId)?.also {
+        app.appDatabase.also {
             (it.extraData ?: AppDatabaseExtraData(null, null))
                     .apply {
                         this.markProcessedVersionNumber =
                                 if (this.markProcessedVersionNumber != versionNumber) versionNumber
                                 else null
                     }.run { it.extraData = this }
-        }?.save()
+        }.save()
     }
 
     private fun renewVersionRelatedItems() {
         versionMarkImageView.visibility =
-                if (AppDatabaseManager.getDatabase(appDatabaseId)?.extraData?.markProcessedVersionNumber == cloudVersioningTextView.text)
+                if (app.appDatabase.extraData?.markProcessedVersionNumber == cloudVersioningTextView.text)
                     View.VISIBLE
                 else View.GONE
         loadVersioningPopupMenu()
-    }
-
-    companion object {
-        internal const val APP_DATABASE_ID = "app_database_id"
     }
 }

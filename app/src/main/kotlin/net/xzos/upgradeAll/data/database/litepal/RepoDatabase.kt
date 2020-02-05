@@ -11,7 +11,7 @@ class RepoDatabase(
         var url: String,
         var api_uuid: String
 ) : LitePalSupport() {
-    val id: Long = 0
+    val id: Int = 0
 
     private var extra_data: String? = null
     private var versionChecker: String? = null
@@ -47,4 +47,9 @@ class RepoDatabase(
             if (value != null)
                 versionChecker = Gson().toJson(value)
         }
+
+    override fun save(): Boolean =
+            if (name.isNotBlank() && url.isNotBlank() && api_uuid.isNotBlank())
+                super.save()
+            else false
 }

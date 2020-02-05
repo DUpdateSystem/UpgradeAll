@@ -22,12 +22,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
-import net.xzos.upgradeAll.data.database.manager.AppDatabaseManager
 import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.data.json.nongson.ObjectTag
-import net.xzos.upgradeAll.server.app.engine.js.JavaScriptEngine
 import net.xzos.upgradeAll.server.app.manager.AppManager
+import net.xzos.upgradeAll.server.app.manager.module.App
 import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.adapters.SearchResultItemAdapter
@@ -39,7 +38,8 @@ import java.util.*
 
 class AppSettingFragment : Fragment() {
 
-    private var databaseId: Long = 0  // 设置页面代表的数据库项目
+    // 获取可能来自修改设置项的请求
+    private var app = MainActivity.bundleApp
 
     private val targetCheckerApi: String?
         get() = when (versionCheckSpinner.selectedItem.toString()) {
@@ -56,14 +56,6 @@ class AppSettingFragment : Fragment() {
                 targetCheckerApi,
                 editTarget.text.toString()
         )
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // 获取可能来自修改设置项的请求
-        arguments?.let {
-            databaseId = it.getLong(AppInfoFragment.APP_DATABASE_ID, 0)
-        }
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
@@ -176,10 +168,12 @@ class AppSettingFragment : Fragment() {
                         this.loadingBar?.visibility = View.VISIBLE
                     }
                 }
-                val addRepoSuccess = addRepoDatabase(databaseId, name, apiNum, url, versionChecker)  // 添加数据库
+                val addRepoSuccess = addRepoDatabase(name, apiNum, url, versionChecker)  // 添加数据库
                 launch(Dispatchers.Main) {
                     if (addRepoSuccess) {
-                        AppManager.setApp(databaseId)
+                        app?.run {
+                            AppManager.addApp(this)
+                        }
                         activity?.onBackPressed()  // 跳转主页面
                     } else
                         Toast.makeText(context, "什么？添加失败！", Toast.LENGTH_LONG).show()
@@ -195,73 +189,41 @@ class AppSettingFragment : Fragment() {
 
     private fun setSettingItem() {
         // 如果是设置修改请求，设置预置设置项
-        if (databaseId != 0L) {
-            AppDatabaseManager.getDatabase(databaseId)?.run {
-                editName.setText(this.name)
-                editUrl.setText(this.url)
-                val apiUuid = this.api_uuid
-                val spinnerIndex = apiSpinnerList.indexOf(apiUuid)
-                if (spinnerIndex != -1) apiSpinner.setSelection(spinnerIndex)
-                val versionCheckerGson = this.targetChecker
-                val versionCheckerApi = versionCheckerGson?.api
-                val versionCheckerText = versionCheckerGson?.extraString
-                if (versionCheckerApi != null)
-                    @SuppressLint("DefaultLocale")
-                    when (versionCheckerApi.toLowerCase()) {
-                        "app" -> versionCheckSpinner.setSelection(0)
-                        "magisk" -> versionCheckSpinner.setSelection(1)
-                    }
-                editTarget.setText(versionCheckerText)
-            }
+        app?.appDatabase?.run {
+            editName.setText(this.name)
+            editUrl.setText(this.url)
+            val apiUuid = this.api_uuid
+            val spinnerIndex = apiSpinnerList.indexOf(apiUuid)
+            if (spinnerIndex != -1) apiSpinner.setSelection(spinnerIndex)
+            val versionCheckerGson = this.targetChecker
+            val versionCheckerApi = versionCheckerGson?.api
+            val versionCheckerText = versionCheckerGson?.extraString
+            if (versionCheckerApi != null)
+                @SuppressLint("DefaultLocale")
+                when (versionCheckerApi.toLowerCase()) {
+                    "app" -> versionCheckSpinner.setSelection(0)
+                    "magisk" -> versionCheckSpinner.setSelection(1)
+                }
+            editTarget.setText(versionCheckerText)
         }
     }
 
-    private fun addRepoDatabase(databaseId: Long, name: String, apiNum: Int, URL: String, targetChecker: AppConfig.AppConfigBean.TargetCheckerBean): Boolean {
-        // 数据处理
-        @Suppress("NAME_SHADOWING") var name: String = name
+    private fun addRepoDatabase(name: String, apiNum: Int, URL: String, targetChecker: AppConfig.AppConfigBean.TargetCheckerBean): Boolean {
+        // 获取数据库类
         val apiUuid = apiSpinnerList[apiNum]
-        if (URL.isNotBlank()) {
-            // Name 为空，获取默认名称
-            if (name.isBlank()) {
-                val jsCode = HubDatabaseManager.getJsCode(apiUuid)
-                if (jsCode.isNullOrBlank()) {
-                    Log.e(logObjectTag, TAG, "未找到 js 脚本")
-                } else {
-                    val objectTag = ObjectTag("TEMP", "0")
-                    val defaultName = runBlocking(Dispatchers.Default) {
-                        JavaScriptEngine(objectTag, URL, jsCode).getDefaultName()
-                    }
-                    if (!defaultName.isNullOrBlank())
-                        name = defaultName
-                }
+        val repoDatabase = app?.appDatabase ?: (RepoDatabase("", "", "").apply {
+            this.name = name
+            this.api_uuid = apiUuid
+            this.url = URL
+            this.targetChecker = targetChecker
+        }.also {
+            app = App(it)
+            // 数据处理
+            it.name = runBlocking { app?.engine?.getDefaultName() } ?: "".also {
+                app = null  // 配置文件有误，移除预置的 app
             }
-            val api = apiSpinner.selectedItem.toString()
-            // 修改数据库
-            var repoDatabase = AppDatabaseManager.getDatabase(databaseId)
-            if (name.isNotBlank() && api.isNotBlank() && apiUuid.isNotBlank() && URL.isNotBlank()) {
-                if (repoDatabase != null) {
-                    // 开启数据库
-                    // 将数据存入 RepoDatabase 数据库
-                    repoDatabase.name = name
-                    repoDatabase.api_uuid = apiUuid
-                    repoDatabase.url = URL
-                    repoDatabase.targetChecker = targetChecker
-                } else {
-                    repoDatabase = RepoDatabase(
-                            name = name,
-                            url = URL,
-                            api_uuid = apiUuid
-                    ).apply {
-                        this.targetChecker = targetChecker
-                    }
-                }
-                repoDatabase.save()
-                // 为 databaseId 赋值
-                this.databaseId = repoDatabase.id
-                return true
-            }
-        }
-        return false
+        })
+        return repoDatabase.save()
     }
 
     private fun renewApiJsonObject(): Array<String> {

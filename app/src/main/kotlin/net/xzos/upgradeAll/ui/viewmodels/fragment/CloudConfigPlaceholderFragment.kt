@@ -15,10 +15,10 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.database.manager.CloudConfigGetter
 import net.xzos.upgradeAll.data.json.gson.CloudConfig
-import net.xzos.upgradeAll.data.json.nongson.ItemCardViewExtraData
 import net.xzos.upgradeAll.ui.viewmodels.adapters.CloudAppItemAdapter
 import net.xzos.upgradeAll.ui.viewmodels.adapters.CloudHubItemAdapter
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
+import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardViewExtraData
 
 internal class CloudConfigPlaceholderFragment : Fragment() {
 
@@ -65,17 +65,16 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                     CloudConfigGetter.hubList?.map { getCloudHubItemCardView(it) }
                 }
                 else -> null
-            }?.plus(ItemCardView(Pair(null, null), null, null,
-                    extraData = ItemCardViewExtraData(isEmpty = true)))
-                    .apply {
+            }?.plus(ItemCardView())
+                    .also{
                         launch(Dispatchers.Main) {
                             if (this@CloudConfigPlaceholderFragment.isVisible) {
                                 cardItemRecyclerView?.let { view ->
                                     view.layoutManager = GridLayoutManager(activity, 1)
                                     view.adapter = when {
-                                        isAppList -> CloudAppItemAdapter(this@apply
+                                        isAppList -> CloudAppItemAdapter(it
                                                 ?: listOf(), context)
-                                        isHubList -> CloudHubItemAdapter(this@apply
+                                        isHubList -> CloudHubItemAdapter(it
                                                 ?: listOf())
                                         else -> null
                                     }
@@ -92,24 +91,19 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
 
     private fun getCloudAppItemCardView(item: CloudConfig.AppListBean): ItemCardView {
         val name = item.appConfigName
-        // TODO: 提醒用户使用 dev 分支，正式版删除
         val appUuid = item.appConfigUuid
-        val configFileName = item.appConfigFileName
-        val iconInfo: Pair<String?, String?> = Pair(configFileName, null)
-        return ItemCardView(iconInfo, name, appUuid, ItemCardViewExtraData(uuid = appUuid))
+        return ItemCardView(name, appUuid, ItemCardViewExtraData(uuid = appUuid))
     }
 
     private fun getCloudHubItemCardView(item: CloudConfig.HubListBean): ItemCardView {
         val name = item.hubConfigName
         val hubUuid = item.hubConfigUuid
-        val configFileName = item.hubConfigFileName
-        val iconInfo: Pair<String?, String?> = Pair(configFileName, null)
-        return ItemCardView(iconInfo, name, hubUuid, ItemCardViewExtraData(uuid = hubUuid))
+        return ItemCardView(name, hubUuid, ItemCardViewExtraData(uuid = hubUuid))
     }
 
     companion object {
 
-        private const val ARG_SECTION_NUMBER = "cloudConfigTag"
+        private const val ARG_SECTION_NUMBER = "CLOUD_CONFIG_TAG"
 
         internal const val CLOUD_APP_CONFIG = 0
         internal const val CLOUD_HUB_CONFIG = 1

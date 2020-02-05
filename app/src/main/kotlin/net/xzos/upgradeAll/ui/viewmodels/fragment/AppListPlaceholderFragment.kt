@@ -13,18 +13,22 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.*
 import net.xzos.upgradeAll.R
+import net.xzos.upgradeAll.server.app.manager.module.App
 import net.xzos.upgradeAll.ui.viewmodels.adapters.AppItemAdapter
+import net.xzos.upgradeAll.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
 import net.xzos.upgradeAll.ui.viewmodels.viewmodel.AppListPageViewModel
 
 internal class AppListPlaceholderFragment : Fragment() {
 
     private lateinit var appListPageViewModel: AppListPageViewModel
-    private var hubUuid: String? = null
+    private var tabPageIndex: Int = ALL_APP_PAGE_INDEX
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appListPageViewModel = ViewModelProvider(this).get(AppListPageViewModel::class.java)
-        hubUuid = arguments?.getString(ARG_SECTION_NUMBER)
+        arguments?.getInt(ARG_SECTION_TAG)?.run {
+            tabPageIndex = this
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -38,6 +42,7 @@ internal class AppListPlaceholderFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
         swipeRefreshLayout.setOnRefreshListener { renewPage() }
+        // TODO: 修改逻辑
         context?.getString(R.string.example_update_overview)
                 ?.split("0")
                 ?.filter { element -> element.isNotBlank() }
@@ -53,8 +58,8 @@ internal class AppListPlaceholderFragment : Fragment() {
                         }
                         updateOverviewTextView.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
                     })
-                    appListPageViewModel.needUpdateAppIdLiveLiveData.observe(viewLifecycleOwner,
-                            Observer<MutableList<Long>> { list ->
+                    appListPageViewModel.needUpdateAppsLiveLiveData.observe(viewLifecycleOwner,
+                            Observer<MutableList<App>> { list ->
                                 needUpdateAppNum = list.size
                                 updateOverviewTextView.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
                                 if (needUpdateAppNum == 0) {
@@ -79,13 +84,12 @@ internal class AppListPlaceholderFragment : Fragment() {
     private fun renewAppList() {
         val layoutManager = GridLayoutManager(activity, 1)
         cardItemRecyclerView.layoutManager = layoutManager
-        val adapter = AppItemAdapter(appListPageViewModel.needUpdateAppIdLiveLiveData, appListPageViewModel.appCardViewList, this)
+        val adapter = AppItemAdapter(appListPageViewModel.needUpdateAppsLiveLiveData, appListPageViewModel.appCardViewList, this)
         cardItemRecyclerView.adapter = adapter
     }
 
     private fun renewPage() {
-        if (hubUuid != null)
-            appListPageViewModel.setHubUuid(hubUuid!!)  // 重新刷新跟踪项列表
+        appListPageViewModel.setTabPageIndex(tabPageIndex)  // 重新刷新跟踪项列表
         appListPageViewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
             // 列表显示刷新
             if (it.isNullOrEmpty()) {
@@ -108,12 +112,12 @@ internal class AppListPlaceholderFragment : Fragment() {
 
     companion object {
 
-        private const val ARG_SECTION_NUMBER = "hubUuidTag"
+        private const val ARG_SECTION_TAG = "TAB_PAGE_INDEX"
 
-        internal fun newInstance(hubUuid: String): AppListPlaceholderFragment {
+        internal fun newInstance(tabPageIndex: Int): AppListPlaceholderFragment {
             val fragment = AppListPlaceholderFragment()
             val bundle = Bundle()
-            bundle.putString(ARG_SECTION_NUMBER, hubUuid)
+            bundle.putInt(ARG_SECTION_TAG, tabPageIndex)
             fragment.arguments = bundle
             return fragment
         }

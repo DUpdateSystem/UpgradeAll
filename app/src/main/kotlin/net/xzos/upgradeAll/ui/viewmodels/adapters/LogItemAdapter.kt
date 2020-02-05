@@ -6,6 +6,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
@@ -15,13 +16,14 @@ import net.xzos.upgradeAll.utils.FileUtil
 import org.apache.commons.text.StringEscapeUtils
 import java.util.*
 
+
 class LogItemAdapter(mLogList: LiveData<LiveData<List<String>>>, owner: LifecycleOwner) : RecyclerView.Adapter<LogRecyclerViewHolder>() {
     private val mLogMessages = ArrayList<String>()
 
     init {
         mLogList.observe(owner, Observer { logListLiveData ->
             logListLiveData.observe(owner, Observer { stringList ->
-                GlobalScope.launch {
+                GlobalScope.launch(Dispatchers.Main) {
                     LogUtil.mutex.withLock {
                         renewLogMessage(stringList)
                     }

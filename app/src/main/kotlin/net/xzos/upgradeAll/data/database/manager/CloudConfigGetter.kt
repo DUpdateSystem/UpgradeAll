@@ -9,6 +9,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication.Companion.context
+import net.xzos.upgradeAll.data.database.litepal.RepoDatabase
 import net.xzos.upgradeAll.data.json.gson.AppConfig
 import net.xzos.upgradeAll.data.json.gson.CloudConfig
 import net.xzos.upgradeAll.data.json.gson.HubConfig
@@ -158,24 +159,21 @@ internal object CloudConfigGetter {
     }
 
     /**
-     * @return 1 获取 AppConfig 成功, 2 添加数据库成功, -1 获取 AppConfig 失败, -2 添加数据库失败
+     * @return RepoDatabase 添加数据库成功, NULL 添加数据库失败
      */
-    fun downloadCloudAppConfig(appUuid: String?): Int {
+    fun downloadCloudAppConfig(appUuid: String?): RepoDatabase? {
         GlobalScope.launch(Dispatchers.Main) { Toast.makeText(context, "开始下载", Toast.LENGTH_LONG).show() }  // 下载
         val cloudHubConfigGson = getAppCloudConfig(appUuid)
-        return (if (cloudHubConfigGson != null) {
+        if (cloudHubConfigGson != null) {
             // 添加数据库
-            if (AppDatabaseManager.setDatabase(0, cloudHubConfigGson)) {
-                2
-            } else -2
-        } else -1).apply {
-            GlobalScope.launch(Dispatchers.Main) {
-                when (this@apply) {
-                    2 -> Toast.makeText(context, "数据添加成功", Toast.LENGTH_LONG).show()
-                    -1 -> Toast.makeText(context, "获取基础配置文件失败", Toast.LENGTH_LONG).show()
-                    -2 -> Toast.makeText(context, "什么？数据库添加失败！", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
+            val appDatabase = AppDatabaseManager.setDatabase(cloudHubConfigGson)
+            if (appDatabase != null) {
+                GlobalScope.launch(Dispatchers.Main) { Toast.makeText(context, "数据添加成功", Toast.LENGTH_LONG).show() }
+                return appDatabase
+            } else
+                GlobalScope.launch(Dispatchers.Main) { Toast.makeText(context, "什么？数据库添加失败！", Toast.LENGTH_LONG).show() }
+        } else
+            GlobalScope.launch(Dispatchers.Main) { Toast.makeText(context, "获取基础配置文件失败", Toast.LENGTH_LONG).show() }
+        return null
     }
 }

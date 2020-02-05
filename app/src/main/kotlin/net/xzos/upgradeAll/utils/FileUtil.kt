@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import net.xzos.upgradeAll.application.MyApplication
+import net.xzos.upgradeAll.application.MyApplication.Companion.context
 import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 import net.xzos.upgradeAll.server.log.LogUtil
 import java.io.*
@@ -26,9 +27,11 @@ object FileUtil {
     private const val TAG = "FileUtil"
     private val logObjectTag = ObjectTag("Core", TAG)
 
-    internal const val imageCacheFileName = "_selectedImg.png"
+    internal val UI_CONFIG_FILE = File(context.filesDir, "ui.json")
+    internal val NAV_IMAGE_FILE = File(File(context.filesDir, "images"), "nav_image.png")
+    internal val imageCacheFile = File(context.externalCacheDir, "_cache_image.png")
 
-    fun clearCache(filePath: String) = File(MyApplication.context.externalCacheDir, filePath).deleteRecursively()
+    fun clearCache(filePath: String) = File(context.externalCacheDir, filePath).deleteRecursively()
 
     fun renameSameFile(targetFile: File, fileList: List<File>): File {
         val separator = "."
@@ -256,9 +259,8 @@ object FileUtil {
         }
 
         /*We can access getExternalFileDir() without asking any storage permission.*/
-        val selectedImgFile = File(activity.externalCacheDir, imageCacheFileName)
 
-        convertBitmapToFile(selectedImgFile, selectedBitmap)
-        return Uri.fromFile(selectedImgFile)
+        convertBitmapToFile(imageCacheFile, selectedBitmap)
+        return Uri.fromFile(imageCacheFile)
     }
 }

@@ -13,6 +13,8 @@ import java.util.*
 internal class JSCache(private val objectTag: ObjectTag) {
 
     fun clearCache() {
+        jsCacheData.jsReturnData.remove(objectTag)  // 删除作为 UI 缓存的 JS 的返回数据
+        // 删除网络缓存
         jsNetworkCacheIdMap[objectTag]?.run {
             for (url in this) {
                 jsCacheData.httpResponseDict.remove(url)
