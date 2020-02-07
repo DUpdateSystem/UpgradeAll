@@ -111,6 +111,7 @@ internal class JSUtils(
                     resUrl,
                     context
             )
+            ariaDownloader.cancel()
         }
     }
 

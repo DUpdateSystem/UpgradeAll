@@ -51,13 +51,10 @@ class AppInfoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            MainActivity.bundleApp?.also {
-                app = it
-            } ?: activity?.onBackPressed()
-
-            engine = app.engine
-        }
+        MainActivity.bundleApp?.also {
+            app = it
+        } ?: activity?.onBackPressed()
+        engine = app.engine
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -208,7 +205,7 @@ class AppInfoFragment : Fragment() {
         versionMarkImageView.visibility = View.GONE
         app.appDatabase.let {
             GlobalScope.launch {
-                if (!UpdateManager.renewApp(app)) return@launch
+                if (!Updater(app).isSuccessRenew()) return@launch
                 val releaseInfoBean = jsReturnData!!.releaseInfoList[versioningPosition]
                 val latestVersionNumber = releaseInfoBean.version_number
                 val latestChangeLog = releaseInfoBean.change_log

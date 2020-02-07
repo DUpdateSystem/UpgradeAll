@@ -28,15 +28,17 @@ object UpdateManager {
     private val apps: HashSet<App>
         get() = AppManager.getApps()
     private val jobMap = hashMapOf<App, Job>()
-    private fun cancelJob(app: App) {
+    private fun finishJob(app: App) {
         jobMap.remove(app)
-        if (jobMap.isEmpty()) finishCheckUpdate()
+        if (jobMap.isEmpty()) {
+            finishCheckUpdate()
+            if (mutex.isLocked) mutex.unlock()
+        } else updateStatusNotification()
     }
 
     private val mutex = Mutex()
 
     private val needUpdateAppList = hashSetOf<App>()
-    private val executorCoroutineDispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
     private const val CHANNEL_ID = "UpdateServiceNotification"
     private const val updateNotificationId = 0
 
@@ -53,32 +55,29 @@ object UpdateManager {
     }
 
     // 刷新所有软件并等待，返回需要更新的软件数量
-    fun blockRenewAll(): HashSet<App> {
-        runBlocking {
+    suspend fun blockRenewAll(): HashSet<App> {
+        if (!mutex.isLocked) {
             // 尝试刷新全部软件
             renewAll()
-            // 等待刷新完成
-            mutex.lock()
-            mutex.unlock()
         }
+        // 等待刷新完成
+        waitRenew()
         return needUpdateAppList
     }
 
-    fun renewAll() {
-        runBlocking {
-            mutex.lock()
-        }
-        startUpdateNotification()
-        needUpdateAppList.clear()
-        for (appId in apps) {
-            startJob(appId)
-        }
+    private suspend fun waitRenew() {
+        mutex.lock()
+        mutex.unlock()
     }
 
-    fun renewApp(app: App): Boolean {
-        cancelJob(app)
-        return runBlocking(executorCoroutineDispatcher) {
-            Updater(app).isSuccessRenew()
+    fun renewAll() {
+        GlobalScope.launch {
+            mutex.lock()
+            startUpdateNotification()
+            needUpdateAppList.clear()
+            for (appId in apps) {
+                startJob(appId)
+            }
         }
     }
 
@@ -91,14 +90,11 @@ object UpdateManager {
 
     private fun startJob(app: App) {
         jobMap[app] = GlobalScope.launch(Dispatchers.IO) {
-            if (Updater(app).getUpdateStatus() == Updater.APP_OUTDATED)
-                needUpdateAppList.add(app)
-            cancelJob(app)
-            if (jobMap.isEmpty()) {
-                finishCheckUpdate()
-                if (mutex.isLocked)
-                    mutex.unlock()
-            } else updateStatusNotification()
+            when (Updater(app).getUpdateStatus()) {
+                Updater.APP_OUTDATED -> needUpdateAppList.add(app)
+                Updater.NETWORK_404 -> app.renewEngine()
+            }
+            finishJob(app)
         }
     }
 

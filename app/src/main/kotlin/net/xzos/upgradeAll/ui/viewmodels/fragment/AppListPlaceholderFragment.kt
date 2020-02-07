@@ -15,20 +15,15 @@ import kotlinx.android.synthetic.main.pageview_app_list.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.server.app.manager.module.App
 import net.xzos.upgradeAll.ui.viewmodels.adapters.AppItemAdapter
-import net.xzos.upgradeAll.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
 import net.xzos.upgradeAll.ui.viewmodels.viewmodel.AppListPageViewModel
 
-internal class AppListPlaceholderFragment : Fragment() {
+internal class AppListPlaceholderFragment(private val tabPageIndex: Int) : Fragment() {
 
     private lateinit var appListPageViewModel: AppListPageViewModel
-    private var tabPageIndex: Int = ALL_APP_PAGE_INDEX
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appListPageViewModel = ViewModelProvider(this).get(AppListPageViewModel::class.java)
-        arguments?.getInt(ARG_SECTION_TAG)?.run {
-            tabPageIndex = this
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -84,7 +79,7 @@ internal class AppListPlaceholderFragment : Fragment() {
     private fun renewAppList() {
         val layoutManager = GridLayoutManager(activity, 1)
         cardItemRecyclerView.layoutManager = layoutManager
-        val adapter = AppItemAdapter(appListPageViewModel.needUpdateAppsLiveLiveData, appListPageViewModel.appCardViewList, this)
+        val adapter = AppItemAdapter(appListPageViewModel, appListPageViewModel.appCardViewList, this)
         cardItemRecyclerView.adapter = adapter
     }
 
@@ -112,14 +107,7 @@ internal class AppListPlaceholderFragment : Fragment() {
 
     companion object {
 
-        private const val ARG_SECTION_TAG = "TAB_PAGE_INDEX"
-
-        internal fun newInstance(tabPageIndex: Int): AppListPlaceholderFragment {
-            val fragment = AppListPlaceholderFragment()
-            val bundle = Bundle()
-            bundle.putInt(ARG_SECTION_TAG, tabPageIndex)
-            fragment.arguments = bundle
-            return fragment
-        }
+        internal fun newInstance(tabPageIndex: Int): AppListPlaceholderFragment =
+                AppListPlaceholderFragment(tabPageIndex)
     }
 }

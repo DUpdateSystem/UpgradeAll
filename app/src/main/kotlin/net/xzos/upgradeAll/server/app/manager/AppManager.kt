@@ -24,8 +24,8 @@ internal object AppManager {
 
     fun getApp(databaseId: Int? = null, uuid: String? = null): App? {
         for (app in appSet) {
-            if (app.appDatabase.extraData?.cloudAppConfig?.uuid == uuid
-                    || app.appDatabase.id == databaseId)
+            if ((uuid != null && app.appDatabase.extraData?.cloudAppConfig?.uuid == uuid)
+                    || (databaseId != null && app.appDatabase.id == databaseId))
                 return app
         }
         return null

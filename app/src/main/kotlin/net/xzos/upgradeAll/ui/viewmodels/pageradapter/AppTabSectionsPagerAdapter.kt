@@ -2,7 +2,8 @@ package net.xzos.upgradeAll.ui.viewmodels.pageradapter
 
 import android.view.LayoutInflater
 import android.view.View
-import androidx.cardview.widget.CardView
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
@@ -13,30 +14,80 @@ import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.group_item.view.*
+import kotlinx.android.synthetic.main.group_item.view.groupCardView
+import kotlinx.android.synthetic.main.group_item.view.groupIconImageView
+import kotlinx.android.synthetic.main.view_add_group_item.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
+import net.xzos.upgradeAll.data.json.gson.UIConfig
 import net.xzos.upgradeAll.data.json.gson.UIConfig.Companion.uiConfig
-import net.xzos.upgradeAll.ui.activity.MainActivity
+import net.xzos.upgradeAll.server.update.UpdateManager
+import net.xzos.upgradeAll.ui.activity.UCropActivity
 import net.xzos.upgradeAll.ui.viewmodels.fragment.AppListPlaceholderFragment
+import net.xzos.upgradeAll.utils.FileUtil
 import net.xzos.upgradeAll.utils.IconPalette
+import java.io.File
 
 
-class AppTabSectionsPagerAdapter(fm: FragmentManager) :
+class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentManager, private val lifecycleOwner: LifecycleOwner) :
         FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-    private val mTabIndexList: MutableList<Int> = mutableListOf(
-            UPDATE_PAGE_INDEX, USER_STAR_PAGE_INDEX, ALL_APP_PAGE_INDEX).apply {
-        if (!uiConfig.userStarTab.userStarEnable) this.remove(USER_STAR_PAGE_INDEX)  // 检查用户是否关闭星标页面
-    }
+    private var mTabIndexList: MutableList<Int> = initTabIndexList()
 
     init {
-        // 在 ALL_APP_PAGE 前插入 uiConfig 索引
-        mTabIndexList.addAll(mTabIndexList.indexOf(ALL_APP_PAGE_INDEX),
-                (0 until uiConfig.userTabList.size).toList())
-        renewViewPage.value = false
+        // 设置添加按钮自动弹出
+        editTabMode.observe(lifecycleOwner, Observer<Boolean> { editTabMode ->
+            if (editTabMode) {
+                mTabIndexList = getAllTabIndexList()
+                notifyDataSetChanged()
+            } else {
+                val tabIndexList = initTabIndexList()
+                if (tabIndexList.isNotEmpty()) {
+                    mTabIndexList = tabIndexList
+                    notifyDataSetChanged()
+                    checkUpdate()
+                } else {
+                    AppTabSectionsPagerAdapter.editTabMode.value = true
+                    // 尝试阻止用户退出编辑模式
+                    GlobalScope.launch(Dispatchers.Main) {
+                        Toast.makeText(tabLayout.context,
+                                "请勿隐藏所有标签页，这将导致您难以使用该软件", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+            renewAllCustomTabView()
+        })
+    }
+
+    // 检查更新页面是否刷新
+    private fun checkUpdate() {
+        if (!mTabIndexList.contains(UPDATE_PAGE_INDEX)) {
+            addTabPage(UPDATE_PAGE_INDEX, 0)
+        }
+        renewAllCustomTabView()
+        GlobalScope.launch {
+            val loadingBar =
+                    getProgressBarFromCustomTabView(mTabIndexList.indexOf(UPDATE_PAGE_INDEX))
+            withContext(Dispatchers.Main) {
+                loadingBar?.visibility = View.VISIBLE
+            }
+            if (UpdateManager.blockRenewAll().isEmpty() && editTabMode.value == false) {
+                withContext(Dispatchers.Main) {
+                    removeTabPage(mTabIndexList.indexOf(UPDATE_PAGE_INDEX))
+                }
+            }
+            withContext(Dispatchers.Main) {
+                loadingBar?.visibility = View.GONE
+                renewAllCustomTabView()
+            }
+        }
     }
 
     override fun getItem(position: Int): Fragment {
-        return AppListPlaceholderFragment.newInstance(mTabIndexList[position])
+        return if (mTabIndexList[position] == ADD_TAB_BUTTON_INDEX) Fragment()
+        else AppListPlaceholderFragment.newInstance(mTabIndexList[position])
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
@@ -52,116 +103,257 @@ class AppTabSectionsPagerAdapter(fm: FragmentManager) :
         return mTabIndexList.size
     }
 
-    private fun getCustomTabView(position: Int, rootLayout: TabLayout): View {
-        return LayoutInflater.from(rootLayout.context).inflate(R.layout.group_item, rootLayout, false).apply {
-            this.delGroupCardView.visibility = View.GONE
-            if (position >= 0) {
-                val tabTitle: String
-                var tabIconDrawableId: Int? = null
-                var tabIconUrl: String? = null
-                when (mTabIndexList[position]) {
-                    UPDATE_PAGE_INDEX -> {
-                        tabTitle = context.getString(R.string.update)
-                        tabIconDrawableId = R.drawable.ic_update
-                    }
-                    USER_STAR_PAGE_INDEX -> {
-                        tabTitle = context.getString(R.string.user_star)
-                        tabIconDrawableId = R.drawable.ic_start
-                    }
-                    ALL_APP_PAGE_INDEX -> {
-                        tabTitle = context.getString(R.string.all_app)
-                        tabIconDrawableId = R.drawable.ic_app
-                    }
-                    else -> {
-                        val tabInfo = uiConfig.userTabList[mTabIndexList[position]]
-                        tabTitle = tabInfo.name
-                        tabIconUrl = tabInfo.icon
+    private fun getAllTabIndexList(): MutableList<Int> = mutableListOf(
+            UPDATE_PAGE_INDEX, USER_STAR_PAGE_INDEX,
+            ALL_APP_PAGE_INDEX, ADD_TAB_BUTTON_INDEX).apply {
+        // 在 ALL_APP_PAGE 前插入 uiConfig 索引
+        this.addAll(this.indexOf(ALL_APP_PAGE_INDEX),
+                (0 until uiConfig.userTabList.size).toList())
+    }
+
+    private fun initTabIndexList(): MutableList<Int> {
+        val tabIndexList = mutableListOf<Int>()
+        if (uiConfig.updateTab.enable)
+            tabIndexList.add(UPDATE_PAGE_INDEX)
+        if (uiConfig.userStarTab.enable)
+            tabIndexList.add(USER_STAR_PAGE_INDEX)
+        for (i in uiConfig.userTabList.indices) {
+            val userTab = uiConfig.userTabList[i]
+            if (userTab.enable)
+                tabIndexList.add(i)
+        }
+        if (uiConfig.allAppTab.enable)
+            tabIndexList.add(ALL_APP_PAGE_INDEX)
+        return tabIndexList
+    }
+
+    private fun addTabPage(tabIndex: Int, position: Int = mTabIndexList.size) {
+        mTabIndexList.add(position, tabIndex)
+        notifyDataSetChanged()
+    }
+
+    private fun removeTabPage(position: Int) {
+        if (position >= 0 && position < mTabIndexList.size) {
+            mTabIndexList.removeAt(position)
+        }
+        notifyDataSetChanged()
+    }
+
+    private fun swapTabPage(position: Int, targetPosition: Int) {
+        if (position >= 0 && position < mTabIndexList.size && targetPosition >= 0 && targetPosition < mTabIndexList.size)
+            mTabIndexList[position] = mTabIndexList[targetPosition].also { mTabIndexList[targetPosition] = mTabIndexList[position] }
+        notifyDataSetChanged()
+    }
+
+    private fun getProgressBarFromCustomTabView(position: Int): ProgressBar? =
+            tabLayout.getTabAt(position)?.customView?.findViewById(R.id.loadingBar)
+
+    private fun renewAllCustomTabView() {
+        notifyDataSetChanged()
+        for (i in 0 until tabLayout.tabCount)
+            renewCustomTabView(i)
+    }
+
+    private fun renewCustomTabView(position: Int) {
+        tabLayout.getTabAt(position)?.customView = getCustomTabView(position)
+    }
+
+    private fun loadGroupViewAndReturnBasicInfo(
+            tabIndex: Int,
+            groupIconImageView: ImageView,
+            textView: View
+    ): UIConfig.BasicInfo {
+        var tabIconDrawableId: Int? = null
+        val tabBasicInfo = when (tabIndex) {
+            UPDATE_PAGE_INDEX -> {
+                tabIconDrawableId = R.drawable.ic_update
+                uiConfig.updateTab
+            }
+            USER_STAR_PAGE_INDEX -> {
+                tabIconDrawableId = R.drawable.ic_start
+                uiConfig.userStarTab
+            }
+            ALL_APP_PAGE_INDEX -> {
+                tabIconDrawableId = R.drawable.ic_app
+                uiConfig.allAppTab
+            }
+            else -> {
+                uiConfig.userTabList[tabIndex]
+            }
+        }
+        val name = tabBasicInfo.name
+        val icon = tabBasicInfo.icon.toString()
+        if (textView is TextView) {
+            textView.text = name
+        } else if (textView is EditText) {
+            textView.setText(name)
+        }
+        IconPalette.loadHubIconView(
+                iconImageView = groupIconImageView,
+                file = File(FileUtil.GROUP_IMAGE_DIR, icon),
+                hubIconDrawableId = tabIconDrawableId
+        )
+        return tabBasicInfo
+    }
+
+    private fun getCustomTabView(position: Int): View {
+        return LayoutInflater.from(tabLayout.context)
+                .inflate(R.layout.group_item, tabLayout, false).apply {
+                    // 通用 UI 组件初始化
+                    loadingBar.visibility = View.GONE
+                    editGroupCardView.visibility = View.GONE
+                    // 初始化按钮相应
+                    setCustomTabViewClickListener(this, position)
+                    // 非按钮 Tab 初始化
+                    if (position >= 0 && position < mTabIndexList.size) {
+                        when (val tabIndex = mTabIndexList[position]) {
+                            ADD_TAB_BUTTON_INDEX -> {
+                                groupCardView.visibility = View.GONE
+                                addGroupCardView.visibility = View.VISIBLE
+                                setOnClickListener {
+                                    showAddGroupAlertDialog(this, position)
+                                }
+                                return@apply
+                            }
+                            else -> loadGroupViewAndReturnBasicInfo(tabIndex, groupIconImageView, groupNameTextView)
+                        }
+                        groupCardView.visibility = View.VISIBLE
+                        addGroupCardView.visibility = View.GONE
+                        editTabMode.observe(lifecycleOwner, Observer<Boolean> { editTabMode ->
+                            editGroupCardView.visibility = if (editTabMode) View.VISIBLE else View.GONE
+                        })
                     }
                 }
-                groupCardView.visibility = View.VISIBLE
-                addGroupCardView.visibility = View.GONE
-                groupNameTextView.text = tabTitle
-                if (tabIconDrawableId != null)
-                    IconPalette.loadHubIconView(
-                            groupIconImageView,
-                            hubIconDrawableId = tabIconDrawableId
-                    )
-                else
-                    IconPalette.loadHubIconView(
-                            groupIconImageView,
-                            tabIconUrl
-                    )
-                setOnClickListener(View.OnClickListener {
-                    if (delGroupCardView.visibility == View.VISIBLE)
-                        waiteDel(delGroupCardView, tabTitle, false)
-                    else if (rootLayout.selectedTabPosition != position) {
-                        // TODO: 进入分组实现后删除该点击事件
-                        rootLayout.getTabAt(position)?.select()
-                    }
-                    // TODO: 进入分组按钮
-                    return@OnClickListener
-                })
-                setOnLongClickListener(View.OnLongClickListener {
-                    waiteDel(delGroupCardView, tabTitle, true)
-                    return@OnLongClickListener true
-                })
-            } else {
-                this.groupCardView.visibility = View.GONE
-                with(addGroupCardView) {
-                    visibility = View.VISIBLE
-                    setOnClickListener {
-                        MainActivity.navigationItemId.value = R.id.hubCloudFragment
-                    }
+    }
+
+    private fun setCustomTabViewClickListener(view: View, position: Int) {
+        with(view) {
+            setOnLongClickListener {
+                editTabMode.value = true
+                return@setOnLongClickListener true
+            }
+            setOnClickListener(View.OnClickListener {
+                if (tabLayout.selectedTabPosition != position) {
+                    tabLayout.getTabAt(position)?.select()
                 }
+                if (editTabMode.value == true)
+                    editTabMode.value = false
+                return@OnClickListener
+            })
+            editGroupCardView.setOnClickListener {
+                showAddGroupAlertDialog(this, position)
             }
         }
     }
 
-    private fun waiteDel(delGroupCardView: CardView, hubUuid: String, needDel: Boolean) {
-        with(delGroupCardView) {
-            if (needDel) {
-                visibility = View.VISIBLE
-                setOnClickListener {
-                    HubDatabaseManager.del(hubUuid)
-                    renewViewPage.value = true
+    private fun showAddGroupAlertDialog(view: View, position: Int) {
+        with(view.context) {
+            AlertDialog.Builder(this).also {
+                var cacheImageFile: File? = null
+                var tabBasicInfo: UIConfig.BasicInfo? = null
+                val dialogView = LayoutInflater.from(this)
+                        .inflate(R.layout.view_add_group_item, tabLayout, false).apply {
+                            val tabIndex = mTabIndexList[position]
+                            if (tabIndex != ADD_TAB_BUTTON_INDEX) {
+                                it.setMessage(R.string.edit_group)
+                                tabBasicInfo =
+                                        loadGroupViewAndReturnBasicInfo(tabIndex, groupIconImageView, groupNameEditText)
+                                cacheImageFile = FileUtil.getUserGroupIcon(tabBasicInfo!!.icon)
+                                if (tabIndex >= 0) {
+                                    it.setNeutralButton(R.string.delete) { dialog, _ ->
+                                        uiConfig.removeUserTab(position = tabIndex)
+                                        mTabIndexList = getAllTabIndexList()
+                                        renewAllCustomTabView()
+                                        dialog.cancel()
+                                    }
+                                    uiConfig.userTabList[tabIndex]
+                                    liftMoveImageView.setOnClickListener {
+                                        if (uiConfig.swapUserTabOrder(tabIndex, tabIndex - 1)) {
+                                            swapTabPage(position, position - 1)
+                                            renewAllCustomTabView()
+                                        }
+                                    }
+                                    rightMoveImageView.setOnClickListener {
+                                        if (uiConfig.swapUserTabOrder(tabIndex, tabIndex + 1)) {
+                                            swapTabPage(position, position + 1)
+                                            renewAllCustomTabView()
+                                        }
+                                    }
+                                }
+                                it.setNegativeButton(
+                                        if (tabBasicInfo!!.enable) R.string.hide
+                                        else R.string.unhide
+                                ) { dialog, _ ->
+                                    tabBasicInfo!!.enable = !tabBasicInfo!!.enable
+                                    dialog.cancel()
+                                }
+                            } else {
+                                it.setMessage(R.string.add_new_group)
+                            }
+                            if (tabIndex < 0) {
+                                liftMoveImageView.visibility = View.GONE
+                                rightMoveImageView.visibility = View.GONE
+                            }
+                            groupCardView.setOnClickListener {
+                                GlobalScope.launch {
+                                    if (cacheImageFile == null)
+                                        cacheImageFile = FileUtil.getNewRandomNameFile(FileUtil.GROUP_IMAGE_DIR)
+                                    if (UCropActivity.newInstance(1f, 1f, cacheImageFile!!, this@with)) {
+                                        withContext(Dispatchers.Main) {
+                                            IconPalette.loadHubIconView(
+                                                    iconImageView = groupIconImageView,
+                                                    file = cacheImageFile
+                                            )
+                                            IconPalette.loadHubIconView(
+                                                    iconImageView = view.groupIconImageView,
+                                                    file = cacheImageFile
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                it.setView(dialogView)
+                it.setPositiveButton(R.string.ok) { dialog, _ ->
+                    val name = dialogView.groupNameEditText.text.toString()
+                    if (name.isNotEmpty()) {
+                        if (tabBasicInfo != null) {
+                            tabBasicInfo?.name = name
+                            uiConfig.save()
+                        } else {
+                            if (uiConfig.addUserTab(name, cacheImageFile?.name)) {
+                                addTabPage(uiConfig.userTabList.size - 1)
+                                editTabMode.value = false
+                            }
+                        }
+                        dialog.cancel()
+                    } else {
+                        Toast.makeText(this, "请填写名称", Toast.LENGTH_LONG).show()
+                    }
                 }
-            } else {
-                visibility = View.GONE
-                setOnClickListener(null)
-            }
+            }.create().show()
         }
     }
 
     companion object {
-        internal val renewViewPage = MutableLiveData<Boolean>(true)
+        internal const val ADD_TAB_BUTTON_INDEX = -4
         internal const val UPDATE_PAGE_INDEX = -3
         internal const val USER_STAR_PAGE_INDEX = -2
         internal const val ALL_APP_PAGE_INDEX = -1
-        internal fun setViewPage(tabLayout: TabLayout, viewPager: ViewPager, childFragmentManager: FragmentManager, lifecycleOwner: LifecycleOwner) {
-            renewViewPage.let {
-                it.value = true
-                it.observe(lifecycleOwner, Observer { renew ->
-                    if (renew) {
-                        renewViewPage(tabLayout, viewPager, childFragmentManager)
-                    }
-                })
-            }
-        }
 
-        private fun renewViewPage(tabLayout: TabLayout, viewPager: ViewPager, childFragmentManager: FragmentManager) {
-            val sectionsPagerAdapter = AppTabSectionsPagerAdapter(childFragmentManager)
+        internal val editTabMode = MutableLiveData(false)
+
+        internal fun newInstance(
+                tabLayout: TabLayout,
+                viewPager: ViewPager,
+                childFragmentManager: FragmentManager,
+                lifecycleOwner: LifecycleOwner
+        ) {
+            val sectionsPagerAdapter =
+                    AppTabSectionsPagerAdapter(tabLayout, childFragmentManager, lifecycleOwner)
             viewPager.adapter = sectionsPagerAdapter
             with(tabLayout) {
                 this.setupWithViewPager(viewPager)
-                val count = this.tabCount
-                for (i in 0 until count) {
-                    this.getTabAt(i)?.customView = sectionsPagerAdapter.getCustomTabView(i, this)
-                }
-                addTab(
-                        this.newTab().apply {
-                            customView = sectionsPagerAdapter.getCustomTabView(-1, this@with)
-                        }
-                )
             }
         }
     }

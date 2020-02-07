@@ -1,8 +1,6 @@
 package net.xzos.upgradeAll.ui.activity
 
-import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
@@ -22,16 +20,18 @@ import androidx.navigation.ui.NavigationUI
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.navigation.NavigationView
-import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 import net.xzos.upgradeAll.server.app.manager.module.App
 import net.xzos.upgradeAll.server.log.LogUtil
 import net.xzos.upgradeAll.server.update.UpdateManager
-import net.xzos.upgradeAll.utils.FileUtil
 import net.xzos.upgradeAll.utils.FileUtil.NAV_IMAGE_FILE
 import net.xzos.upgradeAll.utils.MiscellaneousUtils
 import java.util.*
@@ -64,44 +64,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setNavHeaderView()
         navView.setNavigationItemSelectedListener(this)
         showToast()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        super.onActivityResult(requestCode, resultCode, resultData)
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                READ_PIC_REQUEST_CODE -> {
-                    val uri = resultData?.data
-                    if (uri != null) {
-                        val parent = NAV_IMAGE_FILE.parentFile
-                        if (parent != null && !parent.exists())
-                            parent.mkdirs()
-                        val destinationUri = Uri.fromFile(NAV_IMAGE_FILE)
-                        UCrop.of(FileUtil.imageUriDump(uri, this), destinationUri)
-                                .withAspectRatio(16f, 9f)
-                                .start(this, UCrop.REQUEST_CROP)
-                    }
-                }
-                UCrop.REQUEST_CROP -> {
-                    renewNavImage()
-                }
-                UCrop.RESULT_ERROR -> {
-                    val cropError = UCrop.getError(resultData!!)
-                    if (cropError != null)
-                        Log.e(logObjectTag, TAG, "onActivityResult: 图片裁剪错误: $cropError")
-                }
-            }
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == PERMISSIONS_REQUEST_WRITE_CONTACTS) {
-            if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this@MainActivity, "设置背景图片需要读写本地文件", Toast.LENGTH_LONG).show()
-            } else
-                setNavImage()
-        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -225,7 +187,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val headerView = navView.getHeaderView(0) as LinearLayout
         headerView.setOnClickListener {
             Toast.makeText(this, "长按侧滑栏图片可以删除图片", Toast.LENGTH_SHORT).show()
-            setNavImage()
+            GlobalScope.launch {
+                if (UCropActivity.newInstance(19f, 6f, NAV_IMAGE_FILE, this@MainActivity))
+                    withContext(Dispatchers.Main) {
+                        renewNavImage()
+                    }
+            }
         }
         headerView.setOnLongClickListener {
             delNavImage()
@@ -253,14 +220,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun setNavImage() {
-        if (FileUtil.requestPermission(this, PERMISSIONS_REQUEST_WRITE_CONTACTS)) {
-            FileUtil.getPicFormGallery(this, READ_PIC_REQUEST_CODE)
-        }
-    }
-
     private fun renewNavImage() {
-        FileUtil.clearCache(FileUtil.imageCacheFile.name)
         if (NAV_IMAGE_FILE.exists())
             Glide.with(this)
                     .load(NAV_IMAGE_FILE)
@@ -286,9 +246,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private val Log = LogUtil
         private const val TAG = "MainActivity"
         private val logObjectTag = ObjectTag("UI", TAG)
-
-        private const val PERMISSIONS_REQUEST_WRITE_CONTACTS = 1
-        private const val READ_PIC_REQUEST_CODE = 2
 
         // Fragment 跳转
         internal lateinit var navigationItemId: MutableLiveData<Int>
