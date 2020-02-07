@@ -18,6 +18,7 @@
     <string name="versioning_check_setting">版本控制设置</string>
     <string name="update_item_setting_versionCheckButton">测试</string>
     <string name="delete">删除</string>
+    <string name="delete_from_group">从分组中删除</string>
     <string name="export">导出</string>
     <string name="edit">编辑</string>
     <string name="sync_header">数据刷新</string>
@@ -96,6 +97,7 @@
     <string name="more_other_version_number">更多版本</string>
     <string name="loading">加载中…</string>
     <string name="add_apps">添加应用</string>
+    <string name="group_name">分组名称</string>
 
     <string name="setting_help_web_page">\n详细帮助：https://xzos.net/upgradeall-readme</string>
 
@@ -104,6 +106,8 @@
     <string name="setting_app_versioning_explain">应用目标指向字符（必填）\n通过该字符串确认本地应用信息\n 例如：net.xzos.upgradeall\n 当选择的版本控制模块不为 Shell 时，\n 会开启搜索功能</string>
     <string name="ok">确认</string>
     <string name="cancel">取消</string>
+    <string name="hide">隐藏</string>
+    <string name="unhide">取消隐藏</string>
     <string name="split_line">--------------------------------------------------</string>
 
     <string name="whether_download_dependency_hub">是否下载缺失的依赖软件源</string>
@@ -117,5 +121,11 @@
     <string name="marked_version_number_is_behind_latest">标注已处理的版本号已落后于最新版本</string>
     <string name="auto_fixed_wrong_configuration">已自动修复错误配置</string>
     <string name="o_mark">⭕</string>
+    <string name="processing">处理中</string>
+    <string name="add_new_group">添加新分组</string>
+    <string name="add_to_group">添加到分组</string>
+    <string name="edit_group">修改分组</string>
+    <string name="move_lift">向左移动</string>
+    <string name="move_right">向右移动</string>
 
 </resources>

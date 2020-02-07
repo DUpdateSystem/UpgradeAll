@@ -43,7 +43,7 @@ class AppListFragment : Fragment() {
                 fab.visibility = View.VISIBLE
             }
         }
-        AppTabSectionsPagerAdapter.setViewPage(groupTabs, viewPager, childFragmentManager, viewLifecycleOwner)
+        AppTabSectionsPagerAdapter.newInstance(groupTabs, viewPager, childFragmentManager, viewLifecycleOwner)
     }
 
     override fun onResume() {

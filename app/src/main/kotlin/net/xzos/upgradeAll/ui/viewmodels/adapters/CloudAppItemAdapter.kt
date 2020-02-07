@@ -15,7 +15,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeAll.R
-import net.xzos.upgradeAll.application.MyApplication
 import net.xzos.upgradeAll.data.database.manager.CloudConfigGetter
 import net.xzos.upgradeAll.data.database.manager.HubDatabaseManager
 import net.xzos.upgradeAll.server.app.manager.AppManager
@@ -146,7 +145,7 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
                 AlertDialog.Builder(it).apply {
                     setMessage(R.string.whether_download_dependency_hub)
                     setPositiveButton(R.string.ok) { dialog, _ ->
-                        Toast.makeText(MyApplication.context, R.string.start_download_dependency_hub, Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, R.string.start_download_dependency_hub, Toast.LENGTH_LONG).show()
                         GlobalScope.launch { CloudConfigGetter.downloadCloudHubConfig(hubUuid) }
                         dialog.cancel()
                     }

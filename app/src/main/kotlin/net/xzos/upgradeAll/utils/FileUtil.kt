@@ -20,6 +20,7 @@ import net.xzos.upgradeAll.application.MyApplication.Companion.context
 import net.xzos.upgradeAll.data.json.nongson.ObjectTag
 import net.xzos.upgradeAll.server.log.LogUtil
 import java.io.*
+import java.util.*
 
 object FileUtil {
 
@@ -28,8 +29,13 @@ object FileUtil {
     private val logObjectTag = ObjectTag("Core", TAG)
 
     internal val UI_CONFIG_FILE = File(context.filesDir, "ui.json")
-    internal val NAV_IMAGE_FILE = File(File(context.filesDir, "images"), "nav_image.png")
-    internal val imageCacheFile = File(context.externalCacheDir, "_cache_image.png")
+    private val IMAGE_DIR = File(context.filesDir, "images")
+    internal val UPDATE_TAB_IMAGE_NAME = "update_tab.png"
+    internal val USER_STAR_TAB_IMAGE_NAME = "user_star_tab.png"
+    internal val ALL_APP_TAB_IMAGE_NAME = "all_app_tab.png"
+    internal val GROUP_IMAGE_DIR = File(IMAGE_DIR, "groups")
+    internal val NAV_IMAGE_FILE = File(IMAGE_DIR, "nav_image.png")
+    internal val IMAGE_CACHE_FILE = File(context.externalCacheDir, "_cache_image.png")
 
     fun clearCache(filePath: String) = File(context.externalCacheDir, filePath).deleteRecursively()
 
@@ -59,7 +65,7 @@ object FileUtil {
                         Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
                             Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                Toast.makeText(MyApplication.context, "请给予本软件 读写存储空间权限", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "请给予本软件 读写存储空间权限", Toast.LENGTH_LONG).show()
             }
             ActivityCompat.requestPermissions(activity,
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
@@ -67,6 +73,18 @@ object FileUtil {
         } else
             havePermission = true
         return havePermission
+    }
+
+    fun getUserGroupIcon(iconFileName: String?): File? =
+            if (iconFileName != null) File(GROUP_IMAGE_DIR, iconFileName) else null
+
+    fun getNewRandomNameFile(targetDir: File): File {
+        if (!targetDir.exists())
+            targetDir.mkdirs()
+        val randomName = UUID.randomUUID().toString()
+        return File(targetDir, randomName).also {
+            it.createNewFile()
+        }
     }
 
     fun performFileSearch(activity: Activity, READ_REQUEST_CODE: Int, mimeType: String) {
@@ -102,7 +120,7 @@ object FileUtil {
 
     fun fileIsExistsByUri(uri: Uri): Boolean {
         return try {
-            MyApplication.context.contentResolver.openInputStream(uri)
+            context.contentResolver.openInputStream(uri)
             true
         } catch (e: FileNotFoundException) {
             false
@@ -188,7 +206,7 @@ object FileUtil {
 
     fun readTextFromUri(uri: Uri): String? {
         try {
-            val inputStream = MyApplication.context.contentResolver.openInputStream(uri)
+            val inputStream = context.contentResolver.openInputStream(uri)
             if (inputStream != null) {
                 val text = inputStream.bufferedReader().use(BufferedReader::readText)
                 inputStream.close()
@@ -203,7 +221,7 @@ object FileUtil {
     fun writeTextFromUri(uri: Uri, text: String): Boolean {
         var writeSuccess = false
         try {
-            val outputStream = MyApplication.context.contentResolver.openOutputStream(uri)
+            val outputStream = context.contentResolver.openOutputStream(uri)
             if (outputStream != null) {
                 val writer = BufferedWriter(OutputStreamWriter(
                         outputStream))
@@ -260,7 +278,7 @@ object FileUtil {
 
         /*We can access getExternalFileDir() without asking any storage permission.*/
 
-        convertBitmapToFile(imageCacheFile, selectedBitmap)
-        return Uri.fromFile(imageCacheFile)
+        convertBitmapToFile(IMAGE_CACHE_FILE, selectedBitmap)
+        return Uri.fromFile(IMAGE_CACHE_FILE)
     }
 }

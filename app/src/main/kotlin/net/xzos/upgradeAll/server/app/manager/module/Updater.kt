@@ -22,8 +22,7 @@ internal class Updater internal constructor(private val app: App) : UpdaterApi {
 
     override suspend fun getUpdateStatus(): Int {
         val installedVersioning = app.installedVersioning
-        val isSuccessRenew = isSuccessRenew()
-        return if (isSuccessRenew) {
+        return if (isSuccessRenew()) {
             //检查是否取得云端版本号
             if (installedVersioning != null || app.markProcessedVersionNumber != null) {
                 // 检查是否获取本地版本号

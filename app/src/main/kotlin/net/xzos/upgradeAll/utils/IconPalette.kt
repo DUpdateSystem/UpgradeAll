@@ -3,19 +3,19 @@ package net.xzos.upgradeAll.utils
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.devs.vectorchildfinder.VectorChildFinder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.xzos.upgradeAll.R
 import net.xzos.upgradeAll.application.MyApplication.Companion.context
 import net.xzos.upgradeAll.server.app.manager.module.App
+import java.io.File
 
 
 object IconPalette {
@@ -65,15 +65,21 @@ object IconPalette {
         }.drawable
     }
 
-    fun loadHubIconView(iconImageView: ImageView, hubIconUrl: String? = null, hubIconDrawableId: Int = R.drawable.ic_android_placeholder) =
+    fun loadHubIconView(iconImageView: ImageView,
+                        hubIconUrl: String? = null,
+                        file: File? = null,
+                        hubIconDrawableId: Int? = null) =
             loadIconView(iconImageView,
                     IconInfo(
-                            hubIconUrl,
-                            context.getDrawable(hubIconDrawableId),
-                            null)
+                            url = hubIconUrl,
+                            drawable = context.getDrawable(hubIconDrawableId
+                                    ?: R.drawable.ic_android_placeholder),
+                            file = file)
             )
 
-    fun loadAppIconView(iconImageView: ImageView, iconInfo: IconInfo? = null, app: App? = null) =
+    fun loadAppIconView(iconImageView: ImageView,
+                        iconInfo: IconInfo? = null,
+                        app: App? = null) =
             loadIconView(iconImageView,
                     (iconInfo ?: IconInfo(
                             url = runBlocking { app?.engine?.getAppIconUrl() },
@@ -85,26 +91,23 @@ object IconPalette {
 
     private fun loadIconView(iconImageView: ImageView, iconInfo: IconInfo) {
         GlobalScope.launch {
-            val (appIconUrl, drawable, appModuleName) = iconInfo
-            launch(Dispatchers.Main) {
-                val activity = getActivity(iconImageView)
-                if (activity?.isFinishing != true) {
-                    iconImageView.visibility = View.GONE
-                    try {
-                        Glide.with(iconImageView).load(appIconUrl ?: "").let {
-                            if (appIconUrl == null) {
-                                it.placeholder(
-                                        try {
-                                            iconImageView.context.packageManager.getApplicationIcon(appModuleName!!)
-                                        } catch (e: Throwable) {
-                                            drawable ?: return@let
-                                        }
-                                )
-                            }
-                            it.into(iconImageView)
-                            iconImageView.visibility = View.VISIBLE
-                        }
-                    } catch (e: IllegalArgumentException) {
+            val (url, drawable, appModuleName, file) = iconInfo
+            val activity = getActivity(iconImageView)
+            if (activity?.isFinishing != true) {
+                val model = if (file?.exists() == true) file
+                else url ?: try {
+                    if (appModuleName != null)
+                        iconImageView.context.packageManager.getApplicationIcon(appModuleName)
+                    else null
+                } catch (e: PackageManager.NameNotFoundException) {
+                    null
+                } ?: drawable
+                if (model != null) {
+                    val viewTarget = Glide.with(iconImageView).load(model)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
+                    withContext(Dispatchers.Main) {
+                        viewTarget.into(iconImageView)
                     }
                 }
             }
@@ -128,5 +131,6 @@ data class IconInfo(
         // cloudHubIconInfo: Pair<hubConfigUrl(configFileName), null>
         val url: String? = null,
         var drawable: Drawable? = null,
-        val app_package: String? = null
+        val app_package: String? = null,
+        val file: File? = null
 )

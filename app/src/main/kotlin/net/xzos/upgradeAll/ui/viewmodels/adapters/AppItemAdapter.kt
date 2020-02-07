@@ -23,11 +23,12 @@ import net.xzos.upgradeAll.server.app.manager.module.Updater
 import net.xzos.upgradeAll.ui.activity.MainActivity
 import net.xzos.upgradeAll.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeAll.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
+import net.xzos.upgradeAll.ui.viewmodels.viewmodel.AppListPageViewModel
 import net.xzos.upgradeAll.utils.FileUtil
 import net.xzos.upgradeAll.utils.IconPalette
 
 
-class AppItemAdapter(private val needUpdateAppsLiveData: MutableLiveData<MutableList<App>>,
+class AppItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                      itemCardViewLiveData: LiveData<MutableList<ItemCardView>>,
                      owner: LifecycleOwner)
     : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
@@ -51,11 +52,30 @@ class AppItemAdapter(private val needUpdateAppsLiveData: MutableLiveData<Mutable
             MainActivity.navigationItemId.value = R.id.appInfoFragment
         }
         // TODO: 长按删除，暂时添加删除功能
-        holder.itemCardView.setOnLongClickListener {
+        holder.itemCardView.setOnLongClickListener { view ->
             getItemCardView(holder).extraData.app?.run {
-                val context = it.context
-                PopupMenu(context, it).let { popupMenu ->
+                val context = view.context
+                PopupMenu(context, view).let { popupMenu ->
                     popupMenu.menu.let { menu ->
+                        menu.add(context.getString(
+                                if (appListPageViewModel.editableTab.value == true) R.string.edit_group
+                                else R.string.add_to_group
+                        )).let { menuItem ->
+                            menuItem.setOnMenuItemClickListener {
+                                showSelectGroupPopMenu(view, holder)
+                                return@setOnMenuItemClickListener true
+                            }
+                        }
+                        // 从分组中删除
+                        if (appListPageViewModel.editableTab.value == true) {
+                            menu.add(context.getString(R.string.delete_from_group)).let { menuItem ->
+                                menuItem.setOnMenuItemClickListener {
+                                    if (appListPageViewModel.removeItemFromGroup(holder.adapterPosition))
+                                        onItemDismiss(holder.adapterPosition)
+                                    return@setOnMenuItemClickListener true
+                                }
+                            }
+                        }
                         // 导出
                         menu.add(context.getString(R.string.export)).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
@@ -67,7 +87,7 @@ class AppItemAdapter(private val needUpdateAppsLiveData: MutableLiveData<Mutable
                                 return@setOnMenuItemClickListener true
                             }
                         }
-                        // 删除
+                        // 删除数据库
                         menu.add(context.getString(R.string.delete)).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
                                 AppManager.delApp(this)
@@ -93,6 +113,22 @@ class AppItemAdapter(private val needUpdateAppsLiveData: MutableLiveData<Mutable
             true
         }
         return holder
+    }
+
+    private fun showSelectGroupPopMenu(view: View, holder: CardViewRecyclerViewHolder) {
+        PopupMenu(view.context, view).let { popupMenu ->
+            popupMenu.menu.let { menu ->
+                val tabInfoList = appListPageViewModel.getTabIndexList()
+                for (containerTabListBean in tabInfoList)
+                    menu.add(containerTabListBean.name).let { menuItem ->
+                        menuItem.setOnMenuItemClickListener {
+                            appListPageViewModel.moveItemToOtherGroup(holder.adapterPosition, containerTabListBean)
+                            return@setOnMenuItemClickListener true
+                        }
+                    }
+            }
+            popupMenu.show()
+        }
     }
 
     override fun onBindViewHolder(holder: CardViewRecyclerViewHolder, position: Int) {
@@ -161,7 +197,7 @@ class AppItemAdapter(private val needUpdateAppsLiveData: MutableLiveData<Mutable
                     Updater.APP_NO_LOCAL -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
                 }
                 setUpdateStatus(holder, false)
-                with(needUpdateAppsLiveData) {
+                with(appListPageViewModel.needUpdateAppsLiveLiveData) {
                     this.value?.let {
                         if (updateStatus == 2 && !it.contains(app)) {
                             it.add(app)

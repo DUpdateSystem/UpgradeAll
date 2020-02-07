@@ -39,7 +39,6 @@
                 <action android:name="net.xzos.upgradeAll.UPDATE_SERVICE_BROADCAST" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".utils.network.DownloadBroadcastReceiver"
             android:enabled="true"
@@ -71,6 +70,8 @@
         <activity
             android:name=".ui.activity.SettingsActivity"
             android:label="@string/setting" />
+
+        <activity android:name=".ui.activity.UCropActivity" />
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
