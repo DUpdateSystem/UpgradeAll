@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="net.xzos.upgradeAll.ui.activity.UCropActivity">
+    tools:context="net.xzos.upgradeall.ui.activity.UCropActivity">
 
     <LinearLayout
         android:id="@+id/placeholderLayout"

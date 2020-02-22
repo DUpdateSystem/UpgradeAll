@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="net.xzos.upgradeAll">
+    package="net.xzos.upgradeall">
 
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -10,7 +10,7 @@
     <uses-permission android:name="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE" />
 
     <application
-        android:name=".application.MyApplication"
+        android:name="net.xzos.upgradeall.application.MyApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
         android:icon="@mipmap/ic_launcher"
@@ -31,7 +31,7 @@
         </provider>
 
         <receiver
-            android:name=".server.update.UpdateServiceReceiver"
+            android:name="net.xzos.upgradeall.server.update.UpdateServiceReceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE">
@@ -40,7 +40,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".utils.network.DownloadBroadcastReceiver"
+            android:name="net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE">
@@ -50,7 +50,7 @@
         </receiver>
 
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name="net.xzos.upgradeall.ui.activity.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
@@ -62,16 +62,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activity.LogActivity"
+            android:name="net.xzos.upgradeall.ui.activity.LogActivity"
             android:label="@string/title_activity_log" />
         <activity
-            android:name=".ui.activity.HubDebugActivity"
+            android:name="net.xzos.upgradeall.ui.activity.HubDebugActivity"
             android:label="@string/local_debug" />
         <activity
-            android:name=".ui.activity.SettingsActivity"
+            android:name="net.xzos.upgradeall.ui.activity.SettingsActivity"
             android:label="@string/setting" />
 
-        <activity android:name=".ui.activity.UCropActivity" />
+        <activity android:name="net.xzos.upgradeall.ui.activity.UCropActivity" />
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"

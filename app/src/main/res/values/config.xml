@@ -7,14 +7,4 @@
     <integer name="default_background_sync_data_time">18</integer>
 
     <string name="default_cloud_rules_hub_url">https://github.com/DUpdateSystem/UpgradeAll-rules/</string>
-
-    <string name="github_url">https://github.com/%owner/%repo/tree/%branch</string>
-    <string name="github_raw_url">https://raw.githubusercontent.com/%owner/%repo/%branch/%path</string>
-    <string name="coding_url">https://%owner.coding.net/p/%project/d/%repo/git/tree/%branch</string>
-    <string name="coding_raw_url">https://%owner.coding.net/p/%project/d/%repo/git/raw/%branch/%path</string>
-
-    <string name="git_url_arg_regex">(%.*?)\\w*</string>
-    <string xmlns:tools="http://schemas.android.com/tools" name="versioning_regex_match" tools:ignore="TypographyDashes">
-        (\\d+(\\.\\d+)*)(([\\.|\\-|\\+|_| ]|[0-9A-Za-z])*)
-    </string>
 </resources>

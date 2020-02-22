@@ -296,21 +296,6 @@
                                 android:text="JavaScript" />
                         </TableRow>
 
-                        <TableRow
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/js_file_path" />
-
-                            <EditText
-                                android:id="@+id/jsFilePathEditText"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="text" />
-                        </TableRow>
                     </TableLayout>
 
                     <Button
