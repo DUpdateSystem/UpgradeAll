@@ -2,13 +2,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory app:title="@string/sync_header">
-        <net.xzos.upgradeAll.ui.viewmodels.componnent.EditIntPreference
+        <net.xzos.upgradeall.ui.viewmodels.componnent.EditIntPreference
             android:defaultValue="@integer/default_data_expiration_time"
             app:key="sync_time"
             app:title="@string/initiative_sync_time"
             app:useSimpleSummaryProvider="true" />
 
-        <net.xzos.upgradeAll.ui.viewmodels.componnent.EditIntPreference
+        <net.xzos.upgradeall.ui.viewmodels.componnent.EditIntPreference
             android:defaultValue="@integer/default_background_sync_data_time"
             app:key="background_sync_time"
             app:title="@string/background_sync_time"
