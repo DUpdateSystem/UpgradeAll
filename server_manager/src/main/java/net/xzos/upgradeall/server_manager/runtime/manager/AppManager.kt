@@ -1,12 +1,11 @@
 package net.xzos.upgradeall.server_manager.runtime.manager
 
+import net.xzos.upgradeall.data.database.AppDatabase
 import net.xzos.upgradeall.data.database.HubDatabase
-import net.xzos.upgradeall.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.data_manager.database.AppDatabase
 import net.xzos.upgradeall.data_manager.database.manager.AppDatabaseManager
-import net.xzos.upgradeall.log.Log
 import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.system_api.annotations.DatabaseApi
+
 
 object AppManager {
 
@@ -37,11 +36,10 @@ object AppManager {
 
     @DatabaseApi.databaseChanged
     fun refalshData(database: Any) {
-        if (database is net.xzos.upgradeall.data.database.AppDatabase) {
+        if (database is AppDatabase) {
             val databaseId = database.id
-            val appDatabase = AppDatabaseManager.getDatabase(databaseId = databaseId)
-            if (appDatabase != null) {
-                setApp(appDatabase)
+            if (AppDatabaseManager.exists(databaseId)) {
+                addSingleApp(databaseId)
             } else {
                 getSingleApp(databaseId = databaseId)?.run {
                     removeSingleApp(this)
@@ -65,8 +63,9 @@ object AppManager {
     private fun setApp(appDatabase: AppDatabase) {
         // 添加新的属性
         if (appDatabase.type != AppDatabase.APP_TYPE_TAG) {
-            appDatabase.type = AppDatabase.APP_TYPE_TAG
-            appDatabase.save()
+            AppDatabaseManager.getDatabase(appDatabase.id)?.apply {
+                type = AppDatabase.APP_TYPE_TAG
+            }?.save()
         }
         singleAppSet.add(App(appDatabase))
     }
@@ -95,12 +94,12 @@ object AppManager {
         allAppSet.addAll(appList)
     }
 
-    fun removeSingleApp(app: App) {
+    private fun removeSingleApp(app: App) {
         // TODO: initApp自维护，数据来源：独立 UI 数据
         singleAppSet.remove(app)
     }
 
-    fun renewAppInHub(hubUuid: String) {
+    private fun renewAppInHub(hubUuid: String) {
         for (app in singleAppSet) {
             if (app.appInfo.api_uuid == hubUuid) {
                 app.renewEngine()

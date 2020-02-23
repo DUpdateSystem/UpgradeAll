@@ -21,6 +21,7 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data.json.gson.AppDatabaseExtraData
 import net.xzos.upgradeall.data.json.gson.JSReturnData
+import net.xzos.upgradeall.data_manager.database.manager.AppDatabaseManager
 import net.xzos.upgradeall.jscore.js.engine.JavaScriptEngine
 import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.server_manager.runtime.manager.module.app.Updater
@@ -252,14 +253,14 @@ class AppInfoFragment : Fragment() {
     }
 
     private fun markVersionNumber(versionNumber: String?) {
-        app.appInfo.also {
+        AppDatabaseManager.getDatabase(app.appInfo.id)?.also {
             (it.extraData ?: AppDatabaseExtraData(null, null))
                     .apply {
                         this.markProcessedVersionNumber =
                                 if (this.markProcessedVersionNumber != versionNumber) versionNumber
                                 else null
                     }.run { it.extraData = this }
-        }.save()
+        }?.save()
     }
 
     private fun renewVersionRelatedItems() {

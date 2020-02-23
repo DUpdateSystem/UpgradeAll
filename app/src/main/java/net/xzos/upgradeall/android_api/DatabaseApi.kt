@@ -7,13 +7,13 @@ import net.xzos.upgradeall.system_api.interfaces.DatabaseApi
 
 object DatabaseApi {
 
- var databaseApiInterface: DatabaseApi? = null
+    var databaseApiInterface: DatabaseApi? = null
 
     val appDatabases: List<AppDatabase>
-        get() = databaseApiInterface?.appDatabases ?: listOf()
+        get() = databaseApiInterface?.getAppDatabaseList() ?: listOf()
 
     val hubDatabases: List<HubDatabase>
-        get() = databaseApiInterface?.hubDatabases?: listOf()
+        get() = databaseApiInterface?.getHubDatabaseList() ?: listOf()
 
     fun saveAppDatabase(appDatabase: AppDatabase) =
             databaseApiInterface?.saveAppDatabase(appDatabase)

@@ -27,6 +27,7 @@ import net.xzos.upgradeall.data.json.gson.AppConfigGson.AppConfigBean.TargetChec
 import net.xzos.upgradeall.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.upgradeall.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.data_manager.database.AppDatabase
+import net.xzos.upgradeall.data_manager.database.manager.AppDatabaseManager
 import net.xzos.upgradeall.data_manager.database.manager.HubDatabaseManager
 import net.xzos.upgradeall.server_manager.runtime.manager.AppManager
 import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
@@ -207,18 +208,19 @@ class AppSettingFragment : Fragment() {
     private fun addRepoDatabase(name: String, apiNum: Int, URL: String, targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean): Boolean {
         // 获取数据库类
         val apiUuid = apiSpinnerList[apiNum]
-        val repoDatabase = app?.appInfo ?: (AppDatabase("", "", "", "").apply {
-            this.name = name
-            this.api_uuid = apiUuid
-            this.url = URL
-            this.targetChecker = targetChecker
-        }.also {
-            app = App(it)
-            // 数据处理
-            it.name = runBlocking { app?.engine?.getDefaultName() } ?: "".also {
-                app = null  // 配置文件有误，移除预置的 app
-            }
-        })
+        val repoDatabase = AppDatabaseManager.getDatabase(app?.appInfo?.id)
+                ?: (AppDatabase("", "", "", "").apply {
+                    this.name = name
+                    this.api_uuid = apiUuid
+                    this.url = URL
+                    this.targetChecker = targetChecker
+                }.also {
+                    app = App(it)
+                    // 数据处理
+                    it.name = runBlocking { app?.engine?.getDefaultName() } ?: "".also {
+                        app = null  // 配置文件有误，移除预置的 app
+                    }
+                })
         return repoDatabase.save()
     }
 

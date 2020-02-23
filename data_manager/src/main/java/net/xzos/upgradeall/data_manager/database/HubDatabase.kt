@@ -16,4 +16,9 @@ class HubDatabase(
     override fun save() = DatabaseApi.saveHubDatabase(this) != 0L
 
     override fun delete() = DatabaseApi.deleteHubDatabase(this)
+
+    companion object {
+        fun newInstance() =
+                net.xzos.upgradeall.data_manager.database.HubDatabase("", "", null, null)
+    }
 }

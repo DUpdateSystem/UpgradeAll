@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.server_manager.runtime.manager.module.app
 
 import net.xzos.upgradeall.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.data_manager.database.AppDatabase
+import net.xzos.upgradeall.data.database.AppDatabase
 import net.xzos.upgradeall.data_manager.database.manager.HubDatabaseManager
 import net.xzos.upgradeall.jscore.JSEngine
 import net.xzos.upgradeall.jscore.js.engine.JavaScriptEngine

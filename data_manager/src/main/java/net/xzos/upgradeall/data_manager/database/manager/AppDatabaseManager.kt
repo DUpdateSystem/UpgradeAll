@@ -35,7 +35,7 @@ object AppDatabaseManager {
         val appDatabase = (getDatabase(uuid = uuid) ?: AppDatabase.newInstance()).also {
             it.name = name
             it.url = url
-            it.type = AppDatabase.APP_TYPE_TAG
+            it.type = net.xzos.upgradeall.data.database.AppDatabase.APP_TYPE_TAG
             it.api_uuid = apiUuid
             // 存储 js 代码
             it.extraData = appDatabaseExtraData
@@ -47,13 +47,19 @@ object AppDatabaseManager {
         else null
     }
 
-    fun del(appDatabase: AppDatabase) = appDatabase.delete()
-
     fun getDatabase(databaseId: Long? = null, uuid: String? = null): AppDatabase? {
         val databaseList = getDatabaseList(databaseId = databaseId, uuid = uuid)
         return if (databaseList.isNotEmpty())
             databaseList[0]
         else null
+    }
+
+    fun del(appDatabase: net.xzos.upgradeall.data.database.AppDatabase): Boolean {
+        return getDatabase(appDatabase.id)?.delete() ?: false
+    }
+
+    fun exists(databaseId: Long? = null, uuid: String? = null): Boolean {
+        return getDatabase(databaseId = databaseId, uuid = uuid) != null
     }
 
     private fun getDatabaseList(databaseId: Long? = null, uuid: String? = null, hubUuid: String? = null): List<AppDatabase?> {
@@ -67,7 +73,7 @@ object AppDatabaseManager {
     }
 
 
-    fun translateAppConfig(appDatabase: AppDatabase): AppConfigGson {
+    fun translateAppConfig(appDatabase: net.xzos.upgradeall.data.database.AppDatabase): AppConfigGson {
         val appBaseVersion = AppConfig.app_config_version
         return AppConfigGson(
                 baseVersion = appBaseVersion,
