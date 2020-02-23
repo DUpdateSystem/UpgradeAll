@@ -27,14 +27,14 @@ object HubDatabaseManager {
         if (name != null && uuid != null) {
             val hubDatabaseExtraData = HubDatabaseExtraData(jsCode)
             // 修改数据库
-            getDatabase(uuid)?.apply {
+            (getDatabase(uuid) ?: HubDatabase.newInstance()).apply {
                 this.name = name
                 this.uuid = uuid
                 this.cloudHubConfig = hubConfigGson
                 // 存储 js 代码
                 this.extraData = hubDatabaseExtraData
-            }?.run {
-                save() // 将数据存入 HubDatabase 数据库
+            }.run {
+                this.save() // 将数据存入 HubDatabase 数据库
             }
             return true
         }

@@ -36,12 +36,12 @@ object FilePathUtils {
      * 兼容本地文件地址和网址与于此类似的其他地址
      */
     fun pathTransformRelativeToAbsolute(absolutePath: String, relativePath: String): String {
-        @Suppress("NAME_SHADOWING") var absolutePath = absolutePath
-        Log.e(logObjectTag, TAG, String.format("pathTransformRelativeToAbsolute: absolutePath: %s, relativePath: %s", absolutePath, relativePath))
-        if (absolutePath != "/") {
-            if (absolutePath.endsWith("/"))
-                absolutePath = absolutePath.substring(0, absolutePath.length - 1)  // 去除末尾的 /
-        }
+        val finishPath: String
+        @Suppress("NAME_SHADOWING")
+        val absolutePath =
+                if (absolutePath != "/" && absolutePath.endsWith("/"))
+                    absolutePath.substring(0, absolutePath.length - 1)  // 去除末尾的 /
+                else absolutePath
         // 判断是否为相对地址
         if (relativePath.indexOf(".") == 0) {
             val relativePathList = relativePath.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
@@ -57,12 +57,13 @@ object FilePathUtils {
                     else -> basePathBuilder.append("/").append(item)
                 }
             }
-            absolutePath = basePathBuilder.toString()
+            finishPath = basePathBuilder.toString()
         } else if (!relativePath.startsWith("/"))
-            absolutePath += relativePath
+            finishPath = absolutePath + relativePath
         else
-            absolutePath = relativePath
-        return absolutePath
+            finishPath = relativePath
+        Log.d(logObjectTag, TAG, "pathTransformRelativeToAbsolute: absolutePath: $absolutePath, relativePath: $relativePath finishPath: $finishPath")
+        return finishPath
     }
 
     /**

@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.data_manager.database.litepal
 
+import android.util.Log
 import com.google.gson.Gson
 import net.xzos.upgradeall.data.json.gson.HubConfig
 import net.xzos.upgradeall.data.json.gson.HubDatabaseExtraData
@@ -34,4 +35,12 @@ internal class HubDatabase(
                 Gson().fromJson(extra_data, HubDatabaseExtraData::class.java)
             else null
         }
+
+    override fun save(): Boolean {
+        return if (name.isNotBlank() && uuid.isNotBlank()
+                && !hub_config.isNullOrBlank() && !extra_data.isNullOrBlank()) {
+            super.save()
+        } else false
+    }
+
 }

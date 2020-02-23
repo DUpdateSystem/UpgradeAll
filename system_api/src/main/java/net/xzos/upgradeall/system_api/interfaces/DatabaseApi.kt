@@ -6,8 +6,8 @@ import net.xzos.upgradeall.data.database.HubDatabase
 
 interface DatabaseApi {
 
-    val appDatabases: List<AppDatabase>
-    val hubDatabases: List<HubDatabase>
+    fun getAppDatabaseList(): List<AppDatabase>
+    fun getHubDatabaseList(): List<HubDatabase>
 
     fun saveAppDatabase(appDatabase: AppDatabase): Long
     fun deleteAppDatabase(appDatabase: AppDatabase): Boolean

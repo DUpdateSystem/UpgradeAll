@@ -18,6 +18,7 @@ class AppDatabase(
 ) : Database, AppDatabase(
         id, name, url, api_uuid, type, targetChecker, extraData
 ) {
+
     override fun save(): Boolean {
         val id = DatabaseApi.saveAppDatabase(this)
         return if (id != 0L) {
@@ -29,11 +30,6 @@ class AppDatabase(
     override fun delete() = DatabaseApi.deleteAppDatabase(this)
 
     companion object {
-        @Transient
-        const val APP_TYPE_TAG = "app"
-        @Transient
-        const val APPLICATIONS_TYPE_TAG = "applications"
-
         fun newInstance() = AppDatabase("", "", "", "")
     }
 }
