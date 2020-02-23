@@ -23,6 +23,7 @@ import net.xzos.upgradeall.utils.IconInfo
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
+
 class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, private val context: Context?) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
 
     private val cloudConfigGetter = MiscellaneousUtils.cloudConfigGetter

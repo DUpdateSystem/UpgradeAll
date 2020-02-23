@@ -33,4 +33,9 @@ annotation class DatabaseApi {
     @Retention(AnnotationRetention.RUNTIME)
     @kotlin.annotation.Target(AnnotationTarget.FUNCTION)
     annotation class deleteHubDatabase
+
+    @MustBeDocumented
+    @Retention(AnnotationRetention.RUNTIME)
+    @kotlin.annotation.Target(AnnotationTarget.FUNCTION)
+    annotation class databaseChanged
 }

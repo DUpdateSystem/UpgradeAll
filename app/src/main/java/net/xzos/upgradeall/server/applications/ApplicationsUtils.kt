@@ -31,7 +31,7 @@ internal class ApplicationsUtils(applacationDatabase: AppDatabase) {
     private fun getAppDatabaseClass(appInfo: ApplicationInfo): AppDatabase {
         val name = appInfo.name
         val packageName = appInfo.packageName
-        val url = AutoTemplate(null, appUrlTemplate).getString(
+        val url = AutoTemplate(null, appUrlTemplate).toString(
                 listOf(AutoTemplate.Arg(HubConfig.APP_URL_TEMPLATE_APP_PACKAGE_API, packageName))
         )
         val type = HubConfig.APP_URL_TEMPLATE_APP_PACKAGE_API

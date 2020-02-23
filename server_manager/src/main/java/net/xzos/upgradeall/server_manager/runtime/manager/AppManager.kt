@@ -1,10 +1,18 @@
 package net.xzos.upgradeall.server_manager.runtime.manager
 
+import net.xzos.upgradeall.data.database.HubDatabase
+import net.xzos.upgradeall.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.data_manager.database.AppDatabase
 import net.xzos.upgradeall.data_manager.database.manager.AppDatabaseManager
+import net.xzos.upgradeall.log.Log
 import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
+import net.xzos.upgradeall.system_api.annotations.DatabaseApi
 
 object AppManager {
+
+    init {
+        net.xzos.upgradeall.system_api.api.DatabaseApi.register(this)
+    }
 
     private val singleAppSet = hashSetOf<App>() // 存储所有 APP 实体
 
@@ -24,6 +32,24 @@ object AppManager {
         val appDatabase = AppDatabaseManager.appDatabases
         for (appItem in appDatabase) {
             setApp(appItem)
+        }
+    }
+
+    @DatabaseApi.databaseChanged
+    fun refalshData(database: Any) {
+        if (database is net.xzos.upgradeall.data.database.AppDatabase) {
+            val databaseId = database.id
+            val appDatabase = AppDatabaseManager.getDatabase(databaseId = databaseId)
+            if (appDatabase != null) {
+                setApp(appDatabase)
+            } else {
+                getSingleApp(databaseId = databaseId)?.run {
+                    removeSingleApp(this)
+                }
+            }
+        } else if (database is HubDatabase) {
+            val hubUuid = database.uuid
+            renewAppInHub(hubUuid)
         }
     }
 
@@ -69,7 +95,7 @@ object AppManager {
         allAppSet.addAll(appList)
     }
 
-    fun delSingleApp(app: App) {
+    fun removeSingleApp(app: App) {
         // TODO: initApp自维护，数据来源：独立 UI 数据
         singleAppSet.remove(app)
     }

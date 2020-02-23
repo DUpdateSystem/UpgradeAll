@@ -8,6 +8,7 @@ import net.xzos.upgradeall.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.data_manager.database.AppDatabase
 import net.xzos.upgradeall.system_api.api.DatabaseApi
 
+
 object AppDatabaseManager {
 
     private const val TAG = "AppDatabaseManager"
@@ -31,7 +32,7 @@ object AppDatabaseManager {
         val appDatabaseExtraData = AppDatabaseExtraData(Gson().toJson(appConfigGson))
         val targetChecker = appConfigGson.appConfig?.targetChecker
         // 修改数据库
-        val appDatabase = (getDatabase(uuid = uuid) ?: AppDatabase("", "", "", "")).also {
+        val appDatabase = (getDatabase(uuid = uuid) ?: AppDatabase.newInstance()).also {
             it.name = name
             it.url = url
             it.type = AppDatabase.APP_TYPE_TAG

@@ -42,27 +42,34 @@ object JsoupApi {
             getRes(url, userAgent, method).parse()
         } catch (e: IOException) {
             e.printStackTrace()
-            Log.e(objectTag, TAG, "getRawDoc: Jsoup 对象初始化失败")
+            Log.e(objectTag, TAG, """getRawDoc: Jsoup 对象初始化失败
+                    ERROR_MESSAGE: $e""".trimIndent())
             null
         }
     }
 
     fun getRedirectsUrl(objectTag: ObjectTag,
-                                 url: String, userAgent: String? = null,
-                                 method: Connection.Method = Connection.Method.GET,
-                                 headers: Map<String, String> = requestHeaders)
+                        url: String, userAgent: String? = null,
+                        method: Connection.Method = Connection.Method.GET,
+                        headers: Map<String, String> = requestHeaders)
             : String? {
 
         return try {
             getRes(url, userAgent, method, headers).url().toString()
         } catch (e: UnsupportedMimeTypeException) {
-            Log.d(objectTag, TAG, "getRedirectsUrl: 非文本链接指向（下载链接已获取）: $e")
+            Log.d(objectTag, TAG, """getRedirectsUrl: 非文本链接指向（下载链接已获取） 
+                ERROR_MESSAGE: $e 
+                URL: ${e.url}""".trimIndent())
             e.url
         } catch (e: HttpStatusException) {
-            Log.e(objectTag, TAG, "getRedirectsUrl: 无法获取链接信息: $e")
+            Log.e(objectTag, TAG, """getRedirectsUrl: 无法获取链接信息 
+                ERROR_MESSAGE: $e 
+                URL: ${e.url}""".trimIndent())
             null
         } catch (e: Throwable) {
-            Log.e(objectTag, TAG, "getRedirectsUrl: ERROR_MESSAGE: $e")
+            Log.e(objectTag, TAG, """getRedirectsUrl: 未知错误
+                ERROR_MESSAGE: $e
+                URL: $url""".trimIndent())
             null
         }
     }
