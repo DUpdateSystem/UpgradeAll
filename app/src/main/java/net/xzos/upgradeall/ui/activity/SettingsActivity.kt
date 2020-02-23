@@ -4,9 +4,10 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
-
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.server.update.UpdateServiceReceiver
+import net.xzos.upgradeall.utils.MiscellaneousUtils
+
 
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +38,9 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+
+        // 刷新数据
         UpdateServiceReceiver.initAlarms()
+        MiscellaneousUtils.renewCloudConfigGetter()
     }
 }

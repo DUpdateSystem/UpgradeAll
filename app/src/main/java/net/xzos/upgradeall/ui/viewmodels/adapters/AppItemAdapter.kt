@@ -91,8 +91,7 @@ class AppItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                         // 删除数据库
                         menu.add(context.getString(R.string.delete)).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
-                                AppManager.delSingleApp(this)
-                                AppDatabaseManager.del(this.appInfo)
+                                this.appInfo.delete()
                                 onItemDismiss(holder.adapterPosition)
                                 return@setOnMenuItemClickListener true
                             }

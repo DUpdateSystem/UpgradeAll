@@ -133,13 +133,14 @@ class CloudConfigGetter(private val appCloudRulesHubUrl: String?) {
     }
 
     /**
-     * @return RepoDatabase 添加数据库成功, NULL 添加数据库失败
+     * 添加数据库成功, NULL 添加数据库失败
+     * @return AppDatabase
      */
     fun downloadCloudAppConfig(appUuid: String?): AppDatabase? {
-        val cloudHubConfigGson = getAppCloudConfig(appUuid)
-        if (cloudHubConfigGson != null) {
+        val appConfigGson = getAppCloudConfig(appUuid)
+        if (appConfigGson != null) {
             // 添加数据库
-            val appDatabase = AppDatabaseManager.setDatabase(cloudHubConfigGson)
+            val appDatabase = AppDatabaseManager.setDatabase(appConfigGson)
             if (appDatabase != null) {
                 Log.i(objectTag, TAG, "数据添加成功")
                 return appDatabase

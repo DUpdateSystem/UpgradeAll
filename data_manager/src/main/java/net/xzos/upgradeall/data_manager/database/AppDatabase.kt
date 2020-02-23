@@ -15,10 +15,10 @@ class AppDatabase(
         extraData: AppDatabaseExtraData? = null,
         id: Long = 0L
 
-) : AppDatabase(
+) : Database, AppDatabase(
         id, name, url, api_uuid, type, targetChecker, extraData
 ) {
-    fun save(): Boolean {
+    override fun save(): Boolean {
         val id = DatabaseApi.saveAppDatabase(this)
         return if (id != 0L) {
             this.id = id
@@ -26,12 +26,14 @@ class AppDatabase(
         } else false
     }
 
-    fun delete() = DatabaseApi.deleteAppDatabase(this)
+    override fun delete() = DatabaseApi.deleteAppDatabase(this)
 
     companion object {
         @Transient
         const val APP_TYPE_TAG = "app"
         @Transient
         const val APPLICATIONS_TYPE_TAG = "applications"
+
+        fun newInstance() = AppDatabase("", "", "", "")
     }
 }

@@ -11,8 +11,9 @@ class HubDatabase(
         uuid: String,
         cloudHubConfig: HubConfig?,
         extraData: HubDatabaseExtraData?
-) : HubDatabase(name, uuid, cloudHubConfig, extraData) {
-    fun save() = DatabaseApi.saveHubDatabase(this)
+) : Database, HubDatabase(name, uuid, cloudHubConfig, extraData) {
 
-    fun delete() = DatabaseApi.deleteHubDatabase(this)
+    override fun save() = DatabaseApi.saveHubDatabase(this) != 0L
+
+    override fun delete() = DatabaseApi.deleteHubDatabase(this)
 }

@@ -7,7 +7,7 @@ class AutoTemplate(private val string: String?, private val template: String, pr
 
     private val regex = AppConfig.git_url_arg_regex
 
-    fun getString(extraArgs: List<Arg> = listOf()): String {
+    fun toString(extraArgs: List<Arg> = listOf()): String {
         val args = (if (string != null)
             matchArgs(string, template)
         else mutableListOf()

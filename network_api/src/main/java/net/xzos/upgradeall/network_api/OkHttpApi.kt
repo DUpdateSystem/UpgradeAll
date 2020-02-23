@@ -56,15 +56,16 @@ object OkHttpApi {
         try {
             Request.Builder().url(url)
         } catch (e: IllegalArgumentException) {
-            Log.e(objectTag, TAG, """getHttpResponse: URL: $url
-                | $e """.trimMargin())
+            Log.e(objectTag, TAG, """getHttpResponse: URL: $url 
+                    $e """.trimMargin())
             null
         }?.let { builder ->
             val request = builder.build()
             val response = try {
                 okHttpClient.newCall(request).execute()
             } catch (e: IOException) {
-                Log.e(objectTag, TAG, "getHttpResponse: 网络错误")
+                Log.e(objectTag, TAG, """getHttpResponse: 网络错误 
+                    ERROR_MESSAGE: $e""".trimIndent())
                 null
             }?.also {
                 requestHeaders = hashMapOf()
@@ -78,7 +79,8 @@ object OkHttpApi {
                 response?.body?.string()
             } catch (e: Throwable) {
                 if (!catchError) throw e
-                Log.e(objectTag, TAG, "getHttpResponse: 网络错误")
+                Log.e(objectTag, TAG, """getHttpResponse: 网络错误（OTHER_ERROR）
+                    ERROR_MESSAGE: $e""".trimIndent())
                 null
             }
         }

@@ -21,10 +21,20 @@ import java.io.StringReader
 import java.util.*
 
 object MiscellaneousUtils {
+
+    init {
+        renewCloudConfigGetter()
+    }
+
     private var suAvailable: Boolean? = null
         get() = field ?: Shell.SU.available().also { field = it }
 
-    val cloudConfigGetter = newCloudConfigGetter()
+    lateinit var cloudConfigGetter: CloudConfigGetter
+        private set
+
+    fun renewCloudConfigGetter() {
+        cloudConfigGetter = newCloudConfigGetter()
+    }
 
     private fun newCloudConfigGetter(): CloudConfigGetter {
         val prefKey = "cloud_rules_hub_url"
