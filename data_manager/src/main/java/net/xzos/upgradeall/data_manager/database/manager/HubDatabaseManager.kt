@@ -1,9 +1,9 @@
 package net.xzos.upgradeall.data_manager.database.manager
 
+import net.xzos.upgradeall.data.database.HubDatabase
 import net.xzos.upgradeall.data.json.gson.HubConfig
 import net.xzos.upgradeall.data.json.gson.HubDatabaseExtraData
 import net.xzos.upgradeall.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.data_manager.database.HubDatabase
 import net.xzos.upgradeall.system_api.api.DatabaseApi
 
 
@@ -14,9 +14,27 @@ object HubDatabaseManager {
 
     // 读取 hub 数据库
     val hubDatabases: List<HubDatabase>
-        get() = DatabaseApi.hubDatabases.map {
-            HubDatabase(it.name, it.uuid, it.cloudHubConfig, it.extraData)
+        get() = DatabaseApi.hubDatabases
+
+    fun getDatabase(uuid: String?): HubDatabase? {
+        var hubDatabase: HubDatabase? = null
+        for (database in hubDatabases) {
+            if (database.uuid == uuid) {
+                hubDatabase = database
+            }
         }
+        return hubDatabase
+    }
+
+    fun exists(uuid: String?) = getDatabase(uuid) != null
+
+    fun saveDatabase(hubDatabase: HubDatabase): Boolean {
+        return DatabaseApi.saveHubDatabase(hubDatabase)
+    }
+
+    fun deleteDatabase(hubDatabase: HubDatabase): Boolean {
+        return DatabaseApi.deleteHubDatabase(hubDatabase)
+    }
 
 
     fun addDatabase(hubConfigGson: HubConfig, jsCode: String): Boolean {
@@ -34,31 +52,11 @@ object HubDatabaseManager {
                 // 存储 js 代码
                 this.extraData = hubDatabaseExtraData
             }.run {
-                this.save() // 将数据存入 HubDatabase 数据库
+                saveDatabase(this) // 将数据存入 HubDatabase 数据库
             }
             return true
         }
         return false
-    }
-
-    fun del(uuid: String) {
-        for (hubDatabase in hubDatabases) {
-            if (hubDatabase.uuid == uuid) {
-                hubDatabase.delete()
-            }
-        }
-    }
-
-    fun exists(uuid: String?) = getDatabase(uuid) != null
-
-    fun getDatabase(uuid: String?): HubDatabase? {
-        var hubDatabase: HubDatabase? = null
-        for (database in hubDatabases) {
-            if (database.uuid == uuid) {
-                hubDatabase = database
-            }
-        }
-        return hubDatabase
     }
 
     fun getJsCode(uuid: String?): String? {

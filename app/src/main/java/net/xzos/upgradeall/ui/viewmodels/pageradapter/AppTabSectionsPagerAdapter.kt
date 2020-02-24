@@ -146,7 +146,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
     }
 
     private fun getProgressBarFromCustomTabView(position: Int): ProgressBar? =
-            tabLayout.getTabAt(position)?.customView?.findViewById(R.id.loadingBar)
+            tabLayout.getTabAt(position)?.customView?.loadingBar
 
     private fun renewAllCustomTabView() {
         notifyDataSetChanged()

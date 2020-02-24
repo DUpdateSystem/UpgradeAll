@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.*
+import kotlinx.android.synthetic.main.pageview_app_list.view.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.ui.viewmodels.adapters.AppItemAdapter
@@ -29,7 +30,7 @@ internal class AppListPlaceholderFragment(private val tabPageIndex: Int) : Fragm
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.pageview_app_list, container, false).apply {
-                this.findViewById<LinearLayout>(R.id.placeholderLayout).visibility = View.VISIBLE
+                this.placeholderLayout.visibility = View.VISIBLE
             }
 
     @SuppressLint("SetTextI18n")

@@ -18,7 +18,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data_manager.database.manager.AppDatabaseManager
-import net.xzos.upgradeall.server_manager.runtime.manager.AppManager
 import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.server_manager.runtime.manager.module.app.Updater
 import net.xzos.upgradeall.ui.activity.MainActivity
@@ -91,7 +90,7 @@ class AppItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                         // 删除数据库
                         menu.add(context.getString(R.string.delete)).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
-                                AppDatabaseManager.del(this.appInfo)
+                                AppDatabaseManager.deleteDatabase(this.appInfo)
                                 onItemDismiss(holder.adapterPosition)
                                 return@setOnMenuItemClickListener true
                             }

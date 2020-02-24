@@ -6,18 +6,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
-import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_app_info.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.android.synthetic.main.fragment_app_info.placeholderLayout
+import kotlinx.android.synthetic.main.fragment_app_info.view.*
+import kotlinx.android.synthetic.main.layout_main.*
+import kotlinx.android.synthetic.main.list_content.*
+import kotlinx.coroutines.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data.json.gson.AppDatabaseExtraData
 import net.xzos.upgradeall.data.json.gson.JSReturnData
@@ -28,6 +27,7 @@ import net.xzos.upgradeall.server_manager.runtime.manager.module.app.Updater
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
+
 
 /**
  * 更新项详细数据展示页面
@@ -49,36 +49,30 @@ class AppInfoFragment : Fragment() {
             }
         }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        MainActivity.bundleApp?.also {
-            app = it
-        } ?: activity?.onBackPressed()
-        engine = app.engine
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.fragment_app_info, container, false).apply {
-                this.findViewById<LinearLayout>(R.id.placeholderLayout).visibility = View.VISIBLE
+                this.placeholderLayout.visibility = View.VISIBLE
             }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = false  // 禁止开启侧滑栏，启用返回按钮响应事件
-        loadAllAppInfo()
-        toastPromptMarkedVersionNumber()
-        loadAppVersioningInfo(0)
-        placeholderLayout.visibility = View.GONE
         editImageView.setOnClickListener {
+            MainActivity.bundleApp = app
             MainActivity.navigationItemId.value = R.id.appSettingFragment
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkAppInfo()
+        placeholderLayout.visibility = View.GONE
+        MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = false  // 禁止开启侧滑栏，启用返回按钮响应事件
         activity?.apply {
-            this as AppCompatActivity
-            this.findViewById<ImageView>(R.id.toolbar_backdrop_image)?.setBackgroundColor(IconPalette.getColorInt(R.color.coolapk_green))
-            this.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout)?.contentScrim = getDrawable(R.color.coolapk_green)
-            this.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.visibility = View.GONE
-            this.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.let { fab ->
+            toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.coolapk_green))
+            collapsingToolbarLayout.contentScrim = getDrawable(R.color.coolapk_green)
+            addFloatingActionButton.visibility = View.GONE
+            floatingActionButton.let { fab ->
                 fab.setOnClickListener {
                     showDownloadDialog()
                 }
@@ -88,6 +82,21 @@ class AppInfoFragment : Fragment() {
                 fab.visibility = View.VISIBLE
             }
         }
+    }
+
+    // 初始化展示的信息
+    private fun initUi() {
+        loadAllAppInfo()
+        toastPromptMarkedVersionNumber()
+        loadAppVersioningInfo(0)
+    }
+
+    private fun checkAppInfo() {
+        MainActivity.bundleApp?.run {
+            app = this
+            initUi()
+        } ?: activity?.onBackPressed()
+        engine = app.engine
     }
 
     private fun loadVersioningPopupMenu() {
@@ -133,15 +142,19 @@ class AppInfoFragment : Fragment() {
                 )
                 dialog.show()
                 Toast.makeText(context, R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG).show()
-                dialog.findViewById<LinearLayout>(R.id.placeholderLayout)?.visibility = View.VISIBLE
+                dialog.placeholderLayout.visibility = View.VISIBLE
                 GlobalScope.launch {
-                    val nameList = jsReturnData!!.releaseInfoList[versioningPosition].assets.map { asset ->
-                        asset.name
-                    }
-                    launch(Dispatchers.Main) {
+                    val nameList = jsReturnData?.releaseInfoList?.run {
+                        if (this.isNotEmpty()) {
+                            this[versioningPosition].assets.map { asset ->
+                                asset.name
+                            }
+                        } else listOf()
+                    } ?: listOf()
+                    withContext(Dispatchers.Main) {
                         if (this@AppInfoFragment.isVisible) {
                             if (nameList.isNotEmpty()) {
-                                dialog.findViewById<ListView>(R.id.list)?.let { list ->
+                                dialog.list.let { list ->
                                     list.adapter =
                                             ArrayAdapter(dialog.context, android.R.layout.simple_list_item_1, nameList)
                                     // 下载文件
@@ -158,9 +171,9 @@ class AppInfoFragment : Fragment() {
                                     }
                                 }
                             } else {
-                                dialog.findViewById<TextView>(R.id.isEmptyTextView)?.visibility = View.VISIBLE
+                                dialog.emptyPlaceHolderTextView.visibility = View.VISIBLE
                             }
-                            dialog.findViewById<LinearLayout>(R.id.placeholderLayout)?.visibility = View.GONE
+                            dialog.placeholderLayout.visibility = View.GONE
                         }
                     }
                 }
@@ -178,7 +191,7 @@ class AppInfoFragment : Fragment() {
                             IconPalette.loadAppIconView(it, app = app)
                         }
                         activity?.run {
-                            this.findViewById<ImageView>(R.id.app_logo_image_view)?.let {
+                            app_logo_image_view.let {
                                 IconPalette.loadAppIconView(it, app = app)
                                 it.visibility = View.VISIBLE
                             }
@@ -253,14 +266,17 @@ class AppInfoFragment : Fragment() {
     }
 
     private fun markVersionNumber(versionNumber: String?) {
-        AppDatabaseManager.getDatabase(app.appInfo.id)?.also {
-            (it.extraData ?: AppDatabaseExtraData(null, null))
-                    .apply {
-                        this.markProcessedVersionNumber =
-                                if (this.markProcessedVersionNumber != versionNumber) versionNumber
+        AppDatabaseManager.getDatabase(app.appInfo.id)?.apply {
+            (extraData ?: AppDatabaseExtraData(null, null)
+                    .apply { extraData = this })
+                    .also {
+                        it.markProcessedVersionNumber =
+                                if (it.markProcessedVersionNumber != versionNumber) versionNumber
                                 else null
-                    }.run { it.extraData = this }
-        }?.save()
+                    }
+        }?.run {
+            AppDatabaseManager.saveDatabase(this)
+        }
     }
 
     private fun renewVersionRelatedItems() {

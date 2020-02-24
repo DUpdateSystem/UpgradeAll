@@ -21,28 +21,31 @@ object DatabaseApi : Register(
         get() = databaseApiInterface?.getHubDatabaseList() ?: listOf()
 
     fun saveAppDatabase(appDatabase: AppDatabase) =
-            databaseApiInterface?.saveAppDatabase(appDatabase).also {
-                if (it != 0L) notify(appDatabase)
-            } ?: 0L
+            databaseApiInterface?.saveAppDatabase(appDatabase)?.also {
+                notify(it)
+            } != null
 
     fun deleteAppDatabase(appDatabase: AppDatabase) =
-            databaseApiInterface?.deleteAppDatabase(appDatabase).also {
-                if (it == true) notify(appDatabase)
-            } ?: false
+            databaseApiInterface?.deleteAppDatabase(appDatabase)?.also {
+                notify(it)
+            } != null
 
     fun saveHubDatabase(hubDatabase: HubDatabase) =
-            databaseApiInterface?.saveHubDatabase(hubDatabase).also {
-                if (it == true) notify(hubDatabase)
-            } ?: 0L
+            databaseApiInterface?.saveHubDatabase(hubDatabase)?.also {
+                notify(it)
+            } != null
 
     fun deleteHubDatabase(hubDatabase: HubDatabase) =
-            databaseApiInterface?.deleteHubDatabase(hubDatabase).also {
-                if (it == true) notify(hubDatabase)
-            } ?: false
+            databaseApiInterface?.deleteHubDatabase(hubDatabase)?.also {
+                notify(it)
+            } != null
 
     private fun notify(database: Any) {
         if (database is AppDatabase || database is HubDatabase) {
-            runFun(net.xzos.upgradeall.system_api.annotations.DatabaseApi.databaseChanged::class.java, database)
+            runFun(
+                    net.xzos.upgradeall.system_api.annotations.DatabaseApi.databaseChanged::class.java,
+                    database
+            )
         }
     }
 }

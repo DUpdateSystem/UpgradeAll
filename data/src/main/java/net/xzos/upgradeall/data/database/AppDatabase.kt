@@ -4,8 +4,8 @@ import net.xzos.upgradeall.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.data.json.gson.AppDatabaseExtraData
 
 
-open class AppDatabase(
-        var id: Long,
+class AppDatabase(
+        var id: Long,  // 后期考虑替换为其他标识符
         var name: String,
         var url: String,
         var api_uuid: String,
@@ -19,5 +19,7 @@ open class AppDatabase(
         const val APP_TYPE_TAG = "app"
         @Transient
         const val APPLICATIONS_TYPE_TAG = "applications"
+
+        fun newInstance() = AppDatabase(0L, "", "", "", "")
     }
 }

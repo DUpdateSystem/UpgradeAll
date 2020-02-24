@@ -1,7 +1,8 @@
-package net.xzos.upgradeall.server.log
+package net.xzos.upgradeall.android_api
 
 import android.util.Log
 import net.xzos.upgradeall.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.server.log.LogLiveData
 import net.xzos.upgradeall.system_api.interfaces.LogApi
 
 

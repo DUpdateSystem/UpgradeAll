@@ -5,13 +5,13 @@
     tools:context=".ui.activity.MainActivity">
     <item
         android:id="@+id/log_share"
-        android:icon="@android:drawable/ic_menu_share"
+        android:icon="@drawable/ic_share"
         android:orderInCategory="100"
         android:title="@string/export_all"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/log_clean"
-        android:icon="@android:drawable/ic_menu_delete"
+        android:icon="@drawable/ic_delete"
         android:orderInCategory="100"
         android:title="@string/clean_log"
         app:showAsAction="ifRoom" />
