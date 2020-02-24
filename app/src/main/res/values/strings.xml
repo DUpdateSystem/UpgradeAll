@@ -127,5 +127,7 @@
     <string name="edit_group">修改分组</string>
     <string name="move_lift">向左移动</string>
     <string name="move_right">向右移动</string>
+    <string name="export_current_sort_log">导出当前分类的日志</string>
+    <string name="export_all_log">导出全部日志</string>
 
 </resources>

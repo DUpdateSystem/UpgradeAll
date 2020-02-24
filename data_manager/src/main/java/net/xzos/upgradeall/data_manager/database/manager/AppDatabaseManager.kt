@@ -2,10 +2,10 @@ package net.xzos.upgradeall.data_manager.database.manager
 
 import com.google.gson.Gson
 import net.xzos.upgradeall.data.config.AppConfig
+import net.xzos.upgradeall.data.database.AppDatabase
 import net.xzos.upgradeall.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.data.json.gson.AppDatabaseExtraData
 import net.xzos.upgradeall.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.data_manager.database.AppDatabase
 import net.xzos.upgradeall.system_api.api.DatabaseApi
 
 
@@ -16,9 +16,26 @@ object AppDatabaseManager {
 
     // 读取 apps 数据库
     val appDatabases: List<AppDatabase>
-        get() = DatabaseApi.appDatabases.map {
-            AppDatabase(it.name, it.url, it.api_uuid, it.type, it.targetChecker, it.extraData, id = it.id)
-        }
+        get() = DatabaseApi.appDatabases
+
+    fun getDatabase(databaseId: Long? = null, uuid: String? = null): AppDatabase? {
+        val databaseList = getDatabaseList(databaseId = databaseId, uuid = uuid)
+        return if (databaseList.isNotEmpty())
+            databaseList[0]
+        else null
+    }
+
+    fun exists(databaseId: Long? = null, uuid: String? = null): Boolean {
+        return getDatabase(databaseId = databaseId, uuid = uuid) != null
+    }
+
+    fun saveDatabase(appDatabase: AppDatabase): Boolean {
+        return DatabaseApi.saveAppDatabase(appDatabase)
+    }
+
+    fun deleteDatabase(appDatabase: AppDatabase): Boolean {
+        return DatabaseApi.deleteAppDatabase(appDatabase)
+    }
 
     /**
      * appConfig: 软件数据库的 json 数据输入
@@ -35,34 +52,21 @@ object AppDatabaseManager {
         val appDatabase = (getDatabase(uuid = uuid) ?: AppDatabase.newInstance()).also {
             it.name = name
             it.url = url
-            it.type = net.xzos.upgradeall.data.database.AppDatabase.APP_TYPE_TAG
+            it.type = AppDatabase.APP_TYPE_TAG
             it.api_uuid = apiUuid
             // 存储 js 代码
             it.extraData = appDatabaseExtraData
             it.targetChecker = targetChecker
         }
         // 将数据存入 RepoDatabase数据库
-        return if (appDatabase.save())
+        return if (saveDatabase(appDatabase))
             appDatabase
         else null
     }
 
-    fun getDatabase(databaseId: Long? = null, uuid: String? = null): AppDatabase? {
-        val databaseList = getDatabaseList(databaseId = databaseId, uuid = uuid)
-        return if (databaseList.isNotEmpty())
-            databaseList[0]
-        else null
-    }
-
-    fun del(appDatabase: net.xzos.upgradeall.data.database.AppDatabase): Boolean {
-        return getDatabase(appDatabase.id)?.delete() ?: false
-    }
-
-    fun exists(databaseId: Long? = null, uuid: String? = null): Boolean {
-        return getDatabase(databaseId = databaseId, uuid = uuid) != null
-    }
-
-    private fun getDatabaseList(databaseId: Long? = null, uuid: String? = null, hubUuid: String? = null): List<AppDatabase?> {
+    private fun getDatabaseList(databaseId: Long? = null, uuid: String? = null,
+                                hubUuid: String? = null)
+            : List<AppDatabase?> {
         return mutableListOf<AppDatabase?>().apply {
             for (appDatabase in appDatabases) {
                 val itemUuid = appDatabase.extraData?.cloudAppConfigGson?.uuid
@@ -73,7 +77,7 @@ object AppDatabaseManager {
     }
 
 
-    fun translateAppConfig(appDatabase: net.xzos.upgradeall.data.database.AppDatabase): AppConfigGson {
+    fun translateAppConfig(appDatabase: AppDatabase): AppConfigGson {
         val appBaseVersion = AppConfig.app_config_version
         return AppConfigGson(
                 baseVersion = appBaseVersion,

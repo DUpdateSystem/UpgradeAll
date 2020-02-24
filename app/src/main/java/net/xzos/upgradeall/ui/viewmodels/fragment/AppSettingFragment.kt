@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -16,17 +15,18 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.fragment_apps_setting.*
 import kotlinx.android.synthetic.main.layout_main.*
+import kotlinx.android.synthetic.main.simple_textview.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.data.database.AppDatabase
 import net.xzos.upgradeall.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
 import net.xzos.upgradeall.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL
 import net.xzos.upgradeall.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.upgradeall.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.data_manager.database.AppDatabase
 import net.xzos.upgradeall.data_manager.database.manager.AppDatabaseManager
 import net.xzos.upgradeall.data_manager.database.manager.HubDatabaseManager
 import net.xzos.upgradeall.server_manager.runtime.manager.AppManager
@@ -76,8 +76,9 @@ class AppSettingFragment : Fragment() {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             apiSpinner.adapter = adapter
         } else {
-            Toast.makeText(context, "请先添加软件源", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "请先添加软件源或下载软件配置", Toast.LENGTH_LONG).show()
             activity?.onBackPressed()
+            MainActivity.navigationItemId.value = R.id.hubCloudFragment
         }
         setSettingItem() // 设置预置设置项
         // 以下是按键事件
@@ -103,6 +104,10 @@ class AppSettingFragment : Fragment() {
                     }
                 }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
         activity?.let {
             it as AppCompatActivity
             it.toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.taupe))
@@ -145,7 +150,7 @@ class AppSettingFragment : Fragment() {
             textInputLayout.setEndIconOnClickListener {
                 AlertDialog.Builder(it.context).setView(R.layout.simple_textview).create().let { dialog ->
                     dialog.show()
-                    dialog.findViewById<TextView>(R.id.text)?.text = text
+                    dialog.text.text = text
                 }
             }
         }
@@ -168,12 +173,13 @@ class AppSettingFragment : Fragment() {
                 val addRepoSuccess = addRepoDatabase(name, apiNum, url, versionChecker)  // 添加数据库
                 launch(Dispatchers.Main) {
                     if (addRepoSuccess) {
+                        // 提醒跟踪项详情页数据已刷新
                         app?.run {
-                            AppManager.addSingleApp(app = this)
+                            MainActivity.bundleApp = AppManager.getSingleApp(this.appInfo.id)
                         }
                         activity?.onBackPressed()  // 跳转主页面
                     } else
-                        Toast.makeText(context, "什么？添加失败！", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "添加失败", Toast.LENGTH_LONG).show()
                     // 取消等待框
                     activity?.run {
                         this.floatingActionButton?.visibility = View.VISIBLE
@@ -205,23 +211,24 @@ class AppSettingFragment : Fragment() {
         }
     }
 
-    private fun addRepoDatabase(name: String, apiNum: Int, URL: String, targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean): Boolean {
+    private fun addRepoDatabase(name: String, apiNum: Int, URL: String,
+                                targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean
+    ): Boolean {
         // 获取数据库类
         val apiUuid = apiSpinnerList[apiNum]
-        val repoDatabase = AppDatabaseManager.getDatabase(app?.appInfo?.id)
-                ?: (AppDatabase("", "", "", "").apply {
-                    this.name = name
-                    this.api_uuid = apiUuid
-                    this.url = URL
-                    this.targetChecker = targetChecker
-                }.also {
-                    app = App(it)
-                    // 数据处理
-                    it.name = runBlocking { app?.engine?.getDefaultName() } ?: "".also {
-                        app = null  // 配置文件有误，移除预置的 app
-                    }
-                })
-        return repoDatabase.save()
+        val appDatabase =
+                AppDatabaseManager.getDatabase(app?.appInfo?.id)
+                        ?: AppDatabase.newInstance()
+        appDatabase.run {
+            this.api_uuid = apiUuid
+            this.url = URL
+            this.targetChecker = targetChecker
+            // 数据处理
+            this.name = if (name.isNotBlank()) name
+            else runBlocking { App(this@run).engine.getDefaultName() }
+                    ?: return false
+        }
+        return AppDatabaseManager.saveDatabase(appDatabase)
     }
 
     private fun renewApiJsonObject(): Array<String> {

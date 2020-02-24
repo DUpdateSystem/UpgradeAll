@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.server_manager.runtime.manager.module.app
 
-import net.xzos.upgradeall.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.data.database.AppDatabase
+import net.xzos.upgradeall.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.data_manager.database.manager.HubDatabaseManager
 import net.xzos.upgradeall.jscore.JSEngine
 import net.xzos.upgradeall.jscore.js.engine.JavaScriptEngine
@@ -17,7 +17,7 @@ class App(val appInfo: AppDatabase) {
         get() = appInfo.extraData?.markProcessedVersionNumber
 
     fun renewEngine() {
-        newEngine()
+        engine = newEngine()
     }
 
     // 获取已安装版本号

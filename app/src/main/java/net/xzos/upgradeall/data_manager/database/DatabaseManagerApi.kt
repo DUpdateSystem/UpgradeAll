@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.data_manager.database
 
-import android.util.Log
 import net.xzos.upgradeall.data.database.AppDatabase
 import net.xzos.upgradeall.data.database.HubDatabase
 import net.xzos.upgradeall.data_manager.database.litepal.RepoDatabase
@@ -22,11 +21,12 @@ object DatabaseManagerApi : DatabaseApi {
 
     override fun getAppDatabaseList(): List<AppDatabase> {
         return nativeAppDatabase.map {
+            // 新加的属性，@version: 0.1.1-alpha.8（TODO: 两个大版本后移除）
             if (it.type == null) {
                 it.type = RepoDatabase.APP_TYPE_TAG
                 it.save()
             }
-            AppDatabase(it.id, it.name, it.url, it.api_uuid, it.type, it.targetChecker, it.extraData)
+            conversionAppDatabase(it)
         }
     }
 
@@ -36,7 +36,7 @@ object DatabaseManagerApi : DatabaseApi {
         }
     }
 
-    override fun saveAppDatabase(appDatabase: AppDatabase): Long {
+    override fun saveAppDatabase(appDatabase: AppDatabase): AppDatabase? {
         var database: RepoDatabase? = null
         for (item in nativeAppDatabase) {
             if (item.id == appDatabase.id) {
@@ -45,28 +45,31 @@ object DatabaseManagerApi : DatabaseApi {
         }
         if (database == null)
             database = RepoDatabase("", "", "", "")
-        return if (database.apply {
-                    name = appDatabase.name
-                    url = appDatabase.url
-                    api_uuid = appDatabase.api_uuid
-                    type = appDatabase.type
-                    targetChecker = appDatabase.targetChecker
-                    extraData = appDatabase.extraData
-                }.save())
-            database.id
-        else 0
+        database.run {
+            name = appDatabase.name
+            url = appDatabase.url
+            api_uuid = appDatabase.api_uuid
+            type = appDatabase.type
+            targetChecker = appDatabase.targetChecker
+            extraData = appDatabase.extraData
+        }
+        return if (database.save())
+            conversionAppDatabase(database)
+        else null
     }
 
-    override fun deleteAppDatabase(appDatabase: AppDatabase): Boolean {
-        for (database in nativeAppDatabase) {
-            if (database.id == appDatabase.id) {
-                return database.delete() != 0
+    override fun deleteAppDatabase(appDatabase: AppDatabase): AppDatabase? {
+        var database: AppDatabase? = null
+        for (item in nativeAppDatabase) {
+            if (item.id == appDatabase.id) {
+                database = conversionAppDatabase(item)
+                item.delete()
             }
         }
-        return false
+        return database
     }
 
-    override fun saveHubDatabase(hubDatabase: HubDatabase): Boolean {
+    override fun saveHubDatabase(hubDatabase: HubDatabase): HubDatabase? {
         var database: net.xzos.upgradeall.data_manager.database.litepal.HubDatabase? = null
         for (item in nativeHubDatabase) {
             if (item.uuid == hubDatabase.uuid) {
@@ -75,20 +78,37 @@ object DatabaseManagerApi : DatabaseApi {
         }
         if (database == null)
             database = net.xzos.upgradeall.data_manager.database.litepal.HubDatabase("", "", "", "")
-        return database.apply {
+        database.run {
             name = hubDatabase.name
             uuid = hubDatabase.uuid
             cloudHubConfig = hubDatabase.cloudHubConfig
             extraData = hubDatabase.extraData
-        }.save()
+        }
+        return if (database.save())
+            conversionHubDatabase(database)
+        else null
     }
 
-    override fun deleteHubDatabase(hubDatabase: HubDatabase): Boolean {
-        for (database in nativeHubDatabase) {
-            if (database.uuid == hubDatabase.uuid) {
-                return database.delete() != 0
+    override fun deleteHubDatabase(hubDatabase: HubDatabase): HubDatabase? {
+        var database: HubDatabase? = null
+        for (item in nativeHubDatabase) {
+            if (item.uuid == hubDatabase.uuid) {
+                database = conversionHubDatabase(item)
+                item.delete()
             }
         }
-        return false
+        return database
+    }
+
+    // 本机跟踪项数据库转换通用格式数据库
+    private fun conversionAppDatabase(appDatabase: RepoDatabase): AppDatabase {
+        return AppDatabase(appDatabase.id,
+                appDatabase.name, appDatabase.url, appDatabase.api_uuid, appDatabase.type,
+                appDatabase.targetChecker, appDatabase.extraData)
+    }
+
+    // 本机软件源数据库转换通用格式数据库
+    private fun conversionHubDatabase(hubDatabase: net.xzos.upgradeall.data_manager.database.litepal.HubDatabase): HubDatabase {
+        return HubDatabase(hubDatabase.name, hubDatabase.uuid, hubDatabase.cloudHubConfig, hubDatabase.extraData)
     }
 }

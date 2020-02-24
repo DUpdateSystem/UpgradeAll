@@ -13,7 +13,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Observer
-import io.github.kobakei.materialfabspeeddial.FabSpeedDial
 import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
 import kotlinx.android.synthetic.main.activity_log.*
 import net.xzos.upgradeall.R
@@ -135,7 +134,6 @@ class LogActivity : AppCompatActivity() {
     }
 
     private fun setFab() {
-        val fab = findViewById<FabSpeedDial>(R.id.sortFab)
         val liveDataLogSortList = LogLiveData.sortList
         liveDataLogSortList.observe(this, Observer { logSortList ->
             val menu = FabSpeedDialMenu(this)
@@ -145,8 +143,8 @@ class LogActivity : AppCompatActivity() {
                 else
                     menu.add(logSort).setIcon(R.drawable.ic_cloud)
             }
-            fab.setMenu(menu)
-            fab.addOnMenuItemClickListener { _, _, integer ->
+            sortFab.setMenu(menu)
+            sortFab.addOnMenuItemClickListener { _, _, integer ->
                 logSort = logSortList.toList()[integer - 1]
                 setViewPage(logSort)
             }

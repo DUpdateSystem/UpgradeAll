@@ -3,11 +3,11 @@ package net.xzos.upgradeall.data_manager.database.manager
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import net.xzos.upgradeall.data.config.AppConfig
+import net.xzos.upgradeall.data.database.AppDatabase
 import net.xzos.upgradeall.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.data.json.gson.CloudConfig
 import net.xzos.upgradeall.data.json.gson.HubConfig
 import net.xzos.upgradeall.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.data_manager.database.AppDatabase
 import net.xzos.upgradeall.data_manager.utils.FilePathUtils
 import net.xzos.upgradeall.data_manager.utils.GitUrlTranslation
 import net.xzos.upgradeall.log.Log

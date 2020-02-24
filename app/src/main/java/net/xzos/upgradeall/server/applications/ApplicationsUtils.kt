@@ -3,10 +3,10 @@ package net.xzos.upgradeall.server.applications
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.data.database.AppDatabase
 import net.xzos.upgradeall.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
 import net.xzos.upgradeall.data.json.gson.HubConfig
-import net.xzos.upgradeall.data_manager.database.AppDatabase
 import net.xzos.upgradeall.data_manager.utils.AutoTemplate
 import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
 
@@ -35,7 +35,7 @@ internal class ApplicationsUtils(applacationDatabase: AppDatabase) {
                 listOf(AutoTemplate.Arg(HubConfig.APP_URL_TEMPLATE_APP_PACKAGE_API, packageName))
         )
         val type = HubConfig.APP_URL_TEMPLATE_APP_PACKAGE_API
-        return AppDatabase(name, url, hubUuid, type).apply {
+        return AppDatabase(0L, name, url, hubUuid, type).apply {
             targetChecker = AppConfigGson.AppConfigBean.TargetCheckerBean(
                     API_TYPE_APP_PACKAGE, packageName
             )

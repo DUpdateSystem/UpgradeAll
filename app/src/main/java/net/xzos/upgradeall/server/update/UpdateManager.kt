@@ -112,7 +112,8 @@ object UpdateManager {
             builder.setContentTitle("UpgradeAll 更新服务运行中")
                     .setContentText(null)
                     .setProgress(0, 0, false)
-                    .setOngoing(true)
+                    // TODO: 实现完整的后台更新后应修改为 false，使应用常驻
+                    .setOngoing(false)
         }
         notificationNotify()
     }
@@ -124,6 +125,10 @@ object UpdateManager {
             builder.setContentTitle("检查更新中")
                     .setContentText("后台任务: $renewedNum/$appNum")
                     .setProgress(appNum, renewedNum, false)
+            // 如果运行正常，此处应该不可消除（
+            // 未知 bug，暂时允许用户消除通知
+            // TODO: 实现完整的后台更新后应再次确认此处
+                    .setOngoing(false)
         }
         notificationNotify()
     }

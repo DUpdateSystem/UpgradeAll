@@ -61,12 +61,6 @@ object AppManager {
     }
 
     private fun setApp(appDatabase: AppDatabase) {
-        // 添加新的属性
-        if (appDatabase.type != AppDatabase.APP_TYPE_TAG) {
-            AppDatabaseManager.getDatabase(appDatabase.id)?.apply {
-                type = AppDatabase.APP_TYPE_TAG
-            }?.save()
-        }
         singleAppSet.add(App(appDatabase))
     }
 
@@ -76,12 +70,17 @@ object AppManager {
             val databaseIdList = singleAppSet.map {
                 it.appInfo.id
             }
-            if (!databaseIdList.contains(databaseId)) {
-                AppDatabaseManager.getDatabase(databaseId = databaseId)?.run {
-                    // 创建并添加应用
-                    setApp(this)
-                    return true
+            // 删除原有数据
+            if (databaseIdList.contains(databaseId)) {
+                getSingleApp(databaseId)?.run {
+                    removeSingleApp(this)
                 }
+            }
+            // 尝试添加新数据
+            AppDatabaseManager.getDatabase(databaseId = databaseId)?.run {
+                // 创建并添加应用
+                setApp(this)
+                return true
             }
         } else if (app != null && app.appInfo.id != 0L) {
             // 尝试添加列表

@@ -3,10 +3,10 @@
 
     <item
         android:id="@+id/log_share_sort"
-        android:title="导出当前分类的日志" />
+        android:title="@string/export_current_sort_log" />
 
     <item
         android:id="@+id/log_share_all"
-        android:title="导出全部日志" />
+        android:title="@string/export_all_log" />
 
 </menu>

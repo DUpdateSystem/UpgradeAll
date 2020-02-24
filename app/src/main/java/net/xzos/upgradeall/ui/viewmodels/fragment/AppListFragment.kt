@@ -5,13 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.navigation.NavigationView
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_app_list.*
+import kotlinx.android.synthetic.main.layout_main.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
@@ -27,13 +24,18 @@ class AppListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = true  // 默认允许侧滑
+        AppTabSectionsPagerAdapter.newInstance(groupTabs, viewPager, childFragmentManager, viewLifecycleOwner)
+    }
+
+    override fun onResume() {
+        super.onResume()
         activity?.run {
-            this as AppCompatActivity
-            this.findViewById<ImageView>(R.id.app_logo_image_view)?.visibility = View.GONE
-            this.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout)?.contentScrim = getDrawable(R.color.colorPrimary)
-            this.findViewById<ImageView>(R.id.toolbar_backdrop_image)?.setBackgroundColor(IconPalette.getColorInt(R.color.colorPrimary))
-            this.findViewById<FloatingActionButton>(R.id.floatingActionButton)?.visibility = View.GONE
-            this.findViewById<FloatingActionButton>(R.id.addFloatingActionButton)?.let { fab ->
+            navView.setCheckedItem(R.id.app_list)
+            app_logo_image_view.visibility = View.GONE
+            collapsingToolbarLayout.contentScrim = getDrawable(R.color.colorPrimary)
+            toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.colorPrimary))
+            floatingActionButton.visibility = View.GONE
+            addFloatingActionButton.let { fab ->
                 fab.setOnClickListener {
                     MainActivity.navigationItemId.value = R.id.appSettingFragment
                 }
@@ -43,12 +45,5 @@ class AppListFragment : Fragment() {
                 fab.visibility = View.VISIBLE
             }
         }
-        AppTabSectionsPagerAdapter.newInstance(groupTabs, viewPager, childFragmentManager, viewLifecycleOwner)
     }
-
-    override fun onResume() {
-        super.onResume()
-        activity?.findViewById<NavigationView>(R.id.navView)?.setCheckedItem(R.id.app_list)
-    }
-
 }

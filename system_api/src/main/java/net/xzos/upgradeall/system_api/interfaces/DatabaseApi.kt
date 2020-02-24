@@ -9,9 +9,13 @@ interface DatabaseApi {
     fun getAppDatabaseList(): List<AppDatabase>
     fun getHubDatabaseList(): List<HubDatabase>
 
-    fun saveAppDatabase(appDatabase: AppDatabase): Long
-    fun deleteAppDatabase(appDatabase: AppDatabase): Boolean
+    // 返回变更完成的数据库数据
+    // 若返回值为 NULL，则操作数据失败
+    fun saveAppDatabase(appDatabase: AppDatabase): AppDatabase?
 
-    fun saveHubDatabase(hubDatabase: HubDatabase): Boolean
-    fun deleteHubDatabase(hubDatabase: HubDatabase): Boolean
+    fun deleteAppDatabase(appDatabase: AppDatabase): AppDatabase?
+
+    fun saveHubDatabase(hubDatabase: HubDatabase): HubDatabase?
+
+    fun deleteHubDatabase(hubDatabase: HubDatabase): HubDatabase?
 }
