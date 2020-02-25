@@ -12,8 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.xzos.dupdatesystem.data.json.gson.CloudConfig
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.data.json.gson.CloudConfig
 import net.xzos.upgradeall.ui.viewmodels.adapters.CloudAppItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.adapters.CloudHubItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView

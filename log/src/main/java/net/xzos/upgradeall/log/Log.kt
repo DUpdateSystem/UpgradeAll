@@ -37,10 +37,6 @@ object Log {
     val logMap = hashMapOf<ObjectTag, MutableList<String>>()
     private val mutex = Mutex()
 
-    init {
-        LogDataProxy.logMap = logMap
-    }
-
     /**
      * 定义一个JsonObject存储日志
      * {

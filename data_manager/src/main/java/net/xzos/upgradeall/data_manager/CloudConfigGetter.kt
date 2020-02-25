@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.data_manager.database.manager
+package net.xzos.upgradeall.data_manager
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException

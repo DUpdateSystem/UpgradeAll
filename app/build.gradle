@@ -50,16 +50,11 @@ android {
     kapt {
         correctErrorTypes = true
     }
+    viewBinding.enabled = true  // 视图绑定
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':log')
-    implementation project(':data')
-    implementation project(':data_manager')
-    implementation project(':jscore')
-    implementation project(':server_manager')
-    implementation project(':system_api')
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta4'
     implementation 'com.google.android.material:material:1.2.0-alpha05'
@@ -86,6 +81,7 @@ dependencies {
     // Aria
     implementation 'com.arialyy.aria:aria-core:3.6.6'
     kapt 'com.arialyy.aria:aria-compiler:3.6.6'
+
     // 数据处理
     implementation 'org.litepal.android:kotlin:3.0.0'
     implementation 'com.google.code.gson:gson:2.8.6'
@@ -93,12 +89,36 @@ dependencies {
 
     // 图片加载
     implementation 'com.github.bumptech.glide:glide:4.11.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    kapt 'com.github.bumptech.glide:compiler:4.11.0'
     implementation 'com.github.yalantis:ucrop:2.2.4'  // 图片裁剪
 
     // 界面设计
     implementation 'com.google.android.material:material:1.2.0-alpha05'  // Google MD 库
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.github.kobakei:MaterialFabSpeedDial:master-SNAPSHOT'
-    implementation 'com.github.devsideal:VectorChildFinder:1.0.0' // svg 单个 path 颜色切换
+    implementation 'com.github.devsideal:VectorChildFinder:1.0.0'  // svg 单个 path 颜色切换
+
+    /**
+     * DUpdateSystem Core
+     */
+    implementation fileTree(dir: '/home/xz/Code/DUpdateSystem/Core/out/artifacts/Core_jar', include: ['*.aar', '*.jar'], exclude: [])
+
+    // dependencies
+    // JavaScript 引擎
+    implementation 'org.mozilla:rhino:1.7.12'
+
+    // 数据处理
+    implementation 'org.apache.commons:commons-text:1.8'  // 字符串匹配；日志打印去除转义字符
+    implementation 'org.apache.maven:maven-artifact:3.6.3'  // 版本比较
+
+    // 网络工具
+    // OkHttp
+    implementation 'com.squareup.okhttp3:okhttp:4.4.0'
+    implementation 'com.squareup.okio:okio:2.4.3'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.4.0'
+    // Jsoup
+    implementation 'org.jsoup:jsoup:1.12.2'
+    implementation 'cn.wanghaomiao:JsoupXpath:2.3.2'
+
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"// jvm 反射
 }

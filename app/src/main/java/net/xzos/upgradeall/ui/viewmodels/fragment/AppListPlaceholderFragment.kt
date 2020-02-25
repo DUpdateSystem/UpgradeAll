@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -13,8 +12,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.view.*
+import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.ui.viewmodels.adapters.AppItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListPageViewModel
 

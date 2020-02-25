@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.data_manager.database.manager
+package net.xzos.upgradeall.data_manager
 
 import com.google.gson.Gson
 import net.xzos.upgradeall.data.config.AppConfig
@@ -49,7 +49,8 @@ object AppDatabaseManager {
         val appDatabaseExtraData = AppDatabaseExtraData(Gson().toJson(appConfigGson))
         val targetChecker = appConfigGson.appConfig?.targetChecker
         // 修改数据库
-        val appDatabase = (getDatabase(uuid = uuid) ?: AppDatabase.newInstance()).also {
+        val appDatabase = (getDatabase(uuid = uuid)
+                ?: AppDatabase.newInstance()).also {
             it.name = name
             it.url = url
             it.type = AppDatabase.APP_TYPE_TAG

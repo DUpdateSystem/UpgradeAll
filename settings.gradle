@@ -1,1 +1,1 @@
-include ':app', ':jscore', ':server_manager', ':system_api', ':data_manager', ':data', ':network_api', ':log'
+include ':app'

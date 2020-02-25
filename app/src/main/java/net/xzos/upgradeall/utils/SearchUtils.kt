@@ -5,8 +5,8 @@ import android.content.pm.PackageManager
 import com.jaredrummler.android.shell.CommandResult
 import com.jaredrummler.android.shell.Shell
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.data_manager.utils.SearchUtils
-import net.xzos.upgradeall.data_manager.utils.StringMatchUtils
+import net.xzos.dupdatesystem.data_manager.utils.SearchUtils
+import net.xzos.dupdatesystem.data_manager.utils.StringMatchUtils
 
 class SearchUtils {
 

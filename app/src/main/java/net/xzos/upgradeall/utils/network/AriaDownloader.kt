@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.data_manager.utils.FilePathUtils
+import net.xzos.dupdatesystem.data_manager.utils.FilePathUtils
 import net.xzos.upgradeall.utils.ApkInstaller
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.ACTION_SNOOZE
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DEL_TASK
@@ -167,7 +167,6 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
             val progressCurrent: Int = task.percent
             val speed = task.convertSpeed
             NotificationManagerCompat.from(context).apply {
-                builder.mActions.clear()
                 builder.setContentTitle("应用下载: ${File(task.filePath).name}")
                         .setContentText(speed)
                         .setProgress(PROGRESS_MAX, progressCurrent, false)
@@ -201,7 +200,6 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
     fun taskStop(task: DownloadTask?) {
         if (task?.key == url) {
             NotificationManagerCompat.from(context).apply {
-                builder.mActions.clear()
                 builder.setContentText("下载已暂停")
                         .setSmallIcon(android.R.drawable.stat_sys_download_done)
                         .addAction(android.R.drawable.ic_media_pause, "继续",
@@ -218,7 +216,6 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
     fun taskFail(task: DownloadTask?) {
         if (task?.key == url) {
             NotificationManagerCompat.from(context).apply {
-                builder.mActions.clear()
                 builder.setContentText("下载失败，点击重试")
                         .setSmallIcon(android.R.drawable.stat_sys_download_done)
                         .setProgress(0, 0, false)
@@ -245,7 +242,6 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
                             .bigText(contentText))
                     setSmallIcon(android.R.drawable.stat_sys_download_done)
                     setProgress(0, 0, false)
-                    mActions.clear()
                     if (ApkInstaller(context).isApkFile(file)) {
                         addAction(R.drawable.ic_check_mark_circle, "点击安装 APK 文件",
                                 getSnoozePendingIntent(INSTALL_APK))

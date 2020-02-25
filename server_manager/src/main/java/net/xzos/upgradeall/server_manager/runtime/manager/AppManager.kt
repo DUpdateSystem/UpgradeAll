@@ -2,7 +2,7 @@ package net.xzos.upgradeall.server_manager.runtime.manager
 
 import net.xzos.upgradeall.data.database.AppDatabase
 import net.xzos.upgradeall.data.database.HubDatabase
-import net.xzos.upgradeall.data_manager.database.manager.AppDatabaseManager
+import net.xzos.upgradeall.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.system_api.annotations.DatabaseApi
 

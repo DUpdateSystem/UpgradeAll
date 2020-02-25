@@ -18,12 +18,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.xzos.dupdatesystem.data.config.AppConfig
+import net.xzos.dupdatesystem.server_manager.runtime.manager.AppManager
+import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.App
+import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.Updater
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.data.config.AppConfig
-import net.xzos.upgradeall.server_manager.runtime.manager.AppManager
-import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
-import net.xzos.upgradeall.server_manager.runtime.manager.module.app.Updater
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.viewmodels.componnent.EditIntPreference
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -125,9 +125,9 @@ object UpdateManager {
             builder.setContentTitle("检查更新中")
                     .setContentText("后台任务: $renewedNum/$appNum")
                     .setProgress(appNum, renewedNum, false)
-            // 如果运行正常，此处应该不可消除（
-            // 未知 bug，暂时允许用户消除通知
-            // TODO: 实现完整的后台更新后应再次确认此处
+                    // 如果运行正常，此处应该不可消除（
+                    // 未知 bug，暂时允许用户消除通知
+                    // TODO: 实现完整的后台更新后应再次确认此处
                     .setOngoing(false)
         }
         notificationNotify()

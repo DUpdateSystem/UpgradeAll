@@ -10,10 +10,10 @@ import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import kotlinx.android.synthetic.main.cardview_content.view.*
+import net.xzos.dupdatesystem.data_manager.utils.SearchUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.utils.IconInfo
 import net.xzos.upgradeall.utils.IconPalette
-import net.xzos.upgradeall.data_manager.utils.SearchUtils
 
 class SearchResultItemAdapter(context: Context, searchInfoList: List<SearchUtils.SearchInfo>,
                               private val resource: Int = R.layout.cardview_content) :

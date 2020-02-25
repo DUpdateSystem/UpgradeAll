@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.ui.viewmodels.view
 
-import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
+import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.App
 
 
 class ItemCardView internal constructor(

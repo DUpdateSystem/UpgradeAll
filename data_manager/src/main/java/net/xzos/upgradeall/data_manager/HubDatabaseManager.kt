@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.data_manager.database.manager
+package net.xzos.upgradeall.data_manager
 
 import net.xzos.upgradeall.data.database.HubDatabase
 import net.xzos.upgradeall.data.json.gson.HubConfig
@@ -45,7 +45,8 @@ object HubDatabaseManager {
         if (name != null && uuid != null) {
             val hubDatabaseExtraData = HubDatabaseExtraData(jsCode)
             // 修改数据库
-            (getDatabase(uuid) ?: HubDatabase.newInstance()).apply {
+            (getDatabase(uuid)
+                    ?: HubDatabase.newInstance()).apply {
                 this.name = name
                 this.uuid = uuid
                 this.cloudHubConfig = hubConfigGson
