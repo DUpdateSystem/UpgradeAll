@@ -3,12 +3,12 @@ package net.xzos.upgradeall.ui.viewmodels.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
+import net.xzos.dupdatesystem.server_manager.runtime.manager.AppManager
+import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.data_manager.UIConfig
 import net.xzos.upgradeall.data_manager.UIConfig.Companion.APP_TYPE_TAG
 import net.xzos.upgradeall.data_manager.UIConfig.Companion.uiConfig
 import net.xzos.upgradeall.server.update.UpdateManager
-import net.xzos.upgradeall.server_manager.runtime.manager.AppManager
-import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX

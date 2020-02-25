@@ -15,7 +15,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.data_manager.database.manager.CloudConfigGetter
+import net.xzos.dupdatesystem.data_manager.CloudConfigGetter
 import org.json.JSONException
 import java.io.StringReader
 import java.util.*

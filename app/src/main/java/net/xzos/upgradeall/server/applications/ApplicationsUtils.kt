@@ -2,13 +2,13 @@ package net.xzos.upgradeall.server.applications
 
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import net.xzos.dupdatesystem.data.database.AppDatabase
+import net.xzos.dupdatesystem.data.json.gson.AppConfigGson
+import net.xzos.dupdatesystem.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
+import net.xzos.dupdatesystem.data.json.gson.HubConfig
+import net.xzos.dupdatesystem.data_manager.utils.AutoTemplate
+import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.data.database.AppDatabase
-import net.xzos.upgradeall.data.json.gson.AppConfigGson
-import net.xzos.upgradeall.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
-import net.xzos.upgradeall.data.json.gson.HubConfig
-import net.xzos.upgradeall.data_manager.utils.AutoTemplate
-import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
 
 
 internal class ApplicationsUtils(applacationDatabase: AppDatabase) {

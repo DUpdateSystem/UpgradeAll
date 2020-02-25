@@ -9,8 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.fragment_log.*
+import net.xzos.dupdatesystem.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.ui.viewmodels.adapters.LogItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.LogPageViewModel
 
@@ -26,7 +26,7 @@ class LogPlaceholderFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mContext = context!!
+        mContext = requireContext()
         logPageViewModel = ViewModelProvider(this).get(LogPageViewModel::class.java)
         val logObjectTag = bundleLogObjectTag
         if (logObjectTag != null) {

@@ -15,10 +15,10 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Observer
 import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
 import kotlinx.android.synthetic.main.activity_log.*
+import net.xzos.dupdatesystem.data.json.nongson.ObjectTag
+import net.xzos.dupdatesystem.log.Log
+import net.xzos.dupdatesystem.log.LogDataProxy
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.log.Log
-import net.xzos.upgradeall.log.LogDataProxy
 import net.xzos.upgradeall.server.log.LogLiveData
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.LogTabSectionsPagerAdapter
 import net.xzos.upgradeall.utils.FileUtil

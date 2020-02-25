@@ -20,17 +20,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.xzos.dupdatesystem.data.database.AppDatabase
+import net.xzos.dupdatesystem.data.json.gson.AppConfigGson
+import net.xzos.dupdatesystem.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
+import net.xzos.dupdatesystem.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL
+import net.xzos.dupdatesystem.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
+import net.xzos.dupdatesystem.data.json.nongson.ObjectTag
+import net.xzos.dupdatesystem.data_manager.AppDatabaseManager
+import net.xzos.dupdatesystem.data_manager.HubDatabaseManager
+import net.xzos.dupdatesystem.server_manager.runtime.manager.AppManager
+import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.data.database.AppDatabase
-import net.xzos.upgradeall.data.json.gson.AppConfigGson
-import net.xzos.upgradeall.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
-import net.xzos.upgradeall.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL
-import net.xzos.upgradeall.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
-import net.xzos.upgradeall.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.data_manager.database.manager.AppDatabaseManager
-import net.xzos.upgradeall.data_manager.database.manager.HubDatabaseManager
-import net.xzos.upgradeall.server_manager.runtime.manager.AppManager
-import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeall.utils.IconPalette
@@ -71,7 +71,7 @@ class AppSettingFragment : Fragment() {
         val apiSpinnerStringArray = renewApiJsonObject()
         // 修改 apiSpinner
         if (apiSpinnerStringArray.isNotEmpty()) {
-            val adapter = ArrayAdapter(context!!,
+            val adapter = ArrayAdapter(requireContext(),
                     android.R.layout.simple_spinner_item, apiSpinnerStringArray)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             apiSpinner.adapter = adapter
@@ -97,7 +97,7 @@ class AppSettingFragment : Fragment() {
                     if (this@AppSettingFragment.isVisible) {
                         launch(Dispatchers.Main) {
                             if (searchInfoList.isNotEmpty()) {
-                                editTarget.setAdapter(SearchResultItemAdapter(context!!, searchInfoList))
+                                editTarget.setAdapter(SearchResultItemAdapter(requireContext(), searchInfoList))
                                 editTarget.showDropDown()
                             } else Toast.makeText(context, R.string.no_completion_results, Toast.LENGTH_SHORT).show()
                         }

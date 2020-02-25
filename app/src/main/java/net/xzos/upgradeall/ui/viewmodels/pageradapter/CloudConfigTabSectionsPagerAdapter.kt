@@ -8,6 +8,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.ui.viewmodels.fragment.CloudConfigPlaceholderFragment
 
+
 class CloudConfigTabSectionsPagerAdapter(fm: FragmentManager) :
         FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 

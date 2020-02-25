@@ -3,8 +3,8 @@ package net.xzos.upgradeall.ui.viewmodels.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import net.xzos.upgradeall.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.log.LogDataProxy
+import net.xzos.dupdatesystem.data.json.nongson.ObjectTag
+import net.xzos.dupdatesystem.log.LogDataProxy
 
 class LogPageViewModel : ViewModel() {
 

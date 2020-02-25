@@ -14,7 +14,7 @@ import com.devs.vectorchildfinder.VectorChildFinder
 import kotlinx.coroutines.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.server_manager.runtime.manager.module.app.App
+import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.App
 import java.io.File
 
 

@@ -6,7 +6,7 @@ import org.apache.commons.text.StringEscapeUtils
 
 object LogDataProxy {
 
-    lateinit var logMap: HashMap<ObjectTag, MutableList<String>>
+    private val logMap = Log.logMap
 
     val logSort: MutableList<String>
         get() {
