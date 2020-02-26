@@ -1,9 +1,8 @@
 package net.xzos.upgradeall.utils
 
 import android.annotation.SuppressLint
-import net.xzos.upgradeall.application.MyApplication
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
-import net.xzos.dupdatesystem.core.system_api.annotations.IoApi
+import net.xzos.upgradeall.application.MyApplication
 
 
 object VersioningUtils {
