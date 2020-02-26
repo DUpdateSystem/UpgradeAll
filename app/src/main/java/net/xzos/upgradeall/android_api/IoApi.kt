@@ -3,9 +3,9 @@ package net.xzos.upgradeall.android_api
 import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import net.xzos.dupdatesystem.data.json.gson.AppConfigGson
-import net.xzos.dupdatesystem.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.system_api.interfaces.IoApi
+import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
+import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
+import net.xzos.dupdatesystem.core.system_api.interfaces.IoApi
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.VersioningUtils
@@ -18,7 +18,7 @@ import net.xzos.upgradeall.utils.network.AriaDownloader
 object IoApi : IoApi {
 
     init {
-        net.xzos.dupdatesystem.system_api.api.IoApi.ioApiInterface = this
+        net.xzos.dupdatesystem.core.system_api.api.IoApi.ioApiInterface = this
     }
 
     private const val TAG = "IoApi"

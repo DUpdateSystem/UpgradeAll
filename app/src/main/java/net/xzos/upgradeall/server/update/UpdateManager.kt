@@ -18,10 +18,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.xzos.dupdatesystem.data.config.AppConfig
-import net.xzos.dupdatesystem.server_manager.runtime.manager.AppManager
-import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.App
-import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.Updater
+import net.xzos.dupdatesystem.core.data.config.AppConfig
+import net.xzos.dupdatesystem.core.server_manager.runtime.manager.AppManager
+import net.xzos.dupdatesystem.core.server_manager.runtime.manager.module.app.App
+import net.xzos.dupdatesystem.core.server_manager.runtime.manager.module.app.Updater
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.ui.activity.MainActivity

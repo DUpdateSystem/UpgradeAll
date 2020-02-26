@@ -15,9 +15,9 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Observer
 import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
 import kotlinx.android.synthetic.main.activity_log.*
-import net.xzos.dupdatesystem.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.log.Log
-import net.xzos.dupdatesystem.log.LogDataProxy
+import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
+import net.xzos.dupdatesystem.core.log.Log
+import net.xzos.dupdatesystem.core.log.LogDataProxy
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.server.log.LogLiveData
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.LogTabSectionsPagerAdapter

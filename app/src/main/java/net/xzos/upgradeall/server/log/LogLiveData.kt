@@ -5,9 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import net.xzos.dupdatesystem.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.log.Log
-import net.xzos.dupdatesystem.log.LogDataProxy
+import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
+import net.xzos.dupdatesystem.core.log.Log
+import net.xzos.dupdatesystem.core.log.LogDataProxy
 
 
 object LogLiveData {

@@ -1,8 +1,8 @@
 package net.xzos.upgradeall.data_manager.database.litepal
 
 import com.google.gson.Gson
-import net.xzos.dupdatesystem.data.json.gson.HubConfig
-import net.xzos.dupdatesystem.data.json.gson.HubDatabaseExtraData
+import net.xzos.dupdatesystem.core.data.json.gson.HubConfig
+import net.xzos.dupdatesystem.core.data.json.gson.HubDatabaseExtraData
 import org.litepal.crud.LitePalSupport
 
 
