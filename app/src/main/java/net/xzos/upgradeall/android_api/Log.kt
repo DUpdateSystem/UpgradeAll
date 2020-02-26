@@ -2,42 +2,38 @@ package net.xzos.upgradeall.android_api
 
 import android.util.Log
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.core.system_api.interfaces.LogApi
+import net.xzos.dupdatesystem.core.log.Log.DEBUG
+import net.xzos.dupdatesystem.core.log.Log.ERROR
+import net.xzos.dupdatesystem.core.log.Log.INFO
+import net.xzos.dupdatesystem.core.log.Log.VERBOSE
+import net.xzos.dupdatesystem.core.log.Log.WARN
+import net.xzos.dupdatesystem.core.log.LogItemData
+import net.xzos.dupdatesystem.core.system_api.api.LogApi
 import net.xzos.upgradeall.server.log.LogLiveData
 
 
-object Log : LogApi {
+object Log {
 
     init {
-        net.xzos.dupdatesystem.core.system_api.api.LogApi.logApiInterface = this
+        LogApi.register(this)
     }
 
-    // 调用Log.v()方法打印日志
-    override fun v(objectTag: ObjectTag, tag: String, msg: String) {
-        Log.v(tag, msg)
+    @net.xzos.dupdatesystem.core.system_api.annotations.LogApi.printLog
+    fun printLog(logItemData: LogItemData) {
+        val tag = logItemData.tag
+        val msg = logItemData.msg
+        when (logItemData.logLevel) {
+            VERBOSE -> Log.v(tag, msg)
+            DEBUG -> Log.d(tag, msg)
+            INFO -> Log.i(tag, msg)
+            WARN -> Log.w(tag, msg)
+            ERROR -> Log.e(tag, msg)
+
+        }
     }
 
-    // 调用Log.d()方法打印日志
-    override fun d(objectTag: ObjectTag, tag: String, msg: String) {
-        Log.d(tag, msg)
-    }
-
-    // 调用Log.i()方法打印日志
-    override fun i(objectTag: ObjectTag, tag: String, msg: String) {
-        Log.i(tag, msg)
-    }
-
-    // 调用Log.w()方法打印日志
-    override fun w(objectTag: ObjectTag, tag: String, msg: String) {
-        Log.w(tag, msg)
-    }
-
-    // 调用Log.e()方法打印日志
-    override fun e(objectTag: ObjectTag, tag: String, msg: String) {
-        Log.e(tag, msg)
-    }
-
-    override fun change() {
-        LogLiveData.notifyChange()
+    @net.xzos.dupdatesystem.core.system_api.annotations.LogApi.logChanged
+    fun logChanged(logMap: HashMap<ObjectTag, MutableList<LogItemData>>) {
+        LogLiveData.notifyChange(logMap)
     }
 }

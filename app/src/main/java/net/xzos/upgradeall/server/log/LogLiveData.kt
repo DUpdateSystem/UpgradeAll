@@ -6,17 +6,15 @@ import androidx.lifecycle.Transformations
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.core.log.Log
 import net.xzos.dupdatesystem.core.log.LogDataProxy
+import net.xzos.dupdatesystem.core.log.LogItemData
 
 
 object LogLiveData {
 
-    private var logMap: MutableMap<ObjectTag, MutableList<String>> = Log.logMap
+    private var logMap = hashMapOf<ObjectTag, MutableList<LogItemData>>()
 
-    fun notifyChange() {
-        mLogMapLiveData.notifyObserver()
-    }
+    private val mLogMapLiveData = MutableLiveData(logMap)
 
     private fun <T> MutableLiveData<T>.notifyObserver() {
         runBlocking(Dispatchers.Main) {
@@ -24,7 +22,10 @@ object LogLiveData {
         }
     }
 
-    internal val mLogMapLiveData = MutableLiveData(logMap)
+    fun notifyChange(logMap: HashMap<ObjectTag, MutableList<LogItemData>>) {
+        this.logMap = logMap
+        mLogMapLiveData.notifyObserver()
+    }
 
     internal val sortList: LiveData<MutableList<String>>
         get() = Transformations.map(mLogMapLiveData) {
