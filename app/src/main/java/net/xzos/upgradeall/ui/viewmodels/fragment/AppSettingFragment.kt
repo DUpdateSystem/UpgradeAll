@@ -28,8 +28,8 @@ import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.Ta
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
 import net.xzos.dupdatesystem.core.data_manager.AppDatabaseManager
 import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
-import net.xzos.dupdatesystem.core.server_manager.runtime.manager.AppManager
-import net.xzos.dupdatesystem.core.server_manager.runtime.manager.module.app.App
+import net.xzos.dupdatesystem.core.server_manager.AppManager
+import net.xzos.dupdatesystem.core.server_manager.module.app.App
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter

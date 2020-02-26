@@ -19,10 +19,10 @@ import com.arialyy.aria.core.download.DownloadTask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.xzos.dupdatesystem.core.data_manager.utils.FilePathUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.dupdatesystem.core.data_manager.utils.FilePathUtils
 import net.xzos.upgradeall.utils.ApkInstaller
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.ACTION_SNOOZE
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DEL_TASK

@@ -7,7 +7,7 @@ import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
 import net.xzos.dupdatesystem.core.data.json.gson.HubConfig
 import net.xzos.dupdatesystem.core.data_manager.utils.AutoTemplate
-import net.xzos.dupdatesystem.core.server_manager.runtime.manager.module.app.App
+import net.xzos.dupdatesystem.core.server_manager.module.app.App
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 
 

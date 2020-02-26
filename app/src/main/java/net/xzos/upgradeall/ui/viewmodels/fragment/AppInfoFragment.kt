@@ -21,8 +21,8 @@ import net.xzos.dupdatesystem.core.data.json.gson.AppDatabaseExtraData
 import net.xzos.dupdatesystem.core.data.json.gson.JSReturnData
 import net.xzos.dupdatesystem.core.data_manager.AppDatabaseManager
 import net.xzos.dupdatesystem.core.jscore.js.engine.JavaScriptEngine
-import net.xzos.dupdatesystem.core.server_manager.runtime.manager.module.app.App
-import net.xzos.dupdatesystem.core.server_manager.runtime.manager.module.app.Updater
+import net.xzos.dupdatesystem.core.server_manager.module.app.App
+import net.xzos.dupdatesystem.core.server_manager.module.app.Updater
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.utils.IconPalette
