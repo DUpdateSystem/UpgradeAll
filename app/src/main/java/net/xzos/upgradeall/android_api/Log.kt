@@ -1,15 +1,15 @@
 package net.xzos.upgradeall.android_api
 
 import android.util.Log
-import net.xzos.dupdatesystem.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.system_api.interfaces.LogApi
+import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
+import net.xzos.dupdatesystem.core.system_api.interfaces.LogApi
 import net.xzos.upgradeall.server.log.LogLiveData
 
 
 object Log : LogApi {
 
     init {
-        net.xzos.dupdatesystem.system_api.api.LogApi.logApiInterface = this
+        net.xzos.dupdatesystem.core.system_api.api.LogApi.logApiInterface = this
     }
 
     // 调用Log.v()方法打印日志

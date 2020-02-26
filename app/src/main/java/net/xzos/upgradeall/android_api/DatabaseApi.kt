@@ -1,8 +1,8 @@
 package net.xzos.upgradeall.android_api
 
-import net.xzos.dupdatesystem.data.database.AppDatabase
-import net.xzos.dupdatesystem.data.database.HubDatabase
-import net.xzos.dupdatesystem.system_api.interfaces.DatabaseApi
+import net.xzos.dupdatesystem.core.data.database.AppDatabase
+import net.xzos.dupdatesystem.core.data.database.HubDatabase
+import net.xzos.dupdatesystem.core.system_api.interfaces.DatabaseApi
 
 
 object DatabaseApi {

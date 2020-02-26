@@ -2,8 +2,8 @@ package net.xzos.upgradeall.data_manager
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
-import net.xzos.dupdatesystem.data.database.AppDatabase
-import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.App
+import net.xzos.dupdatesystem.core.data.database.AppDatabase
+import net.xzos.dupdatesystem.core.server_manager.runtime.manager.module.app.App
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX

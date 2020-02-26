@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.server.applications
 
-import net.xzos.dupdatesystem.data.database.AppDatabase
-import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.App
+import net.xzos.dupdatesystem.core.data.database.AppDatabase
+import net.xzos.dupdatesystem.core.server_manager.runtime.manager.module.app.App
 
 
 class Applications(applicationDatabase: AppDatabase) {

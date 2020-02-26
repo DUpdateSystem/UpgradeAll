@@ -16,9 +16,9 @@ import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.xzos.dupdatesystem.data_manager.AppDatabaseManager
-import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.App
-import net.xzos.dupdatesystem.server_manager.runtime.manager.module.app.Updater
+import net.xzos.dupdatesystem.core.data_manager.AppDatabaseManager
+import net.xzos.dupdatesystem.core.server_manager.runtime.manager.module.app.App
+import net.xzos.dupdatesystem.core.server_manager.runtime.manager.module.app.Updater
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
