@@ -228,7 +228,7 @@ class AppSettingFragment : Fragment() {
             else runBlocking { App(this@run).engine.getDefaultName() }
                     ?: return false
         }
-        return AppDatabaseManager.saveDatabase(appDatabase)
+        return appDatabase.save()
     }
 
     private fun renewApiJsonObject(): Array<String> {

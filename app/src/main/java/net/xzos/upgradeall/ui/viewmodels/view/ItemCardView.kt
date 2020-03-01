@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.ui.viewmodels.view
 
-import net.xzos.dupdatesystem.core.server_manager.module.app.App
+import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
 
 
 class ItemCardView internal constructor(
@@ -10,6 +10,6 @@ class ItemCardView internal constructor(
 )
 
 data class ItemCardViewExtraData(
-        val app: App? = null,
+        val app: BaseApp? = null,
         val uuid: String? = null
 )

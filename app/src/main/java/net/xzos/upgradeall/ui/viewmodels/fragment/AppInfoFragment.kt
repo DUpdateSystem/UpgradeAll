@@ -19,7 +19,6 @@ import kotlinx.android.synthetic.main.list_content.*
 import kotlinx.coroutines.*
 import net.xzos.dupdatesystem.core.data.json.gson.AppDatabaseExtraData
 import net.xzos.dupdatesystem.core.data.json.gson.JSReturnData
-import net.xzos.dupdatesystem.core.data_manager.AppDatabaseManager
 import net.xzos.dupdatesystem.core.jscore.js.engine.JavaScriptEngine
 import net.xzos.dupdatesystem.core.server_manager.module.app.App
 import net.xzos.dupdatesystem.core.server_manager.module.app.Updater
@@ -266,7 +265,7 @@ class AppInfoFragment : Fragment() {
     }
 
     private fun markVersionNumber(versionNumber: String?) {
-        AppDatabaseManager.getDatabase(app.appInfo.id)?.apply {
+        app.appInfo.apply {
             (extraData ?: AppDatabaseExtraData(null, null)
                     .apply { extraData = this })
                     .also {
@@ -274,9 +273,7 @@ class AppInfoFragment : Fragment() {
                                 if (it.markProcessedVersionNumber != versionNumber) versionNumber
                                 else null
                     }
-        }?.run {
-            AppDatabaseManager.saveDatabase(this)
-        }
+        }.save()
     }
 
     private fun renewVersionRelatedItems() {

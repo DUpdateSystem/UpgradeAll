@@ -26,7 +26,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_gravity="center"
-                android:contentDescription="@string/add_group_or_hub"
+                android:contentDescription="@string/add_group"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_plus"
                 android:tint="@color/gray" />

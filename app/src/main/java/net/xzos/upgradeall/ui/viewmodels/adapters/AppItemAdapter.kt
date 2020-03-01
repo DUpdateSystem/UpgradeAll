@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.ui.viewmodels.adapters
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -17,6 +18,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.dupdatesystem.core.data_manager.AppDatabaseManager
+import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
+import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
 import net.xzos.dupdatesystem.core.server_manager.module.app.App
 import net.xzos.dupdatesystem.core.server_manager.module.app.Updater
 import net.xzos.upgradeall.R
@@ -48,8 +51,11 @@ class AppItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                 LayoutInflater.from(parent.context).inflate(R.layout.cardview_item, parent, false))
         // 单击展开 Release 详情页
         holder.itemCardView.setOnClickListener {
-            MainActivity.bundleApp = getItemCardView(holder).extraData.app
-            MainActivity.navigationItemId.value = R.id.appInfoFragment
+            val app = getItemCardView(holder).extraData.app
+            if (app is App) {
+                MainActivity.bundleApp = app
+                MainActivity.navigationItemId.value = R.id.appInfoFragment
+            }
         }
         // TODO: 长按删除，暂时添加删除功能
         holder.itemCardView.setOnLongClickListener { view ->
@@ -90,7 +96,7 @@ class AppItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                         // 删除数据库
                         menu.add(context.getString(R.string.delete)).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
-                                AppDatabaseManager.deleteDatabase(this.appInfo)
+                                this.appInfo.delete()
                                 onItemDismiss(holder.adapterPosition)
                                 return@setOnMenuItemClickListener true
                             }
@@ -104,7 +110,7 @@ class AppItemAdapter(private val appListPageViewModel: AppListPageViewModel,
         // 长按强制检查版本
         holder.versionCheckButton.setOnLongClickListener {
             getItemCardView(holder).extraData.app?.run {
-                this.renewEngine()
+                this.renew()
                 setAppStatusUI(holder, this)
                 Toast.makeText(holder.versionCheckButton.context, "检查 ${holder.nameTextView.text} 的更新",
                         Toast.LENGTH_SHORT).show()
@@ -135,7 +141,16 @@ class AppItemAdapter(private val appListPageViewModel: AppListPageViewModel,
         itemCardView.extraData.app?.run {
             holder.itemCardView.visibility = View.VISIBLE
             holder.appPlaceholderImageView.visibility = View.GONE
-            IconPalette.loadAppIconView(holder.appIconImageView, app = this)
+            if (this is App) {
+                IconPalette.loadAppIconView(holder.appIconImageView, app = this)
+            } else if (this is Application) {
+                IconPalette.loadHubIconView(
+                        holder.appIconImageView,
+                        HubDatabaseManager.getDatabase(
+                                this.appInfo.api_uuid
+                        )?.cloudHubConfig?.info?.hubIconUrl
+                )
+            }
             holder.nameTextView.text = itemCardView.name
             holder.descTextView.text = itemCardView.desc
             setAppStatusUI(holder, this)
@@ -176,27 +191,26 @@ class AppItemAdapter(private val appListPageViewModel: AppListPageViewModel,
         return true
     }
 
-    private fun setAppStatusUI(holder: CardViewRecyclerViewHolder, app: App) {
-        val updater = Updater(app)
+    private fun setAppStatusUI(holder: CardViewRecyclerViewHolder, app: BaseApp) {
         // 预先显示本地版本号，避免 0.0.0 example 版本号
-        val installedVersioning = app.installedVersionNumber
-        holder.versioningTextView.text = installedVersioning ?: ""
+        val installedVersioning = if (app is App) app.installedVersionNumber else null
+        holder.versioningTextView.text = installedVersioning
 
         // 检查新版本
         setUpdateStatus(holder, true)
         GlobalScope.launch {
-            val updateStatus = updater.getUpdateStatus()
+            val updateStatus = app.getUpdateStatus()
             launch(Dispatchers.Main) {
                 when (updateStatus) {
                     Updater.NETWORK_404 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error).also {
-                        app.renewEngine()  // 刷新错误删除缓存数据
+                        app.renew()  // 刷新错误删除缓存数据
                     }
                     Updater.APP_LATEST -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_mark_circle)
                     Updater.APP_OUTDATED -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
                     Updater.APP_NO_LOCAL -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
                 }
                 setUpdateStatus(holder, false)
-                with(appListPageViewModel.needUpdateAppsLiveLiveData) {
+                with(appListPageViewModel.needUpdateAppsLiveData) {
                     this.value?.let {
                         if (updateStatus == 2 && !it.contains(app)) {
                             it.add(app)
@@ -207,10 +221,12 @@ class AppItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                     }
                 }
                 // 如果本地未安装，则显示最新版本号
-                val latestVersioning = updater.getLatestVersioning()
-                if (installedVersioning == null)
-                    @SuppressLint("SetTextI18n")
-                    holder.versioningTextView.text = "NEW: $latestVersioning"
+                if (app is App) {
+                    val latestVersioning = Updater(app).getLatestVersioning()
+                    if (installedVersioning == null)
+                        @SuppressLint("SetTextI18n")
+                        holder.versioningTextView.text = "NEW: $latestVersioning"
+                }
             }
         }
     }

@@ -79,8 +79,8 @@
     <string name="example_name">ExampleName</string>
     <string name="example_version_number">0.0.0</string>
     <string name="example_package_name">com.example.app</string>
-    <string name="add_group_or_hub">添加分组/软件源</string>
-    <string name="add_group">添加源</string>
+    <string name="add_group">添加分组</string>
+    <string name="add_hub">添加源</string>
     <string name="example_number">0</string>
     <string name="example_update_overview">0 个应用中的 0 个需要升级</string>
     <string name="update_status_prompt">升级提示符</string>
@@ -129,5 +129,8 @@
     <string name="move_right">向右移动</string>
     <string name="export_current_sort_log">导出当前分类的日志</string>
     <string name="export_all_log">导出全部日志</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

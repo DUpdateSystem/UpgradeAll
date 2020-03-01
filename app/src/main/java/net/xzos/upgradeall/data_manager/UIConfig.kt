@@ -3,7 +3,7 @@ package net.xzos.upgradeall.data_manager
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import net.xzos.dupdatesystem.core.data.database.AppDatabase
-import net.xzos.dupdatesystem.core.server_manager.module.app.App
+import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
@@ -109,7 +109,7 @@ class UIConfig(
     fun moveItemToOtherGroup(position: Int, fromTabPageIndex: Int,
                              toTabPageIndex: Int? = null,
                              containerTabListBean: CustomContainerTabListBean? = null,
-                             app: App? = null
+                             app: BaseApp? = null
     ): Boolean {
         if (toTabPageIndex != null || containerTabListBean != null) {
             if (toTabPageIndex != UPDATE_PAGE_INDEX && toTabPageIndex != ALL_APP_PAGE_INDEX) {
