@@ -102,10 +102,10 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
             GlobalScope.launch {
                 val hubConfigGson = MiscellaneousUtils.cloudConfigGetter.getHubCloudConfig(hubUuid)
                 HubDatabaseManager.getDatabase(uuid = hubUuid)?.cloudHubConfig?.let {
-                    val cloudHubVersion = it.info?.configVersion
+                    val cloudHubVersion = it.info.configVersion
                     val localHubVersion = hubConfigGson?.info?.configVersion
                     launch(Dispatchers.Main) {
-                        if (cloudHubVersion != null && localHubVersion != null && cloudHubVersion > localHubVersion)
+                        if (localHubVersion != null && cloudHubVersion > localHubVersion)
                             versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
                         setDownloadStatus(holder, false)
                     }

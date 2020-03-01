@@ -4,9 +4,11 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import com.jaredrummler.android.shell.CommandResult
 import com.jaredrummler.android.shell.Shell
+import net.xzos.dupdatesystem.core.data.config.AppType
 import net.xzos.dupdatesystem.core.data_manager.utils.SearchUtils
 import net.xzos.dupdatesystem.core.data_manager.utils.StringMatchUtils
 import net.xzos.upgradeall.application.MyApplication
+
 
 class SearchUtils {
 
@@ -22,10 +24,10 @@ class SearchUtils {
     private fun initSearch(searchString: String): List<SearchUtils.SearchInfo> {
         return listOf<SearchUtils.SearchInfo>()
                 .plus(AppPackageMatchUtils.search(searchString)
-                        .map { SearchUtils.SearchInfo("App_Package", it) }
+                        .map { SearchUtils.SearchInfo(AppType.androidApp, it) }
                 )
                 .plus(MagiskModuleMatchUtils.search(searchString)
-                        .map { SearchUtils.SearchInfo("Magisk_Module", it) }
+                        .map { SearchUtils.SearchInfo(AppType.androidMagiskModule, it) }
                 ).sortedByDescending { it.matchInfo.getMaxPoint() }
     }
 }
@@ -63,7 +65,7 @@ class ShellMatchUtils(private val useSU: Boolean = false) {
     }
 }
 
-object AppPackageMatchUtils {
+private object AppPackageMatchUtils {
     private val packages: List<ApplicationInfo>
         get() = MyApplication.context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
 
@@ -85,7 +87,7 @@ object AppPackageMatchUtils {
 
 }
 
-object MagiskModuleMatchUtils {
+private object MagiskModuleMatchUtils {
     private const val defaultModuleFolderPath = "/data/adb/modules/"
     private val shellMatchUtils = ShellMatchUtils(useSU = true)
     private val moduleInfoList: List<ModuleInfo>

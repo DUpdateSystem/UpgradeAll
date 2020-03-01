@@ -21,6 +21,9 @@
         <action
             android:id="@+id/action_appListFragment_to_appSettingFragment"
             app:destination="@id/appSettingFragment" />
+        <action
+            android:id="@+id/action_appListFragment_to_applicationFragment"
+            app:destination="@id/applicationFragment" />
     </fragment>
     <fragment
         android:id="@+id/appInfoFragment"
@@ -45,4 +48,13 @@
         android:name="net.xzos.upgradeall.ui.viewmodels.fragment.AppSettingFragment"
         android:label="@string/add_apps"
         tools:layout="@layout/fragment_apps_setting" />
+    <fragment
+        android:id="@+id/applicationFragment"
+        android:name="net.xzos.upgradeall.ui.viewmodels.fragment.ApplicationFragment"
+        android:label="fragment_application"
+        tools:layout="@layout/fragment_applications" >
+        <action
+            android:id="@+id/action_applicationFragment_to_appListFragment"
+            app:destination="@id/appListFragment" />
+    </fragment>
 </navigation>

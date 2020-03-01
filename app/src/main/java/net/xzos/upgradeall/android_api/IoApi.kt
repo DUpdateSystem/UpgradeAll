@@ -1,11 +1,14 @@
 package net.xzos.upgradeall.android_api
 
+import android.content.pm.PackageManager
 import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import net.xzos.dupdatesystem.core.data.config.AppType
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
 import net.xzos.dupdatesystem.core.log.Log
+import net.xzos.dupdatesystem.core.server_manager.module.applications.AppInfo
 import net.xzos.dupdatesystem.core.system_api.interfaces.IoApi
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -19,7 +22,7 @@ import net.xzos.upgradeall.utils.network.AriaDownloader
 object IoApi : IoApi {
 
     init {
-        net.xzos.dupdatesystem.core.system_api.api.IoApi.ioApiInterface = this
+        net.xzos.dupdatesystem.core.system_api.api.IoApi.setInterfaces(this)
     }
 
     private const val TAG = "IoApi"
@@ -46,12 +49,16 @@ object IoApi : IoApi {
                 }
             }
         } else {
-            MiscellaneousUtils.accessByBrowser(
-                    url,
-                    context
-            )
+            MiscellaneousUtils.accessByBrowser(url, context)
             ariaDownloader.cancel()
         }
+    }
+
+    override fun getAppInfoList(type: String): List<AppInfo>? {
+        return if (type == AppType.androidApp)
+            context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA).map {
+                AppInfo(type, it.name, it.packageName)
+            } else null
     }
 
     // 查询软件信息

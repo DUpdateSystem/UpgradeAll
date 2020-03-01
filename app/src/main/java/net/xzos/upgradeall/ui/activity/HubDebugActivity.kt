@@ -60,16 +60,16 @@ class HubDebugActivity : AppCompatActivity() {
 
             hubConfig.uuid = configUuidEditText.text.toString()
             hubConfig.info = HubConfig.InfoBean()
-            hubConfig.info?.hubName = configHubNameEditText.text.toString()
+            hubConfig.info.hubName = configHubNameEditText.text.toString()
             try {
-                hubConfig.info?.configVersion = Integer.parseInt(configVersionEditText.text.toString())
+                hubConfig.info.configVersion = Integer.parseInt(configVersionEditText.text.toString())
             } catch (e: NumberFormatException) {
                 Toast.makeText(this, "请填写正确整数", Toast.LENGTH_LONG).show()
                 return null
             }
 
             hubConfig.webCrawler = HubConfig.WebCrawlerBean()
-            hubConfig.webCrawler?.tool = configToolEditText.text.toString()
+            hubConfig.webCrawler.tool = configToolEditText.text.toString()
             return hubConfig
         }
 
@@ -412,9 +412,9 @@ class HubDebugActivity : AppCompatActivity() {
         if (hubConfig != null) {
             configBaseVersionEditText.setText(hubConfig.baseVersion.toString())
             configUuidEditText.setText(hubConfig.uuid)
-            configHubNameEditText.setText(hubConfig.info?.hubName)
-            configVersionEditText.setText(hubConfig.info?.configVersion.toString())
-            configToolEditText.setText(hubConfig.webCrawler?.tool)
+            configHubNameEditText.setText(hubConfig.info.hubName)
+            configVersionEditText.setText(hubConfig.info.configVersion.toString())
+            configToolEditText.setText(hubConfig.webCrawler.tool)
         }
     }
 

@@ -1,77 +1,72 @@
 package net.xzos.upgradeall.ui.viewmodels.viewmodel
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
 import net.xzos.dupdatesystem.core.server_manager.AppManager
-import net.xzos.dupdatesystem.core.server_manager.module.app.App
+import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.data_manager.UIConfig
+import net.xzos.upgradeall.data_manager.UIConfig.Companion.APPLICATIONS_TYPE_TAG
 import net.xzos.upgradeall.data_manager.UIConfig.Companion.APP_TYPE_TAG
 import net.xzos.upgradeall.data_manager.UIConfig.Companion.uiConfig
 import net.xzos.upgradeall.server.update.UpdateManager
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
-import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
-import net.xzos.upgradeall.ui.viewmodels.view.ItemCardViewExtraData
 
 
-class AppListPageViewModel : ViewModel() {
+class AppListPageViewModel : AppListContainerViewModel() {
 
-    internal val needUpdateAppsLiveLiveData = MutableLiveData(mutableListOf<App>())
-    internal val appCardViewList = MutableLiveData(mutableListOf<ItemCardView>())
+    internal val editableTab = MutableLiveData(false)  // 修改分组
+
     private val mTabPageIndex = MutableLiveData<Int>().apply {
         this.observeForever { tabPageIndex ->
             GlobalScope.launch {
                 withContext(Dispatchers.Main) {
                     editableTab.value = false
                 }
-                val apps: HashSet<App> = getApps(tabPageIndex)
-                val itemCardViewList = mutableListOf<ItemCardView>().apply {
-                    for (app in apps) {
-                        this.add(getAppItemCardView(app))
-                    }
-                    if (apps.isNotEmpty()) {
-                        this.add(ItemCardView())
-                    }
-                }
-                withContext(Dispatchers.Main) {
-                    appCardViewList.value = itemCardViewList
-                }
+                val apps = getApps(tabPageIndex)
+                setApps(apps)
             }
         }
     }
 
-    private suspend fun getApps(tabPageIndex: Int) = when (tabPageIndex) {
-        UPDATE_PAGE_INDEX -> {
-            UpdateManager.blockRenewAll()
-        }
-        ALL_APP_PAGE_INDEX -> {
-            AppManager.apps
-        }
-        else -> {
-            withContext(Dispatchers.Main) {
-                editableTab.value = true
+    private suspend fun getApps(tabPageIndex: Int): List<BaseApp> {
+        return when (tabPageIndex) {
+            UPDATE_PAGE_INDEX -> {
+                UpdateManager.blockRenewAll().toList()
             }
-            val itemList =
-                    if (tabPageIndex == USER_STAR_PAGE_INDEX)
-                        uiConfig.userStarTab.itemList
-                    else uiConfig.userTabList[tabPageIndex].itemList
-            hashSetOf<App>().apply {
-                for (item in itemList) {
-                    if (item.type == APP_TYPE_TAG) {
-                        AppManager.getSingleApp(databaseId = item.appIdList[0])?.let {
+            ALL_APP_PAGE_INDEX -> {
+                AppManager.apps
+            }
+            else -> {
+                withContext(Dispatchers.Main) {
+                    editableTab.value = true
+                }
+                val itemList =
+                        if (tabPageIndex == USER_STAR_PAGE_INDEX)
+                            uiConfig.userStarTab.itemList
+                        else uiConfig.userTabList[tabPageIndex].itemList
+                mutableListOf<BaseApp>().apply {
+                    for (item in itemList) {
+                        (when (item.type) {
+                            APP_TYPE_TAG -> {
+                                AppManager.getSingleApp(databaseId = item.appIdList[0])
+                            }
+                            APPLICATIONS_TYPE_TAG -> {
+                                AppManager.getApplications(databaseId = item.appIdList[0])
+                            }
+                            else -> null
+                        })?.let {
                             this.add(it)
                         }
+
                     }
                 }
             }
         }
     }
 
-    internal val editableTab = MutableLiveData(false)
-
-    fun removeItemFromGroup(position: Int): Boolean {
+    override fun removeItemFromGroup(position: Int): Boolean {
         val tabPageIndex = mTabPageIndex.value ?: return false
         if (tabPageIndex != UPDATE_PAGE_INDEX && tabPageIndex != ALL_APP_PAGE_INDEX) {
             if (tabPageIndex == USER_STAR_PAGE_INDEX) {
@@ -111,10 +106,4 @@ class AppListPageViewModel : ViewModel() {
         this.addAll(uiConfig.userTabList)
     }
 
-    private fun getAppItemCardView(app: App): ItemCardView {
-        return ItemCardView(
-                app.appInfo.name,
-                app.appInfo.url,
-                extraData = ItemCardViewExtraData(app = app))
-    }
 }

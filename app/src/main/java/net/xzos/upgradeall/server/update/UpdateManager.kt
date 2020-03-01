@@ -30,7 +30,7 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 
 object UpdateManager {
-    private val apps: HashSet<App>
+    private val apps: List<App>
         get() = AppManager.apps
     private val jobMap = hashMapOf<App, Job>()
     private suspend fun finishJob(app: App) {
@@ -47,7 +47,7 @@ object UpdateManager {
 
     private val flashMutex = Mutex()
 
-    private val needUpdateAppList = hashSetOf<App>()
+    private val needUpdateAppList = mutableListOf<App>()
     private const val CHANNEL_ID = "UpdateServiceNotification"
     private const val updateNotificationId = 0
 
@@ -64,7 +64,7 @@ object UpdateManager {
     }
 
     // 刷新所有软件并等待，返回需要更新的软件数量
-    suspend fun blockRenewAll(): HashSet<App> {
+    suspend fun blockRenewAll(): List<App> {
         if (!flashMutex.isLocked) {
             // 尝试刷新全部软件
             renewAll()
@@ -101,7 +101,7 @@ object UpdateManager {
         jobMap[app] = GlobalScope.launch(Dispatchers.IO) {
             when (Updater(app).getUpdateStatus()) {
                 Updater.APP_OUTDATED -> needUpdateAppList.add(app)
-                Updater.NETWORK_404 -> app.renewEngine()
+                Updater.NETWORK_404 -> app.renew()
             }
             finishJob(app)
         }
