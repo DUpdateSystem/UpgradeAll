@@ -65,7 +65,7 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
                                 setDownloadStatus(holder, false)
                                 if (appDatabase != null) {
                                     holder.versionCheckButton.visibility = View.VISIBLE
-                                    checkHubDependency(hubUuid = appDatabase.api_uuid)
+                                    checkHubDependency(hubUuid = appDatabase.apiUuid)
                                 }
                             }
                         }

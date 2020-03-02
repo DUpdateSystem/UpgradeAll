@@ -57,7 +57,7 @@ class AppInfoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         editImageView.setOnClickListener {
-            MainActivity.bundleApp = app
+            AppSettingFragment.bundleApp = app
             MainActivity.navigationItemId.value = R.id.appSettingFragment
         }
     }
@@ -91,10 +91,10 @@ class AppInfoFragment : Fragment() {
     }
 
     private fun checkAppInfo() {
-        MainActivity.bundleApp?.run {
+        bundleApp?.run {
             app = this
             initUi()
-        } ?: activity?.onBackPressed()
+        } ?: if (!::app.isLateinit) activity?.onBackPressed()
         engine = app.engine
     }
 
@@ -282,5 +282,14 @@ class AppInfoFragment : Fragment() {
                     View.VISIBLE
                 else View.GONE
         loadVersioningPopupMenu()
+    }
+
+    companion object {
+        internal var bundleApp: App? = null
+            get() {
+                val app = field
+                field = null
+                return app
+            }
     }
 }

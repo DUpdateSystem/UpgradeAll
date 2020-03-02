@@ -19,7 +19,7 @@ object Log {
     }
 
     @net.xzos.dupdatesystem.core.system_api.annotations.LogApi.printLog
-    fun printLog(logItemData: LogItemData) {
+    private fun printLog(logItemData: LogItemData) {
         val tag = logItemData.tag
         val msg = logItemData.msg
         when (logItemData.logLevel) {
@@ -28,7 +28,6 @@ object Log {
             INFO -> Log.i(tag, msg)
             WARN -> Log.w(tag, msg)
             ERROR -> Log.e(tag, msg)
-
         }
     }
 

@@ -24,6 +24,7 @@ import net.xzos.dupdatesystem.core.server_manager.module.app.App
 import net.xzos.dupdatesystem.core.server_manager.module.app.Updater
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
+import net.xzos.upgradeall.ui.viewmodels.fragment.AppInfoFragment
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListPageViewModel
@@ -53,7 +54,7 @@ class AppItemAdapter(private val appListPageViewModel: AppListPageViewModel,
         holder.itemCardView.setOnClickListener {
             val app = getItemCardView(holder).extraData.app
             if (app is App) {
-                MainActivity.bundleApp = app
+                AppInfoFragment.bundleApp = app
                 MainActivity.navigationItemId.value = R.id.appInfoFragment
             }
         }
@@ -147,7 +148,7 @@ class AppItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                 IconPalette.loadHubIconView(
                         holder.appIconImageView,
                         HubDatabaseManager.getDatabase(
-                                this.appInfo.api_uuid
+                                this.appInfo.apiUuid
                         )?.cloudHubConfig?.info?.hubIconUrl
                 )
             }
