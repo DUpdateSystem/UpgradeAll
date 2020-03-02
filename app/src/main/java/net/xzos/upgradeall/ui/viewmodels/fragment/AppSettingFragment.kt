@@ -16,10 +16,7 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.fragment_apps_setting.*
 import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.simple_textview.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.xzos.dupdatesystem.core.data.database.AppDatabase
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
@@ -38,6 +35,8 @@ import java.util.*
 
 
 class AppSettingFragment : Fragment() {
+
+    private var searchUtils = SearchUtils()
 
     // 获取可能来自修改设置项的请求
     private val app = bundleApp
@@ -91,24 +90,29 @@ class AppSettingFragment : Fragment() {
         }
         editTarget.threshold = 1
         editTarget.addTextChangedListener {
-            if (targetCheckerApi != API_TYPE_SHELL && targetCheckerApi != API_TYPE_SHELL_ROOT)
+            if (targetCheckerApi != API_TYPE_SHELL && targetCheckerApi != API_TYPE_SHELL_ROOT) {
+                val text = it.toString()
                 GlobalScope.launch {
-                    val searchInfoList = SearchUtils().search(editTarget.text.toString())
-                    if (this@AppSettingFragment.isVisible) {
-                        launch(Dispatchers.Main) {
+                    val searchInfoList = searchUtils.search(text)
+                    if (text.isNotBlank() && this@AppSettingFragment.isVisible) {
+                        withContext(Dispatchers.Main) {
                             if (searchInfoList.isNotEmpty()) {
                                 editTarget.setAdapter(SearchResultItemAdapter(requireContext(), searchInfoList))
                                 editTarget.showDropDown()
-                            } else if (editTarget.text.isNotBlank())
-                                Toast.makeText(context, R.string.no_completion_results, Toast.LENGTH_SHORT).show()
+                            } else if (editTarget.text.toString() == text) {
+                                val toastText = context?.getText(R.string.no_completion_results)
+                                Toast.makeText(context, "${toastText}: $text", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 }
+            }
         }
     }
 
     override fun onResume() {
         super.onResume()
+        searchUtils = SearchUtils()  // 清除搜索缓存
         activity?.let {
             it as AppCompatActivity
             it.toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.taupe))
