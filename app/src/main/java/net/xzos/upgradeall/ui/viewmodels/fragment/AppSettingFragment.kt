@@ -99,7 +99,8 @@ class AppSettingFragment : Fragment() {
                             if (searchInfoList.isNotEmpty()) {
                                 editTarget.setAdapter(SearchResultItemAdapter(requireContext(), searchInfoList))
                                 editTarget.showDropDown()
-                            } else Toast.makeText(context, R.string.no_completion_results, Toast.LENGTH_SHORT).show()
+                            } else if (editTarget.text.isNotBlank())
+                                Toast.makeText(context, R.string.no_completion_results, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }

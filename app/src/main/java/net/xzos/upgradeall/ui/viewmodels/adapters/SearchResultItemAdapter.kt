@@ -15,9 +15,11 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.utils.IconInfo
 import net.xzos.upgradeall.utils.IconPalette
 
-class SearchResultItemAdapter(context: Context, searchInfoList: List<SearchUtils.SearchInfo>,
-                              private val resource: Int = R.layout.cardview_content) :
-        ArrayAdapter<SearchUtils.SearchInfo>(context, R.layout.cardview_content, searchInfoList) {
+
+class SearchResultItemAdapter(
+        context: Context, searchInfoList: List<SearchUtils.SearchInfo>,
+        private val resource: Int = R.layout.cardview_content
+) : ArrayAdapter<SearchUtils.SearchInfo>(context, R.layout.cardview_content, searchInfoList) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         return (convertView
