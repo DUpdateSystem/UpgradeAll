@@ -26,9 +26,7 @@ import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.Ta
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.core.data_manager.AppDatabaseManager
 import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
-import net.xzos.dupdatesystem.core.server_manager.AppManager
 import net.xzos.dupdatesystem.core.server_manager.module.app.App
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
@@ -42,7 +40,9 @@ import java.util.*
 class AppSettingFragment : Fragment() {
 
     // 获取可能来自修改设置项的请求
-    private var app = MainActivity.bundleApp
+    private val app = bundleApp
+    private var appInfo = app?.appInfo
+            ?: AppDatabase.newInstance()
 
     private val targetCheckerApi: String?
         get() = when (versionCheckSpinner.selectedItem.toString()) {
@@ -174,9 +174,8 @@ class AppSettingFragment : Fragment() {
                 launch(Dispatchers.Main) {
                     if (addRepoSuccess) {
                         // 提醒跟踪项详情页数据已刷新
-                        app?.run {
-                            MainActivity.bundleApp = AppManager.getSingleApp(this.appInfo.id)
-                        }
+                        if (app != null)
+                            AppInfoFragment.bundleApp = app
                         activity?.onBackPressed()  // 跳转主页面
                     } else
                         Toast.makeText(context, "添加失败", Toast.LENGTH_LONG).show()
@@ -192,10 +191,10 @@ class AppSettingFragment : Fragment() {
 
     private fun setSettingItem() {
         // 如果是设置修改请求，设置预置设置项
-        app?.appInfo?.run {
+        appInfo.run {
             editName.setText(this.name)
             editUrl.setText(this.url)
-            val apiUuid = this.api_uuid
+            val apiUuid = this.apiUuid
             val spinnerIndex = apiSpinnerList.indexOf(apiUuid)
             if (spinnerIndex != -1) apiSpinner.setSelection(spinnerIndex)
             val versionCheckerGson = this.targetChecker
@@ -211,24 +210,22 @@ class AppSettingFragment : Fragment() {
         }
     }
 
-    private fun addRepoDatabase(name: String, apiNum: Int, URL: String,
-                                targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean
+    private fun addRepoDatabase(
+            name: String, apiNum: Int, URL: String,
+            targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean
     ): Boolean {
         // 获取数据库类
         val apiUuid = apiSpinnerList[apiNum]
-        val appDatabase =
-                AppDatabaseManager.getDatabase(app?.appInfo?.id)
-                        ?: AppDatabase.newInstance()
-        appDatabase.run {
-            this.api_uuid = apiUuid
+        appInfo.run {
+            this.apiUuid = apiUuid
             this.url = URL
             this.targetChecker = targetChecker
             // 数据处理
             this.name = if (name.isNotBlank()) name
-            else runBlocking { App(this@run).engine.getDefaultName() }
+            else runBlocking(Dispatchers.IO) { App(this@run).engine.getDefaultName() }
                     ?: return false
         }
-        return appDatabase.save()
+        return appInfo.save()
     }
 
     private fun renewApiJsonObject(): Array<String> {
@@ -253,5 +250,12 @@ class AppSettingFragment : Fragment() {
         private val logObjectTag = ObjectTag("UI", TAG)
 
         private val apiSpinnerList = ArrayList<String>()
+
+        internal var bundleApp: App? = null
+            get() {
+                val app = field
+                field = null
+                return app
+            }
     }
 }

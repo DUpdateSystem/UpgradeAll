@@ -62,6 +62,10 @@ open class AppListContainerFragment : Fragment() {
                                 }
                             })
                 }
+    }
+
+    override fun onResume() {
+        super.onResume()
         renewPage()
     }
 
@@ -80,10 +84,7 @@ open class AppListContainerFragment : Fragment() {
                 placeholderLayout.visibility = View.GONE
                 renewCardView()
             }
-
         })
-        updateOverviewLayout.visibility = View.VISIBLE
-        placeholderLayout.visibility = View.GONE
     }
 
     private fun renewCardView() {

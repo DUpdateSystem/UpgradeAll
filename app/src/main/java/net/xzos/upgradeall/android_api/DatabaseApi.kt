@@ -48,7 +48,7 @@ object DatabaseApi : DatabaseApi {
         database.run {
             name = appDatabase.name
             url = appDatabase.url
-            api_uuid = appDatabase.api_uuid
+            api_uuid = appDatabase.apiUuid
             type = appDatabase.type
             targetChecker = appDatabase.targetChecker
             extraData = appDatabase.extraData

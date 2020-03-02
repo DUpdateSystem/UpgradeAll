@@ -28,7 +28,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.core.server_manager.module.app.App
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.server.update.UpdateManager
 import net.xzos.upgradeall.utils.FileUtil.NAV_IMAGE_FILE
@@ -149,12 +148,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         setToolbarByNavigation(R.id.hubCloudFragment)
                     }
                     R.id.appInfoFragment -> {
-                        bundleApp.also {
-                            bundleApp = it
-                        }?.let {
-                            if (currentDestination == R.id.appListFragment) {
-                                this.navigate(R.id.action_appListFragment_to_appInfoFragment)
-                            }
+                        if (currentDestination == R.id.appListFragment) {
+                            this.navigate(R.id.action_appListFragment_to_appInfoFragment)
                         }
                     }
                     R.id.appSettingFragment -> {
@@ -163,11 +158,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 this.navigate(R.id.action_appListFragment_to_appSettingFragment)
                             }
                             R.id.appInfoFragment -> {
-                                bundleApp.also {
-                                    bundleApp = it
-                                }?.let {
-                                    this.navigate(R.id.action_appInfoFragment_to_appSettingFragment)
-                                }
+                                this.navigate(R.id.action_appInfoFragment_to_appSettingFragment)
                             }
                         }
                     }
@@ -253,12 +244,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // Fragment 跳转
         internal lateinit var navigationItemId: MutableLiveData<Int>
-        internal var bundleApp: App? = null
-            get() {
-                val app = field
-                field = null
-                return app
-            }
 
         internal lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     }
