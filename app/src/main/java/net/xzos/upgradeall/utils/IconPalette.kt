@@ -20,6 +20,8 @@ import java.io.File
 
 object IconPalette {
 
+    private val jobMap = mutableMapOf<ImageView, Job>()
+
     val fabAddIcon = getPlus(getColorInt(R.color.light_gray))
 
     val fabDownloadIcon = getDownload(getColorInt(R.color.white))
@@ -65,10 +67,13 @@ object IconPalette {
         }.drawable
     }
 
-    fun loadHubIconView(iconImageView: ImageView,
-                        hubIconUrl: String? = null,
-                        file: File? = null,
-                        hubIconDrawableId: Int? = null) =
+    fun loadHubIconView(
+            iconImageView: ImageView,
+            hubIconUrl: String? = null,
+            file: File? = null,
+            hubIconDrawableId: Int? = null
+    ) {
+        GlobalScope.launch {
             loadIconView(iconImageView,
                     IconInfo(
                             url = hubIconUrl,
@@ -76,21 +81,29 @@ object IconPalette {
                                     ?: R.drawable.ic_android_placeholder),
                             file = file)
             )
+        }
+    }
 
-    fun loadAppIconView(iconImageView: ImageView,
-                        iconInfo: IconInfo? = null,
-                        app: App? = null) =
+    fun loadAppIconView(
+            iconImageView: ImageView,
+            iconInfo: IconInfo? = null,
+            app: App? = null
+    ) {
+        GlobalScope.launch {
             loadIconView(iconImageView,
                     (iconInfo ?: IconInfo(
-                            url = runBlocking { app?.engine?.getAppIconUrl() },
+                            url = app?.engine?.getAppIconUrl(),
                             app_package = app?.appInfo?.targetChecker?.extraString
                     )).also {
                         it.drawable = context.getDrawable(R.drawable.ic_android_placeholder)
                     }
             )
+        }
+    }
 
-    private fun loadIconView(iconImageView: ImageView, iconInfo: IconInfo) {
-        GlobalScope.launch {
+    private suspend fun loadIconView(iconImageView: ImageView, iconInfo: IconInfo) {
+        jobMap[iconImageView]?.cancelAndJoin()
+        jobMap[iconImageView] = GlobalScope.launch(Dispatchers.IO) {
             val (url, drawable, appModuleName, file) = iconInfo
             val activity = getActivity(iconImageView)
             if (activity?.isFinishing != true) {
@@ -111,6 +124,7 @@ object IconPalette {
                     }
                 }
             }
+            jobMap.remove(iconImageView)
         }
     }
 
