@@ -3,7 +3,8 @@ package net.xzos.upgradeall.android_api
 import android.content.pm.PackageManager
 import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.dupdatesystem.core.data.config.AppType
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
@@ -44,7 +45,7 @@ object IoApi : IoApi {
                         |下载参数: URL: $url, FileName: $fileName, headers: $headers
                         |ERROR_MESSAGE: $e""".trimIndent())
                 ariaDownloader.cancel()
-                runBlocking(Dispatchers.Main) {
+                GlobalScope.launch(Dispatchers.Main) {
                     Toast.makeText(context, "下载失败: $fileName", Toast.LENGTH_SHORT).show()
                 }
             }

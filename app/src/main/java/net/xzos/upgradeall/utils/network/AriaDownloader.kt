@@ -29,7 +29,7 @@ import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DEL
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_CANCEL
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_CONTINUE
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_PAUSE
-import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_RETRY
+import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_RESTART
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOADER_ID
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOAD_CONTROL
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.INSTALL_APK
@@ -74,8 +74,8 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
         Aria.download(this).load(url).stop()
     }
 
-    fun retry() {
-        Aria.download(this).load(url).reTry()
+    fun restart() {
+        Aria.download(this).load(url).reStart()
     }
 
     fun cancel() {
@@ -91,6 +91,13 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
 
     fun install() {
         ApkInstaller(context).installApplication(downloadFile)
+    }
+
+    @SuppressLint("RestrictedApi")  // 修复 mActions 无法操作
+    private fun NotificationCompat.Builder.clearActions(): NotificationCompat.Builder {
+        return this.apply {
+            mActions.clear()
+        }
     }
 
     private fun startDownloadTask(fileName: String, headers: Map<String, String>): Pair<Boolean, File> {
@@ -146,7 +153,8 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
 
     private fun startDownloadNotification(file: File) {
         NotificationManagerCompat.from(context).apply {
-            builder.setContentTitle("应用下载: ${file.name}")
+            builder.clearActions()
+                    .setContentTitle("应用下载: ${file.name}")
                     .setContentText("正在准备")
                     .setSmallIcon(android.R.drawable.stat_sys_download)
                     .setProgress(0, PROGRESS_MAX, true)
@@ -167,7 +175,8 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
             val progressCurrent: Int = task.percent
             val speed = task.convertSpeed
             NotificationManagerCompat.from(context).apply {
-                builder.setContentTitle("应用下载: ${File(task.filePath).name}")
+                builder.clearActions()
+                        .setContentTitle("应用下载: ${File(task.filePath).name}")
                         .setContentText(speed)
                         .setProgress(PROGRESS_MAX, progressCurrent, false)
                         .setSmallIcon(android.R.drawable.stat_sys_download)
@@ -200,7 +209,8 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
     fun taskStop(task: DownloadTask?) {
         if (task?.key == url) {
             NotificationManagerCompat.from(context).apply {
-                builder.setContentText("下载已暂停")
+                builder.clearActions()
+                        .setContentText("下载已暂停")
                         .setSmallIcon(android.R.drawable.stat_sys_download_done)
                         .addAction(android.R.drawable.ic_media_pause, "继续",
                                 getSnoozePendingIntent(DOWNLOAD_CONTINUE))
@@ -216,10 +226,11 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
     fun taskFail(task: DownloadTask?) {
         if (task?.key == url) {
             NotificationManagerCompat.from(context).apply {
-                builder.setContentText("下载失败，点击重试")
+                builder.clearActions()
+                        .setContentText("下载失败，点击重试")
                         .setSmallIcon(android.R.drawable.stat_sys_download_done)
                         .setProgress(0, 0, false)
-                        .setContentIntent(getSnoozePendingIntent(DOWNLOAD_RETRY))
+                        .setContentIntent(getSnoozePendingIntent(DOWNLOAD_RESTART))
                         .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
                                 getSnoozePendingIntent(DOWNLOAD_CANCEL))
                         .setDeleteIntent(getSnoozePendingIntent(DOWNLOAD_CANCEL))
@@ -235,7 +246,7 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
             val file = File(task.filePath)
             val contentText = "文件路径: ${task.filePath}"
             NotificationManagerCompat.from(context).apply {
-                builder.run {
+                builder.clearActions().run {
                     setContentTitle("下载完成: ${file.name}")
                     setContentText(contentText)
                     setStyle(NotificationCompat.BigTextStyle()
@@ -342,7 +353,7 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
         AriaDownloader.getDownload(downloaderId)?.run {
             when (intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)) {
                 DOWNLOAD_CANCEL -> this.cancel()
-                DOWNLOAD_RETRY -> this.retry()
+                DOWNLOAD_RESTART -> this.restart()
                 DOWNLOAD_PAUSE -> this.stop()
                 DOWNLOAD_CONTINUE -> this.resume()
                 INSTALL_APK -> this.install()
@@ -360,7 +371,7 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
 
         internal const val EXTRA_IDENTIFIER_DOWNLOAD_CONTROL = "DOWNLOAD_CONTROL"
         internal const val DOWNLOAD_CANCEL = 1
-        internal const val DOWNLOAD_RETRY = 2
+        internal const val DOWNLOAD_RESTART = 2
         internal const val DOWNLOAD_PAUSE = 3
         internal const val DOWNLOAD_CONTINUE = 4
         internal const val INSTALL_APK = 11
