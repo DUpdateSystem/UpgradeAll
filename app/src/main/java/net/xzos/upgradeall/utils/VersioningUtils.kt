@@ -1,7 +1,11 @@
 package net.xzos.upgradeall.utils
 
-import android.annotation.SuppressLint
+import net.xzos.dupdatesystem.core.data.config.AppConfig
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
+import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
+import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_MAGISK_MODULE
+import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL
+import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.upgradeall.application.MyApplication
 
 
@@ -21,12 +25,12 @@ object VersioningUtils {
                     val shellCommand: String? = targetChecker?.extraString
 
                     if (shellCommand != null)
-                        @SuppressLint("DefaultLocale")
-                        when (versionCheckerApi.toLowerCase()) {
-                            "app_package" -> version = getAppVersion()
-                            "magisk_module" -> version = getMagiskModuleVersion()
-                            "shell" -> version = MiscellaneousUtils.runShellCommand(shellCommand)?.getStdout()
-                            "shell_root" -> version = MiscellaneousUtils.runShellCommand(shellCommand, su = true)?.getStdout()
+                        version = when (versionCheckerApi.toLowerCase(AppConfig.locale)) {
+                            API_TYPE_APP_PACKAGE -> getAppVersion()
+                            API_TYPE_MAGISK_MODULE -> getMagiskModuleVersion()
+                            API_TYPE_SHELL -> MiscellaneousUtils.runShellCommand(shellCommand)?.getStdout()
+                            API_TYPE_SHELL_ROOT -> MiscellaneousUtils.runShellCommand(shellCommand, su = true)?.getStdout()
+                            else -> null
                         }
                 }
                 return version

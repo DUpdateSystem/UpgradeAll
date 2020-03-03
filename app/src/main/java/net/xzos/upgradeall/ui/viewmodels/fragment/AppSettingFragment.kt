@@ -21,6 +21,7 @@ import kotlinx.coroutines.sync.Mutex
 import net.xzos.dupdatesystem.core.data.database.AppDatabase
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
+import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_MAGISK_MODULE
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
@@ -49,7 +50,7 @@ class AppSettingFragment : Fragment() {
     private val targetCheckerApi: String?
         get() = when (versionCheckSpinner.selectedItem.toString()) {
             "APP 版本" -> API_TYPE_APP_PACKAGE
-            "Magisk 模块" -> API_TYPE_APP_PACKAGE
+            "Magisk 模块" -> API_TYPE_MAGISK_MODULE
             "自定义 Shell 命令" -> API_TYPE_SHELL
             "自定义 Shell 命令（ROOT）" -> API_TYPE_SHELL_ROOT
             else -> null
