@@ -119,9 +119,10 @@ object IconPalette {
                     val viewTarget = Glide.with(iconImageView).load(model)
                             .diskCacheStrategy(DiskCacheStrategy.NONE)
                             .skipMemoryCache(true)
-                    withContext(Dispatchers.Main) {
-                        viewTarget.into(iconImageView)
-                    }
+                    if (isActive)
+                        withContext(Dispatchers.Main) {
+                            viewTarget.into(iconImageView)
+                        }
                 }
             }
             jobMap.remove(iconImageView)
