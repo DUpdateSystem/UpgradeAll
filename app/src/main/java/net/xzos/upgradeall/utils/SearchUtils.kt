@@ -12,23 +12,16 @@ import net.xzos.upgradeall.application.MyApplication
 
 class SearchUtils {
 
-    private var searchUtils: SearchUtils? = null
+    private var searchUtils: SearchUtils = SearchUtils(initSearch())
 
     suspend fun search(searchString: String): List<SearchUtils.SearchInfo> {
-        if (searchUtils == null) {
-            searchUtils = SearchUtils(initSearch(searchString))
-        }
-        return searchUtils?.search(searchString) ?: listOf()
+        return searchUtils.search(searchString)
     }
 
-    private fun initSearch(searchString: String): List<SearchUtils.SearchInfo> {
+    private fun initSearch(): List<SearchUtils.SearchInfo> {
         return listOf<SearchUtils.SearchInfo>()
-                .plus(AppPackageMatchUtils.search(searchString)
-                        .map { SearchUtils.SearchInfo(AppType.androidApp, it) }
-                )
-                .plus(MagiskModuleMatchUtils.search(searchString)
-                        .map { SearchUtils.SearchInfo(AppType.androidMagiskModule, it) }
-                ).sortedByDescending { it.matchInfo.getMaxPoint() }
+                .plus(AppPackageMatchUtils.matchInfoList)
+                .plus(MagiskModuleMatchUtils.matchInfoList)
     }
 }
 
@@ -69,22 +62,20 @@ private object AppPackageMatchUtils {
     private val packages: List<ApplicationInfo>
         get() = MyApplication.context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
 
-    fun search(searchString: String): List<StringMatchUtils.MatchInfo> {
-        val matchAppInfoList = mutableListOf<StringMatchUtils.MatchInfo>()
-        for (packageInfo in packages) {
-            val appName = MyApplication.context.packageManager.getApplicationLabel(packageInfo)
-            val matchList = StringMatchUtils.match(
-                    searchString,
-                    listOf(appName, packageInfo.packageName)
-            )
-            if (matchList.isNotEmpty())
-                matchAppInfoList.add(
-                        StringMatchUtils.MatchInfo(packageInfo.packageName, appName.toString(), matchList)
-                )
-        }
-        return matchAppInfoList
-    }
+    internal val matchInfoList: List<SearchUtils.SearchInfo>
+        get() {
+            return packages.map {
+                val appName = MyApplication.context.packageManager.getApplicationLabel(it)
 
+                SearchUtils.SearchInfo(
+                        AppType.androidApp,
+                        StringMatchUtils.MatchInfo(it.packageName, appName.toString(), listOf(
+                                StringMatchUtils.MatchString(appName),
+                                StringMatchUtils.MatchString(it.packageName)
+                        ))
+                )
+            }
+        }
 }
 
 private object MagiskModuleMatchUtils {
@@ -99,25 +90,21 @@ private object MagiskModuleMatchUtils {
             return list
         }
 
-    fun search(searchString: String): List<StringMatchUtils.MatchInfo> {
-        val matchAppInfoList = mutableListOf<StringMatchUtils.MatchInfo>()
-        for (moduleInfo in moduleInfoList) {
-            val matchList = StringMatchUtils.match(
-                    searchString,
-                    listOf(
-                            moduleInfo.id,
-                            moduleInfo.name,
-                            moduleInfo.author,
-                            moduleInfo.description
-                    )
-            )
-            if (matchList.isNotEmpty())
-                matchAppInfoList.add(
-                        StringMatchUtils.MatchInfo(moduleInfo.moduleFolderName, moduleInfo.name, matchList)
+    internal val matchInfoList: List<SearchUtils.SearchInfo>
+        get() {
+            return moduleInfoList.map {
+                val searchInfo = SearchUtils.SearchInfo(
+                        AppType.androidMagiskModule,
+                        StringMatchUtils.MatchInfo(it.moduleFolderName, it.name, listOf(
+                                StringMatchUtils.MatchString(it.id),
+                                StringMatchUtils.MatchString(it.name),
+                                StringMatchUtils.MatchString(it.author),
+                                StringMatchUtils.MatchString(it.description)
+                        ))
                 )
+                searchInfo
+            }
         }
-        return matchAppInfoList
-    }
 
     private fun getModuleInfo(moduleFolderName: String): ModuleInfo {
         val prop = MiscellaneousUtils.parsePropertiesString(

@@ -17,6 +17,7 @@ import kotlinx.android.synthetic.main.fragment_apps_setting.*
 import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.simple_textview.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
 import net.xzos.dupdatesystem.core.data.database.AppDatabase
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
@@ -35,6 +36,8 @@ import java.util.*
 
 
 class AppSettingFragment : Fragment() {
+
+    private val mutex = Mutex()
 
     private var searchUtils = SearchUtils()
 
