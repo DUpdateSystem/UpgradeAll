@@ -445,7 +445,7 @@ class HubDebugActivity : AppCompatActivity() {
         if (hubConfigUri == null)
             Toast.makeText(this, "请选择配置文件，若无配置文件，你可以长按文件选择框创建新文件", Toast.LENGTH_LONG).show()
         else if (hubConfigUri?.path != null && hubConfigGson != null) {
-            val writeSuccess: Boolean = FileUtil.writeTextFromUri(hubConfigUri!!, gsonText)
+            val writeSuccess: Boolean = FileUtil.writeToUri(hubConfigUri!!, gsonText)
             if (writeSuccess) {
                 Toast.makeText(this, "文件保存成功", Toast.LENGTH_LONG).show()
             } else

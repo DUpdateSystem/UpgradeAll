@@ -2,25 +2,25 @@ package net.xzos.upgradeall.utils
 
 import android.Manifest
 import android.app.Activity
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import net.xzos.dupdatesystem.core.data.config.AppConfig
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
 import net.xzos.dupdatesystem.core.log.Log
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import java.io.*
 import java.util.*
+
 
 object FileUtil {
 
@@ -29,9 +29,9 @@ object FileUtil {
 
     internal val UI_CONFIG_FILE = File(context.filesDir, "ui.json")
     private val IMAGE_DIR = File(context.filesDir, "images")
-    internal val UPDATE_TAB_IMAGE_NAME = "update_tab.png"
-    internal val USER_STAR_TAB_IMAGE_NAME = "user_star_tab.png"
-    internal val ALL_APP_TAB_IMAGE_NAME = "all_app_tab.png"
+    internal const val UPDATE_TAB_IMAGE_NAME = "update_tab.png"
+    internal const val USER_STAR_TAB_IMAGE_NAME = "user_star_tab.png"
+    internal const val ALL_APP_TAB_IMAGE_NAME = "all_app_tab.png"
     internal val GROUP_IMAGE_DIR = File(IMAGE_DIR, "groups")
     internal val NAV_IMAGE_FILE = File(IMAGE_DIR, "nav_image.png")
     internal val IMAGE_CACHE_FILE = File(context.externalCacheDir, "_cache_image.png")
@@ -73,14 +73,44 @@ object FileUtil {
         activity.startActivityForResult(intent, READ_REQUEST_CODE)
     }
 
-    fun createFile(activity: Activity, WRITE_REQUEST_CODE: Int, mimeType: String, fileName: String) {
+    /**
+     * 通过文件存储框架新建并获取文件
+     */
+    fun createFile(activity: Activity, WRITE_REQUEST_CODE: Int, mimeType: String?, fileName: String) {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
 
         intent.addCategory(Intent.CATEGORY_OPENABLE)
 
-        intent.type = mimeType
+        if (mimeType != null)
+            intent.type = mimeType
         intent.putExtra(Intent.EXTRA_TITLE, fileName)
         activity.startActivityForResult(intent, WRITE_REQUEST_CODE)
+    }
+
+    /**
+     * 通过文件存储框架获取文件夹
+     */
+    fun getFolder(activity: Activity, OPEN_REQUEST_CODE: Int) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "*/*"
+
+        activity.startActivityForResult(intent, OPEN_REQUEST_CODE)
+    }
+
+    /**
+     * 通过 URI 获取文件类型 MimeType 信息
+     */
+    fun getMimeTypeByUri(context: Context, uri: Uri): String {
+        return if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
+            val cr: ContentResolver = context.contentResolver
+            cr.getType(uri)
+        } else {
+            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                    .toString())
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                    fileExtension.toLowerCase(AppConfig.locale))
+        } ?: "*/*"
     }
 
     fun uriToPath(uri: Uri): String {
@@ -120,22 +150,31 @@ object FileUtil {
         return null
     }
 
-    fun writeTextFromUri(uri: Uri, text: String): Boolean {
+    fun writeToUri(uri: Uri, text: String? = null, byteArray: ByteArray? = null): Boolean {
         var writeSuccess = false
-        try {
-            val outputStream = context.contentResolver.openOutputStream(uri)
-            if (outputStream != null) {
-                val writer = BufferedWriter(OutputStreamWriter(
-                        outputStream))
-                writer.write(text)
-                writer.close()
-                outputStream.close()
-                writeSuccess = true
+        if (text != null || byteArray != null)
+            try {
+                val outputStream = context.contentResolver.openOutputStream(uri)
+                if (outputStream != null) {
+                    if (text != null) {
+                        val writer = BufferedWriter(OutputStreamWriter(
+                                outputStream))
+                        writer.write(text)
+                        writer.close()
+                    }
+                    if (byteArray != null) {
+                        outputStream.write(byteArray)
+                    }
+                    outputStream.close()
+                    writeSuccess = true
+                }
+            } catch (e: IOException) {
+                Log.e(logObjectTag, TAG, """
+                writeTextFromUri: 写入文件异常: 
+                ERROR_MESSAGE: $e
+                URI_PATH: ${uri.path}
+            """.trimIndent())
             }
-        } catch (e: IOException) {
-            Log.d(logObjectTag, TAG, "writeTextFromUri: " + uri.path!!)
-            Log.e(logObjectTag, TAG, "writeTextFromUri: 写入文件异常: ERROR_MESSAGE: $e")
-        }
 
         return writeSuccess
     }
