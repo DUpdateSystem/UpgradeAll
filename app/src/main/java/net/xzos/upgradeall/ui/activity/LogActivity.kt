@@ -1,32 +1,28 @@
 package net.xzos.upgradeall.ui.activity
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Observer
 import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
 import kotlinx.android.synthetic.main.activity_log.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
 import net.xzos.dupdatesystem.core.log.Log
 import net.xzos.dupdatesystem.core.log.LogDataProxy
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.server.log.LogLiveData
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.LogTabSectionsPagerAdapter
-import net.xzos.upgradeall.utils.FileUtil
 
 class LogActivity : AppCompatActivity() {
 
     private var logSort = "Core"
-    private var logFileString: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,28 +36,6 @@ class LogActivity : AppCompatActivity() {
 
         setFab()
         setViewPage(logSort)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == PERMISSIONS_REQUEST_WRITE_CONTACTS) {
-            if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "导出日志文件需要读写本地文件", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && data != null) {
-            val uri = data.data
-            if (uri != null && logFileString != null) {
-                if (FileUtil.writeTextFromUri(uri, logFileString!!)) {
-                    Toast.makeText(this, "已导出日志至", Toast.LENGTH_LONG).show()
-                } else
-                    Toast.makeText(this, "日志导出失败", Toast.LENGTH_LONG).show()
-            }
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -109,17 +83,21 @@ class LogActivity : AppCompatActivity() {
                 popupMenu.show()
                 //设置item的点击事件
                 popupMenu.setOnMenuItemClickListener { popItem ->
-                    var logString: String? = null
-                    when (popItem.itemId) {
+                    val logString = when (popItem.itemId) {
                         // 导出当前分类日志
-                        R.id.log_share_sort -> logString = LogDataProxy.getLogStringBySort(logSort)
+                        R.id.log_share_sort -> LogDataProxy.getLogStringBySort(logSort)
                         // 导出全部日志
-                        R.id.log_share_all -> logString = LogDataProxy.logAllToString
+                        R.id.log_share_all -> LogDataProxy.logAllToString
+                        else -> null
                     }
                     if (logString != null) {
                         Log.d(objectTag, TAG, "已获取日志")
-                        FileUtil.createFile(this, WRITE_LOG_REQUEST_CODE, "text/plain", "Log.txt")
-                        logFileString = logString
+                        GlobalScope.launch {
+                            SaveFileActivity.newInstance(
+                                    "Log.txt", logString.toByteArray(),
+                                    "text/plain", this@LogActivity
+                            )
+                        }
                     }
                     true
                 }
@@ -161,8 +139,5 @@ class LogActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "LogActivity"
         private val objectTag = ObjectTag("UI", TAG)
-
-        private const val PERMISSIONS_REQUEST_WRITE_CONTACTS = 1
-        private const val WRITE_LOG_REQUEST_CODE = 2
     }
 }

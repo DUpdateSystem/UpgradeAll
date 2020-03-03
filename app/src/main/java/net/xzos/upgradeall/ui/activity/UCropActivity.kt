@@ -20,7 +20,7 @@ class UCropActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_ucrop)
+        setContentView(R.layout.activity_blank_wait)
         readPic()
     }
 
@@ -77,11 +77,16 @@ class UCropActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<String>, grantResults: IntArray
+    ) {
         if (requestCode == PERMISSIONS_REQUEST_WRITE_CONTACTS) {
             if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "获取图片需要读写本地文件", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "获取图片需要读写本地文件权限", Toast.LENGTH_LONG).show()
+                finish()
+            } else {
+                readPic()
             }
         }
     }
@@ -104,6 +109,7 @@ class UCropActivity : AppCompatActivity() {
 
         suspend fun newInstance(x: Float, y: Float, file: File, context: Context): Boolean {
             mutex.lock()
+            isSuccess = false
             FILE = file
             this.x = x
             this.y = y
