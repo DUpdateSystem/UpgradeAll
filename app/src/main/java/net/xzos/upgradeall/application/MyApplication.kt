@@ -7,6 +7,7 @@ import com.arialyy.aria.core.Aria
 import net.xzos.upgradeall.android_api.IoApi
 import net.xzos.upgradeall.android_api.Log
 import net.xzos.upgradeall.android_api.DatabaseApi
+import net.xzos.upgradeall.server.update.UpdateManager
 import org.jetbrains.annotations.Contract
 import org.litepal.LitePal
 import java.io.File
@@ -32,6 +33,7 @@ class MyApplication : Application() {
         DatabaseApi
         Log
         IoApi
+        UpdateManager
     }
 
     companion object {

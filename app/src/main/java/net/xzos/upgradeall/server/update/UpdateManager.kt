@@ -12,16 +12,11 @@ import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import net.xzos.dupdatesystem.core.data.config.AppConfig
-import net.xzos.dupdatesystem.core.server_manager.AppManager
-import net.xzos.dupdatesystem.core.server_manager.module.app.App
-import net.xzos.dupdatesystem.core.server_manager.module.app.Updater
+import net.xzos.dupdatesystem.core.server_manager.UpdateManager
+import net.xzos.dupdatesystem.core.system_api.annotations.UpdateManagerApi
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.ui.activity.MainActivity
@@ -30,24 +25,6 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 
 object UpdateManager {
-    private val apps: List<App>
-        get() = AppManager.apps
-    private val jobMap = hashMapOf<App, Job>()
-    private suspend fun finishJob(app: App) {
-        jobMapMutex.withLock {
-            jobMap.remove(app)
-            if (jobMap.isEmpty()) {
-                finishCheckUpdate()
-                if (flashMutex.isLocked) flashMutex.unlock()
-            } else updateStatusNotification()
-        }
-    }
-
-    private val jobMapMutex = Mutex()
-
-    private val flashMutex = Mutex()
-
-    private val needUpdateAppList = mutableListOf<App>()
     private const val CHANNEL_ID = "UpdateServiceNotification"
     private const val updateNotificationId = 0
 
@@ -61,49 +38,15 @@ object UpdateManager {
     init {
         UpdateServiceReceiver.initAlarms()
         createNotificationChannel()
+        UpdateManager.register(this)
     }
 
-    // 刷新所有软件并等待，返回需要更新的软件数量
-    suspend fun blockRenewAll(): List<App> {
-        if (!flashMutex.isLocked) {
-            // 尝试刷新全部软件
-            renewAll()
-        }
-        // 等待刷新完成
-        waitRenew()
-        return needUpdateAppList
-    }
-
-    private suspend fun waitRenew() {
-        flashMutex.lock()
-        flashMutex.unlock()
-    }
-
-    fun renewAll() {
-        GlobalScope.launch {
-            flashMutex.lock()
-            startUpdateNotification()
-            needUpdateAppList.clear()
-            for (appId in apps) {
-                startJob(appId)
-            }
-        }
-    }
-
-    private fun finishCheckUpdate() {
-        if (needUpdateAppList.isNotEmpty())
-            updateNotification(needUpdateAppList.size)
-        else
-            NotificationManagerCompat.from(context).cancel(updateNotificationId)
-    }
-
-    private fun startJob(app: App) {
-        jobMap[app] = GlobalScope.launch(Dispatchers.IO) {
-            when (Updater(app).getUpdateStatus()) {
-                Updater.APP_OUTDATED -> needUpdateAppList.add(app)
-                Updater.NETWORK_404 -> app.renew()
-            }
-            finishJob(app)
+    @UpdateManagerApi.updateFinished
+    private fun getNotify(allAppsNum: Long, finishedAppNum: Long, needUpdateAppNum: Long) {
+        if (finishedAppNum == allAppsNum) {
+            updateNotification(needUpdateAppNum)
+        } else {
+            updateStatusNotification(allAppsNum, finishedAppNum)
         }
     }
 
@@ -118,13 +61,12 @@ object UpdateManager {
         notificationNotify()
     }
 
-    private fun updateStatusNotification() {
-        val appNum = apps.size
-        val renewedNum = appNum - jobMap.size
+    private fun updateStatusNotification(allAppsNum: Long, finishedAppNum: Long) {
+        val progress = (finishedAppNum / allAppsNum).toInt() * 100
         NotificationManagerCompat.from(context).apply {
             builder.setContentTitle("检查更新中")
-                    .setContentText("后台任务: $renewedNum/$appNum")
-                    .setProgress(appNum, renewedNum, false)
+                    .setContentText("已完成: $finishedAppNum/$allAppsNum")
+                    .setProgress(100, progress, false)
                     // 如果运行正常，此处应该不可消除（
                     // 未知 bug，暂时允许用户消除通知
                     // TODO: 实现完整的后台更新后应再次确认此处
@@ -133,7 +75,7 @@ object UpdateManager {
         notificationNotify()
     }
 
-    private fun updateNotification(needUpdateAppNum: Int) {
+    private fun updateNotification(needUpdateAppNum: Long) {
         val resultIntent = Intent(context, MainActivity::class.java)
         val resultPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(resultIntent)
@@ -176,7 +118,9 @@ object UpdateManager {
 class UpdateServiceReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        UpdateManager.renewAll()
+        GlobalScope.launch {
+            UpdateManager.renewAll()
+        }
     }
 
     companion object {
