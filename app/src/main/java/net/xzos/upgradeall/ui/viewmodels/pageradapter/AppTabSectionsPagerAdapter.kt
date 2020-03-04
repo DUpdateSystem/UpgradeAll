@@ -21,10 +21,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.xzos.dupdatesystem.core.server_manager.UpdateManager
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data_manager.UIConfig
 import net.xzos.upgradeall.data_manager.UIConfig.Companion.uiConfig
-import net.xzos.upgradeall.server.update.UpdateManager
 import net.xzos.upgradeall.ui.activity.UCropActivity
 import net.xzos.upgradeall.ui.viewmodels.fragment.AppListPlaceholderFragment
 import net.xzos.upgradeall.utils.FileUtil
@@ -38,7 +38,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
 
     init {
         // 设置添加按钮自动弹出
-        editTabMode.observe(lifecycleOwner, Observer<Boolean> { editTabMode ->
+        editTabMode.observe(lifecycleOwner, Observer { editTabMode ->
             if (editTabMode) {
                 mTabIndexList = getAllTabIndexList()
                 notifyDataSetChanged()
@@ -73,7 +73,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
             withContext(Dispatchers.Main) {
                 loadingBar?.visibility = View.VISIBLE
             }
-            if (UpdateManager.blockRenewAll().isEmpty() && editTabMode.value == false) {
+            if (UpdateManager.renewAll().isEmpty() && editTabMode.value == false) {
                 withContext(Dispatchers.Main) {
                     removeTabPage(mTabIndexList.indexOf(UPDATE_PAGE_INDEX))
                 }
@@ -219,7 +219,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                         }
                         groupCardView.visibility = View.VISIBLE
                         addGroupCardView.visibility = View.GONE
-                        editTabMode.observe(lifecycleOwner, Observer<Boolean> { editTabMode ->
+                        editTabMode.observe(lifecycleOwner, Observer { editTabMode ->
                             editGroupCardView.visibility = if (editTabMode) View.VISIBLE else View.GONE
                         })
                     }

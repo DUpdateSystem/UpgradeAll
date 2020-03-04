@@ -17,6 +17,7 @@ import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.dupdatesystem.core.data_manager.AppDatabaseManager
 import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
 import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
@@ -201,11 +202,9 @@ class AppItemAdapter(private val appListPageViewModel: AppListPageViewModel,
         setUpdateStatus(holder, true)
         GlobalScope.launch {
             val updateStatus = app.getUpdateStatus()
-            launch(Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
                 when (updateStatus) {
-                    Updater.NETWORK_404 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error).also {
-                        app.renew()  // 刷新错误删除缓存数据
-                    }
+                    Updater.NETWORK_404 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error)
                     Updater.APP_LATEST -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_mark_circle)
                     Updater.APP_OUTDATED -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
                     Updater.APP_NO_LOCAL -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
