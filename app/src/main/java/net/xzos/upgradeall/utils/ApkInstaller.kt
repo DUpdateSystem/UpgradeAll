@@ -13,7 +13,18 @@ import java.io.File
 
 class ApkInstaller(private val context: Context) {
 
+    fun autoRenameFile(file: File): File {
+        var apkFile = file
+        if (apkFile.extension != "apk") {
+            apkFile = File(file.parent, file.name + ".apk")
+            file.renameTo(apkFile)
+        }
+        return apkFile
+    }
+
     fun installApplication(file: File) {
+        // 修复后缀名
+        val apkFile = autoRenameFile(file)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             try {
                 val m = StrictMode::class.java.getMethod("disableDeathOnFileUriExposure")
@@ -23,8 +34,8 @@ class ApkInstaller(private val context: Context) {
             }
         }
         val fileUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            FileProvider.getUriForFile(context, context.packageName + ".fileprovider", file)
-        else Uri.fromFile(file)
+            FileProvider.getUriForFile(context, context.packageName + ".fileprovider", apkFile)
+        else Uri.fromFile(apkFile)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!context.packageManager.canRequestPackageInstalls())
                 return

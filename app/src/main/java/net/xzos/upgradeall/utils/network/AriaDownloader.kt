@@ -257,17 +257,19 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
     @Download.onTaskComplete
     fun taskFinish(task: DownloadTask?) {
         if (task?.key == url) {
+            val apkInstaller = ApkInstaller(context)
             val file = File(task.filePath)
-            val contentText = "文件路径: ${task.filePath}"
+            downloadFile = apkInstaller.autoRenameFile(file)
+            val contentText = "文件路径: ${downloadFile.path}"
             NotificationManagerCompat.from(context).apply {
                 builder.clearActions().run {
-                    setContentTitle("下载完成: ${file.name}")
+                    setContentTitle("下载完成: ${downloadFile.name}")
                     setContentText(contentText)
                     setStyle(NotificationCompat.BigTextStyle()
                             .bigText(contentText))
                     setSmallIcon(android.R.drawable.stat_sys_download_done)
                     setProgress(0, 0, false)
-                    if (ApkInstaller(context).isApkFile(file)) {
+                    if (apkInstaller.isApkFile(downloadFile)) {
                         addAction(R.drawable.ic_check_mark_circle, "安装 APK 文件",
                                 getSnoozePendingIntent(INSTALL_APK))
                     }
