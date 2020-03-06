@@ -8,18 +8,22 @@ import android.os.Build
 import android.os.StrictMode
 import androidx.core.content.FileProvider
 import net.xzos.upgradeall.BuildConfig
+import net.xzos.upgradeall.application.MyApplication.Companion.context
 import java.io.File
 
 
 class ApkInstaller(private val context: Context) {
 
     fun autoRenameFile(file: File): File {
-        var apkFile = file
-        if (apkFile.extension != "apk") {
-            apkFile = File(file.parent, file.name + ".apk")
-            file.renameTo(apkFile)
+        if (file.isApkFile()) {
+            var apkFile = file
+            if (apkFile.extension != "apk") {
+                apkFile = File(file.parent, file.name + ".apk")
+                file.renameTo(apkFile)
+            }
+            return apkFile
         }
-        return apkFile
+        return file
     }
 
     fun installApplication(file: File) {
@@ -59,14 +63,14 @@ class ApkInstaller(private val context: Context) {
             Uri.fromFile(file)
         }
     }
+}
 
-    fun isApkFile(file: File): Boolean {
-        return try {
-            val pm = context.packageManager
-            val info = pm.getPackageArchiveInfo(file.path, PackageManager.GET_ACTIVITIES)
-            info != null
-        } catch (e: Exception) {
-            false
-        }
+fun File.isApkFile(): Boolean {
+    return try {
+        val pm = context.packageManager
+        val info = pm.getPackageArchiveInfo(this.path, PackageManager.GET_ACTIVITIES)
+        info != null
+    } catch (e: Exception) {
+        false
     }
 }

@@ -34,9 +34,15 @@ object FileUtil {
     internal const val ALL_APP_TAB_IMAGE_NAME = "all_app_tab.png"
     internal val GROUP_IMAGE_DIR = File(IMAGE_DIR, "groups")
     internal val NAV_IMAGE_FILE = File(IMAGE_DIR, "nav_image.png")
-    internal val IMAGE_CACHE_FILE = File(context.externalCacheDir, "_cache_image.png")
+    private val CACHE_DIR = context.externalCacheDir
+    internal val IMAGE_CACHE_FILE = File(CACHE_DIR, "_cache_image.png")
+    internal val DOWNLOAD_CACHE_DIR = File(CACHE_DIR, "Download")
 
-    fun clearCache(filePath: String) = File(context.externalCacheDir, filePath).deleteRecursively()
+    init {
+        clearCache()
+    }
+
+    fun clearCache() = context.externalCacheDir?.deleteRecursively()
 
     fun requestPermission(activity: Activity, PERMISSIONS_REQUEST_READ_CONTACTS: Int): Boolean {
         var havePermission = false

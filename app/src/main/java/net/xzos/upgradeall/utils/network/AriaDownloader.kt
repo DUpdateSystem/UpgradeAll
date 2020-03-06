@@ -27,6 +27,7 @@ import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.ui.activity.SaveFileActivity
 import net.xzos.upgradeall.utils.ApkInstaller
 import net.xzos.upgradeall.utils.FileUtil
+import net.xzos.upgradeall.utils.isApkFile
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.ACTION_SNOOZE
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DEL_TASK
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_CANCEL
@@ -269,7 +270,7 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
                             .bigText(contentText))
                     setSmallIcon(android.R.drawable.stat_sys_download_done)
                     setProgress(0, 0, false)
-                    if (apkInstaller.isApkFile(downloadFile)) {
+                    if (downloadFile.isApkFile()) {
                         addAction(R.drawable.ic_check_mark_circle, "安装 APK 文件",
                                 getSnoozePendingIntent(INSTALL_APK))
                     }
@@ -343,8 +344,7 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
 
         internal const val blockingTime: Long = 100
 
-        private const val downloadDirName = "Download"
-        private val downloadDir = File(context.externalCacheDir, downloadDirName)
+        private val downloadDir = FileUtil.DOWNLOAD_CACHE_DIR
 
         private val downloaderMap: HashMap<Int, AriaDownloader> = hashMapOf()
         internal fun getDownload(downloadId: Int): AriaDownloader? = downloaderMap[downloadId]

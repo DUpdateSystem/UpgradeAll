@@ -66,7 +66,7 @@ class UCropActivity : AppCompatActivity() {
         super.onDestroy()
         // 清除图片缓存
         if (FILE != cacheImageFile)
-            FileUtil.clearCache(cacheImageFile.name)
+            cacheImageFile.delete()
         // 运行完成，解锁
         if (mutex.isLocked) mutex.unlock()
     }
