@@ -4,9 +4,9 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import com.arialyy.aria.core.Aria
+import net.xzos.upgradeall.android_api.DatabaseApi
 import net.xzos.upgradeall.android_api.IoApi
 import net.xzos.upgradeall.android_api.Log
-import net.xzos.upgradeall.android_api.DatabaseApi
 import net.xzos.upgradeall.server.update.UpdateManager
 import org.jetbrains.annotations.Contract
 import org.litepal.LitePal
