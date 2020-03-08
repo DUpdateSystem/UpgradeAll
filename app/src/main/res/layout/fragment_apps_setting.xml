@@ -32,13 +32,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/name_input_layout"
+        android:id="@+id/hub_input_layout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
-        android:hint="@string/name"
+        android:hint="@string/app_hub"
         app:endIconCheckable="true"
         app:endIconContentDescription="@string/help"
         app:endIconDrawable="@drawable/ic_help"
@@ -46,6 +45,30 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView1">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editHub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/name_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/name"
+        app:endIconCheckable="true"
+        app:endIconContentDescription="@string/help"
+        app:endIconDrawable="@drawable/ic_help"
+        app:endIconMode="custom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/hub_input_layout">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editName"
@@ -78,16 +101,6 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Spinner
-        android:id="@+id/apiSpinner"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:spinnerMode="dropdown"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/url_input_layout" />
-
     <ImageView
         android:id="@+id/imageView2"
         android:layout_width="24dp"
@@ -108,7 +121,7 @@
         android:text="@string/versioning_check_setting"
         android:textSize="24sp"
         app:layout_constraintStart_toEndOf="@+id/imageView2"
-        app:layout_constraintTop_toBottomOf="@+id/apiSpinner" />
+        app:layout_constraintTop_toBottomOf="@+id/url_input_layout" />
 
     <Spinner
         android:id="@+id/versionCheckSpinner"

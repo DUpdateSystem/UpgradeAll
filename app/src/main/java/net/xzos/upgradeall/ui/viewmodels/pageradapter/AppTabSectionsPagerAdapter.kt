@@ -8,7 +8,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -34,7 +34,7 @@ import net.xzos.upgradeall.utils.IconPalette
 import java.io.File
 
 class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentManager, private val lifecycleOwner: LifecycleOwner) :
-        FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+        FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     private var mTabIndexList: MutableList<Int> = initTabIndexList()
 
     init {
@@ -88,7 +88,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
 
     override fun restoreState(state: Parcelable?, loader: ClassLoader?) {
         try {
-            GlobalScope.launch(Dispatchers.IO) {
+            GlobalScope.launch() {
                 super.restoreState(state, loader)
             }
         } catch (e: Throwable) {
