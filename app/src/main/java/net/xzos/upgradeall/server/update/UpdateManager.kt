@@ -23,7 +23,6 @@ import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.viewmodels.componnent.EditIntPreference
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
-
 object UpdateManager {
     private const val CHANNEL_ID = "UpdateServiceNotification"
     private const val updateNotificationId = 0
@@ -44,7 +43,10 @@ object UpdateManager {
     @UpdateManagerApi.updateFinished
     private fun getNotify(allAppsNum: Long, finishedAppNum: Long, needUpdateAppNum: Long) {
         if (finishedAppNum == allAppsNum) {
-            updateNotification(needUpdateAppNum)
+            if (needUpdateAppNum != 0L)
+                updateNotification(needUpdateAppNum)
+            else
+                cancelNotification()
         } else {
             updateStatusNotification(allAppsNum, finishedAppNum)
         }
@@ -113,6 +115,11 @@ object UpdateManager {
     private fun notificationNotify() {
         NotificationManagerCompat.from(context).notify(updateNotificationId, builder.build())
     }
+
+    private fun cancelNotification() {
+        NotificationManagerCompat.from(context).cancel(updateNotificationId)
+    }
+
 }
 
 class UpdateServiceReceiver : BroadcastReceiver() {
