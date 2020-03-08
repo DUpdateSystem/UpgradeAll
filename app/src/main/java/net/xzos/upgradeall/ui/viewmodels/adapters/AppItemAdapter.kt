@@ -120,6 +120,9 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
         setUpdateStatus(holder, true)
         GlobalScope.launch {
             val updateStatus = app.getUpdateStatus()
+            val latestVersioning = if (app is App)
+                Updater(app).getLatestVersioning()
+            else null
             withContext(Dispatchers.Main) {
                 when (updateStatus) {
                     Updater.NETWORK_404 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error)
@@ -127,23 +130,22 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
                     Updater.APP_OUTDATED -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
                     Updater.APP_NO_LOCAL -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
                 }
-                setUpdateStatus(holder, false)
-                with(appListPageViewModel.needUpdateAppsLiveData) {
-                    this.value?.let {
-                        if (updateStatus == 2 && !it.contains(app)) {
-                            it.add(app)
-                        } else if (updateStatus != 2 && it.contains(app)) {
-                            it.remove(app)
-                        } else return@let
-                        this.notifyObserver()
-                    }
-                }
                 // 如果本地未安装，则显示最新版本号
-                if (app is App) {
-                    val latestVersioning = Updater(app).getLatestVersioning()
-                    if (installedVersioning == null)
-                        @SuppressLint("SetTextI18n")
-                        holder.versioningTextView.text = "NEW: $latestVersioning"
+                if (installedVersioning == null && latestVersioning != null)
+                    @SuppressLint("SetTextI18n")
+                    holder.versioningTextView.text = "NEW: $latestVersioning"
+                setUpdateStatus(holder, false)
+            }
+            with(appListPageViewModel.needUpdateAppsLiveData) {
+                this.value?.let {
+                    if (updateStatus == 2 && !it.contains(app)) {
+                        it.add(app)
+                    } else if (updateStatus != 2 && it.contains(app)) {
+                        it.remove(app)
+                    } else return@let
+                    GlobalScope.launch(Dispatchers.Main) {
+                        this@with.notifyObserver()
+                    }
                 }
             }
         }

@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.viewmodels.fragment
 
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +7,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
+import kotlinx.android.synthetic.main.fragment_applications.*
 import net.xzos.dupdatesystem.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.viewmodels.adapters.ApplicationsItemAdapter
@@ -44,6 +44,7 @@ class ApplicationsFragment : AppListContainerFragment() {
     private fun checkAppInfo() {
         bundleApplications?.run {
             applications = this
+            nameTextView.text = applications.name
             applicationsPageViewModel.setApplications(applications)
         } ?: activity?.onBackPressed()
     }

@@ -227,8 +227,11 @@ class AppSettingFragment : Fragment() {
                         cancel()
                     }
                     placeholderLayout.visibility = View.GONE
-                    if (appUrlList.isNotEmpty())
-                        show()
+                    if (appUrlList.isNotEmpty()) {
+                        editView.setText(appUrlList[0])
+                        if (appUrlList.size > 1)
+                            show()
+                    }
                 }
             }
         }

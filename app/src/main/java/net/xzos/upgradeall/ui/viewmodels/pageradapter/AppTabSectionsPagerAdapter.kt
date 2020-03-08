@@ -88,9 +88,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
 
     override fun restoreState(state: Parcelable?, loader: ClassLoader?) {
         try {
-            GlobalScope.launch() {
-                super.restoreState(state, loader)
-            }
+            super.restoreState(state, loader)
         } catch (e: Throwable) {
             Log.e("TAG", "Error Restore State of Fragment : " + e.message, e)
         }

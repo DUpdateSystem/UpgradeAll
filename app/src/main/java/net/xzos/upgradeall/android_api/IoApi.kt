@@ -56,10 +56,13 @@ object IoApi : IoApi {
     }
 
     override fun getAppInfoList(type: String): List<AppInfo>? {
-        return if (type == AppType.androidApp)
-            context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA).map {
-                AppInfo(type, it.name, it.packageName)
-            } else null
+        return if (type == AppType.androidApp) {
+            val pm = context.packageManager
+            pm.getInstalledApplications(PackageManager.GET_META_DATA).map {
+                val name = pm.getApplicationLabel(it)
+                AppInfo(type, name.toString(), it.packageName)
+            }
+        } else null
     }
 
     // 查询软件信息
