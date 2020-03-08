@@ -22,7 +22,7 @@ object DatabaseApi : DatabaseApi {
     override fun getAppDatabaseList(): List<AppDatabase> {
         return nativeAppDatabase.map {
             // 新加的属性，@version: 0.1.1-alpha.8（TODO: 两个大版本后移除）
-            if (it.type == null) {
+            if (it.type.isNullOrBlank()) {
                 it.type = RepoDatabase.APP_TYPE_TAG
                 it.save()
             }
