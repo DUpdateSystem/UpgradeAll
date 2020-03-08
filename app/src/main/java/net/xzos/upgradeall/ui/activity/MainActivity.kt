@@ -1,7 +1,6 @@
 package net.xzos.upgradeall.ui.activity
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.ViewTreeObserver
@@ -34,18 +33,16 @@ import net.xzos.upgradeall.utils.FileUtil.NAV_IMAGE_FILE
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import java.util.*
 
-
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var navController: NavController
 
     init {
-
         GlobalScope.launch {
             UpdateManager.renewAll()
         }
 
-        navigationItemId = MutableLiveData<Int>(R.id.appListFragment).apply {
+        navigationItemId = MutableLiveData(R.id.appListFragment).apply {
             this.observe(this@MainActivity, Observer { itemId ->
                 setFrameLayout(itemId)
             })
@@ -71,11 +68,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.dev_help -> {
-                val intent = Intent(Intent.ACTION_VIEW).apply {
-                    data = Uri.parse("https://xzos.net/upgradeall-developer-documentation/")
-                }
-                startActivity(
-                        Intent.createChooser(intent, "请选择浏览器以查看帮助文档")
+                MiscellaneousUtils.accessByBrowser(
+                        "https://xzos.net/upgradeall-developer-documentation/",
+                        this
                 )
                 true
             }
@@ -87,14 +82,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    /**
+     * 侧滑栏选择
+     */
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        navigationItemId.value = item.itemId
-        when (item.itemId) {
+        val navigationItemId = item.itemId
+        setNavigationItemId(navigationItemId)
+        when (navigationItemId) {
             R.id.app_list -> {
-                navigationItemId.value = R.id.appListFragment
+                setNavigationItemId(R.id.appListFragment)
             }
             R.id.cloud_hub_list -> {
-                navigationItemId.value = R.id.hubCloudFragment
+                setNavigationItemId(R.id.hubCloudFragment)
             }
             R.id.local_hub_debug -> {
                 startActivity(Intent(this, HubDebugActivity::class.java))
@@ -125,9 +124,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             // 判断是否是云端仓库页，如果是，则跳转软件列表页
             val currentDestination = navController.currentDestination?.id
             if (currentDestination != null && currentDestination == R.id.hubCloudFragment) {
-                navigationItemId.value = R.id.appListFragment
-            } else
-                super.onBackPressed()
+                setNavigationItemId(R.id.appListFragment)
+            } else super.onBackPressed()
         }
     }
 
@@ -151,17 +149,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         setToolbarByNavigation(R.id.hubCloudFragment)
                     }
                     R.id.appInfoFragment -> {
-                        if (currentDestination == R.id.appListFragment) {
-                            this.navigate(R.id.action_appListFragment_to_appInfoFragment)
+                        when (currentDestination) {
+                            R.id.appListFragment ->
+                                this.navigate(R.id.action_appListFragment_to_appInfoFragment)
+                            R.id.applicationsFragment ->
+                                this.navigate(R.id.action_applicationsFragment_to_appInfoFragment)
                         }
                     }
                     R.id.appSettingFragment -> {
                         when (currentDestination) {
-                            R.id.appListFragment -> {
+                            R.id.appListFragment ->
                                 this.navigate(R.id.action_appListFragment_to_appSettingFragment)
-                            }
-                            R.id.appInfoFragment -> {
+                            R.id.appInfoFragment ->
                                 this.navigate(R.id.action_appInfoFragment_to_appSettingFragment)
+                        }
+                    }
+                    R.id.applicationsFragment -> {
+                        when (currentDestination) {
+                            R.id.appListFragment -> {
+                                this.navigate(R.id.action_appListFragment_to_applicationFragment)
                             }
                         }
                     }
@@ -246,7 +252,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private val logObjectTag = ObjectTag("UI", TAG)
 
         // Fragment 跳转
-        internal lateinit var navigationItemId: MutableLiveData<Int>
+        private lateinit var navigationItemId: MutableLiveData<Int>
+        internal fun setNavigationItemId(navigationItemId: Int) {
+            this.navigationItemId.value = navigationItemId
+        }
 
         internal lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     }

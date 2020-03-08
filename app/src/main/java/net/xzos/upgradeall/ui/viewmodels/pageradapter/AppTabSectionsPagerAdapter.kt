@@ -1,12 +1,14 @@
 package net.xzos.upgradeall.ui.viewmodels.pageradapter
 
+import android.os.Parcelable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -31,9 +33,8 @@ import net.xzos.upgradeall.utils.FileUtil
 import net.xzos.upgradeall.utils.IconPalette
 import java.io.File
 
-
 class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentManager, private val lifecycleOwner: LifecycleOwner) :
-        FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+        FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     private var mTabIndexList: MutableList<Int> = initTabIndexList()
 
     init {
@@ -82,6 +83,16 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                 loadingBar?.visibility = View.GONE
                 renewAllCustomTabView()
             }
+        }
+    }
+
+    override fun restoreState(state: Parcelable?, loader: ClassLoader?) {
+        try {
+            GlobalScope.launch(Dispatchers.IO) {
+                super.restoreState(state, loader)
+            }
+        } catch (e: Throwable) {
+            Log.e("TAG", "Error Restore State of Fragment : " + e.message, e)
         }
     }
 

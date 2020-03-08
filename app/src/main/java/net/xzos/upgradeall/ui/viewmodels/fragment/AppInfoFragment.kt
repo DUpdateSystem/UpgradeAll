@@ -24,14 +24,14 @@ import net.xzos.dupdatesystem.core.server_manager.module.app.App
 import net.xzos.dupdatesystem.core.server_manager.module.app.Updater
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
+import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
-
 
 /**
  * 更新项详细数据展示页面
  * 作为框架嵌套到 主页[net.xzos.upgradeall.ui.activity.MainActivity]
- * 由点击 更新项 [net.xzos.upgradeall.ui.viewmodels.adapters.AppItemAdapter] 动作 触发显示
+ * 由点击 更新项 [net.xzos.upgradeall.ui.viewmodels.adapters.AppListItemAdapter] 动作 触发显示
  * 使用 [net.xzos.upgradeall.ui.activity.MainActivity.setFrameLayout] 方法跳转
  */
 class AppInfoFragment : Fragment() {
@@ -58,7 +58,7 @@ class AppInfoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         editImageView.setOnClickListener {
             AppSettingFragment.bundleApp = app
-            MainActivity.navigationItemId.value = R.id.appSettingFragment
+            setNavigationItemId(R.id.appSettingFragment)
         }
     }
 

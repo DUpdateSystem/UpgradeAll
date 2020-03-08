@@ -23,7 +23,7 @@
             app:destination="@id/appSettingFragment" />
         <action
             android:id="@+id/action_appListFragment_to_applicationFragment"
-            app:destination="@id/applicationFragment" />
+            app:destination="@id/applicationsFragment" />
     </fragment>
     <fragment
         android:id="@+id/appInfoFragment"
@@ -49,12 +49,12 @@
         android:label="@string/add_apps"
         tools:layout="@layout/fragment_apps_setting" />
     <fragment
-        android:id="@+id/applicationFragment"
-        android:name="net.xzos.upgradeall.ui.viewmodels.fragment.ApplicationFragment"
-        android:label="fragment_application"
+        android:id="@+id/applicationsFragment"
+        android:name="net.xzos.upgradeall.ui.viewmodels.fragment.ApplicationsFragment"
+        android:label="fragment_applications"
         tools:layout="@layout/fragment_applications" >
         <action
-            android:id="@+id/action_applicationFragment_to_appListFragment"
-            app:destination="@id/appListFragment" />
+            android:id="@+id/action_applicationsFragment_to_appInfoFragment"
+            app:destination="@id/appInfoFragment" />
     </fragment>
 </navigation>

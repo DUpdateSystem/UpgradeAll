@@ -66,7 +66,7 @@ class AppListPageViewModel : AppListContainerViewModel() {
         }
     }
 
-    override fun removeItemFromGroup(position: Int): Boolean {
+    fun removeItemFromGroup(position: Int): Boolean {
         val tabPageIndex = mTabPageIndex.value ?: return false
         if (tabPageIndex != UPDATE_PAGE_INDEX && tabPageIndex != ALL_APP_PAGE_INDEX) {
             if (tabPageIndex == USER_STAR_PAGE_INDEX) {
