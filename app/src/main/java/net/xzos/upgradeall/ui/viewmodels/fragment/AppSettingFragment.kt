@@ -12,11 +12,15 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.fragment_apps_setting.*
 import kotlinx.android.synthetic.main.layout_main.*
+import kotlinx.android.synthetic.main.list_content.*
 import kotlinx.android.synthetic.main.simple_textview.*
 import kotlinx.coroutines.*
+import net.xzos.dupdatesystem.core.data.config.AppConfig
 import net.xzos.dupdatesystem.core.data.database.AppDatabase
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
@@ -25,7 +29,9 @@ import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.Ta
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
 import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
+import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
 import net.xzos.dupdatesystem.core.server_manager.module.app.App
+import net.xzos.dupdatesystem.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
@@ -33,11 +39,14 @@ import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.SearchUtils
 import net.xzos.upgradeall.utils.VersioningUtils
-import java.util.*
 
 class AppSettingFragment : Fragment() {
 
     private var searchUtils: SearchUtils? = null
+
+    private var hubUuid: String? = null
+
+    private val editMode = bundleEditMode
 
     // 获取可能来自修改设置项的请求
     private val app = bundleApp
@@ -74,20 +83,35 @@ class AppSettingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = false  // 禁止开启侧滑栏，启用返回按钮响应事件
         // 刷新第三方源列表，获取支持的第三方源列表
-        val apiSpinnerStringArray = renewApiJsonObject()
+        val (hubNameStringList, _) = renewApiJsonObject()
         // 修改 apiSpinner
-        if (apiSpinnerStringArray.isNotEmpty()) {
-            val adapter = ArrayAdapter(requireContext(),
-                    android.R.layout.simple_spinner_item, apiSpinnerStringArray)
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            apiSpinner.adapter = adapter
-        } else {
+        if (hubNameStringList.isEmpty()) {
             Toast.makeText(context, "请先添加软件源或下载软件配置", Toast.LENGTH_LONG).show()
             activity?.onBackPressed()
             setNavigationItemId(R.id.hubCloudFragment)
         }
         setSettingItem() // 设置预置设置项
         // 以下是按键事件
+        // 判断编辑模式
+        if (editMode == AppDatabase.APPLICATIONS_TYPE_TAG) {
+            editUrl.isFocusable = false
+            editUrl.setOnClickListener {
+                showHubUrlSelectDialog(editUrl)
+            }
+            // 已隐藏无关选项
+            imageView2.visibility = View.GONE
+            textView2.visibility = View.GONE
+            versionCheckSpinner.visibility = View.GONE
+            versioning_input_layout.visibility = View.GONE
+            versionCheckButton.visibility = View.GONE
+        }
+        val editViews = mutableListOf<TextInputEditText>(editHub).apply {
+            if (editMode == AppDatabase.APPLICATIONS_TYPE_TAG)
+                this.add(editName)
+        }.toTypedArray()
+        editHub.setOnClickListener {
+            showHubSelectDialog(*editViews)
+        }
         versionCheckButton.setOnClickListener {
             // 版本检查设置
             val appVersion = VersioningUtils.getAppVersionNumber(targetChecker)
@@ -149,6 +173,7 @@ class AppSettingFragment : Fragment() {
     }
 
     private fun setEndHelpIcon() {
+        setEndIconOnClickListener(hub_input_layout)
         setEndIconOnClickListener(name_input_layout)
         setEndIconOnClickListener(url_input_layout)
         setEndIconOnClickListener(versioning_input_layout)
@@ -156,6 +181,7 @@ class AppSettingFragment : Fragment() {
 
     private fun setEndIconOnClickListener(textInputLayout: TextInputLayout) {
         (getString(when (textInputLayout.id) {
+            R.id.hub_input_layout -> R.string.setting_app_hub_explain
             R.id.name_input_layout -> R.string.setting_app_name_explain
             R.id.url_input_layout -> R.string.setting_app_url_explain
             R.id.versioning_input_layout -> R.string.setting_app_versioning_explain
@@ -170,13 +196,66 @@ class AppSettingFragment : Fragment() {
         }
     }
 
+    @SuppressLint("InflateParams")
+    private fun showHubSelectDialog(vararg editViews: TextInputEditText) {
+        context?.let {
+            BottomSheetDialog(it).apply {
+                setContentView(layoutInflater.inflate(R.layout.list_content, null))
+                val (hubNameStringList, hubUuidStringList) = renewApiJsonObject()
+                list.adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, hubNameStringList)
+                list.setOnItemClickListener { _, _, position, _ ->
+                    hubUuid = hubUuidStringList[position]
+                    for (editView in editViews)
+                        editView.setText(hubNameStringList[position])
+                    cancel()
+                }
+                placeholderLayout.visibility = View.GONE
+            }.show()
+        }
+    }
+
+    @SuppressLint("InflateParams")
+    private fun showHubUrlSelectDialog(editView: TextInputEditText) {
+        context?.let {
+            hubUuid?.run {
+                BottomSheetDialog(it).apply {
+                    setContentView(layoutInflater.inflate(R.layout.list_content, null))
+                    val (descriptionList, appUrlList) = getAppUrlTemplate(this@run)
+                    list.adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, descriptionList)
+                    list.setOnItemClickListener { _, _, position, _ ->
+                        editView.setText(appUrlList[position])
+                        cancel()
+                    }
+                    placeholderLayout.visibility = View.GONE
+                    if (appUrlList.isNotEmpty())
+                        show()
+                }
+            }
+        }
+    }
+
+    private fun getAppUrlTemplate(hubUuid: String): Pair<List<String>, List<String>> {
+        val descriptionList = mutableListOf<String>()
+        val appUrlList = mutableListOf<String>()
+        HubDatabaseManager.getDatabase(hubUuid)?.cloudHubConfig?.applicationsMode?.appUrlTemplate?.run {
+            for (appUrlTemplateBean in this) {
+                descriptionList.add(appUrlTemplateBean.description)
+                appUrlList.add((appUrlTemplateBean.url))
+            }
+        }
+        return Pair(descriptionList, appUrlList)
+    }
+
+
     private fun addApp() {
         activity?.window?.let {
             GlobalScope.launch {
                 val name = editName.text.toString()
                 val url = editUrl.text.toString()
-                val apiNum = apiSpinner.selectedItemPosition
-                val versionChecker = targetChecker
+                val versionChecker =
+                        if (editMode != AppDatabase.APPLICATIONS_TYPE_TAG)
+                            targetChecker
+                        else null
                 launch(Dispatchers.Main) {
                     // 弹出等待框
                     activity?.run {
@@ -184,11 +263,13 @@ class AppSettingFragment : Fragment() {
                         this.loadingBar?.visibility = View.VISIBLE
                     }
                 }
-                val addRepoSuccess = addRepoDatabase(name, apiNum, url, versionChecker)  // 添加数据库
+                val addRepoSuccess = if (hubUuid != null && editMode != null)
+                    addRepoDatabase(name, hubUuid!!, url, editMode, versionChecker)  // 添加数据库
+                else false
                 launch(Dispatchers.Main) {
                     if (addRepoSuccess) {
                         // 提醒跟踪项详情页数据已刷新
-                        if (app != null)
+                        if (app != null && app is App)
                             AppInfoFragment.bundleApp = app
                         activity?.onBackPressed()  // 跳转主页面
                     } else
@@ -208,32 +289,34 @@ class AppSettingFragment : Fragment() {
         appInfo.run {
             editName.setText(this.name)
             editUrl.setText(this.url)
-            val apiUuid = this.apiUuid
-            val spinnerIndex = apiSpinnerList.indexOf(apiUuid)
-            if (spinnerIndex != -1) apiSpinner.setSelection(spinnerIndex)
+            editHub.setText(HubDatabaseManager.getDatabase(this.apiUuid)?.name)
             val versionCheckerGson = this.targetChecker
             val versionCheckerApi = versionCheckerGson?.api
             val versionCheckerText = versionCheckerGson?.extraString
             if (versionCheckerApi != null)
-                @SuppressLint("DefaultLocale")
-                when (versionCheckerApi.toLowerCase()) {
-                    "app" -> versionCheckSpinner.setSelection(0)
-                    "magisk" -> versionCheckSpinner.setSelection(1)
-                }
+                versionCheckSpinner.setSelection(
+                        when (versionCheckerApi.toLowerCase(AppConfig.locale)) {
+                            API_TYPE_APP_PACKAGE -> 0
+                            API_TYPE_MAGISK_MODULE -> 1
+                            API_TYPE_SHELL -> 2
+                            API_TYPE_SHELL_ROOT -> 3
+                            else -> 0
+                        }
+                )
             editTarget.setText(versionCheckerText)
         }
     }
 
     private fun addRepoDatabase(
-            name: String, apiNum: Int, URL: String,
-            targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean
+            name: String, hubUuid: String, URL: String, type: String,
+            targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean?
     ): Boolean {
         // 获取数据库类
-        val apiUuid = apiSpinnerList[apiNum]
         appInfo.run {
-            this.apiUuid = apiUuid
+            this.apiUuid = hubUuid
             this.url = URL
             this.targetChecker = targetChecker
+            this.type = type
             // 数据处理
             this.name = if (name.isNotBlank()) name
             else runBlocking(Dispatchers.IO) { App(this@run).engine.getDefaultName() }
@@ -242,20 +325,21 @@ class AppSettingFragment : Fragment() {
         return appInfo.save()
     }
 
-    private fun renewApiJsonObject(): Array<String> {
+    private fun renewApiJsonObject(): Pair<List<String>, List<String>> {
         // api接口名称列表
         // 清空 apiSpinnerList
-        val nameStringList = ArrayList<String>()
+        val hubNameStringList = mutableListOf<String>()
+        val hubUuidStringList = mutableListOf<String>()
         // 获取自定义源
         val hubList = HubDatabaseManager.hubDatabases  // 读取 hub 数据库
         for (hubDatabase in hubList) {
             val name: String = hubDatabase.name
             val apiUuid: String = hubDatabase.uuid
-            nameStringList.add(name)
+            hubNameStringList.add(name)
             // 记录可用的api UUID
-            apiSpinnerList.add(apiUuid)
+            hubUuidStringList.add(apiUuid)
         }
-        return nameStringList.toTypedArray()
+        return Pair(hubNameStringList, hubUuidStringList)
     }
 
     companion object {
@@ -263,13 +347,31 @@ class AppSettingFragment : Fragment() {
         private const val TAG = "UpdateItemSetting"
         private val logObjectTag = ObjectTag("UI", TAG)
 
-        private val apiSpinnerList = ArrayList<String>()
-
-        internal var bundleApp: App? = null
+        internal var bundleApp: BaseApp? = null
+            set(app) {
+                field = app
+                // 自动修改 EditMode
+                bundleEditMode = when (app) {
+                    is App -> {
+                        AppDatabase.APP_TYPE_TAG
+                    }
+                    is Applications -> {
+                        AppDatabase.APPLICATIONS_TYPE_TAG
+                    }
+                    else -> null
+                }
+            }
             get() {
                 val app = field
                 field = null
                 return app
+            }
+
+        internal var bundleEditMode: String? = null
+            get() {
+                val editMode = field
+                field = null
+                return editMode
             }
     }
 }

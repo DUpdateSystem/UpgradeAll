@@ -102,6 +102,7 @@
 
     <string name="setting_help_web_page">\n详细帮助：https://xzos.net/upgradeall-readme</string>
 
+    <string name="setting_app_hub_explain">软件源（必填）\n通过何种渠道获取更新信息</string>
     <string name="setting_app_name_explain">应用名称（选填）\n留空则调用软件源脚本，以获取默认应用名称</string>
     <string name="setting_app_url_explain">应用项目主页网址（必填）\n通过该网址获取应用信息</string>
     <string name="setting_app_versioning_explain">应用目标指向字符（必填）\n通过该字符串确认本地应用信息\n 例如：net.xzos.upgradeall\n 当选择的版本控制模块不为 Shell 时，\n 会开启搜索功能</string>
@@ -130,6 +131,8 @@
     <string name="move_right">向右移动</string>
     <string name="export_current_sort_log">导出当前分类的日志</string>
     <string name="export_all_log">导出全部日志</string>
+    <string name="add_applications">添加应用市场</string>
+    <string name="add_single_app">添加单个跟踪项</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

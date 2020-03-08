@@ -41,13 +41,14 @@ internal class RepoDatabase(
         }
 
     override fun save(): Boolean =
-            if (name.isNotBlank() && url.isNotBlank() && api_uuid.isNotBlank())
+            if (name.isNotBlank() && url.isNotBlank() && api_uuid.isNotBlank() && type.isNotBlank())
                 super.save()
             else false
 
     companion object {
         @Transient
         internal const val APP_TYPE_TAG = UIConfig.APP_TYPE_TAG
+
         @Transient
         internal const val APPLICATIONS_TYPE_TAG = UIConfig.APPLICATIONS_TYPE_TAG
     }
