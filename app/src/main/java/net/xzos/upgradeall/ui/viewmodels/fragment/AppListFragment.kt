@@ -11,9 +11,9 @@ import kotlinx.android.synthetic.main.fragment_app_list.*
 import kotlinx.android.synthetic.main.layout_main.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
+import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 import net.xzos.upgradeall.utils.IconPalette
-
 
 class AppListFragment : Fragment() {
 
@@ -37,7 +37,7 @@ class AppListFragment : Fragment() {
             floatingActionButton.visibility = View.GONE
             addFloatingActionButton.let { fab ->
                 fab.setOnClickListener {
-                    MainActivity.navigationItemId.value = R.id.appSettingFragment
+                    setNavigationItemId(R.id.appSettingFragment)
                 }
                 fab.setImageDrawable(IconPalette.fabAddIcon)
                 fab.backgroundTintList = ColorStateList.valueOf((IconPalette.getColorInt(R.color.bright_yellow)))

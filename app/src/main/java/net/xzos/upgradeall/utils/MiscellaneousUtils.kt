@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
+import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.jaredrummler.android.shell.CommandResult
@@ -16,6 +17,8 @@ import kotlinx.coroutines.launch
 import net.xzos.dupdatesystem.core.data_manager.CloudConfigGetter
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
+import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import org.json.JSONException
 import java.io.StringReader
 import java.util.*
@@ -109,3 +112,17 @@ object MiscellaneousUtils {
                 || appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
     }
 }
+
+/**
+ * 拓展 LiveData 监听列表元素添加、删除操作的支持
+ */
+fun <T> MutableLiveData<T>.notifyObserver() {
+    this.value = this.value
+}
+
+/**
+ * 拓展 ItemCardView 数据队列
+ * 使其可用 holder 直接获取数据
+ */
+fun MutableList<ItemCardView>.getByHolder(holder: CardViewRecyclerViewHolder): ItemCardView =
+        this[holder.adapterPosition]

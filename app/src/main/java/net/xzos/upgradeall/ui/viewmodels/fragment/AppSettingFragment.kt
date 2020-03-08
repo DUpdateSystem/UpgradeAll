@@ -17,7 +17,6 @@ import kotlinx.android.synthetic.main.fragment_apps_setting.*
 import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.simple_textview.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
 import net.xzos.dupdatesystem.core.data.database.AppDatabase
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
@@ -29,18 +28,16 @@ import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
 import net.xzos.dupdatesystem.core.server_manager.module.app.App
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
+import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
 import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.SearchUtils
 import net.xzos.upgradeall.utils.VersioningUtils
 import java.util.*
 
-
 class AppSettingFragment : Fragment() {
 
-    private val mutex = Mutex()
-
-    private var searchUtils = SearchUtils()
+    private var searchUtils: SearchUtils? = null
 
     // 获取可能来自修改设置项的请求
     private val app = bundleApp
@@ -63,6 +60,12 @@ class AppSettingFragment : Fragment() {
                 editTarget.text.toString()
         )
 
+    init {
+        GlobalScope.launch(Dispatchers.IO) {
+            searchUtils = SearchUtils()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.fragment_apps_setting, container, false)
@@ -81,7 +84,7 @@ class AppSettingFragment : Fragment() {
         } else {
             Toast.makeText(context, "请先添加软件源或下载软件配置", Toast.LENGTH_LONG).show()
             activity?.onBackPressed()
-            MainActivity.navigationItemId.value = R.id.hubCloudFragment
+            setNavigationItemId(R.id.hubCloudFragment)
         }
         setSettingItem() // 设置预置设置项
         // 以下是按键事件
@@ -94,18 +97,20 @@ class AppSettingFragment : Fragment() {
         }
         editTarget.threshold = 1
         editTarget.addTextChangedListener {
-            if (targetCheckerApi != API_TYPE_SHELL && targetCheckerApi != API_TYPE_SHELL_ROOT) {
-                val text = it.toString()
-                GlobalScope.launch {
-                    val searchInfoList = searchUtils.search(text)
-                    if (text.isNotBlank() && this@AppSettingFragment.isVisible) {
-                        withContext(Dispatchers.Main) {
-                            if (searchInfoList.isNotEmpty()) {
-                                editTarget.setAdapter(SearchResultItemAdapter(requireContext(), searchInfoList))
-                                editTarget.showDropDown()
-                            } else if (editTarget.text.toString() == text) {
-                                val toastText = context?.getText(R.string.no_completion_results)
-                                Toast.makeText(context, "${toastText}: $text", Toast.LENGTH_SHORT).show()
+            searchUtils?.let { searchUtils ->
+                if (targetCheckerApi != API_TYPE_SHELL && targetCheckerApi != API_TYPE_SHELL_ROOT) {
+                    val text = it.toString()
+                    GlobalScope.launch {
+                        val searchInfoList = searchUtils.search(text)
+                        if (text.isNotBlank() && this@AppSettingFragment.isVisible) {
+                            withContext(Dispatchers.Main) {
+                                if (searchInfoList.isNotEmpty()) {
+                                    editTarget.setAdapter(SearchResultItemAdapter(requireContext(), searchInfoList))
+                                    editTarget.showDropDown()
+                                } else if (editTarget.text.toString() == text) {
+                                    val toastText = context?.getText(R.string.no_completion_results)
+                                    Toast.makeText(context, "${toastText}: $text", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         }
                     }

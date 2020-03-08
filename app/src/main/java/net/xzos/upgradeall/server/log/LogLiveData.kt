@@ -8,6 +8,7 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
 import net.xzos.dupdatesystem.core.log.LogDataProxy
 import net.xzos.dupdatesystem.core.log.LogItemData
+import net.xzos.upgradeall.utils.notifyObserver
 
 
 object LogLiveData {
@@ -15,12 +16,6 @@ object LogLiveData {
     private var logMap = hashMapOf<ObjectTag, MutableList<LogItemData>>()
 
     private val mLogMapLiveData = MutableLiveData(logMap)
-
-    private fun <T> MutableLiveData<T>.notifyObserver() {
-        runBlocking(Dispatchers.Main) {
-            this@notifyObserver.value = this@notifyObserver.value
-        }
-    }
 
     fun notifyChange(logMap: HashMap<ObjectTag, MutableList<LogItemData>>) {
         this.logMap = logMap

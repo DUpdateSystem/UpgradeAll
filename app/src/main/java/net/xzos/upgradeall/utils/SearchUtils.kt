@@ -9,7 +9,6 @@ import net.xzos.dupdatesystem.core.data_manager.utils.SearchUtils
 import net.xzos.dupdatesystem.core.data_manager.utils.StringMatchUtils
 import net.xzos.upgradeall.application.MyApplication
 
-
 class SearchUtils {
 
     private var searchUtils: SearchUtils = SearchUtils(initSearch())

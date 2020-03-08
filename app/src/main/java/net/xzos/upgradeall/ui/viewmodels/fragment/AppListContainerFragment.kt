@@ -7,18 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.view.*
 import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.ui.viewmodels.adapters.AppItemAdapter
-import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListPageViewModel
+import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListContainerViewModel
 
-
-open class AppListContainerFragment : Fragment() {
-    internal lateinit var viewModel: AppListPageViewModel
+abstract class AppListContainerFragment : Fragment() {
+    internal lateinit var viewModel: AppListContainerViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -69,7 +66,7 @@ open class AppListContainerFragment : Fragment() {
         renewPage()
     }
 
-    private fun renewPage() {
+    internal fun renewPage() {
         viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
             // 列表显示刷新
             if (it.isNullOrEmpty()) {
@@ -93,10 +90,5 @@ open class AppListContainerFragment : Fragment() {
         swipeRefreshLayout?.isRefreshing = false
     }
 
-    private fun renewAppList() {
-        val layoutManager = GridLayoutManager(activity, 1)
-        cardItemRecyclerView.layoutManager = layoutManager
-        val adapter = AppItemAdapter(viewModel, viewModel.appCardViewList, this)
-        cardItemRecyclerView.adapter = adapter
-    }
+    abstract fun renewAppList()
 }
