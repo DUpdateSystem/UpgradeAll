@@ -5,8 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
@@ -17,14 +15,16 @@ import kotlinx.coroutines.launch
 import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
 import net.xzos.dupdatesystem.core.server_manager.AppManager
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
+import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.utils.IconInfo
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
-
-class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, private val context: Context?) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
+class CloudAppItemAdapter(
+        private val mItemCardViewList: List<CloudConfigListItemView>,
+        private val context: Context?
+) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
 
     private val cloudConfigGetter = MiscellaneousUtils.cloudConfigGetter
 
@@ -34,14 +34,6 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
         // 初始化页面，禁用无用按钮/信息
         holder.versioningTextView.visibility = View.GONE
         holder.versionCheckingBar.visibility = View.GONE
-        with(holder.descTextView.parent as LinearLayout) {
-            this.viewTreeObserver.addOnGlobalLayoutListener {
-                this.layoutParams = (this.layoutParams as RelativeLayout.LayoutParams).apply {
-                    this.marginEnd = 0
-                }
-                this.invalidate()
-            }
-        }
         // 长按菜单
         holder.itemCardView.setOnLongClickListener { v ->
             val position = holder.adapterPosition
@@ -54,7 +46,7 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
             popupMenu.setOnMenuItemClickListener { item ->
                 if (item.itemId == R.id.download) {
                     // 下载
-                    val appUuid = itemCardView.extraData.uuid
+                    val appUuid = itemCardView.uuid
                     if (appUuid != null) {
                         Toast.makeText(holder.itemCardView.context, "开始下载", Toast.LENGTH_LONG).show()
                         // 下载数据
@@ -81,7 +73,7 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
     override fun onBindViewHolder(holder: CardViewRecyclerViewHolder, position: Int) {
         val itemCardView = mItemCardViewList[position]
         // 底栏设置
-        if (itemCardView.extraData.uuid == null) {
+        if (itemCardView.uuid == null) {
             holder.appPlaceholderImageView.setImageDrawable(IconPalette.appItemPlaceholder)
             holder.appPlaceholderImageView.visibility = View.VISIBLE
             holder.itemCardView.visibility = View.GONE
@@ -90,9 +82,10 @@ class CloudAppItemAdapter(private val mItemCardViewList: List<ItemCardView>, pri
             holder.itemCardView.visibility = View.VISIBLE
             // 加载跟踪项信息
             holder.nameTextView.text = itemCardView.name
-            holder.descTextView.text = itemCardView.desc
-            checkAppConfigLocalStatus(holder, itemCardView.extraData.uuid)
-            GlobalScope.launch { loadCloudAppIcon(holder.appIconImageView, itemCardView.extraData.uuid) }
+            holder.typeTextView.text = itemCardView.type
+            holder.hubNameTextView.text = itemCardView.hubName
+            checkAppConfigLocalStatus(holder, itemCardView.uuid)
+            GlobalScope.launch { loadCloudAppIcon(holder.appIconImageView, itemCardView.uuid) }
         }
     }
 

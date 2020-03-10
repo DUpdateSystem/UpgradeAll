@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
@@ -13,13 +12,13 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
+import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 
-class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
+class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListItemView>) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = CardViewRecyclerViewHolder(
@@ -27,14 +26,6 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
         // 初始化页面，禁用无用按钮/信息
         holder.versioningTextView.visibility = View.GONE
         holder.versionCheckingBar.visibility = View.GONE
-        with(holder.descTextView.parent as LinearLayout) {
-            this.viewTreeObserver.addOnGlobalLayoutListener {
-                this.layoutParams = (this.layoutParams as RelativeLayout.LayoutParams).apply {
-                    this.marginEnd = 0
-                }
-                this.invalidate()
-            }
-        }
         // 长按菜单
         holder.itemCardView.setOnLongClickListener { v ->
             val position = holder.adapterPosition
@@ -48,7 +39,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
                 if (item.itemId == R.id.download) {
                     setDownloadStatus(holder, true)
                     GlobalScope.launch {
-                        val addHubStatus = MiscellaneousUtils.cloudConfigGetter.downloadCloudHubConfig(itemCardView.extraData.uuid)  // 下载数据
+                        val addHubStatus = MiscellaneousUtils.cloudConfigGetter.downloadCloudHubConfig(itemCardView.uuid)  // 下载数据
                         launch(Dispatchers.Main) {
                             setDownloadStatus(holder, false)
                             if (addHubStatus == 3) {
@@ -67,7 +58,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
     override fun onBindViewHolder(holder: CardViewRecyclerViewHolder, position: Int) {
         val itemCardView = mItemCardViewList[position]
         // 底栏设置
-        if (itemCardView.extraData.uuid == null) {
+        if (itemCardView.uuid == null) {
             holder.appPlaceholderImageView.setImageDrawable(IconPalette.appItemPlaceholder)
             holder.appPlaceholderImageView.visibility = View.VISIBLE
             holder.itemCardView.visibility = View.GONE
@@ -76,9 +67,10 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<ItemCardView>) : R
             holder.itemCardView.visibility = View.VISIBLE
             // 加载仓库信息
             holder.nameTextView.text = itemCardView.name
-            holder.descTextView.text = itemCardView.desc
-            checkHubConfigLocalStatus(holder, itemCardView.extraData.uuid)
-            GlobalScope.launch { loadCloudHubIcon(holder.appIconImageView, itemCardView.extraData.uuid) }
+            holder.typeTextView.text = itemCardView.type
+            holder.hubNameTextView.visibility = View.GONE
+            checkHubConfigLocalStatus(holder, itemCardView.uuid)
+            GlobalScope.launch { loadCloudHubIcon(holder.appIconImageView, itemCardView.uuid) }
         }
     }
 

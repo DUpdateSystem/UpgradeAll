@@ -10,19 +10,18 @@
         android:id="@+id/appIconImageView"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_alignParentStart="true"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         android:contentDescription="@string/apps_logo"
         android:src="@drawable/ic_android_placeholder"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <TextView
         android:id="@+id/nameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxWidth="150dp"
         android:layout_marginStart="8dp"
         android:maxLines="1"
         android:text="@string/example_name"
@@ -32,34 +31,19 @@
         app:layout_constraintStart_toEndOf="@+id/appIconImageView"
         app:layout_constraintTop_toTopOf="@+id/appIconImageView" />
 
-    <TextView
-        android:id="@+id/versioningTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10sp"
-        android:layout_marginEnd="100dp"
-        android:maxWidth="90dp"
-        android:maxLines="1"
-        android:text="@string/example_version_number"
-        android:textColor="@color/text_lowest_priority_color"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/nameTextView"
-        app:layout_constraintStart_toEndOf="@+id/nameTextView" />
 
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/linearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/secondary_rounded_corners"
-        android:backgroundTintMode="multiply"
-        app:layout_constraintBottom_toBottomOf="@+id/appIconImageView"
-        app:layout_constraintStart_toStartOf="@+id/nameTextView"
-        app:layout_constraintTop_toBottomOf="@+id/nameTextView">
+        android:layout_marginStart="5dp"
+        android:background="@drawable/primary_rounded_corners"
+        app:layout_constraintBottom_toBottomOf="@+id/nameTextView"
+        app:layout_constraintStart_toEndOf="@+id/nameTextView"
+        app:layout_constraintTop_toTopOf="@+id/nameTextView">
 
         <TextView
-            android:id="@+id/typeTextView"
+            android:id="@+id/searchTypeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
@@ -70,24 +54,13 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/descLinearLayout"
+    <TextView
+        android:id="@+id/searchTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:background="@drawable/primary_rounded_corners"
-        app:layout_constraintStart_toEndOf="@+id/linearLayout2"
-        app:layout_constraintTop_toTopOf="@+id/linearLayout2">
-
-        <TextView
-            android:id="@+id/hubNameTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:maxLines="1"
-            android:text="@string/app_hub"
-            android:textColor="@color/text_low_priority_color" />
-    </LinearLayout>
+        android:textSize="12sp"
+        android:text="@string/example_package_name"
+        app:layout_constraintStart_toStartOf="@+id/nameTextView"
+        app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -24,39 +24,6 @@ class SearchUtils {
     }
 }
 
-class ShellMatchUtils(private val useSU: Boolean = false) {
-
-    fun getFileNameList(folderPath: String): List<String> {
-        val folderPathString = folderPath.apply {
-            val separator = '/'
-            if (this.last() != separator)
-                this.plus(separator)
-        }
-        val command = """ for entry in "${'$'}search_dir"${folderPathString}*
-            do
-              echo "${'$'}entry"
-            done """.trimIndent()
-
-        val result = runCommand(command)
-        return result.getStdout()
-                .split("\n".toRegex())
-                .dropLastWhile { it.isEmpty() }
-                .map { it.removePrefix(folderPathString) }
-    }
-
-    fun catFile(filePath: String): String {
-        val command = "cat $filePath"
-        return runCommand(command).getStdout()
-    }
-
-    private fun runCommand(commandString: String): CommandResult {
-        return if (useSU)
-            Shell.SU.run(commandString)
-        else
-            Shell.run(commandString)
-    }
-}
-
 private object AppPackageMatchUtils {
     private val packages: List<ApplicationInfo>
         get() = MyApplication.context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
@@ -126,3 +93,37 @@ private object MagiskModuleMatchUtils {
             val author: String,
             val description: String)
 }
+
+class ShellMatchUtils(private val useSU: Boolean = false) {
+
+    fun getFileNameList(folderPath: String): List<String> {
+        val folderPathString = folderPath.apply {
+            val separator = '/'
+            if (this.last() != separator)
+                this.plus(separator)
+        }
+        val command = """ for entry in "${'$'}search_dir"${folderPathString}*
+            do
+              echo "${'$'}entry"
+            done """.trimIndent()
+
+        val result = runCommand(command)
+        return result.getStdout()
+                .split("\n".toRegex())
+                .dropLastWhile { it.isEmpty() }
+                .map { it.removePrefix(folderPathString) }
+    }
+
+    fun catFile(filePath: String): String {
+        val command = "cat $filePath"
+        return runCommand(command).getStdout()
+    }
+
+    private fun runCommand(commandString: String): CommandResult {
+        return if (useSU)
+            Shell.SU.run(commandString)
+        else
+            Shell.run(commandString)
+    }
+}
+
