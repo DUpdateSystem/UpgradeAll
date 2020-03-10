@@ -3,12 +3,14 @@
     <color name="white">#FFFFFF</color>
     <color name="colorPrimary">#FF007EE9</color>
     <color name="colorPrimaryDark">#0277BD</color>
+    <color name="primary">#FF6200EE</color>
+    <color name="bright_yellow">#FFF8BC26</color>
+    <color name="orange_red">#FFEC5B45</color>
     <color name="colorAccent">#E91E63</color>
     <color name="coolapk_green">#FF11A960</color>
     <color name="light_coolapk_green">#11C860</color>
     <color name="grass_green">#FF03A6A6</color>
-    <color name="orange_red">#FFEC5B45</color>
-    <color name="bright_yellow">#FFF8BC26</color>
+    <color name="secondary">#FF03DAC6</color>
     <color name="light_gray">#FFF2F2F2</color>
     <color name="gray">#FFCCCCCC</color>
     <color name="taupe">#FF54555C</color>

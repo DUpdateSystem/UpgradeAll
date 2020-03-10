@@ -37,6 +37,7 @@ class ApplicationsItemAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = super.onCreateViewHolder(parent, viewType)
+        holder.hubNameTextView.visibility = View.GONE
         // 单击展开 Release 详情页
         holder.itemCardView.setOnClickListener {
             val app = mItemCardViewList.getByHolder(holder).extraData.app

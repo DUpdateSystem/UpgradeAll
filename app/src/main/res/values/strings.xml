@@ -6,6 +6,7 @@
     <string name="user_star">星标</string>
     <string name="all_app">全部应用</string>
     <string name="app">软件</string>
+    <string name="magisk_module">Magisk 模块</string>
     <string name="app_hub">软件源</string>
     <string name="log">日志</string>
     <string name="setting">设置</string>
@@ -131,10 +132,11 @@
     <string name="move_right">向右移动</string>
     <string name="export_current_sort_log">导出当前分类的日志</string>
     <string name="export_all_log">导出全部日志</string>
+    <string name="applications">应用市场</string>
     <string name="add_applications">添加应用市场</string>
     <string name="add_single_app">添加单个跟踪项</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="android_app">Android 应用</string>
+    <string name="shell">SHELL 命令</string>
+    <string name="shell_root">ROOT 权限的 SHELL 命令</string>
 
 </resources>

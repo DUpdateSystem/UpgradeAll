@@ -151,7 +151,7 @@
         app:layout_constraintStart_toStartOf="@+id/versionCheckSpinner"
         app:layout_constraintTop_toBottomOf="@+id/versionCheckSpinner">
 
-        <net.xzos.upgradeall.ui.viewmodels.componnent.InstantAutoComplete
+        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
             android:id="@+id/editTarget"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

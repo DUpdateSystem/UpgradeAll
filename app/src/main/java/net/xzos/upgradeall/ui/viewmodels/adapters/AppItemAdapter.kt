@@ -73,7 +73,8 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
                 )
             }
             holder.nameTextView.text = itemCardView.name
-            holder.descTextView.text = itemCardView.desc
+            holder.typeTextView.text = itemCardView.type
+            holder.hubNameTextView.text = itemCardView.hubName
             setAppStatusUI(holder, this)
         } ?: kotlin.run {
             // 底栏设置
@@ -125,7 +126,7 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
             else null
             withContext(Dispatchers.Main) {
                 when (updateStatus) {
-                    Updater.NETWORK_404 -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error)
+                    Updater.NETWORK_ERROR -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error)
                     Updater.APP_LATEST -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_mark_circle)
                     Updater.APP_OUTDATED -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
                     Updater.APP_NO_LOCAL -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)

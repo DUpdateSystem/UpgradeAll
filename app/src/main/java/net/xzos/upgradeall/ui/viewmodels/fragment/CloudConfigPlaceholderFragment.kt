@@ -12,15 +12,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.xzos.dupdatesystem.core.data.config.AppConfig
+import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
+import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_MAGISK_MODULE
+import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL
+import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.dupdatesystem.core.data.json.gson.CloudConfig
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.viewmodels.adapters.CloudAppItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.adapters.CloudHubItemAdapter
-import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
-import net.xzos.upgradeall.ui.viewmodels.view.ItemCardViewExtraData
+import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 internal class CloudConfigPlaceholderFragment : Fragment() {
+
+    private val cloudConfigGetter = MiscellaneousUtils.cloudConfigGetter
 
     private var pageModelIndex = 0
 
@@ -29,9 +35,10 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         pageModelIndex = arguments?.getInt(ARG_SECTION_NUMBER) ?: 0
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.content_list, container, false)
+    override fun onCreateView(
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? = inflater.inflate(R.layout.content_list, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -57,7 +64,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
 
     private fun renewCloudList(isAppList: Boolean = false, isHubList: Boolean = false) {
         runBlocking {
-            val cloudConfigGetter = MiscellaneousUtils.cloudConfigGetter
+            val cloudConfigGetter = cloudConfigGetter
             when {
                 isAppList -> {
                     cloudConfigGetter.appList?.map { getCloudAppItemCardView(it) }
@@ -66,17 +73,15 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                     cloudConfigGetter.hubList?.map { getCloudHubItemCardView(it) }
                 }
                 else -> null
-            }?.plus(ItemCardView())
-                    .also {
+            }?.plus(CloudConfigListItemView.newEmptyInstance())
+                    ?.also {
                         launch(Dispatchers.Main) {
                             if (this@CloudConfigPlaceholderFragment.isVisible) {
                                 cardItemRecyclerView?.let { view ->
                                     view.layoutManager = GridLayoutManager(activity, 1)
                                     view.adapter = when {
-                                        isAppList -> CloudAppItemAdapter(it
-                                                ?: listOf(), context)
-                                        isHubList -> CloudHubItemAdapter(it
-                                                ?: listOf())
+                                        isAppList -> CloudAppItemAdapter(it, context)
+                                        isHubList -> CloudHubItemAdapter(it)
                                         else -> null
                                     }
                                 }
@@ -90,16 +95,32 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         }
     }
 
-    private fun getCloudAppItemCardView(item: CloudConfig.AppListBean): ItemCardView {
+    private fun getCloudAppItemCardView(item: CloudConfig.AppListBean): CloudConfigListItemView {
         val name = item.appConfigName
         val appUuid = item.appConfigUuid
-        return ItemCardView(name, appUuid, ItemCardViewExtraData(uuid = appUuid))
+        val appCloudConfig = cloudConfigGetter.getAppCloudConfig(appUuid)
+        val type = when (appCloudConfig?.appConfig?.targetChecker?.api?.toLowerCase(AppConfig.locale)) {
+            API_TYPE_APP_PACKAGE -> getString(R.string.android_app)
+            API_TYPE_MAGISK_MODULE -> getString(R.string.magisk_module)
+            API_TYPE_SHELL -> getString(R.string.shell)
+            API_TYPE_SHELL_ROOT -> getString(R.string.shell_root)
+            else -> ""
+        }
+        val hubUuid = appCloudConfig?.appConfig?.hubInfo?.hubUuid
+        val hubName = cloudConfigGetter.getHubCloudConfig(hubUuid)?.info?.hubName
+        return CloudConfigListItemView(name, type, hubName, appUuid)
     }
 
-    private fun getCloudHubItemCardView(item: CloudConfig.HubListBean): ItemCardView {
+    private fun getCloudHubItemCardView(item: CloudConfig.HubListBean): CloudConfigListItemView {
         val name = item.hubConfigName
         val hubUuid = item.hubConfigUuid
-        return ItemCardView(name, hubUuid, ItemCardViewExtraData(uuid = hubUuid))
+        val hubCloudConfig = cloudConfigGetter.getHubCloudConfig(hubUuid)
+        val type = getString(
+                if (hubCloudConfig?.applicationsMode?.appUrlTemplate?.isNotEmpty() == true)
+                    R.string.applications
+                else R.string.app_hub
+        )
+        return CloudConfigListItemView(name, type, hubUuid, hubUuid)
     }
 
     companion object {
