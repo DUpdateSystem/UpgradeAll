@@ -82,6 +82,11 @@ abstract class AppListContainerFragment : Fragment() {
                 renewCardView()
             }
         })
+        // TODO: 设置升级标识
+        placeholderImageVew.setImageResource(R.drawable.ic_checking_update)
+        with(placeholderTextView) {
+            text = this.context.getText(R.string.waiting_check_update)
+        }
     }
 
     private fun renewCardView() {
