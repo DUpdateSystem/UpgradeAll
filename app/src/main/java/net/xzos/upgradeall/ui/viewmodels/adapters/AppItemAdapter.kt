@@ -71,6 +71,7 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
                                 this.appInfo.apiUuid
                         )?.cloudHubConfig?.info?.hubIconUrl
                 )
+                holder.hubNameTextView.visibility = View.GONE
             }
             holder.nameTextView.text = itemCardView.name
             holder.typeTextView.text = itemCardView.type

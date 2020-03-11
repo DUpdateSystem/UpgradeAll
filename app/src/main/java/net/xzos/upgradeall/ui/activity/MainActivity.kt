@@ -27,7 +27,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.core.server_manager.UpdateManager
+import net.xzos.dupdatesystem.core.server_manager.UpdateManager.Companion.updateManager
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.utils.FileUtil.NAV_IMAGE_FILE
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     init {
         GlobalScope.launch {
-            UpdateManager.renewAll()
+            updateManager.renewAll()
         }
 
         navigationItemId = MutableLiveData(R.id.appListFragment).apply {

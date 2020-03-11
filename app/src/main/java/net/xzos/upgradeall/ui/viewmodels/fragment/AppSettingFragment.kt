@@ -252,6 +252,10 @@ class AppSettingFragment : Fragment() {
 
     private fun addApp() {
         activity?.window?.let {
+            activity?.run {
+                this.floatingActionButton?.visibility = View.GONE
+                this.loadingBar?.visibility = View.VISIBLE
+            }
             GlobalScope.launch {
                 val name = editName.text.toString()
                 val url = editUrl.text.toString()
@@ -259,17 +263,10 @@ class AppSettingFragment : Fragment() {
                         if (editMode != AppDatabase.APPLICATIONS_TYPE_TAG)
                             targetChecker
                         else null
-                launch(Dispatchers.Main) {
-                    // 弹出等待框
-                    activity?.run {
-                        this.floatingActionButton?.visibility = View.GONE
-                        this.loadingBar?.visibility = View.VISIBLE
-                    }
-                }
                 val addRepoSuccess = if (hubUuid != null && editMode != null)
                     addRepoDatabase(name, hubUuid!!, url, editMode, versionChecker)  // 添加数据库
                 else false
-                launch(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     if (addRepoSuccess) {
                         // 提醒跟踪项详情页数据已刷新
                         if (app != null && app is App)
@@ -277,7 +274,6 @@ class AppSettingFragment : Fragment() {
                         activity?.onBackPressed()  // 跳转主页面
                     } else
                         Toast.makeText(context, "添加失败", Toast.LENGTH_LONG).show()
-                    // 取消等待框
                     activity?.run {
                         this.floatingActionButton?.visibility = View.VISIBLE
                         this.loadingBar?.visibility = View.GONE

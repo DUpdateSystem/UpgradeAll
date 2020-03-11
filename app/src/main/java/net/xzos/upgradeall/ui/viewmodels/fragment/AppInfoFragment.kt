@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.fragment_app_info.view.*
 import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.list_content.*
 import kotlinx.coroutines.*
-import net.xzos.dupdatesystem.core.data.json.gson.AppDatabaseExtraData
+import net.xzos.dupdatesystem.core.data.database.getExtraData
 import net.xzos.dupdatesystem.core.data.json.gson.JSReturnData
 import net.xzos.dupdatesystem.core.jscore.js.engine.JavaScriptEngine
 import net.xzos.dupdatesystem.core.server_manager.module.app.App
@@ -266,13 +266,11 @@ class AppInfoFragment : Fragment() {
 
     private fun markVersionNumber(versionNumber: String?) {
         app.appInfo.apply {
-            (extraData ?: AppDatabaseExtraData(null, null)
-                    .apply { extraData = this })
-                    .also {
-                        it.markProcessedVersionNumber =
-                                if (it.markProcessedVersionNumber != versionNumber) versionNumber
-                                else null
-                    }
+            getExtraData().also {
+                it.markProcessedVersionNumber =
+                        if (it.markProcessedVersionNumber != versionNumber) versionNumber
+                        else null
+            }
         }.save()
     }
 

@@ -23,7 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.xzos.dupdatesystem.core.server_manager.UpdateManager
+import net.xzos.dupdatesystem.core.server_manager.UpdateManager.Companion.updateManager
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data_manager.UIConfig
 import net.xzos.upgradeall.data_manager.UIConfig.Companion.uiConfig
@@ -74,7 +74,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
             withContext(Dispatchers.Main) {
                 loadingBar?.visibility = View.VISIBLE
             }
-            if (UpdateManager.renewAll().isEmpty() && editTabMode.value == false) {
+            if (updateManager.renewAll().isEmpty() && editTabMode.value == false) {
                 withContext(Dispatchers.Main) {
                     removeTabPage(mTabIndexList.indexOf(UPDATE_PAGE_INDEX))
                 }
