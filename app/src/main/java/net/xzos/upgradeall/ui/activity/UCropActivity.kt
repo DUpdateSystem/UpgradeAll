@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.yalantis.ucrop.UCrop
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
+import net.xzos.dupdatesystem.core.data_manager.utils.wait
 import net.xzos.dupdatesystem.core.log.Log
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.utils.FileUtil
@@ -114,14 +115,9 @@ class UCropActivity : AppCompatActivity() {
             this.x = x
             this.y = y
             context.startActivity(Intent(context, UCropActivity::class.java))
-            wait()
+            mutex.wait()
             FILE = File("")
             return isSuccess
-        }
-
-        private suspend fun wait() {
-            mutex.lock()
-            mutex.unlock()
         }
     }
 }

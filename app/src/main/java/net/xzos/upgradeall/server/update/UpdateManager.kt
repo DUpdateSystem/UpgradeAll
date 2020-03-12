@@ -40,15 +40,18 @@ object UpdateManager {
         updateManager.register(this)
     }
 
-    @UpdateManagerApi.updateFinished
-    private fun getNotify(allAppsNum: Long, finishedAppNum: Long, needUpdateAppNum: Long) {
-        if (finishedAppNum == allAppsNum) {
-            if (needUpdateAppNum != 0L)
+    @UpdateManagerApi.statusRefresh
+    private fun getNotify() {
+        val allAppsNum = updateManager.apps.size
+        val finishedAppNum = updateManager.finishedAppNum.toInt()
+        val needUpdateAppNum = updateManager.needUpdateAppList.size
+        if (finishedAppNum != allAppsNum) {
+            updateStatusNotification(allAppsNum, finishedAppNum)
+        } else {
+            if (needUpdateAppNum != 0)
                 updateNotification(needUpdateAppNum)
             else
                 cancelNotification()
-        } else {
-            updateStatusNotification(allAppsNum, finishedAppNum)
         }
     }
 
@@ -63,11 +66,11 @@ object UpdateManager {
         notificationNotify()
     }
 
-    private fun updateStatusNotification(allAppsNum: Long, finishedAppNum: Long) {
-        val progress = (finishedAppNum / allAppsNum).toInt() * 100
+    private fun updateStatusNotification(allAppsNum: Int, finishedAppNum: Int) {
+        val progress = (finishedAppNum.toDouble() / allAppsNum * 100).toInt()
         NotificationManagerCompat.from(context).apply {
             builder.setContentTitle("检查更新中")
-                    .setContentText("已完成: $finishedAppNum/$allAppsNum")
+                    .setContentText("已完成: ${finishedAppNum}/${allAppsNum}")
                     .setProgress(100, progress, false)
                     // 如果运行正常，此处应该不可消除（
                     // 未知 bug，暂时允许用户消除通知
@@ -77,7 +80,7 @@ object UpdateManager {
         notificationNotify()
     }
 
-    private fun updateNotification(needUpdateAppNum: Long) {
+    private fun updateNotification(needUpdateAppNum: Int) {
         val resultIntent = Intent(context, MainActivity::class.java)
         val resultPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(resultIntent)
