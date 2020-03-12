@@ -155,4 +155,5 @@
     <string name="download_task_begin">下载任务开始</string>
     <string name="repeated_download_task">重复任务，忽略</string>
     <string name="try_kill_repeated_download_task">尝试终止旧的重复任务</string>
+    <string name="miui_error">你可能遇到了一个 MIUI 导致的错误</string>
 </resources>
