@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
 import net.xzos.dupdatesystem.core.server_manager.AppManager
 import net.xzos.upgradeall.R
@@ -53,7 +54,7 @@ class CloudAppItemAdapter(
                         setDownloadStatus(holder, true)
                         GlobalScope.launch {
                             val appDatabase = cloudConfigGetter.downloadCloudAppConfig(appUuid)  // 下载数据
-                            launch(Dispatchers.Main) {
+                            withContext(Dispatchers.Main) {
                                 setDownloadStatus(holder, false)
                                 if (appDatabase != null) {
                                     holder.versionCheckButton.visibility = View.VISIBLE
@@ -111,7 +112,7 @@ class CloudAppItemAdapter(
                 this@run.appInfo.extraData.let {
                     val cloudAppVersion = it?.cloudAppConfigGson?.info?.configVersion
                     val localAppVersion = appConfigGson?.info?.configVersion
-                    launch(Dispatchers.Main) {
+                    withContext(Dispatchers.Main) {
                         if (cloudAppVersion != null && localAppVersion != null && cloudAppVersion > localAppVersion)
                             versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
                         setDownloadStatus(holder, false)

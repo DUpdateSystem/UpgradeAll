@@ -4,12 +4,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.RelativeLayout
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
@@ -40,7 +40,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListIte
                     setDownloadStatus(holder, true)
                     GlobalScope.launch {
                         val addHubStatus = MiscellaneousUtils.cloudConfigGetter.downloadCloudHubConfig(itemCardView.uuid)  // 下载数据
-                        launch(Dispatchers.Main) {
+                        withContext(Dispatchers.Main) {
                             setDownloadStatus(holder, false)
                             if (addHubStatus == 3) {
                                 holder.versionCheckButton.visibility = View.VISIBLE
@@ -96,7 +96,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListIte
                 HubDatabaseManager.getDatabase(uuid = hubUuid)?.cloudHubConfig?.let {
                     val cloudHubVersion = it.info.configVersion
                     val localHubVersion = hubConfigGson?.info?.configVersion
-                    launch(Dispatchers.Main) {
+                    withContext(Dispatchers.Main) {
                         if (localHubVersion != null && cloudHubVersion > localHubVersion)
                             versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
                         setDownloadStatus(holder, false)

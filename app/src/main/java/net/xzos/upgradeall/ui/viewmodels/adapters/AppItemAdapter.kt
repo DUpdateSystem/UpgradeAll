@@ -148,7 +148,7 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
                     } else if (updateStatus != 2 && it.contains(app)) {
                         it.remove(app)
                     } else return@let
-                    GlobalScope.launch(Dispatchers.Main) {
+                    withContext(Dispatchers.Main) {
                         this@with.notifyObserver()
                     }
                 }

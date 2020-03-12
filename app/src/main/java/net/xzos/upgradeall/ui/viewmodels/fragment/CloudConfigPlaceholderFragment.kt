@@ -7,10 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.xzos.dupdatesystem.core.data.config.AppConfig
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_MAGISK_MODULE
@@ -53,12 +50,12 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
 
     private fun renewCardView() {
         GlobalScope.launch {
-            launch(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = true }
+            withContext(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = true }
             if (pageModelIndex == CLOUD_APP_CONFIG)
                 renewCloudList(isAppList = true)
             else if (pageModelIndex == CLOUD_HUB_CONFIG)
                 renewCloudList(isHubList = true)
-            launch(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = false }
+            withContext(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = false }
         }
     }
 
@@ -75,7 +72,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                 else -> null
             }?.plus(CloudConfigListItemView.newEmptyInstance())
                     ?.also {
-                        launch(Dispatchers.Main) {
+                        withContext(Dispatchers.Main) {
                             if (this@CloudConfigPlaceholderFragment.isVisible) {
                                 cardItemRecyclerView?.let { view ->
                                     view.layoutManager = GridLayoutManager(activity, 1)
@@ -88,7 +85,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                             }
                         }
                     }
-                    ?: {
+                    ?: run {
                         if (this@CloudConfigPlaceholderFragment.isVisible)
                             MiscellaneousUtils.showToast(context, R.string.network_error)
                     }

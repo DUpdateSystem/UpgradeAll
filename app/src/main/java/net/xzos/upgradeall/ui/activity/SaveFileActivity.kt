@@ -30,7 +30,6 @@ class SaveFileActivity : AppCompatActivity() {
                             R.string.save_file_successfully
                         else
                             R.string.save_file_failed
-                )
                 Toast.makeText(this, textResId, Toast.LENGTH_LONG).show()
             }
         }

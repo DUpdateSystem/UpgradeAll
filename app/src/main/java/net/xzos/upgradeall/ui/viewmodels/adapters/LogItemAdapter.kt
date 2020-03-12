@@ -7,8 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.ui.viewmodels.view.holder.LogRecyclerViewHolder
 import net.xzos.upgradeall.utils.FileUtil
 import java.util.*
@@ -19,9 +18,7 @@ class LogItemAdapter(mLogList: LiveData<List<String>>, owner: LifecycleOwner) : 
 
     init {
         mLogList.observe(owner, Observer { logList ->
-            GlobalScope.launch(Dispatchers.Main) {
-                renewLogMessage(logList)
-            }
+            renewLogMessage(logList)
         })
     }
 
@@ -39,7 +36,9 @@ class LogItemAdapter(mLogList: LiveData<List<String>>, owner: LifecycleOwner) : 
                 for (i in index + 1 until stringList.size)
                     mLogMessages.add(stringList[i])
             }
-            notifyItemRangeChanged(startChangeIndex, mLogMessages.size)
+            runBlocking(Dispatchers.Main) {
+                notifyItemRangeChanged(startChangeIndex, mLogMessages.size)
+            }
         }
     }
 
