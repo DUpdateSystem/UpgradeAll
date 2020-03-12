@@ -70,7 +70,7 @@ class AppSettingFragment : Fragment() {
         )
 
     init {
-        GlobalScope.launch(Dispatchers.IO) {
+        GlobalScope.launch {
             searchUtils = SearchUtils()
         }
     }

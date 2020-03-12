@@ -105,7 +105,7 @@ class AppInfoFragment : Fragment() {
                 it.version_number
             }
 
-            launch(Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
                 if (this@AppInfoFragment.isVisible) {
                     val markProcessedVersionNumber = app.markProcessedVersionNumber
                     versioningSelectLayout.setOnClickListener { view ->
@@ -158,12 +158,12 @@ class AppInfoFragment : Fragment() {
                                             ArrayAdapter(dialog.context, android.R.layout.simple_list_item_1, nameList)
                                     // 下载文件
                                     list.setOnItemClickListener { _, _, position, _ ->
-                                        GlobalScope.launch {
+                                        launch {
                                             Updater(app).downloadReleaseFile(Pair(versioningPosition, position))
                                         }
                                     }
                                     list.setOnItemLongClickListener { _, _, position, _ ->
-                                        GlobalScope.launch {
+                                        launch {
                                             Updater(app).downloadReleaseFile(Pair(versioningPosition, position), externalDownloader = true)
                                         }
                                         return@setOnItemLongClickListener true
@@ -184,7 +184,7 @@ class AppInfoFragment : Fragment() {
         app.appInfo.let { appDatabase ->
             GlobalScope.launch {
                 val installedVersioning = app.installedVersionNumber
-                launch(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     if (this@AppInfoFragment.isVisible) {
                         appIconImageView.let {
                             IconPalette.loadAppIconView(it, app = app)
@@ -225,7 +225,7 @@ class AppInfoFragment : Fragment() {
                 val releaseInfoBean = jsReturnData!!.releaseInfoList[versioningPosition]
                 val latestVersionNumber = releaseInfoBean.version_number
                 val latestChangeLog = releaseInfoBean.change_log
-                launch(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     if (this@AppInfoFragment.isVisible) {
                         cloud_versioning_text_view.text = if (versioningPosition == 0) {
                             getString(R.string.latest_version_number)
@@ -257,7 +257,7 @@ class AppInfoFragment : Fragment() {
                     R.string.marked_version_number_is_behind_latest
                 else R.string.long_click_version_number_to_mark_as_processed
             }?.let {
-                launch(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     context?.run { Toast.makeText(this, it, Toast.LENGTH_LONG).show() }
                 }
             }
