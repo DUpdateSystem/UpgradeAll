@@ -48,7 +48,7 @@ class CloudAppItemAdapter(
                     // 下载
                     val appUuid = itemCardView.uuid
                     if (appUuid != null) {
-                        Toast.makeText(holder.itemCardView.context, "开始下载", Toast.LENGTH_LONG).show()
+                        Toast.makeText(holder.itemCardView.context, R.string.download_start, Toast.LENGTH_LONG).show()
                         // 下载数据
                         setDownloadStatus(holder, true)
                         GlobalScope.launch {

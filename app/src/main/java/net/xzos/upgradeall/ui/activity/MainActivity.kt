@@ -191,7 +191,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun setNavHeaderView() {
         val headerView = navView.getHeaderView(0) as LinearLayout
         headerView.setOnClickListener {
-            Toast.makeText(this, "长按侧滑栏图片可以删除图片", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.long_click_to_delete_image, Toast.LENGTH_SHORT).show()
             GlobalScope.launch {
                 if (UCropActivity.newInstance(19f, 6f, NAV_IMAGE_FILE, this@MainActivity))
                     withContext(Dispatchers.Main) {

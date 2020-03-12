@@ -25,10 +25,13 @@ class SaveFileActivity : AppCompatActivity() {
         if (resultCode == Activity.RESULT_OK && data != null) {
             val uri = data.data
             if (uri != null) {
-                if (FileUtil.writeToUri(uri, byteArray = BYTE_ARRAY)) {
-                    Toast.makeText(this, "保存成功", Toast.LENGTH_LONG).show()
-                } else
-                    Toast.makeText(this, "保存失败", Toast.LENGTH_LONG).show()
+                val textResId =
+                        if (FileUtil.writeToUri(uri, byteArray = BYTE_ARRAY))
+                            R.string.save_file_successfully
+                        else
+                            R.string.save_file_failed
+                )
+                Toast.makeText(this, textResId, Toast.LENGTH_LONG).show()
             }
         }
         finish()
@@ -52,7 +55,7 @@ class SaveFileActivity : AppCompatActivity() {
     ) {
         if (requestCode == PERMISSIONS_REQUEST_WRITE_CONTACTS) {
             if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "保存文件需要读写本地文件权限", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, R.string.file_permission_request, Toast.LENGTH_LONG).show()
                 finish()
             } else {
                 getFile()

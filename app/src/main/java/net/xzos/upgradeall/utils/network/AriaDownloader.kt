@@ -10,14 +10,12 @@ import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.arialyy.annotations.Download
 import com.arialyy.aria.core.Aria
 import com.arialyy.aria.core.download.DownloadEntity
 import com.arialyy.aria.core.download.DownloadTask
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.dupdatesystem.core.data_manager.utils.FilePathUtils
@@ -27,6 +25,7 @@ import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.ui.activity.SaveFileActivity
 import net.xzos.upgradeall.utils.ApkInstaller
 import net.xzos.upgradeall.utils.FileUtil
+import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.isApkFile
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.ACTION_SNOOZE
 import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DEL_TASK
@@ -58,15 +57,12 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
         val (isCreated, file) = startDownloadTask(fileName, headers)
         if (isCreated) {
             Aria.download(this).register()
-            GlobalScope.launch(Dispatchers.Main) {
-                Toast.makeText(context, "${file.name} 任务已添加", Toast.LENGTH_SHORT).show()
-            }
+            val text = file.name + context.getString(R.string.download_task_begin)
+            MiscellaneousUtils.showToast(context, text = text)
             startDownloadNotification(file)
         } else {
             cancelNotification(downloaderId)
-            GlobalScope.launch(Dispatchers.Main) {
-                Toast.makeText(context, "重复任务，忽略", Toast.LENGTH_SHORT).show()
-            }
+            MiscellaneousUtils.showToast(context, R.string.repeated_download_task)
         }
         return file
     }
@@ -128,9 +124,7 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
                 return Pair(false, File(filePath))
             } else {
                 context.sendBroadcast(getSnoozeIntent(DOWNLOAD_CANCEL))
-                GlobalScope.launch(Dispatchers.Main) {
-                    Toast.makeText(context, "尝试终止旧的重复任务", Toast.LENGTH_SHORT).show()
-                }
+                MiscellaneousUtils.showToast(context, R.string.try_kill_repeated_download_task)
                 Thread.sleep(blockingTime)
             }
         }
