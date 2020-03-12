@@ -14,6 +14,7 @@ import com.jaredrummler.android.shell.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.dupdatesystem.core.data_manager.CloudConfigGetter
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
@@ -48,9 +49,7 @@ object MiscellaneousUtils {
         var cloudConfigGetter = CloudConfigGetter(cloudRulesHubUrl)
         if (!cloudConfigGetter.available) {
             pref.edit().putString(prefKey, defaultCloudRulesHubUrl).apply()
-            GlobalScope.launch(Dispatchers.Main) {
-                Toast.makeText(context, context.resources.getString(R.string.auto_fixed_wrong_configuration), Toast.LENGTH_LONG).show()
-            }
+            showToast(context, R.string.auto_fixed_wrong_configuration, duration = Toast.LENGTH_LONG)
             cloudConfigGetter = CloudConfigGetter(defaultCloudRulesHubUrl)
         }
         return cloudConfigGetter
@@ -110,6 +109,17 @@ object MiscellaneousUtils {
         ActivityManager.getMyMemoryState(appProcessInfo)
         return appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
                 || appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
+    }
+
+    @JvmOverloads
+    fun showToast(context: Context?, resId: Int? = null, text: CharSequence? = null, duration: Int = Toast.LENGTH_SHORT) {
+        runBlocking(Dispatchers.Main) {
+            when {
+                text != null -> Toast.makeText(context, text, duration)
+                resId != null -> Toast.makeText(context, resId, duration)
+                else -> null
+            }?.show()
+        }
     }
 }
 

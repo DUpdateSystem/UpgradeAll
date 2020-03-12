@@ -31,6 +31,7 @@ import net.xzos.upgradeall.ui.activity.UCropActivity
 import net.xzos.upgradeall.ui.viewmodels.fragment.AppListPlaceholderFragment
 import net.xzos.upgradeall.utils.FileUtil
 import net.xzos.upgradeall.utils.IconPalette
+import net.xzos.upgradeall.utils.MiscellaneousUtils
 import java.io.File
 
 class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentManager, private val lifecycleOwner: LifecycleOwner) :
@@ -52,10 +53,10 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                 } else {
                     AppTabSectionsPagerAdapter.editTabMode.value = true
                     // 尝试阻止用户退出编辑模式
-                    GlobalScope.launch(Dispatchers.Main) {
-                        Toast.makeText(tabLayout.context,
-                                "请勿隐藏所有标签页，这将导致您难以使用该软件", Toast.LENGTH_LONG).show()
-                    }
+                    MiscellaneousUtils.showToast(
+                            tabLayout.context,
+                            R.string.please_do_not_hide_all_bookmark_page,
+                            duration = Toast.LENGTH_LONG)
                 }
             }
             renewAllCustomTabView()
@@ -337,7 +338,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                         }
                         dialog.cancel()
                     } else {
-                        Toast.makeText(this, "请填写名称", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, R.string.please_input_name, Toast.LENGTH_LONG).show()
                     }
                 }
             }.create().show()

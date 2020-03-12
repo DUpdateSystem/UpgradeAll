@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import net.xzos.dupdatesystem.core.data.config.AppConfig
 import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
 import net.xzos.dupdatesystem.core.log.Log
+import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import java.io.*
@@ -50,7 +51,7 @@ object FileUtil {
                         Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
                             Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                Toast.makeText(context, "请给予本软件 读写存储空间权限", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, R.string.file_permission_request, Toast.LENGTH_LONG).show()
             }
             ActivityCompat.requestPermissions(activity,
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
@@ -196,7 +197,7 @@ object FileUtil {
         val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val mClipData = ClipData.newPlainText("Label", s)
         cm.setPrimaryClip(mClipData)
-        if (showToast) Toast.makeText(context, "已复制到粘贴板", Toast.LENGTH_SHORT).show()
+        if (showToast) Toast.makeText(context, R.string.copied_to_pasteboard, Toast.LENGTH_SHORT).show()
     }
 
     private fun convertBitmapToFile(destinationFile: File, bitmap: Bitmap) {

@@ -55,7 +55,7 @@ class UCropActivity : AppCompatActivity() {
                 val cropError = UCrop.getError(resultData!!)
                 if (cropError != null)
                     Log.e(logObjectTag, TAG, "onActivityResult: 图片裁剪错误: $cropError")
-                Toast.makeText(this, "uCrop 运行错误", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, R.string.ucrop_error, Toast.LENGTH_LONG).show()
                 finish()
             }
             else -> finish()
@@ -83,7 +83,7 @@ class UCropActivity : AppCompatActivity() {
     ) {
         if (requestCode == PERMISSIONS_REQUEST_WRITE_CONTACTS) {
             if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "获取图片需要读写本地文件权限", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, R.string.file_permission_request, Toast.LENGTH_LONG).show()
                 finish()
             } else {
                 readPic()

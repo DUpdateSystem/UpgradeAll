@@ -86,7 +86,7 @@ class AppSettingFragment : Fragment() {
         val (hubNameStringList, _) = renewApiJsonObject()
         // 修改 apiSpinner
         if (hubNameStringList.isEmpty()) {
-            Toast.makeText(context, "请先添加软件源或下载软件配置", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, R.string.add_something, Toast.LENGTH_LONG).show()
             activity?.onBackPressed()
             setNavigationItemId(R.id.hubCloudFragment)
         }
@@ -131,9 +131,6 @@ class AppSettingFragment : Fragment() {
                                 if (searchInfoList.isNotEmpty()) {
                                     editTarget.setAdapter(SearchResultItemAdapter(requireContext(), searchInfoList))
                                     editTarget.showDropDown()
-                                } else if (editTarget.text.toString() == text) {
-                                    val toastText = context?.getText(R.string.no_completion_results)
-                                    Toast.makeText(context, "${toastText}: $text", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }
@@ -273,7 +270,7 @@ class AppSettingFragment : Fragment() {
                             AppInfoFragment.bundleApp = app
                         activity?.onBackPressed()  // 跳转主页面
                     } else
-                        Toast.makeText(context, "添加失败", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, R.string.failed_to_add, Toast.LENGTH_LONG).show()
                     activity?.run {
                         this.floatingActionButton?.visibility = View.VISIBLE
                         this.loadingBar?.visibility = View.GONE

@@ -49,8 +49,11 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
             mItemCardViewList.getByHolder(holder).extraData.app?.run {
                 this.renew()
                 setAppStatusUI(holder, this)
-                Toast.makeText(holder.versionCheckButton.context, "检查 ${holder.nameTextView.text} 的更新",
-                        Toast.LENGTH_SHORT).show()
+                with(holder.versionCheckButton.context) {
+                    val name = holder.nameTextView.text.toString()
+                    val text = getString(R.string.checking_update).replace("%name", name)
+                    Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+                }
             }
             true
         }
