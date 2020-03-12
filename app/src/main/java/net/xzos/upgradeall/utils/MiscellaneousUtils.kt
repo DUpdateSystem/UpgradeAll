@@ -57,16 +57,19 @@ object MiscellaneousUtils {
 
     fun accessByBrowser(url: String?, context: Context?) {
         if (url != null && context != null)
-            context.startActivity(
-                    Intent.createChooser(
-                            Intent(Intent.ACTION_VIEW).apply {
-                                this.data = Uri.parse(url)
-                            }, "请选择浏览器以打开网页").apply {
-                        if (context == context)
-                            this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    }
-            )
-
+            try {
+                context.startActivity(
+                        Intent.createChooser(
+                                Intent(Intent.ACTION_VIEW).apply {
+                                    this.data = Uri.parse(url)
+                                }, "请选择浏览器以打开网页").apply {
+                            if (context == context)
+                                this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                )
+            } catch (e: ArrayIndexOutOfBoundsException) {
+                showToast(context, R.string.miui_error, duration = Toast.LENGTH_LONG)
+            }
     }
 
     fun getCurrentLocale(context: Context): Locale? =
