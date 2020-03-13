@@ -286,6 +286,7 @@ class AppSettingFragment : Fragment() {
             editName.setText(this.name)
             editUrl.setText(this.url)
             editHub.setText(HubDatabaseManager.getDatabase(this.apiUuid)?.name)
+            hubUuid = this.apiUuid
             val versionCheckerGson = this.targetChecker
             val versionCheckerApi = versionCheckerGson?.api
             val versionCheckerText = versionCheckerGson?.extraString
@@ -318,7 +319,7 @@ class AppSettingFragment : Fragment() {
             else runBlocking(Dispatchers.IO) { App(this@run).engine.getDefaultName() }
                     ?: return false
         }
-        return appInfo.save()
+        return appInfo.save(true)
     }
 
     private fun renewApiJsonObject(): Pair<List<String>, List<String>> {

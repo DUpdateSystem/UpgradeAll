@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.viewmodels.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
 import net.xzos.dupdatesystem.core.server_manager.AppManager
@@ -20,10 +21,8 @@ class AppListPageViewModel : AppListContainerViewModel() {
 
     private val mTabPageIndex = MutableLiveData<Int>().apply {
         this.observeForever { tabPageIndex ->
+            editableTab.value = false
             GlobalScope.launch {
-                withContext(Dispatchers.Main) {
-                    editableTab.value = false
-                }
                 val apps = getApps(tabPageIndex)
                 setApps(apps)
             }

@@ -69,24 +69,21 @@ abstract class AppListContainerFragment : Fragment() {
     internal fun renewPage() {
         viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
             // 列表显示刷新
-            if (it.isNullOrEmpty()) {
-                updateOverviewLayout.visibility = View.GONE
-                placeholderLayout.visibility = View.VISIBLE
-                placeholderImageVew.setImageResource(R.drawable.ic_isnothing_placeholder)
-                with(placeholderTextView) {
-                    text = this.context.getText(R.string.click_to_add_something)
+            if (viewModel.dataInit)
+                if (it.isNullOrEmpty()) {
+                    updateOverviewLayout.visibility = View.GONE
+                    placeholderLayout.visibility = View.VISIBLE
+                    placeholderImageVew.setImageResource(R.drawable.ic_isnothing_placeholder)
+                    with(placeholderTextView) {
+                        text = this.context.getText(R.string.click_to_add_something)
+                    }
+                } else {
+                    updateOverviewLayout.visibility = View.VISIBLE
+                    placeholderLayout.visibility = View.GONE
+                    renewCardView()
                 }
-            } else {
-                updateOverviewLayout.visibility = View.VISIBLE
-                placeholderLayout.visibility = View.GONE
-                renewCardView()
-            }
         })
         // TODO: 设置升级标识
-        placeholderImageVew.setImageResource(R.drawable.ic_checking_update)
-        with(placeholderTextView) {
-            text = this.context.getText(R.string.waiting_check_update)
-        }
     }
 
     private fun renewCardView() {

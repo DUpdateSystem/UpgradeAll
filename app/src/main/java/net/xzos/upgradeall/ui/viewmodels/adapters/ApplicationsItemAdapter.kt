@@ -56,7 +56,7 @@ class ApplicationsItemAdapter(
                         // 保存
                         menu.add(R.string.save).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
-                                if (this.appInfo.save())
+                                if (this.appInfo.save(true))
                                     Toast.makeText(context, R.string.save_successfully, Toast.LENGTH_SHORT).show()
                                 return@setOnMenuItemClickListener true
                             }
@@ -84,7 +84,7 @@ class ApplicationsItemAdapter(
                 for (containerTabListBean in tabInfoList)
                     menu.add(containerTabListBean.name).let { menuItem: MenuItem ->
                         menuItem.setOnMenuItemClickListener {
-                            if (app.appInfo.save())
+                            if (app.appInfo.save(true))
                                 containerTabListBean.itemList.add(
                                         UIConfig.CustomContainerTabListBean.ItemListBean(
                                                 UIConfig.APP_TYPE_TAG,

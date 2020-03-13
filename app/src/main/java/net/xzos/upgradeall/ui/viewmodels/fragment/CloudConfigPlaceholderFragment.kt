@@ -23,7 +23,8 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 internal class CloudConfigPlaceholderFragment : Fragment() {
 
-    private val cloudConfigGetter = MiscellaneousUtils.cloudConfigGetter
+    private val cloudConfigGetter
+        get() = MiscellaneousUtils.cloudConfigGetter
 
     private var pageModelIndex = 0
 
