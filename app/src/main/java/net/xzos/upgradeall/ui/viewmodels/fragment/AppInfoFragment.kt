@@ -271,7 +271,7 @@ class AppInfoFragment : Fragment() {
                         if (it.markProcessedVersionNumber != versionNumber) versionNumber
                         else null
             }
-        }.save()
+        }.save(false)
     }
 
     private fun renewVersionRelatedItems() {
