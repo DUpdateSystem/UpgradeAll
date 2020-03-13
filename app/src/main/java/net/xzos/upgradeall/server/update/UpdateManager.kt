@@ -44,10 +44,10 @@ object UpdateManager {
     private fun getNotify() {
         val allAppsNum = updateManager.apps.size
         val finishedAppNum = updateManager.finishedAppNum.toInt()
-        val needUpdateAppNum = updateManager.needUpdateAppList.size
         if (finishedAppNum != allAppsNum) {
             updateStatusNotification(allAppsNum, finishedAppNum)
         } else {
+            val needUpdateAppNum = updateManager.needUpdateAppList.size
             if (needUpdateAppNum != 0)
                 updateNotification(needUpdateAppNum)
             else
