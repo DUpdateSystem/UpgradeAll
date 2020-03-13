@@ -38,10 +38,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var navController: NavController
 
     init {
-        GlobalScope.launch {
-            updateManager.renewAll()
-        }
-
         navigationItemId = MutableLiveData(R.id.appListFragment).apply {
             this.observe(this@MainActivity, Observer { itemId ->
                 setFrameLayout(itemId)
@@ -63,6 +59,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setNavHeaderView()
         navView.setNavigationItemSelectedListener(this)
         showToast()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        GlobalScope.launch {
+            updateManager.renewAll()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

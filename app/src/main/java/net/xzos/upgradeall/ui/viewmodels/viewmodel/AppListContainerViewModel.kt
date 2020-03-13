@@ -4,7 +4,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.dupdatesystem.core.data.config.AppConfig
 import net.xzos.dupdatesystem.core.data.database.AppDatabase
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
@@ -22,8 +23,8 @@ abstract class AppListContainerViewModel : ViewModel() {
     var dataInit = false
 
     fun setApps(apps: List<BaseApp>) {
-        dataInit = true
-        runBlocking(Dispatchers.Main) {
+        GlobalScope.launch(Dispatchers.Main) {
+            dataInit = true
             appListLiveData.value = apps.toMutableList()
         }
     }
