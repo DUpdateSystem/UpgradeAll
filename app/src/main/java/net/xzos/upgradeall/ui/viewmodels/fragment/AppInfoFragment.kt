@@ -158,12 +158,12 @@ class AppInfoFragment : Fragment() {
                                             ArrayAdapter(dialog.context, android.R.layout.simple_list_item_1, nameList)
                                     // 下载文件
                                     list.setOnItemClickListener { _, _, position, _ ->
-                                        launch {
+                                        GlobalScope.launch {
                                             Updater(app).downloadReleaseFile(Pair(versioningPosition, position))
                                         }
                                     }
                                     list.setOnItemLongClickListener { _, _, position, _ ->
-                                        launch {
+                                        GlobalScope.launch {
                                             Updater(app).downloadReleaseFile(Pair(versioningPosition, position), externalDownloader = true)
                                         }
                                         return@setOnItemLongClickListener true

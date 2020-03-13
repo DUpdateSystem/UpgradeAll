@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.viewmodels.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
 import net.xzos.dupdatesystem.core.server_manager.AppManager
@@ -32,7 +31,7 @@ class AppListPageViewModel : AppListContainerViewModel() {
     private suspend fun getApps(tabPageIndex: Int): List<BaseApp> {
         return when (tabPageIndex) {
             UPDATE_PAGE_INDEX -> {
-                updateManager.renewAll()
+                updateManager.needUpdateAppList
             }
             ALL_APP_PAGE_INDEX -> {
                 AppManager.apps
