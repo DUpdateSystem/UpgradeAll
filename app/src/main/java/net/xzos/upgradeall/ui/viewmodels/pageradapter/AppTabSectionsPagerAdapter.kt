@@ -173,18 +173,15 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
             groupIconImageView: ImageView,
             textView: View
     ): UIConfig.BasicInfo {
-        var tabIconDrawableId: Int? = null
+        val tabIconDrawableId = getTabIconDrawableId(tabIndex)
         val tabBasicInfo = when (tabIndex) {
             UPDATE_PAGE_INDEX -> {
-                tabIconDrawableId = R.drawable.ic_update
                 uiConfig.updateTab
             }
             USER_STAR_PAGE_INDEX -> {
-                tabIconDrawableId = R.drawable.ic_start
                 uiConfig.userStarTab
             }
             ALL_APP_PAGE_INDEX -> {
-                tabIconDrawableId = R.drawable.ic_app
                 uiConfig.allAppTab
             }
             else -> {
@@ -204,6 +201,21 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                 hubIconDrawableId = tabIconDrawableId
         )
         return tabBasicInfo
+    }
+
+    private fun getTabIconDrawableId(tabIndex: Int): Int? {
+        return when (tabIndex) {
+            UPDATE_PAGE_INDEX -> {
+                R.drawable.ic_update
+            }
+            USER_STAR_PAGE_INDEX -> {
+                R.drawable.ic_start
+            }
+            ALL_APP_PAGE_INDEX -> {
+                R.drawable.ic_app
+            }
+            else -> null
+        }
     }
 
     private fun getCustomTabView(position: Int): View {
@@ -306,7 +318,15 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                             }
                             groupCardView.setOnLongClickListener {
                                 tabBasicInfo?.icon = null
-                                uiConfig.save()
+                                val tabIconDrawableId = getTabIconDrawableId(tabIndex)
+                                IconPalette.loadHubIconView(
+                                        iconImageView = groupIconImageView,
+                                        hubIconDrawableId = tabIconDrawableId
+                                )
+                                IconPalette.loadHubIconView(
+                                        iconImageView = view.groupIconImageView,
+                                        hubIconDrawableId = tabIconDrawableId
+                                )
                                 return@setOnLongClickListener true
                             }
                             groupCardView.setOnClickListener {
@@ -351,14 +371,14 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
     }
 
     companion object {
-        internal const val ADD_TAB_BUTTON_INDEX = -4
-        internal const val UPDATE_PAGE_INDEX = -3
-        internal const val USER_STAR_PAGE_INDEX = -2
-        internal const val ALL_APP_PAGE_INDEX = -1
+        const val ADD_TAB_BUTTON_INDEX = -4
+        const val UPDATE_PAGE_INDEX = -3
+        const val USER_STAR_PAGE_INDEX = -2
+        const val ALL_APP_PAGE_INDEX = -1
 
-        internal val editTabMode = MutableLiveData(false)
+        val editTabMode = MutableLiveData(false)
 
-        internal fun newInstance(
+        fun newInstance(
                 tabLayout: TabLayout,
                 viewPager: ViewPager,
                 childFragmentManager: FragmentManager,

@@ -52,7 +52,7 @@ abstract class AppListContainerViewModel : ViewModel() {
                     AppConfigGson.AppConfigBean.TargetCheckerBean.API_TYPE_MAGISK_MODULE -> context.getString(R.string.magisk_module)
                     AppConfigGson.AppConfigBean.TargetCheckerBean.API_TYPE_SHELL -> context.getString(R.string.shell)
                     AppConfigGson.AppConfigBean.TargetCheckerBean.API_TYPE_SHELL_ROOT -> context.getString(R.string.shell_root)
-                    else -> ""
+                    else -> context.getString(R.string.app)
                 }
             }
             AppDatabase.APPLICATIONS_TYPE_TAG.toLowerCase(local) -> context.getString(R.string.applications)
