@@ -98,7 +98,10 @@ class UCropActivity : AppCompatActivity() {
 
         private const val PERMISSIONS_REQUEST_WRITE_CONTACTS = 1
         private const val READ_PIC_REQUEST_CODE = 2
-        private val cacheImageFile = FileUtil.IMAGE_CACHE_FILE
+        private val cacheImageFile = FileUtil.IMAGE_CACHE_FILE.also {
+            it.parentFile?.mkdirs()
+            it.createNewFile()
+        }
 
         private val mutex = Mutex()
 

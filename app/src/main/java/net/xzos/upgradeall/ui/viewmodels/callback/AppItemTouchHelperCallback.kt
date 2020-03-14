@@ -3,10 +3,16 @@ package net.xzos.upgradeall.ui.viewmodels.callback
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import net.xzos.upgradeall.data_manager.UIConfig
+import net.xzos.upgradeall.data_manager.UIConfig.Companion.uiConfig
 import net.xzos.upgradeall.ui.viewmodels.adapters.AppItemAdapter
+import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 
 
-class AppItemTouchHelperCallback(private val mAdapter: AppItemAdapter) : ItemTouchHelper.Callback() {
+class AppItemTouchHelperCallback(
+        private val mAdapter: AppItemAdapter,
+        private val appIdList: MutableList<UIConfig.CustomContainerTabListBean.ItemListBean>
+) : ItemTouchHelper.Callback() {
 
     override fun isLongPressDragEnabled(): Boolean {
         return true
@@ -25,7 +31,14 @@ class AppItemTouchHelperCallback(private val mAdapter: AppItemAdapter) : ItemTou
 
     override fun onMove(recyclerView: RecyclerView, viewHolder: ViewHolder,
                         target: ViewHolder): Boolean {
-        mAdapter.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
+        if (AppTabSectionsPagerAdapter.editTabMode.value == true) {
+            val fromPosition = viewHolder.adapterPosition
+            val toPosition = target.adapterPosition
+            mAdapter.onItemMove(fromPosition, toPosition)
+            appIdList[fromPosition] = appIdList[toPosition]
+                    .also { appIdList[toPosition] = appIdList[fromPosition] }
+            uiConfig.save()
+        }
         return true
     }
 
