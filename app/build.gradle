@@ -25,7 +25,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 37
-        versionName "0.1.1-beta.3"
+        versionName "0.1.1-beta.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -116,9 +116,9 @@ dependencies {
 
     // 网络工具
     // OkHttp
-    implementation 'com.squareup.okhttp3:okhttp:4.4.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.4.1'
     implementation 'com.squareup.okio:okio:2.4.3'
-    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.4.0'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.4.1'
     // Jsoup
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'cn.wanghaomiao:JsoupXpath:2.3.2'

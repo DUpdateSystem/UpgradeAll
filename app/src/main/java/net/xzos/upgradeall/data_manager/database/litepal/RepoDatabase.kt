@@ -20,8 +20,9 @@ internal class RepoDatabase(
 
     var extraData: AppDatabaseExtraData?
         set(value) {
-            if (value != null)
-                extra_data = Gson().toJson(value)
+            val v = value?.copy()
+            if (v != null)
+                extra_data = Gson().toJson(v)
         }
         get() {
             return if (extra_data != null)

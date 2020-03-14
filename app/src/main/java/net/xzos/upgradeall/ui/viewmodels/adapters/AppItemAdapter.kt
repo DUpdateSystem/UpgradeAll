@@ -130,10 +130,11 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
             else null
             withContext(Dispatchers.Main) {
                 when (updateStatus) {
-                    Updater.NETWORK_ERROR -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error)
                     Updater.APP_LATEST -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_mark_circle)
                     Updater.APP_OUTDATED -> holder.versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
                     Updater.APP_NO_LOCAL -> holder.versionCheckButton.setImageResource(R.drawable.ic_local_error)
+                    Updater.NETWORK_ERROR -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error)
+                    else -> holder.versionCheckButton.setImageResource(R.drawable.ic_del_or_error)
                 }
                 // 如果本地未安装，则显示最新版本号
                 if (installedVersioning == null && latestVersioning != null)
