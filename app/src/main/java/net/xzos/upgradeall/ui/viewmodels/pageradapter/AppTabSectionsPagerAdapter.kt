@@ -304,6 +304,11 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                                 liftMoveImageView.visibility = View.GONE
                                 rightMoveImageView.visibility = View.GONE
                             }
+                            groupCardView.setOnLongClickListener {
+                                tabBasicInfo?.icon = null
+                                uiConfig.save()
+                                return@setOnLongClickListener true
+                            }
                             groupCardView.setOnClickListener {
                                 GlobalScope.launch {
                                     if (cacheImageFile == null)

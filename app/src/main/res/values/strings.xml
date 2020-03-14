@@ -20,6 +20,7 @@
     <string name="update_item_setting_versionCheckButton">测试</string>
     <string name="delete">删除</string>
     <string name="delete_from_group">从分组中删除</string>
+    <string name="restore_default_icon">还原默认图标</string>
     <string name="export">导出</string>
     <string name="edit">编辑</string>
     <string name="sync_header">数据刷新</string>
