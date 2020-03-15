@@ -7,7 +7,7 @@ class ApplicationsPageViewModel : AppListContainerViewModel() {
 
     private val applications = MutableLiveData<Applications>().apply {
         this.observeForever { applications ->
-            val needUpdateAppList = applications.needUpdateAppList
+            val needUpdateAppList = applications.getNeedUpdateAppList(false)
             val appList = needUpdateAppList + applications.apps.filter {
                 !needUpdateAppList.contains(it)
             }

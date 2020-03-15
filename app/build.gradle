@@ -25,7 +25,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 37
-        versionName "0.1.1-rc"
+        versionName "0.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
