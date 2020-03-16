@@ -87,6 +87,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                         }
                     }
                     ?: run {
+                        MiscellaneousUtils.resetCloudHubUrl()
                         if (this@CloudConfigPlaceholderFragment.isVisible)
                             MiscellaneousUtils.showToast(context, R.string.network_error)
                     }

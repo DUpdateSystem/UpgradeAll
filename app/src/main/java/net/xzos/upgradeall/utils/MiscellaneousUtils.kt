@@ -24,6 +24,7 @@ import org.json.JSONException
 import java.io.StringReader
 import java.util.*
 
+
 object MiscellaneousUtils {
 
     init {
@@ -53,6 +54,17 @@ object MiscellaneousUtils {
             cloudConfigGetter = CloudConfigGetter(defaultCloudRulesHubUrl)
         }
         return cloudConfigGetter
+    }
+
+    fun resetCloudHubUrl() {
+        val prefKey = "cloud_rules_hub_url"
+        val defaultCloudRulesHubUrl = context.resources.getString(R.string.default_cloud_rules_hub_url)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = prefs.edit()
+        editor.putString(prefKey, defaultCloudRulesHubUrl)
+        editor.apply()
+        renewCloudConfigGetter()
+        showToast(context, R.string.reset_git_url_configuration, duration = Toast.LENGTH_LONG)
     }
 
     fun accessByBrowser(url: String?, context: Context?) {

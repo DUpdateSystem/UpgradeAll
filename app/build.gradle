@@ -24,8 +24,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 37
-        versionName "0.1.1"
+        versionCode 38
+        versionName "0.1.1-rc.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
