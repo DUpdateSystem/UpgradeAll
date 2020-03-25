@@ -42,12 +42,12 @@ abstract class AppListContainerViewModel : ViewModel() {
     }
 
     private fun getAppItemCardView(app: BaseApp): ItemCardView {
-        val appInfo = app.appInfo
-        val hubName = HubDatabaseManager.getDatabase(appInfo.apiUuid)?.name ?: ""
+        val appDatabase = app.appDatabase
+        val hubName = HubDatabaseManager.getDatabase(appDatabase.hubUuid)?.hubConfig?.info?.hubName
         val local = AppConfig.locale
-        val type = when (appInfo.type) {
+        val type = when (appDatabase.type) {
             AppDatabase.APP_TYPE_TAG -> {
-                when (appInfo.targetChecker?.api?.toLowerCase(local)) {
+                when (appDatabase.targetChecker?.api?.toLowerCase(local)) {
                     AppConfigGson.AppConfigBean.TargetCheckerBean.API_TYPE_APP_PACKAGE -> context.getString(R.string.android_app)
                     AppConfigGson.AppConfigBean.TargetCheckerBean.API_TYPE_MAGISK_MODULE -> context.getString(R.string.magisk_module)
                     AppConfigGson.AppConfigBean.TargetCheckerBean.API_TYPE_SHELL -> context.getString(R.string.shell)
@@ -59,7 +59,7 @@ abstract class AppListContainerViewModel : ViewModel() {
             else -> ""
         }
         return ItemCardView(
-                appInfo.name,
+                appDatabase.name,
                 type,
                 hubName,
                 ItemCardViewExtraData(app = app)

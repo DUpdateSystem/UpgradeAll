@@ -92,8 +92,7 @@ object IconPalette {
         GlobalScope.launch {
             loadIconView(iconImageView,
                     (iconInfo ?: IconInfo(
-                            url = app?.engine?.getAppIconUrl(),
-                            app_package = app?.appInfo?.targetChecker?.extraString
+                            app_package = app?.appDatabase?.targetChecker?.extraString
                     )).also {
                         it.drawable = context.getDrawable(R.drawable.ic_android_placeholder)
                     }

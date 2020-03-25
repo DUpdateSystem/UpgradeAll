@@ -93,7 +93,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListIte
             setDownloadStatus(holder, true)
             GlobalScope.launch {
                 val hubConfigGson = MiscellaneousUtils.cloudConfigGetter.getHubCloudConfig(hubUuid)
-                HubDatabaseManager.getDatabase(uuid = hubUuid)?.cloudHubConfig?.let {
+                HubDatabaseManager.getDatabase(uuid = hubUuid)?.hubConfig?.let {
                     val cloudHubVersion = it.info.configVersion
                     val localHubVersion = hubConfigGson?.info?.configVersion
                     withContext(Dispatchers.Main) {

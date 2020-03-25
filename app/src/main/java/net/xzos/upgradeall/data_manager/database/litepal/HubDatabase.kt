@@ -2,44 +2,29 @@ package net.xzos.upgradeall.data_manager.database.litepal
 
 import com.google.gson.Gson
 import net.xzos.dupdatesystem.core.data.json.gson.HubConfig
-import net.xzos.dupdatesystem.core.data.json.gson.HubDatabaseExtraData
 import org.litepal.crud.LitePalSupport
 
 
 internal class HubDatabase(
-        var name: String,
         var uuid: String,
-        private var hub_config: String?,
-        private var extra_data: String?
+        private var hub_config: String?
 ) : LitePalSupport() {
     val id: Long = 0
 
-    var cloudHubConfig: HubConfig?
+    var hubConfig: HubConfig
         set(value) {
-            if (value != null)
-                hub_config = Gson().toJson(value)
+            hub_config = Gson().toJson(value)
         }
         get() {
             return if (hub_config != null)
                 Gson().fromJson(hub_config, HubConfig::class.java)
-            else null
-        }
-    var extraData: HubDatabaseExtraData?
-        set(value) {
-            if (value != null)
-                extra_data = Gson().toJson(value)
-        }
-        get() {
-            return if (extra_data != null)
-                Gson().fromJson(extra_data, HubDatabaseExtraData::class.java)
-            else null
+            else HubConfig()
         }
 
     override fun save(): Boolean {
-        return if (name.isNotBlank() && uuid.isNotBlank()
-                && !hub_config.isNullOrBlank() && !extra_data.isNullOrBlank()) {
+        return if (uuid.isNotBlank()
+                && !hub_config.isNullOrBlank()) {
             super.save()
         } else false
     }
-
 }

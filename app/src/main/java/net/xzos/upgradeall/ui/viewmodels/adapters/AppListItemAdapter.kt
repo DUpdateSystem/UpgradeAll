@@ -88,7 +88,7 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                                 // 导出
                                 menu.add(R.string.export).let { menuItem ->
                                     menuItem.setOnMenuItemClickListener {
-                                        val appConfigGson = AppDatabaseManager.translateAppConfig(this.appInfo)
+                                        val appConfigGson = AppDatabaseManager.translateAppConfig(this.appDatabase)
                                         FileUtil.clipStringToClipboard(
                                                 GsonBuilder().setPrettyPrinting().create().toJson(appConfigGson),
                                                 context
@@ -99,7 +99,7 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                                 // 删除数据库
                                 menu.add(R.string.delete).let { menuItem ->
                                     menuItem.setOnMenuItemClickListener {
-                                        this.appInfo.delete()
+                                        this.appDatabase.delete()
                                         onItemDismiss(holder.adapterPosition)
                                         return@setOnMenuItemClickListener true
                                     }

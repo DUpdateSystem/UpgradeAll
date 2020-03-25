@@ -12,10 +12,6 @@
             android:id="@+id/cloud_hub_list"
             android:icon="@drawable/ic_cloud_list"
             android:title="@string/cloud_hub_list" />
-        <item
-            android:id="@+id/local_hub_debug"
-            android:icon="@drawable/ic_local_hub_debug"
-            android:title="@string/local_debug" />
     </group>
 
     <group android:checkableBehavior="single">

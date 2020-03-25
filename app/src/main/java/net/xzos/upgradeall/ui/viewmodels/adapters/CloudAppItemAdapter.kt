@@ -58,7 +58,7 @@ class CloudAppItemAdapter(
                                 setDownloadStatus(holder, false)
                                 if (appDatabase != null) {
                                     holder.versionCheckButton.visibility = View.VISIBLE
-                                    checkHubDependency(hubUuid = appDatabase.apiUuid)
+                                    checkHubDependency(hubUuid = appDatabase.hubUuid)
                                 }
                             }
                         }
@@ -109,7 +109,7 @@ class CloudAppItemAdapter(
             setDownloadStatus(holder, true)
             GlobalScope.launch {
                 val appConfigGson = cloudConfigGetter.getAppCloudConfig(appUuid)
-                this@run.appInfo.extraData.let {
+                this@run.appDatabase.extraData.let {
                     val cloudAppVersion = it?.cloudAppConfigGson?.info?.configVersion
                     val localAppVersion = appConfigGson?.info?.configVersion
                     withContext(Dispatchers.Main) {
