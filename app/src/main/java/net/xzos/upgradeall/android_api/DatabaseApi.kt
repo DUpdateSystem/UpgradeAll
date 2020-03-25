@@ -32,7 +32,7 @@ object DatabaseApi : DatabaseApi {
 
     override fun getHubDatabaseList(): List<HubDatabase> {
         return nativeHubDatabase.map {
-            HubDatabase(it.name, it.uuid, it.cloudHubConfig, it.extraData)
+            HubDatabase(it.uuid, it.hubConfig)
         }
     }
 
@@ -48,7 +48,7 @@ object DatabaseApi : DatabaseApi {
         database.run {
             name = appDatabase.name
             url = appDatabase.url
-            api_uuid = appDatabase.apiUuid
+            api_uuid = appDatabase.hubUuid
             type = appDatabase.type
             targetChecker = appDatabase.targetChecker
             extraData = appDatabase.extraData
@@ -77,12 +77,10 @@ object DatabaseApi : DatabaseApi {
             }
         }
         if (database == null)
-            database = net.xzos.upgradeall.data_manager.database.litepal.HubDatabase("", "", "", "")
+            database = net.xzos.upgradeall.data_manager.database.litepal.HubDatabase("", "")
         database.run {
-            name = hubDatabase.name
             uuid = hubDatabase.uuid
-            cloudHubConfig = hubDatabase.cloudHubConfig
-            extraData = hubDatabase.extraData
+            hubConfig = hubDatabase.hubConfig
         }
         return if (database.save())
             conversionHubDatabase(database)
@@ -109,6 +107,6 @@ object DatabaseApi : DatabaseApi {
 
     // 本机软件源数据库转换通用格式数据库
     private fun conversionHubDatabase(hubDatabase: net.xzos.upgradeall.data_manager.database.litepal.HubDatabase): HubDatabase {
-        return HubDatabase(hubDatabase.name, hubDatabase.uuid, hubDatabase.cloudHubConfig, hubDatabase.extraData)
+        return HubDatabase(hubDatabase.uuid, hubDatabase.hubConfig)
     }
 }

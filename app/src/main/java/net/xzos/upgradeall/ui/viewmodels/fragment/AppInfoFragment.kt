@@ -18,8 +18,7 @@ import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.list_content.*
 import kotlinx.coroutines.*
 import net.xzos.dupdatesystem.core.data.database.getExtraData
-import net.xzos.dupdatesystem.core.data.json.gson.JSReturnData
-import net.xzos.dupdatesystem.core.jscore.js.engine.JavaScriptEngine
+import net.xzos.dupdatesystem.core.data.json.gson.WebApiReturnGson
 import net.xzos.dupdatesystem.core.server_manager.module.app.App
 import net.xzos.dupdatesystem.core.server_manager.module.app.Updater
 import net.xzos.upgradeall.R
@@ -36,13 +35,12 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
  */
 class AppInfoFragment : Fragment() {
     private lateinit var app: App
-    private lateinit var engine: JavaScriptEngine
 
     private var versioningPosition: Int = 0
-    private var jsReturnData: JSReturnData? = null
+    private var releaseInfoList: List<WebApiReturnGson.ReleaseInfoBean>? = null
         get() {
             return field ?: runBlocking {
-                engine.getJsReturnData().also {
+                Updater(app).getReleaseInfo().also {
                     field = it
                 }
             }
@@ -95,14 +93,13 @@ class AppInfoFragment : Fragment() {
             app = this
             initUi()
         } ?: if (!::app.isLateinit) activity?.onBackPressed()
-        engine = app.engine
     }
 
     private fun loadVersioningPopupMenu() {
         versioningSelectLayout.visibility = View.GONE
         GlobalScope.launch {
-            val versionNumberList = jsReturnData!!.releaseInfoList.map {
-                it.version_number
+            val versionNumberList = releaseInfoList!!.map {
+                it.versionNumber
             }
 
             withContext(Dispatchers.Main) {
@@ -143,7 +140,7 @@ class AppInfoFragment : Fragment() {
                 Toast.makeText(context, R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG).show()
                 dialog.placeholderLayout.visibility = View.VISIBLE
                 GlobalScope.launch {
-                    val nameList = jsReturnData?.releaseInfoList?.run {
+                    val nameList = releaseInfoList?.run {
                         if (this.isNotEmpty()) {
                             this[versioningPosition].assets.map { asset ->
                                 asset.name
@@ -181,7 +178,7 @@ class AppInfoFragment : Fragment() {
     }
 
     private fun loadAllAppInfo() {
-        app.appInfo.let { appDatabase ->
+        app.appDatabase.let { appDatabase ->
             GlobalScope.launch {
                 val installedVersioning = app.installedVersionNumber
                 withContext(Dispatchers.Main) {
@@ -221,10 +218,9 @@ class AppInfoFragment : Fragment() {
         versionMarkImageView.visibility = View.GONE
         app.appInfo.let {
             GlobalScope.launch {
-                if (!Updater(app).isSuccessRenew()) return@launch
-                val releaseInfoBean = jsReturnData!!.releaseInfoList[versioningPosition]
-                val latestVersionNumber = releaseInfoBean.version_number
-                val latestChangeLog = releaseInfoBean.change_log
+                val releaseInfoBean = releaseInfoList?.get(versioningPosition)
+                val latestVersionNumber = releaseInfoBean?.versionNumber
+                val latestChangeLog = releaseInfoBean?.changeLog
                 withContext(Dispatchers.Main) {
                     if (this@AppInfoFragment.isVisible) {
                         cloud_versioning_text_view.text = if (versioningPosition == 0) {
@@ -253,7 +249,7 @@ class AppInfoFragment : Fragment() {
         GlobalScope.launch {
             if (Updater(app).getUpdateStatus() == Updater.APP_LATEST) null
             else {
-                if (app.appInfo.extraData?.markProcessedVersionNumber != null)
+                if (app.appDatabase.extraData?.markProcessedVersionNumber != null)
                     R.string.marked_version_number_is_behind_latest
                 else R.string.long_click_version_number_to_mark_as_processed
             }?.let {
@@ -265,7 +261,7 @@ class AppInfoFragment : Fragment() {
     }
 
     private fun markVersionNumber(versionNumber: String?) {
-        app.appInfo.apply {
+        app.appDatabase.apply {
             getExtraData().also {
                 it.markProcessedVersionNumber =
                         if (it.markProcessedVersionNumber != versionNumber) versionNumber
@@ -276,7 +272,7 @@ class AppInfoFragment : Fragment() {
 
     private fun renewVersionRelatedItems() {
         versionMarkImageView.visibility =
-                if (app.appInfo.extraData?.markProcessedVersionNumber == cloudVersioningTextView.text)
+                if (app.appDatabase.extraData?.markProcessedVersionNumber == cloudVersioningTextView.text)
                     View.VISIBLE
                 else View.GONE
         loadVersioningPopupMenu()

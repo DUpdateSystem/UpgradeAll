@@ -65,9 +65,6 @@
             android:name=".ui.activity.LogActivity"
             android:label="@string/title_activity_log" />
         <activity
-            android:name=".ui.activity.HubDebugActivity"
-            android:label="@string/local_debug" />
-        <activity
             android:name=".ui.activity.SettingsActivity"
             android:label="@string/setting" />
         <activity android:name=".ui.activity.UCropActivity" />

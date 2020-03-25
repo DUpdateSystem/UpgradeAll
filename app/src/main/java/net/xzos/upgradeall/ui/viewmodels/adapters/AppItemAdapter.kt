@@ -5,7 +5,6 @@ import android.app.Application
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -23,7 +22,6 @@ import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListContainerViewModel
 import net.xzos.upgradeall.utils.IconPalette
-import net.xzos.upgradeall.utils.getByHolder
 import net.xzos.upgradeall.utils.notifyObserver
 
 open class AppItemAdapter(private val appListPageViewModel: AppListContainerViewModel,
@@ -42,22 +40,8 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
-        val holder = CardViewRecyclerViewHolder(
+        return CardViewRecyclerViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.cardview_item, parent, false))
-        // 长按强制检查版本
-        holder.versionCheckButton.setOnLongClickListener {
-            mItemCardViewList.getByHolder(holder).extraData.app?.run {
-                this.renew()
-                setAppStatusUI(holder, this)
-                with(holder.versionCheckButton.context) {
-                    val name = holder.nameTextView.text.toString()
-                    val text = getString(R.string.checking_update).replace("%name", name)
-                    Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-                }
-            }
-            true
-        }
-        return holder
     }
 
     override fun onBindViewHolder(holder: CardViewRecyclerViewHolder, position: Int) {
@@ -71,8 +55,8 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
                 IconPalette.loadHubIconView(
                         holder.appIconImageView,
                         HubDatabaseManager.getDatabase(
-                                this.appInfo.apiUuid
-                        )?.cloudHubConfig?.info?.hubIconUrl
+                                this.appDatabase.hubUuid
+                        )?.hubConfig?.info?.hubIconUrl
                 )
                 holder.hubNameTextView.visibility = View.GONE
             }

@@ -121,7 +121,7 @@ class UIConfig(
                                 uiConfig.userTabList[fromTabPageIndex].itemList.removeAt(position)
                             }
                         } else if (app != null) {
-                            CustomContainerTabListBean.ItemListBean(APP_TYPE_TAG, app.appInfo.name, mutableListOf(app.appInfo.id))
+                            CustomContainerTabListBean.ItemListBean(APP_TYPE_TAG, app.appDatabase.name, mutableListOf(app.appDatabase.id))
                         } else return false
                 if (containerTabListBean != null) {
                     containerTabListBean.itemList.add(item)

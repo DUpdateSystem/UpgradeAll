@@ -98,9 +98,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.cloud_hub_list -> {
                 setNavigationItemId(R.id.hubCloudFragment)
             }
-            R.id.local_hub_debug -> {
-                startActivity(Intent(this, HubDebugActivity::class.java))
-            }
             R.id.app_help -> {
                 MiscellaneousUtils.accessByBrowser(
                         "https://xzos.net/upgradeall-readme/",

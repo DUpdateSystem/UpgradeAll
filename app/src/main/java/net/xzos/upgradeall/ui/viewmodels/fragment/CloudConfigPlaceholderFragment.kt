@@ -118,7 +118,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         val hubUuid = item.hubConfigUuid
         val hubCloudConfig = cloudConfigGetter.getHubCloudConfig(hubUuid)
         val type = getString(
-                if (hubCloudConfig?.applicationsMode?.appUrlTemplate?.isNotEmpty() == true)
+                if (hubCloudConfig?.apiKeywords?.contains("android_app_package") == true)
                     R.string.applications
                 else R.string.app_hub
         )

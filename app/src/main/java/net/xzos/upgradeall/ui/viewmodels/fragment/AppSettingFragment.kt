@@ -19,7 +19,10 @@ import kotlinx.android.synthetic.main.fragment_apps_setting.*
 import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.list_content.*
 import kotlinx.android.synthetic.main.simple_textview.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.dupdatesystem.core.data.config.AppConfig
 import net.xzos.dupdatesystem.core.data.database.AppDatabase
 import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
@@ -50,7 +53,7 @@ class AppSettingFragment : Fragment() {
 
     // 获取可能来自修改设置项的请求
     private val app = bundleApp
-    private var appInfo = app?.appInfo
+    private var appDatabase = app?.appDatabase
             ?: AppDatabase.newInstance()
 
     private val targetCheckerApi: String?
@@ -217,8 +220,8 @@ class AppSettingFragment : Fragment() {
             hubUuid?.run {
                 BottomSheetDialog(it).apply {
                     setContentView(layoutInflater.inflate(R.layout.list_content, null))
-                    val (descriptionList, appUrlList) = getAppUrlTemplate(this@run)
-                    list.adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, descriptionList)
+                    val appUrlList = getAppUrlTemplate(this@run)
+                    list.adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, appUrlList)
                     list.setOnItemClickListener { _, _, position, _ ->
                         editView.setText(appUrlList[position])
                         cancel()
@@ -234,16 +237,14 @@ class AppSettingFragment : Fragment() {
         }
     }
 
-    private fun getAppUrlTemplate(hubUuid: String): Pair<List<String>, List<String>> {
-        val descriptionList = mutableListOf<String>()
+    private fun getAppUrlTemplate(hubUuid: String): List<String> {
         val appUrlList = mutableListOf<String>()
-        HubDatabaseManager.getDatabase(hubUuid)?.cloudHubConfig?.applicationsMode?.appUrlTemplate?.run {
-            for (appUrlTemplateBean in this) {
-                descriptionList.add(appUrlTemplateBean.description)
-                appUrlList.add((appUrlTemplateBean.url))
+        HubDatabaseManager.getDatabase(hubUuid)?.hubConfig?.appUrlTemplates?.run {
+            for (appUrlTemplate in this) {
+                appUrlList.add((appUrlTemplate))
             }
         }
-        return Pair(descriptionList, appUrlList)
+        return appUrlList
     }
 
 
@@ -282,26 +283,24 @@ class AppSettingFragment : Fragment() {
 
     private fun setSettingItem() {
         // 如果是设置修改请求，设置预置设置项
-        appInfo.run {
-            editName.setText(this.name)
-            editUrl.setText(this.url)
-            editHub.setText(HubDatabaseManager.getDatabase(this.apiUuid)?.name)
-            hubUuid = this.apiUuid
-            val versionCheckerGson = this.targetChecker
-            val versionCheckerApi = versionCheckerGson?.api
-            val versionCheckerText = versionCheckerGson?.extraString
-            if (versionCheckerApi != null)
-                versionCheckSpinner.setSelection(
-                        when (versionCheckerApi.toLowerCase(AppConfig.locale)) {
-                            API_TYPE_APP_PACKAGE -> 0
-                            API_TYPE_MAGISK_MODULE -> 1
-                            API_TYPE_SHELL -> 2
-                            API_TYPE_SHELL_ROOT -> 3
-                            else -> 0
-                        }
-                )
-            editTarget.setText(versionCheckerText)
-        }
+        editName.setText(appDatabase.name)
+        editUrl.setText(appDatabase.url)
+        editHub.setText(HubDatabaseManager.getDatabase(appDatabase.hubUuid)?.hubConfig?.info?.hubName)
+        hubUuid = appDatabase.hubUuid
+        val versionCheckerGson = appDatabase.targetChecker
+        val versionCheckerApi = versionCheckerGson?.api
+        val versionCheckerText = versionCheckerGson?.extraString
+        if (versionCheckerApi != null)
+            versionCheckSpinner.setSelection(
+                    when (versionCheckerApi.toLowerCase(AppConfig.locale)) {
+                        API_TYPE_APP_PACKAGE -> 0
+                        API_TYPE_MAGISK_MODULE -> 1
+                        API_TYPE_SHELL -> 2
+                        API_TYPE_SHELL_ROOT -> 3
+                        else -> 0
+                    }
+            )
+        editTarget.setText(versionCheckerText)
     }
 
     private fun addRepoDatabase(
@@ -309,17 +308,16 @@ class AppSettingFragment : Fragment() {
             targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean?
     ): Boolean {
         // 获取数据库类
-        appInfo.run {
-            this.apiUuid = hubUuid
+        appDatabase.run {
+            this.hubUuid = hubUuid
             this.url = URL
             this.targetChecker = targetChecker
             this.type = type
             // 数据处理
             this.name = if (name.isNotBlank()) name
-            else runBlocking(Dispatchers.IO) { App(this@run).engine.getDefaultName() }
-                    ?: return false
+            else return false
         }
-        return appInfo.save(true)
+        return appDatabase.save(true)
     }
 
     private fun renewApiJsonObject(): Pair<List<String>, List<String>> {
@@ -330,7 +328,7 @@ class AppSettingFragment : Fragment() {
         // 获取自定义源
         val hubList = HubDatabaseManager.hubDatabases  // 读取 hub 数据库
         for (hubDatabase in hubList) {
-            val name: String = hubDatabase.name
+            val name: String = hubDatabase.hubConfig.info.hubName
             val apiUuid: String = hubDatabase.uuid
             hubNameStringList.add(name)
             // 记录可用的api UUID
