@@ -85,7 +85,8 @@ class AppInfoFragment : Fragment() {
     private fun initUi() {
         loadAllAppInfo()
         toastPromptMarkedVersionNumber()
-        loadAppVersioningInfo(0)
+        if (!releaseInfoList.isNullOrEmpty())
+            loadAppVersioningInfo(0)
     }
 
     private fun checkAppInfo() {
