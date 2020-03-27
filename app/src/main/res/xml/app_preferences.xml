@@ -14,6 +14,17 @@
             app:title="@string/background_sync_time"
             app:useSimpleSummaryProvider="true" />
 
+        <net.xzos.upgradeall.ui.viewmodels.componnent.EditIntPreference
+            android:defaultValue="@integer/default_background_sync_data_time"
+            app:key="background_sync_time"
+            app:title="@string/background_sync_time"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:defaultValue="@string/default_update_server_url"
+            app:key="update_server_url"
+            app:title="@string/update_server_url"
+            app:useSimpleSummaryProvider="true" />
         <!--
         <SwitchPreferenceCompat
             app:key="sync"

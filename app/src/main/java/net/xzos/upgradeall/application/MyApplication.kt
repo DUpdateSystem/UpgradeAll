@@ -3,7 +3,9 @@ package net.xzos.upgradeall.application
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import androidx.preference.PreferenceManager
 import com.arialyy.aria.core.Aria
+import net.xzos.dupdatesystem.core.data.config.AppConfig
 import net.xzos.upgradeall.android_api.DatabaseApi
 import net.xzos.upgradeall.android_api.IoApi
 import net.xzos.upgradeall.android_api.Log
@@ -34,6 +36,16 @@ class MyApplication : Application() {
         Log
         IoApi
         UpdateManager
+        initData()
+    }
+
+    private fun initData() {
+        val prefKey = "update_server_url"
+        val pref = PreferenceManager.getDefaultSharedPreferences(context)
+        val defaultUpdateServerUrl = AppConfig.update_server_url
+        val updateServerUrl = pref.getString(prefKey, defaultUpdateServerUrl)
+        if (updateServerUrl != null && updateServerUrl != defaultUpdateServerUrl)
+            AppConfig.update_server_url = updateServerUrl
     }
 
     companion object {
