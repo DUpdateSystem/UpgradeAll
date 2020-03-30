@@ -89,12 +89,16 @@ object MiscellaneousUtils {
         // Git 地址
         renewCloudConfigGetter()
         // 更新服务器地址
-        val prefKey = "update_server_url"
         val pref = PreferenceManager.getDefaultSharedPreferences(context)
-        val defaultUpdateServerUrl = AppConfig.update_server_url
-        val updateServerUrl = pref.getString(prefKey, defaultUpdateServerUrl)
-        if (!updateServerUrl.isNullOrBlank() && updateServerUrl != defaultUpdateServerUrl)
+        val updateServerUrlKey = "update_server_url"
+        val updateServerUrl = pref.getString(updateServerUrlKey, null)
+        if (!updateServerUrl.isNullOrBlank() && updateServerUrl != AppConfig.update_server_url)
             AppConfig.update_server_url = updateServerUrl
+        val dataExpirationTimeKey = "sync_time"
+        val defaultDataExpirationTime = AppConfig.data_expiration_time
+        val dataExpirationTime = pref.getInt(dataExpirationTimeKey, defaultDataExpirationTime)
+        if (dataExpirationTime != defaultDataExpirationTime)
+            AppConfig.data_expiration_time = dataExpirationTime
     }
 
     fun accessByBrowser(url: String?, context: Context?) {

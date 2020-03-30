@@ -8,10 +8,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.google.gson.GsonBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.xzos.dupdatesystem.core.data_manager.AppDatabaseManager
 import net.xzos.dupdatesystem.core.server_manager.module.app.App
 import net.xzos.dupdatesystem.core.server_manager.module.applications.Applications
@@ -55,65 +51,62 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                 setNavigationItemId(R.id.applicationsFragment)
             }
         }
-        // TODO: 长按删除，暂时添加删除功能
         holder.itemCardView.setOnLongClickListener { view ->
             if (AppTabSectionsPagerAdapter.editTabMode.value == false)
-                GlobalScope.launch {
-                    mItemCardViewList.getByHolder(holder).extraData.app?.run {
-                        val context = view.context
-                        PopupMenu(context, view).let { popupMenu ->
-                            popupMenu.menu.let { menu ->
-                                menu.add(context.getString(
-                                        if (appListPageViewModel.editableTab.value == true)
-                                            R.string.edit_group
-                                        else R.string.add_to_group
-                                )).let { menuItem ->
-                                    menuItem.setOnMenuItemClickListener {
-                                        GlobalScope.launch(Dispatchers.Main) {
-                                            showSelectGroupPopMenu(view, holder)
-                                        }
-                                        return@setOnMenuItemClickListener true
-                                    }
-                                }
-                                // 从分组中删除
-                                if (appListPageViewModel.editableTab.value == true) {
-                                    menu.add(R.string.delete_from_group).let { menuItem ->
-                                        menuItem.setOnMenuItemClickListener {
-                                            if (appListPageViewModel.removeItemFromGroup(holder.adapterPosition))
-                                                onItemDismiss(holder.adapterPosition)
-                                            return@setOnMenuItemClickListener true
-                                        }
-                                    }
-                                }
-                                // 导出
-                                menu.add(R.string.export).let { menuItem ->
-                                    menuItem.setOnMenuItemClickListener {
-                                        val appConfigGson = AppDatabaseManager.translateAppConfig(this.appDatabase)
-                                        FileUtil.clipStringToClipboard(
-                                                GsonBuilder().setPrettyPrinting().create().toJson(appConfigGson),
-                                                context
-                                        )
-                                        return@setOnMenuItemClickListener true
-                                    }
-                                }
-                                // 删除数据库
-                                menu.add(R.string.delete).let { menuItem ->
-                                    menuItem.setOnMenuItemClickListener {
-                                        this.appDatabase.delete()
-                                        onItemDismiss(holder.adapterPosition)
-                                        return@setOnMenuItemClickListener true
-                                    }
-                                }
-                                withContext(Dispatchers.Main) {
-                                    popupMenu.show()
-                                }
-                            }
-                        }
-                    }
-                }
+                showLongClickPopMenu(view, holder)
             return@setOnLongClickListener true
         }
         return holder
+    }
+
+    private fun showLongClickPopMenu(view: View, holder: CardViewRecyclerViewHolder) {
+        mItemCardViewList.getByHolder(holder).extraData.app?.run {
+            val context = view.context
+            PopupMenu(context, view).let { popupMenu ->
+                popupMenu.menu.let { menu ->
+                    menu.add(context.getString(
+                            if (appListPageViewModel.editableTab.value == true)
+                                R.string.edit_group
+                            else R.string.add_to_group
+                    )).let { menuItem ->
+                        menuItem.setOnMenuItemClickListener {
+                            showSelectGroupPopMenu(view, holder)
+                            return@setOnMenuItemClickListener true
+                        }
+                    }
+                    // 从分组中删除
+                    if (appListPageViewModel.editableTab.value == true) {
+                        menu.add(R.string.delete_from_group).let { menuItem ->
+                            menuItem.setOnMenuItemClickListener {
+                                if (appListPageViewModel.removeItemFromGroup(holder.adapterPosition))
+                                    onItemDismiss(holder.adapterPosition)
+                                return@setOnMenuItemClickListener true
+                            }
+                        }
+                    }
+                    // 导出
+                    menu.add(R.string.export).let { menuItem ->
+                        menuItem.setOnMenuItemClickListener {
+                            val appConfigGson = AppDatabaseManager.translateAppConfig(this.appDatabase)
+                            FileUtil.clipStringToClipboard(
+                                    GsonBuilder().setPrettyPrinting().create().toJson(appConfigGson),
+                                    context
+                            )
+                            return@setOnMenuItemClickListener true
+                        }
+                    }
+                    // 删除数据库
+                    menu.add(R.string.delete).let { menuItem ->
+                        menuItem.setOnMenuItemClickListener {
+                            this.appDatabase.delete()
+                            onItemDismiss(holder.adapterPosition)
+                            return@setOnMenuItemClickListener true
+                        }
+                    }
+                    popupMenu.show()
+                }
+            }
+        }
     }
 
     private fun showSelectGroupPopMenu(view: View, holder: CardViewRecyclerViewHolder) {
