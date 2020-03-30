@@ -15,9 +15,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.xzos.dupdatesystem.core.data.config.AppConfig
 import net.xzos.dupdatesystem.core.data_manager.CloudConfigGetter
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.android_api.DatabaseApi
+import net.xzos.upgradeall.android_api.IoApi
+import net.xzos.upgradeall.android_api.Log
 import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.server.update.UpdateManager
+import net.xzos.upgradeall.server.update.UpdateServiceReceiver
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import org.json.JSONException
@@ -65,6 +71,30 @@ object MiscellaneousUtils {
         editor.apply()
         renewCloudConfigGetter()
         showToast(context, R.string.reset_git_url_configuration, duration = Toast.LENGTH_LONG)
+    }
+
+    fun initData() {
+        // 初始化 System API
+        DatabaseApi
+        Log
+        IoApi
+        UpdateManager
+        syncSetting()
+    }
+
+    // 同步设置
+    fun syncSetting() {
+        // 刷新数据时间
+        UpdateServiceReceiver.initAlarms()
+        // Git 地址
+        renewCloudConfigGetter()
+        // 更新服务器地址
+        val prefKey = "update_server_url"
+        val pref = PreferenceManager.getDefaultSharedPreferences(context)
+        val defaultUpdateServerUrl = AppConfig.update_server_url
+        val updateServerUrl = pref.getString(prefKey, defaultUpdateServerUrl)
+        if (!updateServerUrl.isNullOrBlank() && updateServerUrl != defaultUpdateServerUrl)
+            AppConfig.update_server_url = updateServerUrl
     }
 
     fun accessByBrowser(url: String?, context: Context?) {

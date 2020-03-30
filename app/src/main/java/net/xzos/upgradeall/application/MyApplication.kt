@@ -10,6 +10,7 @@ import net.xzos.upgradeall.android_api.DatabaseApi
 import net.xzos.upgradeall.android_api.IoApi
 import net.xzos.upgradeall.android_api.Log
 import net.xzos.upgradeall.server.update.UpdateManager
+import net.xzos.upgradeall.utils.MiscellaneousUtils
 import org.jetbrains.annotations.Contract
 import org.litepal.LitePal
 import java.io.File
@@ -31,21 +32,7 @@ class MyApplication : Application() {
         Aria.init(this)
         Aria.download(this).removeAllTask(true) // TODO: 测试防错
 
-        // 初始化 System API
-        DatabaseApi
-        Log
-        IoApi
-        UpdateManager
-        initData()
-    }
-
-    private fun initData() {
-        val prefKey = "update_server_url"
-        val pref = PreferenceManager.getDefaultSharedPreferences(context)
-        val defaultUpdateServerUrl = AppConfig.update_server_url
-        val updateServerUrl = pref.getString(prefKey, defaultUpdateServerUrl)
-        if (updateServerUrl != null && updateServerUrl != defaultUpdateServerUrl)
-            AppConfig.update_server_url = updateServerUrl
+        MiscellaneousUtils.initData()
     }
 
     companion object {
