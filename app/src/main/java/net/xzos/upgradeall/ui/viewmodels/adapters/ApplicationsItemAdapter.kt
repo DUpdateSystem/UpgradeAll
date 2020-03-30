@@ -46,7 +46,6 @@ class ApplicationsItemAdapter(
                 setNavigationItemId(R.id.appInfoFragment)
             }
         }
-        // TODO: 长按删除，暂时添加删除功能
         holder.itemCardView.setOnLongClickListener { view ->
             mItemCardViewList.getByHolder(holder).extraData.app?.run {
                 val context = view.context
