@@ -12,7 +12,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.devs.vectorchildfinder.VectorChildFinder
 import kotlinx.coroutines.*
-import net.xzos.dupdatesystem.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import java.io.File

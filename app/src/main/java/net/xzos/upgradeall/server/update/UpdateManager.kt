@@ -14,9 +14,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.xzos.dupdatesystem.core.data.config.AppConfig
-import net.xzos.dupdatesystem.core.server_manager.UpdateManager.Companion.updateManager
-import net.xzos.dupdatesystem.core.system_api.annotations.UpdateManagerApi
+import net.xzos.upgradeall.core.data.config.AppConfig
+import net.xzos.upgradeall.core.server_manager.UpdateManager.Companion.updateManager
+import net.xzos.upgradeall.core.system_api.annotations.UpdateManagerApi
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.ui.activity.MainActivity

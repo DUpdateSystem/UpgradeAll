@@ -13,10 +13,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
-import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
-import net.xzos.dupdatesystem.core.server_manager.module.app.App
-import net.xzos.dupdatesystem.core.server_manager.module.app.Updater
+import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
+import net.xzos.upgradeall.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.server_manager.module.app.Updater
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder

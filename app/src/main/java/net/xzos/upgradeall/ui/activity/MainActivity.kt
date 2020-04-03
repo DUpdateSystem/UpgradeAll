@@ -26,8 +26,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.core.server_manager.UpdateManager.Companion.updateManager
+import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.server_manager.UpdateManager.Companion.updateManager
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.utils.FileUtil.NAV_IMAGE_FILE
 import net.xzos.upgradeall.utils.MiscellaneousUtils

@@ -17,10 +17,10 @@ import kotlinx.android.synthetic.main.fragment_app_info.view.*
 import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.list_content.*
 import kotlinx.coroutines.*
-import net.xzos.dupdatesystem.core.data.database.getExtraData
-import net.xzos.dupdatesystem.core.data.json.gson.WebApiReturnGson
-import net.xzos.dupdatesystem.core.server_manager.module.app.App
-import net.xzos.dupdatesystem.core.server_manager.module.app.Updater
+import net.xzos.upgradeall.core.data.database.getExtraData
+import net.xzos.upgradeall.core.data.json.gson.WebApiReturnGson
+import net.xzos.upgradeall.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.server_manager.module.app.Updater
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId

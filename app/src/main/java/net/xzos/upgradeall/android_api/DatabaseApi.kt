@@ -1,8 +1,8 @@
 package net.xzos.upgradeall.android_api
 
-import net.xzos.dupdatesystem.core.data.database.AppDatabase
-import net.xzos.dupdatesystem.core.data.database.HubDatabase
-import net.xzos.dupdatesystem.core.system_api.interfaces.DatabaseApi
+import net.xzos.upgradeall.core.data.database.AppDatabase
+import net.xzos.upgradeall.core.data.database.HubDatabase
+import net.xzos.upgradeall.core.system_api.interfaces.DatabaseApi
 import net.xzos.upgradeall.data_manager.database.litepal.RepoDatabase
 import org.litepal.LitePal
 import org.litepal.extension.findAll
@@ -11,7 +11,7 @@ import org.litepal.extension.findAll
 object DatabaseApi : DatabaseApi {
 
     init {
-        net.xzos.dupdatesystem.core.system_api.api.DatabaseApi.setInterfaces(this)
+        net.xzos.upgradeall.core.system_api.api.DatabaseApi.setInterfaces(this)
     }
 
     private val nativeAppDatabase: List<RepoDatabase>

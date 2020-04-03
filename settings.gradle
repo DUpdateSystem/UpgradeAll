@@ -1,1 +1,3 @@
+rootProject.name='UpgradeAll'
 include ':app'
+include ':core'

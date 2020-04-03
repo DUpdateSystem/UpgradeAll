@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.view.*
-import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListContainerViewModel
 
