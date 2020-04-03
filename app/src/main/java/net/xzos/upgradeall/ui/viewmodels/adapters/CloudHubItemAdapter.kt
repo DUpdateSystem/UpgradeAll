@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
+import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder

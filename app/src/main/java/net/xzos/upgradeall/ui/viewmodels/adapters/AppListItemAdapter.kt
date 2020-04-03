@@ -8,9 +8,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.google.gson.GsonBuilder
-import net.xzos.dupdatesystem.core.data_manager.AppDatabaseManager
-import net.xzos.dupdatesystem.core.server_manager.module.app.App
-import net.xzos.dupdatesystem.core.server_manager.module.applications.Applications
+import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
+import net.xzos.upgradeall.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
 import net.xzos.upgradeall.ui.viewmodels.fragment.AppInfoFragment

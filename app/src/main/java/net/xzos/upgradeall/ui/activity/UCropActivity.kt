@@ -10,9 +10,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.yalantis.ucrop.UCrop
 import kotlinx.coroutines.sync.Mutex
-import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.core.data_manager.utils.wait
-import net.xzos.dupdatesystem.core.log.Log
+import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.data_manager.utils.wait
+import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.utils.FileUtil
 import java.io.File

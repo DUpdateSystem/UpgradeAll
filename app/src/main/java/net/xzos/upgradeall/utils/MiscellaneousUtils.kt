@@ -15,8 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.xzos.dupdatesystem.core.data.config.AppConfig
-import net.xzos.dupdatesystem.core.data_manager.CloudConfigGetter
+import net.xzos.upgradeall.core.data.config.AppConfig
+import net.xzos.upgradeall.core.data_manager.CloudConfigGetter
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.android_api.DatabaseApi
 import net.xzos.upgradeall.android_api.IoApi

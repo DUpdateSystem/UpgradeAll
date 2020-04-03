@@ -13,9 +13,9 @@ import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
 import kotlinx.android.synthetic.main.activity_log.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.core.log.Log
-import net.xzos.dupdatesystem.core.log.LogDataProxy
+import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.log.Log
+import net.xzos.upgradeall.core.log.LogDataProxy
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.server.log.LogLiveData
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.LogTabSectionsPagerAdapter

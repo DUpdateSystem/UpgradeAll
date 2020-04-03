@@ -2,9 +2,9 @@ package net.xzos.upgradeall.ui.viewmodels.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
-import net.xzos.dupdatesystem.core.server_manager.AppManager
-import net.xzos.dupdatesystem.core.server_manager.UpdateManager.Companion.updateManager
-import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.AppManager
+import net.xzos.upgradeall.core.server_manager.UpdateManager.Companion.updateManager
+import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.data_manager.UIConfig
 import net.xzos.upgradeall.data_manager.UIConfig.Companion.APPLICATIONS_TYPE_TAG
 import net.xzos.upgradeall.data_manager.UIConfig.Companion.APP_TYPE_TAG

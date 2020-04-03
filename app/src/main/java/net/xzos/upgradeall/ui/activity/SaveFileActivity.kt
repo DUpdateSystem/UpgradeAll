@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.sync.Mutex
-import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.utils.FileUtil
 

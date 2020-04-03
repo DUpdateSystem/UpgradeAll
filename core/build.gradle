@@ -1,0 +1,11 @@
+apply plugin: 'kotlin'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    commonDependencies.each { value ->
+        implementation value
+    }
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"

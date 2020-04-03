@@ -6,11 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import kotlinx.android.synthetic.main.list_item_search.view.*
-import net.xzos.dupdatesystem.core.data.config.AppType
-import net.xzos.dupdatesystem.core.data_manager.utils.SearchUtils
+import net.xzos.upgradeall.core.data.config.AppType
+import net.xzos.upgradeall.core.data_manager.utils.SearchUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.utils.IconInfo
 import net.xzos.upgradeall.utils.IconPalette

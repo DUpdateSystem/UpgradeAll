@@ -6,11 +6,11 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.xzos.dupdatesystem.core.data.config.AppConfig
-import net.xzos.dupdatesystem.core.data.database.AppDatabase
-import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
-import net.xzos.dupdatesystem.core.data_manager.HubDatabaseManager
-import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.data.config.AppConfig
+import net.xzos.upgradeall.core.data.database.AppDatabase
+import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
+import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
+import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView

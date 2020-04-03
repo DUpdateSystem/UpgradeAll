@@ -23,7 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.xzos.dupdatesystem.core.server_manager.UpdateManager.Companion.updateManager
+import net.xzos.upgradeall.core.server_manager.UpdateManager.Companion.updateManager
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data_manager.UIConfig
 import net.xzos.upgradeall.data_manager.UIConfig.Companion.uiConfig

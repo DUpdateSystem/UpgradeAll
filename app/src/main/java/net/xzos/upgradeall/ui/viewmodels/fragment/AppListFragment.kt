@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_app_list.*
 import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.list_content.*
-import net.xzos.dupdatesystem.core.data.database.AppDatabase
+import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId

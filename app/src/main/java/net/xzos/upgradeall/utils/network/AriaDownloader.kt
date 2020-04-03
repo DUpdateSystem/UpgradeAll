@@ -18,7 +18,7 @@ import com.arialyy.aria.core.download.DownloadEntity
 import com.arialyy.aria.core.download.DownloadTask
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.xzos.dupdatesystem.core.data_manager.utils.FilePathUtils
+import net.xzos.upgradeall.core.data_manager.utils.FilePathUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context

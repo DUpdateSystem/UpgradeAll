@@ -3,11 +3,9 @@ package net.xzos.upgradeall.server.log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.core.log.LogDataProxy
-import net.xzos.dupdatesystem.core.log.LogItemData
+import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.log.LogDataProxy
+import net.xzos.upgradeall.core.log.LogItemData
 import net.xzos.upgradeall.utils.notifyObserver
 
 

@@ -1,12 +1,12 @@
 package net.xzos.upgradeall.android_api
 
 import android.content.pm.PackageManager
-import net.xzos.dupdatesystem.core.data.config.AppType
-import net.xzos.dupdatesystem.core.data.json.gson.AppConfigGson
-import net.xzos.dupdatesystem.core.data.json.nongson.ObjectTag
-import net.xzos.dupdatesystem.core.log.Log
-import net.xzos.dupdatesystem.core.server_manager.module.applications.AppInfo
-import net.xzos.dupdatesystem.core.system_api.interfaces.IoApi
+import net.xzos.upgradeall.core.data.config.AppType
+import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
+import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.log.Log
+import net.xzos.upgradeall.core.server_manager.module.applications.AppInfo
+import net.xzos.upgradeall.core.system_api.interfaces.IoApi
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.VersioningUtils
@@ -19,7 +19,7 @@ import net.xzos.upgradeall.utils.network.AriaDownloader
 object IoApi : IoApi {
 
     init {
-        net.xzos.dupdatesystem.core.system_api.api.IoApi.setInterfaces(this)
+        net.xzos.upgradeall.core.system_api.api.IoApi.setInterfaces(this)
     }
 
     private const val TAG = "IoApi"

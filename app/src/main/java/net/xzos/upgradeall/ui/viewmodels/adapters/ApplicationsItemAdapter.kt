@@ -8,8 +8,8 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
-import net.xzos.dupdatesystem.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data_manager.UIConfig
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId

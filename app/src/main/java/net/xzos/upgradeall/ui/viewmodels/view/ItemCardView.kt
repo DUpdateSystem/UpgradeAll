@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.ui.viewmodels.view
 
-import net.xzos.dupdatesystem.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.module.BaseApp
 
 class ItemCardView internal constructor(
         val name: String? = null,
