@@ -6,12 +6,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.database.getApplicationsAutoExclude
-import net.xzos.upgradeall.core.data.json.gson.WebApiGetGson
+import net.xzos.upgradeall.core.route.AppInfoItem
 import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
-import net.xzos.upgradeall.core.server_manager.module.web_api.WebApiManager
 
 class Applications(database: AppDatabase) : BaseApp(database) {
 
@@ -21,7 +20,6 @@ class Applications(database: AppDatabase) : BaseApp(database) {
     val apps: MutableList<App> = applicationsUtils.apps
     private val excludeApps: MutableList<App> = applicationsUtils.excludeApps
     private var updateManager = UpdateManager(apps)
-    private val webApi = WebApiManager.getWebApi(database.hubUuid)
 
     // 数据刷新锁
     private val dataMutex = Mutex()
@@ -33,7 +31,7 @@ class Applications(database: AppDatabase) : BaseApp(database) {
         }
     }
 
-    private fun getAppByAppInfo(appInfo: List<WebApiGetGson.AppInfoListBean>, appList: List<App>): App? {
+    private fun getAppByAppInfo(appInfo: List<AppInfoItem>, appList: List<App>): App? {
         for (a in appList.filter { it.appInfo != null }) {
             if (a.appInfo!![0].value == appInfo[0].value)
                 return a
@@ -42,9 +40,6 @@ class Applications(database: AppDatabase) : BaseApp(database) {
     }
 
     private suspend fun refreshAppList(appList: List<App>): UpdateManager {
-        webApi.getWebApiReturnGsonList(appList.mapNotNull {
-            it.appInfo
-        })
         val appsUpdateManager = UpdateManager(appList)
         return appsUpdateManager.also {
             it.renewAll()

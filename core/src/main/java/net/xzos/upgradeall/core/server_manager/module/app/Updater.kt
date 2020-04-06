@@ -4,14 +4,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import net.xzos.upgradeall.core.data.json.gson.WebApiReturnGson
-import net.xzos.upgradeall.core.data_manager.utils.DataCache
 import net.xzos.upgradeall.core.data_manager.utils.VersioningUtils
+import net.xzos.upgradeall.core.network_api.GrpcApi
+import net.xzos.upgradeall.core.route.ReleaseInfoItem
 import net.xzos.upgradeall.core.system_api.api.IoApi
 
 
 class Updater(private val app: App) : UpdaterApi {
-    private val webApi = app.webApi
     private val dataMutex = Mutex()
 
     override suspend fun getUpdateStatus(): Int {
@@ -21,7 +20,7 @@ class Updater(private val app: App) : UpdaterApi {
         else {
             //检查是否取得云端版本号
             if (app.installedVersionNumber != null
-                || app.markProcessedVersionNumber != null
+                    || app.markProcessedVersionNumber != null
             ) {
                 // 检查是否获取本地版本号
                 if (isLatest()) APP_LATEST
@@ -33,19 +32,16 @@ class Updater(private val app: App) : UpdaterApi {
     private suspend fun isLatest(): Boolean {
         val latestVersion = getLatestVersioning()
         return VersioningUtils.compareVersionNumber(
-            app.markProcessedVersionNumber ?: app.installedVersionNumber, latestVersion
+                app.markProcessedVersionNumber ?: app.installedVersionNumber, latestVersion
         )
     }
 
-    override suspend fun getReleaseInfo(): List<WebApiReturnGson.ReleaseInfoBean>? {
+    override suspend fun getReleaseInfo(): List<ReleaseInfoItem>? {
         val appInfo = app.appInfo
         if (appInfo != null) {
             dataMutex.withLock {
-                if (app.appDatabase.id == 0L) {
-                    val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
-                    return DataCache.getReleaseInfo(hubUuid, appInfo)
-                } else
-                    return webApi.getReleaseInfo(appInfo)
+                val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
+                return GrpcApi.getReleaseInfo(hubUuid, appInfo)
             }
         }
         return null
@@ -65,11 +61,11 @@ class Updater(private val app: App) : UpdaterApi {
     // 使用内置下载器下载文件
     suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false) {
         withContext(Dispatchers.IO) {
-            getReleaseInfo()?.let { assets ->
-                val asset = assets[fileIndex.first].assets[fileIndex.second]
+            getReleaseInfo()?.let { releaseInfoList ->
+                val asset = releaseInfoList[fileIndex.first].getAssets(fileIndex.second)
                 IoApi.downloadFile(
-                    asset.name, asset.downloadUrl,
-                    externalDownloader = externalDownloader
+                        asset.fileName, asset.downloadUrl,
+                        externalDownloader = externalDownloader
                 )
             }
         }
@@ -86,7 +82,7 @@ class Updater(private val app: App) : UpdaterApi {
 }
 
 private interface UpdaterApi {
-    suspend fun getReleaseInfo(): List<WebApiReturnGson.ReleaseInfoBean>?
+    suspend fun getReleaseInfo(): List<ReleaseInfoItem>?
     suspend fun getUpdateStatus(): Int
     suspend fun getLatestVersioning(): String?
 }

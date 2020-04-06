@@ -1,9 +1,8 @@
 package net.xzos.upgradeall.core.data_manager.utils
 
 import net.xzos.upgradeall.core.data.config.AppConfig
-import net.xzos.upgradeall.core.data.json.gson.WebApiGetGson
-import net.xzos.upgradeall.core.data.json.gson.WebApiReturnGson
-import net.xzos.upgradeall.core.data.json.gson.key
+import net.xzos.upgradeall.core.route.AppInfoItem
+import net.xzos.upgradeall.core.route.ReleaseInfoItem
 import java.net.*
 import java.util.*
 
@@ -14,11 +13,20 @@ object DataCache {
 
     private var dataExpirationTime = AppConfig.data_expiration_time
 
+    fun List<AppInfoItem>.key(hubUuid: String): String? {
+        if (this.isEmpty()) return null
+        var key = hubUuid
+        for (i in this) {
+            key += "+${i.value}"
+        }
+        return key
+    }
+
     private fun Pair<Any?, Calendar?>?.isExpired(): Boolean {
         val time = this?.second ?: return false
         time.add(
-            Calendar.MINUTE,
-            dataExpirationTime
+                Calendar.MINUTE,
+                dataExpirationTime
         )
         return Calendar.getInstance().after(time)
     }
@@ -37,8 +45,8 @@ object DataCache {
     }
 
     fun existsCache(
-        hubUuid: String,
-        appInfoList: List<WebApiGetGson.AppInfoListBean>
+            hubUuid: String,
+            appInfoList: List<AppInfoItem>
     ): Boolean {
         val key = appInfoList.key(hubUuid)
         val releaseInfoDict = cache.releaseInfoDict
@@ -46,9 +54,9 @@ object DataCache {
     }
 
     fun getReleaseInfo(
-        hubUuid: String,
-        appInfoList: List<WebApiGetGson.AppInfoListBean>
-    ): List<WebApiReturnGson.ReleaseInfoBean>? {
+            hubUuid: String,
+            appInfoList: List<AppInfoItem>
+    ): List<ReleaseInfoItem>? {
         val key = appInfoList.key(hubUuid) ?: return null
         cache.releaseInfoDict[key]?.also {
             if (!it.isExpired()) {
@@ -60,18 +68,18 @@ object DataCache {
 
     fun cacheReleaseInfo(
             hubUuid: String,
-            appInfoList: List<WebApiGetGson.AppInfoListBean>,
-            releaseInfo: List<WebApiReturnGson.ReleaseInfoBean>?
+            appInfoList: List<AppInfoItem>,
+            releaseInfo: List<ReleaseInfoItem>?
     ) {
         val key = appInfoList.key(hubUuid) ?: return
         cache.releaseInfoDict[key] = Pair(releaseInfo, Calendar.getInstance())
     }
 
     data class Cache(
-        internal val httpResponseDict: MutableMap<String, Pair<String, Calendar>> = mutableMapOf(),
-        internal val releaseInfoDict: MutableMap<String, Pair<
-                List<WebApiReturnGson.ReleaseInfoBean>?, Calendar
-                >> = mutableMapOf()
+            internal val httpResponseDict: MutableMap<String, Pair<String, Calendar>> = mutableMapOf(),
+            internal val releaseInfoDict: MutableMap<String, Pair<
+                    List<ReleaseInfoItem>?, Calendar
+                    >> = mutableMapOf()
     )
 }
 

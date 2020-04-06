@@ -1,11 +1,55 @@
 apply plugin: 'kotlin'
+apply plugin: 'com.google.protobuf'
+
+sourceSets {
+    main {
+        java {
+            srcDirs "${protobuf.generatedFilesBaseDir}/main/java"
+            srcDirs "${protobuf.generatedFilesBaseDir}/main/grpc"
+        }
+    }
+}
+
+def protocVersion = '3.11.4'
+def grpcVersion = '1.28.1'
+protobuf {
+    protoc { artifact = "com.google.protobuf:protoc:$protocVersion" }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java { option 'lite' }
+            }
+            task.plugins {
+                grpc { // Options added to --grpc_out
+                    option 'lite'
+                }
+            }
+        }
+    }
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     commonDependencies.each { value ->
         implementation value
     }
-}
+    // grpc
 
-sourceCompatibility = "8"
-targetCompatibility = "8"
+    implementation "io.grpc:grpc-okhttp:$grpcVersion"
+    implementation "io.grpc:grpc-protobuf-lite:$grpcVersion"
+    implementation "io.grpc:grpc-stub:$grpcVersion"
+    // optionally override grpc's protobuf-lite runtime
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    configurations {
+        compile.exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+        compile.exclude group: 'com.google.firebase', module: 'protolite-well-known-types'
+        compile.exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
+        compile.exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        compile.exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
+    }
+}
