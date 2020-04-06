@@ -11,16 +11,17 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.devs.vectorchildfinder.VectorChildFinder
-import kotlinx.coroutines.*
-import net.xzos.upgradeall.core.server_manager.module.app.App
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.core.server_manager.module.app.App
 import java.io.File
 
 
 object IconPalette {
-
-    private val jobMap = mutableMapOf<ImageView, Job>()
 
     val fabAddIcon = getPlus(getColorInt(R.color.light_gray))
 
@@ -101,30 +102,25 @@ object IconPalette {
     }
 
     private suspend fun loadIconView(iconImageView: ImageView, iconInfo: IconInfo) {
-        jobMap[iconImageView]?.cancelAndJoin()
-        jobMap[iconImageView] = GlobalScope.launch(Dispatchers.IO) {
-            val (url, drawable, appModuleName, file) = iconInfo
-            val activity = getActivity(iconImageView)
-            if (activity?.isFinishing != true) {
-                val model = if (file?.exists() == true) file
-                else url ?: try {
-                    if (appModuleName != null)
-                        iconImageView.context.packageManager.getApplicationIcon(appModuleName)
-                    else null
-                } catch (e: PackageManager.NameNotFoundException) {
-                    null
-                } ?: drawable
-                if (model != null) {
-                    val viewTarget = Glide.with(iconImageView).load(model)
-                            .diskCacheStrategy(DiskCacheStrategy.NONE)
-                            .skipMemoryCache(true)
-                    if (isActive)
-                        withContext(Dispatchers.Main) {
-                            viewTarget.into(iconImageView)
-                        }
+        val (url, drawable, appModuleName, file) = iconInfo
+        val activity = getActivity(iconImageView)
+        if (activity?.isFinishing != true) {
+            val model = if (file?.exists() == true) file
+            else url ?: try {
+                if (appModuleName != null)
+                    iconImageView.context.packageManager.getApplicationIcon(appModuleName)
+                else null
+            } catch (e: PackageManager.NameNotFoundException) {
+                null
+            } ?: drawable
+            if (model != null) {
+                val viewTarget = Glide.with(iconImageView).load(model)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
+                withContext(Dispatchers.Main) {
+                    viewTarget.into(iconImageView)
                 }
             }
-            jobMap.remove(iconImageView)
         }
     }
 
