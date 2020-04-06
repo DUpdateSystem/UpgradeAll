@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.server_manager.module.applications
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -20,16 +21,11 @@ class Applications(database: AppDatabase) : BaseApp(database) {
     val apps: MutableList<App> = applicationsUtils.apps
     private val excludeApps: MutableList<App> = applicationsUtils.excludeApps
     private var updateManager = UpdateManager(apps)
+    private var initData = false
 
     // 数据刷新锁
     private val dataMutex = Mutex()
     private val appListMutex = Mutex()
-
-    init {
-        GlobalScope.launch {
-            refreshAppList(excludeApps)
-        }
-    }
 
     private fun getAppByAppInfo(appInfo: List<AppInfoItem>, appList: List<App>): App? {
         for (a in appList.filter { it.appInfo != null }) {
@@ -41,13 +37,18 @@ class Applications(database: AppDatabase) : BaseApp(database) {
 
     private suspend fun refreshAppList(appList: List<App>): UpdateManager {
         val appsUpdateManager = UpdateManager(appList)
-        return appsUpdateManager.also {
-            it.renewAll()
-            val appMap = it.appMap
-            excludeInvalidApps(appMap[Updater.NETWORK_404]?.filterIsInstance<App>())
-            includeValidApps(appMap[Updater.APP_OUTDATED]?.filterIsInstance<App>())
-            includeValidApps(appMap[Updater.APP_LATEST]?.filterIsInstance<App>())
+        appsUpdateManager.renewAll()
+        val appMap = appsUpdateManager.appMap
+        excludeInvalidApps(appMap[Updater.NETWORK_404]?.filterIsInstance<App>())
+        includeValidApps(appMap[Updater.APP_OUTDATED]?.filterIsInstance<App>())
+        includeValidApps(appMap[Updater.APP_LATEST]?.filterIsInstance<App>())
+        if (!initData) {
+            initData = true
+            GlobalScope.launch(Dispatchers.IO) {
+                refreshAppList(excludeApps)
+            }
         }
+        return appsUpdateManager
     }
 
     suspend fun getNeedUpdateAppList(block: Boolean = true): List<App> {
@@ -75,7 +76,7 @@ class Applications(database: AppDatabase) : BaseApp(database) {
         if (appList.isNullOrEmpty()) return
         appListMutex.withLock {
             for (app in appList) {
-                if (app in apps) {
+                if (app in excludeApps) {
                     apps.add(app)
                     excludeApps.remove(app)
                     app.appDatabase.targetChecker?.extraString?.let { packageName ->

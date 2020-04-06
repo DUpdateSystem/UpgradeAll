@@ -1,7 +1,6 @@
 package net.xzos.upgradeall.ui.viewmodels.viewmodel
 
 import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 
@@ -9,7 +8,7 @@ class ApplicationsPageViewModel : AppListContainerViewModel() {
 
     private val applications = MutableLiveData<Applications>().apply {
         this.observeForever { applications ->
-            val needUpdateAppList = runBlocking(Dispatchers.IO) { applications.getNeedUpdateAppList(false) }
+            val needUpdateAppList = runBlocking { applications.getNeedUpdateAppList(false) }
             val appList = needUpdateAppList + applications.apps.filter {
                 !needUpdateAppList.contains(it)
             }

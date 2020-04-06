@@ -3,6 +3,7 @@
 buildscript {
     ext.kotlin_version = '1.3.71'
     ext.protobuf_version = '0.8.6'
+    ext.protocVersion = '3.11.4'
     repositories {
         google()
         jcenter()
@@ -20,12 +21,12 @@ buildscript {
     }
     ext {
         commonDependencies = [
+                "com.google.protobuf:protobuf-javalite:$protocVersion",
                 // Kotlin
                 "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
                 // jvm 反射
                 "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version",
                 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.3',
-                files('lib/ptek-protobuf-javalite-firebase-wellknowntypes.jar'),
                 // 数据处理
                 'com.google.code.gson:gson:2.8.6',
                 // 字符串匹配；日志打印去除转义字符

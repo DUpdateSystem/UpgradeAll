@@ -10,7 +10,6 @@ sourceSets {
     }
 }
 
-def protocVersion = '3.11.4'
 def grpcVersion = '1.28.1'
 protobuf {
     protoc { artifact = "com.google.protobuf:protoc:$protocVersion" }
@@ -45,11 +44,4 @@ dependencies {
     implementation "io.grpc:grpc-stub:$grpcVersion"
     // optionally override grpc's protobuf-lite runtime
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
-    configurations {
-        compile.exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-        compile.exclude group: 'com.google.firebase', module: 'protolite-well-known-types'
-        compile.exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
-        compile.exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        compile.exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
-    }
 }
