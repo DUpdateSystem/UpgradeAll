@@ -18,10 +18,10 @@ import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.list_content.*
 import kotlinx.coroutines.*
 import net.xzos.upgradeall.core.data.database.getExtraData
-import net.xzos.upgradeall.core.data.json.gson.WebApiReturnGson
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.route.ReleaseInfoItem
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
 import net.xzos.upgradeall.utils.IconPalette
@@ -37,7 +37,7 @@ class AppInfoFragment : Fragment() {
     private lateinit var app: App
 
     private var versioningPosition: Int = 0
-    private var releaseInfoList: List<WebApiReturnGson.ReleaseInfoBean>? = null
+    private var releaseInfoList: List<ReleaseInfoItem>? = null
         get() {
             return field ?: runBlocking {
                 Updater(app).getReleaseInfo().also {
@@ -143,8 +143,8 @@ class AppInfoFragment : Fragment() {
                 GlobalScope.launch {
                     val nameList = releaseInfoList?.run {
                         if (this.isNotEmpty()) {
-                            this[versioningPosition].assets.map { asset ->
-                                asset.name
+                            this[versioningPosition].assetsList.map { asset ->
+                                asset.fileName
                             }
                         } else listOf()
                     } ?: listOf()

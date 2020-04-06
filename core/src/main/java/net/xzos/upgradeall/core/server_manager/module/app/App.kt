@@ -1,18 +1,17 @@
 package net.xzos.upgradeall.core.server_manager.module.app
 
 import net.xzos.upgradeall.core.data.database.AppDatabase
-import net.xzos.upgradeall.core.data.json.gson.WebApiGetGson
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.data_manager.utils.AutoTemplate
+import net.xzos.upgradeall.core.route.AppInfoItem
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
-import net.xzos.upgradeall.core.server_manager.module.web_api.WebApiManager
 import net.xzos.upgradeall.core.system_api.api.IoApi
 
 class App(database: AppDatabase) : BaseApp(database) {
 
     val hubDatabase = HubDatabaseManager.getDatabase(appDatabase.hubUuid)
 
-    var appInfo: List<WebApiGetGson.AppInfoListBean>? = null
+    var appInfo: List<AppInfoItem>? = null
         get() {
             if (field != null) return field
             if (hubDatabase != null)
@@ -25,15 +24,13 @@ class App(database: AppDatabase) : BaseApp(database) {
                     }
                     if (getKeys == hubDatabase.hubConfig.apiKeywords)
                         return args.map {
-                            WebApiGetGson.AppInfoListBean(it.key, it.value)
+                            AppInfoItem.newBuilder().setKey(it.key).setValue(it.value).build()
                         }.also {
                             field = it
                         }
                 }
             return null
         }
-
-    val webApi = WebApiManager.getWebApi(appDatabase.hubUuid)
 
     val markProcessedVersionNumber: String?
         get() = this.appDatabase.extraData?.markProcessedVersionNumber

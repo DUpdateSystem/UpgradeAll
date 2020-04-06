@@ -15,13 +15,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.data.config.AppConfig
-import net.xzos.upgradeall.core.data_manager.CloudConfigGetter
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.android_api.DatabaseApi
 import net.xzos.upgradeall.android_api.IoApi
 import net.xzos.upgradeall.android_api.Log
 import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.core.data.config.AppConfig
+import net.xzos.upgradeall.core.data_manager.CloudConfigGetter
 import net.xzos.upgradeall.server.update.UpdateManager
 import net.xzos.upgradeall.server.update.UpdateServiceReceiver
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
@@ -92,8 +92,7 @@ object MiscellaneousUtils {
         val pref = PreferenceManager.getDefaultSharedPreferences(context)
         val updateServerUrlKey = "update_server_url"
         val updateServerUrl = pref.getString(updateServerUrlKey, null)
-        if (!updateServerUrl.isNullOrBlank() && updateServerUrl != AppConfig.update_server_url)
-            AppConfig.update_server_url = updateServerUrl
+        AppConfig.setUpdateServerUrl(updateServerUrl)
         val dataExpirationTimeKey = "sync_time"
         val defaultDataExpirationTime = AppConfig.data_expiration_time
         val dataExpirationTime = pref.getInt(dataExpirationTimeKey, defaultDataExpirationTime)
