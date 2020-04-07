@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
@@ -14,7 +16,6 @@ import com.jaredrummler.android.shell.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.android_api.DatabaseApi
 import net.xzos.upgradeall.android_api.IoApi
@@ -164,7 +165,8 @@ object MiscellaneousUtils {
 
     @JvmOverloads
     fun showToast(context: Context?, resId: Int? = null, text: CharSequence? = null, duration: Int = Toast.LENGTH_SHORT) {
-        runBlocking(Dispatchers.Main) {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post {
             when {
                 text != null -> Toast.makeText(context, text, duration)
                 resId != null -> Toast.makeText(context, resId, duration)
