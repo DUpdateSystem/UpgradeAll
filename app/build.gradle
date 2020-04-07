@@ -67,7 +67,6 @@ dependencies {
 
     // Firebase
     implementation 'com.google.firebase:firebase-core:17.3.0'
-    implementation 'com.google.firebase:firebase-analytics:17.3.0'
     implementation 'com.google.firebase:firebase-perf:19.0.5'
 
     // Aria

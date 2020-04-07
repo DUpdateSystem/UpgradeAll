@@ -50,6 +50,7 @@ class UpdateManager internal constructor(
     // 刷新所有软件并等待，返回需要更新的软件数量
     suspend fun renewAll(concurrency: Boolean = true) {
         refreshMutex.withLock {
+            resetVariable()
             // 尝试刷新全部软件
             coroutineScope {
                 for (app in apps) {
