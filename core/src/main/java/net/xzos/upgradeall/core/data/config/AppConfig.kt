@@ -28,7 +28,8 @@ object AppConfig {
     val version_number_match_regex = "(\\d+(\\.\\d+)*)(([.|\\-|+|_| ]|[0-9A-Za-z])*)".toRegex()
 
     fun setUpdateServerUrl(url: String?): Boolean {
-        if (url.isNullOrBlank() || url == update_server_url) return false
+        if (url.isNullOrBlank()) return false
+        if (url == update_server_url) return true
         GrpcApi
         val old = update_server_url
         return try {
