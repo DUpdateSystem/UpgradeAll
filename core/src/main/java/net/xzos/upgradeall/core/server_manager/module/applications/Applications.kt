@@ -76,7 +76,7 @@ class Applications(database: AppDatabase) : BaseApp(database) {
         if (appList.isNullOrEmpty()) return
         appListMutex.withLock {
             for (app in appList) {
-                if (app in excludeApps) {
+                if (app in excludeApps && app.validApp) {
                     apps.add(app)
                     excludeApps.remove(app)
                     app.appDatabase.targetChecker?.extraString?.let { packageName ->
@@ -92,7 +92,7 @@ class Applications(database: AppDatabase) : BaseApp(database) {
         if (appList.isNullOrEmpty()) return
         appListMutex.withLock {
             for (app in appList) {
-                if (app in apps) {
+                if (app in apps && !app.validApp) {
                     apps.remove(app)
                     excludeApps.add(app)
                     app.appDatabase.targetChecker?.extraString?.let { packageName ->

@@ -24,11 +24,10 @@ object GrpcApi {
         mChannel = ManagedChannelBuilder.forTarget(AppConfig.update_server_url).usePlaintext().build()
     }
 
-    @Throws(InterruptedException::class, RuntimeException::class)
-    fun getReleaseInfo(hubUuid: String, appInfo: List<AppInfoItem>): List<ReleaseInfoItem>? {
-        if (hubUuid in invalidHubUuidList) return null
+    fun getReleaseInfo(hubUuid: String, appInfo: List<AppInfoItem>): Pair<List<ReleaseInfoItem>?, Boolean> {
+        if (hubUuid in invalidHubUuidList) return Pair(null, true)
         if (DataCache.existsCache(hubUuid, appInfo))
-            return DataCache.getReleaseInfo(hubUuid, appInfo)
+            return Pair(DataCache.getReleaseInfo(hubUuid, appInfo), true)
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         val request = AppInfo.newBuilder().setHubUuid(hubUuid).apply {
             for (infoItem in appInfo) {
@@ -38,18 +37,18 @@ object GrpcApi {
         val returnValue = try {
             blockingStub.getReleaseInfo(request)
         } catch (ignore: StatusRuntimeException) {
-            return null
+            return Pair(null, true)
         }
         return if (!returnValue.validHubUuid) {
             invalidHubUuidList.add(hubUuid)
-            null
+            Pair(null, true)
         } else {
             val releaseInfoList = returnValue.releaseInfoList
             DataCache.cacheReleaseInfo(hubUuid, appInfo, releaseInfoList)
             if (!returnValue.validApp) {
-                null
+                Pair(null, false)
             } else {
-                releaseInfoList
+                Pair(releaseInfoList, true)
             }
         }
     }

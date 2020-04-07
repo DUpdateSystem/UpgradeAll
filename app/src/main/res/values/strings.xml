@@ -127,7 +127,8 @@
     <string name="long_click_version_number_to_mark_as_processed">长按云端版本号可标记为“已处理”，即跳过此次更新 \n标记后再次长按已标记的版本号即可取消标记</string>
     <string name="marked_version_number_is_behind_latest">标注已处理的版本号已落后于最新版本</string>
     <string name="auto_fixed_wrong_configuration">已自动修复错误配置</string>
-    <string name="reset_git_url_configuration">已尝试复原 Git 地址配置</string>
+    <string name="reset_git_url_configuration">已复原 Git 默认地址配置</string>
+    <string name="reset_update_server_url_configuration">已复原升级服务默认地址配置</string>
     <string name="o_mark">⭕</string>
     <string name="processing">处理中</string>
     <string name="add_new_group">添加新分组</string>
@@ -158,5 +159,6 @@
     <string name="download_task_begin">下载任务开始</string>
     <string name="repeated_download_task">重复任务，忽略</string>
     <string name="try_kill_repeated_download_task">尝试终止旧的重复任务</string>
-    <string name="miui_error">你可能遇到了一个 MIUI 导致的错误</string>
+    <string name="select_browser">请选择浏览器以打开网页</string>
+    <string name="miui_error">你可能遇到了一个 MIUI 导致的错误，正在尝试调用其他方法打开</string>
 </resources>

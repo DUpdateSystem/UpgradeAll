@@ -11,6 +11,7 @@ class App(database: AppDatabase) : BaseApp(database) {
 
     val hubDatabase = HubDatabaseManager.getDatabase(appDatabase.hubUuid)
 
+    var validApp = true
     var appInfo: List<AppInfoItem>? = null
         get() {
             if (field != null) return field

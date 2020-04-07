@@ -14,7 +14,7 @@ object AppConfig {
         private set
     const val default_background_sync_data_time = 18
 
-    const val default_cloud_rules_hub_url = "https://github.com/DUpdateSystem/UpgradeAll-rules/"
+    const val default_cloud_rules_hub_url = "https://github.com/DUpdateSystem/UpgradeAll-rules/tree/master"
 
     var update_server_url_template = "http://%host:%port"
     const val github_url = "https://github.com/%owner/%repo/tree/%branch"
@@ -27,15 +27,17 @@ object AppConfig {
     val git_url_arg_regex = "(%.*?)\\w*".toRegex()
     val version_number_match_regex = "(\\d+(\\.\\d+)*)(([.|\\-|+|_| ]|[0-9A-Za-z])*)".toRegex()
 
-    fun setUpdateServerUrl(url: String?) {
-        if (url.isNullOrBlank() || url == update_server_url) return
+    fun setUpdateServerUrl(url: String?): Boolean {
+        if (url.isNullOrBlank() || url == update_server_url) return false
         GrpcApi
         val old = update_server_url
-        try {
+        return try {
             update_server_url = url
             GrpcApi.renew()
+            true
         } catch (e: IllegalArgumentException) {
             update_server_url = old
+            false
         }
     }
 }
