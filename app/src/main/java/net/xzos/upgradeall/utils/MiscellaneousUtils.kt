@@ -20,6 +20,7 @@ import net.xzos.upgradeall.android_api.DatabaseApi
 import net.xzos.upgradeall.android_api.IoApi
 import net.xzos.upgradeall.android_api.Log
 import net.xzos.upgradeall.application.MyApplication
+import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data_manager.CloudConfigGetter
 import net.xzos.upgradeall.server.update.UpdateManager
@@ -37,7 +38,6 @@ object MiscellaneousUtils {
         renewCloudConfigGetter()
     }
 
-    private val context = MyApplication.context
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     private var suAvailable: Boolean? = null
@@ -62,8 +62,9 @@ object MiscellaneousUtils {
     private fun newCloudConfigGetter(): CloudConfigGetter {
         val prefKey = "cloud_rules_hub_url"
         val defaultCloudRulesHubUrl = AppConfig.default_cloud_rules_hub_url
-        val cloudRulesHubUrl = prefs.getString(prefKey, defaultCloudRulesHubUrl)
-                ?: defaultCloudRulesHubUrl
+        val cloudRulesHubUrl = (prefs
+                ?: PreferenceManager.getDefaultSharedPreferences(context)
+                ).getString(prefKey, defaultCloudRulesHubUrl) ?: defaultCloudRulesHubUrl
         val cloudConfigGetter = CloudConfigGetter(cloudRulesHubUrl)
         if (!cloudConfigGetter.available) {
             resetCloudHubUrl()
@@ -107,7 +108,7 @@ object MiscellaneousUtils {
                                 Intent(Intent.ACTION_VIEW).apply {
                                     this.data = Uri.parse(url)
                                 }, context.getString(R.string.select_browser)).apply {
-                            if (context == this@MiscellaneousUtils.context)
+                            if (context == MyApplication.context)
                                 this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         }
                 )
