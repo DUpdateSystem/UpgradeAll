@@ -19,7 +19,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.android_api.DatabaseApi
 import net.xzos.upgradeall.android_api.IoApi
 import net.xzos.upgradeall.android_api.Log
-import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data_manager.CloudConfigGetter
 import net.xzos.upgradeall.server.update.UpdateManager
@@ -37,41 +37,14 @@ object MiscellaneousUtils {
         renewCloudConfigGetter()
     }
 
+    private val context = MyApplication.context
+    private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+
     private var suAvailable: Boolean? = null
         get() = field ?: Shell.SU.available().also { field = it }
 
     lateinit var cloudConfigGetter: CloudConfigGetter
         private set
-
-    fun renewCloudConfigGetter() {
-        cloudConfigGetter = newCloudConfigGetter()
-    }
-
-    private fun newCloudConfigGetter(): CloudConfigGetter {
-        val prefKey = "cloud_rules_hub_url"
-        val defaultCloudRulesHubUrl = context.resources.getString(R.string.default_cloud_rules_hub_url)
-        val pref = PreferenceManager.getDefaultSharedPreferences(context)
-        val cloudRulesHubUrl = pref.getString(prefKey, defaultCloudRulesHubUrl)
-                ?: defaultCloudRulesHubUrl
-        var cloudConfigGetter = CloudConfigGetter(cloudRulesHubUrl)
-        if (!cloudConfigGetter.available) {
-            pref.edit().putString(prefKey, defaultCloudRulesHubUrl).apply()
-            showToast(context, R.string.auto_fixed_wrong_configuration, duration = Toast.LENGTH_LONG)
-            cloudConfigGetter = CloudConfigGetter(defaultCloudRulesHubUrl)
-        }
-        return cloudConfigGetter
-    }
-
-    fun resetCloudHubUrl() {
-        val prefKey = "cloud_rules_hub_url"
-        val defaultCloudRulesHubUrl = context.resources.getString(R.string.default_cloud_rules_hub_url)
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val editor = prefs.edit()
-        editor.putString(prefKey, defaultCloudRulesHubUrl)
-        editor.apply()
-        renewCloudConfigGetter()
-        showToast(context, R.string.reset_git_url_configuration, duration = Toast.LENGTH_LONG)
-    }
 
     fun initData() {
         // 初始化 System API
@@ -82,6 +55,30 @@ object MiscellaneousUtils {
         syncSetting()
     }
 
+    private fun renewCloudConfigGetter() {
+        cloudConfigGetter = newCloudConfigGetter()
+    }
+
+    private fun newCloudConfigGetter(): CloudConfigGetter {
+        val prefKey = "cloud_rules_hub_url"
+        val defaultCloudRulesHubUrl = AppConfig.default_cloud_rules_hub_url
+        val cloudRulesHubUrl = prefs.getString(prefKey, defaultCloudRulesHubUrl)
+                ?: defaultCloudRulesHubUrl
+        val cloudConfigGetter = CloudConfigGetter(cloudRulesHubUrl)
+        if (!cloudConfigGetter.available) {
+            resetCloudHubUrl()
+        }
+        return cloudConfigGetter
+    }
+
+    fun resetCloudHubUrl() {
+        val prefKey = "cloud_rules_hub_url"
+        val defaultCloudRulesHubUrl = AppConfig.default_cloud_rules_hub_url
+        prefs.edit().putString(prefKey, defaultCloudRulesHubUrl).apply()
+        renewCloudConfigGetter()
+        showToast(context, R.string.reset_git_url_configuration, duration = Toast.LENGTH_LONG)
+    }
+
     // 同步设置
     fun syncSetting() {
         // 刷新数据时间
@@ -89,13 +86,15 @@ object MiscellaneousUtils {
         // Git 地址
         renewCloudConfigGetter()
         // 更新服务器地址
-        val pref = PreferenceManager.getDefaultSharedPreferences(context)
         val updateServerUrlKey = "update_server_url"
-        val updateServerUrl = pref.getString(updateServerUrlKey, null)
-        AppConfig.setUpdateServerUrl(updateServerUrl)
+        val updateServerUrl = prefs.getString(updateServerUrlKey, null)
+        if (!AppConfig.setUpdateServerUrl(updateServerUrl)) {
+            prefs.edit().putString(updateServerUrlKey, AppConfig.update_server_url).apply()
+            showToast(context, R.string.reset_update_server_url_configuration, duration = Toast.LENGTH_LONG)
+        }
         val dataExpirationTimeKey = "sync_time"
         val defaultDataExpirationTime = AppConfig.data_expiration_time
-        val dataExpirationTime = pref.getInt(dataExpirationTimeKey, defaultDataExpirationTime)
+        val dataExpirationTime = prefs.getInt(dataExpirationTimeKey, defaultDataExpirationTime)
         if (dataExpirationTime != defaultDataExpirationTime)
             AppConfig.data_expiration_time = dataExpirationTime
     }
@@ -107,13 +106,16 @@ object MiscellaneousUtils {
                         Intent.createChooser(
                                 Intent(Intent.ACTION_VIEW).apply {
                                     this.data = Uri.parse(url)
-                                }, "请选择浏览器以打开网页").apply {
-                            if (context == context)
+                                }, context.getString(R.string.select_browser)).apply {
+                            if (context == this@MiscellaneousUtils.context)
                                 this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         }
                 )
             } catch (e: ArrayIndexOutOfBoundsException) {
                 showToast(context, R.string.miui_error, duration = Toast.LENGTH_LONG)
+                Intent(Intent.ACTION_VIEW).apply {
+                    this.data = Uri.parse(url)
+                }
             }
     }
 
