@@ -14,11 +14,12 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import net.xzos.upgradeall.R
+import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.server_manager.UpdateManager.Companion.updateManager
 import net.xzos.upgradeall.core.system_api.annotations.UpdateManagerApi
-import net.xzos.upgradeall.R
-import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.viewmodels.componnent.EditIntPreference
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -47,7 +48,7 @@ object UpdateManager {
         if (finishedAppNum != allAppsNum) {
             updateStatusNotification(allAppsNum, finishedAppNum)
         } else {
-            val needUpdateAppNum = updateManager.needUpdateAppList.size
+            val needUpdateAppNum = runBlocking { updateManager.getNeedUpdateAppList(block = false).size }
             if (needUpdateAppNum != 0)
                 updateNotification(needUpdateAppNum)
             else

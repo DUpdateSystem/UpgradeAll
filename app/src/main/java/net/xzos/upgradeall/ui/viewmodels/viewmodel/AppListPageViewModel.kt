@@ -5,6 +5,8 @@ import kotlinx.coroutines.*
 import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.core.server_manager.UpdateManager.Companion.updateManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.data_manager.UIConfig
 import net.xzos.upgradeall.data_manager.UIConfig.Companion.APPLICATIONS_TYPE_TAG
 import net.xzos.upgradeall.data_manager.UIConfig.Companion.APP_TYPE_TAG
@@ -31,7 +33,15 @@ class AppListPageViewModel : AppListContainerViewModel() {
     private suspend fun getApps(tabPageIndex: Int): List<BaseApp> {
         return when (tabPageIndex) {
             UPDATE_PAGE_INDEX -> {
-                updateManager.needUpdateAppList
+                val baseAppList = updateManager.getNeedUpdateAppList(block = true)
+                mutableListOf<App>().apply {
+                    for (baseApp in baseAppList) {
+                        when (baseApp) {
+                            is App -> add(baseApp)
+                            is Applications -> addAll(baseApp.getNeedUpdateAppList(block = true))
+                        }
+                    }
+                }
             }
             ALL_APP_PAGE_INDEX -> {
                 AppManager.apps

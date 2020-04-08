@@ -20,11 +20,10 @@ class Applications(database: AppDatabase) : BaseApp(database) {
 
     val apps: MutableList<App> = applicationsUtils.apps
     private val excludeApps: MutableList<App> = applicationsUtils.excludeApps
-    private var updateManager = UpdateManager(apps)
+    private val applicationsUpdateManager = UpdateManager(apps)
     private var initData = false
 
     // 数据刷新锁
-    private val dataMutex = Mutex()
     private val appListMutex = Mutex()
 
     private fun getAppByAppInfo(appInfo: List<AppInfoItem>, appList: List<App>): App? {
@@ -35,40 +34,33 @@ class Applications(database: AppDatabase) : BaseApp(database) {
         return null
     }
 
-    private suspend fun refreshAppList(appList: List<App>): UpdateManager {
-        val appsUpdateManager = UpdateManager(appList)
-        appsUpdateManager.renewAll()
-        val appMap = appsUpdateManager.appMap
-        excludeInvalidApps(appMap[Updater.NETWORK_404]?.filterIsInstance<App>())
+    private suspend fun refreshAppList(updateManager: UpdateManager): UpdateManager {
+        updateManager.renewAll()
+        val appMap = updateManager.appMap
+        excludeInvalidApps(appMap[Updater.INVALID_APP]?.filterIsInstance<App>())
         includeValidApps(appMap[Updater.APP_OUTDATED]?.filterIsInstance<App>())
         includeValidApps(appMap[Updater.APP_LATEST]?.filterIsInstance<App>())
         if (!initData) {
             initData = true
             GlobalScope.launch(Dispatchers.IO) {
-                refreshAppList(excludeApps)
+                refreshAppList(UpdateManager(excludeApps))
             }
         }
-        return appsUpdateManager
+        return updateManager
     }
 
     suspend fun getNeedUpdateAppList(block: Boolean = true): List<App> {
-        val list = if (block) dataMutex.withLock {
-            updateManager.needUpdateAppList
-        }
-        else updateManager.appMap[Updater.APP_OUTDATED]
-        return list?.filterIsInstance<App>() ?: listOf()
+        return applicationsUpdateManager.getNeedUpdateAppList(block = block).filterIsInstance<App>()
     }
 
     override suspend fun getUpdateStatus(): Int {
-        dataMutex.withLock {
-            updateManager = refreshAppList(apps)
-            return when {
-                updateManager.needUpdateAppList.isNotEmpty() ->
-                    Updater.APP_OUTDATED
-                updateManager.appMap[Updater.NETWORK_ERROR]?.size == apps.size ->
-                    Updater.NETWORK_ERROR
-                else -> Updater.APP_LATEST
-            }
+        refreshAppList(applicationsUpdateManager)
+        return when {
+            getNeedUpdateAppList(block = false).isNotEmpty() ->
+                Updater.APP_OUTDATED
+            applicationsUpdateManager.appMap[Updater.NETWORK_ERROR]?.size == apps.size ->
+                Updater.NETWORK_ERROR
+            else -> Updater.APP_LATEST
         }
     }
 
@@ -76,7 +68,7 @@ class Applications(database: AppDatabase) : BaseApp(database) {
         if (appList.isNullOrEmpty()) return
         appListMutex.withLock {
             for (app in appList) {
-                if (app in excludeApps && app.validApp) {
+                if (app in excludeApps) {
                     apps.add(app)
                     excludeApps.remove(app)
                     app.appDatabase.targetChecker?.extraString?.let { packageName ->
@@ -92,7 +84,7 @@ class Applications(database: AppDatabase) : BaseApp(database) {
         if (appList.isNullOrEmpty()) return
         appListMutex.withLock {
             for (app in appList) {
-                if (app in apps && !app.validApp) {
+                if (app in apps) {
                     apps.remove(app)
                     excludeApps.add(app)
                     app.appDatabase.targetChecker?.extraString?.let { packageName ->

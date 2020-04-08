@@ -7,6 +7,7 @@ import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.data_manager.utils.VersioningUtils
 import net.xzos.upgradeall.core.network_api.GrpcApi
 import net.xzos.upgradeall.core.route.ReleaseInfoItem
+import net.xzos.upgradeall.core.route.ReturnValue
 import net.xzos.upgradeall.core.system_api.api.IoApi
 
 
@@ -14,9 +15,9 @@ class Updater(private val app: App) : UpdaterApi {
     private val dataMutex = Mutex()
 
     override suspend fun getUpdateStatus(): Int {
-        val releaseInfoList = getReleaseInfo() ?: return NETWORK_404
-        return if (releaseInfoList.isEmpty())
-            NETWORK_ERROR
+        val returnValue = getReturnValue() ?: return NETWORK_ERROR
+        return if (!returnValue.validApp)
+            INVALID_APP
         else {
             //检查是否取得云端版本号
             if (app.installedVersionNumber != null
@@ -36,17 +37,19 @@ class Updater(private val app: App) : UpdaterApi {
         )
     }
 
-    override suspend fun getReleaseInfo(): List<ReleaseInfoItem>? {
+    override suspend fun getReturnValue(): ReturnValue? {
         val appInfo = app.appInfo
         if (appInfo != null) {
             dataMutex.withLock {
                 val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
-                return GrpcApi.getReleaseInfo(hubUuid, appInfo).also {
-                    app.validApp = it.second
-                }.first
+                return GrpcApi.getReturnValue(hubUuid, appInfo)
             }
         }
         return null
+    }
+
+    override suspend fun getReleaseInfo(): List<ReleaseInfoItem>? {
+        return getReturnValue()?.releaseInfoList
     }
 
     // 获取最新版本号
@@ -62,7 +65,7 @@ class Updater(private val app: App) : UpdaterApi {
 
     // 使用内置下载器下载文件
     suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false) {
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             getReleaseInfo()?.let { releaseInfoList ->
                 val asset = releaseInfoList[fileIndex.first].getAssets(fileIndex.second)
                 IoApi.downloadFile(
@@ -74,7 +77,7 @@ class Updater(private val app: App) : UpdaterApi {
     }
 
     companion object {
-        const val NETWORK_404 = -1
+        const val INVALID_APP = -1
         const val NETWORK_ERROR = 0
         const val APP_LATEST = 1
         const val APP_OUTDATED = 2
@@ -84,6 +87,7 @@ class Updater(private val app: App) : UpdaterApi {
 }
 
 private interface UpdaterApi {
+    suspend fun getReturnValue(): ReturnValue?
     suspend fun getReleaseInfo(): List<ReleaseInfoItem>?
     suspend fun getUpdateStatus(): Int
     suspend fun getLatestVersioning(): String?
