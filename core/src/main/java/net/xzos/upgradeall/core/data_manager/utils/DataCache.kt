@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.data_manager.utils
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.route.AppInfoItem
 import net.xzos.upgradeall.core.route.ReleaseInfoItem
+import net.xzos.upgradeall.core.route.ReturnValue
 import java.net.*
 import java.util.*
 
@@ -56,7 +57,7 @@ object DataCache {
     fun getReleaseInfo(
             hubUuid: String,
             appInfoList: List<AppInfoItem>
-    ): List<ReleaseInfoItem>? {
+    ): ReturnValue? {
         val key = appInfoList.key(hubUuid) ?: return null
         cache.releaseInfoDict[key]?.also {
             if (!it.isExpired()) {
@@ -69,17 +70,17 @@ object DataCache {
     fun cacheReleaseInfo(
             hubUuid: String,
             appInfoList: List<AppInfoItem>,
-            releaseInfo: List<ReleaseInfoItem>?
+            returnValue: ReturnValue
     ) {
         val key = appInfoList.key(hubUuid) ?: return
-        cache.releaseInfoDict[key] = Pair(releaseInfo, Calendar.getInstance())
+        cache.releaseInfoDict[key] = Pair(returnValue, Calendar.getInstance())
     }
 
     data class Cache(
-            internal val httpResponseDict: MutableMap<String, Pair<String, Calendar>> = mutableMapOf(),
-            internal val releaseInfoDict: MutableMap<String, Pair<
-                    List<ReleaseInfoItem>?, Calendar
-                    >> = mutableMapOf()
+            internal val httpResponseDict: MutableMap<String,
+                    Pair<String, Calendar>> = mutableMapOf(),
+            internal val releaseInfoDict: MutableMap<String,
+                    Pair<ReturnValue, Calendar>> = mutableMapOf()
     )
 }
 

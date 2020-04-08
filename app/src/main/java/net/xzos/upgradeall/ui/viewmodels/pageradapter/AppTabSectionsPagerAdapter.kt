@@ -75,7 +75,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
             withContext(Dispatchers.Main) {
                 loadingBar?.visibility = View.VISIBLE
             }
-            if (updateManager.needUpdateAppList.isEmpty() && editTabMode.value == false) {
+            if (updateManager.getNeedUpdateAppList().isEmpty() && editTabMode.value == false) {
                 withContext(Dispatchers.Main) {
                     removeTabPage(mTabIndexList.indexOf(UPDATE_PAGE_INDEX))
                 }
