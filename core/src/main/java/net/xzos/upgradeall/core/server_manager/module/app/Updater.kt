@@ -6,8 +6,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.data_manager.utils.VersioningUtils
 import net.xzos.upgradeall.core.network_api.GrpcApi
+import net.xzos.upgradeall.core.route.AppStatus
 import net.xzos.upgradeall.core.route.ReleaseInfoItem
-import net.xzos.upgradeall.core.route.ReturnValue
 import net.xzos.upgradeall.core.system_api.api.IoApi
 
 
@@ -15,8 +15,8 @@ class Updater(private val app: App) : UpdaterApi {
     private val dataMutex = Mutex()
 
     override suspend fun getUpdateStatus(): Int {
-        val returnValue = getReturnValue() ?: return NETWORK_ERROR
-        return if (!returnValue.validApp)
+        val appStatus = getAppStatus() ?: return NETWORK_ERROR
+        return if (!appStatus.validApp)
             INVALID_APP
         else {
             //检查是否取得云端版本号
@@ -37,24 +37,24 @@ class Updater(private val app: App) : UpdaterApi {
         )
     }
 
-    override suspend fun getReturnValue(): ReturnValue? {
-        val appInfo = app.appInfo
+    override suspend fun getAppStatus(): AppStatus? {
+        val appInfo = app.appId
         if (appInfo != null) {
             dataMutex.withLock {
                 val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
-                return GrpcApi.getReturnValue(hubUuid, appInfo)
+                return GrpcApi.getAppStatus(hubUuid, appInfo)
             }
         }
         return null
     }
 
     override suspend fun getReleaseInfo(): List<ReleaseInfoItem>? {
-        return getReturnValue()?.releaseInfoList
+        return getAppStatus()?.releaseInfoList
     }
 
     // 获取最新版本号
     override suspend fun getLatestVersioning(): String? {
-        val appInfo = app.appInfo
+        val appInfo = app.appId
         val releaseInfoList = getReleaseInfo() ?: return null
         return if (appInfo != null) {
             if (releaseInfoList.isNotEmpty())
@@ -87,7 +87,7 @@ class Updater(private val app: App) : UpdaterApi {
 }
 
 private interface UpdaterApi {
-    suspend fun getReturnValue(): ReturnValue?
+    suspend fun getAppStatus(): AppStatus?
     suspend fun getReleaseInfo(): List<ReleaseInfoItem>?
     suspend fun getUpdateStatus(): Int
     suspend fun getLatestVersioning(): String?

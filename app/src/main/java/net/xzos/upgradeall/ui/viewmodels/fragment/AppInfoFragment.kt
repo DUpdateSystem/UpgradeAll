@@ -217,7 +217,7 @@ class AppInfoFragment : Fragment() {
     private fun loadAppVersioningInfo(versioningPosition: Int) {
         this.versioningPosition = versioningPosition
         versionMarkImageView.visibility = View.GONE
-        app.appInfo.let {
+        app.appId.let {
             GlobalScope.launch {
                 val releaseInfoBean = releaseInfoList?.get(versioningPosition)
                 val latestVersionNumber = releaseInfoBean?.versionNumber

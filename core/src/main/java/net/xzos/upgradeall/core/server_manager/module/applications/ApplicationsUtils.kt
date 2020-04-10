@@ -10,7 +10,7 @@ import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
 import net.xzos.upgradeall.core.data_manager.utils.AutoTemplate
-import net.xzos.upgradeall.core.route.AppInfoItem
+import net.xzos.upgradeall.core.route.AppIdItem
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.system_api.api.IoApi
 
@@ -41,7 +41,7 @@ internal class ApplicationsUtils(applacationsDatabase: AppDatabase) {
             for (packageInfo in appInfos) {
                 launch(Dispatchers.IO) {
                     val app = App(getAppDatabaseClass(packageInfo)).apply {
-                        this.appInfo = listOf(AppInfoItem.newBuilder()
+                        this.appId = listOf(AppIdItem.newBuilder()
                                 .setKey(packageInfo.type)
                                 .setValue(packageInfo.id)
                                 .build()
