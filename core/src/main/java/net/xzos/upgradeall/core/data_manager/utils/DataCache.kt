@@ -1,9 +1,8 @@
 package net.xzos.upgradeall.core.data_manager.utils
 
 import net.xzos.upgradeall.core.data.config.AppConfig
-import net.xzos.upgradeall.core.route.AppInfoItem
-import net.xzos.upgradeall.core.route.ReleaseInfoItem
-import net.xzos.upgradeall.core.route.ReturnValue
+import net.xzos.upgradeall.core.route.AppIdItem
+import net.xzos.upgradeall.core.route.AppStatus
 import java.net.*
 import java.util.*
 
@@ -14,7 +13,7 @@ object DataCache {
 
     private var dataExpirationTime = AppConfig.data_expiration_time
 
-    fun List<AppInfoItem>.key(hubUuid: String): String? {
+    fun List<AppIdItem>.cacheKey(hubUuid: String): String? {
         if (this.isEmpty()) return null
         var key = hubUuid
         for (i in this) {
@@ -45,21 +44,21 @@ object DataCache {
         cache.httpResponseDict[url] = Pair(response, Calendar.getInstance())
     }
 
-    fun existsCache(
+    fun existsAppStatus(
             hubUuid: String,
-            appInfoList: List<AppInfoItem>
+            appId: List<AppIdItem>
     ): Boolean {
-        val key = appInfoList.key(hubUuid)
-        val releaseInfoDict = cache.releaseInfoDict
+        val key = appId.cacheKey(hubUuid)
+        val releaseInfoDict = cache.appStatusDict
         return releaseInfoDict.containsKey(key) && !releaseInfoDict[key].isExpired()
     }
 
-    fun getReleaseInfo(
+    fun getAppStatus(
             hubUuid: String,
-            appInfoList: List<AppInfoItem>
-    ): ReturnValue? {
-        val key = appInfoList.key(hubUuid) ?: return null
-        cache.releaseInfoDict[key]?.also {
+            appId: List<AppIdItem>
+    ): AppStatus? {
+        val key = appId.cacheKey(hubUuid) ?: return null
+        cache.appStatusDict[key]?.also {
             if (!it.isExpired()) {
                 return it.first
             } else cache.httpResponseDict.remove(key)
@@ -69,18 +68,18 @@ object DataCache {
 
     fun cacheReleaseInfo(
             hubUuid: String,
-            appInfoList: List<AppInfoItem>,
-            returnValue: ReturnValue
+            appId: List<AppIdItem>,
+            appStatus: AppStatus
     ) {
-        val key = appInfoList.key(hubUuid) ?: return
-        cache.releaseInfoDict[key] = Pair(returnValue, Calendar.getInstance())
+        val key = appId.cacheKey(hubUuid) ?: return
+        cache.appStatusDict[key] = Pair(appStatus, Calendar.getInstance())
     }
 
     data class Cache(
             internal val httpResponseDict: MutableMap<String,
                     Pair<String, Calendar>> = mutableMapOf(),
-            internal val releaseInfoDict: MutableMap<String,
-                    Pair<ReturnValue, Calendar>> = mutableMapOf()
+            internal val appStatusDict: MutableMap<String,
+                    Pair<AppStatus, Calendar>> = mutableMapOf()
     )
 }
 

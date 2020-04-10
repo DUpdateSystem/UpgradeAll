@@ -3,10 +3,15 @@ package net.xzos.upgradeall.core.server_manager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.xzos.upgradeall.core.data_manager.utils.DataCache
+import net.xzos.upgradeall.core.network_api.GrpcApi
+import net.xzos.upgradeall.core.route.AppIdItem
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
 import net.xzos.upgradeall.core.system_api.RegisterApi
 import net.xzos.upgradeall.core.system_api.annotations.UpdateManagerApi
+import java.util.concurrent.Executors
 
 
 private val updateFinishedAnnotation =
@@ -22,7 +27,9 @@ class UpdateManager internal constructor(
     private val dataMutex = Mutex()  // 保证线程安全
     private val refreshMutex = Mutex()  // 刷新锁，避免重复请求刷新导致浪费大量资源
     val appMap: MutableMap<Int, MutableList<BaseApp>> = mutableMapOf()
-    private val coroutineDispatcher = Dispatchers.IO
+    private val coroutineDispatcher = if (this == updateManager)
+        Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    else Dispatchers.IO
 
     private fun MutableMap<Int, MutableList<BaseApp>>.addApp(appStatus: Int, app: BaseApp): Boolean {
         return runBlocking {
@@ -61,8 +68,23 @@ class UpdateManager internal constructor(
     }
 
     // 刷新所有软件并等待，返回需要更新的软件数量
-    suspend fun renewAll(concurrency: Boolean = true) {
+    suspend fun renewAll(concurrency: Boolean = true, preGetData: Boolean = false) {
         refreshMutex.withLock {
+            if (preGetData) {
+                val appGroupDict = mutableMapOf<String, MutableList<List<AppIdItem>>>()
+                for (app in apps.filterIsInstance<App>()) {
+                    val hubUuid = app.hubDatabase?.uuid
+                    val appId = app.appId
+                    if (hubUuid != null && appId != null
+                            && !DataCache.existsAppStatus(hubUuid, appId)) {
+                        (appGroupDict[hubUuid] ?: mutableListOf<List<AppIdItem>>().also {
+                            appGroupDict[hubUuid] = it
+                        }).add(appId)
+                    }
+                }
+                for (hubUuid in appGroupDict.keys)
+                    GrpcApi.getAppStatusList(hubUuid, appGroupDict[hubUuid]!!)
+            }
             resetVariable()
             // 尝试刷新全部软件
             coroutineScope {

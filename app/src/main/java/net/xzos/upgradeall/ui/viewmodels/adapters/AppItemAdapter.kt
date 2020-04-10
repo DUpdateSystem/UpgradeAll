@@ -13,11 +13,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
-import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListContainerViewModel
@@ -107,7 +107,7 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
 
         // 检查新版本
         setUpdateStatus(holder, true)
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.IO) {
             val updateStatus = app.getUpdateStatus()
             val latestVersioning = if (app is App)
                 Updater(app).getLatestVersioning()

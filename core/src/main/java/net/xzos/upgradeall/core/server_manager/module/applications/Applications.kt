@@ -7,7 +7,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.database.getApplicationsAutoExclude
-import net.xzos.upgradeall.core.route.AppInfoItem
+import net.xzos.upgradeall.core.route.AppIdItem
 import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
@@ -26,16 +26,16 @@ class Applications(database: AppDatabase) : BaseApp(database) {
     // 数据刷新锁
     private val appListMutex = Mutex()
 
-    private fun getAppByAppInfo(appInfo: List<AppInfoItem>, appList: List<App>): App? {
-        for (a in appList.filter { it.appInfo != null }) {
-            if (a.appInfo!![0].value == appInfo[0].value)
+    private fun getAppByAppId(appInfo: List<AppIdItem>, appList: List<App>): App? {
+        for (a in appList.filter { it.appId != null }) {
+            if (a.appId!![0].value == appInfo[0].value)
                 return a
         }
         return null
     }
 
     private suspend fun refreshAppList(updateManager: UpdateManager): UpdateManager {
-        updateManager.renewAll()
+        updateManager.renewAll(concurrency = true, preGetData = true)
         val appMap = updateManager.appMap
         excludeInvalidApps(appMap[Updater.INVALID_APP]?.filterIsInstance<App>())
         includeValidApps(appMap[Updater.APP_OUTDATED]?.filterIsInstance<App>())
