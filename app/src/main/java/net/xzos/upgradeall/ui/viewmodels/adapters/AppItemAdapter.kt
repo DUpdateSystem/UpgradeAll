@@ -107,7 +107,7 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
 
         // 检查新版本
         setUpdateStatus(holder, true)
-        GlobalScope.launch(Dispatchers.IO) {
+        GlobalScope.launch {
             val updateStatus = app.getUpdateStatus()
             val latestVersioning = if (app is App)
                 Updater(app).getLatestVersioning()

@@ -61,7 +61,7 @@ internal class ApplicationsUtils(applacationsDatabase: AppDatabase) {
         val packageType = appInfo.type
         val url = AutoTemplate.fillArgs(
                 appUrlTemplate,
-                listOf(AutoTemplate.Arg(packageType, packageName))
+                listOf(AutoTemplate.Arg("%$packageType", packageName))
         )
         val type = AppDatabase.APP_TYPE_TAG
         return AppDatabase(0L, name, url, hubUuid, type).apply {

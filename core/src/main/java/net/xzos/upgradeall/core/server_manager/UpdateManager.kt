@@ -27,9 +27,7 @@ class UpdateManager internal constructor(
     private val dataMutex = Mutex()  // 保证线程安全
     private val refreshMutex = Mutex()  // 刷新锁，避免重复请求刷新导致浪费大量资源
     val appMap: MutableMap<Int, MutableList<BaseApp>> = mutableMapOf()
-    private val coroutineDispatcher = if (this == updateManager)
-        Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-    else Dispatchers.IO
+    private val coroutineDispatcher = Dispatchers.IO
 
     private fun MutableMap<Int, MutableList<BaseApp>>.addApp(appStatus: Int, app: BaseApp): Boolean {
         return runBlocking {
