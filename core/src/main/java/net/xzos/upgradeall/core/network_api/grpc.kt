@@ -102,7 +102,7 @@ object GrpcApi {
                 buildRequest(hubUuid, appId)
         ).apply {
             for (i in assetIndex)
-                setAssetIndex(i)
+                addAssetIndex(i)
         }.build()
         return try {
             blockingStub.getDownloadInfo(request)

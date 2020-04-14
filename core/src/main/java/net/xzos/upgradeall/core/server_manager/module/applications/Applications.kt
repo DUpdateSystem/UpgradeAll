@@ -35,7 +35,7 @@ class Applications(database: AppDatabase) : BaseApp(database) {
     }
 
     private suspend fun refreshAppList(updateManager: UpdateManager): UpdateManager {
-        updateManager.renewAll(concurrency = true, preGetData = true)
+        updateManager.renewAll(concurrency = false, preGetData = true)
         val appMap = updateManager.appMap
         excludeInvalidApps(appMap[Updater.INVALID_APP]?.filterIsInstance<App>())
         includeValidApps(appMap[Updater.APP_OUTDATED]?.filterIsInstance<App>())
