@@ -15,10 +15,11 @@ object IoApi {
     }
 
     // 注释相应平台的下载软件
-    internal fun downloadFile(
-        fileName: String, url: String, headers: Map<String, String> = mapOf(),
-        externalDownloader: Boolean, isDebug: Boolean = false
+    internal suspend fun downloadFile(
+            fileName: String, url: String, headers: Map<String, String> = mapOf(),
+            externalDownloader: Boolean, isDebug: Boolean = false
     ) {
+        if (url.isBlank()) return
         ioApiInterface?.downloadFile(isDebug, fileName, url, headers, externalDownloader)
     }
 

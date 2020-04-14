@@ -42,4 +42,5 @@ dependencies {
     implementation "io.grpc:grpc-okhttp:$grpcVersion"
     implementation "io.grpc:grpc-protobuf-lite:$grpcVersion"
     implementation "io.grpc:grpc-stub:$grpcVersion"
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
 }

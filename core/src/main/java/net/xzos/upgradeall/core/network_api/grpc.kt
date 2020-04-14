@@ -72,11 +72,7 @@ object GrpcApi {
         if (DataCache.existsAppStatus(hubUuid, appId))
             return DataCache.getAppStatus(hubUuid, appId)
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
-        val request = Request.newBuilder().setHubUuid(hubUuid).apply {
-            for (infoItem in appId) {
-                addAppId(AppIdItem.newBuilder().setKey(infoItem.key).setValue(infoItem.value).build())
-            }
-        }.build()
+        val request = buildRequest(hubUuid, appId)
         val returnValue = try {
             withTimeout(15000L) {
                 blockingStub.getAppStatus(request)
@@ -98,4 +94,27 @@ object GrpcApi {
             returnValue
         }
     }
+
+    suspend fun getDownloadInfo(hubUuid: String, appId: List<AppIdItem>, assetIndex: List<Int>): DownloadInfo? {
+        if (hubUuid in invalidHubUuidList) return null
+        val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
+        val request = DownloadAssetIndex.newBuilder().setAppIdInfo(
+                buildRequest(hubUuid, appId)
+        ).apply {
+            for (i in assetIndex)
+                setAssetIndex(i)
+        }.build()
+        return try {
+            blockingStub.getDownloadInfo(request)
+        } catch (ignore: StatusRuntimeException) {
+            null
+        }
+    }
+
+    private fun buildRequest(hubUuid: String, appId: List<AppIdItem>) =
+            Request.newBuilder().setHubUuid(hubUuid).apply {
+                for (infoItem in appId) {
+                    addAppId(AppIdItem.newBuilder().setKey(infoItem.key).setValue(infoItem.value).build())
+                }
+            }.build()
 }

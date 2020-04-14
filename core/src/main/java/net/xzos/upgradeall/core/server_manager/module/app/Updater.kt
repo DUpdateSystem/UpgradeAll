@@ -68,8 +68,21 @@ class Updater(private val app: App) : UpdaterApi {
         withContext(Dispatchers.Default) {
             getReleaseInfo()?.let { releaseInfoList ->
                 val asset = releaseInfoList[fileIndex.first].getAssets(fileIndex.second)
+                val hubUuid = app.hubDatabase?.uuid
+                val appId = app.appId
+                val downloadInfo = if (hubUuid != null && appId != null)
+                    GrpcApi.getDownloadInfo(hubUuid, appId, fileIndex.toList())
+                else null
+                val url = (if (!downloadInfo?.url.isNullOrBlank())
+                    downloadInfo?.url
+                else asset.downloadUrl) ?: return@withContext
+                val headers = mutableMapOf<String, String>().also {
+                    for (dict in downloadInfo?.requestHeaderList ?: listOf())
+                        it[dict.key] = dict.value
+                }
                 IoApi.downloadFile(
-                        asset.fileName, asset.downloadUrl,
+                        asset.fileName, url,
+                        headers = headers,
                         externalDownloader = externalDownloader
                 )
             }
