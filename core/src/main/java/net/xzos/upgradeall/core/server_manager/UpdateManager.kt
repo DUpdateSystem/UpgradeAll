@@ -66,23 +66,9 @@ class UpdateManager internal constructor(
 
     // 刷新所有软件并等待，返回需要更新的软件数量
     suspend fun renewAll(concurrency: Boolean = true, preGetData: Boolean = false) {
-        withContext(coroutineDispatcher) {
-            refreshMutex.withLock {
-                if (preGetData) {
-                    val appGroupDict = mutableMapOf<String, MutableList<List<AppIdItem>>>()
-                    for (app in apps.filterIsInstance<App>()) {
-                        val hubUuid = app.hubDatabase?.uuid
-                        val appId = app.appId
-                        if (hubUuid != null && appId != null
-                                && !DataCache.existsAppStatus(hubUuid, appId)) {
-                            (appGroupDict[hubUuid] ?: mutableListOf<List<AppIdItem>>().also {
-                                appGroupDict[hubUuid] = it
-                            }).add(appId)
-                        }
-                    }
-                    for (hubUuid in appGroupDict.keys)
-                        GrpcApi.getAppStatusList(hubUuid, appGroupDict[hubUuid]!!)
-                }
+        refreshMutex.withLock {
+            withContext(coroutineDispatcher) {
+                if (preGetData) preGetData(apps)
                 resetVariable()
                 // 尝试刷新全部软件
                 coroutineScope {
@@ -97,6 +83,22 @@ class UpdateManager internal constructor(
                 }
             }
         }
+    }
+
+    private suspend fun preGetData(appList: List<BaseApp>) {
+        val appGroupDict = mutableMapOf<String, MutableList<List<AppIdItem>>>()
+        for (app in appList.filterIsInstance<App>()) {
+            val hubUuid = app.hubDatabase?.uuid
+            val appId = app.appId
+            if (hubUuid != null && appId != null
+                    && !DataCache.existsAppStatus(hubUuid, appId)) {
+                (appGroupDict[hubUuid] ?: mutableListOf<List<AppIdItem>>().also {
+                    appGroupDict[hubUuid] = it
+                }).add(appId)
+            }
+        }
+        for (hubUuid in appGroupDict.keys)
+            GrpcApi.getAppStatusList(hubUuid, appGroupDict[hubUuid]!!)
     }
 
     companion object {
