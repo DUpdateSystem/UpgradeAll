@@ -4,7 +4,6 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.StatusRuntimeException
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data_manager.utils.DataCache
@@ -47,9 +46,8 @@ object GrpcApi {
                     AppId.newBuilder().addAllAppId(it).build()
                 }).build()
         try {
-            val responseList1 = withTimeout(15000L) {
-                blockingStub.getAppStatusList(request)
-            }.responseList
+            val responseList1 =
+                    blockingStub.getAppStatusList(request).responseList
             for (responsePackage in responseList1) {
                 DataCache.cacheReleaseInfo(hubUuid, responsePackage.appIdList, responsePackage.appStatus)
             }
@@ -74,15 +72,7 @@ object GrpcApi {
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         val request = buildRequest(hubUuid, appId)
         val returnValue = try {
-            withTimeout(15000L) {
-                blockingStub.getAppStatus(request)
-            }
-        } catch (e: TimeoutCancellationException) {
-            Log.w(logObjectTag, TAG, """请求超时，取消
-                hub_uuid: $hubUuid
-                app_info: $appId
-            """.trimIndent())
-            return null
+            blockingStub.getAppStatus(request)
         } catch (ignore: StatusRuntimeException) {
             return null
         }
