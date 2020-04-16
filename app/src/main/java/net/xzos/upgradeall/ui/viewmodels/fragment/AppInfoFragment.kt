@@ -26,6 +26,7 @@ import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemI
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
+
 /**
  * 更新项详细数据展示页面
  * 作为框架嵌套到 主页[net.xzos.upgradeall.ui.activity.MainActivity]
@@ -237,8 +238,9 @@ class AppInfoFragment : Fragment() {
                             })
                             renewVersionRelatedItems()
                         }
-                        appChangelogTextView.text = latestChangeLog
-                                ?: getString(R.string.null_english)
+                        appChangelogTextView.text = if (latestChangeLog.isNullOrBlank())
+                            getString(R.string.null_english)
+                        else latestChangeLog
                     }
                 }
             }

@@ -25,8 +25,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="4dip"
             android:maxLines="1"
+            android:paddingTop="4dip"
             android:text="@string/loading"
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
@@ -270,7 +270,7 @@
             android:contentDescription="@string/app_main_url"
             android:src="@drawable/ic_url"
             android:tint="@color/text_low_priority_color"
-            app:layout_constraintBottom_toTopOf="@+id/appChangelogTextView"
+            app:layout_constraintBottom_toTopOf="@+id/appChangelogScrollView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/update_info_title_text_view"
             app:layout_constraintVertical_chainStyle="packed" />
@@ -280,6 +280,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:maxLines="1"
             android:text="@string/example_app_url"
             android:textColor="@color/text_low_priority_color"
             app:layout_constraintBottom_toBottomOf="@+id/app_url_image_view"
@@ -287,21 +288,32 @@
             app:layout_constraintStart_toEndOf="@+id/app_url_image_view"
             app:layout_constraintTop_toTopOf="@+id/app_url_image_view" />
 
-        <TextView
-            android:id="@+id/appChangelogTextView"
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/appChangelogScrollView"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:autoLink="web"
-            android:background="@drawable/ic_textview_background_fillet"
-            android:linksClickable="true"
-            android:text="@string/example_changelog"
-            android:textColor="@color/text_low_priority_color"
-            android:textSize="14sp"
+            android:layout_height="0dp"
+            android:layout_gravity="fill_vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/appUrlTextView"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="@+id/app_url_image_view"
-            app:layout_constraintTop_toBottomOf="@+id/appUrlTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/appUrlTextView">
+
+            <TextView
+                android:id="@+id/appChangelogTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:autoLink="web"
+                android:background="@drawable/ic_textview_background_fillet"
+                android:linksClickable="true"
+                android:scrollbars="vertical"
+                android:text="@string/example_changelog"
+                android:textColor="@color/text_low_priority_color"
+                android:textSize="14sp" />
+
+        </androidx.core.widget.NestedScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
