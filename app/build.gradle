@@ -67,8 +67,9 @@ dependencies {
 
     // Firebase
     implementation 'com.google.firebase:firebase-core:17.3.0'
-    implementation 'com.google.firebase:firebase-perf:19.0.5'
+    implementation 'com.google.firebase:firebase-perf:19.0.6'
     implementation 'com.google.firebase:firebase-analytics:17.3.0'
+    configurations.compile.exclude group: 'com.google.protobuf', module: 'protobuf-lite'
 
     // Aria
     implementation 'com.arialyy.aria:aria-core:3.6.6'
@@ -90,7 +91,6 @@ dependencies {
     implementation 'com.github.kobakei:MaterialFabSpeedDial:master-SNAPSHOT'
     // svg 单个 path 颜色切换
     implementation 'com.github.devsideal:VectorChildFinder:1.0.0'
-    configurations.compile.exclude group: 'com.google.protobuf', module: 'protobuf-lite'
 
     implementation project(path: ':core')
     commonDependencies.each { value ->

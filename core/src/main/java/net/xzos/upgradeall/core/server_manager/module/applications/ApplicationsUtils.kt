@@ -18,13 +18,13 @@ internal class ApplicationsUtils(applacationsDatabase: AppDatabase) {
 
     private val hubUuid = applacationsDatabase.hubUuid
     private val appUrlTemplate = applacationsDatabase.url
-    private val excludePackageName = applacationsDatabase.extraData?.applicationsAutoExclude
+    private val excludePackageName = applacationsDatabase.extraData?.applicationsConfig?.invalidPackageName
             ?: mutableListOf()
 
     private val appType = AppType.androidApp
     // 暂时锁定应用市场模式为 android 应用
 
-    private val appInfos: List<AppInfo> = IoApi.getAppInfoList(appType) ?: listOf()
+    private val appInfoList: List<AppInfo> = IoApi.getAppInfoList(appType) ?: listOf()
 
     internal val apps: MutableList<App> = mutableListOf()
     internal val excludeApps: MutableList<App> = mutableListOf()
@@ -38,7 +38,7 @@ internal class ApplicationsUtils(applacationsDatabase: AppDatabase) {
 
     init {
         runBlocking {
-            for (packageInfo in appInfos) {
+            for (packageInfo in appInfoList) {
                 launch(Dispatchers.IO) {
                     val app = App(getAppDatabaseClass(packageInfo)).apply {
                         this.appId = listOf(AppIdItem.newBuilder()

@@ -12,15 +12,20 @@ data class AppDatabase(
         var hubUuid: String,
         var type: String,
         var targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean? = null,
-        var extraData: AppDatabaseExtraData? = null
+        private val extraDataGson: AppDatabaseExtraData? = null
 ) {
     // 是否需要刷新数据
+    @Transient
     var needRefreshable = false
         get() {
             val i = field
             field = false
             return i
         }
+
+    var extraData: AppDatabaseExtraData? =  extraDataGson
+        get() = field ?: AppDatabaseExtraData()
+                .also { field = it }
 
     fun save(refresh: Boolean): Boolean {
         needRefreshable = refresh  // 是否立即刷新

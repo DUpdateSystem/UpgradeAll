@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.data_manager
 
-import com.google.gson.Gson
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
@@ -37,10 +36,10 @@ object AppDatabaseManager {
 
     fun getDatabase(databaseId: Long? = null, uuid: String? = null): AppDatabase? {
         val databaseList =
-            getDatabaseList(
-                databaseId = databaseId,
-                uuid = uuid
-            )
+                getDatabaseList(
+                        databaseId = databaseId,
+                        uuid = uuid
+                )
         return if (databaseList.isNotEmpty())
             databaseList[0]
         else null
@@ -67,13 +66,13 @@ object AppDatabaseManager {
         val uuid = appConfigGson.uuid ?: ""
         val hubUuid = appConfigGson.appConfig?.hubInfo?.hubUuid ?: ""
         // 如果设置了名字与 UUID，则存入数据库
-        val appDatabaseExtraData = AppDatabaseExtraData(
-            Gson().toJson(appConfigGson)
-        )
+        val appDatabaseExtraData = AppDatabaseExtraData().apply {
+            this.cloudAppConfig = appConfigGson
+        }
         val targetChecker = appConfigGson.appConfig?.targetChecker
         // 修改数据库
         val appDatabase = (getDatabase(
-            uuid = uuid
+                uuid = uuid
         ) ?: AppDatabase.newInstance()).also {
             it.name = name
             it.url = url
@@ -89,15 +88,15 @@ object AppDatabaseManager {
     }
 
     private fun getDatabaseList(
-        databaseId: Long? = null, uuid: String? = null,
-        hubUuid: String? = null
+            databaseId: Long? = null, uuid: String? = null,
+            hubUuid: String? = null
     ): List<AppDatabase?> {
         return mutableListOf<AppDatabase?>().apply {
             for (appDatabase in appDatabases) {
-                val itemUuid = appDatabase.extraData?.cloudAppConfigGson?.uuid
+                val itemUuid = appDatabase.extraData?.cloudAppConfig?.uuid
                 if ((databaseId != null && appDatabase.id == databaseId)
-                    || (uuid != null && itemUuid == uuid)
-                    || (hubUuid != null && appDatabase.hubUuid == hubUuid)
+                        || (uuid != null && itemUuid == uuid)
+                        || (hubUuid != null && appDatabase.hubUuid == hubUuid)
                 )
                     this.add(appDatabase)
             }
@@ -108,22 +107,22 @@ object AppDatabaseManager {
     fun translateAppConfig(appDatabase: AppDatabase): AppConfigGson {
         val appBaseVersion = AppConfig.app_config_version
         return AppConfigGson(
-            baseVersion = appBaseVersion,
-            uuid = null,
-            info = AppConfigGson.InfoBean(
-                appName = appDatabase.name,
-                configVersion = 1,
-                url = appDatabase.url
-            ),
-            appConfig = AppConfigGson.AppConfigBean(
-                hubInfo = AppConfigGson.AppConfigBean.HubInfoBean(
-                    hubUuid = appDatabase.hubUuid
+                baseVersion = appBaseVersion,
+                uuid = null,
+                info = AppConfigGson.InfoBean(
+                        appName = appDatabase.name,
+                        configVersion = 1,
+                        url = appDatabase.url
                 ),
-                targetChecker = AppConfigGson.AppConfigBean.TargetCheckerBean(
-                    api = appDatabase.targetChecker?.api,
-                    extraString = appDatabase.targetChecker?.extraString
+                appConfig = AppConfigGson.AppConfigBean(
+                        hubInfo = AppConfigGson.AppConfigBean.HubInfoBean(
+                                hubUuid = appDatabase.hubUuid
+                        ),
+                        targetChecker = AppConfigGson.AppConfigBean.TargetCheckerBean(
+                                api = appDatabase.targetChecker?.api,
+                                extraString = appDatabase.targetChecker?.extraString
+                        )
                 )
-            )
         )
     }
 }

@@ -9,7 +9,7 @@ import com.google.gson.annotations.SerializedName
  * app_config: {"hub_info": {"hub_uuid": ""}, "target_checker": {"api": "", "extra_string": ""}}
  */
 data class AppConfigGson(
-        @SerializedName("base_version") var baseVersion: Int = 0,
+        @SerializedName("base_version") var baseVersion: Int? = null,
         @SerializedName("uuid") var uuid: String? = null,
         @SerializedName("info") var info: InfoBean? = null,
         @SerializedName("app_config") var appConfig: AppConfigBean? = null
