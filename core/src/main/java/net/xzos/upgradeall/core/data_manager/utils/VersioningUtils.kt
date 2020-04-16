@@ -21,13 +21,14 @@ object VersioningUtils {
     /**
      * 对比 versionNumber0 与 versionNumber1
      * 若，前者比后者大，则返回 true*/
-    internal fun compareVersionNumber(versioning0: String?, versioning1: String?): Boolean {
-        val matchVersioning0 = matchVersioningString(versioning0)
-        val matchVersioning1 = matchVersioningString(versioning1)
+    internal fun compareVersionNumber(versionNumber0: String?, versionNumber1: String?): Boolean {
+        if(versionNumber0 == versionNumber1) return true
+        val matchVersioning0 = matchVersioningString(versionNumber0)
+        val matchVersioning1 = matchVersioningString(versionNumber1)
         Log.i(
                 objectTag,
                 TAG, """original versioning: 
-                |0: $versioning0, 1: $versioning1
+                |0: $versionNumber0, 1: $versionNumber1
                 |Fix: 0: $matchVersioning0, 1: $matchVersioning1""".trimMargin()
         )
         return if (matchVersioning0 != null && matchVersioning1 != null) {

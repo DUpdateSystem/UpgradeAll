@@ -20,29 +20,29 @@ class Updater(private val app: App) : UpdaterApi {
             INVALID_APP
         else {
             //检查是否取得云端版本号
-            if (app.installedVersionNumber != null
-                    || app.markProcessedVersionNumber != null
-            ) {
+            val versionNumber = app.markProcessedVersionNumber ?: app.installedVersionNumber
+            if (versionNumber != null) {
                 // 检查是否获取本地版本号
-                if (isLatest()) APP_LATEST
+                if (isLatest(versionNumber))
+                    APP_LATEST
                 else APP_OUTDATED
             } else APP_NO_LOCAL
         }
     }
 
-    private suspend fun isLatest(): Boolean {
+    private suspend fun isLatest(versionNumber: String): Boolean {
         val latestVersion = getLatestVersioning()
         return VersioningUtils.compareVersionNumber(
-                app.markProcessedVersionNumber ?: app.installedVersionNumber, latestVersion
+                versionNumber, latestVersion
         )
     }
 
     override suspend fun getAppStatus(): AppStatus? {
-        val appInfo = app.appId
-        if (appInfo != null) {
+        val appId = app.appId
+        if (appId != null) {
             dataMutex.withLock {
                 val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
-                return GrpcApi.getAppStatus(hubUuid, appInfo)
+                return GrpcApi.getAppStatus(hubUuid, appId)
             }
         }
         return null

@@ -18,7 +18,6 @@ import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.list_content.*
 import kotlinx.coroutines.*
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.database.getExtraData
 import net.xzos.upgradeall.core.route.ReleaseInfoItem
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
@@ -250,7 +249,7 @@ class AppInfoFragment : Fragment() {
         GlobalScope.launch {
             if (Updater(app).getUpdateStatus() == Updater.APP_LATEST) null
             else {
-                if (app.appDatabase.extraData?.markProcessedVersionNumber != null)
+                if (app.markProcessedVersionNumber != null)
                     R.string.marked_version_number_is_behind_latest
                 else R.string.long_click_version_number_to_mark_as_processed
             }?.let {
@@ -262,18 +261,12 @@ class AppInfoFragment : Fragment() {
     }
 
     private fun markVersionNumber(versionNumber: String?) {
-        app.appDatabase.apply {
-            getExtraData().also {
-                it.markProcessedVersionNumber =
-                        if (it.markProcessedVersionNumber != versionNumber) versionNumber
-                        else null
-            }
-        }.save(false)
+        app.markProcessedVersionNumber = versionNumber
     }
 
     private fun renewVersionRelatedItems() {
         versionMarkImageView.visibility =
-                if (app.appDatabase.extraData?.markProcessedVersionNumber == cloudVersioningTextView.text)
+                if (app.markProcessedVersionNumber == cloudVersioningTextView.text)
                     View.VISIBLE
                 else View.GONE
         loadVersioningPopupMenu()

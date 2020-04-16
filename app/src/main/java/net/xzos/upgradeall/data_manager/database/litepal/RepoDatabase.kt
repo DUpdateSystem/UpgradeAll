@@ -1,9 +1,14 @@
 package net.xzos.upgradeall.data_manager.database.litepal
 
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.AppDatabaseExtraData
 import net.xzos.upgradeall.data_manager.UIConfig
+import org.json.JSONObject
 import org.litepal.crud.LitePalSupport
 
 
@@ -17,16 +22,34 @@ internal class RepoDatabase(
 
     private var extra_data: String? = null
     private var versionChecker: String? = null
+    private val mutex = Mutex()
 
     var extraData: AppDatabaseExtraData?
         set(value) {
-            val v = value?.copy()
-            if (v != null)
-                extra_data = Gson().toJson(v)
+            runBlocking {
+                mutex.withLock {
+                    if (value != null)
+                        extra_data = Gson().toJson(value)
+                }
+            }
         }
         get() {
             return if (extra_data != null)
-                Gson().fromJson(extra_data, AppDatabaseExtraData::class.java)
+                try {
+                    Gson().fromJson(extra_data, AppDatabaseExtraData::class.java)
+                } catch (e: JsonSyntaxException) {
+                    val json = JSONObject(extra_data!!)
+                    val cloudAppConfigStr = json.getString("cloud_app_config")
+                    json.remove("cloud_app_config")
+                    val extra_data = json.toString()
+                    val cloudAppConfig = Gson().fromJson(cloudAppConfigStr, AppConfigGson::class.java)
+                    Gson().fromJson(extra_data, AppDatabaseExtraData::class.java).apply {
+                        this.cloudAppConfig = cloudAppConfig
+                    }.also {
+                        extraData = it
+                        this.save()
+                    }
+                }
             else null
         }
     var targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean?

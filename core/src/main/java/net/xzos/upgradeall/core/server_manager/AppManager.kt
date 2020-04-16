@@ -41,7 +41,7 @@ object AppManager {
 
     fun getSingleApp(databaseId: Long? = null, uuid: String? = null): App? {
         for (app in singleAppList) {
-            if ((uuid != null && app.appDatabase.extraData?.cloudAppConfigGson?.uuid == uuid)
+            if ((uuid != null && app.appDatabase.extraData?.cloudAppConfig?.uuid == uuid)
                 || (databaseId != null && app.appDatabase.id == databaseId)
             ) return app
         }

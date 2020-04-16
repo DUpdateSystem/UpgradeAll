@@ -110,7 +110,7 @@ class CloudAppItemAdapter(
             GlobalScope.launch {
                 val appConfigGson = cloudConfigGetter.getAppCloudConfig(appUuid)
                 this@run.appDatabase.extraData.let {
-                    val cloudAppVersion = it?.cloudAppConfigGson?.info?.configVersion
+                    val cloudAppVersion = it?.cloudAppConfig?.info?.configVersion
                     val localAppVersion = appConfigGson?.info?.configVersion
                     withContext(Dispatchers.Main) {
                         if (cloudAppVersion != null && localAppVersion != null && cloudAppVersion > localAppVersion)
