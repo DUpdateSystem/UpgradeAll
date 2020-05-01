@@ -16,14 +16,29 @@ object GrpcApi {
     private const val TAG = "GrpcApi"
     private val logObjectTag = ObjectTag(ObjectTag.core, TAG)
     private val invalidHubUuidList: MutableList<String> = mutableListOf()
-    private var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(AppConfig.update_server_url).usePlaintext().build()
+    private var updateServerUrl:String = AppConfig.update_server_url
+    private var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
 
-    init {
-        renew()
+    fun checkUpdateServerUrl(url: String?): Boolean {
+        return try {
+            ManagedChannelBuilder.forTarget(url).usePlaintext().build()
+            true
+        } catch (e: Throwable) {
+            false
+        }
     }
 
-    fun renew() {
-        mChannel = ManagedChannelBuilder.forTarget(AppConfig.update_server_url).usePlaintext().build()
+    fun setUpdateServerUrl(url: String?): Boolean {
+        if (url.isNullOrBlank()) return false
+        val old = updateServerUrl
+        return try {
+            updateServerUrl = url
+            mChannel = ManagedChannelBuilder.forTarget(AppConfig.update_server_url).usePlaintext().build()
+            true
+        } catch (e: IllegalArgumentException) {
+            updateServerUrl = old
+            false
+        }
     }
 
     suspend fun getAppStatusList(hubUuid: String, appIdList: MutableList<List<AppIdItem>>): List<ResponsePackage>? {

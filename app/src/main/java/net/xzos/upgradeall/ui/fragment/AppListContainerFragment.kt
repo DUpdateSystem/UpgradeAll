@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.viewmodels.fragment
+package net.xzos.upgradeall.ui.fragment
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -10,7 +10,6 @@ import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.view.*
-import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListContainerViewModel
 
@@ -36,7 +35,7 @@ abstract class AppListContainerFragment : Fragment() {
                 ?.let { updateOverviewStringList ->
                     var appListNum = 0
                     var needUpdateAppNum = 0
-                    viewModel.appCardViewList.observe(viewLifecycleOwner, Observer { list ->
+                    viewModel.getAppCardViewList().observe(viewLifecycleOwner, Observer { list ->
                         with(list.size) {
                             appListNum = if (this > 0)
                                 this - 1
@@ -46,7 +45,7 @@ abstract class AppListContainerFragment : Fragment() {
                         updateOverviewTextView.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
                     })
                     viewModel.needUpdateAppsLiveData.observe(viewLifecycleOwner,
-                            Observer<MutableList<BaseApp>> { list ->
+                            Observer { list ->
                                 needUpdateAppNum = list.size
                                 updateOverviewTextView.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
                                 if (needUpdateAppNum == 0) {
@@ -67,7 +66,7 @@ abstract class AppListContainerFragment : Fragment() {
     }
 
     internal fun renewPage() {
-        viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
+        viewModel.getAppCardViewList().observe(viewLifecycleOwner, Observer {
             // 列表显示刷新
             if (viewModel.dataInit)
                 if (it.isNullOrEmpty()) {

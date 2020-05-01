@@ -32,8 +32,8 @@
     	</list>
     -->
     <list>
-        <mapping class="net.xzos.upgradeall.data_manager.database.litepal.HubDatabase" />
-        <mapping class="net.xzos.upgradeall.data_manager.database.litepal.RepoDatabase" />
+        <mapping class="net.xzos.upgradeall.data.database.HubDatabase" />
+        <mapping class="net.xzos.upgradeall.data.database.RepoDatabase" />
     </list>
 
     <!--

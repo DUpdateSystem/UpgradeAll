@@ -6,6 +6,6 @@
     <integer name="default_data_expiration_time">10</integer>
     <integer name="default_background_sync_data_time">18</integer>
 
-    <string name="default_cloud_rules_hub_url">https://github.com/DUpdateSystem/UpgradeAll-rules/tree/master</string>
+    <string name="default_cloud_rules_hub_url">https://cdn.jsdelivr.net/gh/DUpdateSystem/UpgradeAll-rules@master</string>
     <string name="default_update_server_url">update-server.xzos.net:5255</string>
 </resources>

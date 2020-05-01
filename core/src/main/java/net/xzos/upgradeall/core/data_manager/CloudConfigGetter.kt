@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.data_manager
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import net.xzos.upgradeall.core.data.config.AppConfig
+import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.CloudConfig
@@ -20,7 +21,7 @@ class CloudConfigGetter(private val appCloudRulesHubUrl: String?) {
 
     private val cloudHubGitUrlTranslation: GitUrlTranslation
         get() {
-            val defaultCloudRulesHubUrl = AppConfig.default_cloud_rules_hub_url
+            val defaultCloudRulesHubUrl = AppValue.default_cloud_rules_hub_url
             val cloudRulesHubUrl = appCloudRulesHubUrl
                 ?: defaultCloudRulesHubUrl
             return GitUrlTranslation(cloudRulesHubUrl)

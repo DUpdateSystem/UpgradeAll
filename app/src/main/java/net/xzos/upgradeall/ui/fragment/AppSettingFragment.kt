@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.viewmodels.fragment
+package net.xzos.upgradeall.ui.fragment
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
@@ -23,7 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
@@ -36,6 +35,7 @@ import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
 import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
@@ -186,7 +186,7 @@ class AppSettingFragment : Fragment() {
             R.id.url_input_layout -> R.string.setting_app_url_explain
             R.id.versioning_input_layout -> R.string.setting_app_versioning_explain
             else -> R.string.null_english
-        }) + getString(R.string.setting_help_web_page)).let { text ->
+        }) + getString(R.string.detailed_help) + "：" + getString(R.string.readme_url)).let { text ->
             textInputLayout.setEndIconOnClickListener {
                 AlertDialog.Builder(it.context).setView(R.layout.simple_textview).create().let { dialog ->
                     dialog.show()
@@ -292,7 +292,7 @@ class AppSettingFragment : Fragment() {
         val versionCheckerText = versionCheckerGson?.extraString
         if (versionCheckerApi != null)
             versionCheckSpinner.setSelection(
-                    when (versionCheckerApi.toLowerCase(AppConfig.locale)) {
+                    when (versionCheckerApi.toLowerCase(AppValue.locale)) {
                         API_TYPE_APP_PACKAGE -> 0
                         API_TYPE_MAGISK_MODULE -> 1
                         API_TYPE_SHELL -> 2

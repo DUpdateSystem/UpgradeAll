@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <SeekBarPreference
+        android:defaultValue="6"
+        android:key="download_thread_num"
+        android:max="64"
+        android:title="@string/download_thread_num" />
+
+    <SeekBarPreference
+        android:defaultValue="8"
+        android:key="download_max_task_num"
+        android:max="16"
+        android:summary="@string/download_max_task_num_desc"
+        android:title="@string/download_thread_num" />
+
+    <Preference
+        app:key="CLEAN_DOWNLOAD_DIR"
+        app:summary="@string/clean_download_dir_desc"
+        app:title="@string/clean_download_dir" />
+
+    <PreferenceCategory app:title="@string/auto_dump_download_file">
+        <Preference
+            app:enabled="true"
+            app:key="SELECT_DOWNLOAD_PATH"
+            app:summary="@string/null_english"
+            app:title="@string/user_download_path" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:title="@string/enable_or_disable"
+            app:key="auto_dump_download_file" />
+
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

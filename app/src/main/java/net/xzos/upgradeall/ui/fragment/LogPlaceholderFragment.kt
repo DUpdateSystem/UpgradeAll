@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.viewmodels.fragment
+package net.xzos.upgradeall.ui.fragment
 
 import android.content.Context
 import android.os.Bundle

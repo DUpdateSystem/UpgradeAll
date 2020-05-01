@@ -11,7 +11,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.2'
+        classpath 'com.android.tools.build:gradle:3.6.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobuf_version"
 
@@ -34,7 +34,7 @@ buildscript {
                 // 版本比较
                 'org.apache.maven:maven-artifact:3.6.3',
                 // OkHttp
-                'com.squareup.okhttp3:okhttp:4.4.1',
+                'com.squareup.okhttp3:okhttp:4.5.0',
                 'com.squareup.okio:okio:2.5.0',
                 'com.squareup.okhttp3:okhttp-urlconnection:4.4.1',
         ]

@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.viewmodels.fragment
+package net.xzos.upgradeall.ui.fragment
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList

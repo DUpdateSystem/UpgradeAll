@@ -8,7 +8,7 @@
     android:layout_margin="16dp"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    tools:context=".ui.viewmodels.fragment.AppSettingFragment">
+    tools:context=".ui.fragment.AppSettingFragment">
 
     <ImageView
         android:id="@+id/imageView1"

@@ -45,3 +45,16 @@ annotation class UpdateManagerApi {
     @kotlin.annotation.Target(AnnotationTarget.FUNCTION)
     annotation class statusRefresh
 }
+
+/**
+ * 跟踪项库变更通知
+ */
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+@kotlin.annotation.Target(AnnotationTarget.FUNCTION)
+annotation class AppManagerApi {
+    @MustBeDocumented
+    @Retention(AnnotationRetention.RUNTIME)
+    @kotlin.annotation.Target(AnnotationTarget.FUNCTION)
+    annotation class appListChanged
+}

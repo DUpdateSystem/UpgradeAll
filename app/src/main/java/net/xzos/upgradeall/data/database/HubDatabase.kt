@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.data_manager.database.litepal
+package net.xzos.upgradeall.data.database
 
 import com.google.gson.Gson
 import net.xzos.upgradeall.core.data.json.gson.HubConfig

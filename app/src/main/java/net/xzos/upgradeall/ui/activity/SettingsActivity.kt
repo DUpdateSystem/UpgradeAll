@@ -5,6 +5,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 
@@ -22,7 +23,7 @@ class SettingsActivity : AppCompatActivity() {
 
     class SettingsFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            setPreferencesFromResource(R.xml.app_preferences, rootKey)
+            setPreferencesFromResource(R.xml.preferences_main, rootKey)
         }
     }
 
@@ -37,6 +38,6 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        MiscellaneousUtils.syncSetting()
+        PreferencesMap.sync()
     }
 }

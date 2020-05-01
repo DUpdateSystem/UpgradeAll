@@ -17,11 +17,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.core.data.config.AppConfig
-import net.xzos.upgradeall.core.server_manager.UpdateManager.Companion.updateManager
+import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.core.system_api.annotations.UpdateManagerApi
 import net.xzos.upgradeall.ui.activity.MainActivity
-import net.xzos.upgradeall.ui.viewmodels.componnent.EditIntPreference
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 object UpdateManager {
@@ -36,19 +34,18 @@ object UpdateManager {
     }
 
     init {
-        UpdateServiceReceiver.initAlarms()
         createNotificationChannel()
-        updateManager.register(this)
+        UpdateManager.register(this)
     }
 
     @UpdateManagerApi.statusRefresh
     private fun getNotify() {
-        val allAppsNum = updateManager.apps.size
-        val finishedAppNum = updateManager.finishedAppNum.toInt()
+        val allAppsNum = UpdateManager.apps.size
+        val finishedAppNum = UpdateManager.finishedAppNum.toInt()
         if (finishedAppNum != allAppsNum) {
             updateStatusNotification(allAppsNum, finishedAppNum)
         } else {
-            val needUpdateAppNum = runBlocking { updateManager.getNeedUpdateAppList(block = false).size }
+            val needUpdateAppNum = runBlocking { UpdateManager.getNeedUpdateAppList(block = false).size }
             if (needUpdateAppNum != 0)
                 updateNotification(needUpdateAppNum)
             else
@@ -130,15 +127,14 @@ class UpdateServiceReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         GlobalScope.launch {
-            updateManager.renewAll()
+            UpdateManager.renewAll()
         }
     }
 
     companion object {
         private val ACTION_SNOOZE = "${context.packageName}.UPDATE_SERVICE_BROADCAST"
-        fun initAlarms() {
-            val defaultBackgroundSyncTime = AppConfig.default_background_sync_data_time  // 默认自动刷新时间 18h
-            val alarmTime: Long = EditIntPreference.getInt("background_sync_time", defaultBackgroundSyncTime).toLong() * 60 * 60 * 1000
+        fun setAlarms(t_h: Int) {
+            val alarmTime: Long = t_h.toLong() * 60 * 60 * 1000
             val alarmIntent = PendingIntent.getBroadcast(context, 0,
                     Intent(context, UpdateServiceReceiver::class.java).apply {
                         action = ACTION_SNOOZE

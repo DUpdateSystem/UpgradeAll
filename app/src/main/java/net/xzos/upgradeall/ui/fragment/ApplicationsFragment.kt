@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.viewmodels.fragment
+package net.xzos.upgradeall.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -39,7 +39,7 @@ class ApplicationsFragment : AppListContainerFragment() {
     override fun renewAppList() {
         val layoutManager = GridLayoutManager(activity, 1)
         cardItemRecyclerView.layoutManager = layoutManager
-        val adapter = ApplicationsItemAdapter(applicationsPageViewModel, applicationsPageViewModel.appCardViewList, this)
+        val adapter = ApplicationsItemAdapter(applicationsPageViewModel, applicationsPageViewModel.getAppCardViewList(), this)
         cardItemRecyclerView.adapter = adapter
     }
 

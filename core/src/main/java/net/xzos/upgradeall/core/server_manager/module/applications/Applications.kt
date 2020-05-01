@@ -6,7 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.database.AppDatabase
-import net.xzos.upgradeall.core.server_manager.UpdateManager
+import net.xzos.upgradeall.core.server_manager.UpdateControl
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
@@ -18,37 +18,37 @@ class Applications(database: AppDatabase) : BaseApp(database) {
 
     val apps: MutableList<App> = applicationsUtils.apps
     private val excludeApps: MutableList<App> = applicationsUtils.excludeApps
-    private val applicationsUpdateManager = UpdateManager(apps)
+    private val updateControl = UpdateControl(apps)
     private var initData = false
 
     // 数据刷新锁
     private val appListMutex = Mutex()
 
-    private suspend fun refreshAppList(updateManager: UpdateManager): UpdateManager {
-        updateManager.renewAll(concurrency = false, preGetData = true)
-        val appMap = updateManager.appMap
+    private suspend fun refreshAppList(updateControl: UpdateControl): UpdateControl {
+        updateControl.renewAll(concurrency = false, preGetData = true)
+        val appMap = updateControl.appMap
         excludeInvalidApps(appMap[Updater.INVALID_APP]?.filterIsInstance<App>())
         includeValidApps(appMap[Updater.APP_OUTDATED]?.filterIsInstance<App>())
         includeValidApps(appMap[Updater.APP_LATEST]?.filterIsInstance<App>())
         if (!initData) {
             initData = true
             GlobalScope.launch(Dispatchers.IO) {
-                refreshAppList(UpdateManager(excludeApps))
+                refreshAppList(UpdateControl(excludeApps))
             }
         }
-        return updateManager
+        return updateControl
     }
 
     suspend fun getNeedUpdateAppList(block: Boolean = true): List<App> {
-        return applicationsUpdateManager.getNeedUpdateAppList(block = block).filterIsInstance<App>()
+        return updateControl.getNeedUpdateAppList(block = block).filterIsInstance<App>()
     }
 
     override suspend fun getUpdateStatus(): Int {
-        refreshAppList(applicationsUpdateManager)
+        refreshAppList(updateControl)
         return when {
             getNeedUpdateAppList(block = false).isNotEmpty() ->
                 Updater.APP_OUTDATED
-            applicationsUpdateManager.appMap[Updater.NETWORK_ERROR]?.size == apps.size ->
+            updateControl.appMap[Updater.NETWORK_ERROR]?.size == apps.size ->
                 Updater.NETWORK_ERROR
             else -> Updater.APP_LATEST
         }

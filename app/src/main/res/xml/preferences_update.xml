@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <EditTextPreference
+        android:defaultValue="@string/default_cloud_rules_hub_url"
+        app:key="cloud_rules_hub_url"
+        app:title="@string/cloud_rules_repo_url"
+        app:useSimpleSummaryProvider="true" />
+
+    <EditTextPreference
+        android:defaultValue="@string/default_update_server_url"
+        app:key="update_server_url"
+        app:title="@string/update_server_url"
+        app:useSimpleSummaryProvider="true" />
+
+    <SeekBarPreference
+        android:defaultValue="18"
+        app:key="background_sync_time"
+        android:max="16"
+        android:summary="@string/background_sync_time_desc"
+        app:title="@string/background_sync_time"/>
+</androidx.preference.PreferenceScreen>

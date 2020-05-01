@@ -10,7 +10,7 @@ sourceSets {
     }
 }
 
-def grpcVersion = '1.28.1'
+def grpcVersion = '1.29.0'
 protobuf {
     protoc { artifact = "com.google.protobuf:protoc:$protocVersion" }
     plugins {

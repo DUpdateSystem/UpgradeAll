@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.data_manager.utils
 
 import net.xzos.upgradeall.core.data.config.AppConfig
+import net.xzos.upgradeall.core.data.config.AppValue
 
 
 class AutoTemplate(
@@ -8,7 +9,7 @@ class AutoTemplate(
     private val template: String
 ) {
 
-    private val regex = AppConfig.git_url_arg_regex
+    private val regex = AppValue.git_url_arg_regex
 
     val args: List<Arg>
         get() = if (string != null)

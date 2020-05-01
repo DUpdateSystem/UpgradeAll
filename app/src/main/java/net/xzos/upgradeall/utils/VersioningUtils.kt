@@ -7,6 +7,7 @@ import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.Targe
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.upgradeall.application.MyApplication
+import net.xzos.upgradeall.core.data.config.AppValue
 
 
 object VersioningUtils {
@@ -25,7 +26,7 @@ object VersioningUtils {
                     val shellCommand: String? = targetChecker?.extraString
 
                     if (shellCommand != null)
-                        version = when (versionCheckerApi.toLowerCase(AppConfig.locale)) {
+                        version = when (versionCheckerApi.toLowerCase(AppValue.locale)) {
                             API_TYPE_APP_PACKAGE -> getAppVersion()
                             API_TYPE_MAGISK_MODULE -> getMagiskModuleVersion()
                             API_TYPE_SHELL -> MiscellaneousUtils.runShellCommand(shellCommand)?.getStdout()

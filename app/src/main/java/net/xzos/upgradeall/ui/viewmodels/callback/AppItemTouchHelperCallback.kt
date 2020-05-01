@@ -3,15 +3,15 @@ package net.xzos.upgradeall.ui.viewmodels.callback
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import net.xzos.upgradeall.data_manager.UIConfig
-import net.xzos.upgradeall.data_manager.UIConfig.Companion.uiConfig
+import net.xzos.upgradeall.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
 import net.xzos.upgradeall.ui.viewmodels.adapters.AppItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 
 
 class AppItemTouchHelperCallback(
         private val mAdapter: AppItemAdapter,
-        private val appIdList: MutableList<UIConfig.CustomContainerTabListBean.ItemListBean>
+        private val list: MutableList<BaseApp>
 ) : ItemTouchHelper.Callback() {
 
     override fun isLongPressDragEnabled(): Boolean {
@@ -35,8 +35,8 @@ class AppItemTouchHelperCallback(
             val fromPosition = viewHolder.adapterPosition
             val toPosition = target.adapterPosition
             mAdapter.onItemMove(fromPosition, toPosition)
-            appIdList[fromPosition] = appIdList[toPosition]
-                    .also { appIdList[toPosition] = appIdList[fromPosition] }
+            list[fromPosition] = list[toPosition]
+                    .also { list[toPosition] = list[fromPosition] }
             uiConfig.save()
         }
         return true
