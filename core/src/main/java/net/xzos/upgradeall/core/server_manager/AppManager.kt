@@ -5,9 +5,14 @@ import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
+import net.xzos.upgradeall.core.system_api.RegisterApi
+import net.xzos.upgradeall.core.system_api.annotations.AppManagerApi
 
 
-object AppManager {
+private val appListChangedAnnotation =
+        AppManagerApi.appListChanged::class.java
+
+object AppManager : RegisterApi(appListChangedAnnotation) {
 
     private val singleAppList = mutableListOf<App>() // 存储所有 APP 实体
     private val applicationsList = mutableListOf<Applications>()
@@ -20,6 +25,10 @@ object AppManager {
         initApp()
     }
 
+    private fun notifyChange() {
+        runNoReturnFun(appListChangedAnnotation)
+    }
+
     private fun initApp() {
         val appDatabase = AppDatabaseManager.appDatabases
         for (appItem in appDatabase) {
@@ -30,10 +39,18 @@ object AppManager {
         }
     }
 
+    fun getBaseApp(databaseId: Long): BaseApp? {
+        for (app in apps) {
+            if (databaseId == app.appDatabase.id)
+                return app
+        }
+        return null
+    }
+
     fun getApplications(databaseId: Long? = null, hubUuid: String? = null): Applications? {
         for (applications in applicationsList) {
             if ((databaseId != null && applications.appDatabase.id == databaseId)
-                || (hubUuid != null && applications.appDatabase.hubUuid == hubUuid)
+                    || (hubUuid != null && applications.appDatabase.hubUuid == hubUuid)
             ) return applications
         }
         return null
@@ -42,7 +59,7 @@ object AppManager {
     fun getSingleApp(databaseId: Long? = null, uuid: String? = null): App? {
         for (app in singleAppList) {
             if ((uuid != null && app.appDatabase.extraData?.cloudAppConfig?.uuid == uuid)
-                || (databaseId != null && app.appDatabase.id == databaseId)
+                    || (databaseId != null && app.appDatabase.id == databaseId)
             ) return app
         }
         return null
@@ -52,8 +69,10 @@ object AppManager {
         if (appDatabase.type == AppDatabase.APPLICATIONS_TYPE_TAG) {
             removeApplications(appDatabase.id)
             val applications = Applications(appDatabase)
-            if (applicationsList.add(applications))
+            if (applicationsList.add(applications)) {
+                notifyChange()
                 return applications
+            }
         }
         return null
     }
@@ -64,22 +83,30 @@ object AppManager {
             removeSingleApp(appDatabase.id)
             // 尝试添加新数据
             val app = App(appDatabase)
-            if (singleAppList.add(app))
+            if (singleAppList.add(app)) {
+                notifyChange()
                 return app
+            }
         }
         return null
     }
 
     private fun removeSingleApp(databaseId: Long? = null, app: App? = null) {
         val targetApp = getSingleApp(databaseId) ?: app
-        if (targetApp != null)
-            singleAppList.remove(targetApp)
+        if (targetApp != null) {
+            singleAppList.remove(targetApp).let {
+                if (it) notifyChange()
+            }
+        }
     }
 
     private fun removeApplications(databaseId: Long? = null, applications: Applications? = null) {
         val targetApp = getApplications(databaseId) ?: applications
-        if (targetApp != null)
-            applicationsList.remove(targetApp)
+        if (targetApp != null) {
+            applicationsList.remove(targetApp).let {
+                if (it) notifyChange()
+            }
+        }
     }
 
     /**

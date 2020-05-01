@@ -1,9 +1,10 @@
 package net.xzos.upgradeall.android_api
 
 import net.xzos.upgradeall.core.data.database.AppDatabase
+import net.xzos.upgradeall.core.data.database.AppDatabase.Companion.APP_TYPE_TAG
 import net.xzos.upgradeall.core.data.database.HubDatabase
 import net.xzos.upgradeall.core.system_api.interfaces.DatabaseApi
-import net.xzos.upgradeall.data_manager.database.litepal.RepoDatabase
+import net.xzos.upgradeall.data.database.RepoDatabase
 import org.litepal.LitePal
 import org.litepal.extension.findAll
 
@@ -16,14 +17,14 @@ object DatabaseApi : DatabaseApi {
 
     private val nativeAppDatabase: List<RepoDatabase>
         get() = LitePal.findAll()
-    private val nativeHubDatabase: List<net.xzos.upgradeall.data_manager.database.litepal.HubDatabase>
+    private val nativeHubDatabase: List<net.xzos.upgradeall.data.database.HubDatabase>
         get() = LitePal.findAll()
 
     override fun getAppDatabaseList(): List<AppDatabase> {
         return nativeAppDatabase.map {
             // 新加的属性，@version: 0.1.1-alpha.8（TODO: 两个大版本后移除）
             if (it.type.isNullOrBlank()) {
-                it.type = RepoDatabase.APP_TYPE_TAG
+                it.type = APP_TYPE_TAG
                 it.save()
             }
             conversionAppDatabase(it)
@@ -70,14 +71,14 @@ object DatabaseApi : DatabaseApi {
     }
 
     override fun saveHubDatabase(hubDatabase: HubDatabase): HubDatabase? {
-        var database: net.xzos.upgradeall.data_manager.database.litepal.HubDatabase? = null
+        var database: net.xzos.upgradeall.data.database.HubDatabase? = null
         for (item in nativeHubDatabase) {
             if (item.uuid == hubDatabase.uuid) {
                 database = item
             }
         }
         if (database == null)
-            database = net.xzos.upgradeall.data_manager.database.litepal.HubDatabase("", "")
+            database = net.xzos.upgradeall.data.database.HubDatabase("", "")
         database.run {
             uuid = hubDatabase.uuid
             hubConfig = hubDatabase.hubConfig
@@ -106,7 +107,7 @@ object DatabaseApi : DatabaseApi {
     }
 
     // 本机软件源数据库转换通用格式数据库
-    private fun conversionHubDatabase(hubDatabase: net.xzos.upgradeall.data_manager.database.litepal.HubDatabase): HubDatabase {
+    private fun conversionHubDatabase(hubDatabase: net.xzos.upgradeall.data.database.HubDatabase): HubDatabase {
         return HubDatabase(hubDatabase.uuid, hubDatabase.hubConfig)
     }
 }

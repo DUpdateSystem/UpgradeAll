@@ -23,12 +23,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.xzos.upgradeall.core.server_manager.UpdateManager.Companion.updateManager
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.data_manager.UIConfig
-import net.xzos.upgradeall.data_manager.UIConfig.Companion.uiConfig
-import net.xzos.upgradeall.ui.activity.UCropActivity
-import net.xzos.upgradeall.ui.viewmodels.fragment.AppListPlaceholderFragment
+import net.xzos.upgradeall.core.server_manager.UpdateManager
+import net.xzos.upgradeall.data.AppUiDataManager
+import net.xzos.upgradeall.data.gson.UIConfig
+import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
+import net.xzos.upgradeall.ui.activity.file_pref.UCropActivity
+import net.xzos.upgradeall.ui.fragment.AppListPlaceholderFragment
 import net.xzos.upgradeall.utils.FileUtil
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -75,7 +76,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
             withContext(Dispatchers.Main) {
                 loadingBar?.visibility = View.VISIBLE
             }
-            if (updateManager.getNeedUpdateAppList().isEmpty() && editTabMode.value == false) {
+            if (UpdateManager.getNeedUpdateAppList().isEmpty() && editTabMode.value == false) {
                 withContext(Dispatchers.Main) {
                     removeTabPage(mTabIndexList.indexOf(UPDATE_PAGE_INDEX))
                 }
@@ -283,20 +284,20 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                                 cacheImageFile = FileUtil.getUserGroupIcon(tabBasicInfo!!.icon)
                                 if (tabIndex >= 0) {
                                     it.setNeutralButton(R.string.delete) { dialog, _ ->
-                                        uiConfig.removeUserTab(position = tabIndex)
+                                        AppUiDataManager.removeUserTab(position = tabIndex)
                                         mTabIndexList = getAllTabIndexList()
                                         renewAllCustomTabView()
                                         dialog.cancel()
                                     }
                                     uiConfig.userTabList[tabIndex]
                                     liftMoveImageView.setOnClickListener {
-                                        if (uiConfig.swapUserTabOrder(tabIndex, tabIndex - 1)) {
+                                        if (AppUiDataManager.swapUserTabOrder(tabIndex, tabIndex - 1)) {
                                             swapTabPage(position, position - 1)
                                             renewAllCustomTabView()
                                         }
                                     }
                                     rightMoveImageView.setOnClickListener {
-                                        if (uiConfig.swapUserTabOrder(tabIndex, tabIndex + 1)) {
+                                        if (AppUiDataManager.swapUserTabOrder(tabIndex, tabIndex + 1)) {
                                             swapTabPage(position, position + 1)
                                             renewAllCustomTabView()
                                         }
@@ -356,7 +357,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                             tabBasicInfo?.name = name
                             uiConfig.save()
                         } else {
-                            if (uiConfig.addUserTab(name, cacheImageFile?.name)) {
+                            if (AppUiDataManager.addUserTab(name, cacheImageFile?.name)) {
                                 addTabPage(uiConfig.userTabList.size - 1)
                                 editTabMode.value = false
                             }

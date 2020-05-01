@@ -1,13 +1,11 @@
-package net.xzos.upgradeall.data_manager
+package net.xzos.upgradeall.data.gson
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
-import net.xzos.upgradeall.core.data.database.AppDatabase
-import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
-import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
+import net.xzos.upgradeall.core.data.database.AppDatabase.Companion.APP_TYPE_TAG
+import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
 import net.xzos.upgradeall.utils.FileUtil
 
@@ -18,7 +16,7 @@ import net.xzos.upgradeall.utils.FileUtil
  * user_star_tab : {"name":"","icon":"","enable":"true","item_list":[{"type":"","name":"","icon":"","enable":"true","app_id_list":[0]}]}
  * user_tab_list : [{"name":"","icon":"","enable":"true","item_list":[{"type":"","name":"","icon":"","enable":"true","app_id_list":[0]}]}]
  */
-class UIConfig(
+class UIConfig private constructor(
         @SerializedName("update_tab") var updateTab: PresetTabBean = PresetTabBean(context.getString(R.string.update)).apply {
             icon = FileUtil.UPDATE_TAB_IMAGE_NAME
         },
@@ -42,6 +40,7 @@ class UIConfig(
     ) {
         @SerializedName("icon")
         var icon: String? = null
+
         @SerializedName("enable")
         var enable: Boolean = true
     }
@@ -84,16 +83,23 @@ class UIConfig(
         return if (name.isNotEmpty()) {
             userTabList.add(CustomContainerTabListBean(name).apply {
                 this.icon = icon
-            })
-            save()
+            }).also { save() }
             true
         } else false
     }
 
-    fun removeUserTab(position: Int? = null, userTabListBean: CustomContainerTabListBean? = null) {
-        if (position != null) userTabList.removeAt(position)
-        else if (userTabListBean != null) userTabList.remove(userTabListBean)
-        save()
+    fun removeUserTab(position: Int? = null, userTabListBean: CustomContainerTabListBean? = null): Int {
+        val itemPosition = position ?: userTabList.indexOf(userTabListBean)
+        userTabList.removeAt(itemPosition).also { save() }
+        return itemPosition
+    }
+
+    fun removeItemFromTabPage(position: Int, tabPageIndex: Int): Boolean {
+        val tabList = getTabList(tabPageIndex).itemList
+        return if (position < tabList.size) {
+            getTabList(tabPageIndex).itemList.removeAt(position).also { save() }
+            true
+        } else false
     }
 
     fun swapUserTabOrder(fromPosition: Int, toPosition: Int): Boolean {
@@ -106,37 +112,27 @@ class UIConfig(
         } else false
     }
 
-    fun moveItemToOtherGroup(position: Int, fromTabPageIndex: Int,
-                             toTabPageIndex: Int? = null,
-                             containerTabListBean: CustomContainerTabListBean? = null,
-                             app: BaseApp? = null
-    ): Boolean {
-        if (toTabPageIndex != null || containerTabListBean != null) {
-            if (toTabPageIndex != UPDATE_PAGE_INDEX && toTabPageIndex != ALL_APP_PAGE_INDEX) {
-                val item =
-                        if (fromTabPageIndex != UPDATE_PAGE_INDEX && fromTabPageIndex != ALL_APP_PAGE_INDEX) {
-                            if (fromTabPageIndex == USER_STAR_PAGE_INDEX) {
-                                uiConfig.userStarTab.itemList.removeAt(position)
-                            } else {
-                                uiConfig.userTabList[fromTabPageIndex].itemList.removeAt(position)
-                            }
-                        } else if (app != null) {
-                            CustomContainerTabListBean.ItemListBean(APP_TYPE_TAG, app.appDatabase.name, mutableListOf(app.appDatabase.id))
-                        } else return false
-                if (containerTabListBean != null) {
-                    containerTabListBean.itemList.add(item)
-                } else {
-                    when {
-                        toTabPageIndex == USER_STAR_PAGE_INDEX -> uiConfig.userStarTab.itemList.add(item)
-                        toTabPageIndex != null -> uiConfig.userTabList[toTabPageIndex].itemList.add(item)
-                        else -> return false
-                    }
-                }
-                save()
-                return true
-            }
-        }
-        return false
+    fun addItem(itemListBean: CustomContainerTabListBean.ItemListBean, tabPageIndex: Int): Boolean {
+        val list = if (tabPageIndex == USER_STAR_PAGE_INDEX) {
+            uiConfig.userStarTab
+        } else uiConfig.userTabList[tabPageIndex]
+        return list.itemList.add(itemListBean)
+    }
+
+    fun moveItemToOtherGroup(position: Int, fromTabPageIndex: Int, toTabPageIndex: Int): Boolean {
+        val fromTabPage =
+                getTabList(fromTabPageIndex).itemList
+        val toTabPage =
+                getTabList(toTabPageIndex).itemList
+        val item = fromTabPage[position]
+                .also { fromTabPage.remove(it) }
+        return toTabPage.add(item)
+    }
+
+    fun getTabList(position: Int): CustomContainerTabListBean {
+        return if (position == USER_STAR_PAGE_INDEX)
+            uiConfig.userStarTab
+        else uiConfig.userTabList[position]
     }
 
     fun save() {
@@ -151,12 +147,11 @@ class UIConfig(
         } catch (e: Throwable) {
             UIConfig()
         }
-
-        @Transient
-        internal const val APP_TYPE_TAG = AppDatabase.APP_TYPE_TAG
-        @Transient
-        internal const val GROUP_TYPE_TAG = "group"
-        @Transient
-        internal const val APPLICATIONS_TYPE_TAG = AppDatabase.APPLICATIONS_TYPE_TAG
     }
+}
+
+fun BaseApp.toItemListBean(): UIConfig.CustomContainerTabListBean.ItemListBean {
+    return UIConfig.CustomContainerTabListBean.ItemListBean(
+            APP_TYPE_TAG, this.appDatabase.name, mutableListOf(this.appDatabase.id)
+    )
 }

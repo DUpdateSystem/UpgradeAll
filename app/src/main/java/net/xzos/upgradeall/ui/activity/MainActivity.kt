@@ -2,6 +2,7 @@ package net.xzos.upgradeall.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
 import android.view.MenuItem
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
@@ -27,10 +28,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.core.server_manager.UpdateManager.Companion.updateManager
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.server_manager.UpdateManager
+import net.xzos.upgradeall.ui.activity.file_pref.UCropActivity
 import net.xzos.upgradeall.utils.FileUtil.NAV_IMAGE_FILE
 import net.xzos.upgradeall.utils.MiscellaneousUtils
+import java.io.File
 import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -64,7 +67,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onResume() {
         super.onResume()
         GlobalScope.launch {
-            updateManager.renewAll()
+            UpdateManager.renewAll()
         }
     }
 
@@ -100,7 +103,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.app_help -> {
                 MiscellaneousUtils.accessByBrowser(
-                        "https://xzos.net/upgradeall-readme/",
+                        getString(R.string.readme_url),
                         this
                 )
             }

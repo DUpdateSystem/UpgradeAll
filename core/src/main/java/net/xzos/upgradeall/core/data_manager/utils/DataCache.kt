@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.core.data_manager.utils
 
-import net.xzos.upgradeall.core.data.config.AppConfig
+import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.route.AppIdItem
 import net.xzos.upgradeall.core.route.AppStatus
 import java.net.*
@@ -11,7 +11,7 @@ object DataCache {
 
     private val cache = Cache()
 
-    private var dataExpirationTime = AppConfig.data_expiration_time
+    private var dataExpirationTime = AppValue.data_expiration_time
 
     fun List<AppIdItem>.cacheKey(hubUuid: String): String? {
         if (this.isEmpty()) return null

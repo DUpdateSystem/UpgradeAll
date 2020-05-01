@@ -8,7 +8,7 @@ import androidx.lifecycle.Observer
 import androidx.viewpager.widget.PagerAdapter
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.server.log.LogLiveData
-import net.xzos.upgradeall.ui.viewmodels.fragment.LogPlaceholderFragment
+import net.xzos.upgradeall.ui.fragment.LogPlaceholderFragment
 import java.util.*
 
 

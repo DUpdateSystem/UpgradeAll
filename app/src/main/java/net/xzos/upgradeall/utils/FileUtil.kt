@@ -8,17 +8,20 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
+import android.provider.DocumentsContract.EXTRA_INITIAL_URI
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import net.xzos.upgradeall.core.data.config.AppConfig
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.core.log.Log
+import androidx.documentfile.provider.DocumentFile
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.core.data.config.AppValue
+import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.log.Log
+import net.xzos.upgradeall.data.PreferencesMap
 import java.io.*
 import java.util.*
 
@@ -38,12 +41,17 @@ object FileUtil {
     private val CACHE_DIR = context.externalCacheDir
     internal val IMAGE_CACHE_FILE = File(CACHE_DIR, "_cache_image.png")
     internal val DOWNLOAD_CACHE_DIR = File(CACHE_DIR, "Download")
+    internal val DOWNLOAD_DOCUMENT_FILE: DocumentFile?
+        get() = if (PreferencesMap.auto_dump_download_file)
+            getDocumentFile(context, Uri.parse(PreferencesMap.download_path))
+        else null
+
 
     init {
         clearCache()
     }
 
-    fun clearCache() = context.externalCacheDir?.deleteRecursively()
+    private fun clearCache() = context.externalCacheDir?.deleteRecursively()
 
     fun requestPermission(activity: Activity, PERMISSIONS_REQUEST_READ_CONTACTS: Int): Boolean {
         var havePermission = false
@@ -81,6 +89,35 @@ object FileUtil {
     }
 
     /**
+     * TreeUri 转换为 DocumentFile
+     * 便于文件目录操作
+     */
+    private fun getDocumentFile(context: Context, treeUri: Uri): DocumentFile? {
+        takePersistableUriPermission(context, treeUri)
+        return DocumentFile.fromTreeUri(context, treeUri) ?: return null
+    }
+
+    /**
+     * 申请文件树读写权限
+     */
+    fun takePersistableUriPermission(context: Context, treeUri: Uri) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        val takeFlags: Int = intent.flags and
+                (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        // Check for the freshest data.
+        context.contentResolver.takePersistableUriPermission(treeUri, takeFlags)
+    }
+
+    /**
+     * 转储文件内容到指定 TreeUri 下
+     */
+    fun dumpFile(file: File, treeFile: DocumentFile): DocumentFile? {
+        val newFile = treeFile.createFile(file.getMimeType(), file.name) ?: return null
+        writeToUri(newFile.uri, byteArray = file.readBytes())
+        return newFile
+    }
+
+    /**
      * 通过文件存储框架新建并获取文件
      */
     fun createFile(activity: Activity, WRITE_REQUEST_CODE: Int, mimeType: String?, fileName: String) {
@@ -97,11 +134,12 @@ object FileUtil {
     /**
      * 通过文件存储框架获取文件夹
      */
-    fun getFolder(activity: Activity, OPEN_REQUEST_CODE: Int) {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.type = "*/*"
-
+    fun getFolder(activity: Activity, OPEN_REQUEST_CODE: Int, initialPath: String?) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        if (initialPath != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val file = DocumentFile.fromFile(File(initialPath))
+            intent.putExtra(EXTRA_INITIAL_URI, file.uri)
+        }
         activity.startActivityForResult(intent, OPEN_REQUEST_CODE)
     }
 
@@ -116,7 +154,7 @@ object FileUtil {
             val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
                     .toString())
             MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                    fileExtension.toLowerCase(AppConfig.locale))
+                    fileExtension.toLowerCase(AppValue.locale))
         } ?: "*/*"
     }
 
@@ -229,4 +267,10 @@ object FileUtil {
         convertBitmapToFile(IMAGE_CACHE_FILE, selectedBitmap)
         return Uri.fromFile(IMAGE_CACHE_FILE)
     }
+}
+
+fun File.getMimeType(): String {
+    val mime = MimeTypeMap.getSingleton()
+    val cR = context.contentResolver
+    return mime.getExtensionFromMimeType(cR.getType(Uri.fromFile(this))) ?: "*/*"
 }

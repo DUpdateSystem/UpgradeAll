@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.data_manager.database.litepal
+package net.xzos.upgradeall.data.database
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
@@ -7,7 +7,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.AppDatabaseExtraData
-import net.xzos.upgradeall.data_manager.UIConfig
 import org.json.JSONObject
 import org.litepal.crud.LitePalSupport
 
@@ -68,12 +67,4 @@ internal class RepoDatabase(
             if (name.isNotBlank() && url.isNotBlank() && api_uuid.isNotBlank() && type.isNotBlank())
                 super.save()
             else false
-
-    companion object {
-        @Transient
-        internal const val APP_TYPE_TAG = UIConfig.APP_TYPE_TAG
-
-        @Transient
-        internal const val APPLICATIONS_TYPE_TAG = UIConfig.APPLICATIONS_TYPE_TAG
-    }
 }

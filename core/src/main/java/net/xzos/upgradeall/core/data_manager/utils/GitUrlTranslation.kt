@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.core.data_manager.utils
 
-import net.xzos.upgradeall.core.data.config.AppConfig
+import net.xzos.upgradeall.core.data.config.AppValue
 
 
 class GitUrlTranslation(private val gitUrl: String) {
@@ -11,28 +11,28 @@ class GitUrlTranslation(private val gitUrl: String) {
 
     fun getGitRawUrl(path: String): String {
         val urlTemplate = when {
-            gitUrl.contains("cdn.jsdelivr.net") -> AppConfig.cdn_github_url
-            gitUrl.contains("github.com") -> AppConfig.github_url
-            gitUrl.contains("coding.net") -> AppConfig.coding_url
+            gitUrl.contains("cdn.jsdelivr.net") -> AppValue.cdn_github_url
+            gitUrl.contains("github.com") -> AppValue.github_url
+            gitUrl.contains("coding.net") -> AppValue.coding_url
             else -> return ""
         }
         val rawUrlTemplate = when {
-            gitUrl.contains("cdn.jsdelivr.net") -> AppConfig.cdn_github_raw_url
-            gitUrl.contains("github.com") -> AppConfig.github_raw_url
-            gitUrl.contains("coding.net") -> AppConfig.coding_raw_url
+            gitUrl.contains("cdn.jsdelivr.net") -> AppValue.cdn_github_raw_url
+            gitUrl.contains("github.com") -> AppValue.github_raw_url
+            gitUrl.contains("coding.net") -> AppValue.coding_raw_url
             else -> return ""
         }
         val args = listOf(
-            AutoTemplate.Arg(
-                "%path",
-                if (path.indexOf("/") == 0)
-                    path.substring(1)
-                else path
-            )
+                AutoTemplate.Arg(
+                        "%path",
+                        if (path.indexOf("/") == 0)
+                            path.substring(1)
+                        else path
+                )
         )
         return AutoTemplate(
-            gitUrl,
-            urlTemplate
+                gitUrl,
+                urlTemplate
         ).synthesis(rawUrlTemplate, args)
     }
 }

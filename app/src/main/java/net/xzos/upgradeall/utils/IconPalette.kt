@@ -24,6 +24,7 @@ import java.io.File
 object IconPalette {
 
     val fabAddIcon = getPlus(getColorInt(R.color.light_gray))
+    val fabUpdateIcon = getUpdate(getColorInt(R.color.light_gray))
 
     val fabDownloadIcon = getDownload(getColorInt(R.color.white))
 
@@ -45,6 +46,9 @@ object IconPalette {
 
     private fun getPlus(bodyColor: Int) =
             changeDrawableColor(bodyColor, null, R.drawable.ic_plus)
+
+    private fun getUpdate(bodyColor: Int) =
+            changeDrawableColor(bodyColor, null, R.drawable.ic_system_update)
 
     private fun getDownload(bodyColor: Int) =
             changeDrawableColor(bodyColor, null, R.drawable.ic_download)

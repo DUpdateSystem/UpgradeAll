@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.utils.network
+package net.xzos.upgradeall.utils
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
@@ -18,25 +18,23 @@ import com.arialyy.aria.core.download.DownloadEntity
 import com.arialyy.aria.core.download.DownloadTask
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.xzos.upgradeall.core.data_manager.utils.FilePathUtils
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.ui.activity.SaveFileActivity
-import net.xzos.upgradeall.utils.ApkInstaller
-import net.xzos.upgradeall.utils.FileUtil
-import net.xzos.upgradeall.utils.MiscellaneousUtils
-import net.xzos.upgradeall.utils.isApkFile
-import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.ACTION_SNOOZE
-import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DEL_TASK
-import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_CANCEL
-import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_CONTINUE
-import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_PAUSE
-import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.DOWNLOAD_RESTART
-import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOADER_ID
-import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOAD_CONTROL
-import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.INSTALL_APK
-import net.xzos.upgradeall.utils.network.DownloadBroadcastReceiver.Companion.SAVE_FILE
+import net.xzos.upgradeall.core.data_manager.utils.FilePathUtils
+import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
+import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.ACTION_SNOOZE
+import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.DEL_TASK
+import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_CANCEL
+import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_CONTINUE
+import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_PAUSE
+import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.DOWNLOAD_RESTART
+import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOADER_ID
+import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOAD_CONTROL
+import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.INSTALL_APK
+import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.SAVE_FILE
 import java.io.File
 
 
@@ -87,18 +85,20 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
 
     fun delTask() {
         cancel()
-        downloadFile.delete()
+        this.downloadFile.delete()
     }
 
     fun install() {
-        ApkInstaller(context).installApplication(downloadFile)
+        runBlocking {
+            ApkInstaller.install(this@AriaDownloader.downloadFile)
+        }
     }
 
     fun saveFile() {
-        val mimeType = FileUtil.getMimeTypeByUri(context, Uri.fromFile(downloadFile))
+        val mimeType = FileUtil.getMimeTypeByUri(context, Uri.fromFile(this.downloadFile))
         GlobalScope.launch {
             SaveFileActivity.newInstance(
-                    downloadFile.name, downloadFile.readBytes(),
+                    this@AriaDownloader.downloadFile.name, this@AriaDownloader.downloadFile.readBytes(),
                     mimeType, context
             )
         }
@@ -133,18 +133,18 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
             task as DownloadEntity
             taskFileList.add(File(task.filePath))
         }
-        downloadFile = FilePathUtils.renameSameFile(
+        this.downloadFile = FilePathUtils.renameSameFile(
                 File(downloadDir, fileName), taskFileList
         )
         Aria.download(this)
                 .load(url)
                 .useServerFileName(true)
-                .setFilePath(downloadFile.path)
+                .setFilePath(this.downloadFile.path)
                 .addHeaders(headers)
                 .apply {
                     this.start()
                 }
-        return Pair(true, downloadFile)
+        return Pair(true, this.downloadFile)
     }
 
     internal fun createDownloadTaskNotification(fileName: String) {
@@ -252,34 +252,71 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
     @Download.onTaskComplete
     fun taskFinish(task: DownloadTask?) {
         if (task?.key == url) {
-            val apkInstaller = ApkInstaller(context)
-            val file = File(task.filePath)
-            downloadFile = apkInstaller.autoRenameFile(file)
-            val contentText = "文件路径: ${downloadFile.path}"
-            NotificationManagerCompat.from(context).apply {
-                builder.clearActions().run {
-                    setContentTitle("下载完成: ${downloadFile.name}")
+            if (debugMode) {
+                cancel()
+                return
+            }
+            delTaskAndUnRegister()
+            downloadFile = File(task.filePath).autoAddApkExtension()
+            // 自动安装
+            if (PreferencesMap.auto_install) {
+                autoInstall()
+                if (PreferencesMap.auto_delete_file) {
+                    downloadFile.delete()
+                    MiscellaneousUtils.showToast(context, R.string.auto_deleted_file)
+                    cancel()
+                }
+            }
+            if (downloadFile.exists()) {
+                FileUtil.DOWNLOAD_DOCUMENT_FILE?.let {
+                    FileUtil.dumpFile(downloadFile, it)
+                    // 自动转储
+                } ?: showManualMenuNotification(downloadFile.name, downloadFile.path)
+                // 未设置任何默认文件动作，显示通知
+            }
+        }
+    }
+
+
+    private fun showManualMenuNotification(fileName: String, filePath: String?) {
+        NotificationManagerCompat.from(context).apply {
+            builder.clearActions().run {
+                setContentTitle("下载完成: $fileName")
+                if (filePath != null) {
+                    val contentText = "文件路径: $filePath"
                     setContentText(contentText)
                     setStyle(NotificationCompat.BigTextStyle()
                             .bigText(contentText))
-                    setSmallIcon(android.R.drawable.stat_sys_download_done)
-                    setProgress(0, 0, false)
-                    if (downloadFile.isApkFile()) {
-                        addAction(R.drawable.ic_check_mark_circle, "安装 APK 文件",
-                                getSnoozePendingIntent(INSTALL_APK))
-                    }
-                    addAction(android.R.drawable.stat_sys_download_done, "另存文件",
-                            getSnoozePendingIntent(SAVE_FILE))
-                    addAction(android.R.drawable.ic_menu_delete, "删除",
-                            getSnoozePendingIntent(DEL_TASK))
-                    setDeleteIntent(getSnoozePendingIntent(DEL_TASK))
-                    setOngoing(false)
                 }
+                setSmallIcon(android.R.drawable.stat_sys_download_done)
+                setProgress(0, 0, false)
+                if (downloadFile.isApkFile()) {
+                    addAction(R.drawable.ic_check_mark_circle, "安装 APK 文件",
+                            getSnoozePendingIntent(INSTALL_APK))
+                }
+                addAction(android.R.drawable.stat_sys_download_done, "另存文件",
+                        getSnoozePendingIntent(SAVE_FILE))
+                addAction(android.R.drawable.ic_menu_delete, "删除",
+                        getSnoozePendingIntent(DEL_TASK))
+                setDeleteIntent(getSnoozePendingIntent(DEL_TASK))
+                setOngoing(false)
             }
-            notificationNotify()
-            if (debugMode) cancel()
-            else delTaskAndUnRegister()
         }
+        notificationNotify()
+    }
+
+    private fun autoInstall() {
+        NotificationManagerCompat.from(context).apply {
+            builder.clearActions().run {
+                setContentTitle(context.getString(R.string.auto_installing) + downloadFile.name)
+                setSmallIcon(android.R.drawable.stat_sys_download_done)
+                setProgress(0, 0, false)
+                setDeleteIntent(getSnoozePendingIntent(DEL_TASK))
+                setOngoing(false)
+            }
+        }
+        notificationNotify()
+        install()
     }
 
     @Download.onTaskCancel
@@ -368,11 +405,9 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
                 DOWNLOAD_RESTART -> this.restart()
                 DOWNLOAD_PAUSE -> this.stop()
                 DOWNLOAD_CONTINUE -> this.resume()
-                SAVE_FILE -> this.saveFile()
                 INSTALL_APK -> this.install()
+                SAVE_FILE -> this.saveFile()
                 DEL_TASK -> this.delTask()
-
-                // TODO: 安装并删除功能集成
             }
         }
     }

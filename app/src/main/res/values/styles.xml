@@ -1,6 +1,5 @@
 <resources>
 
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -33,5 +32,27 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme.Dark" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">@color/colorDarkAccent</item>
+        <item name="colorPrimaryDark">@color/colorDarkPrimaryDark</item>
+        <item name="colorAccent">@color/colorDarkAccent</item>
+        <item name="toolbarStyle">@style/Widget.Toolbar.Dark</item>
+        <item name="android:strokeColor">@color/colorScrimWhite</item>
+        <item name="android:windowBackground">@color/colorDarkWindowBackground</item>
+        <item name="android:colorBackground">@color/colorDarkBackground</item>
+        <item name="colorBackgroundFloating">@color/colorDarkBackground</item>
+    </style>
+
+    <style name="AppTheme.Black" parent="AppTheme.Dark">
+        <item name="colorPrimary">@color/colorBlackAccent</item>
+        <item name="colorPrimaryDark">@color/colorBlack</item>
+        <item name="colorAccent">@color/colorBlackAccent</item>
+        <item name="toolbarStyle">@style/Widget.Toolbar.Dark</item>
+        <item name="android:strokeColor">@color/colorScrimWhite</item>
+        <item name="android:windowBackground">@color/colorBlack</item>
+        <item name="android:colorBackground">@color/colorBlack</item>
+        <item name="colorBackgroundFloating">@color/colorBlack</item>
+    </style>
 
 </resources>

@@ -30,6 +30,14 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <receiver android:name=".utils.AppInstallReceiver"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".server.update.UpdateServiceReceiver"
             android:enabled="true"
@@ -40,7 +48,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".utils.network.DownloadBroadcastReceiver"
+            android:name=".utils.DownloadBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE">
@@ -67,8 +75,9 @@
         <activity
             android:name=".ui.activity.SettingsActivity"
             android:label="@string/setting" />
-        <activity android:name=".ui.activity.UCropActivity" />
-        <activity android:name=".ui.activity.SaveFileActivity" />
+        <activity android:name=".ui.activity.file_pref.UCropActivity" />
+        <activity android:name=".ui.activity.file_pref.SelectDirActivity" />
+        <activity android:name=".ui.activity.file_pref.SaveFileActivity" />
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="fullSensor"

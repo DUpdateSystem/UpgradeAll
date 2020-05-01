@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.PagerAdapter
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.ui.viewmodels.fragment.CloudConfigPlaceholderFragment
+import net.xzos.upgradeall.ui.fragment.CloudConfigPlaceholderFragment
 
 
 class CloudConfigTabSectionsPagerAdapter(fm: FragmentManager) :

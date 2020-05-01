@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.data_manager
 
 import net.xzos.upgradeall.core.data.config.AppConfig
+import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.AppDatabaseExtraData
@@ -105,7 +106,7 @@ object AppDatabaseManager {
 
 
     fun translateAppConfig(appDatabase: AppDatabase): AppConfigGson {
-        val appBaseVersion = AppConfig.app_config_version
+        val appBaseVersion = AppValue.app_config_version
         return AppConfigGson(
                 baseVersion = appBaseVersion,
                 uuid = null,

@@ -26,6 +26,7 @@
     <string name="sync_header">数据刷新</string>
     <string name="initiative_sync_time">数据过期时间(min)</string>
     <string name="background_sync_time">后台数据刷新时间(h)</string>
+    <string name="background_sync_time_desc">软件在后台检查更新的周期\n若周期为0，则禁用后台更新检查</string>
     <string name="update_item_setting_editVersionCheckRegularText">\\d+(\\.\\d+)*</string>
     <string name="changelog">更新日志</string>
     <string name="dialog_version_releaseTextView">最新版本的云端文件</string>
@@ -41,6 +42,20 @@
     <string name="local_debug">本地调试</string>
     <string name="cloud_hub_list">云端仓库</string>
     <string name="download">下载</string>
+    <string name="install">安装</string>
+    <string name="auto_install_downloaded">下载后自动安装</string>
+    <string name="auto_installing">正在自动安装</string>
+    <string name="user_download_path">用户下载位置</string>
+    <string name="download_thread_num">下载线程数</string>
+    <string name="download_max_task_num">下载队列</string>
+    <string name="download_max_task_num_desc">最大下载队列数</string>
+    <string name="clean_download_dir">清除下载文件</string>
+    <string name="clean_download_dir_desc">删除软件的下载缓存目录及该目录下的文件</string>
+    <string name="auto_delete_file">安装完成后自动删除文件</string>
+    <string name="auto_deleted_file">已自动删除安装文件</string>
+    <string name="pref_update_auto">启用自动检查更新</string>
+    <string name="auto_dump_download_file">自动转储下载文件</string>
+    <string name="enable_or_disable">是否启用</string>
     <string name="js_test">JS 脚本测试</string>
     <string name="selected_file_address">已选中的文件:\ </string>
     <string name="run">运行</string>
@@ -104,7 +119,8 @@
     <string name="add_apps">添加应用</string>
     <string name="group_name">分组名称</string>
 
-    <string name="setting_help_web_page">\n详细帮助：https://xzos.net/upgradeall-readme</string>
+    <string name="detailed_help">\n详细帮助</string>
+    <string name="readme_url">https://upgradeall.now.sh/</string>
 
     <string name="setting_app_hub_explain">软件源（必填）\n通过何种渠道获取更新信息</string>
     <string name="setting_app_name_explain">应用名称（选填）\n留空则调用软件源脚本，以获取默认应用名称</string>

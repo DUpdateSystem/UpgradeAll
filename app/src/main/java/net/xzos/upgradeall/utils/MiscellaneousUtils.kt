@@ -9,23 +9,23 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.jaredrummler.android.shell.CommandResult
 import com.jaredrummler.android.shell.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.android_api.DatabaseApi
 import net.xzos.upgradeall.android_api.IoApi
 import net.xzos.upgradeall.android_api.Log
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data_manager.CloudConfigGetter
+import net.xzos.upgradeall.data.AppUiDataManager
+import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.update.UpdateManager
-import net.xzos.upgradeall.server.update.UpdateServiceReceiver
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import org.json.JSONException
@@ -39,8 +39,6 @@ object MiscellaneousUtils {
         renewCloudConfigGetter()
     }
 
-    private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-
     private var suAvailable: Boolean? = null
         get() = field ?: Shell.SU.available().also { field = it }
 
@@ -48,57 +46,22 @@ object MiscellaneousUtils {
         private set
 
     fun initData() {
+        initObject()
+        PreferencesMap.sync()
+    }
+
+    private fun initObject() {
         // 初始化 System API
         DatabaseApi
         Log
         IoApi
+        // 初始化数据观察 register
+        AppUiDataManager
         UpdateManager
-        syncSetting()
     }
 
-    private fun renewCloudConfigGetter() {
-        cloudConfigGetter = newCloudConfigGetter()
-    }
-
-    private fun newCloudConfigGetter(): CloudConfigGetter {
-        val prefKey = "cloud_rules_hub_url"
-        val defaultCloudRulesHubUrl = AppConfig.default_cloud_rules_hub_url
-        val cloudRulesHubUrl = (prefs
-                ?: PreferenceManager.getDefaultSharedPreferences(context)
-                ).getString(prefKey, defaultCloudRulesHubUrl) ?: defaultCloudRulesHubUrl
-        val cloudConfigGetter = CloudConfigGetter(cloudRulesHubUrl)
-        if (!cloudConfigGetter.available) {
-            resetCloudHubUrl()
-        }
-        return cloudConfigGetter
-    }
-
-    fun resetCloudHubUrl() {
-        val prefKey = "cloud_rules_hub_url"
-        val defaultCloudRulesHubUrl = AppConfig.default_cloud_rules_hub_url
-        prefs.edit().putString(prefKey, defaultCloudRulesHubUrl).apply()
-        renewCloudConfigGetter()
-        showToast(context, R.string.reset_git_url_configuration, duration = Toast.LENGTH_LONG)
-    }
-
-    // 同步设置
-    fun syncSetting() {
-        // 刷新数据时间
-        UpdateServiceReceiver.initAlarms()
-        // Git 地址
-        renewCloudConfigGetter()
-        // 更新服务器地址
-        val updateServerUrlKey = "update_server_url"
-        val updateServerUrl = prefs.getString(updateServerUrlKey, null)
-        if (!AppConfig.setUpdateServerUrl(updateServerUrl)) {
-            prefs.edit().putString(updateServerUrlKey, AppConfig.update_server_url).apply()
-            showToast(context, R.string.reset_update_server_url_configuration, duration = Toast.LENGTH_LONG)
-        }
-        val dataExpirationTimeKey = "sync_time"
-        val defaultDataExpirationTime = AppConfig.data_expiration_time
-        val dataExpirationTime = prefs.getInt(dataExpirationTimeKey, defaultDataExpirationTime)
-        if (dataExpirationTime != defaultDataExpirationTime)
-            AppConfig.data_expiration_time = dataExpirationTime
+    fun renewCloudConfigGetter() {
+        cloudConfigGetter = CloudConfigGetter(PreferencesMap.cloud_rules_hub_url)
     }
 
     fun accessByBrowser(url: String?, context: Context?) {
@@ -184,8 +147,22 @@ fun <T> MutableLiveData<T>.notifyObserver() {
 }
 
 /**
+ * 拓展 LiveData 设置值操作
+ */
+fun <T> MutableLiveData<T>.setValueBackstage(value: T) {
+    runBlocking(Dispatchers.Main) {
+        this@setValueBackstage.value = value
+    }
+}
+
+/**
  * 拓展 ItemCardView 数据队列
  * 使其可用 holder 直接获取数据
  */
 fun MutableList<ItemCardView>.getByHolder(holder: CardViewRecyclerViewHolder): ItemCardView =
         this[holder.adapterPosition]
+
+/**
+ * 返回 MutableLiveData
+ */
+fun <T> mutableLiveDataOf(): MutableLiveData<T> = MutableLiveData()

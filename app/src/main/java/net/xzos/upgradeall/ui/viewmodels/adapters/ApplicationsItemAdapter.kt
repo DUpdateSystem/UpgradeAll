@@ -8,12 +8,13 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.data.database.AppDatabase.Companion.APP_TYPE_TAG
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
-import net.xzos.upgradeall.R
-import net.xzos.upgradeall.data_manager.UIConfig
+import net.xzos.upgradeall.data.gson.UIConfig
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
-import net.xzos.upgradeall.ui.viewmodels.fragment.AppInfoFragment
+import net.xzos.upgradeall.ui.fragment.AppInfoFragment
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.ApplicationsPageViewModel
@@ -86,7 +87,7 @@ class ApplicationsItemAdapter(
                             if (app.appDatabase.save(true))
                                 containerTabListBean.itemList.add(
                                         UIConfig.CustomContainerTabListBean.ItemListBean(
-                                                UIConfig.APP_TYPE_TAG,
+                                                APP_TYPE_TAG,
                                                 app.appDatabase.name,
                                                 mutableListOf(app.appDatabase.id)
                                         )

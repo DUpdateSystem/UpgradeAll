@@ -8,13 +8,13 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.google.gson.GsonBuilder
+import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
-import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
-import net.xzos.upgradeall.ui.viewmodels.fragment.AppInfoFragment
-import net.xzos.upgradeall.ui.viewmodels.fragment.ApplicationsFragment
+import net.xzos.upgradeall.ui.fragment.AppInfoFragment
+import net.xzos.upgradeall.ui.fragment.ApplicationsFragment
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
@@ -29,7 +29,6 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
     : AppItemAdapter(appListPageViewModel, itemCardViewLiveData, owner) {
 
     private var mItemCardViewList: MutableList<ItemCardView> = mutableListOf()
-    // TODO: 数据无法自动更新（需修复）
 
     init {
         itemCardViewLiveData.observe(owner, Observer { list ->
@@ -78,7 +77,7 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                     if (appListPageViewModel.editableTab.value == true) {
                         menu.add(R.string.delete_from_group).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
-                                if (appListPageViewModel.removeItemFromGroup(holder.adapterPosition))
+                                if (appListPageViewModel.removeItemFromTabPage(holder.adapterPosition))
                                     onItemDismiss(holder.adapterPosition)
                                 return@setOnMenuItemClickListener true
                             }
@@ -113,10 +112,10 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
         PopupMenu(view.context, view).let { popupMenu ->
             popupMenu.menu.let { menu ->
                 val tabInfoList = appListPageViewModel.getTabIndexList()
-                for (containerTabListBean in tabInfoList)
-                    menu.add(containerTabListBean.name).let { menuItem: MenuItem ->
+                for (tabPageIndex in tabInfoList.indices)
+                    menu.add(tabInfoList[tabPageIndex].name).let { menuItem: MenuItem ->
                         menuItem.setOnMenuItemClickListener {
-                            appListPageViewModel.moveItemToOtherGroup(holder.adapterPosition, containerTabListBean)
+                            appListPageViewModel.moveItemToOtherTabPage(holder.adapterPosition, tabPageIndex)
                             return@setOnMenuItemClickListener true
                         }
                     }

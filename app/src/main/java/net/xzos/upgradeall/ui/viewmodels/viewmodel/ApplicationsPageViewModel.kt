@@ -12,7 +12,6 @@ class ApplicationsPageViewModel : AppListContainerViewModel() {
             val appList = needUpdateAppList + applications.apps.filter {
                 !needUpdateAppList.contains(it)
             }
-            setApps(appList)
         }
     }
 

@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.viewmodels.fragment
+package net.xzos.upgradeall.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,14 +8,14 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.coroutines.*
-import net.xzos.upgradeall.core.data.config.AppConfig
+import net.xzos.upgradeall.R
+import net.xzos.upgradeall.application.MyApplication
+import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_MAGISK_MODULE
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.upgradeall.core.data.json.gson.CloudConfig
-import net.xzos.upgradeall.R
-import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.ui.viewmodels.adapters.CloudAppItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.adapters.CloudHubItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
@@ -87,7 +87,6 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                         }
                     }
                     ?: run {
-                        MiscellaneousUtils.resetCloudHubUrl()
                         if (this@CloudConfigPlaceholderFragment.isVisible)
                             MiscellaneousUtils.showToast(context, R.string.network_error)
                     }
@@ -100,7 +99,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         val appCloudConfig = cloudConfigGetter.getAppCloudConfig(appUuid)
         val type: String
         with(MyApplication.context) {
-            type = when (appCloudConfig?.appConfig?.targetChecker?.api?.toLowerCase(AppConfig.locale)) {
+            type = when (appCloudConfig?.appConfig?.targetChecker?.api?.toLowerCase(AppValue.locale)) {
                 API_TYPE_APP_PACKAGE -> getString(R.string.android_app)
                 API_TYPE_MAGISK_MODULE -> getString(R.string.magisk_module)
                 API_TYPE_SHELL -> getString(R.string.shell)
