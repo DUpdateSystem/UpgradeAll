@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.fragment_applications.*
-import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.viewmodels.adapters.ApplicationsItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.ApplicationsPageViewModel

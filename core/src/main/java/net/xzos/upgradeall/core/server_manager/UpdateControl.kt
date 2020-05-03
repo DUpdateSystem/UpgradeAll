@@ -8,17 +8,14 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.data_manager.utils.DataCache
 import net.xzos.upgradeall.core.network_api.GrpcApi
+import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.route.AppIdItem
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
-import net.xzos.upgradeall.core.server_manager.module.applications.Applications
-import net.xzos.upgradeall.core.system_api.RegisterApi
 
-open class UpdateControl internal constructor(
-        val apps: List<BaseApp>, vararg annotation: Class<out Annotation> = emptyArray()
-) : RegisterApi(*annotation) {
-    private val annotationList = annotation.toList()
+open class UpdateControl internal constructor(val apps: List<BaseApp>) : Informer() {
+
     var finishedAppNum: Long = 0
     private val dataMutex = Mutex()  // 保证数据线程安全
     private val refreshMutex = Mutex()  // 刷新锁，避免重复请求刷新导致浪费大量资源
@@ -53,8 +50,7 @@ open class UpdateControl internal constructor(
     }
 
     private fun notifyChange() {
-        for (annotation in annotationList)
-            runNoReturnFun(annotation)
+        notifyChanged()
     }
 
     // 刷新所有软件并等待，返回需要更新的软件数量

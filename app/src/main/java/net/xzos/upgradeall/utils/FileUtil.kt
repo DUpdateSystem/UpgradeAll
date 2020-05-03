@@ -43,7 +43,10 @@ object FileUtil {
     internal val DOWNLOAD_CACHE_DIR = File(CACHE_DIR, "Download")
     internal val DOWNLOAD_DOCUMENT_FILE: DocumentFile?
         get() = if (PreferencesMap.auto_dump_download_file)
-            getDocumentFile(context, Uri.parse(PreferencesMap.download_path))
+            getDocumentFile(context, Uri.parse(PreferencesMap.user_download_path)) ?: kotlin.run {
+                PreferencesMap.auto_dump_download_file = false
+                return@run null
+            }
         else null
 
 
@@ -93,7 +96,11 @@ object FileUtil {
      * 便于文件目录操作
      */
     private fun getDocumentFile(context: Context, treeUri: Uri): DocumentFile? {
-        takePersistableUriPermission(context, treeUri)
+        try {
+            takePersistableUriPermission(context, treeUri)
+        } catch (e: SecurityException) {
+            return null
+        }
         return DocumentFile.fromTreeUri(context, treeUri) ?: return null
     }
 

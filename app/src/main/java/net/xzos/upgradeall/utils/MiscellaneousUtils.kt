@@ -15,7 +15,6 @@ import com.jaredrummler.android.shell.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.android_api.DatabaseApi
 import net.xzos.upgradeall.android_api.IoApi
@@ -143,15 +142,17 @@ object MiscellaneousUtils {
  * 拓展 LiveData 监听列表元素添加、删除操作的支持
  */
 fun <T> MutableLiveData<T>.notifyObserver() {
-    this.value = this.value
+    Handler(Looper.getMainLooper()).post {
+        this.value = this.value
+    }
 }
 
 /**
  * 拓展 LiveData 设置值操作
  */
 fun <T> MutableLiveData<T>.setValueBackstage(value: T) {
-    runBlocking(Dispatchers.Main) {
-        this@setValueBackstage.value = value
+    Handler(Looper.getMainLooper()).post {
+        this.value = value
     }
 }
 

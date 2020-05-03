@@ -23,6 +23,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.data_manager.utils.FilePathUtils
+import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.ACTION_SNOOZE
@@ -88,9 +89,11 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
         this.downloadFile.delete()
     }
 
-    fun install() {
+    fun install(file: File = downloadFile) {
         runBlocking {
-            ApkInstaller.install(this@AriaDownloader.downloadFile)
+            when {
+                file.isApkFile() -> ApkInstaller.install(file)
+            }
         }
     }
 
@@ -258,23 +261,29 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
             }
             delTaskAndUnRegister()
             downloadFile = File(task.filePath).autoAddApkExtension()
+            showManualMenuNotification(downloadFile.name, downloadFile.path)
+            // 自动转储
+            FileUtil.DOWNLOAD_DOCUMENT_FILE?.let {
+                FileUtil.dumpFile(downloadFile, it)
+            }
             // 自动安装
             if (PreferencesMap.auto_install) {
-                autoInstall()
-                if (PreferencesMap.auto_delete_file) {
-                    downloadFile.delete()
-                    MiscellaneousUtils.showToast(context, R.string.auto_deleted_file)
-                    cancel()
-                }
-            }
-            if (downloadFile.exists()) {
-                FileUtil.DOWNLOAD_DOCUMENT_FILE?.let {
-                    FileUtil.dumpFile(downloadFile, it)
-                    // 自动转储
-                } ?: showManualMenuNotification(downloadFile.name, downloadFile.path)
-                // 未设置任何默认文件动作，显示通知
+                autoInstall(downloadFile)
+                ApkInstaller.observeForever(downloadFile, object : Observer {
+                    override fun onChanged(vararg vars: Any): Any? {
+                        return completeInstall(downloadFile)
+                    }
+                })
             }
         }
+    }
+
+    private fun completeInstall(file: File) {
+        if (PreferencesMap.auto_delete_file) {
+            file.delete()
+            MiscellaneousUtils.showToast(context, R.string.auto_deleted_file)
+        }
+        cancel()
     }
 
 
@@ -305,7 +314,8 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
         notificationNotify()
     }
 
-    private fun autoInstall() {
+    private fun autoInstall(file: File) {
+        if (!file.isApkFile()) return
         NotificationManagerCompat.from(context).apply {
             builder.clearActions().run {
                 setContentTitle(context.getString(R.string.auto_installing) + downloadFile.name)
@@ -316,7 +326,7 @@ class AriaDownloader(private val debugMode: Boolean, private val url: String) {
             }
         }
         notificationNotify()
-        install()
+        install(file)
     }
 
     @Download.onTaskCancel

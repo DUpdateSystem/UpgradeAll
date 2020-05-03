@@ -9,41 +9,32 @@ import android.net.Uri
 import android.os.Build
 import android.os.StrictMode
 import androidx.core.content.FileProvider
+import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.BuildConfig
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.core.data_manager.utils.wait
+import net.xzos.upgradeall.core.oberver.Informer
+import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.data.PreferencesMap
 import java.io.File
 
 
-object ApkInstaller {
+object ApkInstaller : Informer() {
 
     private val context: Context = MyApplication.context
-    private val installMutexMap = mutableMapOf<String, Mutex>()
 
     suspend fun install(file: File) {
+        // 修复后缀名
+        if (!file.isApkFile()) return
         withContext(Dispatchers.Default) {
-            rowInstall(file)
+            val fileUri = file.getApkUri()
+            rowInstall(fileUri)
         }
     }
 
-    private suspend fun rowInstall(file: File) {
-        // 修复后缀名
-        if (!file.isApkFile()) return
-        val apkFile = file.autoAddApkExtension()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            try {
-                val m = StrictMode::class.java.getMethod("disableDeathOnFileUriExposure")
-                m.invoke(null)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-        val fileUri = apkFile.getUri()
+    private fun rowInstall(fileUri: Uri) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!context.packageManager.canRequestPackageInstalls())
                 return
@@ -57,30 +48,23 @@ object ApkInstaller {
                         this.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
                 }
-
-        val mutex = Mutex(locked = true)
-        getPackageInfoFromApkFile(apkFile)?.run {
-            val key = Pair(this.packageName, this.versionName).getMapKey()
-            installMutexMap[key] = mutex
-        }
         context.startActivity(intent)
-        mutex.wait()
     }
 
     fun completeInstall(packageName: String, versionName: String) {
         val key = Pair(packageName, versionName).getMapKey()
-        val mutex = installMutexMap[key] ?: return
-        if (mutex.isLocked) mutex.unlock()
-    }
-
-    private fun File.getUri(): Uri {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", this)
-        else Uri.fromFile(this)
+        notifyChanged(tag = key)
     }
 
     private fun Pair<String, String>.getMapKey(): String {
         return "$first:$second"
+    }
+
+    fun observeForever(apkFile: File, observer: Observer) {
+        val packageInfo = apkFile.getPackageInfo() ?: return
+        observeForever(
+                Pair(packageInfo.packageName, packageInfo.versionName).getMapKey(),
+                observer)
     }
 }
 
@@ -93,14 +77,33 @@ fun File.autoAddApkExtension(): File {
     return this
 }
 
-
-fun File.isApkFile(): Boolean {
-    return getPackageInfoFromApkFile(this) != null
+fun File.getApkUri(): Uri {
+    val apkFile = this.autoAddApkExtension()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        try {
+            val m = StrictMode::class.java.getMethod("disableDeathOnFileUriExposure")
+            m.invoke(null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+    return apkFile.getUri()
 }
 
-private fun getPackageInfoFromApkFile(file: File): PackageInfo? {
+fun File.getUri(): Uri {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+        FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", this)
+    else Uri.fromFile(this)
+}
+
+fun File.isApkFile(): Boolean {
+    return this.getPackageInfo() != null
+}
+
+
+fun File.getPackageInfo(): PackageInfo? {
     return try {
-        context.packageManager.getPackageArchiveInfo(file.path, PackageManager.GET_ACTIVITIES)
+        context.packageManager.getPackageArchiveInfo(this.path, PackageManager.GET_ACTIVITIES)
     } catch (e: Exception) {
         null
     }

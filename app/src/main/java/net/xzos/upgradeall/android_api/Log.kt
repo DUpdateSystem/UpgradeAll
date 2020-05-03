@@ -8,17 +8,29 @@ import net.xzos.upgradeall.core.log.Log.INFO
 import net.xzos.upgradeall.core.log.Log.VERBOSE
 import net.xzos.upgradeall.core.log.Log.WARN
 import net.xzos.upgradeall.core.log.LogItemData
+import net.xzos.upgradeall.core.oberver.Observer
+import net.xzos.upgradeall.core.system_api.api.LOG_CHANGED_TAG
 import net.xzos.upgradeall.core.system_api.api.LogApi
+import net.xzos.upgradeall.core.system_api.api.PRINT_LOG_TAG
 import net.xzos.upgradeall.server.log.LogLiveData
 
 
 object Log {
 
     init {
-        LogApi.register(this)
+        LogApi.observeForever(PRINT_LOG_TAG, object : Observer {
+            override fun onChanged(vars: Array<out Any>): Any? {
+                return printLog(vars[0] as LogItemData)
+            }
+        })
+        LogApi.observeForever(LOG_CHANGED_TAG, object : Observer {
+            override fun onChanged(vars: Array<out Any>): Any? {
+                @Suppress("UNCHECKED_CAST")
+                return LogLiveData.notifyChange(vars[0] as HashMap<ObjectTag, MutableList<LogItemData>>)
+            }
+        })
     }
 
-    @net.xzos.upgradeall.core.system_api.annotations.LogApi.printLog
     private fun printLog(logItemData: LogItemData) {
         val tag = logItemData.tag
         val msg = logItemData.msg
@@ -29,10 +41,5 @@ object Log {
             WARN -> Log.w(tag, msg)
             ERROR -> Log.e(tag, msg)
         }
-    }
-
-    @net.xzos.upgradeall.core.system_api.annotations.LogApi.logChanged
-    fun logChanged(logMap: HashMap<ObjectTag, MutableList<LogItemData>>) {
-        LogLiveData.notifyChange(logMap)
     }
 }

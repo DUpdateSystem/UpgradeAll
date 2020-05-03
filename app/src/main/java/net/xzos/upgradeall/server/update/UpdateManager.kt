@@ -17,8 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.UpdateManager
-import net.xzos.upgradeall.core.system_api.annotations.UpdateManagerApi
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
@@ -35,10 +35,13 @@ object UpdateManager {
 
     init {
         createNotificationChannel()
-        UpdateManager.register(this)
+        UpdateManager.observeForever(object : Observer {
+            override fun onChanged(vararg vars: Any): Any? {
+                return getNotify()
+            }
+        })
     }
 
-    @UpdateManagerApi.statusRefresh
     private fun getNotify() {
         val allAppsNum = UpdateManager.apps.size
         val finishedAppNum = UpdateManager.finishedAppNum.toInt()
@@ -93,8 +96,7 @@ object UpdateManager {
                 if (!MiscellaneousUtils.isBackground()) {
                     setContentText("点按打开应用主页")
                     setContentIntent(resultPendingIntent)
-                } else
-                    setContentText(null)
+                } else cancelNotification()
             }
         }
         notificationNotify()

@@ -2,7 +2,6 @@ package net.xzos.upgradeall.ui.fragment.preference
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.FileUtils
 import android.view.View
 import androidx.annotation.XmlRes
 import androidx.preference.Preference
@@ -15,7 +14,6 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.ui.activity.file_pref.SelectDirActivity
 import net.xzos.upgradeall.utils.FileUtil
-import java.io.File
 
 
 open class PrefFragment internal constructor(@XmlRes private val preferencesResId: Int) : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -40,8 +38,8 @@ open class PrefFragment internal constructor(@XmlRes private val preferencesResI
     }
 }
 
-class InstallationFragment : PrefFragment(R.xml.preferences_update)
-class UpdatesPrefFragment : PrefFragment(R.xml.preferences_installation)
+class UpdatesPrefFragment : PrefFragment(R.xml.preferences_update)
+class InstallationFragment : PrefFragment(R.xml.preferences_installation)
 class DownloaderFragment : PrefFragment(R.xml.preferences_downloader) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -50,12 +48,13 @@ class DownloaderFragment : PrefFragment(R.xml.preferences_downloader) {
     }
 
     private fun setDownloadPath() {
-        val junkPreference: Preference = findPreference("SELECT_DOWNLOAD_PATH")!!
-        junkPreference.summary = PreferencesMap.download_path
-        junkPreference.setOnPreferenceClickListener { preference ->
+        val downloadPathPreference: Preference = findPreference("SELECT_DOWNLOAD_PATH")!!
+        downloadPathPreference.summary = PreferencesMap.user_download_path
+        downloadPathPreference.setOnPreferenceClickListener { preference ->
             GlobalScope.launch {
                 context?.run {
-                    val treeUri = SelectDirActivity.newInstance(this)
+                    val treeUri = SelectDirActivity.newInstance(this) ?: return@launch
+                    PreferencesMap.user_download_path = treeUri.toString()
                     withContext(Dispatchers.Main) {
                         preference.summary = treeUri.toString()
                     }

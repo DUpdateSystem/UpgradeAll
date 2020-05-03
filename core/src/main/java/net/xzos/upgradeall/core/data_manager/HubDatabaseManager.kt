@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.data_manager
 import net.xzos.upgradeall.core.data.database.HubDatabase
 import net.xzos.upgradeall.core.data.json.gson.HubConfig
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.system_api.api.DatabaseApi
 
 
@@ -16,17 +17,19 @@ object HubDatabaseManager {
         private set
 
     init {
-        DatabaseApi.register(this)
-    }
-
-    /**
-     * 刷新数据库
-     */
-    @net.xzos.upgradeall.core.system_api.annotations.DatabaseApi.databaseChanged
-    private fun refreshDatabaseList(database: Any) {
-        if (database is HubDatabase) {
-            hubDatabases = DatabaseApi.hubDatabases
-        }
+        /**
+         * 刷新数据库
+         */
+        DatabaseApi.observeForever(object : Observer {
+            override fun onChanged(vararg vars: Any): Any? {
+                // 更新数据库
+                val database = vars[0]
+                if (database is HubDatabase) {
+                    hubDatabases = DatabaseApi.hubDatabases
+                }
+                return null
+            }
+        })
     }
 
     fun getDatabase(uuid: String?): HubDatabase? {
@@ -40,7 +43,7 @@ object HubDatabaseManager {
     }
 
     fun exists(uuid: String?) = getDatabase(
-        uuid
+            uuid
     ) != null
 
     internal fun saveDatabase(hubDatabase: HubDatabase): Boolean {
@@ -60,7 +63,7 @@ object HubDatabaseManager {
         if (name != null && uuid != null) {
             // 修改数据库
             (getDatabase(uuid)
-                ?: HubDatabase.newInstance()).apply {
+                    ?: HubDatabase.newInstance()).apply {
                 this.uuid = uuid
                 this.hubConfig = hubConfigGson
                 // 存储 js 代码

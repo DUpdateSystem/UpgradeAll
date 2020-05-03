@@ -1,11 +1,11 @@
 package net.xzos.upgradeall.core.data_manager
 
-import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.AppDatabaseExtraData
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.core.system_api.api.DatabaseApi
 
@@ -20,19 +20,20 @@ object AppDatabaseManager {
         private set
 
     init {
-        DatabaseApi.register(this)
-    }
-
-    /**
-     * 刷新数据库
-     */
-    @net.xzos.upgradeall.core.system_api.annotations.DatabaseApi.databaseChanged
-    private fun refreshDatabaseList(database: Any) {
-        // 更新数据库
-        if (database is AppDatabase) {
-            appDatabases = DatabaseApi.appDatabases
-            AppManager.refreshData(database)
-        }
+        /**
+         * 刷新数据库
+         */
+        DatabaseApi.observeForever(object : Observer {
+            override fun onChanged(vararg vars: Any): Any? {
+                // 更新数据库
+                val database = vars[0]
+                if (database is AppDatabase) {
+                    appDatabases = DatabaseApi.appDatabases
+                    AppManager.refreshData(database)
+                }
+                return null
+            }
+        })
     }
 
     fun getDatabase(databaseId: Long? = null, uuid: String? = null): AppDatabase? {

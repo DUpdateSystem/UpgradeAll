@@ -2,11 +2,10 @@ package net.xzos.upgradeall.data
 
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.runBlocking
+import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
-import net.xzos.upgradeall.core.system_api.annotations.AppManagerApi
-import net.xzos.upgradeall.core.system_api.annotations.UpdateManagerApi
 import net.xzos.upgradeall.data.gson.UIConfig
 import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
@@ -29,15 +28,23 @@ object AppUiDataManager {
     private val appListLiveDataMap: MutableMap<Int, MutableLiveData<List<BaseApp>>> = mutableMapOf()
 
     init {
-        AppManager.register(this)
-        UpdateManager.register(this)
+        AppManager.observeForever(object : Observer {
+            override fun onChanged(vararg vars: Any): Any? {
+                return refreshAllAppListMap()
+            }
+
+        })
+        UpdateManager.observeForever(object : Observer {
+            override fun onChanged(vararg vars: Any): Any? {
+                return refreshNeedUpdateAppList()
+            }
+        })
         // 初始化绑定 Map
         appListLiveDataMap[ALL_APP_PAGE_INDEX] = allAppListLiveData
         appListLiveDataMap[UPDATE_PAGE_INDEX] = needUpdateAppListLiveData
         refreshAppListMap()
     }
 
-    @UpdateManagerApi.statusRefresh
     private fun refreshNeedUpdateAppList() {
         needUpdateAppListLiveData.setValueBackstage(
                 runBlocking {
@@ -46,7 +53,6 @@ object AppUiDataManager {
         )
     }
 
-    @AppManagerApi.appListChanged
     private fun refreshAllAppListMap() {
         allAppListLiveData.setValueBackstage(AppManager.apps)
     }

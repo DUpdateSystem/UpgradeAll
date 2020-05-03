@@ -95,9 +95,9 @@ class UIConfig private constructor(
     }
 
     fun removeItemFromTabPage(position: Int, tabPageIndex: Int): Boolean {
-        val tabList = getTabList(tabPageIndex).itemList
+        val tabList = getTabList(tabPageIndex)?.itemList ?: return false
         return if (position < tabList.size) {
-            getTabList(tabPageIndex).itemList.removeAt(position).also { save() }
+            tabList.removeAt(position).also { save() }
             true
         } else false
     }
@@ -121,18 +121,20 @@ class UIConfig private constructor(
 
     fun moveItemToOtherGroup(position: Int, fromTabPageIndex: Int, toTabPageIndex: Int): Boolean {
         val fromTabPage =
-                getTabList(fromTabPageIndex).itemList
+                getTabList(fromTabPageIndex)?.itemList ?: return false
         val toTabPage =
-                getTabList(toTabPageIndex).itemList
+                getTabList(toTabPageIndex)?.itemList ?: return false
         val item = fromTabPage[position]
                 .also { fromTabPage.remove(it) }
         return toTabPage.add(item)
     }
 
-    fun getTabList(position: Int): CustomContainerTabListBean {
-        return if (position == USER_STAR_PAGE_INDEX)
-            uiConfig.userStarTab
-        else uiConfig.userTabList[position]
+    private fun getTabList(position: Int): CustomContainerTabListBean? {
+        return when {
+            position == USER_STAR_PAGE_INDEX -> uiConfig.userStarTab
+            position >= 0 -> uiConfig.userTabList[position]
+            else -> null
+        }
     }
 
     fun save() {
@@ -141,9 +143,15 @@ class UIConfig private constructor(
         )
     }
 
+    @Suppress("ImplicitThis")
+    fun checkData(): Boolean {
+        return updateTab != null && allAppTab != null && userStarTab != null && userTabList != null
+    }
+
     companion object {
         val uiConfig: UIConfig = try {
-            Gson().fromJson(FileUtil.UI_CONFIG_FILE.readText(), UIConfig::class.java)
+            val uiConfig = Gson().fromJson(FileUtil.UI_CONFIG_FILE.readText(), UIConfig::class.java)
+            if (uiConfig.checkData()) uiConfig else UIConfig()
         } catch (e: Throwable) {
             UIConfig()
         }

@@ -6,13 +6,9 @@ import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
-import net.xzos.upgradeall.core.system_api.annotations.UpdateManagerApi
 
 
-private val updateFinishedAnnotation =
-        UpdateManagerApi.statusRefresh::class.java
-
-object UpdateManager : UpdateControl(AppManager.apps, updateFinishedAnnotation) {
+object UpdateManager : UpdateControl(AppManager.apps) {
     suspend fun downloadAllUpdate() {
         val appList = mutableListOf<App>()
         for (app in getNeedUpdateAppList(block = false)) {
