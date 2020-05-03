@@ -5,6 +5,12 @@
     android:layout_height="match_parent">
 
     <Preference
+        android:fragment="net.xzos.upgradeall.ui.fragment.preference.UpdatesPrefFragment"
+        app:icon="@drawable/ic_menu_update"
+        app:layout="@layout/item_preference"
+        app:title="@string/update" />
+
+    <Preference
         android:fragment="net.xzos.upgradeall.ui.fragment.preference.DownloaderFragment"
         app:icon="@drawable/ic_menu_download"
         app:layout="@layout/item_preference"
@@ -15,11 +21,5 @@
         app:icon="@drawable/ic_installation"
         app:layout="@layout/item_preference"
         app:title="@string/install" />
-
-    <Preference
-        android:fragment="net.xzos.upgradeall.ui.fragment.preference.UpdatesPrefFragment"
-        app:icon="@drawable/ic_menu_update"
-        app:layout="@layout/item_preference"
-        app:title="@string/update" />
 
 </androidx.preference.PreferenceScreen>

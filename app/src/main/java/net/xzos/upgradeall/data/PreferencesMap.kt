@@ -34,9 +34,9 @@ object PreferencesMap {
         get() = prefs.getBoolean("auto_delete_file", false)
 
     // 下载首选项
-    private const val downloadPathKey = "download_path"
-    var download_path: String
-        get() = prefs.getString(downloadPathKey, FileUtil.DOWNLOAD_CACHE_DIR.path)!!
+    private const val downloadPathKey = "user_download_path"
+    var user_download_path: String
+        get() = prefs.getString(downloadPathKey, null) ?: context.getString(R.string.null_english)
         set(value) {
             prefs.edit().putString(downloadPathKey, value).apply()
             auto_dump_download_file = true
@@ -54,7 +54,8 @@ object PreferencesMap {
     // 设置 Android 平台设置
     // 设置内核设置
     fun sync() {
-        checkSettingAndSync()
+        checkSetting()
+        checkUpdateSettingAndSync()
         syncAndroidConfig()
         syncCoreConfig()
     }
@@ -68,11 +69,15 @@ object PreferencesMap {
     }
 
     // 同步 Core 模块的配置
-    private fun syncCoreConfig() {
+    private fun syncCoreConfig() {}
+
+    private fun checkSetting() {
+        if (FileUtil.DOWNLOAD_DOCUMENT_FILE?.canWrite() != true)
+            auto_dump_download_file = false
     }
 
     // 检查设置数据
-    private fun checkSettingAndSync() {
+    private fun checkUpdateSettingAndSync() {
         if (GrpcApi.checkUpdateServerUrl(update_server_url)) {
             AppConfig.update_server_url = update_server_url
         } else {

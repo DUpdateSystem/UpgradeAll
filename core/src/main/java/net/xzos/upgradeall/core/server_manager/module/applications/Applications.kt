@@ -6,12 +6,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.database.AppDatabase
+import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.server_manager.UpdateControl
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
 
-class Applications(database: AppDatabase) : BaseApp(database) {
+class Applications(override val appDatabase: AppDatabase) : BaseApp, Informer() {
 
     val name = appDatabase.name
     private val applicationsUtils = ApplicationsUtils(appDatabase)
@@ -36,7 +37,9 @@ class Applications(database: AppDatabase) : BaseApp(database) {
                 refreshAppList(UpdateControl(excludeApps))
             }
         }
-        return updateControl
+        return updateControl.also {
+            notifyChanged()
+        }
     }
 
     suspend fun getNeedUpdateAppList(block: Boolean = true): List<App> {

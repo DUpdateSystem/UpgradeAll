@@ -2,17 +2,13 @@ package net.xzos.upgradeall.core.server_manager
 
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
+import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
-import net.xzos.upgradeall.core.system_api.RegisterApi
-import net.xzos.upgradeall.core.system_api.annotations.AppManagerApi
 
 
-private val appListChangedAnnotation =
-        AppManagerApi.appListChanged::class.java
-
-object AppManager : RegisterApi(appListChangedAnnotation) {
+object AppManager : Informer() {
 
     private val singleAppList = mutableListOf<App>() // 存储所有 APP 实体
     private val applicationsList = mutableListOf<Applications>()
@@ -26,7 +22,7 @@ object AppManager : RegisterApi(appListChangedAnnotation) {
     }
 
     private fun notifyChange() {
-        runNoReturnFun(appListChangedAnnotation)
+        notifyChanged()
     }
 
     private fun initApp() {

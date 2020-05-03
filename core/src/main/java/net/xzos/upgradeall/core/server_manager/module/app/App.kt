@@ -11,7 +11,7 @@ import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.system_api.api.IoApi
 
-class App(database: AppDatabase) : BaseApp(database) {
+class App(override val appDatabase: AppDatabase) : BaseApp {
 
     val hubDatabase = HubDatabaseManager.getDatabase(appDatabase.hubUuid)
     var appId: List<AppIdItem>? = null
@@ -75,7 +75,7 @@ class App(database: AppDatabase) : BaseApp(database) {
                     ).let {
                         ignoreAppList.add(it)
                     }
-                } else{
+                } else {
                     ignoreAppList.remove(ignoreAppList.getIgnoreApp(packageName))
                 }
                 applicationsDatabase.save(false)

@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.config.AppValue
@@ -12,16 +11,15 @@ import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
-import net.xzos.upgradeall.core.server_manager.module.app.App
-import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardViewExtraData
+import net.xzos.upgradeall.utils.mutableLiveDataOf
 
 abstract class AppListContainerViewModel : ViewModel() {
-    internal val needUpdateAppsLiveData = MutableLiveData(mutableListOf<BaseApp>())  // 需要升级的 APP
+    internal val needUpdateAppsLiveData: MutableLiveData<MutableList<BaseApp>> = mutableLiveDataOf()  // 需要升级的 APP
     internal lateinit var appListLiveData: MutableLiveData<List<BaseApp>>  // 列表中所有的 APP
     private val context = MyApplication.context
-    var dataInit = true
+    var dataInit = false
 
     // 列表中所有的 APP 项的信息
     private var appCardViewList: LiveData<MutableList<ItemCardView>>? = null
@@ -30,29 +28,20 @@ abstract class AppListContainerViewModel : ViewModel() {
         return if (appCardViewList != null) {
             appCardViewList!!
         } else Transformations.map(appListLiveData) { apps ->
-            val appList: MutableList<App> = mutableListOf<App>().also {
-                for (app in apps) {
-                    when (app) {
-                        is App -> it.add(app)
-                        is Applications -> it.addAll(runBlocking { app.getNeedUpdateAppList(block = false) })
-                    }
-                }
-            }
-            return@map mutableListOf<ItemCardView>().apply {
-                for (app in appList) {
-                    this.add(getAppItemCardView(app))
-                }
-                if (appList.isNotEmpty()) {
+            dataInit = true
+            return@map apps.map {
+                it.getAppItemCardView()
+            }.toMutableList().apply {
+                if (this.isNotEmpty())
                     this.add(ItemCardView())
-                }
             }
         }.also {
             appCardViewList = it
         }
     }
 
-    private fun getAppItemCardView(app: BaseApp): ItemCardView {
-        val appDatabase = app.appDatabase
+    private fun BaseApp.getAppItemCardView(): ItemCardView {
+        val appDatabase = this.appDatabase
         val hubName = HubDatabaseManager.getDatabase(appDatabase.hubUuid)?.hubConfig?.info?.hubName
         val local = AppValue.locale
         val type = when (appDatabase.type) {
@@ -72,7 +61,7 @@ abstract class AppListContainerViewModel : ViewModel() {
                 appDatabase.name,
                 type,
                 hubName,
-                ItemCardViewExtraData(app = app)
+                ItemCardViewExtraData(app = this)
         )
     }
 }
