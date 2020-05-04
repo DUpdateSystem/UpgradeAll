@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.StrictMode
 import androidx.core.content.FileProvider
-import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.BuildConfig
@@ -35,10 +34,6 @@ object ApkInstaller : Informer() {
     }
 
     private fun rowInstall(fileUri: Uri) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!context.packageManager.canRequestPackageInstalls())
-                return
-        }
         val intent = Intent(Intent.ACTION_VIEW)
                 .setDataAndType(fileUri, "application/vnd.android.package-archive")
                 .putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)

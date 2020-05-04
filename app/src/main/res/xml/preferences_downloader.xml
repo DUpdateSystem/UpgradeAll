@@ -8,14 +8,16 @@
         android:defaultValue="6"
         android:key="download_thread_num"
         android:max="64"
-        android:title="@string/download_thread_num" />
+        android:title="@string/download_thread_num"
+        app:showSeekBarValue="true" />
 
     <SeekBarPreference
         android:defaultValue="8"
         android:key="download_max_task_num"
         android:max="16"
         android:summary="@string/download_max_task_num_desc"
-        android:title="@string/download_thread_num" />
+        android:title="@string/download_thread_num"
+        app:showSeekBarValue="true" />
 
     <Preference
         app:key="CLEAN_DOWNLOAD_DIR"

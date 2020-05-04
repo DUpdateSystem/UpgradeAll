@@ -16,8 +16,9 @@
 
     <SeekBarPreference
         android:defaultValue="18"
-        app:key="background_sync_time"
         android:max="16"
         android:summary="@string/background_sync_time_desc"
-        app:title="@string/background_sync_time"/>
+        app:key="background_sync_time"
+        app:showSeekBarValue="true"
+        app:title="@string/background_sync_time" />
 </androidx.preference.PreferenceScreen>
