@@ -88,18 +88,18 @@ object UpdateManager {
             getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
-        NotificationManagerCompat.from(context).apply {
-            builder.run {
-                setContentTitle("$needUpdateAppNum 个应用需要更新")
-                setProgress(0, 0, false)
-                setOngoing(false)
-                if (!MiscellaneousUtils.isBackground()) {
+        if (!MiscellaneousUtils.isBackground()) {
+            NotificationManagerCompat.from(context).apply {
+                builder.run {
+                    setContentTitle("$needUpdateAppNum 个应用需要更新")
+                    setProgress(0, 0, false)
+                    setOngoing(false)
                     setContentText("点按打开应用主页")
                     setContentIntent(resultPendingIntent)
-                } else cancelNotification()
+                }
             }
-        }
-        notificationNotify()
+            notificationNotify()
+        } else cancelNotification()
     }
 
     private fun createNotificationChannel() {

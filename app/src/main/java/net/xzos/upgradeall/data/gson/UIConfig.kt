@@ -143,7 +143,7 @@ class UIConfig private constructor(
         )
     }
 
-    @Suppress("ImplicitThis")
+    @Suppress("SENSELESS_COMPARISON")
     fun checkData(): Boolean {
         return updateTab != null && allAppTab != null && userStarTab != null && userTabList != null
     }
