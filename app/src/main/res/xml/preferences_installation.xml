@@ -4,6 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <ListPreference
+        android:entries="@array/install_apk_api_string"
+        android:entryValues="@array/install_apk_api"
+        android:key="install_apk_api"
+        android:title="@string/install_apk_api" />
+
     <SwitchPreferenceCompat
         android:defaultValue="true"
         app:key="auto_install"

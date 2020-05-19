@@ -3,7 +3,6 @@ package net.xzos.upgradeall.utils
 import android.Manifest
 import android.app.Activity
 import android.content.*
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -12,8 +11,6 @@ import android.provider.DocumentsContract.EXTRA_INITIAL_URI
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.documentfile.provider.DocumentFile
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
@@ -38,9 +35,10 @@ object FileUtil {
     internal const val ALL_APP_TAB_IMAGE_NAME = "all_app_tab.png"
     internal val GROUP_IMAGE_DIR = File(IMAGE_DIR, "groups")
     internal val NAV_IMAGE_FILE = File(IMAGE_DIR, "nav_image.png")
-    private val CACHE_DIR = context.externalCacheDir
+    private val CACHE_DIR = context.externalCacheDir!!
     internal val IMAGE_CACHE_FILE = File(CACHE_DIR, "_cache_image.png")
     internal val DOWNLOAD_CACHE_DIR = File(CACHE_DIR, "Download")
+    internal val SHELL_SCRIPT_CACHE_FILE = File(CACHE_DIR, "run.sh")
     internal val DOWNLOAD_DOCUMENT_FILE: DocumentFile?
         get() = if (PreferencesMap.auto_dump_download_file)
             getDocumentFile(context, Uri.parse(PreferencesMap.user_download_path)) ?: kotlin.run {
@@ -54,22 +52,16 @@ object FileUtil {
         clearCache()
     }
 
-    private fun clearCache() = context.externalCacheDir?.deleteRecursively()
+    fun initDir(dir_file: File) {
+        if (!dir_file.exists()) dir_file.mkdirs()
+    }
 
-    fun requestPermission(activity: Activity, PERMISSIONS_REQUEST_READ_CONTACTS: Int): Boolean {
-        var havePermission = false
-        if (ContextCompat.checkSelfPermission(activity,
-                        Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                            Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                Toast.makeText(context, R.string.file_permission_request, Toast.LENGTH_LONG).show()
-            }
-            ActivityCompat.requestPermissions(activity,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    PERMISSIONS_REQUEST_READ_CONTACTS)
-        } else
-            havePermission = true
-        return havePermission
+    private fun clearCache() = CACHE_DIR.deleteRecursively()
+
+    fun requestFilePermission(activity: Activity, PERMISSIONS_REQUEST_READ_CONTACTS: Int): Boolean {
+        return MiscellaneousUtils.requestPermission(
+                activity, Manifest.permission.READ_EXTERNAL_STORAGE,
+                PERMISSIONS_REQUEST_READ_CONTACTS, R.string.file_permission_request)
     }
 
     fun getUserGroupIcon(iconFileName: String?): File? =

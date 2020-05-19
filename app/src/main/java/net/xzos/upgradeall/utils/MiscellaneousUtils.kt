@@ -1,13 +1,17 @@
 package net.xzos.upgradeall.utils
 
+import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.jaredrummler.android.shell.CommandResult
@@ -116,6 +120,20 @@ object MiscellaneousUtils {
         } catch (e: JSONException) {
             mapOf<Any, Any>()
         }
+    }
+
+    fun requestPermission(activity: Activity, permission: String, PERMISSIONS_REQUEST_CONTACTS: Int, tipResId: Int): Boolean {
+        var havePermission = false
+        if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+                showToast(activity, tipResId)
+            }
+            ActivityCompat.requestPermissions(activity,
+                    arrayOf(permission),
+                    PERMISSIONS_REQUEST_CONTACTS)
+        } else
+            havePermission = true
+        return havePermission
     }
 
     fun isBackground(): Boolean {

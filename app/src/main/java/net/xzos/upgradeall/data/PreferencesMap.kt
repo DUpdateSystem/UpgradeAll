@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.data
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.preference.PreferenceManager
 import com.arialyy.aria.core.Aria
@@ -12,6 +13,7 @@ import net.xzos.upgradeall.server.update.UpdateServiceReceiver
 import net.xzos.upgradeall.utils.FileUtil
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.MiscellaneousUtils.showToast
+import net.xzos.upgradeall.utils.install.ApkShizukuInstaller
 
 object PreferencesMap {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
@@ -28,6 +30,8 @@ object PreferencesMap {
         get() = prefs.getInt("background_sync_time", 18)
 
     // 安装首选项
+    val install_apk_api
+        get() = prefs.getString("install_apk_api", "System")
     val auto_install
         get() = prefs.getBoolean("auto_install", true)
     val auto_delete_file
@@ -45,10 +49,18 @@ object PreferencesMap {
     var auto_dump_download_file: Boolean
         get() = prefs.getBoolean(autoDumpDownloadFileKey, false)
         set(value) = prefs.edit().putBoolean(autoDumpDownloadFileKey, value).apply()
-    private val download_thread_num
-        get() = prefs.getInt("download_thread_num", 6)
+    private const val downloadThreadNumKey = "download_thread_num"
+    private var download_thread_num: Int
+        get() = prefs.getInt(downloadThreadNumKey, 6)
+        set(value) = prefs.edit().putInt(downloadThreadNumKey, value).apply()
     private val download_max_task_num
         get() = prefs.getInt("download_max_task_num", 8)
+
+    fun initByActivity(activity: Activity) {
+        if (install_apk_api == "Shizuku") {
+          ApkShizukuInstaller.requestShizukuPermission(activity, 0)
+        }
+    }
 
     // 检查设置
     // 设置 Android 平台设置
@@ -72,6 +84,8 @@ object PreferencesMap {
     private fun syncCoreConfig() {}
 
     private fun checkSetting() {
+        if (download_thread_num <= 0)
+            download_thread_num = 1
         if (FileUtil.DOWNLOAD_DOCUMENT_FILE?.canWrite() != true)
             auto_dump_download_file = false
     }
