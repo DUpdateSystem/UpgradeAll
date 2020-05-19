@@ -1,9 +1,6 @@
 package net.xzos.upgradeall.server.update
 
-import android.app.AlarmManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -56,7 +53,7 @@ object UpdateManager {
         }
     }
 
-    private fun startUpdateNotification() {
+    fun startUpdateNotification(): Pair<Int, Notification> {
         NotificationManagerCompat.from(context).apply {
             builder.setContentTitle("UpgradeAll 更新服务运行中")
                     .setContentText(null)
@@ -64,7 +61,7 @@ object UpdateManager {
                     // TODO: 实现完整的后台更新后应修改为 false，使应用常驻
                     .setOngoing(false)
         }
-        notificationNotify()
+        return notificationNotify()
     }
 
     private fun updateStatusNotification(allAppsNum: Int, finishedAppNum: Int) {
@@ -115,8 +112,10 @@ object UpdateManager {
         }
     }
 
-    private fun notificationNotify() {
-        NotificationManagerCompat.from(context).notify(updateNotificationId, builder.build())
+    private fun notificationNotify(): Pair<Int, Notification> {
+        val notification = builder.build()
+        NotificationManagerCompat.from(context).notify(updateNotificationId, notification)
+        return Pair(updateNotificationId, notification)
     }
 
     private fun cancelNotification() {
@@ -129,7 +128,7 @@ class UpdateServiceReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         GlobalScope.launch {
-            UpdateManager.renewAll()
+            UpdateService.startService(context)
         }
     }
 

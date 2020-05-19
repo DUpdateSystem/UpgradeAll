@@ -36,6 +36,9 @@ import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.EXTRA_IDENT
 import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.EXTRA_IDENTIFIER_DOWNLOAD_CONTROL
 import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.INSTALL_APK
 import net.xzos.upgradeall.utils.DownloadBroadcastReceiver.Companion.SAVE_FILE
+import net.xzos.upgradeall.utils.install.ApkInstaller
+import net.xzos.upgradeall.utils.install.autoAddApkExtension
+import net.xzos.upgradeall.utils.install.isApkFile
 import java.io.File
 
 

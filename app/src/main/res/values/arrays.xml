@@ -15,4 +15,27 @@
         </item>
     </string-array>
 
+    <string-array name="install_apk_api">
+        <item>
+            System
+        </item>
+        <item>
+            Root
+        </item>
+        <item>
+            Shizuku
+        </item>
+    </string-array>
+    <string-array name="install_apk_api_string">
+        <item>
+            系统默认安装器
+        </item>
+        <item>
+            Root
+        </item>
+        <item>
+            Shizuku
+        </item>
+    </string-array>
+
 </resources>

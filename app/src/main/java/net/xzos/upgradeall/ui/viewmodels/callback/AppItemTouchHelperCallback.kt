@@ -34,6 +34,8 @@ class AppItemTouchHelperCallback(
         if (AppTabSectionsPagerAdapter.editTabMode.value == true) {
             val fromPosition = viewHolder.adapterPosition
             val toPosition = target.adapterPosition
+            if (toPosition == mAdapter.itemCount - 1)
+                return false
             mAdapter.onItemMove(fromPosition, toPosition)
             list[fromPosition] = list[toPosition]
                     .also { list[toPosition] = list[fromPosition] }

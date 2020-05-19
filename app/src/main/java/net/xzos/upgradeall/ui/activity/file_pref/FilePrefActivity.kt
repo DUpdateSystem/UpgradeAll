@@ -38,7 +38,7 @@ abstract class FilePrefActivity : AppCompatActivity() {
     }
 
     private fun checkPermissionAndSelectFile() {
-        if (FileUtil.requestPermission(this, PERMISSIONS_REQUEST_WRITE_CONTACTS)) {
+        if (FileUtil.requestFilePermission(this, PERMISSIONS_REQUEST_WRITE_CONTACTS)) {
             selectFile()
         }
     }
