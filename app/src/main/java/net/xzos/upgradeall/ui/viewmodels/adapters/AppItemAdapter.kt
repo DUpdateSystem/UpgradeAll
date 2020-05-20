@@ -5,9 +5,6 @@ import android.app.Application
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -25,19 +22,8 @@ import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.notifyObserver
 
 open class AppItemAdapter(private val appListPageViewModel: AppListContainerViewModel,
-                          itemCardViewLiveData: LiveData<MutableList<ItemCardView>>,
-                          owner: LifecycleOwner)
+                          internal var mItemCardViewList: MutableList<ItemCardView>)
     : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
-
-    private var mItemCardViewList: MutableList<ItemCardView> = mutableListOf()
-    // TODO: 数据无法自动更新（需修复）
-
-    init {
-        itemCardViewLiveData.observe(owner, Observer { list ->
-            mItemCardViewList = list
-            notifyDataSetChanged()
-        })
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         return CardViewRecyclerViewHolder(

@@ -16,6 +16,8 @@ import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemI
 import net.xzos.upgradeall.ui.fragment.AppInfoFragment
 import net.xzos.upgradeall.ui.fragment.ApplicationsFragment
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
+import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
+import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListPageViewModel
@@ -26,15 +28,14 @@ import net.xzos.upgradeall.utils.getByHolder
 class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                          itemCardViewLiveData: LiveData<MutableList<ItemCardView>>,
                          owner: LifecycleOwner)
-    : AppItemAdapter(appListPageViewModel, itemCardViewLiveData, owner) {
-
-    private var mItemCardViewList: MutableList<ItemCardView> = mutableListOf()
+    : AppItemAdapter(appListPageViewModel, itemCardViewLiveData.value!!) {
 
     init {
-        itemCardViewLiveData.observe(owner, Observer { list ->
-            mItemCardViewList = list
-            notifyDataSetChanged()
-        })
+        if (appListPageViewModel.getTabPageIndex() == UPDATE_PAGE_INDEX)
+            itemCardViewLiveData.observe(owner, Observer { list ->
+                mItemCardViewList = list
+                notifyDataSetChanged()
+            })
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
@@ -74,7 +75,8 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                         }
                     }
                     // 从分组中删除
-                    if (appListPageViewModel.editableTab.value == true) {
+                    if (appListPageViewModel.getTabPageIndex() != ALL_APP_PAGE_INDEX
+                            && appListPageViewModel.getTabPageIndex() != UPDATE_PAGE_INDEX) {
                         menu.add(R.string.delete_from_group).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
                                 if (appListPageViewModel.removeItemFromTabPage(holder.adapterPosition))
@@ -112,10 +114,10 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
         PopupMenu(view.context, view).let { popupMenu ->
             popupMenu.menu.let { menu ->
                 val tabInfoList = appListPageViewModel.getTabIndexList()
-                for (tabPageIndex in tabInfoList.indices)
-                    menu.add(tabInfoList[tabPageIndex].name).let { menuItem: MenuItem ->
+                for ((tabIndex, tabInfo) in tabInfoList)
+                    menu.add(tabInfo.name).let { menuItem: MenuItem ->
                         menuItem.setOnMenuItemClickListener {
-                            appListPageViewModel.moveItemToOtherTabPage(holder.adapterPosition, tabPageIndex)
+                            appListPageViewModel.moveItemToOtherTabPage(holder.adapterPosition, tabIndex)
                             return@setOnMenuItemClickListener true
                         }
                     }
