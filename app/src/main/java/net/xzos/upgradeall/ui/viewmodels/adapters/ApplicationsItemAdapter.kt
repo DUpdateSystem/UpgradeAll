@@ -24,10 +24,7 @@ class ApplicationsItemAdapter(
         applicationsPageViewModel: ApplicationsPageViewModel,
         itemCardViewLiveData: LiveData<MutableList<ItemCardView>>,
         owner: LifecycleOwner
-) : AppItemAdapter(applicationsPageViewModel, itemCardViewLiveData, owner) {
-
-    private var mItemCardViewList: MutableList<ItemCardView> = mutableListOf()
-    // TODO: 数据无法自动更新（需修复）
+) : AppItemAdapter(applicationsPageViewModel, itemCardViewLiveData.value!!) {
 
     init {
         itemCardViewLiveData.observe(owner, Observer { list ->

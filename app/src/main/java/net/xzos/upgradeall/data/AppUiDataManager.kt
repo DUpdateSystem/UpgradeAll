@@ -77,7 +77,6 @@ object AppUiDataManager {
     fun addUserTab(name: String, icon: String?): Boolean {
         return uiConfig.addUserTab(name, icon).also {
             if (it) refreshAppListMap()
-
         }
     }
 
