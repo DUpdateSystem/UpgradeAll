@@ -3,7 +3,6 @@ package net.xzos.upgradeall.core.data_manager.utils
 import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.route.AppIdItem
 import net.xzos.upgradeall.core.route.AppStatus
-import java.net.*
 import java.util.*
 
 
@@ -13,7 +12,7 @@ object DataCache {
 
     private var dataExpirationTime = AppValue.data_expiration_time
 
-    fun List<AppIdItem>.cacheKey(hubUuid: String): String? {
+    private fun List<AppIdItem>.cacheKey(hubUuid: String): String? {
         if (this.isEmpty()) return null
         var key = hubUuid
         for (i in this) {
@@ -81,39 +80,4 @@ object DataCache {
             internal val appStatusDict: MutableMap<String,
                     Pair<AppStatus, Calendar>> = mutableMapOf()
     )
-}
-
-object MyCookieManager : CookieManager() {
-
-    init {
-        CookieHandler.setDefault(this)
-        this.setCookiePolicy(CookiePolicy.ACCEPT_ALL)
-    }
-
-    fun getCookies(URL: String): Map<String, String> {
-        val cookies = mutableMapOf<String, String>()
-        val httpCookieList = cookieStore.get(URI(URI(URL).host))
-        for (httpCookie in httpCookieList) {
-            cookies[httpCookie.name] = httpCookie.value
-        }
-        return cookies
-    }
-
-    fun setCookies(URL: String, cookies: Map<String, String>) {
-        val hostUrl = URI(URL).host  // 存储 host 网址
-        for (key in cookies.keys) {
-            cookieStore.add(URI(hostUrl), HttpCookie(key, cookies[key]))
-        }
-    }
-
-    fun getCookiesString(URL: String): String? {
-        val cookies = getCookies(URL)
-        return if (cookies.isNotEmpty()) {
-            var cookieString = ""
-            for (key in cookies.keys) {
-                cookieString += "$key=${cookies[key]}; "
-            }
-            cookieString.substringBeforeLast(";")
-        } else null
-    }
 }

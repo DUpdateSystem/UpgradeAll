@@ -1,12 +1,10 @@
 package net.xzos.upgradeall.core.network_api
 
-import net.xzos.upgradeall.core.data_manager.utils.DataCache
-import net.xzos.upgradeall.core.data_manager.utils.MyCookieManager
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.data_manager.utils.DataCache
 import net.xzos.upgradeall.core.log.Log
 import okhttp3.CacheControl
-import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
@@ -15,7 +13,7 @@ import java.io.IOException
 object OkHttpApi {
 
     private const val TAG = "OkHttpApi"
-    private val okHttpClient = OkHttpClient().newBuilder().cookieJar(JavaNetCookieJar(MyCookieManager)).build()
+    private val okHttpClient = OkHttpClient().newBuilder().build()
     private val cacheControl = CacheControl.Builder().noCache().build() // 关闭缓存，避免缓存无效（但是属于服务器正常返回的）数据
     var requestHeaders = hashMapOf<String, String>()
         private set
@@ -24,10 +22,10 @@ object OkHttpApi {
             objectTag: ObjectTag,
             url: String, catchError: Boolean = true
     ): String? =
-        DataCache.getHttpResponseCache(url)
-            ?: getRawHttpResponse(objectTag, url, catchError)?.also {
-                DataCache.cacheHttpResponse(url, it)
-            }
+            DataCache.getHttpResponseCache(url)
+                    ?: getRawHttpResponse(objectTag, url, catchError)?.also {
+                        DataCache.cacheHttpResponse(url, it)
+                    }
 
     private fun getRawHttpResponse(
             objectTag: ObjectTag,
@@ -41,8 +39,8 @@ object OkHttpApi {
             }.url(url)
         } catch (e: IllegalArgumentException) {
             Log.e(
-                objectTag,
-                TAG, """getHttpResponse: URL: $url 
+                    objectTag,
+                    TAG, """getHttpResponse: URL: $url 
                     $e """.trimMargin()
             )
             null
@@ -54,8 +52,8 @@ object OkHttpApi {
                 if (objectTag.sort != ObjectTag.core)
                     throw  e
                 Log.e(
-                    objectTag,
-                    TAG, """getHttpResponse: 网络错误 
+                        objectTag,
+                        TAG, """getHttpResponse: 网络错误 
                     ERROR_MESSAGE: $e""".trimIndent()
                 )
                 null
@@ -73,8 +71,8 @@ object OkHttpApi {
             } catch (e: Throwable) {
                 if (!catchError) throw e
                 Log.e(
-                    objectTag,
-                    TAG, """getHttpResponse: 网络错误（OTHER_ERROR）
+                        objectTag,
+                        TAG, """getHttpResponse: 网络错误（OTHER_ERROR）
                     ERROR_MESSAGE: $e""".trimIndent()
                 )
                 null
