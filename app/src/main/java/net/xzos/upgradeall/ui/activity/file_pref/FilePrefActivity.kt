@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data_manager.utils.wait
 import net.xzos.upgradeall.utils.FileUtil
 
@@ -67,7 +68,11 @@ abstract class FilePrefActivity : AppCompatActivity() {
         suspend fun startActivity(context: Context, cls: Class<*>) {
             withContext(Dispatchers.Default) {
                 mutex.lock()
-                context.startActivity(Intent(context, cls))
+                val intent = Intent(context, cls).also {
+                    if (context == MyApplication.context)
+                        it.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
                 mutex.wait()
             }
         }
