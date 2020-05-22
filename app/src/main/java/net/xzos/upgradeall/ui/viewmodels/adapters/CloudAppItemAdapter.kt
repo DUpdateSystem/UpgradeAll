@@ -1,21 +1,19 @@
 package net.xzos.upgradeall.ui.viewmodels.adapters
 
 import android.content.Context
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.server_manager.AppManager
-import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.utils.IconInfo
@@ -25,16 +23,12 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
 class CloudAppItemAdapter(
         private val mItemCardViewList: List<CloudConfigListItemView>,
         private val context: Context?
-) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
+) : CloudItemAdapter(mItemCardViewList) {
 
     private val cloudConfigGetter = MiscellaneousUtils.cloudConfigGetter
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
-        val holder = CardViewRecyclerViewHolder(
-                LayoutInflater.from(parent.context).inflate(R.layout.cardview_item, parent, false))
-        // 初始化页面，禁用无用按钮/信息
-        holder.versioningTextView.visibility = View.GONE
-        holder.versionCheckingBar.visibility = View.GONE
+        val holder = super.onCreateViewHolder(parent, viewType)
         // 长按菜单
         holder.itemCardView.setOnLongClickListener { v ->
             val position = holder.adapterPosition
@@ -72,26 +66,16 @@ class CloudAppItemAdapter(
     }
 
     override fun onBindViewHolder(holder: CardViewRecyclerViewHolder, position: Int) {
+        super.onBindViewHolder(holder, position)
         val itemCardView = mItemCardViewList[position]
-        // 底栏设置
-        if (itemCardView.uuid == null) {
-            holder.appPlaceholderImageView.setImageDrawable(IconPalette.appItemPlaceholder)
-            holder.appPlaceholderImageView.visibility = View.VISIBLE
-            holder.itemCardView.visibility = View.GONE
-        } else {
-            holder.appPlaceholderImageView.visibility = View.GONE
-            holder.itemCardView.visibility = View.VISIBLE
-            // 加载跟踪项信息
+        // 加载跟踪项信息
+        if (itemCardView.uuid != null) {
             holder.nameTextView.text = itemCardView.name
             holder.typeTextView.text = itemCardView.type
             holder.hubNameTextView.text = itemCardView.hubName
             checkAppConfigLocalStatus(holder, itemCardView.uuid)
             GlobalScope.launch { loadCloudAppIcon(holder.appIconImageView, itemCardView.uuid) }
         }
-    }
-
-    override fun getItemCount(): Int {
-        return mItemCardViewList.size
     }
 
     private fun loadCloudAppIcon(iconImageView: ImageView, appUuid: String?) {
@@ -121,17 +105,6 @@ class CloudAppItemAdapter(
             }
         } ?: kotlin.run {
             versionCheckButton.visibility = View.GONE
-        }
-    }
-
-    private fun setDownloadStatus(holder: CardViewRecyclerViewHolder, renew: Boolean) {
-        // TODO: 并入一个工具类
-        if (renew) {
-            holder.versionCheckButton.visibility = View.GONE
-            holder.versionCheckingBar.visibility = View.VISIBLE
-        } else {
-            holder.versionCheckButton.visibility = View.VISIBLE
-            holder.versionCheckingBar.visibility = View.GONE
         }
     }
 

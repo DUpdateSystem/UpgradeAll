@@ -1,27 +1,28 @@
 package net.xzos.upgradeall.server.update
 
-import android.app.*
-import android.content.BroadcastReceiver
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
-object UpdateManager {
+object UpdateManager : Informer() {
     private const val CHANNEL_ID = "UpdateServiceNotification"
-    private const val updateNotificationId = 0
+    private val UPDATE_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_notification_id)
+    const val FINISH_UPDATE = "FINISH_UPDATE"
 
     private val builder = NotificationCompat.Builder(context, CHANNEL_ID).apply {
         setContentTitle("UpgradeAll 更新服务运行中")
@@ -49,19 +50,19 @@ object UpdateManager {
             if (needUpdateAppNum != 0)
                 updateNotification(needUpdateAppNum)
             else
-                cancelNotification()
+                cancelNotification(UPDATE_NOTIFICATION_ID)
+            notifyChanged(FINISH_UPDATE)
         }
     }
 
-    fun startUpdateNotification(): Pair<Int, Notification> {
+    fun startUpdateNotification(notificationId: Int): Notification {
         NotificationManagerCompat.from(context).apply {
             builder.setContentTitle("UpgradeAll 更新服务运行中")
                     .setContentText(null)
                     .setProgress(0, 0, false)
-                    // TODO: 实现完整的后台更新后应修改为 false，使应用常驻
                     .setOngoing(false)
         }
-        return notificationNotify()
+        return notificationNotify(notificationId)
     }
 
     private fun updateStatusNotification(allAppsNum: Int, finishedAppNum: Int) {
@@ -70,12 +71,9 @@ object UpdateManager {
             builder.setContentTitle("检查更新中")
                     .setContentText("已完成: ${finishedAppNum}/${allAppsNum}")
                     .setProgress(100, progress, false)
-                    // 如果运行正常，此处应该不可消除（
-                    // 未知 bug，暂时允许用户消除通知
-                    // TODO: 实现完整的后台更新后应再次确认此处
                     .setOngoing(false)
         }
-        notificationNotify()
+        notificationNotify(UPDATE_NOTIFICATION_ID)
     }
 
     private fun updateNotification(needUpdateAppNum: Int) {
@@ -95,8 +93,8 @@ object UpdateManager {
                     setContentIntent(resultPendingIntent)
                 }
             }
-            notificationNotify()
-        } else cancelNotification()
+            notificationNotify(UPDATE_NOTIFICATION_ID)
+        } else cancelNotification(UPDATE_NOTIFICATION_ID)
     }
 
     private fun createNotificationChannel() {
@@ -112,43 +110,13 @@ object UpdateManager {
         }
     }
 
-    private fun notificationNotify(): Pair<Int, Notification> {
+    private fun notificationNotify(notificationId: Int): Notification {
         val notification = builder.build()
-        NotificationManagerCompat.from(context).notify(updateNotificationId, notification)
-        return Pair(updateNotificationId, notification)
+        NotificationManagerCompat.from(context).notify(notificationId, notification)
+        return notification
     }
 
-    private fun cancelNotification() {
-        NotificationManagerCompat.from(context).cancel(updateNotificationId)
-    }
-
-}
-
-class UpdateServiceReceiver : BroadcastReceiver() {
-
-    override fun onReceive(context: Context, intent: Intent) {
-        GlobalScope.launch {
-            UpdateService.startService(context)
-        }
-    }
-
-    companion object {
-        private val ACTION_SNOOZE = "${context.packageName}.UPDATE_SERVICE_BROADCAST"
-        fun setAlarms(t_h: Int) {
-            val alarmTime: Long = t_h.toLong() * 60 * 60 * 1000
-            val alarmIntent = PendingIntent.getBroadcast(context, 0,
-                    Intent(context, UpdateServiceReceiver::class.java).apply {
-                        action = ACTION_SNOOZE
-                    },
-                    PendingIntent.FLAG_UPDATE_CURRENT)
-            (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
-                    .setInexactRepeating(
-                            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                            SystemClock.elapsedRealtime() + alarmTime,
-                            alarmTime,
-                            alarmIntent
-                    )
-        }
-
+    fun cancelNotification(notificationId: Int) {
+        NotificationManagerCompat.from(context).cancel(notificationId)
     }
 }

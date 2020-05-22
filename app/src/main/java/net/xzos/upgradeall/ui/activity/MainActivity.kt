@@ -62,10 +62,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navView.setNavigationItemSelectedListener(this)
         showToast()
         UpdateService.startService(this)
-    }
-
-    override fun onResume() {
-        super.onResume()
         PreferencesMap.initByActivity(this)
     }
 

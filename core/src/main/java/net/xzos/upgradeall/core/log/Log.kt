@@ -4,6 +4,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.system_api.api.LogApi
 import org.apache.commons.text.StringEscapeUtils
@@ -33,7 +34,7 @@ object Log {
      * 假如当前LEVEL的值为常量2（DEBUG），那么你只能打印从DEBUG（2）到ERROR（5）之间的日志信息；
      * 假如你要是不想让日志信息打印出现，那么将LEVEL的值置为NOTHING即可。
      */
-    private var LEVEL = VERBOSE  // TODO: 设置中加入对该值的自定义
+    private var LEVEL = AppConfig.log_level
 
     internal val logMap = hashMapOf<ObjectTag, MutableList<LogItemData>>()
     private val mutex = Mutex()

@@ -9,22 +9,16 @@ import androidx.viewpager.widget.PagerAdapter
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.server.log.LogLiveData
 import net.xzos.upgradeall.ui.fragment.LogPlaceholderFragment
-import java.util.*
 
 
 class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, logSort: String) :
         FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-    private lateinit var mLogObjectList: List<ObjectTag>
+    private var mLogObjectList: List<ObjectTag> = listOf()
 
     init {
         val liveDataLogObjectTagList = LogLiveData.getObjectTagListBySort(logSort)
-        liveDataLogObjectTagList.observe(owner, Observer { logObjectIdList ->
-            TAB_TITLES.clear()
-            for (objectTag in logObjectIdList) {
-                val name = objectTag.name
-                TAB_TITLES.add(name)
-            }
-            mLogObjectList = logObjectIdList
+        liveDataLogObjectTagList.observe(owner, Observer { logObjectList ->
+            mLogObjectList = logObjectList
             notifyDataSetChanged()
         })
     }
@@ -35,7 +29,7 @@ class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, log
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
-        return TAB_TITLES[position]
+        return mLogObjectList[position].name
     }
 
     override fun getItemPosition(`object`: Any): Int {
@@ -43,10 +37,6 @@ class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, log
     }
 
     override fun getCount(): Int {
-        return TAB_TITLES.size
-    }
-
-    companion object {
-        private val TAB_TITLES = ArrayList<String>()
+        return mLogObjectList.size
     }
 }

@@ -24,7 +24,7 @@ class MyApplication : Application() {
 
         LitePal.initialize(applicationContext)
         Aria.init(this)
-        Aria.download(this).removeAllTask(true) // TODO: 测试防错
+        Aria.download(this).removeAllTask(true)  // TODO: 加入下载控制后移除
 
         MiscellaneousUtils.initData()
     }

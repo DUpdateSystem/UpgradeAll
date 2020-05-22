@@ -82,7 +82,6 @@ abstract class AppListContainerFragment : Fragment() {
                     renewCardView()
                 }
         })
-        // TODO: 设置升级标识
     }
 
     private fun renewCardView() {

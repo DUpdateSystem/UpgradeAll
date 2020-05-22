@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.activity
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -13,10 +12,10 @@ import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
 import kotlinx.android.synthetic.main.activity_log.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.LogDataProxy
-import net.xzos.upgradeall.R
 import net.xzos.upgradeall.server.log.LogLiveData
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.LogTabSectionsPagerAdapter
@@ -44,7 +43,6 @@ class LogActivity : AppCompatActivity() {
         return true
     }
 
-    @SuppressLint("SdCardPath")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
 

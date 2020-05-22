@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="update_server_running_notification_id">1</integer>
+    <integer name="update_notification_id">2</integer>
+</resources>

@@ -168,7 +168,7 @@ fun <T> MutableLiveData<T>.notifyObserver() {
 /**
  * 拓展 LiveData 设置值操作
  */
-fun <T> MutableLiveData<T>.setValueBackstage(value: T) {
+fun <T> MutableLiveData<T>.setValueBackground(value: T) {
     Handler(Looper.getMainLooper()).post {
         this.value = value
     }

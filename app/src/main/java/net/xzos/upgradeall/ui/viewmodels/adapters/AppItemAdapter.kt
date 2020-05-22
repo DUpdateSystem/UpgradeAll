@@ -79,7 +79,6 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
     }
 
     fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
-        // TODO: 菜单集成
         mItemCardViewList[fromPosition] = mItemCardViewList[toPosition]
                 .also { mItemCardViewList[toPosition] = mItemCardViewList[fromPosition] }
         notifyItemMoved(fromPosition, toPosition)

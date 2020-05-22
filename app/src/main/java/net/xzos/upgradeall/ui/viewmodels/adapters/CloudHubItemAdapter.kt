@@ -1,31 +1,26 @@
 package net.xzos.upgradeall.ui.viewmodels.adapters
 
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.widget.PopupMenu
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 
-class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListItemView>) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
+class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListItemView>)
+    : CloudItemAdapter(mItemCardViewList) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
-        val holder = CardViewRecyclerViewHolder(
-                LayoutInflater.from(parent.context).inflate(R.layout.cardview_item, parent, false))
-        // 初始化页面，禁用无用按钮/信息
-        holder.versioningTextView.visibility = View.GONE
-        holder.versionCheckingBar.visibility = View.GONE
+        val holder = super.onCreateViewHolder(parent, viewType)
         // 长按菜单
         holder.itemCardView.setOnLongClickListener { v ->
             val position = holder.adapterPosition
@@ -56,15 +51,9 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListIte
     }
 
     override fun onBindViewHolder(holder: CardViewRecyclerViewHolder, position: Int) {
+        super.onBindViewHolder(holder, position)
         val itemCardView = mItemCardViewList[position]
-        // 底栏设置
-        if (itemCardView.uuid == null) {
-            holder.appPlaceholderImageView.setImageDrawable(IconPalette.appItemPlaceholder)
-            holder.appPlaceholderImageView.visibility = View.VISIBLE
-            holder.itemCardView.visibility = View.GONE
-        } else {
-            holder.appPlaceholderImageView.visibility = View.GONE
-            holder.itemCardView.visibility = View.VISIBLE
+        if (itemCardView.uuid != null) {
             // 加载仓库信息
             holder.nameTextView.text = itemCardView.name
             holder.typeTextView.text = itemCardView.type
@@ -72,10 +61,6 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListIte
             checkHubConfigLocalStatus(holder, itemCardView.uuid)
             GlobalScope.launch { loadCloudHubIcon(holder.appIconImageView, itemCardView.uuid) }
         }
-    }
-
-    override fun getItemCount(): Int {
-        return mItemCardViewList.size
     }
 
     private fun loadCloudHubIcon(iconImageView: ImageView, hubUuid: String?) {
@@ -105,16 +90,5 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListIte
             }
         } else
             versionCheckButton.visibility = View.GONE
-    }
-
-    private fun setDownloadStatus(holder: CardViewRecyclerViewHolder, renew: Boolean) {
-        // TODO: 并入一个工具类
-        if (renew) {
-            holder.versionCheckButton.visibility = View.GONE
-            holder.versionCheckingBar.visibility = View.VISIBLE
-        } else {
-            holder.versionCheckButton.visibility = View.VISIBLE
-            holder.versionCheckingBar.visibility = View.GONE
-        }
     }
 }

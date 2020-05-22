@@ -6,8 +6,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.ui.viewmodels.view.holder.LogRecyclerViewHolder
 import net.xzos.upgradeall.utils.FileUtil
 import java.util.*
@@ -36,9 +34,7 @@ class LogItemAdapter(mLogList: LiveData<List<String>>, owner: LifecycleOwner) : 
                 for (i in index + 1 until stringList.size)
                     mLogMessages.add(stringList[i])
             }
-            runBlocking(Dispatchers.Main) {
-                notifyItemRangeChanged(startChangeIndex, mLogMessages.size)
-            }
+            notifyItemRangeChanged(startChangeIndex, mLogMessages.size)
         }
     }
 
