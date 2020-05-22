@@ -2,7 +2,6 @@ package net.xzos.upgradeall.core.data_manager
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
@@ -23,13 +22,8 @@ class CloudConfigGetter(private val appCloudRulesHubUrl: String?) {
         get() {
             val defaultCloudRulesHubUrl = AppValue.default_cloud_rules_hub_url
             val cloudRulesHubUrl = appCloudRulesHubUrl
-                ?: defaultCloudRulesHubUrl
+                    ?: defaultCloudRulesHubUrl
             return GitUrlTranslation(cloudRulesHubUrl)
-        }
-
-    private val hubListRawUrl: String
-        get() {
-            return cloudHubGitUrlTranslation.getGitRawUrl("rules/hub/")
         }
 
     private val rulesListJsonFileRawUrl: String
@@ -48,15 +42,15 @@ class CloudConfigGetter(private val appCloudRulesHubUrl: String?) {
 
     private fun renewCloudConfig(): CloudConfig? {
         val jsonText = OkHttpApi.getHttpResponse(
-            objectTag, rulesListJsonFileRawUrl
+                objectTag, rulesListJsonFileRawUrl
         )
         return if (jsonText != null && jsonText.isNotEmpty()) {
             try {
                 Gson().fromJson(jsonText, CloudConfig::class.java)
             } catch (e: JsonSyntaxException) {
                 Log.e(
-                    objectTag,
-                    TAG, "refreshData: ERROR_MESSAGE: $e"
+                        objectTag,
+                        TAG, "refreshData: ERROR_MESSAGE: $e"
                 )
                 null
             }
@@ -66,7 +60,7 @@ class CloudConfigGetter(private val appCloudRulesHubUrl: String?) {
     fun getAppCloudConfig(appUuid: String?): AppConfigGson? {
         getAppCloudConfigUrl(appUuid)?.let { appCloudConfigUrl ->
             val appConfigString = OkHttpApi.getHttpResponse(
-                objectTag, appCloudConfigUrl
+                    objectTag, appCloudConfigUrl
             )
             return try {
                 Gson().fromJson(appConfigString, AppConfigGson::class.java)
@@ -79,7 +73,7 @@ class CloudConfigGetter(private val appCloudRulesHubUrl: String?) {
     fun getHubCloudConfig(hubUuid: String?): HubConfig? {
         getHubCloudConfigUrl(hubUuid)?.let { hubCloudConfigUrl ->
             val hubConfigString = OkHttpApi.getHttpResponse(
-                objectTag, hubCloudConfigUrl
+                    objectTag, hubCloudConfigUrl
             )
             return try {
                 Gson().fromJson(hubConfigString, HubConfig::class.java)
@@ -118,7 +112,6 @@ class CloudConfigGetter(private val appCloudRulesHubUrl: String?) {
      */
     fun downloadCloudHubConfig(hubUuid: String?): Int {
         val cloudHubConfigGson = getHubCloudConfig(hubUuid)
-        // TODO: 配置文件地址与仓库地址分离
         return if (cloudHubConfigGson != null) {
             if (HubDatabaseManager.addDatabase(cloudHubConfigGson))
                 SUCCESS
@@ -135,22 +128,22 @@ class CloudConfigGetter(private val appCloudRulesHubUrl: String?) {
         if (appConfigGson != null) {
             // 添加数据库
             val appDatabase =
-                AppDatabaseManager.saveAppConfig(appConfigGson)
+                    AppDatabaseManager.saveAppConfig(appConfigGson)
             if (appDatabase != null) {
                 Log.i(
-                    objectTag,
-                    TAG, "数据添加成功"
+                        objectTag,
+                        TAG, "数据添加成功"
                 )
                 return appDatabase
             } else
                 Log.e(
-                    objectTag,
-                    TAG, "什么？数据库添加失败！"
+                        objectTag,
+                        TAG, "什么？数据库添加失败！"
                 )
         } else
             Log.e(
-                objectTag,
-                TAG, "获取基础配置文件失败"
+                    objectTag,
+                    TAG, "获取基础配置文件失败"
             )
         return null
     }

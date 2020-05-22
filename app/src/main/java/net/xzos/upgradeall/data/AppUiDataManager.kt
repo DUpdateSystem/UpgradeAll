@@ -13,7 +13,7 @@ import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
 import net.xzos.upgradeall.utils.mutableLiveDataOf
 import net.xzos.upgradeall.utils.notifyObserver
-import net.xzos.upgradeall.utils.setValueBackstage
+import net.xzos.upgradeall.utils.setValueBackground
 
 object AppUiDataManager {
     // 需要升级的 APP
@@ -46,7 +46,7 @@ object AppUiDataManager {
     }
 
     private fun refreshNeedUpdateAppList() {
-        needUpdateAppListLiveData.setValueBackstage(
+        needUpdateAppListLiveData.setValueBackground(
                 runBlocking {
                     UpdateManager.getNeedUpdateAppList(block = false)
                 }
@@ -54,7 +54,7 @@ object AppUiDataManager {
     }
 
     private fun refreshAllAppListMap() {
-        allAppListLiveData.setValueBackstage(AppManager.apps)
+        allAppListLiveData.setValueBackground(AppManager.apps)
     }
 
     private fun refreshAppListMap() {

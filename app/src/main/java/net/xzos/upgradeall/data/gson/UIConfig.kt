@@ -95,11 +95,16 @@ class UIConfig private constructor(
     }
 
     fun removeItemFromTabPage(position: Int, tabPageIndex: Int): Boolean {
-        val tabList = getTabList(tabPageIndex)?.itemList ?: return false
+        return popItemFromTabPage(position, tabPageIndex) != null
+    }
+
+    private fun popItemFromTabPage(position: Int, tabPageIndex: Int): CustomContainerTabListBean.ItemListBean? {
+        val tabList = getTabList(tabPageIndex)?.itemList ?: return null
         return if (position < tabList.size) {
-            tabList.removeAt(position).also { save() }
-            true
-        } else false
+            return tabList[position].also {
+                tabList.remove(it).also { save() }
+            }
+        } else null
     }
 
     fun swapUserTabOrder(fromPosition: Int, toPosition: Int): Boolean {
@@ -120,13 +125,8 @@ class UIConfig private constructor(
     }
 
     fun moveItemToOtherGroup(position: Int, fromTabPageIndex: Int, toTabPageIndex: Int): Boolean {
-        val fromTabPage =
-                getTabList(fromTabPageIndex)?.itemList ?: return false
-        val toTabPage =
-                getTabList(toTabPageIndex)?.itemList ?: return false
-        val item = fromTabPage[position]
-                .also { fromTabPage.remove(it) }
-        return toTabPage.add(item)
+        val item = popItemFromTabPage(position, fromTabPageIndex) ?: return false
+        return addItem(item, toTabPageIndex)
     }
 
     private fun getTabList(position: Int): CustomContainerTabListBean? {

@@ -49,7 +49,6 @@ class ApplicationsItemAdapter(
                 val context = view.context
                 PopupMenu(context, view).let { popupMenu ->
                     popupMenu.menu.let { menu ->
-                        // TODO: 隐藏 APP
                         // 保存
                         menu.add(R.string.save).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {

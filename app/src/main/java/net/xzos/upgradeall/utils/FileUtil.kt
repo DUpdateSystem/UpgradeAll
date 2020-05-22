@@ -41,10 +41,7 @@ object FileUtil {
     internal val SHELL_SCRIPT_CACHE_FILE = File(CACHE_DIR, "run.sh")
     internal val DOWNLOAD_DOCUMENT_FILE: DocumentFile?
         get() = if (PreferencesMap.auto_dump_download_file)
-            getDocumentFile(context, Uri.parse(PreferencesMap.user_download_path)) ?: kotlin.run {
-                PreferencesMap.auto_dump_download_file = false
-                return@run null
-            }
+            getDocumentFile(context, Uri.parse(PreferencesMap.user_download_path))
         else null
 
 

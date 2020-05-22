@@ -38,27 +38,29 @@ object PreferencesMap {
         get() = prefs.getBoolean("auto_delete_file", false)
 
     // 下载首选项
-    private const val downloadPathKey = "user_download_path"
+    private const val DOWNLOAD_PATH_KEY = "user_download_path"
     var user_download_path: String
-        get() = prefs.getString(downloadPathKey, null) ?: context.getString(R.string.null_english)
+        get() = prefs.getString(DOWNLOAD_PATH_KEY, null) ?: context.getString(R.string.null_english)
         set(value) {
-            prefs.edit().putString(downloadPathKey, value).apply()
+            prefs.edit().putString(DOWNLOAD_PATH_KEY, value).apply()
             auto_dump_download_file = true
         }
-    private const val autoDumpDownloadFileKey = "auto_dump_download_file"
+    private const val AUTO_DUMP_DOWNLOAD_FILE_KEY = "auto_dump_download_file"
     var auto_dump_download_file: Boolean
-        get() = prefs.getBoolean(autoDumpDownloadFileKey, false)
-        set(value) = prefs.edit().putBoolean(autoDumpDownloadFileKey, value).apply()
-    private const val downloadThreadNumKey = "download_thread_num"
+        get() = prefs.getBoolean(AUTO_DUMP_DOWNLOAD_FILE_KEY, false)
+        set(value) = prefs.edit().putBoolean(AUTO_DUMP_DOWNLOAD_FILE_KEY, value).apply()
+    internal const val DOWNLOAD_THREAD_NUM_KEY = "download_thread_num"
     private var download_thread_num: Int
-        get() = prefs.getInt(downloadThreadNumKey, 6)
-        set(value) = prefs.edit().putInt(downloadThreadNumKey, value).apply()
-    private val download_max_task_num
-        get() = prefs.getInt("download_max_task_num", 8)
+        get() = prefs.getInt(DOWNLOAD_THREAD_NUM_KEY, 6)
+        set(value) = prefs.edit().putInt(DOWNLOAD_THREAD_NUM_KEY, value).apply()
+    internal const val DOWNLOAD_MAX_TASK_NUM_KEY = "download_max_task_num"
+    private var download_max_task_num: Int
+        get() = prefs.getInt(DOWNLOAD_MAX_TASK_NUM_KEY, 8)
+        set(value) = prefs.edit().putInt(DOWNLOAD_MAX_TASK_NUM_KEY, value).apply()
 
     fun initByActivity(activity: Activity) {
         if (install_apk_api == "Shizuku") {
-          ApkShizukuInstaller.requestShizukuPermission(activity, 0)
+            ApkShizukuInstaller.requestShizukuPermission(activity, 0)
         }
     }
 
@@ -86,6 +88,8 @@ object PreferencesMap {
     private fun checkSetting() {
         if (download_thread_num <= 0)
             download_thread_num = 1
+        if (download_max_task_num <= 0)
+            download_max_task_num = 1
         if (FileUtil.DOWNLOAD_DOCUMENT_FILE?.canWrite() != true)
             auto_dump_download_file = false
     }
