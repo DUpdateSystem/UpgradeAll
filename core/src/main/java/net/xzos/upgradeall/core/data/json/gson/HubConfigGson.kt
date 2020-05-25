@@ -9,7 +9,7 @@ import com.google.gson.annotations.SerializedName
  * api_keywords: []
  * app_url_templates": []
  */
-class HubConfig(
+class HubConfigGson(
         @SerializedName("base_version") var baseVersion: Int = 0,
         @SerializedName("uuid") var uuid: String? = null,
         @SerializedName("info") var info: InfoBean = InfoBean(),

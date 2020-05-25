@@ -11,8 +11,8 @@ import com.google.gson.annotations.SerializedName
 data class AppConfigGson(
         @SerializedName("base_version") var baseVersion: Int? = null,
         @SerializedName("uuid") var uuid: String? = null,
-        @SerializedName("info") var info: InfoBean? = null,
-        @SerializedName("app_config") var appConfig: AppConfigBean? = null
+        @SerializedName("info") var info: InfoBean = InfoBean(),
+        @SerializedName("app_config") var appConfig: AppConfigBean = AppConfigBean()
 ) {
 
     /**
@@ -21,7 +21,7 @@ data class AppConfigGson(
      * url:
      */
     class InfoBean(
-        @SerializedName("app_name") var appName: String? = null,
+        @SerializedName("app_name") var appName: String = "null",
         @SerializedName("config_version") var configVersion: Int = 0,
         @SerializedName("url") var url: String? = null
     )
@@ -31,8 +31,8 @@ data class AppConfigGson(
      * target_checker: {"api": "", "extra_string": ""}
      */
     class AppConfigBean(
-            @SerializedName("hub_info") var hubInfo: HubInfoBean? = null,
-            @SerializedName("target_checker") var targetChecker: TargetCheckerBean? = null
+            @SerializedName("hub_info") var hubInfo: HubInfoBean = HubInfoBean(),
+            @SerializedName("target_checker") var targetChecker: TargetCheckerBean = TargetCheckerBean()
     ) {
 
         /**

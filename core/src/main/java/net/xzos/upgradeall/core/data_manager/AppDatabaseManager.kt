@@ -63,15 +63,15 @@ object AppDatabaseManager {
      * appConfig: 软件数据库的 json 数据输入
      */
     fun saveAppConfig(appConfigGson: AppConfigGson): AppDatabase? {
-        val name = appConfigGson.info?.appName ?: ""
-        val url = appConfigGson.info?.url ?: ""
+        val name = appConfigGson.info.appName
+        val url = appConfigGson.info.url ?: ""
         val uuid = appConfigGson.uuid ?: ""
-        val hubUuid = appConfigGson.appConfig?.hubInfo?.hubUuid ?: ""
+        val hubUuid = appConfigGson.appConfig.hubInfo.hubUuid ?: ""
         // 如果设置了名字与 UUID，则存入数据库
         val appDatabaseExtraData = AppDatabaseExtraData().apply {
             this.cloudAppConfig = appConfigGson
         }
-        val targetChecker = appConfigGson.appConfig?.targetChecker
+        val targetChecker = appConfigGson.appConfig.targetChecker
         // 修改数据库
         val appDatabase = (getDatabase(
                 uuid = uuid

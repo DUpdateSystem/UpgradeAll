@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.data.database
 
 import com.google.gson.Gson
-import net.xzos.upgradeall.core.data.json.gson.HubConfig
+import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
 import org.litepal.crud.LitePalSupport
 
 
@@ -11,14 +11,14 @@ internal class HubDatabase(
 ) : LitePalSupport() {
     val id: Long = 0
 
-    var hubConfig: HubConfig
+    var hubConfig: HubConfigGson
         set(value) {
             hub_config = Gson().toJson(value)
         }
         get() {
             return if (hub_config != null)
-                Gson().fromJson(hub_config, HubConfig::class.java)
-            else HubConfig()
+                Gson().fromJson(hub_config, HubConfigGson::class.java)
+            else HubConfigGson()
         }
 
     override fun save(): Boolean {

@@ -5,8 +5,8 @@ import com.google.gson.JsonSyntaxException
 import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
-import net.xzos.upgradeall.core.data.json.gson.CloudConfig
-import net.xzos.upgradeall.core.data.json.gson.HubConfig
+import net.xzos.upgradeall.core.data.json.gson.CloudConfigList
+import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.data_manager.utils.GitUrlTranslation
@@ -28,77 +28,47 @@ class CloudConfigGetter(private val appCloudRulesHubUrl: String?) {
 
     private val rulesListJsonFileRawUrl: String
         get() {
-            return cloudHubGitUrlTranslation.getGitRawUrl("rules/rules_list.json")
+            return cloudHubGitUrlTranslation.getGitRawUrl("rules/rules.json")
         }
 
-    private val cloudConfig: CloudConfig?
+    private val cloudConfig: CloudConfigList?
         get() = renewCloudConfig()
 
-    val appList: List<CloudConfig.AppListBean>?
+    val appConfigList: List<AppConfigGson>?
         get() = cloudConfig?.appList
 
-    val hubList: List<CloudConfig.HubListBean>?
+    val hubConfigList: List<HubConfigGson>?
         get() = cloudConfig?.hubList
 
-    private fun renewCloudConfig(): CloudConfig? {
+    private fun renewCloudConfig(): CloudConfigList? {
         val jsonText = OkHttpApi.getHttpResponse(
                 objectTag, rulesListJsonFileRawUrl
         )
         return if (jsonText != null && jsonText.isNotEmpty()) {
             try {
-                Gson().fromJson(jsonText, CloudConfig::class.java)
+                Gson().fromJson(jsonText, CloudConfigList::class.java)
             } catch (e: JsonSyntaxException) {
-                Log.e(
-                        objectTag,
-                        TAG, "refreshData: ERROR_MESSAGE: $e"
-                )
+                Log.e(objectTag, TAG, "refreshData: ERROR_MESSAGE: $e")
                 null
             }
         } else null
     }
 
+
     fun getAppCloudConfig(appUuid: String?): AppConfigGson? {
-        getAppCloudConfigUrl(appUuid)?.let { appCloudConfigUrl ->
-            val appConfigString = OkHttpApi.getHttpResponse(
-                    objectTag, appCloudConfigUrl
-            )
-            return try {
-                Gson().fromJson(appConfigString, AppConfigGson::class.java)
-            } catch (e: JsonSyntaxException) {
-                null
-            }
-        } ?: return null
-    }
-
-    fun getHubCloudConfig(hubUuid: String?): HubConfig? {
-        getHubCloudConfigUrl(hubUuid)?.let { hubCloudConfigUrl ->
-            val hubConfigString = OkHttpApi.getHttpResponse(
-                    objectTag, hubCloudConfigUrl
-            )
-            return try {
-                Gson().fromJson(hubConfigString, HubConfig::class.java)
-            } catch (e: JsonSyntaxException) {
-                null
-            }
-        } ?: return null
-    }
-
-    private fun getAppCloudConfigUrl(appUuid: String?): String? {
-        appList?.let {
-            for (appItem in it) {
-                if (appItem.appConfigUuid == appUuid)
-                    return cloudHubGitUrlTranslation.getGitRawUrl("rules/apps/${appItem.appConfigFileName}.json")
-            }
+        val appConfigList = this.appConfigList ?: return null
+        for (appConfigGson in appConfigList) {
+            if (appConfigGson.uuid == appUuid)
+                return appConfigGson
         }
         return null
     }
 
-    private fun getHubCloudConfigUrl(hubUuid: String?): String? {
-        hubList?.let {
-            for (hubItem in it) {
-                if (hubItem.hubConfigUuid == hubUuid)
-                    return cloudHubGitUrlTranslation.getGitRawUrl("rules/hub/${hubItem.hubConfigFileName}.json")
-            }
+    fun getHubCloudConfig(hubUuid: String?): HubConfigGson? {
+        val hubConfigList = this.hubConfigList ?: return null
+        for (hubConfigGson in hubConfigList) {
+            if (hubConfigGson.uuid == hubUuid)
+                return hubConfigGson
         }
         return null
     }

@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.viewmodels.viewmodel
 
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.utils.mutableLiveDataOf
@@ -19,7 +20,11 @@ class ApplicationsPageViewModel : AppListContainerViewModel() {
         appListLiveData.value = applications.apps
         observe = object : Observer {
             override fun onChanged(vars: Array<out Any>): Any? {
-                appListLiveData.setValueBackground(applications.apps)
+                val needUpdateAppList = runBlocking { applications.getNeedUpdateAppList(false) }
+                val appList = needUpdateAppList + applications.apps.filter {
+                    !needUpdateAppList.contains(it)
+                }
+                appListLiveData.setValueBackground(appList)
                 return null
             }
         }
