@@ -11,11 +11,12 @@ import kotlinx.coroutines.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.config.AppValue
+import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_MAGISK_MODULE
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
-import net.xzos.upgradeall.core.data.json.gson.CloudConfig
+import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
 import net.xzos.upgradeall.ui.viewmodels.adapters.CloudAppItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.adapters.CloudHubItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
@@ -65,10 +66,10 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
             val cloudConfigGetter = cloudConfigGetter
             when {
                 isAppList -> {
-                    cloudConfigGetter.appList?.map { getCloudAppItemCardView(it) }
+                    cloudConfigGetter.appConfigList?.map { getCloudAppItemCardView(it) }
                 }
                 isHubList -> {
-                    cloudConfigGetter.hubList?.map { getCloudHubItemCardView(it) }
+                    cloudConfigGetter.hubConfigList?.map { getCloudHubItemCardView(it) }
                 }
                 else -> null
             }?.plus(CloudConfigListItemView.newEmptyInstance())
@@ -93,9 +94,9 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         }
     }
 
-    private fun getCloudAppItemCardView(item: CloudConfig.AppListBean): CloudConfigListItemView {
-        val name = item.appConfigName
-        val appUuid = item.appConfigUuid
+    private fun getCloudAppItemCardView(appConfig: AppConfigGson): CloudConfigListItemView {
+        val name = appConfig.info.appName
+        val appUuid = appConfig.uuid
         val appCloudConfig = cloudConfigGetter.getAppCloudConfig(appUuid)
         val type: String
         with(MyApplication.context) {
@@ -112,9 +113,9 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         return CloudConfigListItemView(name, type, hubName, appUuid)
     }
 
-    private fun getCloudHubItemCardView(item: CloudConfig.HubListBean): CloudConfigListItemView {
-        val name = item.hubConfigName
-        val hubUuid = item.hubConfigUuid
+    private fun getCloudHubItemCardView(item: HubConfigGson): CloudConfigListItemView {
+        val name = item.info.hubName
+        val hubUuid = item.uuid
         val hubCloudConfig = cloudConfigGetter.getHubCloudConfig(hubUuid)
         val type = getString(
                 if (hubCloudConfig?.apiKeywords?.contains("android_app_package") == true)

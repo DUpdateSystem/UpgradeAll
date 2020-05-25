@@ -60,7 +60,6 @@ object UpdateManager : Informer() {
             builder.setContentTitle("UpgradeAll 更新服务运行中")
                     .setContentText(null)
                     .setProgress(0, 0, false)
-                    .setOngoing(false)
         }
         return notificationNotify(notificationId)
     }
@@ -71,7 +70,7 @@ object UpdateManager : Informer() {
             builder.setContentTitle("检查更新中")
                     .setContentText("已完成: ${finishedAppNum}/${allAppsNum}")
                     .setProgress(100, progress, false)
-                    .setOngoing(false)
+                    .setOngoing(true)
         }
         notificationNotify(UPDATE_NOTIFICATION_ID)
     }

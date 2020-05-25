@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.core.data_manager
 
 import net.xzos.upgradeall.core.data.database.HubDatabase
-import net.xzos.upgradeall.core.data.json.gson.HubConfig
+import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.system_api.api.DatabaseApi
@@ -55,9 +55,9 @@ object HubDatabaseManager {
     }
 
 
-    fun addDatabase(hubConfigGson: HubConfig): Boolean {
-        val name: String? = hubConfigGson.info.hubName
-        val uuid: String? = hubConfigGson.uuid
+    fun addDatabase(hubConfigGsonGson: HubConfigGson): Boolean {
+        val name: String? = hubConfigGsonGson.info.hubName
+        val uuid: String? = hubConfigGsonGson.uuid
 
         // 如果设置了名字与 UUID，则存入数据库
         if (name != null && uuid != null) {
@@ -65,7 +65,7 @@ object HubDatabaseManager {
             (getDatabase(uuid)
                     ?: HubDatabase.newInstance()).apply {
                 this.uuid = uuid
-                this.hubConfig = hubConfigGson
+                this.hubConfig = hubConfigGsonGson
                 // 存储 js 代码
             }.save() // 将数据存入 HubDatabase 数据库
             return true
