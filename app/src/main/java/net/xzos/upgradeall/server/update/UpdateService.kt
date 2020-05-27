@@ -7,11 +7,10 @@ import android.os.Build
 import android.os.IBinder
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.xzos.upgradeall.R
-import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.server.update.UpdateNotification.FINISH_UPDATE
+import net.xzos.upgradeall.server.update.UpdateNotification.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
 
 class UpdateService : Service() {
     private val observer: Observer
@@ -43,13 +42,11 @@ class UpdateService : Service() {
     }
 
     override fun onDestroy() {
-        UpdateNotification.cancelNotification(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
         UpdateNotification.removeObserver(observer)
         super.onDestroy()
     }
 
     companion object {
-        private val UPDATE_SERVER_RUNNING_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_server_running_notification_id)
 
         fun startService(context: Context) {
             val intent = Intent(context, UpdateService::class.java)
