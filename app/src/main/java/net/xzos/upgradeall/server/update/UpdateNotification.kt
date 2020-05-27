@@ -22,6 +22,7 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
 object UpdateNotification : Informer() {
     private const val CHANNEL_ID = "UpdateServiceNotification"
     private val UPDATE_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_notification_id)
+    val UPDATE_SERVER_RUNNING_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_server_running_notification_id)
     const val FINISH_UPDATE = "FINISH_UPDATE"
 
     private val mainActivityPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
@@ -55,7 +56,7 @@ object UpdateNotification : Informer() {
             if (needUpdateAppNum != 0)
                 updateNotification(needUpdateAppNum)
             else
-                cancelNotification(UPDATE_NOTIFICATION_ID)
+                cancelNotification()
             notifyChanged(FINISH_UPDATE)
         }
     }
@@ -77,11 +78,10 @@ object UpdateNotification : Informer() {
                     .setProgress(100, progress, false)
                     .setOngoing(true)
         }
-        notificationNotify(UPDATE_NOTIFICATION_ID)
+        notificationNotify(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
     }
 
     private fun updateNotification(needUpdateAppNum: Int) {
-
         if (!MiscellaneousUtils.isBackground()) {
             NotificationManagerCompat.from(context).apply {
                 builder.run {
@@ -93,7 +93,7 @@ object UpdateNotification : Informer() {
                 }
             }
             notificationNotify(UPDATE_NOTIFICATION_ID)
-        } else cancelNotification(UPDATE_NOTIFICATION_ID)
+        }
     }
 
     private fun createNotificationChannel() {
@@ -115,7 +115,7 @@ object UpdateNotification : Informer() {
         return notification
     }
 
-    fun cancelNotification(notificationId: Int) {
-        NotificationManagerCompat.from(context).cancel(notificationId)
+    private fun cancelNotification() {
+        NotificationManagerCompat.from(context).cancel(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
     }
 }

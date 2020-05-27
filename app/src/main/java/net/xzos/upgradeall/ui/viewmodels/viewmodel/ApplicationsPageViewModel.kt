@@ -17,18 +17,21 @@ class ApplicationsPageViewModel : AppListContainerViewModel() {
 
     internal fun setApplications(applications: Applications) {
         this.applications = applications
-        appListLiveData.value = applications.apps
+        setAppList(applications)
         observe = object : Observer {
             override fun onChanged(vars: Array<out Any>): Any? {
-                val needUpdateAppList = runBlocking { applications.getNeedUpdateAppList(false) }
-                val appList = needUpdateAppList + applications.apps.filter {
-                    !needUpdateAppList.contains(it)
-                }
-                appListLiveData.setValueBackground(appList)
-                return null
+                return setAppList(applications)
             }
         }
         applications.observeForever(observe)
+    }
+
+    private fun setAppList(applications: Applications) {
+        val needUpdateAppList = runBlocking { applications.getNeedUpdateAppList(false) }
+        val appList = needUpdateAppList + applications.apps.filter {
+            !needUpdateAppList.contains(it)
+        }
+        appListLiveData.setValueBackground(appList)
     }
 
     override fun onCleared() {

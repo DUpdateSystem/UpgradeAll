@@ -4,6 +4,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -42,6 +43,7 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
         val holder = super.onCreateViewHolder(parent, viewType)
         // 单击展开 Release 详情页
         holder.itemCardView.setOnClickListener {
+            if (holder.versionCheckingBar.isVisible) return@setOnClickListener
             val app = mItemCardViewList.getByHolder(holder).extraData.app
             if (app is App) {
                 AppInfoFragment.bundleApp = app
