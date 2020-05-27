@@ -2,11 +2,12 @@
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <EditTextPreference
-        android:defaultValue="@string/default_cloud_rules_hub_url"
-        app:key="cloud_rules_hub_url"
-        app:title="@string/cloud_rules_repo_url"
-        app:useSimpleSummaryProvider="true" />
+    <ListPreference
+        android:entries="@array/cloud_hub_api_string"
+        android:entryValues="@array/cloud_hub_api"
+        app:key="custom_cloud_rules_hub_url"
+        app:persistent="true"
+        app:title="@string/cloud_rules_repo_url" />
 
     <EditTextPreference
         android:defaultValue="@string/default_update_server_url"

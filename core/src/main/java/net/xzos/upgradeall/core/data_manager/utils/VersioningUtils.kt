@@ -11,7 +11,7 @@ object VersioningUtils {
     private const val TAG = "VersioningUtils"
     private val objectTag = ObjectTag("Core", TAG)
 
-    fun matchVersioningString(versionString: CharSequence?): String? {
+    private fun matchVersioningString(versionString: CharSequence?): String? {
         return if (versionString != null) {
             val regex = AppValue.version_number_match_regex
             regex.find(versionString)?.value

@@ -7,11 +7,10 @@ import com.arialyy.aria.core.Aria
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.data.config.AppConfig
-import net.xzos.upgradeall.core.data_manager.CloudConfigGetter
+import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.network_api.GrpcApi
 import net.xzos.upgradeall.server.update.UpdateServiceReceiver
 import net.xzos.upgradeall.utils.FileUtil
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.MiscellaneousUtils.showToast
 import net.xzos.upgradeall.utils.install.ApkShizukuInstaller
 
@@ -19,13 +18,20 @@ object PreferencesMap {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     // 更新首选项
-    private const val updateServerUrlKey = "update_server_url"
-    private const val cloudRulesHubUrlKey = "cloud_rules_hub_url"
-    val cloud_rules_hub_url: String
-        get() = prefs.getString(cloudRulesHubUrlKey, context.getString(R.string.default_cloud_rules_hub_url))!!
-    var cloud_rules_hub_url_temp: String = cloud_rules_hub_url
+    private const val UPDATE_SERVER_URL_KEY = "update_server_url"
+    const val CUSTOM_CLOUD_RULES_HUB_URL_KEY = "custom_cloud_rules_hub_url"
+    private const val CLOUD_RULES_HUB_URL_KEY = "cloud_rules_hub_url"
+    val custom_cloud_rules_hub_url: Boolean
+        get() {
+            val customCloudRulesHubUrl = prefs.getString(CUSTOM_CLOUD_RULES_HUB_URL_KEY, AppValue.default_cloud_rules_hub_url)!!
+            return customCloudRulesHubUrl != AppValue.default_cloud_rules_hub_url
+        }
+
+    var cloud_rules_hub_url: String
+        get() = prefs.getString(CLOUD_RULES_HUB_URL_KEY, AppValue.default_cloud_rules_hub_url)!!
+        set(value) = prefs.edit().putString(CLOUD_RULES_HUB_URL_KEY, value).apply()
     val update_server_url: String
-        get() = prefs.getString(updateServerUrlKey, AppConfig.update_server_url)!!
+        get() = prefs.getString(UPDATE_SERVER_URL_KEY, AppConfig.update_server_url)!!
     val background_sync_time
         get() = prefs.getInt("background_sync_time", 18)
 
@@ -83,7 +89,11 @@ object PreferencesMap {
     }
 
     // 同步 Core 模块的配置
-    private fun syncCoreConfig() {}
+    private fun syncCoreConfig() {
+        AppConfig.app_cloud_rules_hub_url = if (custom_cloud_rules_hub_url)
+            cloud_rules_hub_url
+        else null
+    }
 
     private fun checkSetting() {
         if (download_thread_num <= 0)
@@ -99,17 +109,8 @@ object PreferencesMap {
         if (GrpcApi.checkUpdateServerUrl(update_server_url)) {
             AppConfig.update_server_url = update_server_url
         } else {
-            prefs.edit().putString(updateServerUrlKey, AppConfig.update_server_url).apply()
+            prefs.edit().putString(UPDATE_SERVER_URL_KEY, AppConfig.update_server_url).apply()
             showToast(context, R.string.reset_update_server_url_configuration, duration = Toast.LENGTH_LONG)
-        }
-        val cloudConfigGetter = CloudConfigGetter(cloud_rules_hub_url)
-        if (cloudConfigGetter.available) {
-            cloud_rules_hub_url_temp = cloud_rules_hub_url
-            MiscellaneousUtils.renewCloudConfigGetter()
-        } else {
-            prefs.edit().putString(cloudRulesHubUrlKey, cloud_rules_hub_url_temp).apply()
-            showToast(context, R.string.reset_git_url_configuration, duration = Toast.LENGTH_LONG)
-            MiscellaneousUtils.renewCloudConfigGetter()
         }
     }
 }

@@ -38,4 +38,22 @@
         </item>
     </string-array>
 
+    <string-array name="cloud_hub_api_string">
+        <item>
+            跟随服务器配置
+        </item>
+        <item>
+            自定义
+        </item>
+    </string-array>
+
+    <string-array name="cloud_hub_api">
+        <item>
+            FromUpdateServer
+        </item>
+        <item>
+            Custom
+        </item>
+    </string-array>
+
 </resources>

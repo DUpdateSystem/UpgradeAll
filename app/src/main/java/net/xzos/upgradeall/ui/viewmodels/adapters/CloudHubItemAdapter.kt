@@ -9,11 +9,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.data_manager.CloudConfigGetter
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.utils.IconPalette
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 
 class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListItemView>)
@@ -34,7 +34,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListIte
                 if (item.itemId == R.id.download) {
                     setDownloadStatus(holder, true)
                     GlobalScope.launch {
-                        val addHubStatus = MiscellaneousUtils.cloudConfigGetter.downloadCloudHubConfig(itemCardView.uuid)  // 下载数据
+                        val addHubStatus = CloudConfigGetter.downloadCloudHubConfig(itemCardView.uuid)  // 下载数据
                         withContext(Dispatchers.Main) {
                             setDownloadStatus(holder, false)
                             if (addHubStatus == 3) {
@@ -65,7 +65,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListIte
 
     private fun loadCloudHubIcon(iconImageView: ImageView, hubUuid: String?) {
         if (hubUuid != null) {
-            val cloudHubConfigGson = MiscellaneousUtils.cloudConfigGetter.getHubCloudConfig(hubUuid)
+            val cloudHubConfigGson = CloudConfigGetter.getHubCloudConfig(hubUuid)
             val hubIconUrl = cloudHubConfigGson?.info?.hubIconUrl
             IconPalette.loadHubIconView(iconImageView, hubIconUrl)
         }
@@ -77,7 +77,7 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListIte
             versionCheckButton.visibility = View.VISIBLE
             setDownloadStatus(holder, true)
             GlobalScope.launch {
-                val hubConfigGson = MiscellaneousUtils.cloudConfigGetter.getHubCloudConfig(hubUuid)
+                val hubConfigGson = CloudConfigGetter.getHubCloudConfig(hubUuid)
                 HubDatabaseManager.getDatabase(uuid = hubUuid)?.hubConfig?.let {
                     val cloudHubVersion = it.info.configVersion
                     val localHubVersion = hubConfigGson?.info?.configVersion

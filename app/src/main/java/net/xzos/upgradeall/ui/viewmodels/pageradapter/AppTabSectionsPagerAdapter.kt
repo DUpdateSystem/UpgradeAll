@@ -270,105 +270,104 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
     }
 
     private fun showAddGroupAlertDialog(view: View, position: Int) {
-        with(view.context) {
-            AlertDialog.Builder(this).also {
-                var cacheImageFile: File? = null
-                var tabBasicInfo: UIConfig.BasicInfo? = null
-                val dialogView = LayoutInflater.from(this)
-                        .inflate(R.layout.view_add_group_item, tabLayout, false).apply {
-                            val tabIndex = mTabIndexList[position]
-                            if (tabIndex != ADD_TAB_BUTTON_INDEX) {
-                                it.setMessage(R.string.edit_group)
-                                tabBasicInfo =
-                                        loadGroupViewAndReturnBasicInfo(tabIndex, groupIconImageView, groupNameEditText)
-                                cacheImageFile = FileUtil.getUserGroupIcon(tabBasicInfo!!.icon)
-                                if (tabIndex >= 0) {
-                                    it.setNeutralButton(R.string.delete) { dialog, _ ->
-                                        AppUiDataManager.removeUserTab(position = tabIndex)
-                                        mTabIndexList = getAllTabIndexList()
-                                        renewAllCustomTabView()
-                                        dialog.cancel()
-                                    }
-                                    uiConfig.userTabList[tabIndex]
-                                    liftMoveImageView.setOnClickListener {
-                                        if (AppUiDataManager.swapUserTabOrder(tabIndex, tabIndex - 1)) {
-                                            swapTabPage(position, position - 1)
-                                            renewAllCustomTabView()
-                                        }
-                                    }
-                                    rightMoveImageView.setOnClickListener {
-                                        if (AppUiDataManager.swapUserTabOrder(tabIndex, tabIndex + 1)) {
-                                            swapTabPage(position, position + 1)
-                                            renewAllCustomTabView()
-                                        }
-                                    }
-                                }
-                                it.setNegativeButton(
-                                        if (tabBasicInfo!!.enable) R.string.hide
-                                        else R.string.unhide
-                                ) { dialog, _ ->
-                                    tabBasicInfo!!.enable = !tabBasicInfo!!.enable
+        val context = view.context
+        AlertDialog.Builder(context).also {
+            var cacheImageFile: File? = null
+            var tabBasicInfo: UIConfig.BasicInfo? = null
+            val dialogView = LayoutInflater.from(context)
+                    .inflate(R.layout.view_add_group_item, tabLayout, false).apply {
+                        val tabIndex = mTabIndexList[position]
+                        if (tabIndex != ADD_TAB_BUTTON_INDEX) {
+                            it.setMessage(R.string.edit_group)
+                            tabBasicInfo =
+                                    loadGroupViewAndReturnBasicInfo(tabIndex, groupIconImageView, groupNameEditText)
+                            cacheImageFile = FileUtil.getUserGroupIcon(tabBasicInfo!!.icon)
+                            if (tabIndex >= 0) {
+                                it.setNeutralButton(R.string.delete) { dialog, _ ->
+                                    AppUiDataManager.removeUserTab(position = tabIndex)
+                                    mTabIndexList = getAllTabIndexList()
+                                    renewAllCustomTabView()
                                     dialog.cancel()
                                 }
-                            } else {
-                                it.setMessage(R.string.add_new_group)
+                                uiConfig.userTabList[tabIndex]
+                                liftMoveImageView.setOnClickListener {
+                                    if (AppUiDataManager.swapUserTabOrder(tabIndex, tabIndex - 1)) {
+                                        swapTabPage(position, position - 1)
+                                        renewAllCustomTabView()
+                                    }
+                                }
+                                rightMoveImageView.setOnClickListener {
+                                    if (AppUiDataManager.swapUserTabOrder(tabIndex, tabIndex + 1)) {
+                                        swapTabPage(position, position + 1)
+                                        renewAllCustomTabView()
+                                    }
+                                }
                             }
-                            if (tabIndex < 0) {
-                                liftMoveImageView.visibility = View.GONE
-                                rightMoveImageView.visibility = View.GONE
+                            it.setNegativeButton(
+                                    if (tabBasicInfo!!.enable) R.string.hide
+                                    else R.string.unhide
+                            ) { dialog, _ ->
+                                tabBasicInfo!!.enable = !tabBasicInfo!!.enable
+                                dialog.cancel()
                             }
-                            groupCardView.setOnLongClickListener {
-                                tabBasicInfo?.icon = null
-                                val tabIconDrawableId = getTabIconDrawableId(tabIndex)
-                                IconPalette.loadHubIconView(
-                                        iconImageView = groupIconImageView,
-                                        hubIconDrawableId = tabIconDrawableId
-                                )
-                                IconPalette.loadHubIconView(
-                                        iconImageView = view.groupIconImageView,
-                                        hubIconDrawableId = tabIconDrawableId
-                                )
-                                return@setOnLongClickListener true
-                            }
-                            groupCardView.setOnClickListener {
-                                GlobalScope.launch {
-                                    if (cacheImageFile == null)
-                                        cacheImageFile = FileUtil.getNewRandomNameFile(FileUtil.GROUP_IMAGE_DIR)
-                                    if (UCropActivity.newInstance(1f, 1f, cacheImageFile!!, this@with)) {
-                                        withContext(Dispatchers.Main) {
-                                            IconPalette.loadHubIconView(
-                                                    iconImageView = groupIconImageView,
-                                                    file = cacheImageFile
-                                            )
-                                            IconPalette.loadHubIconView(
-                                                    iconImageView = view.groupIconImageView,
-                                                    file = cacheImageFile
-                                            )
-                                        }
+                        } else {
+                            it.setMessage(R.string.add_new_group)
+                        }
+                        if (tabIndex < 0) {
+                            liftMoveImageView.visibility = View.GONE
+                            rightMoveImageView.visibility = View.GONE
+                        }
+                        groupCardView.setOnLongClickListener {
+                            tabBasicInfo?.icon = null
+                            val tabIconDrawableId = getTabIconDrawableId(tabIndex)
+                            IconPalette.loadHubIconView(
+                                    iconImageView = groupIconImageView,
+                                    hubIconDrawableId = tabIconDrawableId
+                            )
+                            IconPalette.loadHubIconView(
+                                    iconImageView = view.groupIconImageView,
+                                    hubIconDrawableId = tabIconDrawableId
+                            )
+                            return@setOnLongClickListener true
+                        }
+                        groupCardView.setOnClickListener {
+                            GlobalScope.launch {
+                                if (cacheImageFile == null)
+                                    cacheImageFile = FileUtil.getNewRandomNameFile(FileUtil.GROUP_IMAGE_DIR)
+                                if (UCropActivity.newInstance(1f, 1f, cacheImageFile!!, context)) {
+                                    withContext(Dispatchers.Main) {
+                                        IconPalette.loadHubIconView(
+                                                iconImageView = groupIconImageView,
+                                                file = cacheImageFile
+                                        )
+                                        IconPalette.loadHubIconView(
+                                                iconImageView = view.groupIconImageView,
+                                                file = cacheImageFile
+                                        )
                                     }
                                 }
                             }
                         }
-                it.setView(dialogView)
-                it.setPositiveButton(R.string.ok) { dialog, _ ->
-                    val name = dialogView.groupNameEditText.text.toString()
-                    if (name.isNotEmpty()) {
-                        if (tabBasicInfo != null) {
-                            tabBasicInfo?.name = name
-                            uiConfig.save()
-                        } else {
-                            if (AppUiDataManager.addUserTab(name, cacheImageFile?.name)) {
-                                addTabPage(uiConfig.userTabList.size - 1)
-                                editTabMode.value = false
-                            }
-                        }
-                        dialog.cancel()
-                    } else {
-                        Toast.makeText(this, R.string.please_input_name, Toast.LENGTH_LONG).show()
                     }
+            it.setView(dialogView)
+            it.setPositiveButton(R.string.ok) { dialog, _ ->
+                val name = dialogView.groupNameEditText.text.toString()
+                if (name.isNotEmpty()) {
+                    if (tabBasicInfo != null) {
+                        tabBasicInfo?.name = name
+                        uiConfig.save()
+                    } else {
+                        if (AppUiDataManager.addUserTab(name, cacheImageFile?.name)) {
+                            addTabPage(uiConfig.userTabList.size - 1)
+                            editTabMode.value = false
+                        }
+                    }
+                    dialog.cancel()
+                } else {
+                    MiscellaneousUtils.showToast(context, R.string.please_input_name, duration = Toast.LENGTH_LONG)
                 }
-            }.create().show()
-        }
+            }
+        }.create().show()
     }
 
     companion object {

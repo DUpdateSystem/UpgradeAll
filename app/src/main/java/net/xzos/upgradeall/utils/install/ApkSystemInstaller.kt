@@ -60,6 +60,7 @@ fun File.autoAddApkExtension(): File {
 }
 
 fun File.getApkUri(): Uri {
+    // 修复后缀名
     val apkFile = this.autoAddApkExtension()
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         try {

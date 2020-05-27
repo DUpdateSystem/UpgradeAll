@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
@@ -28,7 +29,6 @@ import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.data_manager.CloudConfigGetter
 import net.xzos.upgradeall.data.AppUiDataManager
 import net.xzos.upgradeall.data.PreferencesMap
-import net.xzos.upgradeall.server.update.UpdateManager
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import org.json.JSONException
@@ -38,15 +38,8 @@ import java.util.*
 
 object MiscellaneousUtils {
 
-    init {
-        renewCloudConfigGetter()
-    }
-
     private var suAvailable: Boolean? = null
         get() = field ?: Shell.SU.available().also { field = it }
-
-    lateinit var cloudConfigGetter: CloudConfigGetter
-        private set
 
     fun initData() {
         initObject()
@@ -60,11 +53,6 @@ object MiscellaneousUtils {
         IoApi
         // 初始化数据观察 register
         AppUiDataManager
-        UpdateManager
-    }
-
-    fun renewCloudConfigGetter() {
-        cloudConfigGetter = CloudConfigGetter(PreferencesMap.cloud_rules_hub_url)
     }
 
     fun accessByBrowser(url: String?, context: Context?) {
@@ -143,15 +131,15 @@ object MiscellaneousUtils {
                 || appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
     }
 
-    @JvmOverloads
-    fun showToast(context: Context?, resId: Int? = null, text: CharSequence? = null, duration: Int = Toast.LENGTH_SHORT) {
-        val handler = Handler(Looper.getMainLooper())
-        handler.post {
-            when {
-                text != null -> Toast.makeText(context, text, duration)
-                resId != null -> Toast.makeText(context, resId, duration)
-                else -> null
-            }?.show()
+    fun showToast(context: Context?, @StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
+        Handler(Looper.getMainLooper()).post {
+            Toast.makeText(context, resId, duration).show()
+        }
+    }
+
+    fun showToast(context: Context?, text: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
+        Handler(Looper.getMainLooper()).post {
+            Toast.makeText(context, text, duration).show()
         }
     }
 }

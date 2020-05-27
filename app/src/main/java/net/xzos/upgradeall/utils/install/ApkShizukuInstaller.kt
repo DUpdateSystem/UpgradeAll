@@ -17,11 +17,10 @@ import java.io.File
 
 object ApkShizukuInstaller {
 
-    private const val TAG = "ShizukuShell"
+    private const val TAG = "ApkShizukuInstaller"
     private val logObjectTag = ObjectTag(ObjectTag.core, TAG)
 
     suspend fun install(file: File) {
-        // 修复后缀名
         if (!file.isApkFile()) return
         withContext(Dispatchers.Default) {
             rowInstall(file)
@@ -54,14 +53,18 @@ object ApkShizukuInstaller {
     private fun execInternal(vararg command: String): Int? {
         val process = ShizukuService.newProcess(command, null, null)
         process.waitFor()
-        val inputAsString = process.errorStream.bufferedReader().use { it.readText() }
-        println(inputAsString)
+        val errorString = process.errorStream.bufferedReader().use { it.readText() }
         val exitValue = process.exitValue()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             process.destroyForcibly()
         } else {
             process.destroy()
         }
-        return exitValue
+        return exitValue.also {
+            if(exitValue != 0)
+                Log.e(logObjectTag, TAG, """
+                    Error: $errorString
+                """.trimIndent())
+        }
     }
 }
