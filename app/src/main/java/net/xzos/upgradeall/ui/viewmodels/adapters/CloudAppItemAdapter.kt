@@ -12,20 +12,18 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.data_manager.CloudConfigGetter
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.utils.IconInfo
 import net.xzos.upgradeall.utils.IconPalette
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 class CloudAppItemAdapter(
         private val mItemCardViewList: List<CloudConfigListItemView>,
         private val context: Context?
 ) : CloudItemAdapter(mItemCardViewList) {
-
-    private val cloudConfigGetter = MiscellaneousUtils.cloudConfigGetter
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = super.onCreateViewHolder(parent, viewType)
@@ -47,7 +45,7 @@ class CloudAppItemAdapter(
                         // 下载数据
                         setDownloadStatus(holder, true)
                         GlobalScope.launch {
-                            val appDatabase = cloudConfigGetter.downloadCloudAppConfig(appUuid)  // 下载数据
+                            val appDatabase = CloudConfigGetter.downloadCloudAppConfig(appUuid)  // 下载数据
                             withContext(Dispatchers.Main) {
                                 setDownloadStatus(holder, false)
                                 if (appDatabase != null) {
@@ -80,7 +78,7 @@ class CloudAppItemAdapter(
 
     private fun loadCloudAppIcon(iconImageView: ImageView, appUuid: String?) {
         if (appUuid != null) {
-            val cloudAppConfigGson = cloudConfigGetter.getAppCloudConfig(appUuid)
+            val cloudAppConfigGson = CloudConfigGetter.getAppCloudConfig(appUuid)
             val appModule = cloudAppConfigGson?.appConfig?.targetChecker?.extraString
             IconPalette.loadAppIconView(iconImageView, iconInfo = IconInfo(app_package = appModule))
         }
@@ -92,7 +90,7 @@ class CloudAppItemAdapter(
             versionCheckButton.visibility = View.VISIBLE
             setDownloadStatus(holder, true)
             GlobalScope.launch {
-                val appConfigGson = cloudConfigGetter.getAppCloudConfig(appUuid)
+                val appConfigGson = CloudConfigGetter.getAppCloudConfig(appUuid)
                 this@run.appDatabase.extraData.let {
                     val cloudAppVersion = it?.cloudAppConfig?.info?.configVersion
                     val localAppVersion = appConfigGson?.info?.configVersion
@@ -115,7 +113,7 @@ class CloudAppItemAdapter(
                     setMessage(R.string.whether_download_dependency_hub)
                     setPositiveButton(R.string.ok) { dialog, _ ->
                         Toast.makeText(context, R.string.start_download_dependency_hub, Toast.LENGTH_LONG).show()
-                        GlobalScope.launch { cloudConfigGetter.downloadCloudHubConfig(hubUuid) }
+                        GlobalScope.launch { CloudConfigGetter.downloadCloudHubConfig(hubUuid) }
                         dialog.cancel()
                     }
                     setNegativeButton(R.string.cancel) { dialog, _ ->

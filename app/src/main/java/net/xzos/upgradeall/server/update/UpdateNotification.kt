@@ -19,10 +19,15 @@ import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
-object UpdateManager : Informer() {
+object UpdateNotification : Informer() {
     private const val CHANNEL_ID = "UpdateServiceNotification"
     private val UPDATE_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_notification_id)
     const val FINISH_UPDATE = "FINISH_UPDATE"
+
+    private val mainActivityPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
+        addNextIntentWithParentStack(Intent(context, MainActivity::class.java))
+        getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
 
     private val builder = NotificationCompat.Builder(context, CHANNEL_ID).apply {
         setContentTitle("UpgradeAll 更新服务运行中")
@@ -59,7 +64,7 @@ object UpdateManager : Informer() {
         NotificationManagerCompat.from(context).apply {
             builder.setContentTitle("UpgradeAll 更新服务运行中")
                     .setContentText(null)
-                    .setProgress(0, 0, false)
+                    .setContentIntent(mainActivityPendingIntent)
         }
         return notificationNotify(notificationId)
     }
@@ -76,11 +81,6 @@ object UpdateManager : Informer() {
     }
 
     private fun updateNotification(needUpdateAppNum: Int) {
-        val resultIntent = Intent(context, MainActivity::class.java)
-        val resultPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
-            addNextIntentWithParentStack(resultIntent)
-            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-        }
 
         if (!MiscellaneousUtils.isBackground()) {
             NotificationManagerCompat.from(context).apply {
@@ -89,7 +89,7 @@ object UpdateManager : Informer() {
                     setProgress(0, 0, false)
                     setOngoing(false)
                     setContentText("点按打开应用主页")
-                    setContentIntent(resultPendingIntent)
+                    setContentIntent(mainActivityPendingIntent)
                 }
             }
             notificationNotify(UPDATE_NOTIFICATION_ID)

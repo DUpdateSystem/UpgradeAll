@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.data.PreferencesMap
@@ -47,11 +46,9 @@ object ApkInstaller {
 class AppInstallReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val manager = context.packageManager
-        if (intent.action == Intent.ACTION_PACKAGE_REPLACED && PreferencesMap.auto_delete_file) {
-            val packageName = intent.data!!.schemeSpecificPart
-            val info = manager.getPackageInfo(packageName, 0)
-            ApkInstaller.completeInstall(info.packageName, info.versionName)
-        }
+        val packageName = intent.data!!.schemeSpecificPart
+        val info = manager.getPackageInfo(packageName, 0)
+        ApkInstaller.completeInstall(info.packageName, info.versionName)
     }
 
 
@@ -70,7 +67,7 @@ fun File.isApkFile(): Boolean {
 
 fun File.getPackageInfo(): PackageInfo? {
     return try {
-        MyApplication.context.packageManager.getPackageArchiveInfo(this.path, PackageManager.GET_ACTIVITIES)
+        context.packageManager.getPackageArchiveInfo(this.path, PackageManager.GET_ACTIVITIES)
     } catch (e: Exception) {
         null
     }

@@ -11,11 +11,10 @@ import java.io.File
 
 object ApkRootInstall {
 
-    private const val TAG = "ShizukuShell"
+    private const val TAG = "ApkRootInstall"
     private val logObjectTag = ObjectTag(ObjectTag.core, TAG)
 
     suspend fun install(file: File) {
-        // 修复后缀名
         if (!file.isApkFile()) return
         withContext(Dispatchers.Default) {
             rowInstall(file)
@@ -27,7 +26,12 @@ object ApkRootInstall {
             return
         } else try {
             val command = "cat ${file.path} | pm install -S ${file.length()}"
-            MiscellaneousUtils.runShellCommand(command, su = true)
+            MiscellaneousUtils.runShellCommand(command, su = true)?.also {
+                if (it.exitCode != 0)
+                    Log.e(logObjectTag, TAG, """
+                    Error: ${it.stderr}
+                """.trimIndent())
+            }
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, e.toString())
         }

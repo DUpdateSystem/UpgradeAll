@@ -1,11 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="log_level">1</integer>
-    <integer name="app_config_version">1</integer>
-    <integer name="hub_config_version">3</integer>
-    <integer name="default_data_expiration_time">10</integer>
-    <integer name="default_background_sync_data_time">18</integer>
-
-    <string name="default_cloud_rules_hub_url">https://cdn.jsdelivr.net/gh/DUpdateSystem/UpgradeAll-rules@master</string>
     <string name="default_update_server_url">update-server.xzos.net:5255</string>
 </resources>

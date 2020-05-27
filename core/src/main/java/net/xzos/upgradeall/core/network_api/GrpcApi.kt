@@ -16,7 +16,7 @@ object GrpcApi {
     private const val TAG = "GrpcApi"
     private val logObjectTag = ObjectTag(ObjectTag.core, TAG)
     private val invalidHubUuidList: MutableList<String> = mutableListOf()
-    private var updateServerUrl:String = AppConfig.update_server_url
+    private var updateServerUrl: String = AppConfig.update_server_url
     private var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
 
     fun checkUpdateServerUrl(url: String?): Boolean {
@@ -28,16 +28,23 @@ object GrpcApi {
         }
     }
 
-    fun setUpdateServerUrl(url: String?): Boolean {
+    internal fun setUpdateServerUrl(url: String?): Boolean {
         if (url.isNullOrBlank()) return false
-        val old = updateServerUrl
         return try {
+            mChannel = ManagedChannelBuilder.forTarget(url).usePlaintext().build()
             updateServerUrl = url
-            mChannel = ManagedChannelBuilder.forTarget(AppConfig.update_server_url).usePlaintext().build()
             true
         } catch (e: IllegalArgumentException) {
-            updateServerUrl = old
             false
+        }
+    }
+
+    suspend fun getCloudConfig(): String? {
+        val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
+        return try {
+            blockingStub.getCloudConfig(Empty.newBuilder().build()).s
+        } catch (ignore: StatusRuntimeException) {
+            null
         }
     }
 
@@ -71,7 +78,7 @@ object GrpcApi {
                 return null
             }
         } catch (e: TimeoutCancellationException) {
-            Log.w(logObjectTag, TAG, """请求超时，取消
+            Log.w(logObjectTag, TAG, """getAppStatusList: 请求超时，取消
                 hub_uuid: $hubUuid
                 app_info: $appIdList
             """.trimIndent())

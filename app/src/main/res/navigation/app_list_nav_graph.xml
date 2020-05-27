@@ -47,7 +47,7 @@
         android:id="@+id/appSettingFragment"
         android:name="net.xzos.upgradeall.ui.fragment.AppSettingFragment"
         android:label="@string/add_apps"
-        tools:layout="@layout/fragment_apps_setting" />
+        tools:layout="@layout/fragment_app_setting" />
     <fragment
         android:id="@+id/applicationsFragment"
         android:name="net.xzos.upgradeall.ui.fragment.ApplicationsFragment"

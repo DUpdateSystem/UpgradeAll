@@ -2,37 +2,33 @@ package net.xzos.upgradeall.core.data_manager
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import net.xzos.upgradeall.core.data.config.AppValue
+import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.CloudConfigList
 import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
-import net.xzos.upgradeall.core.data_manager.utils.GitUrlTranslation
 import net.xzos.upgradeall.core.log.Log
+import net.xzos.upgradeall.core.network_api.GrpcApi
 import net.xzos.upgradeall.core.network_api.OkHttpApi
 
 
-class CloudConfigGetter(private val appCloudRulesHubUrl: String?) {
+object CloudConfigGetter {
+    private const val TAG = "CloudConfigGetter"
+    private val objectTag = ObjectTag(core, TAG)
 
-    val available = cloudHubGitUrlTranslation.testUrl()
+    private const val SUCCESS = 1
+    private const val FAILED = -1
+    private const val SUCCESS_GET_DATA = 2
+    private const val FAILED_GET_DATA = -2
 
-    private val cloudHubGitUrlTranslation: GitUrlTranslation
-        get() {
-            val defaultCloudRulesHubUrl = AppValue.default_cloud_rules_hub_url
-            val cloudRulesHubUrl = appCloudRulesHubUrl
-                    ?: defaultCloudRulesHubUrl
-            return GitUrlTranslation(cloudRulesHubUrl)
-        }
+    private val appCloudRulesHubUrl: String? get() = AppConfig.app_cloud_rules_hub_url
+    private var cloudConfig: CloudConfigList? = null
 
-    private val rulesListJsonFileRawUrl: String
-        get() {
-            return cloudHubGitUrlTranslation.getGitRawUrl("rules/rules.json")
-        }
-
-    private val cloudConfig: CloudConfigList?
-        get() = renewCloudConfig()
+    suspend fun renew() {
+        cloudConfig = getCloudConfigFromWeb(appCloudRulesHubUrl)
+    }
 
     val appConfigList: List<AppConfigGson>?
         get() = cloudConfig?.appList
@@ -40,11 +36,11 @@ class CloudConfigGetter(private val appCloudRulesHubUrl: String?) {
     val hubConfigList: List<HubConfigGson>?
         get() = cloudConfig?.hubList
 
-    private fun renewCloudConfig(): CloudConfigList? {
-        val jsonText = OkHttpApi.getHttpResponse(
-                objectTag, rulesListJsonFileRawUrl
-        )
-        return if (jsonText != null && jsonText.isNotEmpty()) {
+    private suspend fun getCloudConfigFromWeb(url: String?): CloudConfigList? {
+        val jsonText = if (url != null)
+            OkHttpApi.getHttpResponse(objectTag, url)
+        else GrpcApi.getCloudConfig()
+        return if (!jsonText.isNullOrEmpty()) {
             try {
                 Gson().fromJson(jsonText, CloudConfigList::class.java)
             } catch (e: JsonSyntaxException) {
@@ -116,15 +112,5 @@ class CloudConfigGetter(private val appCloudRulesHubUrl: String?) {
                     TAG, "获取基础配置文件失败"
             )
         return null
-    }
-
-    companion object {
-        private const val TAG = "CloudConfigGetter"
-        private val objectTag = ObjectTag(core, TAG)
-
-        private const val SUCCESS = 1
-        private const val FAILED = -1
-        private const val SUCCESS_GET_DATA = 2
-        private const val FAILED_GET_DATA = -2
     }
 }
