@@ -11,6 +11,8 @@ import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.data.gson.UIConfig
+import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardViewExtraData
 import net.xzos.upgradeall.utils.mutableLiveDataOf
@@ -63,5 +65,13 @@ abstract class AppListContainerViewModel : ViewModel() {
                 hubName,
                 ItemCardViewExtraData(app = this)
         )
+    }
+
+    fun getTabIndexList(): List<Pair<Int, UIConfig.CustomContainerTabListBean>> {
+        return mutableListOf(Pair(AppTabSectionsPagerAdapter.USER_STAR_PAGE_INDEX, UIConfig.uiConfig.userStarTab)).apply {
+            for ((index, customContainerTabListBean) in UIConfig.uiConfig.userTabList.withIndex()) {
+                add(Pair(index, customContainerTabListBean))
+            }
+        }
     }
 }

@@ -9,19 +9,17 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.database.AppDatabase.Companion.APP_TYPE_TAG
-import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
-import net.xzos.upgradeall.data.gson.UIConfig
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
 import net.xzos.upgradeall.ui.fragment.AppInfoFragment
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.ApplicationsPageViewModel
+import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.getByHolder
 
 class ApplicationsItemAdapter(
-        applicationsPageViewModel: ApplicationsPageViewModel,
+        private val applicationsPageViewModel: ApplicationsPageViewModel,
         itemCardViewLiveData: LiveData<MutableList<ItemCardView>>,
         owner: LifecycleOwner
 ) : AppItemAdapter(applicationsPageViewModel, itemCardViewLiveData.value!!) {
@@ -50,20 +48,22 @@ class ApplicationsItemAdapter(
                 PopupMenu(context, view).let { popupMenu ->
                     popupMenu.menu.let { menu ->
                         // 保存
-                        menu.add(R.string.save).let { menuItem ->
+                        menu.add(R.string.save_to_database).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
                                 if (this.appDatabase.save(true))
-                                    Toast.makeText(context, R.string.save_successfully, Toast.LENGTH_SHORT).show()
+                                    MiscellaneousUtils.showToast(context, R.string.save_successfully, Toast.LENGTH_SHORT)
                                 return@setOnMenuItemClickListener true
                             }
                         }
                         // 保存到其他分组
+                        """
                         menu.add(R.string.add_to_group).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
-                                showSelectGroupPopMenu(view, this)
+                                showSelectGroupPopMenu(view, holder)
                                 return@setOnMenuItemClickListener true
                             }
                         }
+                        """
                         popupMenu.show()
                     }
                 }
@@ -73,21 +73,15 @@ class ApplicationsItemAdapter(
         return holder
     }
 
-    private fun showSelectGroupPopMenu(view: View, app: BaseApp) {
+    private fun showSelectGroupPopMenu(view: View, holder: CardViewRecyclerViewHolder) {
         PopupMenu(view.context, view).let { popupMenu ->
             popupMenu.menu.let { menu ->
-                val tabInfoList = UIConfig.uiConfig.userTabList
-                for (containerTabListBean in tabInfoList)
-                    menu.add(containerTabListBean.name).let { menuItem: MenuItem ->
+                val tabInfoList = applicationsPageViewModel.getTabIndexList()
+                for ((tabIndex, tabInfo) in tabInfoList)
+                    menu.add(tabInfo.name).let { menuItem: MenuItem ->
                         menuItem.setOnMenuItemClickListener {
-                            if (app.appDatabase.save(true))
-                                containerTabListBean.itemList.add(
-                                        UIConfig.CustomContainerTabListBean.ItemListBean(
-                                                APP_TYPE_TAG,
-                                                app.appDatabase.name,
-                                                mutableListOf(app.appDatabase.id)
-                                        )
-                                )
+                            if (applicationsPageViewModel.addItemToTabPage(holder.adapterPosition, tabIndex))
+                                MiscellaneousUtils.showToast(view.context, R.string.save_successfully, Toast.LENGTH_SHORT)
                             return@setOnMenuItemClickListener true
                         }
                     }

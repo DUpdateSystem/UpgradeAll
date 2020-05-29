@@ -26,9 +26,9 @@ import net.xzos.upgradeall.android_api.IoApi
 import net.xzos.upgradeall.android_api.Log
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.core.data_manager.CloudConfigGetter
 import net.xzos.upgradeall.data.AppUiDataManager
 import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import org.json.JSONException
@@ -44,6 +44,7 @@ object MiscellaneousUtils {
     fun initData() {
         initObject()
         PreferencesMap.sync()
+        UpdateService.startService(context)
     }
 
     private fun initObject() {
