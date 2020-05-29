@@ -5,12 +5,9 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.data.AppUiDataManager
-import net.xzos.upgradeall.data.gson.UIConfig
-import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
 import net.xzos.upgradeall.data.gson.toItemListBean
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
-import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
 import net.xzos.upgradeall.utils.mutableLiveDataOf
 
 
@@ -57,13 +54,5 @@ class AppListPageViewModel : AppListContainerViewModel() {
 
     internal fun setTabPageIndex(tabPageIndex: Int) {
         mTabPageIndex.value = tabPageIndex
-    }
-
-    fun getTabIndexList(): List<Pair<Int, UIConfig.CustomContainerTabListBean>> {
-        return mutableListOf(Pair(USER_STAR_PAGE_INDEX, uiConfig.userStarTab)).apply {
-            for ((index, customContainerTabListBean) in uiConfig.userTabList.withIndex()) {
-                add(Pair(index, customContainerTabListBean))
-            }
-        }
     }
 }

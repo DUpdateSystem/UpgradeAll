@@ -23,11 +23,15 @@ data class AppDatabase(
             return i
         }
 
-    var extraData: AppDatabaseExtraData? =  extraDataGson
+    var extraData: AppDatabaseExtraData? = extraDataGson
         get() = field ?: AppDatabaseExtraData()
                 .also { field = it }
 
     fun save(refresh: Boolean): Boolean {
+        if (id == 0L
+                && type == APPLICATIONS_TYPE_TAG
+                && AppDatabaseManager.exists(uuid = hubUuid))
+            return false
         needRefreshable = refresh  // 是否立即刷新
         return AppDatabaseManager.saveDatabase(this)
     }

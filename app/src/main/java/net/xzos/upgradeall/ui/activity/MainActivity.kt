@@ -29,7 +29,6 @@ import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.data.PreferencesMap
-import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.file_pref.UCropActivity
 import net.xzos.upgradeall.utils.FileUtil.NAV_IMAGE_FILE
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -61,7 +60,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setNavHeaderView()
         navView.setNavigationItemSelectedListener(this)
         showToast()
-        UpdateService.startService(this)
         PreferencesMap.initByActivity(this)
     }
 

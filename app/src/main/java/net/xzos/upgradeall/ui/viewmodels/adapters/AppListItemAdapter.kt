@@ -54,7 +54,8 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
             }
         }
         holder.itemCardView.setOnLongClickListener { view ->
-            if (AppTabSectionsPagerAdapter.editTabMode.value == false)
+            if (AppTabSectionsPagerAdapter.editTabMode.value == false
+                    && appListPageViewModel.getTabPageIndex() != UPDATE_PAGE_INDEX)
                 showLongClickPopMenu(view, holder)
             return@setOnLongClickListener true
         }
