@@ -2,13 +2,16 @@ package net.xzos.upgradeall.core.server_manager.module.app
 
 import net.xzos.upgradeall.core.data.config.AppType
 import net.xzos.upgradeall.core.data.database.AppDatabase
-import net.xzos.upgradeall.core.data.json.gson.AppDatabaseExtraData
+import net.xzos.upgradeall.core.data.json.gson.addIgnoreAppList
 import net.xzos.upgradeall.core.data.json.gson.getIgnoreApp
+import net.xzos.upgradeall.core.data.json.gson.removeIgnoreAppList
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.data_manager.utils.AutoTemplate
+import net.xzos.upgradeall.core.data_manager.utils.VersioningUtils.IGNORE_VERSION
 import net.xzos.upgradeall.core.route.AppIdItem
 import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.core.system_api.api.IoApi
 
 class App(override val appDatabase: AppDatabase) : BaseApp {
@@ -33,7 +36,7 @@ class App(override val appDatabase: AppDatabase) : BaseApp {
             return null
         }
 
-    private val packageName: String?
+    internal val packageName: String?
         get() {
             val appId = this.appId ?: return null
             for (appIdItem in appId) {
@@ -44,42 +47,15 @@ class App(override val appDatabase: AppDatabase) : BaseApp {
             return null
         }
 
-    var markProcessedVersionNumber: String?
+    val markProcessedVersionNumber: String?
         get() {
-            return if (appDatabase.id != 0L)
-                appDatabase.extraData?.markProcessedVersionNumber
-            else {
-                val applicationsDatabase = AppManager.getApplications(hubUuid = appDatabase.hubUuid)?.appDatabase
-                        ?: return null
-                applicationsDatabase.extraData!!.applicationsConfig!!.ignoreAppList!!.getIgnoreApp(packageName)
-                        ?.versionNumber
-            }
-        }
-        set(value) {
-            val versionNumber = if (markProcessedVersionNumber != value)
-                value
-            else null
-            if (appDatabase.id != 0L) {
-                appDatabase.extraData?.markProcessedVersionNumber = versionNumber
-                appDatabase.save(false)
-            } else {
-                val packageName = this.packageName ?: return
-                val applicationsDatabase = AppManager.getApplications(hubUuid = appDatabase.hubUuid)?.appDatabase
-                        ?: return
-                val ignoreAppList = applicationsDatabase.extraData!!.applicationsConfig!!.ignoreAppList!!
-                if (versionNumber != null) {
-                    ignoreAppList.getIgnoreApp(packageName)?.also {
-                        it.versionNumber = versionNumber
-                    } ?: AppDatabaseExtraData.ApplicationsConfig.IgnoreApp(
-                            packageName, false, versionNumber
-                    ).let {
-                        ignoreAppList.add(it)
-                    }
-                } else {
-                    ignoreAppList.remove(ignoreAppList.getIgnoreApp(packageName))
-                }
-                applicationsDatabase.save(false)
-            }
+            val parentApplicationsDatabase = this.getParentApplications()?.appDatabase
+                    ?: return appDatabase.extraData!!.markProcessedVersionNumber
+            val ignoreApp = parentApplicationsDatabase.extraData!!.getIgnoreApp(packageName)
+                    ?: return null
+            return if (ignoreApp.forever)
+                IGNORE_VERSION
+            else ignoreApp.versionNumber
         }
 
     override suspend fun getUpdateStatus(): Int {
@@ -89,4 +65,40 @@ class App(override val appDatabase: AppDatabase) : BaseApp {
     // 获取已安装版本号
     val installedVersionNumber: String?
         get() = IoApi.getAppVersionNumber(this.appDatabase.targetChecker)
+}
+
+fun App.getParentApplications(): Applications? = if (this.appDatabase.id != 0L) null
+else AppManager.getApplications(hubUuid = appDatabase.hubUuid)
+
+fun App.isIgnoreUpdate(): Boolean {
+    val parentApplicationsDatabase = this.getParentApplications()?.appDatabase
+            ?: return false
+    return parentApplicationsDatabase.extraData!!.getIgnoreApp(this@isIgnoreUpdate.packageName) != null
+}
+
+fun App.setIgnoreUpdate(versionNumber: String) {
+    this.getParentApplications()?.appDatabase?.apply {
+        extraData!!.addIgnoreAppList(packageName ?: return, false, versionNumber)
+        save(false)
+    } ?: kotlin.run {
+        appDatabase.extraData!!.markProcessedVersionNumber = versionNumber
+        appDatabase.save(false)
+    }
+}
+
+fun App.setIgnoreUpdate() {
+    this.getParentApplications()?.appDatabase?.apply {
+        extraData!!.addIgnoreAppList(packageName ?: return, true, null)
+        save(false)
+    }
+}
+
+fun App.removeIgnoreUpdate() {
+    this.getParentApplications()?.appDatabase?.apply {
+        extraData!!.removeIgnoreAppList(packageName ?: return)
+        save(false)
+    } ?: kotlin.run {
+        appDatabase.extraData!!.markProcessedVersionNumber = null
+        appDatabase.save(false)
+    }
 }

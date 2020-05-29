@@ -30,17 +30,35 @@ class AppDatabaseExtraData {
         class IgnoreApp(
                 @SerializedName("package_name") val packageName: String,
                 @SerializedName("forever") var forever: Boolean = false,
-                @SerializedName("version_number") var versionNumber: String
+                @SerializedName("version_number") var versionNumber: String? = null
         )
     }
 }
 
-fun MutableList<AppDatabaseExtraData.ApplicationsConfig.IgnoreApp>.getIgnoreApp(packageName: String?)
+fun AppDatabaseExtraData.getIgnoreApp(packageName: String?)
         : AppDatabaseExtraData.ApplicationsConfig.IgnoreApp? {
-    for (ignoreApp in this) {
+    val ignoreAppList = this.applicationsConfig!!.ignoreAppList!!
+    for (ignoreApp in ignoreAppList) {
         if (ignoreApp.packageName == packageName) {
             return ignoreApp
         }
     }
     return null
+}
+
+fun AppDatabaseExtraData.addIgnoreAppList(packageName: String, forever: Boolean = false, versionNumber: String?) {
+    if (!forever && versionNumber == null) return
+    this.getIgnoreApp(packageName)?.also {
+        it.versionNumber = versionNumber
+    } ?: AppDatabaseExtraData.ApplicationsConfig.IgnoreApp(
+            packageName, forever, versionNumber
+    ).let {
+        val ignoreAppList = this.applicationsConfig!!.ignoreAppList!!
+        ignoreAppList.add(it)
+    }
+}
+
+fun AppDatabaseExtraData.removeIgnoreAppList(packageName: String) {
+    val ignoreAppList = this.applicationsConfig!!.ignoreAppList!!
+    ignoreAppList.remove(this.getIgnoreApp(packageName))
 }
