@@ -11,6 +11,8 @@ object VersioningUtils {
     private const val TAG = "VersioningUtils"
     private val objectTag = ObjectTag("Core", TAG)
 
+    internal const val IGNORE_VERSION = "IGNORE_VERSION"
+
     private fun matchVersioningString(versionString: CharSequence?): String? {
         return if (versionString != null) {
             val regex = AppValue.version_number_match_regex
@@ -22,7 +24,12 @@ object VersioningUtils {
      * 对比 versionNumber0 与 versionNumber1
      * 若，前者比后者大，则返回 true*/
     internal fun compareVersionNumber(versionNumber0: String?, versionNumber1: String?): Boolean {
+        // 检查强制忽略版本号
+        if (versionNumber0 == IGNORE_VERSION) return true
+        if (versionNumber1 == IGNORE_VERSION) return false
+        // 检查版本号是否相同
         if (versionNumber0 == versionNumber1) return true
+        // 正常处理版本号
         val matchVersioning0 = matchVersioningString(versionNumber0)
         val matchVersioning1 = matchVersioningString(versionNumber1)
         Log.i(

@@ -3,12 +3,11 @@ package net.xzos.upgradeall.ui.fragment
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.fragment_app_info.*
@@ -19,8 +18,7 @@ import kotlinx.android.synthetic.main.list_content.*
 import kotlinx.coroutines.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.route.ReleaseInfoItem
-import net.xzos.upgradeall.core.server_manager.module.app.App
-import net.xzos.upgradeall.core.server_manager.module.app.Updater
+import net.xzos.upgradeall.core.server_manager.module.app.*
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
 import net.xzos.upgradeall.utils.IconPalette
@@ -33,7 +31,7 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
  * 由点击 更新项 [net.xzos.upgradeall.ui.viewmodels.adapters.AppListItemAdapter] 动作 触发显示
  * 使用 [net.xzos.upgradeall.ui.activity.MainActivity.setFrameLayout] 方法跳转
  */
-class AppInfoFragment : Fragment() {
+class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private lateinit var app: App
 
     private var versioningPosition: Int = 0
@@ -50,6 +48,8 @@ class AppInfoFragment : Fragment() {
                               savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.fragment_app_info, container, false).apply {
                 this.placeholderLayout.visibility = View.VISIBLE
+            }.also {
+                activity?.toolbar?.setOnMenuItemClickListener(this)
             }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -81,6 +81,11 @@ class AppInfoFragment : Fragment() {
         }
     }
 
+    override fun onPause() {
+        activity?.toolbar?.menu?.clear()
+        super.onPause()
+    }
+
     // 初始化展示的信息
     private fun initUi() {
         loadAllAppInfo()
@@ -92,8 +97,8 @@ class AppInfoFragment : Fragment() {
     private fun checkAppInfo() {
         bundleApp?.run {
             app = this
-            initUi()
         } ?: if (!::app.isLateinit) activity?.onBackPressed()
+        initUi()
     }
 
     private fun loadVersioningPopupMenu() {
@@ -220,7 +225,7 @@ class AppInfoFragment : Fragment() {
         app.appId.let {
             GlobalScope.launch {
                 val releaseInfoBean = releaseInfoList?.get(versioningPosition)
-                val latestVersionNumber = releaseInfoBean?.versionNumber
+                val versionNumber = releaseInfoBean?.versionNumber
                 val latestChangeLog = releaseInfoBean?.changeLog
                 withContext(Dispatchers.Main) {
                     if (this@AppInfoFragment.isVisible) {
@@ -229,19 +234,12 @@ class AppInfoFragment : Fragment() {
                         } else {
                             getString(R.string.cloud_version_number)
                         }
-                        cloudVersioningTextView.let {
-                            it.text = latestVersionNumber
-                            it.setOnLongClickListener(View.OnLongClickListener {
-                                markVersionNumber(latestVersionNumber)
-                                renewVersionRelatedItems()
-                                return@OnLongClickListener true
-                            })
-                            renewVersionRelatedItems()
-                        }
+                        cloudVersioningTextView.text = versionNumber
                         appChangelogTextView.text = if (latestChangeLog.isNullOrBlank())
                             getString(R.string.null_english)
                         else latestChangeLog
                     }
+                    renewVersionRelatedItems()
                 }
             }
         }
@@ -262,15 +260,26 @@ class AppInfoFragment : Fragment() {
         }
     }
 
-    private fun markVersionNumber(versionNumber: String?) {
-        app.markProcessedVersionNumber = versionNumber
-    }
-
     private fun renewVersionRelatedItems() {
-        versionMarkImageView.visibility =
-                if (app.markProcessedVersionNumber == cloudVersioningTextView.text)
-                    View.VISIBLE
-                else View.GONE
+        activity?.run {
+            toolbar?.menu?.clear()
+            if (app.getParentApplications() != null) {
+                if (app.isIgnoreUpdate())
+                    toolbar?.menu?.add(Menu.NONE, REMOVE_IGNORE_APP, Menu.NONE, R.string.remove_ignore_app)
+                else
+                    toolbar?.menu?.add(Menu.NONE, IGNORE_APP, Menu.NONE, R.string.ignore_app)
+
+            }
+            if (app.markProcessedVersionNumber == cloudVersioningTextView.text) {
+                // 当前版本被标记忽略
+                this@AppInfoFragment.versionMarkImageView.visibility = View.VISIBLE
+                toolbar?.menu?.add(Menu.NONE, REMOVE_IGNORE_VERSION, Menu.NONE, R.string.remove_ignore_version)
+            } else {
+                // 当前版本被未被标记
+                this@AppInfoFragment.versionMarkImageView.visibility = View.GONE
+                toolbar?.menu?.add(Menu.NONE, IGNORE_VERSION, Menu.NONE, R.string.ignore_version)
+            }
+        }
         loadVersioningPopupMenu()
     }
 
@@ -281,5 +290,29 @@ class AppInfoFragment : Fragment() {
                 field = null
                 return app
             }
+
+        private const val IGNORE_APP = Menu.FIRST
+        private const val REMOVE_IGNORE_APP = IGNORE_APP + 1
+        private const val IGNORE_VERSION = REMOVE_IGNORE_APP + 1
+        private const val REMOVE_IGNORE_VERSION = IGNORE_VERSION + 1
+    }
+
+    override fun onMenuItemClick(item: MenuItem): Boolean {
+        when (item.itemId) {
+            IGNORE_VERSION -> {
+                app.setIgnoreUpdate(cloudVersioningTextView.text.toString())
+            }
+            REMOVE_IGNORE_VERSION -> {
+                app.removeIgnoreUpdate()
+            }
+            IGNORE_APP -> {
+                app.setIgnoreUpdate()
+            }
+            REMOVE_IGNORE_APP -> {
+                app.removeIgnoreUpdate()
+            }
+        }
+        renewVersionRelatedItems()
+        return true
     }
 }

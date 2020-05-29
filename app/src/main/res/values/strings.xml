@@ -181,4 +181,8 @@
     <string name="miui_error">你可能遇到了一个 MIUI 导致的错误，正在尝试调用其他方法打开</string>
     <string name="please_input_custom_url">请输入自定义网址</string>
     <string name="same_as_server_config">跟随服务器配置</string>
+    <string name="ignore_app">忽略该跟踪项的更新</string>
+    <string name="remove_ignore_app">取消忽略该跟踪项的更新</string>
+    <string name="ignore_version">忽略该跟踪项的当前版本号</string>
+    <string name="remove_ignore_version">取消忽略该跟踪项的当前版本号</string>
 </resources>
