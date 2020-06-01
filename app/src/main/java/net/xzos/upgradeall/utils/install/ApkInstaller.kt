@@ -33,9 +33,14 @@ object ApkInstaller {
                 observer)
     }
 
-    fun completeInstall(packageName: String, versionName: String) {
-        val key = Pair(packageName, versionName).getMapKey()
+    fun completeInstall(packageInfo: PackageInfo) {
+        val key = Pair(packageInfo.packageName, packageInfo.versionName).getMapKey()
         ApkSystemInstaller.notifyChanged(tag = key)
+    }
+
+    fun completeInstall(packageNameFile: File) {
+        val packageInfo = packageNameFile.getPackageInfo() ?: return
+        completeInstall(packageInfo)
     }
 
     private fun Pair<String, String>.getMapKey(): String {
@@ -48,7 +53,7 @@ class AppInstallReceiver : BroadcastReceiver() {
         val manager = context.packageManager
         val packageName = intent.data!!.schemeSpecificPart
         val info = manager.getPackageInfo(packageName, 0)
-        ApkInstaller.completeInstall(info.packageName, info.versionName)
+        ApkInstaller.completeInstall(info)
     }
 
 
