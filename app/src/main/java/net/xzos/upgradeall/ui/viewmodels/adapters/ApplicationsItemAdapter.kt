@@ -55,15 +55,13 @@ class ApplicationsItemAdapter(
                                 return@setOnMenuItemClickListener true
                             }
                         }
-                        // 保存到其他分组
-                        """
+                        // 保存到分组
                         menu.add(R.string.add_to_group).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
                                 showSelectGroupPopMenu(view, holder)
                                 return@setOnMenuItemClickListener true
                             }
                         }
-                        """
                         popupMenu.show()
                     }
                 }

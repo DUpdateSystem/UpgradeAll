@@ -44,7 +44,7 @@ class AppListPageViewModel : AppListContainerViewModel() {
 
     fun moveItemToOtherTabPage(position: Int, tabPageIndex: Int): Boolean {
         return if (mTabPageIndex.value == ALL_APP_PAGE_INDEX) {
-            AppUiDataManager.addItem(appListLiveData.value!![position].toItemListBean(), tabPageIndex)
+            AppUiDataManager.addItem(appListLiveData.value!![position].appDatabase.toItemListBean(), tabPageIndex)
         } else {
             AppUiDataManager.moveItemToOtherGroup(position, mTabPageIndex.value!!, tabPageIndex).also {
                 if (it) removeItemFromTabPage(position)

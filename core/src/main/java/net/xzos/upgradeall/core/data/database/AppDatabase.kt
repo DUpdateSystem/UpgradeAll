@@ -28,10 +28,14 @@ data class AppDatabase(
                 .also { field = it }
 
     fun save(refresh: Boolean): Boolean {
+        return saveReturnId(refresh) != 0L
+    }
+
+    fun saveReturnId(refresh: Boolean): Long {
         if (id == 0L
                 && type == APPLICATIONS_TYPE_TAG
                 && AppDatabaseManager.exists(uuid = hubUuid))
-            return false
+            return 0L
         needRefreshable = refresh  // 是否立即刷新
         return AppDatabaseManager.saveDatabase(this)
     }

@@ -4,8 +4,8 @@ import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.database.AppDatabase.Companion.APP_TYPE_TAG
-import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
 import net.xzos.upgradeall.utils.FileUtil
 
@@ -121,7 +121,9 @@ class UIConfig private constructor(
         val list = if (tabPageIndex == USER_STAR_PAGE_INDEX) {
             uiConfig.userStarTab
         } else uiConfig.userTabList[tabPageIndex]
-        return list.itemList.add(itemListBean)
+        return list.itemList.add(itemListBean).also {
+            if (it) save()
+        }
     }
 
     fun moveItemToOtherGroup(position: Int, fromTabPageIndex: Int, toTabPageIndex: Int): Boolean {
@@ -158,8 +160,8 @@ class UIConfig private constructor(
     }
 }
 
-fun BaseApp.toItemListBean(): UIConfig.CustomContainerTabListBean.ItemListBean {
+fun AppDatabase.toItemListBean(): UIConfig.CustomContainerTabListBean.ItemListBean {
     return UIConfig.CustomContainerTabListBean.ItemListBean(
-            APP_TYPE_TAG, this.appDatabase.name, mutableListOf(this.appDatabase.id)
+            APP_TYPE_TAG, this.name, mutableListOf(this.id)
     )
 }

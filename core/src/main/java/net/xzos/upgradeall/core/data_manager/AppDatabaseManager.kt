@@ -51,7 +51,7 @@ object AppDatabaseManager {
         return getDatabase(databaseId = databaseId, uuid = uuid) != null
     }
 
-    internal fun saveDatabase(appDatabase: AppDatabase): Boolean {
+    internal fun saveDatabase(appDatabase: AppDatabase): Long {
         return DatabaseApi.saveAppDatabase(appDatabase)
     }
 

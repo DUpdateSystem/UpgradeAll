@@ -20,14 +20,16 @@ object DatabaseApi : Informer {
     internal val hubDatabases: List<HubDatabase>
         get() = databaseApiInterface?.getHubDatabaseList() ?: listOf()
 
-    internal fun saveAppDatabase(appDatabase: AppDatabase): Boolean =
-            databaseApiInterface?.saveAppDatabase(appDatabase)?.also { new ->
-                if (appDatabase.needRefreshable) {
-                    notify(new.apply {
-                        needRefreshable = true
-                    })
-                }
-            } != null
+    internal fun saveAppDatabase(appDatabase: AppDatabase): Long {
+        val database = databaseApiInterface?.saveAppDatabase(appDatabase)?.also { new ->
+            if (appDatabase.needRefreshable) {
+                notify(new.apply {
+                    needRefreshable = true
+                })
+            }
+        }
+        return database?.id ?: 0L
+    }
 
     internal fun deleteAppDatabase(appDatabase: AppDatabase): Boolean =
             databaseApiInterface?.deleteAppDatabase(appDatabase)?.also {
