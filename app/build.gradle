@@ -25,7 +25,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 42
-        versionName "0.1.2-alpha.11.pre"
+        versionName "0.1.2-alpha.11"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -56,8 +56,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     testImplementation 'junit:junit:4.13'
-    androidTestImplementation 'androidx.test:runner:1.3.0-beta02'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0-beta02'
+    androidTestImplementation 'androidx.test:runner:1.3.0-rc01'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0-rc01'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
 
     implementation 'androidx.fragment:fragment-ktx:1.2.4'
@@ -88,8 +88,8 @@ dependencies {
     configurations.compile.exclude group: 'com.google.protobuf', module: 'protobuf-lite'
 
     // Aria
-    implementation 'com.arialyy.aria:aria-core:3.6.6'
-    kapt 'com.arialyy.aria:aria-compiler:3.6.6'
+    implementation 'com.arialyy.aria:core:3.8.7'
+    kapt 'com.arialyy.aria:compiler:3.8.7'
 
     // Shizuku
     implementation 'moe.shizuku.privilege:api:3.1.0'
@@ -105,7 +105,7 @@ dependencies {
 
     // 界面设计
     // Google MD 库
-    implementation 'com.google.android.material:material:1.2.0-alpha06'
+    implementation 'com.google.android.material:material:1.2.0-beta01'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.github.kobakei:MaterialFabSpeedDial:master-SNAPSHOT'
     // svg 单个 path 颜色切换

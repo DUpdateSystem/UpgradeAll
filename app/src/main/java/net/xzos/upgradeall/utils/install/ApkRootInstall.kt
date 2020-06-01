@@ -19,6 +19,7 @@ object ApkRootInstall {
         withContext(Dispatchers.Default) {
             rowInstall(file)
         }
+        ApkInstaller.completeInstall(file)
     }
 
     private fun rowInstall(file: File) {
@@ -27,9 +28,9 @@ object ApkRootInstall {
         } else try {
             val command = "cat ${file.path} | pm install -S ${file.length()}"
             MiscellaneousUtils.runShellCommand(command, su = true)?.also {
-                if (it.exitCode != 0)
+                if (!it.isSuccessful)
                     Log.e(logObjectTag, TAG, """
-                    Error: ${it.stderr}
+                    Error: out: ${it.stdout}, err: ${it.stderr}
                 """.trimIndent())
             }
         } catch (e: Throwable) {

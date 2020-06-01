@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <androidx.preference.SeekBarPreference
-        android:defaultValue="6"
+        android:defaultValue="8"
         android:key="download_thread_num"
         android:max="64"
         android:title="@string/download_thread_num"
@@ -14,7 +14,7 @@
     <androidx.preference.SeekBarPreference
         android:defaultValue="8"
         android:key="download_max_task_num"
-        android:max="16"
+        android:max="32"
         android:summary="@string/download_max_task_num_desc"
         android:title="@string/download_thread_num"
         app:showSeekBarValue="true" />

@@ -25,6 +25,7 @@ object ApkShizukuInstaller {
         withContext(Dispatchers.Default) {
             rowInstall(file)
         }
+        ApkInstaller.completeInstall(file)
     }
 
     private fun rowInstall(file: File) {
