@@ -19,7 +19,7 @@ import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
-object UpdateNotification : Informer() {
+object UpdateNotification : Informer {
     private const val CHANNEL_ID = "UpdateServiceNotification"
     private val UPDATE_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_notification_id)
     val UPDATE_SERVER_RUNNING_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_server_running_notification_id)
@@ -47,8 +47,8 @@ object UpdateNotification : Informer() {
     }
 
     private fun getNotify() {
-        val allAppsNum = UpdateManager.apps.size
-        val finishedAppNum = UpdateManager.finishedAppNum.toInt()
+        val allAppsNum = UpdateManager.getAppNum()
+        val finishedAppNum = UpdateManager.finishedUpdateAppNum.toInt()
         if (finishedAppNum != allAppsNum) {
             updateStatusNotification(allAppsNum, finishedAppNum)
         } else {

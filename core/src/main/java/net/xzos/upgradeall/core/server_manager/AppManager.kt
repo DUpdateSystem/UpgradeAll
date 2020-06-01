@@ -8,7 +8,7 @@ import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 
 
-object AppManager : Informer() {
+object AppManager : Informer {
 
     private val singleAppList = mutableListOf<App>() // 存储所有 APP 实体
     private val applicationsList = mutableListOf<Applications>()

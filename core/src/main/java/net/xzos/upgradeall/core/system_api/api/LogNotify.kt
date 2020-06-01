@@ -10,7 +10,7 @@ const val LOG_CHANGED_TAG = "LOG_CHANGED"
 /**
  * 自定义的日志打印工具类
  */
-object LogApi : Informer() {
+object LogApi : Informer {
 
     internal fun printLog(logItemData: LogItemData) {
         notifyChanged(PRINT_LOG_TAG, logItemData)

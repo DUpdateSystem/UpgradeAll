@@ -251,7 +251,7 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             else {
                 if (app.markProcessedVersionNumber != null)
                     R.string.marked_version_number_is_behind_latest
-                else R.string.long_click_version_number_to_mark_as_processed
+                else R.string.mark_version_number
             }?.let {
                 withContext(Dispatchers.Main) {
                     context?.run { Toast.makeText(this, it, Toast.LENGTH_LONG).show() }
