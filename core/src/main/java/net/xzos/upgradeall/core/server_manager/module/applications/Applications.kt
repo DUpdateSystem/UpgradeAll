@@ -8,11 +8,13 @@ import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.server_manager.UpdateControl
+import net.xzos.upgradeall.core.server_manager.UpdateManager
+import net.xzos.upgradeall.core.server_manager.module.AppHub
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
 
-class Applications(override val appDatabase: AppDatabase) : BaseApp, Informer() {
+class Applications(override val appDatabase: AppDatabase) : BaseApp, AppHub, Informer {
 
     val name = appDatabase.name
     private val applicationsUtils = ApplicationsUtils(appDatabase)
@@ -20,6 +22,7 @@ class Applications(override val appDatabase: AppDatabase) : BaseApp, Informer() 
     val apps: MutableList<App> = applicationsUtils.apps
     private val excludeApps: MutableList<App> = applicationsUtils.excludeApps
     private val updateControl = UpdateControl(apps)
+    private val updateStatus: Int get() = updateControl.getUpdateStatus()
     private var initData = false
 
     // 数据刷新锁
@@ -31,12 +34,7 @@ class Applications(override val appDatabase: AppDatabase) : BaseApp, Informer() 
         excludeInvalidApps(appMap[Updater.INVALID_APP]?.filterIsInstance<App>())
         includeValidApps(appMap[Updater.APP_OUTDATED]?.filterIsInstance<App>())
         includeValidApps(appMap[Updater.APP_LATEST]?.filterIsInstance<App>())
-        if (!initData) {
-            initData = true
-            GlobalScope.launch(Dispatchers.IO) {
-                refreshAppList(UpdateControl(excludeApps))
-            }
-        }
+        updateControl.apps = apps
         return updateControl.also {
             notifyChanged()
         }
@@ -48,13 +46,13 @@ class Applications(override val appDatabase: AppDatabase) : BaseApp, Informer() 
 
     override suspend fun getUpdateStatus(): Int {
         refreshAppList(updateControl)
-        return when {
-            getNeedUpdateAppList(block = false).isNotEmpty() ->
-                Updater.APP_OUTDATED
-            updateControl.appMap[Updater.NETWORK_ERROR]?.size == apps.size ->
-                Updater.NETWORK_ERROR
-            else -> Updater.APP_LATEST
+        if (!initData) {
+            initData = true
+            GlobalScope.launch(Dispatchers.IO) {
+                refreshAppList(UpdateControl(excludeApps))
+            }
         }
+        return updateStatus
     }
 
     private suspend fun includeValidApps(appList: List<App>?) {
@@ -89,5 +87,14 @@ class Applications(override val appDatabase: AppDatabase) : BaseApp, Informer() 
             }
         }
         appDatabase.save(false)
+    }
+
+    override suspend fun getAppUpdateStatus(baseApp: BaseApp): Int {
+        return updateControl.refreshAppUpdate(baseApp).also {
+            if (it.second) {
+                UpdateManager.refreshAppUpdate(this)
+                UpdateManager.notifyChanged()
+            }
+        }.first
     }
 }

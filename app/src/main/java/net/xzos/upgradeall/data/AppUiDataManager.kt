@@ -47,9 +47,7 @@ object AppUiDataManager {
 
     private fun refreshNeedUpdateAppList() {
         needUpdateAppListLiveData.setValueBackground(
-                runBlocking {
-                    UpdateManager.getNeedUpdateAppList(block = false)
-                }
+                runBlocking { UpdateManager.getNeedUpdateAppList(block = false) }
         )
     }
 

@@ -2,10 +2,10 @@ package net.xzos.upgradeall.core.oberver
 
 private const val DEFAULT_TAG = "NULL"
 
-abstract class Informer {
-    private val observerMap: MutableMap<String, MutableList<Observer>> = mutableMapOf()
+interface Informer {
 
     fun notifyChanged(vararg vars: Any) {
+        val observerMap = observerMap.getObserverMap(this)
         for (observerEntry in observerMap) {
             for (observer in observerEntry.value) {
                 observer.onChanged(*vars)
@@ -14,6 +14,7 @@ abstract class Informer {
     }
 
     fun notifyChanged(tag: String, vararg vars: Any) {
+        val observerMap = observerMap.getObserverMap(this)
         for (observer in observerMap[tag] ?: return) {
             observer.onChanged(*vars)
         }
@@ -24,18 +25,39 @@ abstract class Informer {
     }
 
     fun observeForever(tag: String, observer: Observer) {
-        (observerMap[tag] ?: mutableListOf<Observer>().apply {
+        val observerMap = observerMap.getObserverMap(this)
+        val observerList = observerMap[tag] ?: mutableListOf<Observer>().apply {
             observerMap[tag] = this
-        }).add(observer)
+        }
+        if (!observerList.contains(observer))
+            observerList.add(observer)
     }
 
     fun removeObserver(observer: Observer) {
+        val observerMap = observerMap.getObserverMap(this)
         for (observerEntry in observerMap) {
             if (observerEntry.value.contains(observer)) observerEntry.value.remove(observer)
         }
     }
 
     fun removeObserver(tag: String) {
+        val observerMap = observerMap.getObserverMap(this)
         observerMap.remove(tag)
+    }
+
+    fun finalize() {
+        observerMap.remove(this)
+    }
+
+    companion object {
+        private val observerMap: MutableMap<Informer, MutableMap<String, MutableList<Observer>>> = mutableMapOf()
+
+        private fun MutableMap<Informer, MutableMap<String, MutableList<Observer>>>.getObserverMap(informer: Informer)
+                : MutableMap<String, MutableList<Observer>> {
+            return this[informer]
+                    ?: mutableMapOf<String, MutableList<Observer>>().also {
+                        observerMap[informer] = it
+                    }
+        }
     }
 }

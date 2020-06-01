@@ -6,7 +6,7 @@ import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.system_api.interfaces.DatabaseApi
 
 
-object DatabaseApi : Informer() {
+object DatabaseApi : Informer {
 
     private var databaseApiInterface: DatabaseApi? = null
 

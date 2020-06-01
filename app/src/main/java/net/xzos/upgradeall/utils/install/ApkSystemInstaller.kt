@@ -15,7 +15,7 @@ import net.xzos.upgradeall.core.oberver.Informer
 import java.io.File
 
 
-object ApkSystemInstaller : Informer() {
+object ApkSystemInstaller : Informer {
 
     private val context: Context = MyApplication.context
 
