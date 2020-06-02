@@ -26,21 +26,22 @@ object ApkInstaller {
         }
     }
 
-    fun observeForever(apkFile: File, observer: Observer) {
+    fun observeInstall(apkFile: File, observer: Observer) {
         val packageInfo = apkFile.getPackageInfo() ?: return
         ApkSystemInstaller.observeForever(
                 Pair(packageInfo.packageName, packageInfo.versionName).getMapKey(),
                 observer)
     }
 
-    fun completeInstall(packageInfo: PackageInfo) {
-        val key = Pair(packageInfo.packageName, packageInfo.versionName).getMapKey()
-        ApkSystemInstaller.notifyChanged(tag = key)
-    }
-
     fun completeInstall(packageNameFile: File) {
         val packageInfo = packageNameFile.getPackageInfo() ?: return
         completeInstall(packageInfo)
+    }
+
+    fun completeInstall(packageInfo: PackageInfo) {
+        val key = Pair(packageInfo.packageName, packageInfo.versionName).getMapKey()
+        ApkSystemInstaller.notifyChanged(key)
+        ApkSystemInstaller.removeObserver(key)
     }
 
     private fun Pair<String, String>.getMapKey(): String {

@@ -21,7 +21,6 @@ object ApkShizukuInstaller {
     private val logObjectTag = ObjectTag(ObjectTag.core, TAG)
 
     suspend fun install(file: File) {
-        if (!file.isApkFile()) return
         withContext(Dispatchers.Default) {
             rowInstall(file)
         }

@@ -10,7 +10,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.application.MyApplication
 
-class UpdateServiceReceiver : BroadcastReceiver() {
+class UpdateServiceBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         GlobalScope.launch {
@@ -24,7 +24,7 @@ class UpdateServiceReceiver : BroadcastReceiver() {
             val alarmTime: Long = t_h.toLong() * 60 * 60 * 1000
             val alarmIntent = PendingIntent.getBroadcast(
                     MyApplication.context, 0,
-                    Intent(MyApplication.context, UpdateServiceReceiver::class.java).apply { action = ACTION_SNOOZE },
+                    Intent(MyApplication.context, UpdateServiceBroadcastReceiver::class.java).apply { action = ACTION_SNOOZE },
                     PendingIntent.FLAG_UPDATE_CURRENT
             )
             val alarmManager = (MyApplication.context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
