@@ -2,7 +2,6 @@ package net.xzos.upgradeall.utils.install
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import moe.shizuku.api.ShizukuService
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -22,9 +21,7 @@ object ApkRootInstall {
     }
 
     private fun rowInstall(file: File) {
-        if (!ShizukuService.pingBinder()) {
-            return
-        } else try {
+        try {
             val command = "cat ${file.path} | pm install -S ${file.length()}"
             MiscellaneousUtils.runShellCommand(command, su = true)?.also {
                 if (!it.isSuccessful)
