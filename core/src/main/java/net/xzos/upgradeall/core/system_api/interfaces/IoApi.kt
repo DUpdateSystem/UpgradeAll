@@ -9,9 +9,8 @@ interface IoApi {
 
     // 注释相应平台的下载软件
     fun downloadFile(
-        isDebug: Boolean,
-        fileName: String, url: String, headers: Map<String, String> = mapOf(),
-        externalDownloader: Boolean
+            fileName: String, url: String, headers: Map<String, String> = mapOf(),
+            externalDownloader: Boolean
     )
 
     // 查询软件信息

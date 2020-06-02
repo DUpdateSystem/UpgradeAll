@@ -5,12 +5,11 @@ private const val DEFAULT_TAG = "NULL"
 interface Informer {
 
     fun notifyChanged(vararg vars: Any) {
-        val observerMap = observerMap.getObserverMap(this)
-        for (observerEntry in observerMap) {
-            for (observer in observerEntry.value) {
-                observer.onChanged(*vars)
-            }
-        }
+        notifyChanged(DEFAULT_TAG, *vars)
+    }
+
+    fun notifyChanged(tag: String, varObj: Any) {
+        notifyChanged(tag, vars = *arrayOf(varObj))
     }
 
     fun notifyChanged(tag: String, vararg vars: Any) {
@@ -35,8 +34,18 @@ interface Informer {
 
     fun removeObserver(observer: Observer) {
         val observerMap = observerMap.getObserverMap(this)
+        val observerKeyList = mutableListOf<String>()
         for (observerEntry in observerMap) {
-            if (observerEntry.value.contains(observer)) observerEntry.value.remove(observer)
+            val observerKey = observerEntry.key
+            val observerList = observerEntry.value
+            if (observerList.contains(observer)) {
+                observerList.remove(observer)
+                if (observerList.isEmpty())
+                    observerKeyList.add(observerKey)
+            }
+        }
+        for (key in observerKeyList) {
+            observerMap.remove(key)
         }
     }
 

@@ -44,7 +44,7 @@
     <string name="download">下载</string>
     <string name="install">安装</string>
     <string name="auto_install_downloaded">下载后自动安装</string>
-    <string name="auto_installing">正在自动安装</string>
+    <string name="installing">正在安装</string>
     <string name="install_apk_api">APK 文件安装方式</string>
     <string name="user_download_path">用户下载位置</string>
     <string name="download_thread_num">下载线程数</string>

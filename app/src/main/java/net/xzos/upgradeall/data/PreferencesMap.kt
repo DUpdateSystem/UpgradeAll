@@ -9,7 +9,7 @@ import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.network_api.GrpcApi
-import net.xzos.upgradeall.server.update.UpdateServiceReceiver
+import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.utils.FileUtil
 import net.xzos.upgradeall.utils.MiscellaneousUtils.showToast
 import net.xzos.upgradeall.utils.install.ApkShizukuInstaller
@@ -81,7 +81,7 @@ object PreferencesMap {
     }
 
     private fun syncAndroidConfig() {
-        UpdateServiceReceiver.setAlarms(background_sync_time)
+        UpdateServiceBroadcastReceiver.setAlarms(background_sync_time)
         Aria.get(context).downloadConfig.let {
             it.maxTaskNum = download_max_task_num
             it.threadNum = download_thread_num

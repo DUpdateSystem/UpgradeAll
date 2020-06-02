@@ -46,7 +46,7 @@
         </provider>
 
         <receiver
-            android:name=".server.update.UpdateServiceReceiver"
+            android:name=".server.update.UpdateServiceBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE">
@@ -55,7 +55,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".utils.DownloadBroadcastReceiver"
+            android:name=".utils.downloader.DownloadBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE">
