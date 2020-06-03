@@ -38,6 +38,7 @@ object UpdateManager : UpdateControl(AppManager.apps), AppHub, Informer {
     suspend fun renewAll() {
         finishedUpdateAppNum = 0
         renewAll(concurrency = true, preGetData = false)
+        notifyChanged()
     }
 
     override suspend fun updateJob(app: BaseApp) {

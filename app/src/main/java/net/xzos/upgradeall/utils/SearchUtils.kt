@@ -2,12 +2,11 @@ package net.xzos.upgradeall.utils
 
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import com.jaredrummler.android.shell.CommandResult
-import com.jaredrummler.android.shell.Shell
+import eu.darken.rxshell.cmd.Cmd
+import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.config.AppType
 import net.xzos.upgradeall.core.data_manager.utils.SearchUtils
 import net.xzos.upgradeall.core.data_manager.utils.StringMatchUtils
-import net.xzos.upgradeall.application.MyApplication
 
 class SearchUtils {
 
@@ -51,7 +50,9 @@ private object MagiskModuleMatchUtils {
         get() {
             val list = mutableListOf<ModuleInfo>()
             for (moduleFolderName in shellMatchUtils.getFileNameList(defaultModuleFolderPath)) {
-                list.add(getModuleInfo(moduleFolderName))
+                getModuleInfo(moduleFolderName)?.run {
+                    list.add(this)
+                }
             }
             return list
         }
@@ -72,11 +73,12 @@ private object MagiskModuleMatchUtils {
             }
         }
 
-    private fun getModuleInfo(moduleFolderName: String): ModuleInfo {
-        val prop = MiscellaneousUtils.parsePropertiesString(
+    private fun getModuleInfo(moduleFolderName: String): ModuleInfo? {
+        val fileString =
                 shellMatchUtils.catFile(
                         "/data/adb/modules/$moduleFolderName/module.prop"
-                ))
+                ) ?: return null
+        val prop = MiscellaneousUtils.parsePropertiesString(fileString)
         return ModuleInfo(
                 moduleFolderName,
                 prop.getProperty("id", ""),
@@ -107,23 +109,23 @@ class ShellMatchUtils(private val useSU: Boolean = false) {
               echo "${'$'}entry"
             done """.trimIndent()
 
-        val result = runCommand(command)
-        return result.getStdout()
+        val result = runCommand(command) ?: return emptyList()
+        return result.getOutputString()
                 .split("\n".toRegex())
                 .dropLastWhile { it.isEmpty() }
                 .map { it.removePrefix(folderPathString) }
     }
 
-    fun catFile(filePath: String): String {
+    fun catFile(filePath: String): String? {
         val command = "cat $filePath"
-        return runCommand(command).getStdout()
+        return runCommand(command)?.getOutputString()
     }
 
-    private fun runCommand(commandString: String): CommandResult {
+    private fun runCommand(commandString: String): Cmd.Result? {
         return if (useSU)
-            Shell.SU.run(commandString)
+            Shell.runSuShellCommand(commandString)
         else
-            Shell.run(commandString)
+            Shell.runShellCommand(commandString)
     }
 }
 
