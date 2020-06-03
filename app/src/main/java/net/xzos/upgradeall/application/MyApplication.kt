@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import com.arialyy.aria.core.Aria
 import net.xzos.upgradeall.utils.MiscellaneousUtils
+import net.xzos.upgradeall.utils.downloader.AriaDownloader
 import org.jetbrains.annotations.Contract
 import org.litepal.LitePal
 import java.io.File
@@ -24,7 +25,7 @@ class MyApplication : Application() {
 
         LitePal.initialize(applicationContext)
         Aria.init(this)
-        Aria.download(this).removeAllTask(true)  // TODO: 加入下载控制后移除
+        AriaDownloader.removeAllTask()  // TODO: 加入下载控制后移除
 
         MiscellaneousUtils.initData()
     }

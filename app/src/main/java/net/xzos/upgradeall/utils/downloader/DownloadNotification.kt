@@ -126,7 +126,7 @@ class DownloadNotification(private val url: String) {
     internal fun showInstallNotification(apkFileName: String) {
         NotificationManagerCompat.from(context).apply {
             builder.clearActions().run {
-                setContentTitle(context.getString(R.string.installing) + apkFileName)
+                setContentTitle(context.getString(R.string.installing) + " " + apkFileName)
                 setSmallIcon(android.R.drawable.stat_sys_download_done)
                 setProgress(0, 0, false)
                 setOngoing(false)

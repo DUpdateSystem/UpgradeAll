@@ -8,7 +8,6 @@ import com.arialyy.aria.core.download.DownloadEntity
 import com.arialyy.aria.core.task.DownloadTask
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data_manager.utils.FilePathUtils
@@ -83,6 +82,7 @@ class AriaDownloader(private val url: String) {
 
     fun stop() {
         Aria.download(this).load(taskId)
+                .ignoreCheckPermissions()
                 .stop()
     }
 
@@ -107,15 +107,15 @@ class AriaDownloader(private val url: String) {
     fun install() {
         val file = downloadFile ?: return
         when {
-            file.isApkFile() -> runBlocking { ApkInstaller.install(file) }
+            file.isApkFile() -> GlobalScope.launch { ApkInstaller.install(file) }
             else -> return
         }
+        downloadNotification.showInstallNotification(file.name)
         ApkInstaller.observeInstall(file, object : Observer {
             override fun onChanged(vararg vars: Any): Any? {
                 return completeInstall(file)
             }
         })
-        downloadNotification.showInstallNotification(file.name)
     }
 
     fun saveFile() {
@@ -130,17 +130,17 @@ class AriaDownloader(private val url: String) {
     }
 
     private fun startDownloadTask(fileName: String, headers: Map<String, String>): File? {
-        // 检查冲突任务
-        val taskList = Aria.download(this).totalTaskList
-        val taskFileList = mutableListOf<File>()
         // 检查重复任务
-        if (Aria.download(this).taskExists(url)) {
+        val downloader = getDownloader(url)
+        if (downloader != null) {
             // 继续 并返回已有任务文件
-            getDownloader(url)?.resume()
+            downloader.resume()
             val filePath = Aria.download(this).getDownloadEntity(taskId)?.filePath ?: return null
             return File(filePath)
         }
         // 检查下载文件列表
+        val taskList = Aria.download(this).totalTaskList
+        val taskFileList = mutableListOf<File>()
         for (task in taskList) {
             task as DownloadEntity
             taskFileList.add(File(task.filePath))
@@ -195,5 +195,11 @@ class AriaDownloader(private val url: String) {
 
         private val downloaderMap: HashMap<String, AriaDownloader> = hashMapOf()
         internal fun getDownloader(url: String): AriaDownloader? = downloaderMap[url]
+
+        fun removeAllTask() {
+            context.getDatabasePath("AndroidAria.db").delete()
+            context.getDatabasePath("AndroidAria.db-shm").delete()
+            context.getDatabasePath("AndroidAria.db-wal").delete()
+        }
     }
 }
