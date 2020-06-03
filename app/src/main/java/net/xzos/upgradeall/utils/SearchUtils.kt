@@ -128,4 +128,3 @@ class ShellMatchUtils(private val useSU: Boolean = false) {
             Shell.runShellCommand(commandString)
     }
 }
-
