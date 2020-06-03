@@ -7,6 +7,7 @@ import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.data_manager.utils.VersioningUtils
 import net.xzos.upgradeall.core.network_api.GrpcApi
 import net.xzos.upgradeall.core.route.AppStatus
+import net.xzos.upgradeall.core.route.AssetItem
 import net.xzos.upgradeall.core.route.ReleaseInfoItem
 import net.xzos.upgradeall.core.system_api.api.IoApi
 
@@ -67,7 +68,7 @@ class Updater(private val app: App) : UpdaterApi {
     suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false) {
         withContext(Dispatchers.Default) {
             getReleaseInfo()?.let { releaseInfoList ->
-                val asset = releaseInfoList[fileIndex.first].getAssets(fileIndex.second)
+                val asset = releaseInfoList.getAssetsByFileIndex(fileIndex) ?: return@withContext
                 val hubUuid = app.hubDatabase?.uuid
                 val appId = app.appId
                 val downloadInfo = if (hubUuid != null && appId != null)
@@ -104,4 +105,12 @@ private interface UpdaterApi {
     suspend fun getReleaseInfo(): List<ReleaseInfoItem>?
     suspend fun getUpdateStatus(): Int
     suspend fun getLatestVersioning(): String?
+}
+
+private fun List<ReleaseInfoItem>.getAssetsByFileIndex(fileIndex: Pair<Int, Int>): AssetItem? {
+    return try {
+        this[fileIndex.first].getAssets(fileIndex.second)
+    } catch (ignore: IndexOutOfBoundsException) {
+        null
+    }
 }

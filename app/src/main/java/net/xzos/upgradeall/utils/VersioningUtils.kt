@@ -28,8 +28,8 @@ object VersioningUtils {
                         version = when (versionCheckerApi.toLowerCase(AppValue.locale)) {
                             API_TYPE_APP_PACKAGE -> getAppVersion()
                             API_TYPE_MAGISK_MODULE -> getMagiskModuleVersion()
-                            API_TYPE_SHELL -> MiscellaneousUtils.runShellCommand(shellCommand)?.getStdout()
-                            API_TYPE_SHELL_ROOT -> MiscellaneousUtils.runShellCommand(shellCommand, su = true)?.getStdout()
+                            API_TYPE_SHELL -> Shell.runShellCommand(shellCommand)?.getOutputString()
+                            API_TYPE_SHELL_ROOT -> Shell.runSuShellCommand(shellCommand)?.getOutputString()
                             else -> null
                         }
                 }
@@ -47,19 +47,11 @@ object VersioningUtils {
         }
 
         private fun getMagiskModuleVersion(): String? {
-            var magiskModuleVersion: String? = null
             val modulePropFilePath = "/data/adb/modules/${targetChecker?.extraString}/module.prop"
             val command = "cat $modulePropFilePath"
-            MiscellaneousUtils.runShellCommand(command, su = true)?.let { result ->
-                val resultList = result.getStdout().split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                val keyWords = "version="
-                for (resultLine in resultList) {
-                    if (resultLine.indexOf(keyWords) == 0) {
-                        magiskModuleVersion = resultLine.substring(keyWords.length)
-                    }
-                }
-            }
-            return magiskModuleVersion
+            val fileString = Shell.runSuShellCommand(command)?.getOutputString() ?: return null
+            val prop = MiscellaneousUtils.parsePropertiesString(fileString)
+            return prop.getProperty("version", null)
         }
     }
 }

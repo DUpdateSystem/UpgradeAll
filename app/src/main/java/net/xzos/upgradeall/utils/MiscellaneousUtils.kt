@@ -15,11 +15,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
-import com.jaredrummler.android.shell.CommandResult
-import com.jaredrummler.android.shell.Shell
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.android_api.DatabaseApi
 import net.xzos.upgradeall.android_api.IoApi
@@ -37,9 +32,6 @@ import java.util.*
 
 
 object MiscellaneousUtils {
-
-    private var suAvailable: Boolean? = null
-        get() = field ?: Shell.SU.available().also { field = it }
 
     fun initData() {
         initObject()
@@ -87,21 +79,6 @@ object MiscellaneousUtils {
             Properties().apply {
                 this.load(StringReader(s))
             }
-
-    fun runShellCommand(command: String, su: Boolean = false): CommandResult? =
-            if (command.isNotBlank())
-                if (su)
-                    if (suAvailable!!)
-                        Shell.SU.run(command)
-                    else {
-                        GlobalScope.launch(Dispatchers.Main) {
-                            Toast.makeText(context, R.string.no_root_and_restart_to_use_root,
-                                    Toast.LENGTH_LONG).show()
-                        }
-                        null
-                    }
-                else Shell.run(command)
-            else null
 
     fun mapOfJsonObject(jsonObjectString: String): Map<*, *> {
         return try {
