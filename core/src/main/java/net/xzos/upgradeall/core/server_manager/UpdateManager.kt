@@ -29,10 +29,16 @@ object UpdateManager : UpdateControl(AppManager.apps), AppHub, Informer {
 
     fun getAppNum(): Int = apps.size
     override suspend fun getAppUpdateStatus(baseApp: BaseApp): Int {
-        return if (baseApp is App)
-            baseApp.getParentApplications()?.getAppUpdateStatus(baseApp)
-                    ?: baseApp.getUpdateStatus()
-        else baseApp.getUpdateStatus()
+        if (baseApp is App) {
+            val applications = baseApp.getParentApplications()
+            if (applications != null)
+                return applications.getAppUpdateStatus(baseApp)
+        }
+        return refreshAppUpdate(baseApp).also {
+            if (it.second) {
+                notifyChanged()
+            }
+        }.first
     }
 
     suspend fun renewAll() {
