@@ -183,6 +183,6 @@
     <string name="same_as_server_config">跟随服务器配置</string>
     <string name="ignore_app">忽略该跟踪项的更新</string>
     <string name="remove_ignore_app">取消忽略该跟踪项的更新</string>
-    <string name="ignore_version">忽略该跟踪项的当前版本号</string>
-    <string name="remove_ignore_version">取消忽略该跟踪项的当前版本号</string>
+    <string name="ignore_version">标记该跟踪项的当前版本号</string>
+    <string name="remove_ignore_version">取消标记该跟踪项的当前版本号</string>
 </resources>

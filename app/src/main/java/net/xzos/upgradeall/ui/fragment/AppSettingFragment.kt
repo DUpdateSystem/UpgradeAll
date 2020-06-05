@@ -22,7 +22,11 @@ import kotlinx.android.synthetic.main.simple_textview.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
@@ -34,8 +38,6 @@ import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
-import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
 import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
@@ -45,7 +47,7 @@ import net.xzos.upgradeall.utils.VersioningUtils
 
 class AppSettingFragment : Fragment() {
 
-    private var searchUtils: SearchUtils? = null
+    private val searchUtils: SearchUtils = SearchUtils()
 
     private var hubUuid: String? = null
 
@@ -71,12 +73,6 @@ class AppSettingFragment : Fragment() {
                 targetCheckerApi,
                 editTarget.text.toString()
         )
-
-    init {
-        GlobalScope.launch {
-            searchUtils = SearchUtils()
-        }
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
@@ -123,11 +119,12 @@ class AppSettingFragment : Fragment() {
             }
         }
         editTarget.threshold = 1
+        val mutex = Mutex()
         editTarget.addTextChangedListener {
-            searchUtils?.let { searchUtils ->
-                if (targetCheckerApi != API_TYPE_SHELL && targetCheckerApi != API_TYPE_SHELL_ROOT) {
-                    val text = it.toString()
-                    GlobalScope.launch {
+            if (targetCheckerApi != API_TYPE_SHELL && targetCheckerApi != API_TYPE_SHELL_ROOT) {
+                val text = it.toString()
+                GlobalScope.launch {
+                    mutex.withLock {
                         val searchInfoList = searchUtils.search(text)
                         if (text.isNotBlank() && this@AppSettingFragment.isVisible) {
                             withContext(Dispatchers.Main) {
@@ -145,7 +142,7 @@ class AppSettingFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        searchUtils = SearchUtils()  // 清除搜索缓存
+        searchUtils.renewData()  // 清除搜索缓存
         activity?.let {
             it as AppCompatActivity
             it.toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.taupe))
