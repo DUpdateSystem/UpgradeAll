@@ -56,9 +56,9 @@ data class AppConfigGson(
                 @Transient
                 const val API_TYPE_MAGISK_MODULE = "magisk_module"
                 @Transient
-                const val API_TYPE_SHELL = "Shell"
+                const val API_TYPE_SHELL = "shell"
                 @Transient
-                const val API_TYPE_SHELL_ROOT = "Shell_ROOT"
+                const val API_TYPE_SHELL_ROOT = "shell_root"
             }
         }
     }

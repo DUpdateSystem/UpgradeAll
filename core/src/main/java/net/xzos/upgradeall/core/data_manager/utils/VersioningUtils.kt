@@ -13,7 +13,7 @@ object VersioningUtils {
 
     internal const val IGNORE_VERSION = "IGNORE_VERSION"
 
-    private fun matchVersioningString(versionString: CharSequence?): String? {
+    fun matchVersioningString(versionString: CharSequence?): String? {
         return if (versionString != null) {
             val regex = AppValue.version_number_match_regex
             regex.find(versionString)?.value

@@ -23,7 +23,6 @@ object VersioningUtils {
                 var version: String? = null
                 if (versionCheckerApi != null) {
                     val shellCommand: String? = targetChecker?.extraString
-
                     if (shellCommand != null)
                         version = when (versionCheckerApi.toLowerCase(AppValue.locale)) {
                             API_TYPE_APP_PACKAGE -> getAppVersion()
