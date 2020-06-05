@@ -55,6 +55,15 @@ class Applications(override val appDatabase: AppDatabase) : BaseApp, AppHub, Inf
         return updateStatus
     }
 
+    override suspend fun getAppUpdateStatus(baseApp: BaseApp): Int {
+        return updateControl.refreshAppUpdate(baseApp).also {
+            if (it.second) {
+                UpdateManager.refreshAppUpdate(this)
+                UpdateManager.notifyChanged()
+            }
+        }.first
+    }
+
     private suspend fun includeValidApps(appList: List<App>?) {
         if (appList.isNullOrEmpty()) return
         val invalidPackageName = appDatabase.extraData?.applicationsConfig?.invalidPackageName
@@ -87,14 +96,5 @@ class Applications(override val appDatabase: AppDatabase) : BaseApp, AppHub, Inf
             }
         }
         appDatabase.save(false)
-    }
-
-    override suspend fun getAppUpdateStatus(baseApp: BaseApp): Int {
-        return updateControl.refreshAppUpdate(baseApp).also {
-            if (it.second) {
-                UpdateManager.refreshAppUpdate(this)
-                UpdateManager.notifyChanged()
-            }
-        }.first
     }
 }
