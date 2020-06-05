@@ -3,97 +3,87 @@ package net.xzos.upgradeall.utils
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import eu.darken.rxshell.cmd.Cmd
-import net.xzos.upgradeall.application.MyApplication
+import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.data.config.AppType
+import net.xzos.upgradeall.core.data_manager.utils.MatchInfo
+import net.xzos.upgradeall.core.data_manager.utils.MatchString
+import net.xzos.upgradeall.core.data_manager.utils.SearchInfo
 import net.xzos.upgradeall.core.data_manager.utils.SearchUtils
-import net.xzos.upgradeall.core.data_manager.utils.StringMatchUtils
 
 class SearchUtils {
 
-    private var searchUtils: SearchUtils = SearchUtils(initSearch())
+    private var searchInfoList: List<SearchInfo> = listOf()
+    private var searchUtils: SearchUtils = SearchUtils(listOf())
 
-    suspend fun search(searchString: String): List<SearchUtils.SearchInfo> {
+    fun renewData() {
+        val list = initSearchList()
+        if (searchInfoList != list) {
+            searchInfoList = list
+            searchUtils = SearchUtils(searchInfoList)
+        }
+    }
+
+    suspend fun search(searchString: String): List<SearchInfo> {
         return searchUtils.search(searchString)
     }
 
-    private fun initSearch(): List<SearchUtils.SearchInfo> {
-        return listOf<SearchUtils.SearchInfo>()
-                .plus(AppPackageMatchUtils.matchInfoList)
-                .plus(MagiskModuleMatchUtils.matchInfoList)
+    private fun initSearchList(): List<SearchInfo> {
+        return listOf<SearchInfo>()
+                .plus(AppPackageMatchUtils().matchInfoList)
+                .plus(MagiskModuleMatchUtils().matchInfoList)
     }
 }
 
-private object AppPackageMatchUtils {
-    private val packages: List<ApplicationInfo>
-        get() = MyApplication.context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+private class AppPackageMatchUtils {
+    private val packageManager = context.packageManager
+    private val packages: List<ApplicationInfo> = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
 
-    internal val matchInfoList: List<SearchUtils.SearchInfo>
-        get() {
-            return packages.map {
-                val appName = MyApplication.context.packageManager.getApplicationLabel(it)
-
-                SearchUtils.SearchInfo(
-                        AppType.androidApp,
-                        StringMatchUtils.MatchInfo(it.packageName, appName.toString(), listOf(
-                                StringMatchUtils.MatchString(appName),
-                                StringMatchUtils.MatchString(it.packageName)
-                        ))
-                )
-            }
-        }
+    val matchInfoList = packages.map {
+        val appName = packageManager.getApplicationLabel(it)
+        SearchInfo(
+                AppType.androidApp,
+                MatchInfo(it.packageName, appName.toString(), listOf(
+                        MatchString(appName),
+                        MatchString(it.packageName)
+                ))
+        )
+    }
 }
 
-private object MagiskModuleMatchUtils {
-    private const val defaultModuleFolderPath = "/data/adb/modules/"
+private class MagiskModuleMatchUtils {
     private val shellMatchUtils = ShellMatchUtils(useSU = true)
-    private val moduleInfoList: List<ModuleInfo>
-        get() {
-            val list = mutableListOf<ModuleInfo>()
-            for (moduleFolderName in shellMatchUtils.getFileNameList(defaultModuleFolderPath)) {
-                getModuleInfo(moduleFolderName)?.run {
-                    list.add(this)
-                }
-            }
-            return list
-        }
-
-    internal val matchInfoList: List<SearchUtils.SearchInfo>
-        get() {
-            return moduleInfoList.map {
-                val searchInfo = SearchUtils.SearchInfo(
-                        AppType.androidMagiskModule,
-                        StringMatchUtils.MatchInfo(it.moduleFolderName, it.name, listOf(
-                                StringMatchUtils.MatchString(it.id),
-                                StringMatchUtils.MatchString(it.name),
-                                StringMatchUtils.MatchString(it.author),
-                                StringMatchUtils.MatchString(it.description)
-                        ))
-                )
-                searchInfo
+    val matchInfoList = mutableListOf<SearchInfo>().apply {
+        for (moduleFolderName in shellMatchUtils.getFileNameList(moduleFolderPath)) {
+            getSearchInfo(moduleFolderName)?.let {
+                add(it)
             }
         }
+    }
 
-    private fun getModuleInfo(moduleFolderName: String): ModuleInfo? {
+    private fun getSearchInfo(moduleFolderName: String): SearchInfo? {
         val fileString =
                 shellMatchUtils.catFile(
                         "/data/adb/modules/$moduleFolderName/module.prop"
                 ) ?: return null
         val prop = MiscellaneousUtils.parsePropertiesString(fileString)
-        return ModuleInfo(
-                moduleFolderName,
-                prop.getProperty("id", ""),
-                prop.getProperty("name", ""),
-                prop.getProperty("author", ""),
-                prop.getProperty("description", "")
+        return SearchInfo(
+                AppType.androidMagiskModule,
+                MatchInfo(moduleFolderName,
+                        prop.getProperty("name", ""),
+                        listOf(
+                                MatchString(prop.getProperty("id", "")),
+                                MatchString(prop.getProperty("name", "")),
+                                MatchString(prop.getProperty("author", "")),
+                                MatchString(prop.getProperty("description", "")
+                                )
+                        )
+                )
         )
     }
 
-    data class ModuleInfo(
-            val moduleFolderName: String,
-            val id: String,
-            val name: String,
-            val author: String,
-            val description: String)
+    companion object {
+        private const val moduleFolderPath = "/data/adb/modules/"
+    }
 }
 
 class ShellMatchUtils(private val useSU: Boolean = false) {
