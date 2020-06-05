@@ -113,9 +113,12 @@ class AppSettingFragment : Fragment() {
         }
         versionCheckButton.setOnClickListener {
             // 版本检查设置
-            val appVersion = VersioningUtils.getAppVersionNumber(targetChecker)
-            if (appVersion != null) {
-                Toast.makeText(context, "version: $appVersion", Toast.LENGTH_SHORT).show()
+            val rawVersion = VersioningUtils.getAppVersionNumber(targetChecker)
+            val version = net.xzos.upgradeall.core.data_manager.utils.VersioningUtils.matchVersioningString(rawVersion)
+            if (rawVersion != null) {
+                Toast.makeText(context, """raw_version: $rawVersion
+                    version: $version
+                """.trimIndent(), Toast.LENGTH_SHORT).show()
             }
         }
         editTarget.threshold = 1
