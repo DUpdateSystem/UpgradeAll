@@ -12,8 +12,10 @@ import net.xzos.upgradeall.ui.fragment.CloudConfigPlaceholderFragment
 class CloudConfigTabSectionsPagerAdapter(fm: FragmentManager) :
         FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
-    private var appTabTitle = MyApplication.context.getString(R.string.app)
-    private var appHubTabTitle = MyApplication.context.getString(R.string.app_hub)
+    private val context = MyApplication.context
+
+    private var appTabTitle = context.getString(R.string.app)
+    private var appHubTabTitle = context.getString(R.string.app_hub)
     private val tabTitles = listOf(appTabTitle, appHubTabTitle)
 
     override fun getItem(position: Int): Fragment {

@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.android_api
 
 import android.content.pm.PackageManager
-import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.config.AppType
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
@@ -23,8 +23,9 @@ object IoApi : IoApi {
     }
 
     private const val TAG = "IoApi"
-
     private val objectTag = ObjectTag("Core", TAG)
+
+    private val context = MyApplication.context
 
     // 注释相应平台的下载软件
     override fun downloadFile(fileName: String, url: String, headers: Map<String, String>,

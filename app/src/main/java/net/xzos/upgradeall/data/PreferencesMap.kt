@@ -5,7 +5,7 @@ import android.widget.Toast
 import androidx.preference.PreferenceManager
 import com.arialyy.aria.core.Aria
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.network_api.GrpcApi
@@ -15,6 +15,7 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils.showToast
 import net.xzos.upgradeall.utils.install.ApkShizukuInstaller
 
 object PreferencesMap {
+    private val context = MyApplication.context
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     // 更新首选项

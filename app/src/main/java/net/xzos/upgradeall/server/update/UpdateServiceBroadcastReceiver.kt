@@ -19,15 +19,16 @@ class UpdateServiceBroadcastReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        private val ACTION_SNOOZE = "${MyApplication.context.packageName}.UPDATE_SERVICE_BROADCAST"
+        private val context = MyApplication.context
+        private val ACTION_SNOOZE = "${context.packageName}.UPDATE_SERVICE_BROADCAST"
         fun setAlarms(t_h: Int) {
             val alarmTime: Long = t_h.toLong() * 60 * 60 * 1000
             val alarmIntent = PendingIntent.getBroadcast(
-                    MyApplication.context, 0,
-                    Intent(MyApplication.context, UpdateServiceBroadcastReceiver::class.java).apply { action = ACTION_SNOOZE },
+                    context, 0,
+                    Intent(context, UpdateServiceBroadcastReceiver::class.java).apply { action = ACTION_SNOOZE },
                     PendingIntent.FLAG_UPDATE_CURRENT
             )
-            val alarmManager = (MyApplication.context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
+            val alarmManager = (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
             alarmManager.setInexactRepeating(
                     AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime() + alarmTime,

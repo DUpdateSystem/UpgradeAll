@@ -3,7 +3,7 @@ package net.xzos.upgradeall.data.gson
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.database.AppDatabase.Companion.APP_TYPE_TAG
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
@@ -151,6 +151,7 @@ class UIConfig private constructor(
     }
 
     companion object {
+        private val context = MyApplication.context
         val uiConfig: UIConfig = try {
             val uiConfig = Gson().fromJson(FileUtil.UI_CONFIG_FILE.readText(), UIConfig::class.java)
             if (uiConfig.checkData()) uiConfig else UIConfig()

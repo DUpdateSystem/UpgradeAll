@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.coroutines.*
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_APP_PACKAGE
@@ -99,14 +98,12 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         val appUuid = appConfig.uuid
         val appCloudConfig = CloudConfigGetter.getAppCloudConfig(appUuid)
         val type: String
-        with(MyApplication.context) {
-            type = when (appCloudConfig?.appConfig?.targetChecker?.api?.toLowerCase(AppValue.locale)) {
-                API_TYPE_APP_PACKAGE -> getString(R.string.android_app)
-                API_TYPE_MAGISK_MODULE -> getString(R.string.magisk_module)
-                API_TYPE_SHELL -> getString(R.string.shell)
-                API_TYPE_SHELL_ROOT -> getString(R.string.shell_root)
-                else -> ""
-            }
+        type = when (appCloudConfig?.appConfig?.targetChecker?.api?.toLowerCase(AppValue.locale)) {
+            API_TYPE_APP_PACKAGE -> getString(R.string.android_app)
+            API_TYPE_MAGISK_MODULE -> getString(R.string.magisk_module)
+            API_TYPE_SHELL -> getString(R.string.shell)
+            API_TYPE_SHELL_ROOT -> getString(R.string.shell_root)
+            else -> ""
         }
         val hubUuid = appCloudConfig?.appConfig?.hubInfo?.hubUuid
         val hubName = CloudConfigGetter.getHubCloudConfig(hubUuid)?.info?.hubName

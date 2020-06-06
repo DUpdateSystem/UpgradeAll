@@ -12,7 +12,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.UpdateManager
@@ -20,6 +20,7 @@ import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 object UpdateNotification : Informer {
+    private val context = MyApplication.context
     private const val CHANNEL_ID = "UpdateServiceNotification"
     private val UPDATE_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_notification_id)
     val UPDATE_SERVER_RUNNING_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_server_running_notification_id)
@@ -92,7 +93,7 @@ object UpdateNotification : Informer {
                     setContentIntent(mainActivityPendingIntent)
                 }
             }
-            notificationNotify(UPDATE_NOTIFICATION_ID)
+            notificationNotify(UPDATE_NOTIFICATION_ID, builder.setAutoCancel(true).build())
         }
     }
 
@@ -109,10 +110,15 @@ object UpdateNotification : Informer {
         }
     }
 
-    private fun notificationNotify(notificationId: Int): Notification {
-        val notification = builder.build()
+    private fun notificationNotify(notificationId: Int, notification: Notification): Notification {
         NotificationManagerCompat.from(context).notify(notificationId, notification)
         return notification
+    }
+
+
+    private fun notificationNotify(notificationId: Int): Notification {
+        val notification = builder.build()
+        return notificationNotify(notificationId, notification)
     }
 
     private fun cancelNotification() {
