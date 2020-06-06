@@ -16,6 +16,9 @@ import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.UpdateManager
+import net.xzos.upgradeall.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
@@ -53,9 +56,9 @@ object UpdateNotification : Informer {
         if (finishedAppNum != allAppsNum) {
             updateStatusNotification(allAppsNum, finishedAppNum)
         } else {
-            val needUpdateAppNum = runBlocking { UpdateManager.getNeedUpdateAppList(block = false).size }
-            if (needUpdateAppNum != 0)
-                updateNotification(needUpdateAppNum)
+            val needUpdateAppList = runBlocking { UpdateManager.getNeedUpdateAppList(block = false) }
+            if (needUpdateAppList.isNotEmpty())
+                updateNotification(needUpdateAppList)
             else
                 cancelNotification()
             notifyChanged(FINISH_UPDATE)
@@ -82,11 +85,20 @@ object UpdateNotification : Informer {
         notificationNotify(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
     }
 
-    private fun updateNotification(needUpdateAppNum: Int) {
+    private fun updateNotification(needUpdateAppList: List<BaseApp>) {
+        val needUpdateApplicationList = needUpdateAppList.filterIsInstance<Applications>()
+        var needUpdateAppNum = needUpdateAppList.filterIsInstance<App>().size
+        for (applications in needUpdateApplicationList) {
+            needUpdateAppNum += runBlocking { applications.getNeedUpdateAppList() }.size
+        }
+        var text = "$needUpdateAppNum 个应用需要更新"
+        if (needUpdateApplicationList.isNotEmpty()) {
+            text += "（ ${needUpdateApplicationList.size} 个应用市场）"
+        }
         if (!MiscellaneousUtils.isBackground()) {
             NotificationManagerCompat.from(context).apply {
                 builder.run {
-                    setContentTitle("$needUpdateAppNum 个应用需要更新")
+                    setContentTitle(text)
                     setProgress(0, 0, false)
                     setOngoing(false)
                     setContentText("点按打开应用主页")
