@@ -16,12 +16,13 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import java.io.File
 
 
 object IconPalette {
+    private val context = MyApplication.context
 
     val fabAddIcon = getPlus(getColorInt(R.color.light_gray))
     val fabUpdateIcon = getUpdate(getColorInt(R.color.light_gray))

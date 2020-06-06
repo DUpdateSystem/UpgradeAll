@@ -27,6 +27,7 @@ object FileUtil {
 
     private const val TAG = "FileUtil"
     private val logObjectTag = ObjectTag("Core", TAG)
+    private val context = MyApplication.context
 
     internal val UI_CONFIG_FILE = File(context.filesDir, "ui.json")
     private val IMAGE_DIR = File(context.filesDir, "images")
@@ -227,11 +228,11 @@ object FileUtil {
         activity.startActivityForResult(intent, REQUEST_CODE_LOAD_IMAGE)
     }
 
-    fun clipStringToClipboard(s: CharSequence, context: Context = MyApplication.context, showToast: Boolean = true) {
-        val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    fun clipStringToClipboard(s: CharSequence, context1: Context = context, showToast: Boolean = true) {
+        val cm = context1.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val mClipData = ClipData.newPlainText("Label", s)
         cm.setPrimaryClip(mClipData)
-        if (showToast) Toast.makeText(context, R.string.copied_to_pasteboard, Toast.LENGTH_SHORT).show()
+        if (showToast) Toast.makeText(context1, R.string.copied_to_pasteboard, Toast.LENGTH_SHORT).show()
     }
 
     private fun convertBitmapToFile(destinationFile: File, bitmap: Bitmap) {
