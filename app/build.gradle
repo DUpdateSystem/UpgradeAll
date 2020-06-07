@@ -95,8 +95,8 @@ dependencies {
     configurations.compile.exclude group: 'com.google.protobuf', module: 'protobuf-lite'
 
     // Aria
-    implementation 'com.arialyy.aria:core:3.8.7'
-    kapt 'com.arialyy.aria:compiler:3.8.7'
+    implementation 'com.arialyy.aria:core:3.8.8'
+    kapt 'com.arialyy.aria:compiler:3.8.8'
 
     // Shizuku
     implementation 'moe.shizuku.privilege:api:3.1.0'

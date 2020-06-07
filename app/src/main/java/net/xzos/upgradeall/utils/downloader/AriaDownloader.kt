@@ -161,8 +161,7 @@ class AriaDownloader(private val url: String) {
     }
 
     fun taskComplete(task: DownloadTask) {
-        // TODO：1. 暂时移除任务取消操作以修复 Aria 删除任务时一同删除文件的问题
-        //cancel()
+        cancel()
         val file = File(task.filePath).autoAddApkExtension().also {
             downloadFile = it
         }
@@ -177,8 +176,6 @@ class AriaDownloader(private val url: String) {
     }
 
     private fun completeInstall(file: File) {
-        // TODO：2. 暂时添加移除任务操作以修复 Aria 删除任务时一同删除文件的问题
-        cancel()
         downloadNotification.taskCancel()
         if (PreferencesMap.auto_delete_file) {
             file.delete()
@@ -195,11 +192,5 @@ class AriaDownloader(private val url: String) {
 
         private val downloaderMap: HashMap<String, AriaDownloader> = hashMapOf()
         internal fun getDownloader(url: String): AriaDownloader? = downloaderMap[url]
-
-        fun removeAllTask() {
-            context.getDatabasePath("AndroidAria.db").delete()
-            context.getDatabasePath("AndroidAria.db-shm").delete()
-            context.getDatabasePath("AndroidAria.db-wal").delete()
-        }
     }
 }
