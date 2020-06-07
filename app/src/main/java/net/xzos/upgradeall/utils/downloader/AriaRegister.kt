@@ -52,7 +52,8 @@ object AriaRegister : Informer {
     }
 
     @Download.onTaskFail
-    fun taskFail(task: DownloadTask) {
+    fun taskFail(task: DownloadTask?) {
+        task ?: return
         notifyChanged(task.key.getFailNotifyKey(), task)
     }
 }

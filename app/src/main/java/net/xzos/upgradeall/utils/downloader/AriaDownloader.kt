@@ -32,20 +32,23 @@ class AriaDownloader(private val url: String) {
 
     private val completeObserver = object : Observer {
         override fun onChanged(vars: Array<out Any>): Any? {
-            return taskComplete(vars[0] as DownloadTask).also {
-                unregister()
-            }
+            taskComplete(vars[0] as DownloadTask)
+            unregister()
+            return null
         }
     }
 
     private val cancelObserver = object : Observer {
         override fun onChanged(vars: Array<out Any>): Any? {
-            return unregister()
+            unregister()
+            delDownloader()
+            return null
         }
     }
 
     fun finalize() {
         unregister()
+        delDownloader()
     }
 
     private fun register() {
@@ -55,9 +58,12 @@ class AriaDownloader(private val url: String) {
     }
 
     private fun unregister() {
-        downloaderMap.remove(url)
         AriaRegister.removeObserver(url.getCompleteNotifyKey())
         AriaRegister.removeObserver(url.getCancelNotifyKey())
+    }
+
+    private fun delDownloader() {
+        downloaderMap.remove(url)
     }
 
     fun start(fileName: String, headers: Map<String, String> = hashMapOf()): File? {
@@ -99,6 +105,8 @@ class AriaDownloader(private val url: String) {
     }
 
     fun delTask() {
+        delDownloader()
+        downloadNotification.taskCancel()  // 保证下载完成后的通知取消
         Aria.download(this).load(taskId)
                 .ignoreCheckPermissions()
                 .cancel(true)
