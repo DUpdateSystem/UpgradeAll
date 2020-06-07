@@ -9,6 +9,7 @@ import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data_manager.utils.DataCache
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.route.*
+import java.util.concurrent.TimeUnit
 
 
 object GrpcApi {
@@ -19,20 +20,11 @@ object GrpcApi {
     private var updateServerUrl: String = AppConfig.update_server_url
     private var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
 
-    fun checkUpdateServerUrl(url: String?): Boolean {
-        return try {
-            ManagedChannelBuilder.forTarget(url).usePlaintext().build()
-            true
-        } catch (e: Throwable) {
-            false
-        }
-    }
-
     internal fun setUpdateServerUrl(url: String?): Boolean {
         if (url.isNullOrBlank()) return false
         return try {
+            mChannel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS)
             mChannel = ManagedChannelBuilder.forTarget(url).usePlaintext().build()
-            updateServerUrl = url
             true
         } catch (e: IllegalArgumentException) {
             false

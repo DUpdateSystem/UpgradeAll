@@ -9,8 +9,9 @@ object AppConfig {
     var app_cloud_rules_hub_url: String? = null
     var update_server_url = "update-server.xzos.net:5255"
         set(value) {
-            if (value != update_server_url && GrpcApi.setUpdateServerUrl(value))
-                field = value
+            if (value != field)
+                if (GrpcApi.setUpdateServerUrl(value))
+                    field = value
         }
 }
 
