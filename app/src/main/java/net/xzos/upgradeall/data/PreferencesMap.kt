@@ -8,7 +8,6 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.config.AppValue
-import net.xzos.upgradeall.core.network_api.GrpcApi
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.utils.FileUtil
 import net.xzos.upgradeall.utils.MiscellaneousUtils.showToast
@@ -31,8 +30,9 @@ object PreferencesMap {
     var cloud_rules_hub_url: String
         get() = prefs.getString(CLOUD_RULES_HUB_URL_KEY, AppValue.default_cloud_rules_hub_url)!!
         set(value) = prefs.edit().putString(CLOUD_RULES_HUB_URL_KEY, value).apply()
-    val update_server_url: String
+    var update_server_url: String
         get() = prefs.getString(UPDATE_SERVER_URL_KEY, AppConfig.update_server_url)!!
+        set(value) = prefs.edit().putString(UPDATE_SERVER_URL_KEY, value).apply()
     val background_sync_time
         get() = prefs.getInt("background_sync_time", 18)
 
@@ -107,10 +107,9 @@ object PreferencesMap {
 
     // 检查设置数据
     private fun checkUpdateSettingAndSync() {
-        if (GrpcApi.checkUpdateServerUrl(update_server_url)) {
-            AppConfig.update_server_url = update_server_url
-        } else {
-            prefs.edit().putString(UPDATE_SERVER_URL_KEY, AppConfig.update_server_url).apply()
+        AppConfig.update_server_url = update_server_url  // 可能需要重启客户端才能同步
+        if (AppConfig.update_server_url != update_server_url) {
+            update_server_url = AppConfig.update_server_url
             showToast(context, R.string.reset_update_server_url_configuration, duration = Toast.LENGTH_LONG)
         }
     }
