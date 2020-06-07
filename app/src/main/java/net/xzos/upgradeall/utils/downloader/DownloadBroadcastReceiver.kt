@@ -9,16 +9,15 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val downloaderId = intent.getStringExtra(EXTRA_IDENTIFIER_DOWNLOADER_URL) ?: return
-        AriaDownloader.getDownloader(downloaderId)?.run {
-            when (intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)) {
-                DOWNLOAD_CANCEL -> this.delTask()
-                DOWNLOAD_RESTART -> this.restart()
-                DOWNLOAD_PAUSE -> this.stop()
-                DOWNLOAD_CONTINUE -> this.resume()
-                INSTALL_APK -> this.install()
-                SAVE_FILE -> this.saveFile()
-                DEL_TASK -> this.delTask()
-            }
+        val downloader = AriaDownloader.getDownloader(downloaderId) ?: return
+        val a = intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)
+        when (intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)) {
+            DOWNLOAD_CANCEL -> downloader.delTask()
+            DOWNLOAD_RESTART -> downloader.restart()
+            DOWNLOAD_PAUSE -> downloader.stop()
+            DOWNLOAD_CONTINUE -> downloader.resume()
+            INSTALL_APK -> downloader.install()
+            SAVE_FILE -> downloader.saveFile()
         }
     }
 
@@ -34,6 +33,5 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
         internal const val DOWNLOAD_CONTINUE = 4
         internal const val SAVE_FILE = 10
         internal const val INSTALL_APK = 11
-        internal const val DEL_TASK = 12
     }
 }

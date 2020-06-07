@@ -190,15 +190,15 @@ class DownloadNotification(private val url: String) {
     }
 
     fun taskFail() {
+        val delTaskSnoozePendingIntent = getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
         NotificationManagerCompat.from(context).apply {
             builder.clearActions()
                     .setContentText("下载失败，点击重试")
                     .setSmallIcon(android.R.drawable.stat_sys_download_done)
                     .setProgress(0, 0, false)
                     .setContentIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_RESTART))
-                    .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
-                            getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL))
-                    .setDeleteIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL))
+                    .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消", delTaskSnoozePendingIntent)
+                    .setDeleteIntent(delTaskSnoozePendingIntent)
                     .setOngoing(false)
         }
         notificationNotify()
@@ -225,7 +225,7 @@ class DownloadNotification(private val url: String) {
                 }
                 addAction(android.R.drawable.stat_sys_download_done, "另存文件",
                         getSnoozePendingIntent(DownloadBroadcastReceiver.SAVE_FILE))
-                val delTaskSnoozePendingIntent = getSnoozePendingIntent(DownloadBroadcastReceiver.DEL_TASK)
+                val delTaskSnoozePendingIntent = getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
                 addAction(android.R.drawable.ic_menu_delete, "删除", delTaskSnoozePendingIntent)
                 setDeleteIntent(delTaskSnoozePendingIntent)
                 setOngoing(false)
