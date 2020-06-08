@@ -8,7 +8,7 @@ import net.xzos.upgradeall.core.server_manager.module.applications.AppInfo
 interface IoApi {
 
     // 注释相应平台的下载软件
-    fun downloadFile(
+    suspend fun downloadFile(
             fileName: String, url: String, headers: Map<String, String> = mapOf(),
             externalDownloader: Boolean
     )
