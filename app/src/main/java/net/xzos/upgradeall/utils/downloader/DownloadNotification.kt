@@ -68,14 +68,13 @@ class DownloadNotification(private val url: String) {
 
     init {
         createNotificationChannel()
-        register()
     }
 
     fun finalize() {
         unregister()
     }
 
-    private fun register() {
+    fun register() {
         AriaRegister.observeForever(url.getStartNotifyKey(), startObserver)
         AriaRegister.observeForever(url.getRunningNotifyKey(), runningObserver)
         AriaRegister.observeForever(url.getStopNotifyKey(), stopObserver)

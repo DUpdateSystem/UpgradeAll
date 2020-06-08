@@ -8,6 +8,8 @@ import com.arialyy.aria.core.download.DownloadEntity
 import com.arialyy.aria.core.task.DownloadTask
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data_manager.utils.FilePathUtils
@@ -27,8 +29,7 @@ import java.io.File
 class AriaDownloader(private val url: String) {
 
     private var taskId: Long = -1L
-    var downloadFile: File? = null
-        private set
+    private var downloadFile: File? = null
     private val downloadNotification: DownloadNotification = DownloadNotification(url)
 
     private val completeObserver = object : Observer {
@@ -51,9 +52,13 @@ class AriaDownloader(private val url: String) {
     }
 
     private fun register() {
-        downloaderMap[url] = this
-        AriaRegister.observeForever(url.getCompleteNotifyKey(), completeObserver)
-        AriaRegister.observeForever(url.getCancelNotifyKey(), cancelObserver)
+        val registerDownloadMap = downloaderMap.setDownloader(url, this)
+        // 若下载器组成成功，进行下载状态监视功能注册
+        if (registerDownloadMap) {
+            downloadNotification.register()
+            AriaRegister.observeForever(url.getCompleteNotifyKey(), completeObserver)
+            AriaRegister.observeForever(url.getCancelNotifyKey(), cancelObserver)
+        }
     }
 
     private fun unregister() {
@@ -65,18 +70,10 @@ class AriaDownloader(private val url: String) {
         downloaderMap.remove(url)
     }
 
-    fun start(fileName: String, headers: Map<String, String> = hashMapOf()): File? {
-        val file = startDownloadTask(fileName, headers)
-        if (file != null) {
-            downloadFile = file
-            downloadNotification.waitDownloadTaskNotification(file.name)
-            val text = file.name + context.getString(R.string.download_task_begin)
-            MiscellaneousUtils.showToast(context, text = text)
-            register()
-        } else {
-            MiscellaneousUtils.showToast(context, R.string.repeated_download_task)
+    suspend fun start(fileName: String, headers: Map<String, String> = hashMapOf()): File? {
+        return mutex.withLock {
+            startAndRegister(fileName, headers)
         }
-        return file
     }
 
     fun resume() {
@@ -137,6 +134,20 @@ class AriaDownloader(private val url: String) {
         }
     }
 
+    private fun startAndRegister(fileName: String, headers: Map<String, String> = hashMapOf()): File? {
+        val file = startDownloadTask(fileName, headers)
+        if (file != null) {
+            downloadFile = file
+            downloadNotification.waitDownloadTaskNotification(file.name)
+            val text = file.name + context.getString(R.string.download_task_begin)
+            MiscellaneousUtils.showToast(context, text = text)
+            register()
+        } else {
+            MiscellaneousUtils.showToast(context, R.string.repeated_download_task)
+        }
+        return file
+    }
+
     private fun startDownloadTask(fileName: String, headers: Map<String, String>): File? {
         // 检查重复任务
         val downloader = getDownloader(url)
@@ -151,7 +162,7 @@ class AriaDownloader(private val url: String) {
                 return File(filePath)
             }
             downloader != null && !taskExists -> {
-                // 下载已完成
+                // 下载已完成或正在等待开始下载
                 return downloader.downloadFile
             }
             downloader == null && taskExists -> {
@@ -209,10 +220,19 @@ class AriaDownloader(private val url: String) {
     companion object {
         @SuppressLint("StaticFieldLeak")
         private val context = MyApplication.context
+        private val mutex = Mutex()
 
         private val downloadDir = FileUtil.DOWNLOAD_CACHE_DIR
 
         private val downloaderMap: HashMap<String, AriaDownloader> = hashMapOf()
         internal fun getDownloader(url: String): AriaDownloader? = downloaderMap[url]
+        private fun HashMap<String, AriaDownloader>.setDownloader(url: String, downloader: AriaDownloader): Boolean {
+            return if (this.containsKey(url)) {
+                false
+            } else {
+                this[url] = downloader
+                true
+            }
+        }
     }
 }
