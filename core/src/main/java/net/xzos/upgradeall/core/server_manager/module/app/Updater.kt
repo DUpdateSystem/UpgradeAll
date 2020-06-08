@@ -55,9 +55,9 @@ class Updater(private val app: App) : UpdaterApi {
 
     // 获取最新版本号
     override suspend fun getLatestVersioning(): String? {
-        val appInfo = app.appId
+        val appId = app.appId
         val releaseInfoList = getReleaseInfo() ?: return null
-        return if (appInfo != null) {
+        return if (appId != null) {
             if (releaseInfoList.isNotEmpty())
                 releaseInfoList[0].versionNumber
             else null

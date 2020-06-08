@@ -116,9 +116,5 @@ object GrpcApi {
     }
 
     private fun buildRequest(hubUuid: String, appId: List<AppIdItem>) =
-            Request.newBuilder().setHubUuid(hubUuid).apply {
-                for (infoItem in appId) {
-                    addAppId(AppIdItem.newBuilder().setKey(infoItem.key).setValue(infoItem.value).build())
-                }
-            }.build()
+            Request.newBuilder().setHubUuid(hubUuid).addAllAppId(appId).build()
 }

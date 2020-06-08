@@ -13,7 +13,6 @@ object DataCache {
     private var dataExpirationTime = AppValue.data_expiration_time
 
     private fun List<AppIdItem>.cacheKey(hubUuid: String): String? {
-        if (this.isEmpty()) return null
         var key = hubUuid
         for (i in this) {
             key += "+${i.value}"

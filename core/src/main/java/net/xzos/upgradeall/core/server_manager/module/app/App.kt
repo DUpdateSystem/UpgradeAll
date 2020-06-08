@@ -20,9 +20,11 @@ class App(override val appDatabase: AppDatabase) : BaseApp {
     var appId: List<AppIdItem>? = null
         get() {
             if (field != null) return field
-            if (hubDatabase != null)
-                for (appUrlTemplates in hubDatabase.hubConfig.appUrlTemplates) {
-                    val args = AutoTemplate(appDatabase.url, appUrlTemplates).args.map {
+            if (hubDatabase != null) {
+                if (hubDatabase.hubConfig.apiKeywords.isEmpty())
+                    return listOf()
+                for (appUrlTemplate in hubDatabase.hubConfig.appUrlTemplates) {
+                    val args = AutoTemplate(appDatabase.url, appUrlTemplate).args.map {
                         AutoTemplate.Arg(it.key.substringAfterLast("%"), it.value)
                     }.filter { it.value.isNotBlank() }
                     val keys = args.map { it.key }
@@ -33,6 +35,7 @@ class App(override val appDatabase: AppDatabase) : BaseApp {
                             field = it
                         }
                 }
+            }
             return null
         }
 
