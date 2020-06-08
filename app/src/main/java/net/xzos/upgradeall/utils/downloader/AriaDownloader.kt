@@ -27,7 +27,8 @@ import java.io.File
 class AriaDownloader(private val url: String) {
 
     private var taskId: Long = -1L
-    private var downloadFile: File? = null
+    var downloadFile: File? = null
+        private set
     private val downloadNotification: DownloadNotification = DownloadNotification(url)
 
     private val completeObserver = object : Observer {
@@ -40,15 +41,13 @@ class AriaDownloader(private val url: String) {
 
     private val cancelObserver = object : Observer {
         override fun onChanged(vars: Array<out Any>): Any? {
-            unregister()
-            delDownloader()
+            delTask()
             return null
         }
     }
 
     fun finalize() {
-        unregister()
-        delDownloader()
+        delTask()
     }
 
     private fun register() {
@@ -105,6 +104,7 @@ class AriaDownloader(private val url: String) {
     }
 
     fun delTask() {
+        unregister()
         delDownloader()
         downloadNotification.taskCancel()  // 保证下载完成后的通知取消
         Aria.download(this).load(taskId)
@@ -140,11 +140,25 @@ class AriaDownloader(private val url: String) {
     private fun startDownloadTask(fileName: String, headers: Map<String, String>): File? {
         // 检查重复任务
         val downloader = getDownloader(url)
-        if (downloader != null) {
-            // 继续 并返回已有任务文件
-            downloader.resume()
-            val filePath = Aria.download(this).getDownloadEntity(taskId)?.filePath ?: return null
-            return File(filePath)
+        val taskExists = Aria.download(this).taskExists(url)
+        when {
+            downloader != null && taskExists -> {
+                // 下载未完成
+                // 继续 并返回已有任务文件
+                downloader.resume()
+                val filePath = Aria.download(this).getDownloadEntity(taskId)?.filePath
+                        ?: return null
+                return File(filePath)
+            }
+            downloader != null && !taskExists -> {
+                // 下载已完成
+                return downloader.downloadFile
+            }
+            downloader == null && taskExists -> {
+                // 下载未完成且中途因不明原因被终止
+                val taskId = Aria.download(this).load(url).entity.id
+                Aria.download(this).load(taskId).cancel(true)
+            }
         }
         // 检查下载文件列表
         val taskList = Aria.download(this).totalTaskList
@@ -184,7 +198,7 @@ class AriaDownloader(private val url: String) {
     }
 
     private fun completeInstall(file: File) {
-        downloadNotification.taskCancel()
+        delTask()
         if (PreferencesMap.auto_delete_file) {
             file.delete()
             MiscellaneousUtils.showToast(context, R.string.auto_deleted_file)
