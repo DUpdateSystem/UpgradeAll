@@ -33,6 +33,11 @@ object PreferencesMap {
     var update_server_url: String
         get() = prefs.getString(UPDATE_SERVER_URL_KEY, AppConfig.update_server_url)!!
         set(value) = prefs.edit().putString(UPDATE_SERVER_URL_KEY, value).apply()
+
+    val auto_update_app_config: Boolean
+        get() = prefs.getBoolean("auto_update_app_config", true)
+    val auto_update_hub_config: Boolean
+        get() = prefs.getBoolean("auto_update_hub_config", true)
     val background_sync_time
         get() = prefs.getInt("background_sync_time", 18)
 

@@ -15,11 +15,25 @@
         app:title="@string/update_server_url"
         app:useSimpleSummaryProvider="true" />
 
-    <SeekBarPreference
-        android:defaultValue="18"
-        android:max="16"
-        android:summary="@string/background_sync_time_desc"
-        app:key="background_sync_time"
-        app:showSeekBarValue="true"
-        app:title="@string/background_sync_time" />
+    <PreferenceCategory app:title="@string/auto_update_setting">
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:summary="@string/auto_update_app_config_desc"
+            android:title="@string/auto_update_app_config"
+            app:key="auto_update_app_config" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:summary="@string/auto_update_hub_config_desc"
+            android:title="@string/auto_update_hub_config"
+            app:key="auto_update_hub_config" />
+
+        <SeekBarPreference
+            android:defaultValue="18"
+            android:max="72"
+            android:summary="@string/background_sync_time_desc"
+            app:key="background_sync_time"
+            app:showSeekBarValue="true"
+            app:title="@string/background_sync_time" />
+    </PreferenceCategory>
 </androidx.preference.PreferenceScreen>
