@@ -16,7 +16,8 @@ import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.Targe
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
-import net.xzos.upgradeall.core.data_manager.CloudConfigGetter
+import net.xzos.upgradeall.core.data_manager.*
+import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.ui.viewmodels.adapters.CloudAppItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.adapters.CloudHubItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
@@ -26,9 +27,22 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
 
     private var pageModelIndex = 0
 
+    init {
+        renewConfig()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pageModelIndex = arguments?.getInt(ARG_SECTION_NUMBER) ?: 0
+    }
+
+    private fun renewConfig() {
+        GlobalScope.launch {
+            if (PreferencesMap.auto_update_app_config)
+                AppDatabaseManager.renewAllAppConfigFromCloud()
+            if (PreferencesMap.auto_update_hub_config)
+                HubDatabaseManager.renewAllHubConfigFromCloud()
+        }
     }
 
     override fun onCreateView(

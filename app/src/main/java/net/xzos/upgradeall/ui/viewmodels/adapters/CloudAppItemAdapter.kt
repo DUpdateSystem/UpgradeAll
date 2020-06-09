@@ -89,17 +89,13 @@ class CloudAppItemAdapter(
         AppManager.getSingleApp(uuid = appUuid)?.run {
             versionCheckButton.visibility = View.VISIBLE
             setDownloadStatus(holder, true)
-            GlobalScope.launch {
-                val appConfigGson = CloudConfigGetter.getAppCloudConfig(appUuid)
-                this@run.appDatabase.extraData.let {
-                    val cloudAppVersion = it?.cloudAppConfig?.info?.configVersion
-                    val localAppVersion = appConfigGson?.info?.configVersion
-                    withContext(Dispatchers.Main) {
-                        if (cloudAppVersion != null && localAppVersion != null && cloudAppVersion > localAppVersion)
-                            versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
-                        setDownloadStatus(holder, false)
-                    }
-                }
+            val appConfigGson = CloudConfigGetter.getAppCloudConfig(appUuid)
+            this@run.appDatabase.extraData.let {
+                val cloudAppVersion = it?.cloudAppConfig?.info?.configVersion
+                val localAppVersion = appConfigGson?.info?.configVersion
+                if (cloudAppVersion != null && localAppVersion != null && cloudAppVersion > localAppVersion)
+                    versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
+                setDownloadStatus(holder, false)
             }
         } ?: kotlin.run {
             versionCheckButton.visibility = View.GONE

@@ -76,17 +76,13 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListIte
         if (HubDatabaseManager.exists(hubUuid)) {
             versionCheckButton.visibility = View.VISIBLE
             setDownloadStatus(holder, true)
-            GlobalScope.launch {
-                val hubConfigGson = CloudConfigGetter.getHubCloudConfig(hubUuid)
-                HubDatabaseManager.getDatabase(uuid = hubUuid)?.hubConfig?.let {
-                    val cloudHubVersion = it.info.configVersion
-                    val localHubVersion = hubConfigGson?.info?.configVersion
-                    withContext(Dispatchers.Main) {
-                        if (localHubVersion != null && cloudHubVersion > localHubVersion)
-                            versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
-                        setDownloadStatus(holder, false)
-                    }
-                }
+            val hubConfigGson = CloudConfigGetter.getHubCloudConfig(hubUuid)
+            HubDatabaseManager.getDatabase(uuid = hubUuid)?.hubConfig?.let {
+                val cloudHubVersion = it.info.configVersion
+                val localHubVersion = hubConfigGson?.info?.configVersion
+                if (localHubVersion != null && cloudHubVersion > localHubVersion)
+                    versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)
+                setDownloadStatus(holder, false)
             }
         } else
             versionCheckButton.visibility = View.GONE
