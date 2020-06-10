@@ -1,7 +1,6 @@
 package net.xzos.upgradeall.utils.downloader
 
 import android.annotation.SuppressLint
-import android.app.Notification
 import android.net.Uri
 import com.arialyy.aria.core.Aria
 import com.arialyy.aria.core.common.HttpOption
@@ -63,8 +62,8 @@ class AriaDownloader(private val url: String) {
     }
 
     private fun unregister() {
-        AriaRegister.removeObserver(url.getCompleteNotifyKey())
-        AriaRegister.removeObserver(url.getCancelNotifyKey())
+        AriaRegister.removeObserver(completeObserver)
+        AriaRegister.removeObserver(cancelObserver)
     }
 
     private fun delDownloader() {
@@ -104,7 +103,6 @@ class AriaDownloader(private val url: String) {
     fun delTask() {
         unregister()
         delDownloader()
-        downloadNotification.taskCancel()  // 保证下载完成后的通知取消
         Aria.download(this).load(taskId)
                 .ignoreCheckPermissions()
                 .cancel(true)
@@ -211,6 +209,7 @@ class AriaDownloader(private val url: String) {
 
     private fun completeInstall(file: File) {
         delTask()
+        downloadNotification.taskCancel()  // 手动取消通知，因下载完成通知已解绑
         if (PreferencesMap.auto_delete_file) {
             file.delete()
             MiscellaneousUtils.showToast(context, R.string.auto_deleted_file)

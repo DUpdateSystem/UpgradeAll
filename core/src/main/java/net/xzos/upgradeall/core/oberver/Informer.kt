@@ -1,5 +1,11 @@
 package net.xzos.upgradeall.core.oberver
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+
 private const val DEFAULT_TAG = "NULL"
 
 interface Informer {
@@ -13,9 +19,13 @@ interface Informer {
     }
 
     fun notifyChanged(tag: String, vararg vars: Any) {
-        val observerMap = observerMap.getObserverMap(this)
-        for (observer in observerMap[tag] ?: return) {
-            observer.onChanged(*vars)
+        val observerMap = getObserverMap(this)
+        runBlocking {
+            getMutex(this@Informer).withLock {
+                for (observer in observerMap[tag] ?: return@runBlocking) {
+                    observer.onChanged(*vars)
+                }
+            }
         }
     }
 
@@ -24,49 +34,69 @@ interface Informer {
     }
 
     fun observeForever(tag: String, observer: Observer) {
-        val observerMap = observerMap.getObserverMap(this)
-        val observerList = observerMap[tag] ?: mutableListOf<Observer>().apply {
-            observerMap[tag] = this
+        val observerMap = getObserverMap(this)
+        runBlocking {
+            getMutex(this@Informer).withLock {
+                val observerList = observerMap[tag] ?: mutableListOf<Observer>().apply {
+                    observerMap[tag] = this
+                }
+                if (!observerList.contains(observer))
+                    observerList.add(observer)
+            }
         }
-        if (!observerList.contains(observer))
-            observerList.add(observer)
     }
 
     fun removeObserver(observer: Observer) {
-        val observerMap = observerMap.getObserverMap(this)
+        val observerMap = getObserverMap(this)
         val observerKeyList = mutableListOf<String>()
-        for (observerEntry in observerMap) {
-            val observerKey = observerEntry.key
-            val observerList = observerEntry.value
-            if (observerList.contains(observer)) {
-                observerList.remove(observer)
-                if (observerList.isEmpty())
-                    observerKeyList.add(observerKey)
+        GlobalScope.launch {
+            getMutex(this@Informer).withLock {
+                for (observerEntry in observerMap) {
+                    val observerKey = observerEntry.key
+                    val observerList = observerEntry.value
+                    // 删除 observer
+                    if (observerList.contains(observer)) {
+                        observerList.remove(observer)
+                        // 记录为空的列表
+                        if (observerList.isEmpty())
+                            observerKeyList.add(observerKey)
+                    }
+                }
             }
         }
+        // 清除空列表
         for (key in observerKeyList) {
             observerMap.remove(key)
         }
     }
 
     fun removeObserver(tag: String) {
-        val observerMap = observerMap.getObserverMap(this)
+        val observerMap = getObserverMap(this)
         observerMap.remove(tag)
     }
 
     fun finalize() {
         observerMap.remove(this)
+        mutexMap.remove(this)
     }
 
     companion object {
         private val observerMap: MutableMap<Informer, MutableMap<String, MutableList<Observer>>> = mutableMapOf()
+        private val mutexMap: MutableMap<Informer, Mutex> = mutableMapOf()
 
-        private fun MutableMap<Informer, MutableMap<String, MutableList<Observer>>>.getObserverMap(informer: Informer)
+        private fun getObserverMap(informer: Informer)
                 : MutableMap<String, MutableList<Observer>> {
-            return this[informer]
+            return observerMap[informer]
                     ?: mutableMapOf<String, MutableList<Observer>>().also {
                         observerMap[informer] = it
                     }
+        }
+
+        private fun getMutex(informer: Informer)
+                : Mutex {
+            return mutexMap[informer] ?: Mutex().also {
+                mutexMap[informer] = it
+            }
         }
     }
 }
