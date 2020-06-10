@@ -25,7 +25,11 @@ import java.io.File
 
 class DownloadNotification(private val url: String) {
 
-    internal val notificationIndex: Int = NOTIFICATION_INDEX
+    private val notificationIndex: Int = NOTIFICATION_INDEX
+
+    private val builder = NotificationCompat.Builder(context, CHANNEL_ID).apply {
+        priority = NotificationCompat.PRIORITY_LOW
+    }
 
     private val startObserver = object : Observer {
         override fun onChanged(vars: Array<out Any>): Any? {
@@ -93,11 +97,7 @@ class DownloadNotification(private val url: String) {
         AriaRegister.removeObserver(url.getFailNotifyKey())
     }
 
-    private val builder = NotificationCompat.Builder(context, CHANNEL_ID).apply {
-        priority = NotificationCompat.PRIORITY_LOW
-    }
-
-    internal fun waitDownloadTaskNotification(fileName: String? = null): Notification {
+    internal fun waitDownloadTaskNotification(fileName: String? = null) {
         var text = "应用下载"
         if (fileName != null) {
             text += "：$fileName"
@@ -110,7 +110,7 @@ class DownloadNotification(private val url: String) {
                     .setProgress(0, PROGRESS_MAX, true)
                     .setOngoing(true)
         }
-        return notificationNotify()
+        notificationNotify()
     }
 
     private fun createNotificationChannel() {
@@ -238,10 +238,8 @@ class DownloadNotification(private val url: String) {
         notificationNotify()
     }
 
-    private fun notificationNotify(): Notification {
-        val notification = builder.build()
-        NotificationManagerCompat.from(context).notify(notificationIndex, notification)
-        return notification
+    private fun notificationNotify() {
+        notificationNotify(notificationIndex, builder.build())
     }
 
     private fun cancelNotification() {
@@ -272,7 +270,8 @@ class DownloadNotification(private val url: String) {
         private const val PROGRESS_MAX = 100
         private val context = MyApplication.context
 
-        private var NOTIFICATION_INDEX = 200
+        private const val DOWNLOAD_SERVICE_NOTIFICATION_INDEX = 200
+        private var NOTIFICATION_INDEX = 201
             get() = field.also {
                 field++
             }
@@ -281,5 +280,24 @@ class DownloadNotification(private val url: String) {
                 field++
                 return field
             }
+
+        private val downloadServiceNotificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID).also {
+            it.priority = NotificationCompat.PRIORITY_LOW
+            NotificationManagerCompat.from(context).apply {
+                it.setContentTitle("下载服务运行中")
+                        .setSmallIcon(android.R.drawable.stat_sys_download_done)
+                        .setOngoing(true)
+            }
+        }
+
+        fun getDownloadServiceNotification(): Pair<Int, Notification> {
+            return Pair(DOWNLOAD_SERVICE_NOTIFICATION_INDEX,
+                    notificationNotify(DOWNLOAD_SERVICE_NOTIFICATION_INDEX, downloadServiceNotificationBuilder.build()))
+        }
+
+        private fun notificationNotify(notificationId: Int, notification: Notification): Notification {
+            NotificationManagerCompat.from(context).notify(notificationId, notification)
+            return notification
+        }
     }
 }

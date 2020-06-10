@@ -11,6 +11,12 @@ import net.xzos.upgradeall.utils.downloader.AriaRegister.getCompleteNotifyKey
 
 class AriaDownloadService : Service() {
 
+    override fun onCreate() {
+        super.onCreate()
+        val (notificationId, notification) = DownloadNotification.getDownloadServiceNotification()
+        startForeground(notificationId, notification)
+    }
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -23,16 +29,12 @@ class AriaDownloadService : Service() {
         val url = intent.getStringExtra(URL) as String
         val fileName = intent.getStringExtra(FILE_NAME) as String
         val headers = intent.getSerializableExtra(HEADERS) as HashMap<String, String>
-        runBlocking {
-            val ariaDownloader = AriaDownloader(url)
-            val file = ariaDownloader.start(fileName, headers)
-            if (file != null) {
-                val (notificationId, notification) = ariaDownloader.getNotification()
-                startForeground(notificationId, notification)
-                register(startId, url)
-            } else {
-                stopSelf(startId)
-            }
+        val ariaDownloader = AriaDownloader(url)
+        val file = runBlocking { ariaDownloader.start(fileName, headers) }
+        if (file != null) {
+            register(startId, url)
+        } else {
+            stopSelf(startId)
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -40,6 +42,7 @@ class AriaDownloadService : Service() {
     private fun register(startId: Int, url: String) {
         val observer = object : Observer {
             override fun onChanged(vars: Array<out Any>): Any? {
+                AriaRegister.removeObserver(this)
                 stopSelf(startId)
                 return null
             }

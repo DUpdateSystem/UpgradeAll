@@ -127,7 +127,6 @@ object UpdateNotification : Informer {
         return notification
     }
 
-
     private fun notificationNotify(notificationId: Int): Notification {
         val notification = builder.build()
         return notificationNotify(notificationId, notification)
