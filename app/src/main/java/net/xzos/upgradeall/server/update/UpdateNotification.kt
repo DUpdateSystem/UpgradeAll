@@ -66,22 +66,18 @@ object UpdateNotification : Informer {
     }
 
     fun startUpdateNotification(notificationId: Int): Notification {
-        NotificationManagerCompat.from(context).apply {
-            builder.setContentTitle("UpgradeAll 更新服务运行中")
-                    .setContentText(null)
-                    .setContentIntent(mainActivityPendingIntent)
-        }
+        builder.setContentTitle("UpgradeAll 更新服务运行中")
+                .setContentText(null)
+                .setContentIntent(mainActivityPendingIntent)
         return notificationNotify(notificationId)
     }
 
     private fun updateStatusNotification(allAppsNum: Int, finishedAppNum: Int) {
         val progress = (finishedAppNum.toDouble() / allAppsNum * 100).toInt()
-        NotificationManagerCompat.from(context).apply {
-            builder.setContentTitle("检查更新中")
-                    .setContentText("已完成: ${finishedAppNum}/${allAppsNum}")
-                    .setProgress(100, progress, false)
-                    .setOngoing(true)
-        }
+        builder.setContentTitle("检查更新中")
+                .setContentText("已完成: ${finishedAppNum}/${allAppsNum}")
+                .setProgress(100, progress, false)
+                .setOngoing(true)
         notificationNotify(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
     }
 
@@ -96,14 +92,12 @@ object UpdateNotification : Informer {
             text += "（ ${needUpdateApplicationList.size} 个应用市场）"
         }
         if (!MiscellaneousUtils.isBackground()) {
-            NotificationManagerCompat.from(context).apply {
-                builder.run {
-                    setContentTitle(text)
-                    setProgress(0, 0, false)
-                    setOngoing(false)
-                    setContentText("点按打开应用主页")
-                    setContentIntent(mainActivityPendingIntent)
-                }
+            builder.run {
+                setContentTitle(text)
+                setProgress(0, 0, false)
+                setOngoing(false)
+                setContentText("点按打开应用主页")
+                setContentIntent(mainActivityPendingIntent)
             }
             notificationNotify(UPDATE_NOTIFICATION_ID, builder.setAutoCancel(true).build())
         }
