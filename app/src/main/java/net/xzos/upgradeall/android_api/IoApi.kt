@@ -28,12 +28,11 @@ object IoApi : IoApi {
     private val context = MyApplication.context
 
     // 注释相应平台的下载软件
-    override suspend fun downloadFile(fileName: String, url: String, headers: Map<String, String>,
-                              externalDownloader: Boolean) {
+    override suspend fun downloadFile(url: String, fileName: String, headers: HashMap<String, String>,
+                                      externalDownloader: Boolean) {
         if (!externalDownloader) {
-            val ariaDownloader = AriaDownloader(url)
             try {
-                ariaDownloader.start(fileName, headers = headers)
+                AriaDownloader.startDownloadService(url, fileName, headers)
             } catch (e: IllegalArgumentException) {
                 Log.e(objectTag, TAG, """ downloadFile: 下载任务失败
                         |下载参数: URL: $url, FileName: $fileName, headers: $headers

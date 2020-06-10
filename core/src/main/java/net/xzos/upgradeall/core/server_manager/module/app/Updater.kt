@@ -77,7 +77,7 @@ class Updater(private val app: App) : UpdaterApi {
                 val url = (if (!downloadInfo?.url.isNullOrBlank())
                     downloadInfo?.url
                 else asset.downloadUrl) ?: return@withContext
-                val headers = mutableMapOf<String, String>().also {
+                val headers = hashMapOf<String, String>().also {
                     for (dict in downloadInfo?.requestHeaderList ?: listOf())
                         it[dict.key] = dict.value
                 }

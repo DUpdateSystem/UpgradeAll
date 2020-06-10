@@ -9,7 +9,7 @@ interface IoApi {
 
     // 注释相应平台的下载软件
     suspend fun downloadFile(
-            fileName: String, url: String, headers: Map<String, String> = mapOf(),
+            url: String, fileName: String, headers: HashMap<String, String>,
             externalDownloader: Boolean
     )
 

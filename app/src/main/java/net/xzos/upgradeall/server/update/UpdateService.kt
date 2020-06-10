@@ -32,13 +32,13 @@ class UpdateService : Service() {
     /**
      * 启动 UpdateManager#renewAll()
      */
-    override fun onCreate() {
-        super.onCreate()
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val notification = UpdateNotification.startUpdateNotification(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
         startForeground(UPDATE_SERVER_RUNNING_NOTIFICATION_ID, notification)
         GlobalScope.launch {
             UpdateManager.renewAll()
         }
+        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onDestroy() {
