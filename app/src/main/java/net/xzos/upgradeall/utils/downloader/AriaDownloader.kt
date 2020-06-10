@@ -135,15 +135,11 @@ class AriaDownloader(private val url: String) {
         }
     }
 
-    fun getNotification(fileName: String? = downloadFile?.name): Pair<Int, Notification> {
-        return Pair(downloadNotification.notificationIndex, downloadNotification.waitDownloadTaskNotification(fileName))
-    }
-
     private fun startAndRegister(fileName: String, headers: Map<String, String> = hashMapOf()): File? {
         val file = startDownloadTask(fileName, headers)
         if (file != null) {
             downloadFile = file
-            getNotification(file.name)
+            downloadNotification.waitDownloadTaskNotification(file.name)
             val text = file.name + context.getString(R.string.download_task_begin)
             MiscellaneousUtils.showToast(context, text = text)
             register()
