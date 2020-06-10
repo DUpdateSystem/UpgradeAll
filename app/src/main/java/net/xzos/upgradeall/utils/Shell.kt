@@ -9,10 +9,14 @@ import net.xzos.upgradeall.core.data_manager.utils.wait
 
 object Shell {
 
-    private val session = RxCmdShell.builder().build().open().blockingGet()
-    private val rootSession = if (Root.Builder().build().blockingGet().state == Root.State.ROOTED)
-        RxCmdShell.builder().root(true).build().open().blockingGet()
-    else null
+    private val session by lazy {
+        RxCmdShell.builder().build().open().blockingGet()
+    }
+    private val rootSession by lazy {
+        if (Root.Builder().build().blockingGet().state == Root.State.ROOTED)
+            RxCmdShell.builder().root(true).build().open().blockingGet()
+        else null
+    }
 
     fun runShellCommand(commands: String): Cmd.Result? {
         return runShell(commands, session)

@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.utils.downloader
 
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -24,7 +25,7 @@ import java.io.File
 
 class DownloadNotification(private val url: String) {
 
-    private val notificationIndex: Int = NOTIFICATION_INDEX
+    internal val notificationIndex: Int = NOTIFICATION_INDEX
 
     private val startObserver = object : Observer {
         override fun onChanged(vars: Array<out Any>): Any? {
@@ -96,16 +97,20 @@ class DownloadNotification(private val url: String) {
         priority = NotificationCompat.PRIORITY_LOW
     }
 
-    internal fun waitDownloadTaskNotification(fileName: String) {
+    internal fun waitDownloadTaskNotification(fileName: String? = null): Notification {
+        var text = "应用下载"
+        if (fileName != null) {
+            text += "：$fileName"
+        }
         NotificationManagerCompat.from(context).apply {
             builder.clearActions()
-                    .setContentTitle("应用下载: $fileName")
+                    .setContentTitle(text)
                     .setContentText("正在准备")
                     .setSmallIcon(android.R.drawable.stat_sys_download)
                     .setProgress(0, PROGRESS_MAX, true)
                     .setOngoing(true)
         }
-        notificationNotify()
+        return notificationNotify()
     }
 
     private fun createNotificationChannel() {
@@ -233,8 +238,10 @@ class DownloadNotification(private val url: String) {
         notificationNotify()
     }
 
-    private fun notificationNotify() {
-        NotificationManagerCompat.from(context).notify(notificationIndex, builder.build())
+    private fun notificationNotify(): Notification {
+        val notification = builder.build()
+        NotificationManagerCompat.from(context).notify(notificationIndex, notification)
+        return notification
     }
 
     private fun cancelNotification() {

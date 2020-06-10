@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.utils.downloader
 
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.net.Uri
 import com.arialyy.aria.core.Aria
 import com.arialyy.aria.core.common.HttpOption
@@ -70,7 +71,7 @@ class AriaDownloader(private val url: String) {
         downloaderMap.remove(url)
     }
 
-    suspend fun start(fileName: String, headers: Map<String, String> = hashMapOf()): File? {
+    suspend fun start(fileName: String, headers: HashMap<String, String> = hashMapOf()): File? {
         return mutex.withLock {
             startAndRegister(fileName, headers)
         }
@@ -134,11 +135,15 @@ class AriaDownloader(private val url: String) {
         }
     }
 
+    fun getNotification(fileName: String? = downloadFile?.name): Pair<Int, Notification> {
+        return Pair(downloadNotification.notificationIndex, downloadNotification.waitDownloadTaskNotification(fileName))
+    }
+
     private fun startAndRegister(fileName: String, headers: Map<String, String> = hashMapOf()): File? {
         val file = startDownloadTask(fileName, headers)
         if (file != null) {
             downloadFile = file
-            downloadNotification.waitDownloadTaskNotification(file.name)
+            getNotification(file.name)
             val text = file.name + context.getString(R.string.download_task_begin)
             MiscellaneousUtils.showToast(context, text = text)
             register()
@@ -233,6 +238,10 @@ class AriaDownloader(private val url: String) {
                 this[url] = downloader
                 true
             }
+        }
+
+        fun startDownloadService(url: String, fileName: String, headers: HashMap<String, String> = hashMapOf()) {
+            AriaDownloadService.startService(context, url, fileName, headers)
         }
     }
 }
