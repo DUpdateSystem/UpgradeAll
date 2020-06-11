@@ -2,8 +2,8 @@ package net.xzos.upgradeall.core.network_api
 
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
+import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import kotlinx.coroutines.TimeoutCancellationException
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data_manager.utils.DataCache
@@ -20,6 +20,9 @@ object GrpcApi {
     private var updateServerUrl: String = AppConfig.update_server_url
     private var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
 
+    private const val shortDeadlineMs = 15L
+    private const val longDeadlineMs = 120L
+
     internal fun setUpdateServerUrl(url: String?): Boolean {
         if (url.isNullOrBlank()) return false
         return try {
@@ -34,7 +37,7 @@ object GrpcApi {
     suspend fun getCloudConfig(): String? {
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         return try {
-            blockingStub.getCloudConfig(Empty.newBuilder().build()).s
+            blockingStub.withDeadlineAfter(shortDeadlineMs, TimeUnit.SECONDS).getCloudConfig(Empty.newBuilder().build()).s
         } catch (ignore: StatusRuntimeException) {
             null
         }
@@ -61,7 +64,7 @@ object GrpcApi {
                 }).build()
         try {
             val responseList1 =
-                    blockingStub.getAppStatusList(request).responseList
+                    blockingStub.withDeadlineAfter(longDeadlineMs, TimeUnit.SECONDS).getAppStatusList(request).responseList
             for (responsePackage in responseList1) {
                 DataCache.cacheReleaseInfo(hubUuid, responsePackage.appIdList, responsePackage.appStatus)
             }
@@ -69,12 +72,11 @@ object GrpcApi {
                 invalidHubUuidList.add(hubUuid)
                 return null
             }
-        } catch (e: TimeoutCancellationException) {
-            Log.w(logObjectTag, TAG, """getAppStatusList: 请求超时，取消
-                hub_uuid: $hubUuid
-                app_info: $appIdList
-            """.trimIndent())
         } catch (ignore: StatusRuntimeException) {
+            if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
+                logDeadlineError("getAppStatusList", hubUuid, appIdList.toString())
+            }
+            return null
         }
         return responseList
     }
@@ -86,8 +88,11 @@ object GrpcApi {
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         val request = buildRequest(hubUuid, appId)
         val returnValue = try {
-            blockingStub.getAppStatus(request)
+            blockingStub.withDeadlineAfter(shortDeadlineMs, TimeUnit.SECONDS).getAppStatus(request)
         } catch (ignore: StatusRuntimeException) {
+            if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
+                logDeadlineError("getAppStatus", hubUuid, appId.toString())
+            }
             return null
         }
         return if (!returnValue.validHubUuid) {
@@ -109,12 +114,22 @@ object GrpcApi {
                 addAssetIndex(i)
         }.build()
         return try {
-            blockingStub.getDownloadInfo(request)
+            blockingStub.withDeadlineAfter(shortDeadlineMs, TimeUnit.SECONDS).getDownloadInfo(request)
         } catch (ignore: StatusRuntimeException) {
+            if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
+                logDeadlineError("getDownloadInfo", hubUuid, appId.toString())
+            }
             null
         }
     }
 
     private fun buildRequest(hubUuid: String, appId: List<AppIdItem>) =
             Request.newBuilder().setHubUuid(hubUuid).addAllAppId(appId).build()
+
+    private fun logDeadlineError(tag: String, hubUuid: String, appIdString: String) {
+        Log.w(logObjectTag, TAG, """$tag: 请求超时，取消
+                hub_uuid: $hubUuid
+                app_info: $appIdString
+            """.trimIndent())
+    }
 }
