@@ -36,7 +36,6 @@ object MiscellaneousUtils {
     fun initData() {
         initObject()
         PreferencesMap.sync()
-        UpdateService.startService(context)
     }
 
     private fun initObject() {

@@ -13,7 +13,6 @@ import androidx.core.app.TaskStackBuilder
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
@@ -22,12 +21,11 @@ import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
-object UpdateNotification : Informer {
+object UpdateNotification {
     private val context = MyApplication.context
     private const val CHANNEL_ID = "UpdateServiceNotification"
     private val UPDATE_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_notification_id)
     val UPDATE_SERVER_RUNNING_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_server_running_notification_id)
-    const val FINISH_UPDATE = "FINISH_UPDATE"
 
     private val mainActivityPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
         addNextIntentWithParentStack(Intent(context, MainActivity::class.java))
@@ -61,7 +59,6 @@ object UpdateNotification : Informer {
                 updateNotification(needUpdateAppList)
             else
                 cancelNotification()
-            notifyChanged(FINISH_UPDATE)
         }
     }
 
