@@ -134,6 +134,8 @@ class DownloadNotification(private val url: String) {
             setProgress(0, 0, false)
             setOngoing(false)
         }
+        // TODO: 更全面的安装过程检测
+        // 安装失败后回退操作
         notificationNotify()
     }
 

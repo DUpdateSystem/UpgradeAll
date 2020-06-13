@@ -6,16 +6,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.xzos.upgradeall.application.MyApplication
 
 class UpdateServiceBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        GlobalScope.launch {
-            UpdateService.startService(context)
-        }
+        UpdateService.startService(context)
     }
 
     companion object {
