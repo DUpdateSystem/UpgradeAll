@@ -28,6 +28,8 @@ class AriaDownloadService : Service() {
         }
         val url = intent.getStringExtra(URL) as String
         val fileName = intent.getStringExtra(FILE_NAME) as String
+
+        @Suppress("UNCHECKED_CAST")
         val headers = intent.getSerializableExtra(HEADERS) as HashMap<String, String>
         val ariaDownloader = AriaDownloader(url)
         val file = runBlocking { ariaDownloader.start(fileName, headers) }

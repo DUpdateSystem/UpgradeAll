@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.server.log
+package net.xzos.upgradeall.data.log
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

@@ -10,7 +10,6 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val downloaderId = intent.getStringExtra(EXTRA_IDENTIFIER_DOWNLOADER_URL) ?: return
         val downloader = AriaDownloader.getDownloader(downloaderId) ?: return
-        val a = intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)
         when (intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)) {
             DOWNLOAD_CANCEL -> downloader.delTask()
             DOWNLOAD_RESTART -> downloader.restart()
