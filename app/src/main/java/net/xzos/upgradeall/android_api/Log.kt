@@ -12,7 +12,7 @@ import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.system_api.api.LOG_CHANGED_TAG
 import net.xzos.upgradeall.core.system_api.api.LogApi
 import net.xzos.upgradeall.core.system_api.api.PRINT_LOG_TAG
-import net.xzos.upgradeall.server.log.LogLiveData
+import net.xzos.upgradeall.data.log.LogLiveData
 
 
 object Log {

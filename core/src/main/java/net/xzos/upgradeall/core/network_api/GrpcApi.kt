@@ -4,6 +4,8 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data_manager.utils.DataCache
@@ -31,6 +33,16 @@ object GrpcApi {
             true
         } catch (e: IllegalArgumentException) {
             false
+        }
+    }
+
+    fun newClientProxy() {
+        GlobalScope.launch {
+            try {
+                ClientProxy().newClientProxy(mChannel)
+            } catch (ignore: Throwable) {
+               print(ignore)
+            }
         }
     }
 

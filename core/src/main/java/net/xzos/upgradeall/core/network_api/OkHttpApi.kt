@@ -1,12 +1,11 @@
 package net.xzos.upgradeall.core.network_api
 
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
-import net.xzos.upgradeall.core.data_manager.utils.DataCache
 import net.xzos.upgradeall.core.log.Log
 import okhttp3.CacheControl
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import java.io.IOException
 
 
@@ -20,41 +19,27 @@ object OkHttpApi {
 
     fun getHttpResponse(
             objectTag: ObjectTag,
-            url: String, catchError: Boolean = true
-    ): String? =
-            DataCache.getHttpResponseCache(url)
-                    ?: getRawHttpResponse(objectTag, url, catchError)?.also {
-                        DataCache.cacheHttpResponse(url, it)
-                    }
-
-    private fun getRawHttpResponse(
-            objectTag: ObjectTag,
-            url: String, catchError: Boolean
-    ): String? {
+            url: String, headers: Map<String, String> = mapOf()
+    ): Response? {
         try {
-            Request.Builder().apply {
-                // 对 Core 数据缓存
-                if (objectTag.sort != core)
-                    cacheControl(cacheControl)
-            }.url(url)
+            Request.Builder().cacheControl(cacheControl).url(url).apply {
+                for (key in headers.keys)
+                    addHeader(key, headers.getValue(key))
+            }
         } catch (e: IllegalArgumentException) {
-            Log.e(
-                    objectTag,
-                    TAG, """getHttpResponse: URL: $url 
-                    $e """.trimMargin()
+            Log.e(objectTag, TAG,
+                    """getHttpResponse: URL: $url 
+                        |$e """.trimMargin()
             )
             null
         }?.let { builder ->
             val request = builder.build()
-            val response = try {
+            return try {
                 okHttpClient.newCall(request).execute()
             } catch (e: IOException) {
-                if (objectTag.sort != ObjectTag.core)
-                    throw  e
-                Log.e(
-                        objectTag,
-                        TAG, """getHttpResponse: 网络错误 
-                    ERROR_MESSAGE: $e""".trimIndent()
+                Log.e(objectTag, TAG,
+                        """getHttpResponse: 网络错误 
+                            |ERROR_MESSAGE: $e""".trimIndent()
                 )
                 null
             } finally {
@@ -65,17 +50,6 @@ object OkHttpApi {
                         requestHeaders[name] = value
                     }
                 }
-            }
-            return try {
-                response?.body?.string()
-            } catch (e: Throwable) {
-                if (!catchError) throw e
-                Log.e(
-                        objectTag,
-                        TAG, """getHttpResponse: 网络错误（OTHER_ERROR）
-                    ERROR_MESSAGE: $e""".trimIndent()
-                )
-                null
             }
         }
         return null
