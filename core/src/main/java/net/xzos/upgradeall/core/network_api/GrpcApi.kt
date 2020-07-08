@@ -41,7 +41,6 @@ object GrpcApi {
             try {
                 ClientProxy().newClientProxy(mChannel)
             } catch (ignore: Throwable) {
-               print(ignore)
             }
         }
     }

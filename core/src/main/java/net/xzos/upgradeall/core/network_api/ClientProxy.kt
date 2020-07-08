@@ -32,17 +32,16 @@ class ClientProxy {
             if (httpRequest.method == "id") {
                 id = httpRequest.url.toInt()
                 pushHttpResponse(httpResponse,
-                        HttpResponseItem.newBuilder().setCode(0).setUrl(id.toString()).build())
+                        HttpResponseItem.newBuilder().setCode(0).setKey(id.toString()).build())
             } else {
-                when (httpRequest.method) {
-                    "get" -> pushHttpResponse(httpResponse, getHttpResponseItem(httpRequest))
-                }
+                pushHttpResponse(httpResponse, getHttpResponseItem(httpRequest))
             }
         }
     }
 
     private fun getHttpResponseItem(request: HttpRequestItem?): HttpResponseItem {
         request ?: return HttpResponseItem.newBuilder().setCode(0).build()
+        val key = request.key
         val method = request.method
         val url = request.url
         val headers = request.headersList
@@ -50,9 +49,15 @@ class ClientProxy {
             for (header in headers)
                 this[header.key] = header.value
         }
-        val httpResponseItemBuilder = HttpResponseItem.newBuilder().setUrl(url)
-        val response = OkHttpApi.getHttpResponse(objectTag, url, headersMap)
-                ?: return httpResponseItemBuilder.setCode(-1).build()
+        val httpResponseItemBuilder = HttpResponseItem.newBuilder().setKey(key)
+        val response = when (method) {
+            "get" -> OkHttpApi.get(objectTag, url, headersMap)
+            "post" -> {
+                val body = request.body
+                OkHttpApi.post(objectTag, url, headersMap, body.type, body.text)
+            }
+            else -> null
+        } ?: return httpResponseItemBuilder.setCode(-1).build()
         return httpResponseItemBuilder.setCode(response.code).setText(response.body?.string()).build()
     }
 
