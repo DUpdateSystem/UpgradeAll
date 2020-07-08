@@ -39,7 +39,7 @@ object CloudConfigGetter {
     private suspend fun getCloudConfigFromWeb(url: String?): CloudConfigList? {
         val jsonText = if (url != null)
             @Suppress("BlockingMethodInNonBlockingContext")
-            OkHttpApi.getHttpResponse(objectTag, url)?.body?.string()
+            OkHttpApi.get(objectTag, url)?.body?.string()
         else GrpcApi.getCloudConfig()
         return if (!jsonText.isNullOrEmpty()) {
             try {
