@@ -164,10 +164,15 @@ class DownloadNotification(private val url: String) {
     fun taskRunning(task: DownloadTask) {
         val progressCurrent: Int = task.percent
         val speed = task.convertSpeed
-        builder.setContentTitle("应用下载: ${File(task.filePath).name}")
+        builder.clearActions()
+                .setContentTitle("应用下载: ${File(task.filePath).name}")
                 .setContentText(speed)
                 .setProgress(PROGRESS_MAX, progressCurrent, false)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
+                .addAction(android.R.drawable.ic_media_pause, "暂停",
+                        getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_PAUSE))
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
+                        getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL))
         notificationNotify()
     }
 

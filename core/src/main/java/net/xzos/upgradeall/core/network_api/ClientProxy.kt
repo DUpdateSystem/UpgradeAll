@@ -30,7 +30,7 @@ class ClientProxy {
         val httpRequestIterator = blockingStub.newClientProxyCall(Empty.newBuilder().build())
         for (httpRequest in httpRequestIterator) {
             if (httpRequest.method == "id") {
-                id = httpRequest.url.toInt()
+                id = httpRequest.key.toInt()
                 pushHttpResponse(httpResponse,
                         HttpResponseItem.newBuilder().setCode(0).setKey(id.toString()).build())
             } else {
