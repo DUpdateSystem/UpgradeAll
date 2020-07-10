@@ -3,7 +3,6 @@ package net.xzos.upgradeall.core.server_manager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.xzos.upgradeall.core.network_api.GrpcApi
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.module.AppHub
@@ -43,8 +42,6 @@ object UpdateManager : UpdateControl(AppManager.apps), AppHub, Informer {
     }
 
     suspend fun renewAll() {
-        GrpcApi.newClientProxy()
-        finishedUpdateAppNum = 0
         renewAll(concurrency = true, preGetData = false)
         notifyChanged()
     }

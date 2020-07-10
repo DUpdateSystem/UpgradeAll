@@ -2,6 +2,9 @@ package net.xzos.upgradeall.core.network_api
 
 import io.grpc.ManagedChannel
 import io.grpc.stub.StreamObserver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.route.Empty
@@ -10,13 +13,17 @@ import net.xzos.upgradeall.core.route.HttpResponseItem
 import net.xzos.upgradeall.core.route.UpdateServerRouteGrpc
 
 
-class ClientProxy {
-    var id = -1
+object ClientProxy {
+    private const val TAG = "ClientProxy"
+    private val objectTag = ObjectTag(core, TAG)
+    private lateinit var httpResponse: StreamObserver<HttpResponseItem>
+    private var id = -1
 
     fun newClientProxy(mChannel: ManagedChannel) {
+        if (id != -1) return
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         val asyncStub = UpdateServerRouteGrpc.newStub(mChannel)
-        val httpResponse = asyncStub.newClientProxyReturn(object : StreamObserver<Empty> {
+        httpResponse = asyncStub.newClientProxyReturn(object : StreamObserver<Empty> {
             override fun onNext(value: Empty?) {}
 
             override fun onError(t: Throwable?) {
@@ -34,9 +41,17 @@ class ClientProxy {
                 pushHttpResponse(httpResponse,
                         HttpResponseItem.newBuilder().setCode(0).setKey(id.toString()).build())
             } else {
-                pushHttpResponse(httpResponse, getHttpResponseItem(httpRequest))
+                if (id == -1) break
+                GlobalScope.launch(Dispatchers.IO) {
+                    pushHttpResponse(httpResponse, getHttpResponseItem(httpRequest))
+                }
             }
         }
+        httpResponse.onCompleted()
+    }
+
+    fun stopClientProxy() {
+        id = -1
     }
 
     private fun getHttpResponseItem(request: HttpRequestItem?): HttpResponseItem {
@@ -69,10 +84,5 @@ class ClientProxy {
             // Cancel RPC
             httpResponse.onError(e)
         }
-    }
-
-    companion object {
-        private const val TAG = "ClientProxy"
-        private val objectTag = ObjectTag(core, TAG)
     }
 }
