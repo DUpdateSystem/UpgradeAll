@@ -27,6 +27,10 @@
             android:enabled="true"
             android:exported="false" />
         <service
+            android:name=".server.proxy.ProxyService"
+            android:enabled="true"
+            android:exported="false" />
+        <service
             android:name=".utils.downloader.AriaDownloadService"
             android:enabled="true"
             android:exported="false" />
