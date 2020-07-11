@@ -34,7 +34,7 @@ object GrpcApi {
         }
     }
 
-    fun newClientProxy() {
+    suspend fun newClientProxy() {
         try {
             ClientProxy.newClientProxy(mChannel)
         } catch (e: Throwable) {

@@ -15,14 +15,6 @@ import net.xzos.upgradeall.server.proxy.ProxyNotification.PROXY_SERVER_NOTIFICAT
 
 class ProxyService : Service() {
 
-    init {
-        UpdateManager.observeForever(object : Observer {
-            override fun onChanged(vararg vars: Any): Any? {
-                return ClientProxy.stopClientProxy()
-            }
-        })
-    }
-
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
