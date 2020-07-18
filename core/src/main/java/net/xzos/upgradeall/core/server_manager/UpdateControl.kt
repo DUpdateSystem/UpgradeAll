@@ -3,11 +3,7 @@ package net.xzos.upgradeall.core.server_manager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.xzos.upgradeall.core.data_manager.utils.DataCache
-import net.xzos.upgradeall.core.network_api.GrpcApi
-import net.xzos.upgradeall.core.route.AppIdItem
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
-import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
 
 open class UpdateControl internal constructor(appList: List<BaseApp>) {
@@ -65,10 +61,9 @@ open class UpdateControl internal constructor(appList: List<BaseApp>) {
     }
 
     // 刷新所有软件并等待，返回需要更新的软件数量
-    suspend fun renewAll(concurrency: Boolean = true, preGetData: Boolean = false) {
+    suspend fun renewAll(concurrency: Boolean = true) {
         refreshMutex.withLock {
             withContext(coroutineDispatcher) {
-                if (preGetData) preGetData(apps)
                 // 尝试刷新全部软件
                 coroutineScope {
                     for (app in apps) {
@@ -81,22 +76,6 @@ open class UpdateControl internal constructor(appList: List<BaseApp>) {
                 }
             }
         }
-    }
-
-    private suspend fun preGetData(appList: List<BaseApp>) {
-        val appGroupDict = mutableMapOf<String, MutableList<List<AppIdItem>>>()
-        for (app in appList.filterIsInstance<App>()) {
-            val hubUuid = app.hubDatabase?.uuid
-            val appId = app.appId
-            if (hubUuid != null && appId != null
-                    && !DataCache.existsAppStatus(hubUuid, appId)) {
-                (appGroupDict[hubUuid] ?: mutableListOf<List<AppIdItem>>().also {
-                    appGroupDict[hubUuid] = it
-                }).add(appId)
-            }
-        }
-        for (hubUuid in appGroupDict.keys)
-            GrpcApi.getAppStatusList(hubUuid, appGroupDict[hubUuid]!!)
     }
 
     internal fun getUpdateStatus(): Int {

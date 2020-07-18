@@ -21,7 +21,6 @@ object GrpcApi {
     private var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
 
     private const val shortDeadlineMs = 15L
-    private const val longDeadlineMs = 120L
 
     internal fun setUpdateServerUrl(url: String?): Boolean {
         if (url.isNullOrBlank()) return false
@@ -34,14 +33,6 @@ object GrpcApi {
         }
     }
 
-    suspend fun newClientProxy() {
-        try {
-            ClientProxy.newClientProxy(mChannel)
-        } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, e.toString())
-        }
-    }
-
     suspend fun getCloudConfig(): String? {
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         return try {
@@ -51,64 +42,39 @@ object GrpcApi {
         }
     }
 
-    suspend fun getAppStatusList(hubUuid: String, appIdList: MutableList<List<AppIdItem>>): List<ResponsePackage>? {
-        if (hubUuid in invalidHubUuidList) return null
-        val responseList: MutableList<ResponsePackage> = mutableListOf()
-        for (appId in appIdList.toList()) {
-            if (DataCache.existsAppStatus(hubUuid, appId)) {
-                responseList.add(ResponsePackage.newBuilder()
-                        .addAllAppId(appId).setAppStatus(
-                                DataCache.getAppStatus(hubUuid, appId)
-                        ).build()
-                )
-                appIdList.remove(appId)
-            }
-        }
-        val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
-        val request = RequestList.newBuilder()
-                .setHubUuid(hubUuid)
-                .addAllAppIdList(appIdList.map {
-                    AppId.newBuilder().addAllAppId(it).build()
-                }).build()
-        try {
-            val responseList1 =
-                    blockingStub.withDeadlineAfter(longDeadlineMs, TimeUnit.SECONDS).getAppStatusList(request).responseList
-            for (responsePackage in responseList1) {
-                DataCache.cacheReleaseInfo(hubUuid, responsePackage.appIdList, responsePackage.appStatus)
-            }
-            if (responseList.size == 1 && responseList[0].appStatus.validHubUuid) {
-                invalidHubUuidList.add(hubUuid)
-                return null
-            }
-        } catch (ignore: StatusRuntimeException) {
-            if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
-                logDeadlineError("getAppStatusList", hubUuid, appIdList.toString())
-            }
-            return null
-        }
-        return responseList
-    }
-
     suspend fun getAppStatus(hubUuid: String, appId: List<AppIdItem>): AppStatus? {
         if (hubUuid in invalidHubUuidList) return null
         if (DataCache.existsAppStatus(hubUuid, appId))
             return DataCache.getAppStatus(hubUuid, appId)
+        var request = buildRequest(hubUuid, appId)
+        var response: Response?
+        do {
+            response = callGetAppStatus(request)
+            if (response == null) break
+            else if (response.needProxy) {
+                request = ClientProxy.processRequest(hubUuid, appId, response)
+            }
+        } while (response?.needProxy == true)
+        val appStatus = response?.appStatus ?: return null
+        if (!appStatus.validHubUuid) {
+            invalidHubUuidList.add(hubUuid)
+            return null
+        } else {
+            DataCache.cacheReleaseInfo(hubUuid, appId, appStatus)
+        }
+        return appStatus
+    }
+
+
+    private suspend fun callGetAppStatus(request: Request): Response? {
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
-        val request = buildRequest(hubUuid, appId)
-        val returnValue = try {
+        return try {
             blockingStub.withDeadlineAfter(shortDeadlineMs, TimeUnit.SECONDS).getAppStatus(request)
         } catch (ignore: StatusRuntimeException) {
             if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
-                logDeadlineError("getAppStatus", hubUuid, appId.toString())
+                logDeadlineError("getAppStatus", request.hubUuid, request.appIdList.toString())
             }
-            return null
-        }
-        return if (!returnValue.validHubUuid) {
-            invalidHubUuidList.add(hubUuid)
             null
-        } else {
-            DataCache.cacheReleaseInfo(hubUuid, appId, returnValue)
-            returnValue
         }
     }
 

@@ -8,7 +8,6 @@ import android.os.IBinder
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.server_manager.UpdateManager
-import net.xzos.upgradeall.server.proxy.ProxyService
 import net.xzos.upgradeall.server.update.UpdateNotification.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
 
 class UpdateService : Service() {
@@ -21,7 +20,6 @@ class UpdateService : Service() {
         val notification = UpdateNotification.startUpdateNotification(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
         startForeground(UPDATE_SERVER_RUNNING_NOTIFICATION_ID, notification)
         GlobalScope.launch {
-            ProxyService.startService(this@UpdateService)
             UpdateManager.renewAll()
             stopSelf(startId)
         }

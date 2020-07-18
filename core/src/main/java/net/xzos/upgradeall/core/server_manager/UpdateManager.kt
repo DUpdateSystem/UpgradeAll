@@ -42,7 +42,7 @@ object UpdateManager : UpdateControl(AppManager.apps), AppHub, Informer {
     }
 
     suspend fun renewAll() {
-        renewAll(concurrency = true, preGetData = false)
+        renewAll(concurrency = true)
         notifyChanged()
     }
 

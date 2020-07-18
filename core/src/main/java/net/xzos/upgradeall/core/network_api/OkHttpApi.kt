@@ -1,7 +1,5 @@
 package net.xzos.upgradeall.core.network_api
 
-import android.R.attr.password
-import com.squareup.okhttp.MultipartBuilder
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
 import okhttp3.*
@@ -11,12 +9,16 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 
 object OkHttpApi {
 
     private const val TAG = "OkHttpApi"
-    private val okHttpClient = OkHttpClient().newBuilder().build()
+    private val okHttpClient = OkHttpClient().newBuilder()
+            .callTimeout(15, TimeUnit.SECONDS)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .build()
     private val cacheControl = CacheControl.Builder().noCache().build() // 关闭缓存，避免缓存无效（但是属于服务器正常返回的）数据
 
     fun get(
