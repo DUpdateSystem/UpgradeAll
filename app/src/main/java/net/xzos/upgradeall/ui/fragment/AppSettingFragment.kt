@@ -116,9 +116,7 @@ class AppSettingFragment : Fragment() {
             val rawVersion = VersioningUtils.getAppVersionNumber(targetChecker)
             val version = net.xzos.upgradeall.core.data_manager.utils.VersioningUtils.matchVersioningString(rawVersion)
             if (rawVersion != null) {
-                Toast.makeText(context, """raw_version: $rawVersion
-                    version: $version
-                """.trimIndent(), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "raw_version: $rawVersion\nversion: $version", Toast.LENGTH_SHORT).show()
             }
         }
         editTarget.threshold = 1

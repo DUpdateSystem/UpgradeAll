@@ -29,7 +29,7 @@ class Applications(override val appDatabase: AppDatabase) : BaseApp, AppHub, Inf
     private val appListMutex = Mutex()
 
     private suspend fun refreshAppList(updateControl: UpdateControl): UpdateControl {
-        updateControl.renewAll(concurrency = false, preGetData = true)
+        updateControl.renewAll(concurrency = false)
         val appMap = updateControl.appMap
         excludeInvalidApps(appMap[Updater.INVALID_APP]?.filterIsInstance<App>())
         includeValidApps(appMap[Updater.APP_OUTDATED]?.filterIsInstance<App>())
