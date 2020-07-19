@@ -2,19 +2,28 @@ package net.xzos.upgradeall.core.network_api
 
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
-import net.xzos.upgradeall.core.route.*
+import net.xzos.upgradeall.core.route.HttpProxyResponse
+import net.xzos.upgradeall.core.route.HttpRequestItem
+import net.xzos.upgradeall.core.route.HttpResponseItem
+import net.xzos.upgradeall.core.route.Response
 
 
 object ClientProxy {
     private const val TAG = "ClientProxy"
     private val objectTag = ObjectTag(core, TAG)
 
-    fun processRequest(hubUuid: String, appId: List<AppIdItem>, response: Response): Request? {
-        if (!response.needProxy) return null
-        val httpResponseItem = getHttpResponseItem(response.httpProxyRequest)
-        return Request.newBuilder().setHubUuid(hubUuid).addAllAppId(appId)
-                .setFunId(response.nextFunId).setHttpResponse(httpResponseItem).build()
+    fun processRequest(response: Response): HttpProxyResponse? {
+        if (!needHttpProxy(response)) return null
+        val httpResponse = response.httpProxy
+        val httpResponseItem = getHttpResponseItem(httpResponse.httpProxyRequest)
+        return HttpProxyResponse.newBuilder()
+                .setFunId(httpResponse.nextFunId)
+                .setHttpResponse(httpResponseItem)
+                .build()
     }
+
+    fun needHttpProxy(response: Response?): Boolean =
+            response != null && response.hasHttpProxy()
 
     private fun getHttpResponseItem(request: HttpRequestItem): HttpResponseItem {
         val method = request.method

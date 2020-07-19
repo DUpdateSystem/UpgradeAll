@@ -64,13 +64,15 @@ object DataCache {
         return null
     }
 
-    fun cacheReleaseInfo(
+    fun cacheAppStatus(
             hubUuid: String,
             appId: List<AppIdItem>,
             appStatus: AppStatus
     ) {
-        val key = appId.cacheKey(hubUuid) ?: return
-        cache.appStatusDict[key] = Pair(appStatus, Calendar.getInstance())
+        if (appStatus.validData) {
+            val key = appId.cacheKey(hubUuid) ?: return
+            cache.appStatusDict[key] = Pair(appStatus, Calendar.getInstance())
+        }
     }
 
     data class Cache(

@@ -6,7 +6,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.data_manager.utils.VersioningUtils
 import net.xzos.upgradeall.core.network_api.GrpcApi
-import net.xzos.upgradeall.core.route.AppIdItem
 import net.xzos.upgradeall.core.route.AppStatus
 import net.xzos.upgradeall.core.route.AssetItem
 import net.xzos.upgradeall.core.route.ReleaseInfoItem
@@ -18,17 +17,19 @@ class Updater(private val app: App) : UpdaterApi {
 
     override suspend fun getUpdateStatus(): Int {
         val appStatus = getAppStatus() ?: return NETWORK_ERROR
-        return if (!appStatus.validApp)
-            INVALID_APP
-        else {
-            //检查是否取得云端版本号
-            val versionNumber = app.markProcessedVersionNumber ?: app.installedVersionNumber
-            if (versionNumber != null) {
-                // 检查是否获取本地版本号
-                if (isLatest(versionNumber))
-                    APP_LATEST
-                else APP_OUTDATED
-            } else APP_NO_LOCAL
+        return when {
+            !appStatus.validData -> NETWORK_ERROR
+            !appStatus.validApp -> INVALID_APP
+            else -> {
+                //检查是否取得云端版本号
+                val versionNumber = app.markProcessedVersionNumber ?: app.installedVersionNumber
+                if (versionNumber != null) {
+                    // 检查是否获取本地版本号
+                    if (isLatest(versionNumber))
+                        APP_LATEST
+                    else APP_OUTDATED
+                } else APP_NO_LOCAL
+            }
         }
     }
 
