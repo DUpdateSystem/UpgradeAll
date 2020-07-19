@@ -46,21 +46,21 @@ object GrpcApi {
         if (hubUuid in invalidHubUuidList) return null
         if (DataCache.existsAppStatus(hubUuid, appId))
             return DataCache.getAppStatus(hubUuid, appId)
-        var request = buildRequest(hubUuid, appId)
-        var response: Response?
+        val request = getRequestBuilder(hubUuid, appId)
+        var response: Response? = null
         do {
-            response = callGetAppStatus(request)
-            if (response == null) break
-            else if (response.needProxy) {
-                request = ClientProxy.processRequest(hubUuid, appId, response)
+            if (response != null) {
+                val httpProxyResponse = ClientProxy.processRequest(response)
+                request.httpProxy = httpProxyResponse
             }
-        } while (response?.needProxy == true)
+            response = callGetAppStatus(request.build())
+        } while (ClientProxy.needHttpProxy(response))
         val appStatus = response?.appStatus ?: return null
         if (!appStatus.validHubUuid) {
             invalidHubUuidList.add(hubUuid)
             return null
         } else {
-            DataCache.cacheReleaseInfo(hubUuid, appId, appStatus)
+            DataCache.cacheAppStatus(hubUuid, appId, appStatus)
         }
         return appStatus
     }
@@ -82,7 +82,7 @@ object GrpcApi {
         if (hubUuid in invalidHubUuidList) return null
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         val request = DownloadAssetIndex.newBuilder().setAppIdInfo(
-                buildRequest(hubUuid, appId)
+                getRequestBuilder(hubUuid, appId)
         ).apply {
             for (i in assetIndex)
                 addAssetIndex(i)
@@ -97,8 +97,8 @@ object GrpcApi {
         }
     }
 
-    private fun buildRequest(hubUuid: String, appId: List<AppIdItem>) =
-            Request.newBuilder().setHubUuid(hubUuid).addAllAppId(appId).build()
+    private fun getRequestBuilder(hubUuid: String, appId: List<AppIdItem>) =
+            Request.newBuilder().setHubUuid(hubUuid).addAllAppId(appId)
 
     private fun logDeadlineError(tag: String, hubUuid: String, appIdString: String) {
         Log.w(logObjectTag, TAG, """$tag: 请求超时，取消
