@@ -24,7 +24,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.server_manager.UpdateManager
+import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.data.AppUiDataManager
 import net.xzos.upgradeall.data.gson.UIConfig
 import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
@@ -35,56 +35,49 @@ import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import java.io.File
 
-class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentManager, private val lifecycleOwner: LifecycleOwner) :
+class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentManager,
+                                 private val lifecycleOwner: LifecycleOwner) :
         FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     private var mTabIndexList: MutableList<Int> = initTabIndexList()
 
     init {
         // 设置添加按钮自动弹出
         editTabMode.observe(lifecycleOwner, Observer { editTabMode ->
-            if (editTabMode) {
-                mTabIndexList = getAllTabIndexList()
-                notifyDataSetChanged()
-            } else {
-                val tabIndexList = initTabIndexList()
-                if (tabIndexList.isNotEmpty()) {
-                    mTabIndexList = tabIndexList
+            val tabIndexList: MutableList<Int>
+            when {
+                editTabMode -> {
+                    mTabIndexList = getAllTabIndexList()
                     notifyDataSetChanged()
+                }
+                initTabIndexList().also { tabIndexList = it }
+                        .isNotEmpty() -> {
+                    mTabIndexList = tabIndexList
                     checkUpdate()
-                } else {
-                    AppTabSectionsPagerAdapter.editTabMode.value = true
+                    notifyDataSetChanged()
+                }
+                else -> {
                     // 尝试阻止用户退出编辑模式
                     MiscellaneousUtils.showToast(
                             tabLayout.context,
                             R.string.please_do_not_hide_all_bookmark_page,
                             duration = Toast.LENGTH_LONG)
+                    AppTabSectionsPagerAdapter.editTabMode.value = true
                 }
             }
-            renewAllCustomTabView()
+        })
+        AppUiDataManager.getAppListLivaData(UPDATE_PAGE_INDEX).observe(lifecycleOwner, Observer {
+            checkUpdate(it)
         })
     }
 
     // 检查更新页面是否刷新
-    private fun checkUpdate() {
-        if (!mTabIndexList.contains(UPDATE_PAGE_INDEX)) {
-            addTabPage(UPDATE_PAGE_INDEX, 0)
-        }
-        renewAllCustomTabView()
-        GlobalScope.launch {
-            val loadingBar =
-                    getProgressBarFromCustomTabView(mTabIndexList.indexOf(UPDATE_PAGE_INDEX))
-            withContext(Dispatchers.Main) {
-                loadingBar?.visibility = View.VISIBLE
-            }
-            if (UpdateManager.getNeedUpdateAppList().isEmpty() && editTabMode.value == false) {
-                withContext(Dispatchers.Main) {
-                    removeTabPage(mTabIndexList.indexOf(UPDATE_PAGE_INDEX))
-                }
-            }
-            withContext(Dispatchers.Main) {
-                loadingBar?.visibility = View.GONE
-                renewAllCustomTabView()
-            }
+    private fun checkUpdate(needUpdateAppList: List<BaseApp>?
+                            = AppUiDataManager.getAppListLivaData(UPDATE_PAGE_INDEX).value) {
+        needUpdateAppList ?: return
+        when {
+            needUpdateAppList.isEmpty() && editTabMode.value == false ->
+                removeTabPage(mTabIndexList.indexOf(UPDATE_PAGE_INDEX))
+            needUpdateAppList.isNotEmpty() -> addTabPage(UPDATE_PAGE_INDEX, 0)
         }
     }
 
@@ -114,10 +107,16 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
         return mTabIndexList.size
     }
 
+    override fun notifyDataSetChanged() {
+        super.notifyDataSetChanged()
+        for (i in 0 until tabLayout.tabCount)
+            tabLayout.getTabAt(i)?.customView = getCustomTabView(i)
+    }
+
     private fun getAllTabIndexList(): MutableList<Int> = mutableListOf(
             UPDATE_PAGE_INDEX, USER_STAR_PAGE_INDEX,
             ALL_APP_PAGE_INDEX, ADD_TAB_BUTTON_INDEX).apply {
-        // 在 ALL_APP_PAGE 前插入 uiConfig 索引
+        // 在 ALL_APP_PAGE 后插入 uiConfig 索引
         this.addAll(this.indexOf(ALL_APP_PAGE_INDEX),
                 (0 until uiConfig.userTabList.size).toList())
     }
@@ -139,15 +138,17 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
     }
 
     private fun addTabPage(tabIndex: Int, position: Int = mTabIndexList.size) {
-        mTabIndexList.add(position, tabIndex)
-        notifyDataSetChanged()
+        if (!mTabIndexList.contains(tabIndex)) {
+            mTabIndexList.add(position, tabIndex)
+            notifyDataSetChanged()
+        }
     }
 
     private fun removeTabPage(position: Int) {
         if (position >= 0 && position < mTabIndexList.size) {
             mTabIndexList.removeAt(position)
+            notifyDataSetChanged()
         }
-        notifyDataSetChanged()
     }
 
     private fun swapTabPage(position: Int, targetPosition: Int) {
@@ -158,16 +159,6 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
 
     private fun getProgressBarFromCustomTabView(position: Int): ProgressBar? =
             tabLayout.getTabAt(position)?.customView?.loadingBar
-
-    private fun renewAllCustomTabView() {
-        notifyDataSetChanged()
-        for (i in 0 until tabLayout.tabCount)
-            renewCustomTabView(i)
-    }
-
-    private fun renewCustomTabView(position: Int) {
-        tabLayout.getTabAt(position)?.customView = getCustomTabView(position)
-    }
 
     private fun loadGroupViewAndReturnBasicInfo(
             tabIndex: Int,
@@ -286,20 +277,20 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                                 it.setNeutralButton(R.string.delete) { dialog, _ ->
                                     AppUiDataManager.removeUserTab(position = tabIndex)
                                     mTabIndexList = getAllTabIndexList()
-                                    renewAllCustomTabView()
+                                    notifyDataSetChanged()
                                     dialog.cancel()
                                 }
                                 uiConfig.userTabList[tabIndex]
                                 liftMoveImageView.setOnClickListener {
                                     if (AppUiDataManager.swapUserTabOrder(tabIndex, tabIndex - 1)) {
                                         swapTabPage(position, position - 1)
-                                        renewAllCustomTabView()
+                                        notifyDataSetChanged()
                                     }
                                 }
                                 rightMoveImageView.setOnClickListener {
                                     if (AppUiDataManager.swapUserTabOrder(tabIndex, tabIndex + 1)) {
                                         swapTabPage(position, position + 1)
-                                        renewAllCustomTabView()
+                                        notifyDataSetChanged()
                                     }
                                 }
                             }
