@@ -5,6 +5,7 @@ import android.app.Application
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -18,13 +19,11 @@ import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
-import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListContainerViewModel
-import net.xzos.upgradeall.utils.IconPalette
-import net.xzos.upgradeall.utils.notifyObserver
+import net.xzos.upgradeall.utils.*
 
-open class AppItemAdapter(private val appListPageViewModel: AppListContainerViewModel,
-                          internal var mItemCardViewList: MutableList<ItemCardView>)
-    : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
+open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardView>,
+                          private val needUpdateAppsLiveData: MutableLiveData<MutableList<BaseApp>>
+) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         return CardViewRecyclerViewHolder(
@@ -62,21 +61,35 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
     override fun getItemCount() =
             mItemCardViewList.size
 
-    fun onAddItem(position: Int = 0, element: ItemCardView) {
-        if (position < mItemCardViewList.size) {
-            mItemCardViewList.add(position, element)
-            notifyItemRangeChanged(position, itemCount)
+    fun setItemList(newList: MutableList<ItemCardView>) {
+        val operationSteps = list1ToList2(mItemCardViewList, newList)
+        for (operationStep in operationSteps) {
+            when (operationStep.operation) {
+                add -> {
+                    operationStep as ListAddOperationStep<*>
+                    onAddItem(operationStep.index, operationStep.element as ItemCardView)
+                }
+                del -> {
+                    operationStep as ListDelOperationStep
+                    onItemDismiss(operationStep.index)
+                }
+                swap -> {
+                    operationStep as ListSwapOperationStep
+                    onItemMove(operationStep.rowIndex, operationStep.newIndex)
+                }
+            }
         }
     }
 
+    fun onAddItem(position: Int = 0, element: ItemCardView) {
+        mItemCardViewList.add(position, element)
+        notifyItemRangeInserted(position, 1)
+    }
+
     fun onItemDismiss(position: Int): ItemCardView? {
-        return if (position != -1 && position < mItemCardViewList.size) {
-            val removedItemCardView = mItemCardViewList[position]
-            mItemCardViewList.removeAt(position)
-            notifyItemRemoved(position)
-            notifyItemRangeChanged(position, itemCount)
-            removedItemCardView
-        } else null
+        val removedItemCardView = mItemCardViewList.removeAt(position)
+        notifyItemRemoved(position)
+        return removedItemCardView
     }
 
     fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
@@ -112,16 +125,14 @@ open class AppItemAdapter(private val appListPageViewModel: AppListContainerView
                     holder.versioningTextView.text = "NEW: $latestVersioning"
                 setUpdateStatus(holder, false)
             }
-            with(appListPageViewModel.needUpdateAppsLiveData) {
-                this.value?.let {
+            with(needUpdateAppsLiveData) {
+                needUpdateAppsLiveData.value?.let {
                     if (updateStatus == 2 && !it.contains(app)) {
                         it.add(app)
                     } else if (updateStatus != 2 && it.contains(app)) {
                         it.remove(app)
                     } else return@let
-                    withContext(Dispatchers.Main) {
-                        this@with.notifyObserver()
-                    }
+                    this.notifyObserver()
                 }
             }
         }

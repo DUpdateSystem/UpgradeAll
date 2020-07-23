@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
@@ -23,12 +24,19 @@ import net.xzos.upgradeall.ui.viewmodels.viewmodel.ApplicationsPageViewModel
 class ApplicationsFragment : AppListContainerFragment() {
     private lateinit var applications: Applications
     private lateinit var applicationsPageViewModel: ApplicationsPageViewModel
+    private lateinit var adapter: ApplicationsItemAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         applicationsPageViewModel = ViewModelProvider(this).get(ApplicationsPageViewModel::class.java)
+        adapter = ApplicationsItemAdapter(applicationsPageViewModel)
         viewModel = applicationsPageViewModel
         MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = false  // 禁止开启侧滑栏，启用返回按钮响应事件
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initAppListAdapter()
     }
 
     override fun onResume() {
@@ -36,11 +44,14 @@ class ApplicationsFragment : AppListContainerFragment() {
         super.onResume()
     }
 
-    override fun renewAppList() {
+    private fun initAppListAdapter() {
         val layoutManager = GridLayoutManager(activity, 1)
         cardItemRecyclerView.layoutManager = layoutManager
-        val adapter = ApplicationsItemAdapter(applicationsPageViewModel, applicationsPageViewModel.getAppCardViewList(), this)
+        val adapter = ApplicationsItemAdapter(applicationsPageViewModel)
         cardItemRecyclerView.adapter = adapter
+        viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
+            adapter.setItemList(it)
+        })
     }
 
     private fun checkAppInfo() {
@@ -54,6 +65,10 @@ class ApplicationsFragment : AppListContainerFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_applications, container, false)
+    }
+
+    override fun renewAppList() {
+        adapter.setItemList(viewModel.appCardViewList.value!!)
     }
 
     companion object {
