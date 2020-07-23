@@ -24,6 +24,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.data.AppUiDataManager
 import net.xzos.upgradeall.data.gson.UIConfig
@@ -74,8 +75,9 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
     private fun checkUpdate(needUpdateAppList: List<BaseApp>?
                             = AppUiDataManager.getAppListLivaData(UPDATE_PAGE_INDEX).value) {
         needUpdateAppList ?: return
+        val isRunning = UpdateManager.isRunning
         when {
-            needUpdateAppList.isEmpty() && editTabMode.value == false ->
+            !isRunning && needUpdateAppList.isEmpty() && editTabMode.value == false ->
                 removeTabPage(mTabIndexList.indexOf(UPDATE_PAGE_INDEX))
             needUpdateAppList.isNotEmpty() -> addTabPage(UPDATE_PAGE_INDEX, 0)
         }
