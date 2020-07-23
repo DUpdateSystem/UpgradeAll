@@ -34,8 +34,10 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
     init {
         if (appListPageViewModel.getTabPageIndex() == UPDATE_PAGE_INDEX)
             itemCardViewLiveData.observe(owner, Observer { list ->
-                mItemCardViewList = list
-                notifyDataSetChanged()
+                if (mItemCardViewList != list) {
+                    mItemCardViewList = list
+                    notifyDataSetChanged()
+                }
             })
     }
 

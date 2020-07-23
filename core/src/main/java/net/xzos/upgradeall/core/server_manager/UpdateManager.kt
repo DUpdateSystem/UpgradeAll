@@ -16,6 +16,8 @@ import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 object UpdateManager : UpdateControl(AppManager.apps), AppHub, Informer {
     var finishedUpdateAppNum: Long = 0
 
+    val isRunning: Boolean get() = refreshMutex.isLocked
+
     init {
         AppManager.observeForever(
                 object : Observer {

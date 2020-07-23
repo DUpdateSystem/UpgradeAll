@@ -11,7 +11,7 @@ open class UpdateControl internal constructor(appList: List<BaseApp>) {
     internal var apps: List<BaseApp> = appList
 
     private val dataMutex = Mutex()  // 保证数据线程安全
-    private val refreshMutex = Mutex()  // 刷新锁，避免重复请求刷新导致浪费大量资源
+    internal val refreshMutex = Mutex()  // 刷新锁，避免重复请求刷新导致浪费大量资源
     val appMap: MutableMap<Int, MutableList<BaseApp>> = mutableMapOf()
     private val coroutineDispatcher = Dispatchers.IO
 
