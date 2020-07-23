@@ -6,6 +6,8 @@ import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.data.gson.UIConfig
 import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
@@ -46,9 +48,16 @@ object AppUiDataManager {
     }
 
     private fun refreshNeedUpdateAppList() {
-        needUpdateAppListLiveData.setValueBackground(
-                runBlocking { UpdateManager.getNeedUpdateAppList(block = false) }
-        )
+        val needUpdateAppList = runBlocking { UpdateManager.getNeedUpdateAppList(block = false) }
+        val list: List<App> = mutableListOf<App>().apply {
+            for (baseApp in needUpdateAppList) {
+                when (baseApp) {
+                    is App -> add(baseApp)
+                    is Applications -> addAll(runBlocking { baseApp.getNeedUpdateAppList(block = false) })
+                }
+            }
+        }
+        needUpdateAppListLiveData.setValueBackground(list)
     }
 
     private fun refreshAllAppListMap() {

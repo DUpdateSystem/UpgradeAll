@@ -16,20 +16,22 @@ import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardViewExtraData
 import net.xzos.upgradeall.utils.mutableLiveDataOf
+import net.xzos.upgradeall.utils.setValueBackground
 
 abstract class AppListContainerViewModel : ViewModel() {
+    private val appListLiveData: MutableLiveData<List<BaseApp>> = mutableLiveDataOf()  // 列表中所有的 APP
+
+    internal fun setAppList(list: List<BaseApp>) {
+        appListLiveData.setValueBackground(list)
+    }
+
     internal val needUpdateAppsLiveData: MutableLiveData<MutableList<BaseApp>> = mutableLiveDataOf()  // 需要升级的 APP
-    internal lateinit var appListLiveData: MutableLiveData<List<BaseApp>>  // 列表中所有的 APP
     private val context = MyApplication.context
     var dataInit = false
 
     // 列表中所有的 APP 项的信息
-    private var appCardViewList: LiveData<MutableList<ItemCardView>>? = null
-
-    internal fun getAppCardViewList(): LiveData<MutableList<ItemCardView>> {
-        return if (appCardViewList != null) {
-            appCardViewList!!
-        } else Transformations.map(appListLiveData) { apps ->
+    internal val appCardViewList: LiveData<MutableList<ItemCardView>> by lazy {
+        Transformations.map(appListLiveData) { apps ->
             dataInit = true
             return@map apps.map {
                 it.getAppItemCardView()
@@ -37,10 +39,10 @@ abstract class AppListContainerViewModel : ViewModel() {
                 if (this.isNotEmpty())
                     this.add(ItemCardView())
             }
-        }.also {
-            appCardViewList = it
         }
     }
+
+    internal fun getAppList(): List<BaseApp> = appListLiveData.value!!
 
     private fun BaseApp.getAppItemCardView(): ItemCardView {
         val appDatabase = this.appDatabase

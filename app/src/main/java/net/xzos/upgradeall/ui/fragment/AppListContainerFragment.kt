@@ -19,15 +19,42 @@ abstract class AppListContainerFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.pageview_app_list, container, false).apply {
-            this.placeholderLayout.visibility = View.VISIBLE
+            viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
+                this.placeholderLayout.visibility = if (it.isEmpty())
+                    View.VISIBLE
+                else View.GONE
+            })
         }
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initPlaceholderLayoutObserve()
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
-        swipeRefreshLayout.setOnRefreshListener { renewPage() }
+        swipeRefreshLayout.setOnRefreshListener { renewCardView() }
+        setNeedUpdateNumNotification()
+    }
+
+    private fun initPlaceholderLayoutObserve() {
+        placeholderImageVew.setImageResource(R.drawable.ic_isnothing_placeholder)
+        with(placeholderTextView) {
+            text = this.context.getText(R.string.click_to_add_something)
+        }
+        viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
+            // 列表显示刷新
+            if (viewModel.dataInit)
+                if (it.isNullOrEmpty()) {
+                    updateOverviewLayout.visibility = View.GONE
+                    placeholderLayout.visibility = View.VISIBLE
+                } else {
+                    updateOverviewLayout.visibility = View.VISIBLE
+                    placeholderLayout.visibility = View.GONE
+                }
+        })
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun setNeedUpdateNumNotification() {
         // TODO: 修改逻辑
         context?.getString(R.string.example_update_overview)
                 ?.split("0")
@@ -35,7 +62,7 @@ abstract class AppListContainerFragment : Fragment() {
                 ?.let { updateOverviewStringList ->
                     var appListNum = 0
                     var needUpdateAppNum = 0
-                    viewModel.getAppCardViewList().observe(viewLifecycleOwner, Observer { list ->
+                    viewModel.appCardViewList.observe(viewLifecycleOwner, Observer { list ->
                         with(list.size) {
                             appListNum = if (this > 0)
                                 this - 1
@@ -58,30 +85,6 @@ abstract class AppListContainerFragment : Fragment() {
                                 }
                             })
                 }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        renewPage()
-    }
-
-    internal fun renewPage() {
-        viewModel.getAppCardViewList().observe(viewLifecycleOwner, Observer {
-            // 列表显示刷新
-            if (viewModel.dataInit)
-                if (it.isNullOrEmpty()) {
-                    updateOverviewLayout.visibility = View.GONE
-                    placeholderLayout.visibility = View.VISIBLE
-                    placeholderImageVew.setImageResource(R.drawable.ic_isnothing_placeholder)
-                    with(placeholderTextView) {
-                        text = this.context.getText(R.string.click_to_add_something)
-                    }
-                } else {
-                    updateOverviewLayout.visibility = View.VISIBLE
-                    placeholderLayout.visibility = View.GONE
-                    renewCardView()
-                }
-        })
     }
 
     private fun renewCardView() {

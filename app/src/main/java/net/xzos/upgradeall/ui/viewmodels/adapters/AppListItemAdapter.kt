@@ -5,9 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import com.google.gson.GsonBuilder
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
@@ -19,27 +16,15 @@ import net.xzos.upgradeall.ui.fragment.ApplicationsFragment
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
-import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListPageViewModel
 import net.xzos.upgradeall.utils.FileUtil
 import net.xzos.upgradeall.utils.getByHolder
 
 
-class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
-                         itemCardViewLiveData: LiveData<MutableList<ItemCardView>>,
-                         owner: LifecycleOwner)
-    : AppItemAdapter(appListPageViewModel, itemCardViewLiveData.value!!) {
-
-    init {
-        if (appListPageViewModel.getTabPageIndex() == UPDATE_PAGE_INDEX)
-            itemCardViewLiveData.observe(owner, Observer { list ->
-                if (mItemCardViewList != list) {
-                    mItemCardViewList = list
-                    notifyDataSetChanged()
-                }
-            })
-    }
+class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel
+) : AppItemAdapter(appListPageViewModel.appCardViewList.value ?: mutableListOf(),
+        appListPageViewModel.needUpdateAppsLiveData) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = super.onCreateViewHolder(parent, viewType)
@@ -80,8 +65,9 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel,
                         }
                     }
                     // 从分组中删除
-                    if (appListPageViewModel.getTabPageIndex() != ALL_APP_PAGE_INDEX
-                            && appListPageViewModel.getTabPageIndex() != UPDATE_PAGE_INDEX) {
+                    val tabPageIndex = appListPageViewModel.getTabPageIndex()
+                    if (tabPageIndex != ALL_APP_PAGE_INDEX
+                            && tabPageIndex != UPDATE_PAGE_INDEX) {
                         menu.add(R.string.delete_from_group).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
                                 if (appListPageViewModel.removeItemFromTabPage(holder.adapterPosition))

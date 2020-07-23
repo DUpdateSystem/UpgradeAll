@@ -5,31 +5,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
 import net.xzos.upgradeall.ui.fragment.AppInfoFragment
-import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.ApplicationsPageViewModel
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.getByHolder
 
 class ApplicationsItemAdapter(
-        private val applicationsPageViewModel: ApplicationsPageViewModel,
-        itemCardViewLiveData: LiveData<MutableList<ItemCardView>>,
-        owner: LifecycleOwner
-) : AppItemAdapter(applicationsPageViewModel, itemCardViewLiveData.value!!) {
-
-    init {
-        itemCardViewLiveData.observe(owner, Observer { list ->
-            mItemCardViewList = list
-            notifyDataSetChanged()
-        })
-    }
+        private val applicationsPageViewModel: ApplicationsPageViewModel
+) : AppItemAdapter(applicationsPageViewModel.appCardViewList.value ?: mutableListOf(),
+        applicationsPageViewModel.needUpdateAppsLiveData) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = super.onCreateViewHolder(parent, viewType)

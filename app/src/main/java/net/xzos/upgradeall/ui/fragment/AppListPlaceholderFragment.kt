@@ -3,28 +3,26 @@ package net.xzos.upgradeall.ui.fragment
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.ItemTouchHelper
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.list_content.*
+import kotlinx.android.synthetic.main.pageview_app_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.placeholderLayout
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.server_manager.UpdateManager
-import net.xzos.upgradeall.data.AppUiDataManager
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.viewmodels.adapters.AppListItemAdapter
-import net.xzos.upgradeall.ui.viewmodels.callback.AppItemTouchHelperCallback
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
-import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListPageViewModel
 import net.xzos.upgradeall.utils.IconPalette
 
@@ -33,16 +31,20 @@ internal class AppListPlaceholderFragment(private val tabPageIndex: Int)
     : AppListContainerFragment() {
 
     private lateinit var appListPageViewModel: AppListPageViewModel
+    private lateinit var adapter: AppListItemAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appListPageViewModel = ViewModelProvider(this).get(AppListPageViewModel::class.java)
+        adapter = AppListItemAdapter(appListPageViewModel)
         viewModel = appListPageViewModel
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         appListPageViewModel.setTabPageIndex(tabPageIndex)  // 重新刷新跟踪项列表
         super.onViewCreated(view, savedInstanceState)
+        initUi()
+        initAppListAdapter()
     }
 
     override fun onResume() {
@@ -50,18 +52,29 @@ internal class AppListPlaceholderFragment(private val tabPageIndex: Int)
         setFloatingActionButton(tabPageIndex)
     }
 
-    override fun renewAppList() {
+    private fun initUi() {
+        if (appListPageViewModel.getTabPageIndex() == UPDATE_PAGE_INDEX) {
+            placeholderImageVew.setImageResource(R.drawable.ic_checking_update)
+            with(placeholderTextView) {
+                text = this.context.getText(R.string.waiting_check_update)
+            }
+        }
+
+    }
+
+    private fun initAppListAdapter() {
         val layoutManager = GridLayoutManager(activity, 1)
         cardItemRecyclerView.layoutManager = layoutManager
-        val adapter = AppListItemAdapter(appListPageViewModel, appListPageViewModel.getAppCardViewList(), this)
+        /*
+        val callback: ItemTouchHelper.Callback = AppItemTouchHelperCallback(adapter)
+        val touchHelper = ItemTouchHelper(callback)
+        touchHelper.attachToRecyclerView(cardItemRecyclerView)
+        无用手势代码
+         */
         cardItemRecyclerView.adapter = adapter
-        if (tabPageIndex > 0 || tabPageIndex == USER_STAR_PAGE_INDEX) {
-            AppUiDataManager.getAppListLivaData(tabPageIndex).observe(this, Observer { list ->
-                val callback: ItemTouchHelper.Callback = AppItemTouchHelperCallback(adapter, list.toMutableList())
-                val touchHelper = ItemTouchHelper(callback)
-                touchHelper.attachToRecyclerView(cardItemRecyclerView)
-            })
-        }
+        appListPageViewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
+            adapter.setItemList(it)
+        })
     }
 
     private fun setFloatingActionButton(tabPageIndex: Int) {
@@ -108,6 +121,10 @@ internal class AppListPlaceholderFragment(private val tabPageIndex: Int)
                 }
             }.show()
         }
+    }
+
+    override fun renewAppList() {
+        adapter.setItemList(appListPageViewModel.appCardViewList.value!!)
     }
 
     companion object {
