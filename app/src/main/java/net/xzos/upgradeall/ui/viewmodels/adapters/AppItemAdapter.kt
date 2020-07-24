@@ -1,7 +1,6 @@
 package net.xzos.upgradeall.ui.viewmodels.adapters
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +16,7 @@ import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
+import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.utils.*
@@ -35,20 +35,20 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
         itemCardView.extraData.app?.run {
             holder.itemCardView.visibility = View.VISIBLE
             holder.appPlaceholderImageView.visibility = View.GONE
-            if (this is App) {
-                IconPalette.loadAppIconView(holder.appIconImageView, app = this)
-            } else if (this is Application) {
-                IconPalette.loadHubIconView(
-                        holder.appIconImageView,
-                        HubDatabaseManager.getDatabase(
-                                this.appDatabase.hubUuid
-                        )?.hubConfig?.info?.hubIconUrl
-                )
-                holder.hubNameTextView.visibility = View.GONE
-            }
             holder.nameTextView.text = itemCardView.name
             holder.typeTextView.text = itemCardView.type
             holder.hubNameTextView.text = itemCardView.hubName
+            val appIconImageView = holder.appIconImageView
+            when (this) {
+                is App ->
+                    IconPalette.loadAppIconView(appIconImageView, app = this)
+                is Applications -> {
+                    val hubIconUrl = HubDatabaseManager.getDatabase(this.appDatabase.hubUuid)
+                            ?.hubConfig?.info?.hubIconUrl
+                    IconPalette.loadApplicationsIconView(appIconImageView, hubIconUrl)
+                    holder.hubNameTextView.visibility = View.GONE
+                }
+            }
             setAppStatusUI(holder, this)
         } ?: kotlin.run {
             // 底栏设置

@@ -32,12 +32,15 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel
         holder.itemCardView.setOnClickListener {
             if (holder.versionCheckingBar.isVisible) return@setOnClickListener
             val app = mItemCardViewList.getByHolder(holder).extraData.app
-            if (app is App) {
-                AppInfoFragment.bundleApp = app
-                setNavigationItemId(R.id.appInfoFragment)
-            } else if (app is Applications) {
-                ApplicationsFragment.bundleApplications = app
-                setNavigationItemId(R.id.applicationsFragment)
+            when (app) {
+                is App -> {
+                    AppInfoFragment.bundleApp = app
+                    setNavigationItemId(R.id.appInfoFragment)
+                }
+                is Applications -> {
+                    ApplicationsFragment.bundleApplications = app
+                    setNavigationItemId(R.id.applicationsFragment)
+                }
             }
         }
         holder.itemCardView.setOnLongClickListener { view ->
