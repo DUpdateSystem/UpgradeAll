@@ -206,7 +206,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                 R.drawable.ic_start
             }
             ALL_APP_PAGE_INDEX -> {
-                R.drawable.ic_app
+                R.drawable.ic_apps
             }
             else -> null
         }

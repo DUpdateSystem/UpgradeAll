@@ -3,7 +3,6 @@ package net.xzos.upgradeall.ui.fragment
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.lifecycle.Observer
@@ -55,9 +54,7 @@ internal class AppListPlaceholderFragment(private val tabPageIndex: Int)
     private fun initUi() {
         if (appListPageViewModel.getTabPageIndex() == UPDATE_PAGE_INDEX) {
             placeholderImageVew.setImageResource(R.drawable.ic_checking_update)
-            with(placeholderTextView) {
-                text = this.context.getText(R.string.waiting_check_update)
-            }
+            placeholderTextView.setText(R.string.waiting_check_update)
         }
 
     }

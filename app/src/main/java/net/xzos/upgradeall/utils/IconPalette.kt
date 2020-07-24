@@ -81,12 +81,23 @@ object IconPalette {
     ) {
         GlobalScope.launch {
             loadIconView(iconImageView,
-                    IconInfo(
-                            url = hubIconUrl,
+                    IconInfo(url = hubIconUrl,
                             drawable = context.getDrawable(hubIconDrawableId
-                                    ?: R.drawable.ic_android_placeholder),
-                            file = file)
+                                    ?: R.drawable.ic_application),
+                            file = file
+                    )
             )
+        }
+    }
+
+    fun loadApplicationsIconView(
+            iconImageView: ImageView,
+            hubIconUrl: String? = null
+    ) {
+        GlobalScope.launch {
+            loadIconView(iconImageView, IconInfo(url = hubIconUrl,
+                    drawable = context.getDrawable(R.drawable.ic_application)
+            ))
         }
     }
 

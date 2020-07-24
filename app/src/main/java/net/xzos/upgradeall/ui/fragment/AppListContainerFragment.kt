@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +19,7 @@ abstract class AppListContainerFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.pageview_app_list, container, false).apply {
             viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
-                this.placeholderLayout.visibility = if (it.isEmpty())
+                placeholderLayout.visibility = if (it.isEmpty())
                     View.VISIBLE
                 else View.GONE
             })
@@ -30,16 +29,14 @@ abstract class AppListContainerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initPlaceholderLayoutObserve()
+        setNeedUpdateNumNotification()
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
         swipeRefreshLayout.setOnRefreshListener { renewCardView() }
-        setNeedUpdateNumNotification()
     }
 
     private fun initPlaceholderLayoutObserve() {
         placeholderImageVew.setImageResource(R.drawable.ic_isnothing_placeholder)
-        with(placeholderTextView) {
-            text = this.context.getText(R.string.click_to_add_something)
-        }
+        placeholderTextView.setText(R.string.click_to_add_something)
         viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
             // 列表显示刷新
             if (viewModel.dataInit)
@@ -53,38 +50,27 @@ abstract class AppListContainerFragment : Fragment() {
         })
     }
 
-    @SuppressLint("SetTextI18n")
     private fun setNeedUpdateNumNotification() {
-        // TODO: 修改逻辑
-        context?.getString(R.string.example_update_overview)
-                ?.split("0")
-                ?.filter { element -> element.isNotBlank() }
-                ?.let { updateOverviewStringList ->
-                    var appListNum = 0
-                    var needUpdateAppNum = 0
-                    viewModel.appCardViewList.observe(viewLifecycleOwner, Observer { list ->
-                        with(list.size) {
-                            appListNum = if (this > 0)
-                                this - 1
-                            else
-                                this
-                        }
-                        updateOverviewTextView.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
-                    })
-                    viewModel.needUpdateAppsLiveData.observe(viewLifecycleOwner,
-                            Observer { list ->
-                                needUpdateAppNum = list.size
-                                updateOverviewTextView.text = "$appListNum${updateOverviewStringList[0]}$needUpdateAppNum${updateOverviewStringList[1]}"
-                                if (needUpdateAppNum == 0) {
-                                    updateOverviewStatusImageView.setImageResource(R.drawable.ic_check_mark)
-                                    updateOverviewNumberTextView.visibility = View.GONE
-                                } else {
-                                    updateOverviewStatusImageView.setImageResource(R.drawable.ic_up)
-                                    updateOverviewNumberTextView.visibility = View.VISIBLE
-                                    updateOverviewNumberTextView.text = needUpdateAppNum.toString()
-                                }
-                            })
-                }
+        var appListNum = 0
+        var needUpdateAppNum = 0
+        viewModel.appCardViewList.observe(viewLifecycleOwner, Observer { list ->
+            with(list.size - 1) {
+                appListNum = if (this >= 0) this else this
+            }
+            updateOverviewTextView.text = getString(R.string.example_update_overview, appListNum, needUpdateAppNum)
+        })
+        viewModel.needUpdateAppsLiveData.observe(viewLifecycleOwner, Observer { list ->
+            needUpdateAppNum = list.size
+            updateOverviewTextView.text = getString(R.string.example_update_overview, appListNum, needUpdateAppNum)
+            if (needUpdateAppNum == 0) {
+                updateOverviewStatusImageView.setImageResource(R.drawable.ic_check_mark)
+                updateOverviewNumberTextView.visibility = View.GONE
+            } else {
+                updateOverviewStatusImageView.setImageResource(R.drawable.ic_up)
+                updateOverviewNumberTextView.visibility = View.VISIBLE
+                updateOverviewNumberTextView.text = needUpdateAppNum.toString()
+            }
+        })
     }
 
     private fun renewCardView() {
