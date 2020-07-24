@@ -124,15 +124,15 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
                     @SuppressLint("SetTextI18n")
                     holder.versioningTextView.text = "NEW: $latestVersioning"
                 setUpdateStatus(holder, false)
-            }
-            with(needUpdateAppsLiveData) {
-                needUpdateAppsLiveData.value?.let {
-                    if (updateStatus == 2 && !it.contains(app)) {
-                        it.add(app)
-                    } else if (updateStatus != 2 && it.contains(app)) {
-                        it.remove(app)
-                    } else return@let
-                    this.notifyObserver()
+                with(needUpdateAppsLiveData) {
+                    value?.let {
+                        if (updateStatus == 2 && !it.contains(app)) {
+                            it.add(app)
+                        } else if (updateStatus != 2 && it.contains(app)) {
+                            it.remove(app)
+                        } else return@let
+                        this.notifyObserver()
+                    }
                 }
             }
         }

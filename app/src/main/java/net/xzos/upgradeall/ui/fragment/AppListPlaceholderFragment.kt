@@ -121,6 +121,7 @@ internal class AppListPlaceholderFragment(private val tabPageIndex: Int)
     }
 
     override fun renewAppList() {
+        adapter.setItemList(mutableListOf())
         adapter.setItemList(appListPageViewModel.appCardViewList.value!!)
     }
 

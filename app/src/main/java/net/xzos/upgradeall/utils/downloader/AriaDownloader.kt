@@ -15,6 +15,7 @@ import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data_manager.utils.FilePathUtils
 import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.utils.FileUtil
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -209,6 +210,7 @@ class AriaDownloader(private val url: String) {
 
     private fun completeInstall(file: File) {
         delTask()
+        UpdateService.startService(context)
         downloadNotification.taskCancel()  // 手动取消通知，因下载完成通知已解绑
         if (PreferencesMap.auto_delete_file) {
             file.delete()
