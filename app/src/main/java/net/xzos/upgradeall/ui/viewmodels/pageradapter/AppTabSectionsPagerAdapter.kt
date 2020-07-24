@@ -1,7 +1,5 @@
 package net.xzos.upgradeall.ui.viewmodels.pageradapter
 
-import android.os.Parcelable
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
@@ -67,33 +65,29 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
             }
         })
         AppUiDataManager.getAppListLivaData(UPDATE_PAGE_INDEX).observe(lifecycleOwner, Observer {
-            checkUpdate(it)
+            checkUpdate()
         })
     }
 
     // 检查更新页面是否刷新
-    private fun checkUpdate(needUpdateAppList: List<BaseApp>?
-                            = AppUiDataManager.getAppListLivaData(UPDATE_PAGE_INDEX).value) {
-        needUpdateAppList ?: return
-        val isRunning = UpdateManager.isRunning
+    private fun checkUpdate() {
+        val needUpdateAppList: List<BaseApp> = AppUiDataManager.getAppListLivaData(UPDATE_PAGE_INDEX).value
+                ?: return
         when {
-            !isRunning && needUpdateAppList.isEmpty() && editTabMode.value == false ->
+            !UpdateManager.isRunning
+                    && needUpdateAppList.isEmpty()
+                    && editTabMode.value == false ->
                 removeTabPage(mTabIndexList.indexOf(UPDATE_PAGE_INDEX))
-            needUpdateAppList.isNotEmpty() -> addTabPage(UPDATE_PAGE_INDEX, 0)
-        }
-    }
-
-    override fun restoreState(state: Parcelable?, loader: ClassLoader?) {
-        try {
-            super.restoreState(state, loader)
-        } catch (e: Throwable) {
-            Log.e("TAG", "Error Restore State of Fragment : " + e.message, e)
+            needUpdateAppList.isNotEmpty() ->
+                addTabPage(UPDATE_PAGE_INDEX, 0)
         }
     }
 
     override fun getItem(position: Int): Fragment {
-        return if (mTabIndexList[position] == ADD_TAB_BUTTON_INDEX) Fragment()
-        else AppListPlaceholderFragment.newInstance(mTabIndexList[position])
+        checkUpdate()
+        val tabIndex = mTabIndexList[position]
+        return if (tabIndex == ADD_TAB_BUTTON_INDEX) Fragment()
+        else AppListPlaceholderFragment.newInstance(tabIndex)
     }
 
     override fun getPageTitle(position: Int): CharSequence? {

@@ -27,12 +27,10 @@ abstract class AppListContainerViewModel : ViewModel() {
 
     internal val needUpdateAppsLiveData: MutableLiveData<MutableList<BaseApp>> = mutableLiveDataOf()  // 需要升级的 APP
     private val context = MyApplication.context
-    var dataInit = false
 
     // 列表中所有的 APP 项的信息
     internal val appCardViewList: LiveData<MutableList<ItemCardView>> by lazy {
         Transformations.map(appListLiveData) { apps ->
-            dataInit = true
             return@map apps.map {
                 it.getAppItemCardView()
             }.toMutableList().apply {

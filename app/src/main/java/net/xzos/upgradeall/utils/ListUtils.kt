@@ -4,21 +4,16 @@ const val add = "ADD"
 const val del = "DEL"
 const val swap = "SWAP"
 
-open class ListOperationStepBase(val operation: String)
+open class ListOperationStepBase internal constructor(val operation: String)
 
-class ListAddOperationStep<E>(
-        val index: Int,
-        val element: E
-) : ListOperationStepBase(add)
+class ListAddOperationStep<E> internal constructor(val index: Int, val element: E)
+    : ListOperationStepBase(add)
 
-class ListDelOperationStep(
-        val index: Int
-) : ListOperationStepBase(del)
+class ListDelOperationStep internal constructor(val index: Int)
+    : ListOperationStepBase(del)
 
-class ListSwapOperationStep(
-        val rowIndex: Int,
-        val newIndex: Int
-) : ListOperationStepBase(swap)
+class ListSwapOperationStep internal constructor(val rowIndex: Int, val newIndex: Int)
+    : ListOperationStepBase(swap)
 
 fun <E> list1ToList2(list1: List<E>, list2: List<E>): List<ListOperationStepBase> {
     if (list1 == list2) return emptyList()

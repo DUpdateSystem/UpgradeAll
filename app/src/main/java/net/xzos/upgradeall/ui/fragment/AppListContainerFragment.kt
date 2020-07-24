@@ -39,14 +39,13 @@ abstract class AppListContainerFragment : Fragment() {
         placeholderTextView.setText(R.string.click_to_add_something)
         viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
             // 列表显示刷新
-            if (viewModel.dataInit)
-                if (it.isNullOrEmpty()) {
-                    updateOverviewLayout.visibility = View.GONE
-                    placeholderLayout.visibility = View.VISIBLE
-                } else {
-                    updateOverviewLayout.visibility = View.VISIBLE
-                    placeholderLayout.visibility = View.GONE
-                }
+            if (it.isNullOrEmpty()) {
+                updateOverviewLayout.visibility = View.GONE
+                placeholderLayout.visibility = View.VISIBLE
+            } else {
+                updateOverviewLayout.visibility = View.VISIBLE
+                placeholderLayout.visibility = View.GONE
+            }
         })
     }
 

@@ -180,7 +180,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     this.startDestination = startDestination
             }
             NavigationUI.setupActionBarWithNavController(this@MainActivity, this,
-                    AppBarConfiguration.Builder(navController.graph).setDrawerLayout(drawerLayout).build()
+                    AppBarConfiguration.Builder(navController.graph).setOpenableLayout(drawerLayout).build()
             )
         }
     }
