@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/appListFragment"
-        android:name="net.xzos.upgradeall.ui.fragment.AppListFragment"
+        android:name="net.xzos.upgradeall.ui.fragment.app_list.AppListFragment"
         android:label="AppListFragment"
         app:popUpToInclusive="true">
         <action
@@ -35,7 +35,7 @@
     </fragment>
     <fragment
         android:id="@+id/hubCloudFragment"
-        android:name="net.xzos.upgradeall.ui.fragment.CloudConfigFragment"
+        android:name="net.xzos.upgradeall.ui.fragment.cloud_config.CloudConfigFragment"
         android:label="@string/cloud_hub_list">
         <action
             android:id="@+id/action_hubCloudFragment_to_appListFragment"
@@ -45,12 +45,12 @@
     </fragment>
     <fragment
         android:id="@+id/appSettingFragment"
-        android:name="net.xzos.upgradeall.ui.fragment.AppSettingFragment"
+        android:name="net.xzos.upgradeall.ui.fragment.setting.AppSettingFragment"
         android:label="@string/add_apps"
         tools:layout="@layout/fragment_app_setting" />
     <fragment
         android:id="@+id/applicationsFragment"
-        android:name="net.xzos.upgradeall.ui.fragment.ApplicationsFragment"
+        android:name="net.xzos.upgradeall.ui.fragment.app_list.page_view.ApplicationsFragment"
         android:label="fragment_applications"
         tools:layout="@layout/fragment_applications" >
         <action

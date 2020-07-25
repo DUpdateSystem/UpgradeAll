@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.fragment
+package net.xzos.upgradeall.ui.fragment.app_list.page_view
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
@@ -20,6 +20,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.ui.activity.MainActivity
+import net.xzos.upgradeall.ui.fragment.setting.AppSettingFragment
 import net.xzos.upgradeall.ui.viewmodels.adapters.AppListItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListPageViewModel

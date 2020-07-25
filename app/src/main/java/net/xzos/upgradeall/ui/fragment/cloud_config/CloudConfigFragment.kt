@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.fragment
+package net.xzos.upgradeall.ui.fragment.cloud_config
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,29 +10,27 @@ import kotlinx.android.synthetic.main.fragment_app_list.*
 import kotlinx.android.synthetic.main.layout_main.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
-import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
-import net.xzos.upgradeall.utils.IconPalette
+import net.xzos.upgradeall.ui.viewmodels.pageradapter.CloudConfigTabSectionsPagerAdapter
 
-class AppListFragment : Fragment() {
+class CloudConfigFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.fragment_app_list, container, false)
+            inflater.inflate(R.layout.fragment_cloud_config, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = true  // 默认允许侧滑
-        AppTabSectionsPagerAdapter.newInstance(groupTabs, viewPager, childFragmentManager, viewLifecycleOwner)
+        viewPager.adapter = CloudConfigTabSectionsPagerAdapter(childFragmentManager)
+        groupTabs.setupWithViewPager(viewPager)
     }
 
     override fun onResume() {
         super.onResume()
-        activity?.run {
-            navView.setCheckedItem(R.id.app_list)
-            app_logo_image_view.visibility = View.GONE
-            collapsingToolbarLayout.contentScrim = getDrawable(R.color.colorPrimary)
-            toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.colorPrimary))
+        MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = true  // 默认允许侧滑
+        activity?.apply {
             floatingActionButton.visibility = View.GONE
+            addFloatingActionButton.visibility = View.GONE
+            navView.setCheckedItem(R.id.cloud_hub_list)
         }
     }
 }

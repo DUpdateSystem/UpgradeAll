@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.fragment.preference
+package net.xzos.upgradeall.ui.fragment.setting.preference
 
 import android.os.Bundle
 import android.view.View

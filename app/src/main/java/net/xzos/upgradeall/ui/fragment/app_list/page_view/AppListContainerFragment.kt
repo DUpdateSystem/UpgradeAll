@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.fragment
+package net.xzos.upgradeall.ui.fragment.app_list.page_view
 
 import android.os.Bundle
 import android.view.LayoutInflater
