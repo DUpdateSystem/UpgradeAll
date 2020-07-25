@@ -35,18 +35,30 @@ abstract class AppListContainerFragment : Fragment() {
     }
 
     private fun initPlaceholderLayoutObserve() {
+        setPlaceholderLayoutVisibility(View.VISIBLE)
         placeholderImageVew.setImageResource(R.drawable.ic_isnothing_placeholder)
         placeholderTextView.setText(R.string.click_to_add_something)
         viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
             // 列表显示刷新
-            if (it.isNullOrEmpty()) {
+            setPlaceholderLayoutVisibility(
+                    if (it.isNullOrEmpty())
+                        View.VISIBLE
+                    else View.GONE
+            )
+        })
+    }
+
+    private fun setPlaceholderLayoutVisibility(visibility: Int) {
+        when (visibility) {
+            View.VISIBLE -> {
                 updateOverviewLayout.visibility = View.GONE
                 placeholderLayout.visibility = View.VISIBLE
-            } else {
+            }
+            else -> {
                 updateOverviewLayout.visibility = View.VISIBLE
                 placeholderLayout.visibility = View.GONE
             }
-        })
+        }
     }
 
     private fun setNeedUpdateNumNotification() {
