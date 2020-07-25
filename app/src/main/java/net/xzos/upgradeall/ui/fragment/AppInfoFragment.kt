@@ -1,26 +1,22 @@
 package net.xzos.upgradeall.ui.fragment
 
-import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.*
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.fragment_app_info.*
-import kotlinx.android.synthetic.main.fragment_app_info.placeholderLayout
 import kotlinx.android.synthetic.main.fragment_app_info.view.*
 import kotlinx.android.synthetic.main.layout_main.*
-import kotlinx.android.synthetic.main.list_content.*
 import kotlinx.coroutines.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.route.ReleaseInfoItem
 import net.xzos.upgradeall.core.server_manager.module.app.*
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
+import net.xzos.upgradeall.ui.viewmodels.dialog.DownloadListDialog
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
@@ -88,10 +84,18 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     // 初始化展示的信息
     private fun initUi() {
-        loadAllAppInfo()
+        initEmptyUi()
+        loadAppInfo()
         toastPromptMarkedVersionNumber()
         if (!releaseInfoList.isNullOrEmpty())
             loadAppVersioningInfo(0)
+    }
+
+    private fun initEmptyUi() {
+        cloudVersioningTextView.setText(R.string.null_english)
+        versionMarkImageView.visibility = View.GONE
+        versioningSelectLayout.visibility = View.GONE
+        appChangelogTextView.setText(R.string.null_english)
     }
 
     private fun checkAppInfo() {
@@ -134,129 +138,74 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         }
     }
 
-    @SuppressLint("InflateParams")
     private fun showDownloadDialog() {
-        val versioningPosition = this.versioningPosition
+        val fileNameList = releaseInfoList?.get(versioningPosition)?.assetsList?.map { asset ->
+            asset.fileName
+        } ?: listOf()
         context?.let {
-            BottomSheetDialog(it).let { dialog ->
-                dialog.setContentView(
-                        layoutInflater.inflate(R.layout.list_content, null)
-                )
-                dialog.show()
-                Toast.makeText(context, R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG).show()
-                dialog.placeholderLayout.visibility = View.VISIBLE
-                GlobalScope.launch {
-                    val nameList = releaseInfoList?.run {
-                        if (this.isNotEmpty()) {
-                            this[versioningPosition].assetsList.map { asset ->
-                                asset.fileName
-                            }
-                        } else listOf()
-                    } ?: listOf()
-                    withContext(Dispatchers.Main) {
-                        if (this@AppInfoFragment.isVisible) {
-                            if (nameList.isNotEmpty()) {
-                                dialog.list.let { list ->
-                                    list.adapter =
-                                            ArrayAdapter(dialog.context, android.R.layout.simple_list_item_1, nameList)
-                                    // 下载文件
-                                    list.setOnItemClickListener { _, _, position, _ ->
-                                        GlobalScope.launch {
-                                            Updater(app).downloadReleaseFile(Pair(versioningPosition, position))
-                                        }
-                                    }
-                                    list.setOnItemLongClickListener { _, _, position, _ ->
-                                        GlobalScope.launch {
-                                            Updater(app).downloadReleaseFile(Pair(versioningPosition, position), externalDownloader = true)
-                                        }
-                                        return@setOnItemLongClickListener true
-                                    }
-                                }
-                            } else {
-                                dialog.emptyPlaceHolderTextView.visibility = View.VISIBLE
-                            }
-                            dialog.placeholderLayout.visibility = View.GONE
+            DownloadListDialog.show(it, fileNameList,
+                    fun(position: Int, externalDownloader: Boolean) {
+                        GlobalScope.launch {
+                            Updater(app).downloadReleaseFile(Pair(versioningPosition, position), externalDownloader)
                         }
-                    }
-                }
-            }
+                    })
         }
     }
 
-    private fun loadAllAppInfo() {
-        app.appDatabase.let { appDatabase ->
-            GlobalScope.launch {
-                val installedVersioning = app.installedVersionNumber
-                withContext(Dispatchers.Main) {
-                    if (this@AppInfoFragment.isVisible) {
-                        appIconImageView.let {
-                            IconPalette.loadAppIconView(it, app = app)
-                        }
-                        activity?.run {
-                            app_logo_image_view.let {
-                                IconPalette.loadAppIconView(it, app = app)
-                                it.visibility = View.VISIBLE
-                            }
-                        }
-                        nameTextView.text = appDatabase.name
-                        appModuleName.text = appDatabase.targetChecker?.extraString ?: ""
-                        versioningTextView.text = installedVersioning ?: ""
-                        localVersioningTextView.text = installedVersioning
-                                ?: getString(R.string.null_english)
-                        appUrlTextView.let {
-                            val url = appDatabase.url
-                            val context = it.context
-                            it.text = url
-
-                            // 打开指向Url
-                            it.setOnClickListener {
-                                MiscellaneousUtils.accessByBrowser(url, context)
-                            }
-                        }
-                    }
-                }
-            }
+    private fun loadAppInfo() {
+        val appDatabase = app.appDatabase
+        nameTextView.text = appDatabase.name
+        appModuleName.text = appDatabase.targetChecker?.extraString ?: ""
+        val url = appDatabase.url
+        with(appUrlTextView) {
+            text = url
+            // 打开指向Url
+            setOnClickListener { MiscellaneousUtils.accessByBrowser(url, context) }
         }
+        IconPalette.loadAppIconView(appIconImageView, app = app)
+        activity?.app_logo_image_view?.let {
+            IconPalette.loadAppIconView(it, app = app)
+            it.visibility = View.VISIBLE
+        }
+        val installedVersioning = app.installedVersionNumber
+        versioningTextView.text = installedVersioning ?: ""
+        localVersioningTextView.text = installedVersioning
+                ?: getString(R.string.null_english)
     }
 
     private fun loadAppVersioningInfo(versioningPosition: Int) {
         this.versioningPosition = versioningPosition
         versionMarkImageView.visibility = View.GONE
-        app.appId.let {
-            GlobalScope.launch {
-                val releaseInfoBean = releaseInfoList?.get(versioningPosition)
-                val versionNumber = releaseInfoBean?.versionNumber
-                val latestChangeLog = releaseInfoBean?.changeLog
-                withContext(Dispatchers.Main) {
-                    if (this@AppInfoFragment.isVisible) {
-                        cloud_versioning_text_view.text = if (versioningPosition == 0) {
-                            getString(R.string.latest_version_number)
-                        } else {
-                            getString(R.string.cloud_version_number)
-                        }
-                        cloudVersioningTextView.text = versionNumber
-                        appChangelogTextView.text = if (latestChangeLog.isNullOrBlank())
-                            getString(R.string.null_english)
-                        else latestChangeLog
+        GlobalScope.launch {
+            val releaseInfoBean = releaseInfoList?.get(versioningPosition)
+            val versionNumber = releaseInfoBean?.versionNumber
+            val latestChangeLog = releaseInfoBean?.changeLog
+            withContext(Dispatchers.Main) {
+                if (this@AppInfoFragment.isVisible) {
+                    cloud_versioning_text_view.text = if (versioningPosition == 0) {
+                        getString(R.string.latest_version_number)
+                    } else {
+                        getString(R.string.cloud_version_number)
                     }
-                    renewVersionRelatedItems()
+                    cloudVersioningTextView.text = versionNumber
+                    appChangelogTextView.text = if (latestChangeLog.isNullOrBlank())
+                        getString(R.string.null_english)
+                    else latestChangeLog
                 }
+                renewVersionRelatedItems()
             }
         }
     }
 
     private fun toastPromptMarkedVersionNumber() {
         GlobalScope.launch {
-            if (Updater(app).getUpdateStatus() == Updater.APP_LATEST) null
-            else {
-                if (app.markProcessedVersionNumber != null)
-                    R.string.marked_version_number_is_behind_latest
-                else R.string.mark_version_number
-            }?.let {
-                withContext(Dispatchers.Main) {
-                    context?.run { Toast.makeText(this, it, Toast.LENGTH_LONG).show() }
-                }
-            }
+            if (Updater(app).getUpdateStatus() != Updater.APP_LATEST)
+                MiscellaneousUtils.showToast(this@AppInfoFragment.context,
+                        if (app.markProcessedVersionNumber != null)
+                            R.string.marked_version_number_is_behind_latest
+                        else R.string.mark_version_number,
+                        Toast.LENGTH_LONG
+                )
         }
     }
 

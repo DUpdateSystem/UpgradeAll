@@ -162,14 +162,6 @@ class AppSettingFragment : Fragment() {
         setEndHelpIcon()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        activity?.floatingActionButton?.run {
-            this.setOnClickListener(null)
-            this.visibility = View.GONE
-        }
-    }
-
     private fun setEndHelpIcon() {
         setEndIconOnClickListener(hub_input_layout)
         setEndIconOnClickListener(name_input_layout)
@@ -178,18 +170,17 @@ class AppSettingFragment : Fragment() {
     }
 
     private fun setEndIconOnClickListener(textInputLayout: TextInputLayout) {
-        (getString(when (textInputLayout.id) {
+        val helpText = getString(when (textInputLayout.id) {
             R.id.hub_input_layout -> R.string.setting_app_hub_explain
             R.id.name_input_layout -> R.string.setting_app_name_explain
             R.id.url_input_layout -> R.string.setting_app_url_explain
             R.id.versioning_input_layout -> R.string.setting_app_versioning_explain
             else -> R.string.null_english
-        }) + getString(R.string.detailed_help) + "：" + getString(R.string.readme_url)).let { text ->
-            textInputLayout.setEndIconOnClickListener {
-                AlertDialog.Builder(it.context).setView(R.layout.simple_textview).create().let { dialog ->
-                    dialog.show()
-                    dialog.text.text = text
-                }
+        }) + getString(R.string.detailed_help) + "：" + getString(R.string.readme_url)
+        textInputLayout.setEndIconOnClickListener {
+            AlertDialog.Builder(it.context).setView(R.layout.simple_textview).create().let { dialog ->
+                dialog.show()
+                dialog.text.text = helpText
             }
         }
     }
