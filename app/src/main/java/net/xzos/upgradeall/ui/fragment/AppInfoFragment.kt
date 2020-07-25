@@ -16,6 +16,7 @@ import net.xzos.upgradeall.core.route.ReleaseInfoItem
 import net.xzos.upgradeall.core.server_manager.module.app.*
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
+import net.xzos.upgradeall.ui.fragment.setting.AppSettingFragment
 import net.xzos.upgradeall.ui.viewmodels.dialog.DownloadListDialog
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils

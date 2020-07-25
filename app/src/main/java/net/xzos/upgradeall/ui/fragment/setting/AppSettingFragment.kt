@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.fragment
+package net.xzos.upgradeall.ui.fragment.setting
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
@@ -40,6 +40,7 @@ import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
+import net.xzos.upgradeall.ui.fragment.AppInfoFragment
 import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.SearchUtils
