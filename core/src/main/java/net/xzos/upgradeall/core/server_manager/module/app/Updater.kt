@@ -21,22 +21,22 @@ class Updater(private val app: App) : UpdaterApi {
             !appStatus.validData -> NETWORK_ERROR
             !appStatus.validApp -> INVALID_APP
             else -> {
-                //检查是否取得云端版本号
                 val versionNumber = app.markProcessedVersionNumber ?: app.installedVersionNumber
-                if (versionNumber != null) {
-                    // 检查是否获取本地版本号
-                    if (isLatest(versionNumber))
-                        APP_LATEST
-                    else APP_OUTDATED
-                } else APP_NO_LOCAL
+                when {
+                    versionNumber == null -> APP_NO_LOCAL
+                    !versionNumber.isLatest() -> APP_OUTDATED
+                    else -> APP_LATEST
+                }
             }
+        }.also {
+            app.statusRenewedFun(it)
         }
     }
 
-    private suspend fun isLatest(versionNumber: String): Boolean {
+    private suspend fun String.isLatest(): Boolean {
         val latestVersion = getLatestVersioning()
         return VersioningUtils.compareVersionNumber(
-                versionNumber, latestVersion
+                this, latestVersion
         )
     }
 

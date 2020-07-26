@@ -29,15 +29,19 @@ object VersioningUtils {
         if (versionNumber1 == IGNORE_VERSION) return false
         // 检查版本号是否相同
         if (versionNumber0 == versionNumber1) return true
+        if (versionNumber0 != null && versionNumber1 == null) return true
         // 正常处理版本号
         val matchVersioning0 = matchVersioningString(versionNumber0)
         val matchVersioning1 = matchVersioningString(versionNumber1)
+        /*
+        接口趋于稳定，取消日志记录
         Log.i(
                 objectTag,
-                TAG, """original versioning: 
+                TAG, """original versioning:
                 |0: $versionNumber0, 1: $versionNumber1
                 |Fix: 0: $matchVersioning0, 1: $matchVersioning1""".trimMargin()
         )
+         */
         return if (matchVersioning0 != null && matchVersioning1 != null) {
             val version0 = DefaultArtifactVersion(matchVersioning0)
             val version1 = DefaultArtifactVersion(matchVersioning1)

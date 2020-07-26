@@ -5,61 +5,49 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.oberver.Observer
-import net.xzos.upgradeall.core.server_manager.module.AppHub
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
-import net.xzos.upgradeall.core.server_manager.module.app.getParentApplications
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 
 
-object UpdateManager : UpdateControl(AppManager.apps), AppHub, Informer {
-    var finishedUpdateAppNum: Long = 0
+object UpdateManager : UpdateControl(AppManager.apps, fun(_, _) {}), Informer {
+    val finishedUpdateAppNum: Int get() = finishedUpdateApp.size
+
+    private val finishedUpdateApp: HashSet<BaseApp> = hashSetOf()
 
     val isRunning: Boolean get() = refreshMutex.isLocked
 
     init {
+        appUpdateStatusChangedFun = fun(baseApp, _) {
+            finishedUpdateApp.add(baseApp)
+            notifyChanged()
+        }
         AppManager.observeForever(
                 object : Observer {
                     override fun onChanged(vars: Array<out Any>): Any? {
-                        apps = AppManager.apps
+                        clearApp()
+                        addApps(AppManager.apps.toSet())
                         return null
                     }
                 }
         )
     }
 
-    fun getAppNum(): Int = apps.size
-    override suspend fun getAppUpdateStatus(baseApp: BaseApp): Int {
-        if (baseApp is App) {
-            val applications = baseApp.getParentApplications()
-            if (applications != null)
-                return applications.getAppUpdateStatus(baseApp)
-        }
-        return refreshAppUpdate(baseApp).also {
-            if (it.second) {
-                notifyChanged()
-            }
-        }.first
-    }
+    fun getAppNum(): Int = getAllApp().size
 
-    suspend fun renewAll() {
-        renewAll(concurrency = true)
-        notifyChanged()
-    }
-
-    override suspend fun updateJob(app: BaseApp) {
-        super.updateJob(app)
-        finishedUpdateAppNum++
+    override suspend fun renewAll() {
+        finishedUpdateApp.clear()
+        super.renewAll()
         notifyChanged()
     }
 
     suspend fun downloadAllUpdate() {
         val appList = mutableListOf<App>()
-        for (app in getNeedUpdateAppList(block = false)) {
-            when (app) {
-                is App -> appList.add(app)
-                is Applications -> appList.addAll(app.getNeedUpdateAppList(block = false))
+        for (baseApp in getNeedUpdateAppList(block = false)) {
+            when (baseApp) {
+                is App -> appList.add(baseApp)
+                is Applications -> appList.addAll(baseApp.needUpdateAppList)
             }
         }
         withContext(Dispatchers.IO) {

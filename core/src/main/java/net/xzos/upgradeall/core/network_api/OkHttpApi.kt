@@ -69,10 +69,7 @@ object OkHttpApi {
         return try {
             okHttpClient.newCall(request).execute()
         } catch (e: IOException) {
-            Log.e(objectTag, TAG,
-                    """getHttpResponse: 网络错误 
-                            |ERROR_MESSAGE: $e""".trimIndent()
-            )
+            Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: $e")
             null
         }
     }
@@ -87,10 +84,7 @@ object OkHttpApi {
                     addHeader(key, headers.getValue(key))
             }
         } catch (e: IllegalArgumentException) {
-            Log.e(objectTag, TAG,
-                    """getHttpResponse: URL: $url 
-                        |$e """.trimMargin()
-            )
+            Log.e(objectTag, TAG, "getHttpResponse: URL: $url $e ")
             null
         }
     }

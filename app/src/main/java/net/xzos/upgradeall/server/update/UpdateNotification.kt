@@ -50,7 +50,7 @@ object UpdateNotification {
 
     private fun getNotify() {
         val allAppsNum = UpdateManager.getAppNum()
-        val finishedAppNum = UpdateManager.finishedUpdateAppNum.toInt()
+        val finishedAppNum = UpdateManager.finishedUpdateAppNum
         if (finishedAppNum != allAppsNum) {
             updateStatusNotification(allAppsNum, finishedAppNum)
         } else {
@@ -78,11 +78,11 @@ object UpdateNotification {
         notificationNotify(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
     }
 
-    private fun updateNotification(needUpdateAppList: List<BaseApp>) {
+    private fun updateNotification(needUpdateAppList: Set<BaseApp>) {
         val needUpdateApplicationList = needUpdateAppList.filterIsInstance<Applications>()
         var needUpdateAppNum = needUpdateAppList.filterIsInstance<App>().size
         for (applications in needUpdateApplicationList) {
-            needUpdateAppNum += runBlocking { applications.getNeedUpdateAppList() }.size
+            needUpdateAppNum += runBlocking { applications.needUpdateAppList }.size
         }
         var text = "$needUpdateAppNum 个应用需要更新"
         if (needUpdateApplicationList.isNotEmpty()) {
