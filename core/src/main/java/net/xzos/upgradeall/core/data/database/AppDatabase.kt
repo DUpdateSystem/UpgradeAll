@@ -37,7 +37,9 @@ data class AppDatabase(
                 && AppDatabaseManager.exists(uuid = hubUuid))
             return 0L
         needRefreshable = refresh  // 是否立即刷新
-        return AppDatabaseManager.saveDatabase(this)
+        return AppDatabaseManager.saveDatabase(this).also {
+            id = it
+        }
     }
 
     fun delete(): Boolean {
