@@ -15,7 +15,7 @@ import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.core.system_api.api.IoApi
 
 class App(override val appDatabase: AppDatabase) : BaseApp {
-
+    override var statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {}
     val hubDatabase = HubDatabaseManager.getDatabase(appDatabase.hubUuid)
     var appId: List<AppIdItem>? = null
         get() {

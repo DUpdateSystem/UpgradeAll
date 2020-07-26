@@ -3,98 +3,98 @@ package net.xzos.upgradeall.core.server_manager.module.applications
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.server_manager.UpdateControl
-import net.xzos.upgradeall.core.server_manager.UpdateManager
-import net.xzos.upgradeall.core.server_manager.module.AppHub
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
 
-class Applications(override val appDatabase: AppDatabase) : BaseApp, AppHub, Informer {
+class Applications(override val appDatabase: AppDatabase,
+                   override var statusRenewedFun: (appStatus: Int) -> Unit = fun(_) {}
+) : BaseApp, Informer {
 
     val name = appDatabase.name
+    private val markAppMutex = Mutex()
+
+    val needUpdateAppList: List<App>
+        get() = runBlocking { mainUpdateControl.getNeedUpdateAppList(false) }.filterIsInstance<App>()
+
+
+    private var tmpUpdateStatus = 0
+
     private val applicationsUtils = ApplicationsUtils(appDatabase)
-
-    val apps: MutableList<App> = applicationsUtils.apps
-    private val excludeApps: MutableList<App> = applicationsUtils.excludeApps
-    private val updateControl = UpdateControl(apps)
-    private val updateStatus: Int get() = updateControl.getUpdateStatus()
-    private var initData = false
-
-    // 数据刷新锁
-    private val appListMutex = Mutex()
-
-    private suspend fun refreshAppList(updateControl: UpdateControl): UpdateControl {
-        updateControl.renewAll(concurrency = false)
-        val appMap = updateControl.appMap
-        excludeInvalidApps(appMap[Updater.INVALID_APP]?.filterIsInstance<App>())
-        includeValidApps(appMap[Updater.APP_OUTDATED]?.filterIsInstance<App>())
-        includeValidApps(appMap[Updater.APP_LATEST]?.filterIsInstance<App>())
-        updateControl.apps = apps
-        return updateControl.also {
+    private val mainUpdateControl = UpdateControl(applicationsUtils.apps, fun(app, appStatus) {
+        if (appStatus == Updater.INVALID_APP && app is App) {
+            markInvalidApp(app)
+        }
+        notifyChanged()  // 通知应用列表改变
+        checkUpdateStatusChanged()
+    })
+    private val otherUpdateControl = UpdateControl(applicationsUtils.excludeApps, fun(app, appStatus) {
+        if ((appStatus == Updater.APP_OUTDATED || appStatus == Updater.APP_LATEST) && app is App) {
+            markValidApp(app)
             notifyChanged()
         }
-    }
+        checkUpdateStatusChanged()
+    })
 
-    suspend fun getNeedUpdateAppList(block: Boolean = true): List<App> {
-        return updateControl.getNeedUpdateAppList(block = block).filterIsInstance<App>()
-    }
+    private var initData = false
+
+    val appList: List<App>
+        get() = mainUpdateControl.getAllApp(Updater.APP_OUTDATED, Updater.APP_LATEST, Updater.NETWORK_ERROR).filterIsInstance<App>()
 
     override suspend fun getUpdateStatus(): Int {
-        refreshAppList(updateControl)
+        mainUpdateControl.renewAll()
         if (!initData) {
             initData = true
             GlobalScope.launch(Dispatchers.IO) {
-                refreshAppList(UpdateControl(excludeApps))
+                otherUpdateControl.renewAll()
             }
         }
-        return updateStatus
+        return nonBlockGetUpdateStatus()
     }
 
-    override suspend fun getAppUpdateStatus(baseApp: BaseApp): Int {
-        return updateControl.refreshAppUpdate(baseApp).also {
-            if (it.second) {
-                UpdateManager.refreshAppUpdate(this)
-                UpdateManager.notifyChanged()
-            }
-        }.first
-    }
-
-    private suspend fun includeValidApps(appList: List<App>?) {
-        if (appList.isNullOrEmpty()) return
-        val invalidPackageName = appDatabase.extraData?.applicationsConfig?.invalidPackageName
-        appListMutex.withLock {
-            for (app in appList) {
-                if (app in excludeApps) {
-                    apps.add(app)
-                    excludeApps.remove(app)
-                    app.appDatabase.targetChecker?.extraString?.let { packageName ->
-                        invalidPackageName?.remove(packageName)
-                    }
-                }
-            }
+    private fun checkUpdateStatusChanged() {
+        val updateStatus = nonBlockGetUpdateStatus()
+        if (updateStatus != tmpUpdateStatus) {
+            tmpUpdateStatus = updateStatus
+            statusRenewedFun(updateStatus)
         }
-        appDatabase.save(false)
     }
 
-    private suspend fun excludeInvalidApps(appList: List<App>?) {
-        if (appList.isNullOrEmpty()) return
-        val invalidPackageName = appDatabase.extraData?.applicationsConfig?.invalidPackageName
-        appListMutex.withLock {
-            for (app in appList) {
-                if (app in apps) {
-                    apps.remove(app)
-                    excludeApps.add(app)
-                    app.appDatabase.targetChecker?.extraString?.let { packageName ->
-                        invalidPackageName?.add(packageName)
-                    }
-                }
-            }
+    private fun nonBlockGetUpdateStatus(): Int = when {
+        runBlocking { mainUpdateControl.getNeedUpdateAppList(false) }.isNotEmpty() ->
+            Updater.APP_OUTDATED
+        mainUpdateControl.getAppListFormMap(Updater.NETWORK_ERROR).size == mainUpdateControl.getAllApp().size ->
+            Updater.NETWORK_ERROR
+        else -> Updater.APP_LATEST
+    }
+
+    private fun markValidApp(app: App) {
+        mainUpdateControl.addApp(app)
+        otherUpdateControl.delApp(app)
+        val packageName = app.appId?.get(0)?.value
+        runMarkAppFun {
+            appDatabase.extraData?.applicationsConfig?.invalidPackageName?.remove(packageName)
+            appDatabase.save(false)
         }
-        appDatabase.save(false)
+    }
+
+    private fun markInvalidApp(app: App) {
+        mainUpdateControl.delApp(app)
+        otherUpdateControl.addApp(app)
+        val packageName = app.appId?.get(0)?.value ?: return
+        runMarkAppFun {
+            appDatabase.extraData?.applicationsConfig?.invalidPackageName?.add(packageName)
+            appDatabase.save(false)
+        }
+    }
+
+    private fun runMarkAppFun(function: () -> Unit) {
+        runBlocking { markAppMutex.withLock { function() } }
     }
 }

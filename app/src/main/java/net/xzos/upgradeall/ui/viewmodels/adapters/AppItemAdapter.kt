@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
-import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
@@ -107,7 +106,7 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
         // 检查新版本
         setUpdateStatus(holder, true)
         GlobalScope.launch {
-            val updateStatus = UpdateManager.getAppUpdateStatus(app)
+            val updateStatus = app.getUpdateStatus()
             val latestVersioning = if (app is App)
                 Updater(app).getLatestVersioning()
             else null

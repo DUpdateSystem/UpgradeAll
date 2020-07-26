@@ -1,5 +1,8 @@
 package net.xzos.upgradeall.core.data.database
 
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.AppDatabaseExtraData
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
@@ -14,6 +17,8 @@ data class AppDatabase(
         var targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean? = null,
         private val extraDataGson: AppDatabaseExtraData? = null
 ) {
+    private val mutex = Mutex()
+
     // 是否需要刷新数据
     @Transient
     var needRefreshable = false
@@ -28,7 +33,7 @@ data class AppDatabase(
                 .also { field = it }
 
     fun save(refresh: Boolean): Boolean {
-        return saveReturnId(refresh) != 0L
+        return runBlocking { mutex.withLock { saveReturnId(refresh) != 0L } }
     }
 
     fun saveReturnId(refresh: Boolean): Long {

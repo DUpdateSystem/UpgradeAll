@@ -53,7 +53,7 @@ object AppUiDataManager {
             for (baseApp in needUpdateAppList) {
                 when (baseApp) {
                     is App -> add(baseApp)
-                    is Applications -> addAll(runBlocking { baseApp.getNeedUpdateAppList(block = false) })
+                    is Applications -> addAll(runBlocking { baseApp.needUpdateAppList })
                 }
             }
         }
