@@ -115,3 +115,31 @@ object CloudConfigGetter {
         return null
     }
 }
+
+fun AppDatabaseManager.renewAllAppConfigFromCloud() {
+    val appConfigList = CloudConfigGetter.appConfigList ?: return
+    for (appConfig in appConfigList) {
+        val appUuid = appConfig.uuid
+        val appDatabase = getDatabase(uuid = appUuid)
+        if (appDatabase != null) {
+            val cloudAppVersion = appConfig.info.configVersion
+            val localAppVersion = appDatabase.extraData?.cloudAppConfig?.info?.configVersion ?: 0
+            if (cloudAppVersion > localAppVersion)
+                CloudConfigGetter.downloadCloudAppConfig(appUuid)
+        }
+    }
+}
+
+fun HubDatabaseManager.renewAllHubConfigFromCloud() {
+    val hubConfigList = CloudConfigGetter.hubConfigList ?: return
+    for (hubConfig in hubConfigList) {
+        val hubUuid = hubConfig.uuid
+        val hubDatabase = getDatabase(hubUuid)
+        if (hubDatabase != null) {
+            val cloudHubVersion = hubConfig.info.configVersion
+            val localHubVersion = hubDatabase.hubConfig.info.configVersion
+            if (cloudHubVersion > localHubVersion)
+                CloudConfigGetter.downloadCloudHubConfig(hubUuid)
+        }
+    }
+}

@@ -123,17 +123,3 @@ object AppDatabaseManager {
         )
     }
 }
-
-fun AppDatabaseManager.renewAllAppConfigFromCloud() {
-    val appConfigList = CloudConfigGetter.appConfigList ?: return
-    for (appConfig in appConfigList) {
-        val appUuid = appConfig.uuid
-        val appDatabase = getDatabase(uuid = appUuid)
-        if (appDatabase != null) {
-            val cloudAppVersion = appConfig.info.configVersion
-            val localAppVersion = appDatabase.extraData?.cloudAppConfig?.info?.configVersion ?: 0
-            if (cloudAppVersion > localAppVersion)
-                CloudConfigGetter.getAppCloudConfig(appUuid)
-        }
-    }
-}
