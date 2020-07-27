@@ -23,7 +23,7 @@ class AppListPageViewModel : AppListContainerViewModel() {
         mTabPageIndex.value = tabPageIndex
     }
 
-    fun getTabPageIndex(): Int = mTabPageIndex.value!!
+    fun getTabPageIndex(): Int = mTabPageIndex.value ?: 0
 
     fun removeItemFromTabPage(position: Int): Boolean {
         return AppUiDataManager.removeItemFromTabPage(position, mTabPageIndex.value!!)

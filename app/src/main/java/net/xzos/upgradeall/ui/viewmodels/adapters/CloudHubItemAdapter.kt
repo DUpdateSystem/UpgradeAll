@@ -56,7 +56,9 @@ class CloudHubItemAdapter(private val mItemCardViewList: List<CloudConfigListIte
         if (itemCardView.uuid != null) {
             // 加载仓库信息
             holder.nameTextView.text = itemCardView.name
-            holder.typeTextView.text = itemCardView.type
+            itemCardView.type?.let {
+                holder.typeTextView.setText(it)
+            }
             holder.hubNameTextView.visibility = View.GONE
             checkHubConfigLocalStatus(holder, itemCardView.uuid)
             GlobalScope.launch { loadCloudHubIcon(holder.appIconImageView, itemCardView.uuid) }

@@ -111,13 +111,12 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         val name = appConfig.info.appName
         val appUuid = appConfig.uuid
         val appCloudConfig = CloudConfigGetter.getAppCloudConfig(appUuid)
-        val type: String
-        type = when (appCloudConfig?.appConfig?.targetChecker?.api?.toLowerCase(AppValue.locale)) {
-            API_TYPE_APP_PACKAGE -> getString(R.string.android_app)
-            API_TYPE_MAGISK_MODULE -> getString(R.string.magisk_module)
-            API_TYPE_SHELL -> getString(R.string.shell)
-            API_TYPE_SHELL_ROOT -> getString(R.string.shell_root)
-            else -> ""
+        val type: Int? = when (appCloudConfig?.appConfig?.targetChecker?.api?.toLowerCase(AppValue.locale)) {
+            API_TYPE_APP_PACKAGE -> R.string.android_app
+            API_TYPE_MAGISK_MODULE -> R.string.magisk_module
+            API_TYPE_SHELL -> R.string.shell
+            API_TYPE_SHELL_ROOT -> R.string.shell_root
+            else -> null
         }
         val hubUuid = appCloudConfig?.appConfig?.hubInfo?.hubUuid
         val hubName = CloudConfigGetter.getHubCloudConfig(hubUuid)?.info?.hubName
@@ -128,11 +127,9 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         val name = item.info.hubName
         val hubUuid = item.uuid
         val hubCloudConfig = CloudConfigGetter.getHubCloudConfig(hubUuid)
-        val type = getString(
-                if (hubCloudConfig?.apiKeywords?.contains("android_app_package") == true)
-                    R.string.applications
-                else R.string.app_hub
-        )
+        val type = if (hubCloudConfig?.apiKeywords?.contains("android_app_package") == true)
+            R.string.applications
+        else R.string.app_hub
         return CloudConfigListItemView(name, type, hubUuid, hubUuid)
     }
 

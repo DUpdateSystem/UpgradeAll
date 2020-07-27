@@ -2,12 +2,12 @@ package net.xzos.upgradeall.ui.viewmodels.view
 
 class CloudConfigListItemView(
         val name: String,
-        val type: String?,
+        val type: Int?,
         val hubName: String?,
         val uuid: String?
 ) {
     companion object {
         fun newEmptyInstance() =
-                CloudConfigListItemView("", "", null, null)
+                CloudConfigListItemView("", null, null, null)
     }
 }
