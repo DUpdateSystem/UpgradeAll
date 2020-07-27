@@ -41,25 +41,31 @@ object UpdateNotification {
 
     init {
         createNotificationChannel()
-        UpdateManager.observeForever(object : Observer {
+        UpdateManager.observeForever(UpdateManager.UPDATE_RUNNING, object : Observer {
             override fun onChanged(vararg vars: Any): Any? {
-                return getNotify()
+                return updateNotify()
+            }
+        })
+
+        UpdateManager.observeForever(UpdateManager.UPDATE_FINISHED, object : Observer {
+            override fun onChanged(vararg vars: Any): Any? {
+                return finishedNotify()
             }
         })
     }
 
-    private fun getNotify() {
+    private fun updateNotify() {
         val allAppsNum = UpdateManager.getAppNum()
         val finishedAppNum = UpdateManager.finishedUpdateAppNum
-        if (finishedAppNum != allAppsNum) {
-            updateStatusNotification(allAppsNum, finishedAppNum)
-        } else {
-            val needUpdateAppList = runBlocking { UpdateManager.getNeedUpdateAppList(block = false) }
-            if (needUpdateAppList.isNotEmpty())
-                updateNotification(needUpdateAppList)
-            else
-                cancelNotification()
-        }
+        updateStatusNotification(allAppsNum, finishedAppNum)
+    }
+
+    private fun finishedNotify() {
+        val needUpdateAppList = runBlocking { UpdateManager.getNeedUpdateAppList(block = false) }
+        if (needUpdateAppList.isNotEmpty())
+            updateNotification(needUpdateAppList)
+        else
+            cancelNotification()
     }
 
     fun startUpdateNotification(notificationId: Int): Notification {
