@@ -69,7 +69,9 @@ class CloudAppItemAdapter(
         // 加载跟踪项信息
         if (itemCardView.uuid != null) {
             holder.nameTextView.text = itemCardView.name
-            holder.typeTextView.text = itemCardView.type
+            itemCardView.type?.let {
+                holder.typeTextView.setText(it)
+            }
             holder.hubNameTextView.text = itemCardView.hubName
             checkAppConfigLocalStatus(holder, itemCardView.uuid)
             GlobalScope.launch { loadCloudAppIcon(holder.appIconImageView, itemCardView.uuid) }

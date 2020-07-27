@@ -43,7 +43,7 @@ fun <E> list1ToList2(list1: List<E>, list2: List<E>): List<ListOperationStepBase
     for (i in tmpList.indices) {
         val item = tmpList[i]
         val newIndex = list2.indexOf(item)
-        if (i != newIndex) {
+        if (i != newIndex && newIndex < tmpList.size) {
             tmpList[i] = tmpList[newIndex].also { tmpList[newIndex] = tmpList[i] }
             operationSteps.add((ListSwapOperationStep(i, newIndex)))
         }

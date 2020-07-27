@@ -187,7 +187,7 @@ class AriaDownloader(private val url: String) {
         return downloadFile
     }
 
-    fun taskComplete(task: DownloadTask) {
+    private fun taskComplete(task: DownloadTask) {
         cancel()
         val file = File(task.filePath).autoAddApkExtension().also {
             downloadFile = it
