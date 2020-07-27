@@ -67,17 +67,3 @@ object HubDatabaseManager {
         return false
     }
 }
-
-fun HubDatabaseManager.renewAllHubConfigFromCloud() {
-    val hubConfigList = CloudConfigGetter.hubConfigList ?: return
-    for (hubConfig in hubConfigList) {
-        val hubUuid = hubConfig.uuid
-        val hubDatabase = getDatabase(hubUuid)
-        if (hubDatabase != null) {
-            val cloudHubVersion = hubConfig.info.configVersion
-            val localHubVersion = hubDatabase.hubConfig.info.configVersion
-            if (cloudHubVersion > localHubVersion)
-                CloudConfigGetter.getHubCloudConfig(hubUuid)
-        }
-    }
-}
