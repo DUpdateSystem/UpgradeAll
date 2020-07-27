@@ -1,5 +1,3 @@
 package net.xzos.upgradeall.core.oberver
 
-interface Observer {
-    fun onChanged(vararg vars: Any): Any?
-}
+typealias ObserverFun<E> = (arg: E) -> Unit

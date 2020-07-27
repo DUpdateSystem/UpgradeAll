@@ -7,7 +7,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.core.oberver.Observer
+import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.data.PreferencesMap
 import java.io.File
 
@@ -26,11 +26,10 @@ object ApkInstaller {
         }
     }
 
-    fun observeInstall(apkFile: File, observer: Observer) {
+    fun observeInstall(apkFile: File, observerFun: ObserverFun<Unit>) {
         val packageInfo = apkFile.getPackageInfo() ?: return
-        ApkSystemInstaller.observeForever(
-                Pair(packageInfo.packageName, packageInfo.versionName).getMapKey(),
-                observer)
+        val key = Pair(packageInfo.packageName, packageInfo.versionName).getMapKey()
+        ApkSystemInstaller.observeForever(key, observerFun)
     }
 
     fun completeInstall(packageNameFile: File) {

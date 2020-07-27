@@ -13,7 +13,6 @@ import androidx.core.app.TaskStackBuilder
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
@@ -41,16 +40,12 @@ object UpdateNotification {
 
     init {
         createNotificationChannel()
-        UpdateManager.observeForever(UpdateManager.UPDATE_RUNNING, object : Observer {
-            override fun onChanged(vararg vars: Any): Any? {
-                return updateNotify()
-            }
+        UpdateManager.observeForever<Unit>(UpdateManager.UPDATE_RUNNING, fun(_) {
+            updateNotify()
         })
 
-        UpdateManager.observeForever(UpdateManager.UPDATE_FINISHED, object : Observer {
-            override fun onChanged(vararg vars: Any): Any? {
-                return finishedNotify()
-            }
+        UpdateManager.observeForever<Unit>(UpdateManager.UPDATE_FINISHED, fun(_) {
+            finishedNotify()
         })
     }
 

@@ -4,7 +4,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.oberver.Informer
-import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
@@ -25,15 +24,10 @@ object UpdateManager : UpdateControl(AppManager.apps, fun(_, _) {}), Informer {
             finishedUpdateApp.add(baseApp)
             notifyChanged(UPDATE_RUNNING)
         }
-        AppManager.observeForever(
-                object : Observer {
-                    override fun onChanged(vars: Array<out Any>): Any? {
-                        clearApp()
-                        addApps(AppManager.apps.toSet())
-                        return null
-                    }
-                }
-        )
+        AppManager.observeForever<Unit>(fun(_) {
+            clearApp()
+            addApps(AppManager.apps.toSet())
+        })
     }
 
     fun getAppNum(): Int = getAllApp().size

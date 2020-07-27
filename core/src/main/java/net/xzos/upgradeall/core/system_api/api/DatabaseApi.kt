@@ -10,6 +10,9 @@ object DatabaseApi : Informer {
 
     private var databaseApiInterface: DatabaseApi? = null
 
+    const val APP_DATABASE_CHANGED = "APP_DATABASE_CHANGED"
+    const val HUB_DATABASE_CHANGED = "HUB_DATABASE_CHANGED"
+
     fun setInterfaces(interfacesClass: DatabaseApi) {
         databaseApiInterface = interfacesClass
     }
@@ -48,8 +51,9 @@ object DatabaseApi : Informer {
             } != null
 
     private fun notify(database: Any) {
-        if ((database is AppDatabase) || database is HubDatabase) {
-            notifyChanged(database)
+        when (database) {
+            is AppDatabase -> notifyChanged(APP_DATABASE_CHANGED, database)
+            is HubDatabase -> notifyChanged(HUB_DATABASE_CHANGED, database)
         }
     }
 }
