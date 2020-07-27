@@ -7,7 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
@@ -75,35 +78,32 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         }
     }
 
-    private fun renewCloudList(isAppList: Boolean = false, isHubList: Boolean = false) {
-        runBlocking {
-            when {
-                isAppList -> {
-                    CloudConfigGetter.appConfigList?.map { getCloudAppItemCardView(it) }
-                }
-                isHubList -> {
-                    CloudConfigGetter.hubConfigList?.map { getCloudHubItemCardView(it) }
-                }
-                else -> null
-            }?.plus(CloudConfigListItemView.newEmptyInstance())
-                    ?.also {
-                        withContext(Dispatchers.Main) {
-                            if (this@CloudConfigPlaceholderFragment.isVisible) {
-                                cardItemRecyclerView?.let { view ->
-                                    view.layoutManager = GridLayoutManager(activity, 1)
-                                    view.adapter = when {
-                                        isAppList -> CloudAppItemAdapter(it, context)
-                                        isHubList -> CloudHubItemAdapter(it)
-                                        else -> null
-                                    }
-                                }
-                            }
+    private suspend fun renewCloudList(isAppList: Boolean = false, isHubList: Boolean = false) {
+        val itemCardViewList = when {
+            isAppList -> {
+                CloudConfigGetter.appConfigList?.map { getCloudAppItemCardView(it) }
+            }
+            isHubList -> {
+                CloudConfigGetter.hubConfigList?.map { getCloudHubItemCardView(it) }
+            }
+            else -> null
+        }?.plus(CloudConfigListItemView.newEmptyInstance())
+        if (itemCardViewList != null) {
+            withContext(Dispatchers.Main) {
+                if (this@CloudConfigPlaceholderFragment.isVisible) {
+                    cardItemRecyclerView?.let { view ->
+                        view.layoutManager = GridLayoutManager(activity, 1)
+                        view.adapter = when {
+                            isAppList -> CloudAppItemAdapter(itemCardViewList, context)
+                            isHubList -> CloudHubItemAdapter(itemCardViewList)
+                            else -> null
                         }
                     }
-                    ?: run {
-                        if (this@CloudConfigPlaceholderFragment.isVisible)
-                            MiscellaneousUtils.showToast(context, R.string.network_error)
-                    }
+                }
+            }
+        } else {
+            if (this@CloudConfigPlaceholderFragment.isVisible)
+                MiscellaneousUtils.showToast(context, R.string.network_error)
         }
     }
 
