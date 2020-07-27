@@ -2,6 +2,7 @@ package net.xzos.upgradeall.ui.fragment
 
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.NetworkOnMainThreadException
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
@@ -32,14 +33,13 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private lateinit var app: App
 
     private var versioningPosition: Int = 0
-    private var releaseInfoList: List<ReleaseInfoItem>? = null
-        get() {
-            return field ?: runBlocking {
-                Updater(app).getReleaseInfo().also {
-                    field = it
-                }
-            }
+    private val releaseInfoList: List<ReleaseInfoItem> by lazy {
+        return@lazy try {
+            runBlocking { Updater(app).getReleaseInfo() ?: listOf() }
+        } catch (ignore: NetworkOnMainThreadException) {
+            listOf<ReleaseInfoItem>()
         }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
@@ -109,7 +109,7 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private fun loadVersioningPopupMenu() {
         versioningSelectLayout.visibility = View.GONE
         GlobalScope.launch {
-            val versionNumberList = releaseInfoList!!.map {
+            val versionNumberList = releaseInfoList.map {
                 it.versionNumber
             }
 
@@ -140,7 +140,7 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun showDownloadDialog() {
-        val fileNameList = releaseInfoList?.get(versioningPosition)?.assetsList?.map { asset ->
+        val fileNameList = releaseInfoList[versioningPosition].assetsList?.map { asset ->
             asset.fileName
         } ?: listOf()
         context?.let {
@@ -178,9 +178,9 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         this.versioningPosition = versioningPosition
         versionMarkImageView.visibility = View.GONE
         GlobalScope.launch {
-            val releaseInfoBean = releaseInfoList?.get(versioningPosition)
-            val versionNumber = releaseInfoBean?.versionNumber
-            val latestChangeLog = releaseInfoBean?.changeLog
+            val releaseInfoBean = releaseInfoList[versioningPosition]
+            val versionNumber = releaseInfoBean.versionNumber
+            val latestChangeLog = releaseInfoBean.changeLog
             withContext(Dispatchers.Main) {
                 if (this@AppInfoFragment.isVisible) {
                     cloud_versioning_text_view.text = if (versioningPosition == 0) {

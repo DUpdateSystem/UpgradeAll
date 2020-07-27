@@ -108,13 +108,13 @@ object MiscellaneousUtils {
 
     fun showToast(context: Context?, @StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
         Handler(Looper.getMainLooper()).post {
-            Toast.makeText(context, resId, duration).show()
+            Toast.makeText(context ?: MyApplication.context, resId, duration).show()
         }
     }
 
     fun showToast(context: Context?, text: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
         Handler(Looper.getMainLooper()).post {
-            Toast.makeText(context, text, duration).show()
+            Toast.makeText(context ?: MyApplication.context, text, duration).show()
         }
     }
 }
