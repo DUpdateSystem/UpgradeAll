@@ -3,7 +3,6 @@ package net.xzos.upgradeall.core.data_manager
 import net.xzos.upgradeall.core.data.database.HubDatabase
 import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.core.oberver.Observer
 import net.xzos.upgradeall.core.system_api.api.DatabaseApi
 
 
@@ -20,16 +19,11 @@ object HubDatabaseManager {
         /**
          * 刷新数据库
          */
-        DatabaseApi.observeForever(object : Observer {
-            override fun onChanged(vararg vars: Any): Any? {
-                // 更新数据库
-                val database = vars[0]
-                if (database is HubDatabase) {
+        DatabaseApi.observeForever<HubDatabase>(DatabaseApi.HUB_DATABASE_CHANGED,
+                fun(_) {
+                    // 更新数据库
                     hubDatabases = DatabaseApi.hubDatabases
-                }
-                return null
-            }
-        })
+                })
     }
 
     fun getDatabase(uuid: String?): HubDatabase? {

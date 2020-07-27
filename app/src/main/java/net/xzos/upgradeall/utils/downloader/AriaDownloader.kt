@@ -13,7 +13,7 @@ import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data_manager.utils.FilePathUtils
-import net.xzos.upgradeall.core.oberver.Observer
+import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
@@ -33,19 +33,13 @@ class AriaDownloader(private val url: String) {
     private var downloadFile: File? = null
     private val downloadNotification: DownloadNotification = DownloadNotification(url)
 
-    private val completeObserver = object : Observer {
-        override fun onChanged(vars: Array<out Any>): Any? {
-            taskComplete(vars[0] as DownloadTask)
-            unregister()
-            return null
-        }
+    private val completeObserverFun: ObserverFun<DownloadTask> = fun(downloadTask) {
+        taskComplete(downloadTask)
+        unregister()
     }
 
-    private val cancelObserver = object : Observer {
-        override fun onChanged(vars: Array<out Any>): Any? {
-            delTask()
-            return null
-        }
+    private val cancelObserverFun: ObserverFun<DownloadTask> = fun(_) {
+        delTask()
     }
 
     fun finalize() {
@@ -57,14 +51,14 @@ class AriaDownloader(private val url: String) {
         // 若下载器组成成功，进行下载状态监视功能注册
         if (registerDownloadMap) {
             downloadNotification.register()
-            AriaRegister.observeForever(url.getCompleteNotifyKey(), completeObserver)
-            AriaRegister.observeForever(url.getCancelNotifyKey(), cancelObserver)
+            AriaRegister.observeForever(url.getCompleteNotifyKey(), completeObserverFun)
+            AriaRegister.observeForever(url.getCancelNotifyKey(), cancelObserverFun)
         }
     }
 
     private fun unregister() {
-        AriaRegister.removeObserver(completeObserver)
-        AriaRegister.removeObserver(cancelObserver)
+        AriaRegister.removeObserver(completeObserverFun)
+        AriaRegister.removeObserver(cancelObserverFun)
     }
 
     private fun delDownloader() {
@@ -111,16 +105,16 @@ class AriaDownloader(private val url: String) {
 
     fun install() {
         val file = downloadFile ?: return
+        downloadNotification.showInstallNotification(file.name)
         when {
-            file.isApkFile() -> GlobalScope.launch { ApkInstaller.install(file) }
+            file.isApkFile() -> {
+                ApkInstaller.observeInstall(file, fun(_) {
+                    completeInstall(file)
+                })
+                GlobalScope.launch { ApkInstaller.install(file) }
+            }
             else -> return
         }
-        downloadNotification.showInstallNotification(file.name)
-        ApkInstaller.observeInstall(file, object : Observer {
-            override fun onChanged(vararg vars: Any): Any? {
-                return completeInstall(file)
-            }
-        })
     }
 
     fun saveFile() {

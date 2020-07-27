@@ -2,7 +2,7 @@ package net.xzos.upgradeall.data
 
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.oberver.Observer
+import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.core.server_manager.UpdateManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
@@ -30,17 +30,14 @@ object AppUiDataManager {
     private val appListLiveDataMap: MutableMap<Int, MutableLiveData<List<BaseApp>>> = mutableMapOf()
 
     init {
-        AppManager.observeForever(object : Observer {
-            override fun onChanged(vararg vars: Any): Any? {
-                return refreshAllAppListMap()
-            }
-
+        AppManager.observeForever<Unit>(fun(_) {
+            refreshAllAppListMap()
         })
-        UpdateManager.observeForever(object : Observer {
-            override fun onChanged(vararg vars: Any): Any? {
-                return refreshNeedUpdateAppList()
-            }
-        })
+        val updateObserver: ObserverFun<Unit> = fun(_: Unit) {
+            refreshNeedUpdateAppList()
+        }
+        UpdateManager.observeForever(UpdateManager.UPDATE_RUNNING, updateObserver)
+        UpdateManager.observeForever(UpdateManager.UPDATE_FINISHED, updateObserver)
         // 初始化绑定 Map
         appListLiveDataMap[ALL_APP_PAGE_INDEX] = allAppListLiveData
         appListLiveDataMap[UPDATE_PAGE_INDEX] = needUpdateAppListLiveData

@@ -13,7 +13,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.arialyy.aria.core.task.DownloadTask
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.oberver.Observer
+import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.utils.downloader.AriaRegister.getCancelNotifyKey
 import net.xzos.upgradeall.utils.downloader.AriaRegister.getCompleteNotifyKey
 import net.xzos.upgradeall.utils.downloader.AriaRegister.getFailNotifyKey
@@ -31,45 +31,25 @@ class DownloadNotification(private val url: String) {
         priority = NotificationCompat.PRIORITY_LOW
     }
 
-    private val startObserver = object : Observer {
-        override fun onChanged(vars: Array<out Any>): Any? {
-            return taskStart(vars[0] as DownloadTask)
-        }
+    private val startObserverFun: ObserverFun<DownloadTask> = fun(downloadTask) {
+        taskStart(downloadTask)
     }
 
-    private val runningObserver = object : Observer {
-        override fun onChanged(vars: Array<out Any>): Any? {
-            return taskRunning(vars[0] as DownloadTask)
-        }
+    private val runningObserverFun: ObserverFun<DownloadTask> = fun(downloadTask) {
+        taskRunning(downloadTask)
     }
 
-    private val stopObserver = object : Observer {
-        override fun onChanged(vars: Array<out Any>): Any? {
-            return taskStop()
-        }
+    private val stopObserverFun: ObserverFun<DownloadTask> = fun(_) { taskStop() }
+
+    private val completeObserverFun: ObserverFun<DownloadTask> = fun(downloadTask) {
+        taskComplete(downloadTask).also { unregister() }
     }
 
-    private val completeObserver = object : Observer {
-        override fun onChanged(vars: Array<out Any>): Any? {
-            return taskComplete(vars[0] as DownloadTask).also {
-                unregister()
-            }
-        }
+    private val cancelObserverFun: ObserverFun<DownloadTask> = fun(_) {
+        taskCancel().also { unregister() }
     }
 
-    private val cancelObserver = object : Observer {
-        override fun onChanged(vars: Array<out Any>): Any? {
-            return taskCancel().also {
-                unregister()
-            }
-        }
-    }
-
-    private val failObserver = object : Observer {
-        override fun onChanged(vars: Array<out Any>): Any? {
-            return taskFail()
-        }
-    }
+    private val failObserverFun: ObserverFun<DownloadTask> = fun(_) { taskFail() }
 
     init {
         createNotificationChannel()
@@ -80,21 +60,21 @@ class DownloadNotification(private val url: String) {
     }
 
     fun register() {
-        AriaRegister.observeForever(url.getStartNotifyKey(), startObserver)
-        AriaRegister.observeForever(url.getRunningNotifyKey(), runningObserver)
-        AriaRegister.observeForever(url.getStopNotifyKey(), stopObserver)
-        AriaRegister.observeForever(url.getCompleteNotifyKey(), completeObserver)
-        AriaRegister.observeForever(url.getCancelNotifyKey(), cancelObserver)
-        AriaRegister.observeForever(url.getFailNotifyKey(), failObserver)
+        AriaRegister.observeForever(url.getStartNotifyKey(), startObserverFun)
+        AriaRegister.observeForever(url.getRunningNotifyKey(), runningObserverFun)
+        AriaRegister.observeForever(url.getStopNotifyKey(), stopObserverFun)
+        AriaRegister.observeForever(url.getCompleteNotifyKey(), completeObserverFun)
+        AriaRegister.observeForever(url.getCancelNotifyKey(), cancelObserverFun)
+        AriaRegister.observeForever(url.getFailNotifyKey(), failObserverFun)
     }
 
     private fun unregister() {
-        AriaRegister.removeObserver(startObserver)
-        AriaRegister.removeObserver(runningObserver)
-        AriaRegister.removeObserver(stopObserver)
-        AriaRegister.removeObserver(completeObserver)
-        AriaRegister.removeObserver(cancelObserver)
-        AriaRegister.removeObserver(failObserver)
+        AriaRegister.removeObserver(startObserverFun)
+        AriaRegister.removeObserver(runningObserverFun)
+        AriaRegister.removeObserver(stopObserverFun)
+        AriaRegister.removeObserver(completeObserverFun)
+        AriaRegister.removeObserver(cancelObserverFun)
+        AriaRegister.removeObserver(failObserverFun)
     }
 
     internal fun waitDownloadTaskNotification(fileName: String? = null) {
@@ -146,7 +126,7 @@ class DownloadNotification(private val url: String) {
         }
     }
 
-    fun taskStart(task: DownloadTask) {
+    private fun taskStart(task: DownloadTask) {
         val progressCurrent: Int = task.percent
         val speed = task.convertSpeed
         builder.clearActions()
@@ -161,7 +141,7 @@ class DownloadNotification(private val url: String) {
         notificationNotify()
     }
 
-    fun taskRunning(task: DownloadTask) {
+    private fun taskRunning(task: DownloadTask) {
         val progressCurrent: Int = task.percent
         val speed = task.convertSpeed
         builder.clearActions()
@@ -176,7 +156,7 @@ class DownloadNotification(private val url: String) {
         notificationNotify()
     }
 
-    fun taskStop() {
+    private fun taskStop() {
         builder.clearActions()
                 .setContentText("下载已暂停")
                 .setSmallIcon(android.R.drawable.stat_sys_download_done)
@@ -192,7 +172,7 @@ class DownloadNotification(private val url: String) {
         cancelNotification()
     }
 
-    fun taskFail() {
+    private fun taskFail() {
         val delTaskSnoozePendingIntent = getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
         builder.clearActions()
                 .setContentText("下载失败，点击重试")
@@ -205,7 +185,7 @@ class DownloadNotification(private val url: String) {
         notificationNotify()
     }
 
-    fun taskComplete(task: DownloadTask) {
+    private fun taskComplete(task: DownloadTask) {
         val file = File(task.filePath)
         showManualMenuNotification(file)
     }

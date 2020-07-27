@@ -10,57 +10,56 @@ private const val DEFAULT_TAG = "NULL"
 
 interface Informer {
 
-    fun notifyChanged(vararg vars: Any) {
-        notifyChanged(DEFAULT_TAG, *vars)
+    fun notifyChanged(tag: String) {
+        notifyChanged(tag, Unit)
     }
 
-    fun notifyChanged(tag: String, varObj: Any) {
-        notifyChanged(tag, vars = *arrayOf(varObj))
+    fun <E> notifyChanged(arg: E) {
+        notifyChanged(DEFAULT_TAG, arg)
     }
 
-    fun notifyChanged(tag: String, vararg vars: Any) {
+    fun <E> notifyChanged(tag: String, arg: E) {
         val observerMap = getObserverMap(this)
         runBlocking {
             getMutex(this@Informer).withLock {
-                for (observer in observerMap[tag] ?: return@runBlocking) {
-                    observer.onChanged(*vars)
+                for (observer in observerMap.getObserverMutableList<E>(tag, false)) {
+                    observer(arg)
                 }
             }
         }
     }
 
-    fun observeForever(observer: Observer) {
-        observeForever(DEFAULT_TAG, observer)
+    fun <E> observeForever(observerFun: ObserverFun<E>) {
+        observeForever(DEFAULT_TAG, observerFun)
     }
 
-    fun observeForever(tag: String, observer: Observer) {
+    fun <E> observeForever(tag: String, observerFun: ObserverFun<E>) {
         val observerMap = getObserverMap(this)
         runBlocking {
             getMutex(this@Informer).withLock {
-                val observerList = observerMap[tag] ?: mutableListOf<Observer>().apply {
-                    observerMap[tag] = this
-                }
-                if (!observerList.contains(observer))
-                    observerList.add(observer)
+                val observerList = observerMap.getObserverMutableList<E>(tag)
+                if (!observerList.contains(observerFun))
+                    observerList.add(observerFun)
             }
         }
     }
 
-    fun removeObserver(observer: Observer) {
+    fun <E> removeObserver(observerFun: ObserverFun<E>) {
         val observerMap = getObserverMap(this)
         val observerKeyList = mutableListOf<String>()
         GlobalScope.launch {
             getMutex(this@Informer).withLock {
                 for (observerEntry in observerMap) {
                     val observerKey = observerEntry.key
-                    val observerList = observerEntry.value
+
+                    @Suppress("UNCHECKED_CAST")
+                    val observerList = observerEntry.value as MutableList<ObserverFun<E>>
                     // 删除 observer
-                    if (observerList.contains(observer)) {
-                        observerList.remove(observer)
-                        // 记录为空的列表
-                        if (observerList.isEmpty())
-                            observerKeyList.add(observerKey)
-                    }
+                    if (observerList.contains(observerFun))
+                        observerList.remove(observerFun)
+                    // 记录为空的列表
+                    if (observerList.isEmpty())
+                        observerKeyList.add(observerKey)
                 }
             }
         }
@@ -81,15 +80,25 @@ interface Informer {
     }
 
     companion object {
-        private val observerMap: MutableMap<Informer, MutableMap<String, MutableList<Observer>>> = mutableMapOf()
+        private val observerMap: MutableMap<Informer, MutableMap<String, Any>> = mutableMapOf()
         private val mutexMap: MutableMap<Informer, Mutex> = mutableMapOf()
 
         private fun getObserverMap(informer: Informer)
-                : MutableMap<String, MutableList<Observer>> {
-            return observerMap[informer]
-                    ?: mutableMapOf<String, MutableList<Observer>>().also {
-                        observerMap[informer] = it
-                    }
+                : MutableMap<String, Any> = observerMap[informer]
+                ?: mutableMapOf<String, Any>().also {
+                    observerMap[informer] = it
+                }
+
+        fun <E> MutableMap<String, Any>.getObserverMutableList(
+                key: String, createNew: Boolean = true
+        ): MutableList<ObserverFun<E>> {
+            @Suppress("UNCHECKED_CAST")
+            return if (this.containsKey(key))
+                this[key]!! as MutableList<ObserverFun<E>>
+            else mutableListOf<ObserverFun<E>>().also {
+                if (createNew)
+                    this[key] = it
+            }
         }
 
         private fun getMutex(informer: Informer)
