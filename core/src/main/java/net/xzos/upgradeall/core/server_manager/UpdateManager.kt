@@ -12,6 +12,8 @@ import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 
 
 object UpdateManager : UpdateControl(AppManager.apps, fun(_, _) {}), Informer {
+    const val UPDATE_RUNNING = "UPDATE_RUNNING"
+    const val UPDATE_FINISHED = "UPDATE_FINISHED"
     val finishedUpdateAppNum: Int get() = finishedUpdateApp.size
 
     private val finishedUpdateApp: HashSet<BaseApp> = hashSetOf()
@@ -21,7 +23,7 @@ object UpdateManager : UpdateControl(AppManager.apps, fun(_, _) {}), Informer {
     init {
         appUpdateStatusChangedFun = fun(baseApp, _) {
             finishedUpdateApp.add(baseApp)
-            notifyChanged()
+            notifyChanged(UPDATE_RUNNING)
         }
         AppManager.observeForever(
                 object : Observer {
@@ -39,7 +41,7 @@ object UpdateManager : UpdateControl(AppManager.apps, fun(_, _) {}), Informer {
     override suspend fun renewAll() {
         finishedUpdateApp.clear()
         super.renewAll()
-        notifyChanged()
+        notifyChanged(UPDATE_FINISHED)
     }
 
     suspend fun downloadAllUpdate() {
