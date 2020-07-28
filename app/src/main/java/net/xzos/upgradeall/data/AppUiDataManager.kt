@@ -29,6 +29,8 @@ object AppUiDataManager {
     // 列表中所有的 APP
     private val appListLiveDataMap: MutableMap<Int, MutableLiveData<List<BaseApp>>> = mutableMapOf()
 
+    private val applicationObserverFunMap: MutableMap<Applications, ObserverFun<Unit>> = mutableMapOf()
+
     init {
         AppManager.observeForever<Unit>(fun(_) {
             refreshAllAppListMap()
@@ -54,7 +56,30 @@ object AppUiDataManager {
                 }
             }
         }
+        setApplicationObserverMap(needUpdateAppList.filterIsInstance<Applications>())
         needUpdateAppListLiveData.setValueBackground(list)
+    }
+
+    private fun setApplicationObserverMap(newList: List<Applications>) {
+        val oldList = applicationObserverFunMap.keys.toList()
+        if (oldList == newList) return
+        val delList = oldList.filter {
+            !newList.contains(it)
+        }
+        for (applications in delList) {
+            applications.removeObserver(applicationObserverFunMap.remove(applications)!!)
+        }
+        val addList = newList.filter {
+            !oldList.contains(it)
+        }
+        for (applications in addList) {
+            val observerFun = fun(_: Unit) {
+                refreshNeedUpdateAppList()
+            }.also {
+                applicationObserverFunMap[applications] = it
+            }
+            applications.observeForever(observerFun)
+        }
     }
 
     private fun refreshAllAppListMap() {
