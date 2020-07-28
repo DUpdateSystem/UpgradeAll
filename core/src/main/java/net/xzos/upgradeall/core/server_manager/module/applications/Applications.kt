@@ -31,13 +31,13 @@ class Applications(override val appDatabase: AppDatabase,
         if (appStatus == Updater.INVALID_APP && app is App) {
             markInvalidApp(app)
         }
-        notifyChanged(Unit)  // 通知应用列表改变
+        notifyChanged()  // 通知应用列表改变
         checkUpdateStatusChanged()
     })
     private val otherUpdateControl = UpdateControl(applicationsUtils.excludeApps, fun(app, appStatus) {
         if ((appStatus == Updater.APP_OUTDATED || appStatus == Updater.APP_LATEST) && app is App) {
             markValidApp(app)
-            notifyChanged(Unit)
+            notifyChanged()
         }
         checkUpdateStatusChanged()
     })

@@ -10,6 +10,10 @@ private const val DEFAULT_TAG = "NULL"
 
 interface Informer {
 
+    fun notifyChanged() {
+        notifyChanged(DEFAULT_TAG, Unit)
+    }
+
     fun notifyChanged(tag: String) {
         notifyChanged(tag, Unit)
     }

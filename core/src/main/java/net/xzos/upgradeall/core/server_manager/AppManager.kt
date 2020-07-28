@@ -22,7 +22,7 @@ object AppManager : Informer {
     }
 
     private fun notifyChange() {
-        notifyChanged(Unit)
+        notifyChanged()
     }
 
     private fun initApp() {
