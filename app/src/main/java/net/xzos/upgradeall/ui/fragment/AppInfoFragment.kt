@@ -140,9 +140,11 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun showDownloadDialog() {
-        val fileNameList = releaseInfoList[versioningPosition].assetsList?.map { asset ->
-            asset.fileName
-        } ?: listOf()
+        val fileNameList = if (versioningPosition < releaseInfoList.size)
+            releaseInfoList[versioningPosition].assetsList?.map { asset ->
+                asset.fileName
+            } ?: listOf()
+        else listOf()
         context?.let {
             DownloadListDialog.show(it, fileNameList,
                     fun(position: Int, externalDownloader: Boolean) {

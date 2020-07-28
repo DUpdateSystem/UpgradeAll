@@ -27,7 +27,7 @@ class DownloadNotification(private val url: String) {
 
     private val notificationIndex: Int = NOTIFICATION_INDEX
 
-    private val builder = NotificationCompat.Builder(context, CHANNEL_ID).apply {
+    private val builder = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID).apply {
         priority = NotificationCompat.PRIORITY_LOW
     }
 
@@ -91,19 +91,6 @@ class DownloadNotification(private val url: String) {
                 .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
                         getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL))
         notificationNotify()
-    }
-
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "应用下载", NotificationManager.IMPORTANCE_LOW)
-            channel.description = "显示更新文件的下载状态"
-            channel.enableLights(true)
-            channel.enableVibration(false)
-            channel.setShowBadge(false)
-            val notificationManager = context.getSystemService(
-                    Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
     }
 
 
@@ -241,9 +228,10 @@ class DownloadNotification(private val url: String) {
     }
 
     companion object {
-        private const val CHANNEL_ID = "DownloadNotification"
+        private const val DOWNLOAD_CHANNEL_ID = "DownloadNotification"
         private const val PROGRESS_MAX = 100
         private val context = MyApplication.context
+        private var initNotificationChannel = false
 
         private const val DOWNLOAD_SERVICE_NOTIFICATION_INDEX = 200
         private var NOTIFICATION_INDEX = 201
@@ -256,7 +244,7 @@ class DownloadNotification(private val url: String) {
                 return field
             }
 
-        private val downloadServiceNotificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
+        private val downloadServiceNotificationBuilder = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID)
                 .setContentTitle("下载服务运行中").setSmallIcon(android.R.drawable.stat_sys_download_done)
                 .apply { priority = NotificationCompat.PRIORITY_LOW }
 
@@ -266,8 +254,26 @@ class DownloadNotification(private val url: String) {
         }
 
         private fun notificationNotify(notificationId: Int, notification: Notification): Notification {
+            if (!initNotificationChannel) {
+                createNotificationChannel()
+                initNotificationChannel = true
+            }
             NotificationManagerCompat.from(context).notify(notificationId, notification)
             return notification
+        }
+
+        fun createNotificationChannel() {
+            val notificationManager = context.getSystemService(
+                    Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    && notificationManager.getNotificationChannel(DOWNLOAD_CHANNEL_ID) == null) {
+                val channel = NotificationChannel(DOWNLOAD_CHANNEL_ID, "应用下载", NotificationManager.IMPORTANCE_LOW)
+                channel.description = "显示更新文件的下载状态"
+                channel.enableLights(true)
+                channel.enableVibration(false)
+                channel.setShowBadge(false)
+                notificationManager.createNotificationChannel(channel)
+            }
         }
     }
 }

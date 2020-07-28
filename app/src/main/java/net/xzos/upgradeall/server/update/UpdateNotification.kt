@@ -22,7 +22,7 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 object UpdateNotification {
     private val context = MyApplication.context
-    private const val CHANNEL_ID = "UpdateServiceNotification"
+    private const val UPDATE_SERVICE_CHANNEL_ID = "UpdateServiceNotification"
     private val UPDATE_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_notification_id)
     val UPDATE_SERVER_RUNNING_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_server_running_notification_id)
 
@@ -31,7 +31,7 @@ object UpdateNotification {
         getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
-    private val builder = NotificationCompat.Builder(context, CHANNEL_ID).apply {
+    private val builder = NotificationCompat.Builder(context, UPDATE_SERVICE_CHANNEL_ID).apply {
         setContentTitle("UpgradeAll 更新服务运行中")
         setOngoing(true)
         setSmallIcon(R.drawable.ic_launcher_foreground)
@@ -102,14 +102,15 @@ object UpdateNotification {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "更新服务", NotificationManager.IMPORTANCE_MIN)
+        val notificationManager = context.getSystemService(
+                Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && notificationManager.getNotificationChannel(UPDATE_SERVICE_CHANNEL_ID) == null) {
+            val channel = NotificationChannel(UPDATE_SERVICE_CHANNEL_ID, "更新服务", NotificationManager.IMPORTANCE_MIN)
             channel.description = "显示更新服务状态"
             channel.enableLights(false)
             channel.enableVibration(false)
             channel.setShowBadge(true)
-            val notificationManager = context.getSystemService(
-                    Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }

@@ -27,14 +27,15 @@ import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListPageViewModel
 import net.xzos.upgradeall.utils.IconPalette
 
 
-internal class AppListPlaceholderFragment(private val tabPageIndex: Int)
-    : AppListContainerFragment() {
+internal class AppListPlaceholderFragment : AppListContainerFragment() {
 
+    private var tabPageIndex: Int = 0
     private lateinit var appListPageViewModel: AppListPageViewModel
     private lateinit var adapter: AppListItemAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        tabPageIndex = arguments?.getInt(TAB_PAGE_INDEX) ?: 0
         appListPageViewModel = ViewModelProvider(this).get(AppListPageViewModel::class.java)
         adapter = AppListItemAdapter(appListPageViewModel)
         viewModel = appListPageViewModel
@@ -127,6 +128,13 @@ internal class AppListPlaceholderFragment(private val tabPageIndex: Int)
     }
 
     companion object {
-        internal fun newInstance(tabPageIndex: Int) = AppListPlaceholderFragment(tabPageIndex)
+        private const val TAB_PAGE_INDEX = "TAB_PAGE_INDEX"
+        internal fun newInstance(tabPageIndex: Int): AppListPlaceholderFragment {
+            val args = Bundle()
+            args.putInt(TAB_PAGE_INDEX, tabPageIndex)
+            return AppListPlaceholderFragment().apply {
+                arguments = args
+            }
+        }
     }
 }
