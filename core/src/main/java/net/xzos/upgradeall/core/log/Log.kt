@@ -65,7 +65,7 @@ object Log {
      */
     internal fun notifyChange(vararg objectTags: ObjectTag) {
         for (objectTag in objectTags)
-            LogApi.logChanged()
+            LogApi.logChanged(logMap)
     }
 
     // 调用Log.v()方法打印日志
