@@ -244,29 +244,25 @@ class AppSettingFragment : Fragment() {
                 this.floatingActionButton?.visibility = View.GONE
                 this.loadingBar?.visibility = View.VISIBLE
             }
-            GlobalScope.launch {
-                val name = editName.text.toString()
-                val url = editUrl.text.toString()
-                val versionChecker =
-                        if (editMode != AppDatabase.APPLICATIONS_TYPE_TAG)
-                            targetChecker
-                        else null
-                val addRepoSuccess = if (hubUuid != null && editMode != null)
-                    addRepoDatabase(name, hubUuid!!, url, editMode, versionChecker)  // 添加数据库
-                else false
-                withContext(Dispatchers.Main) {
-                    if (addRepoSuccess) {
-                        // 提醒跟踪项详情页数据已刷新
-                        if (app != null && app is App)
-                            AppInfoFragment.bundleApp = app
-                        activity?.onBackPressed()  // 跳转主页面
-                    } else
-                        Toast.makeText(context, R.string.failed_to_add, Toast.LENGTH_LONG).show()
-                    activity?.run {
-                        this.floatingActionButton?.visibility = View.VISIBLE
-                        this.loadingBar?.visibility = View.GONE
-                    }
-                }
+            val name = editName.text.toString()
+            val url = editUrl.text.toString()
+            val versionChecker =
+                    if (editMode != AppDatabase.APPLICATIONS_TYPE_TAG)
+                        targetChecker
+                    else null
+            val addRepoSuccess = if (hubUuid != null && editMode != null)
+                addRepoDatabase(name, hubUuid!!, url, editMode, versionChecker)  // 添加数据库
+            else false
+            if (addRepoSuccess) {
+                // 提醒跟踪项详情页数据已刷新
+                if (app != null && app is App)
+                    AppInfoFragment.bundleApp = app
+                activity?.onBackPressed()  // 跳转主页面
+            } else
+                Toast.makeText(context, R.string.failed_to_add, Toast.LENGTH_LONG).show()
+            activity?.run {
+                this.floatingActionButton?.visibility = View.VISIBLE
+                this.loadingBar?.visibility = View.GONE
             }
         }
     }
