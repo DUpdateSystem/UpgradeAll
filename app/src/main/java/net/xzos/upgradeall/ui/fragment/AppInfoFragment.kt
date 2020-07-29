@@ -11,7 +11,9 @@ import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_app_info.*
 import kotlinx.android.synthetic.main.fragment_app_info.view.*
 import kotlinx.android.synthetic.main.layout_main.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.route.ReleaseInfoItem
 import net.xzos.upgradeall.core.server_manager.module.app.*
@@ -108,35 +110,28 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     private fun loadVersioningPopupMenu() {
         versioningSelectLayout.visibility = View.GONE
-        GlobalScope.launch {
-            val versionNumberList = releaseInfoList.map {
-                it.versionNumber
-            }
-
-            withContext(Dispatchers.Main) {
-                if (this@AppInfoFragment.isVisible) {
-                    val markProcessedVersionNumber = app.markProcessedVersionNumber
-                    versioningSelectLayout.setOnClickListener { view ->
-                        // 选择版本号
-                        PopupMenu(view.context, view).let { popupMenu ->
-                            for (i in versionNumberList.indices)
-                                popupMenu.menu.add(versionNumberList[i].plus(
-                                        if (markProcessedVersionNumber == versionNumberList[i])
-                                            getString(R.string.o_mark)
-                                        else ""
-                                )).let {
-                                    it.setOnMenuItemClickListener {
-                                        loadAppVersioningInfo(i)
-                                        true
-                                    }
-                                }
-                            popupMenu.show()
+        val versionNumberList = releaseInfoList.map {
+            it.versionNumber
+        }
+        val markProcessedVersionNumber = app.markProcessedVersionNumber
+        versioningSelectLayout.setOnClickListener { view ->
+            // 选择版本号
+            PopupMenu(view.context, view).let { popupMenu ->
+                for (i in versionNumberList.indices)
+                    popupMenu.menu.add(versionNumberList[i].plus(
+                            if (markProcessedVersionNumber == versionNumberList[i])
+                                getString(R.string.o_mark)
+                            else ""
+                    )).let {
+                        it.setOnMenuItemClickListener {
+                            loadAppVersioningInfo(i)
+                            true
                         }
                     }
-                    versioningSelectLayout.visibility = View.VISIBLE
-                }
+                popupMenu.show()
             }
         }
+        versioningSelectLayout.visibility = View.VISIBLE
     }
 
     private fun showDownloadDialog() {
@@ -179,25 +174,21 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private fun loadAppVersioningInfo(versioningPosition: Int) {
         this.versioningPosition = versioningPosition
         versionMarkImageView.visibility = View.GONE
-        GlobalScope.launch {
-            val releaseInfoBean = releaseInfoList[versioningPosition]
-            val versionNumber = releaseInfoBean.versionNumber
-            val latestChangeLog = releaseInfoBean.changeLog
-            withContext(Dispatchers.Main) {
-                if (this@AppInfoFragment.isVisible) {
-                    cloud_versioning_text_view.text = if (versioningPosition == 0) {
-                        getString(R.string.latest_version_number)
-                    } else {
-                        getString(R.string.cloud_version_number)
-                    }
-                    cloudVersioningTextView.text = versionNumber
-                    appChangelogTextView.text = if (latestChangeLog.isNullOrBlank())
-                        getString(R.string.null_english)
-                    else latestChangeLog
-                }
-                renewVersionRelatedItems()
+        val releaseInfoBean = releaseInfoList[versioningPosition]
+        val versionNumber = releaseInfoBean.versionNumber
+        val latestChangeLog = releaseInfoBean.changeLog
+        if (this@AppInfoFragment.isVisible) {
+            cloud_versioning_text_view.text = if (versioningPosition == 0) {
+                getString(R.string.latest_version_number)
+            } else {
+                getString(R.string.cloud_version_number)
             }
+            cloudVersioningTextView.text = versionNumber
+            appChangelogTextView.text = if (latestChangeLog.isNullOrBlank())
+                getString(R.string.null_english)
+            else latestChangeLog
         }
+        renewVersionRelatedItems()
     }
 
     private fun toastPromptMarkedVersionNumber() {

@@ -85,14 +85,19 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
 
     override fun getItem(position: Int): Fragment {
         checkUpdate()
-        val tabIndex = mTabIndexList[position]
+        val tabIndex =
+                if (position < mTabIndexList.size)
+                    mTabIndexList[position]
+                else mTabIndexList.last()
         return if (tabIndex == ADD_TAB_BUTTON_INDEX) Fragment()
         else AppListPlaceholderFragment.newInstance(tabIndex)
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
         // 传递 hubUuid
-        return mTabIndexList[position].toString()
+        return if (position < mTabIndexList.size)
+            mTabIndexList[position].toString()
+        else mTabIndexList.last().toString()
     }
 
     override fun getItemPosition(`object`: Any): Int {

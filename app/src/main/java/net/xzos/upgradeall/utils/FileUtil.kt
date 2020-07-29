@@ -216,6 +216,12 @@ object FileUtil {
                 ERROR_MESSAGE: $e
                 URI_PATH: ${uri.path}
             """.trimIndent())
+            } catch (e: SecurityException) {
+                Log.e(logObjectTag, TAG, """
+                writeTextFromUri: 写入文件异常（数据读写安全故障）: 
+                ERROR_MESSAGE: $e
+                URI_PATH: ${uri.path}
+            """.trimIndent())
             }
 
         return writeSuccess

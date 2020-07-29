@@ -23,9 +23,9 @@ interface Informer {
     }
 
     fun <E> notifyChanged(tag: String, arg: E) {
-        val observerMap = getObserverMap(this)
         runBlocking {
             getMutex(this@Informer).withLock {
+                val observerMap = getObserverMap(this@Informer)
                 for (observer in observerMap.getObserverMutableList<E>(tag, false)) {
                     observer(arg)
                 }
@@ -38,9 +38,9 @@ interface Informer {
     }
 
     fun <E> observeForever(tag: String, observerFun: ObserverFun<E>) {
-        val observerMap = getObserverMap(this)
         runBlocking {
             getMutex(this@Informer).withLock {
+                val observerMap = getObserverMap(this@Informer)
                 val observerList = observerMap.getObserverMutableList<E>(tag)
                 if (!observerList.contains(observerFun))
                     observerList.add(observerFun)
@@ -49,10 +49,10 @@ interface Informer {
     }
 
     fun <E> removeObserver(observerFun: ObserverFun<E>) {
-        val observerMap = getObserverMap(this)
-        val observerKeyList = mutableListOf<String>()
         GlobalScope.launch {
             getMutex(this@Informer).withLock {
+                val observerMap = getObserverMap(this@Informer)
+                val observerKeyList = mutableListOf<String>()
                 for (observerEntry in observerMap) {
                     val observerKey = observerEntry.key
 
@@ -65,22 +65,30 @@ interface Informer {
                     if (observerList.isEmpty())
                         observerKeyList.add(observerKey)
                 }
+                // 清除空列表
+                for (key in observerKeyList) {
+                    observerMap.remove(key)
+                }
             }
-        }
-        // 清除空列表
-        for (key in observerKeyList) {
-            observerMap.remove(key)
         }
     }
 
     fun removeObserver(tag: String) {
-        val observerMap = getObserverMap(this)
-        observerMap.remove(tag)
+        GlobalScope.launch {
+            getMutex(this@Informer).withLock {
+                val observerMap = getObserverMap(this@Informer)
+                observerMap.remove(tag)
+            }
+        }
     }
 
     fun finalize() {
-        observerMap.remove(this)
-        mutexMap.remove(this)
+        runBlocking {
+            getMutex(this@Informer).withLock {
+                observerMap.remove(this@Informer)
+                mutexMap.remove(this@Informer)
+            }
+        }
     }
 
     companion object {

@@ -39,9 +39,16 @@ open class UpdateControl internal constructor(
     }
 
     open suspend fun getNeedUpdateAppList(block: Boolean = true): Set<BaseApp> {
-        return (if (block) refreshMutex.withLock {
-            appMap[Updater.APP_OUTDATED]
-        } else appMap[Updater.APP_OUTDATED]) ?: setOf()
+        var set: Set<BaseApp> = setOf()
+        runAppMapFun {
+            val needUpdateAppList = if (block) runBlocking {
+                refreshMutex.withLock { appMap[Updater.APP_OUTDATED] }
+            } else appMap[Updater.APP_OUTDATED]
+            if (!needUpdateAppList.isNullOrEmpty()) {
+                set = needUpdateAppList
+            }
+        }
+        return set
     }
 
     internal fun getAppListFormMap(appStatus: Int): Set<BaseApp> = appMap[appStatus] ?: setOf()
