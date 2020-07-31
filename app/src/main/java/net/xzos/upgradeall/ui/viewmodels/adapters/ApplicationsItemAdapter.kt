@@ -39,7 +39,7 @@ class ApplicationsItemAdapter(
                         menu.add(R.string.save_to_database).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
                                 if (this.appDatabase.save(true))
-                                    MiscellaneousUtils.showToast(context, R.string.save_successfully, Toast.LENGTH_SHORT)
+                                    MiscellaneousUtils.showToast(R.string.save_successfully, Toast.LENGTH_SHORT)
                                 return@setOnMenuItemClickListener true
                             }
                         }
@@ -67,7 +67,7 @@ class ApplicationsItemAdapter(
                     menu.add(tabInfo.name).let { menuItem: MenuItem ->
                         menuItem.setOnMenuItemClickListener {
                             if (applicationsPageViewModel.addItemToTabPage(holder.adapterPosition, tabIndex))
-                                MiscellaneousUtils.showToast(view.context, R.string.save_successfully, Toast.LENGTH_SHORT)
+                                MiscellaneousUtils.showToast(R.string.save_successfully, Toast.LENGTH_SHORT)
                             return@setOnMenuItemClickListener true
                         }
                     }

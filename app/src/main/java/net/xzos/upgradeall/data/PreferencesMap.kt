@@ -115,7 +115,7 @@ object PreferencesMap {
         AppConfig.update_server_url = update_server_url  // 可能需要重启客户端才能同步
         if (AppConfig.update_server_url != update_server_url) {
             update_server_url = AppConfig.update_server_url
-            showToast(context, R.string.reset_update_server_url_configuration, duration = Toast.LENGTH_LONG)
+            showToast(R.string.reset_update_server_url_configuration, duration = Toast.LENGTH_LONG)
         }
     }
 }

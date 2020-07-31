@@ -57,7 +57,6 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                 else -> {
                     // 尝试阻止用户退出编辑模式
                     MiscellaneousUtils.showToast(
-                            tabLayout.context,
                             R.string.please_do_not_hide_all_bookmark_page,
                             duration = Toast.LENGTH_LONG)
                     AppTabSectionsPagerAdapter.editTabMode.value = true
@@ -356,7 +355,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                     }
                     dialog.cancel()
                 } else {
-                    MiscellaneousUtils.showToast(context, R.string.please_input_name, duration = Toast.LENGTH_LONG)
+                    MiscellaneousUtils.showToast(R.string.please_input_name, duration = Toast.LENGTH_LONG)
                 }
             }
         }.create().show()

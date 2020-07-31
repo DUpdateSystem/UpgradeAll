@@ -27,12 +27,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.file_pref.UCropActivity
 import net.xzos.upgradeall.utils.FileUtil.NAV_IMAGE_FILE
 import net.xzos.upgradeall.utils.MiscellaneousUtils
+import net.xzos.upgradeall.utils.ToastUtil
 import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -188,7 +188,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun setNavHeaderView() {
         val headerView = navView.getHeaderView(0) as LinearLayout
         headerView.setOnClickListener {
-            Toast.makeText(this, R.string.long_click_to_delete_image, Toast.LENGTH_SHORT).show()
+            ToastUtil.makeText(R.string.long_click_to_delete_image)
             GlobalScope.launch {
                 if (UCropActivity.newInstance(19f, 6f, NAV_IMAGE_FILE, this@MainActivity))
                     withContext(Dispatchers.Main) {
@@ -241,12 +241,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val month = cal.get(Calendar.MONTH) + 1
         val day = cal.get(Calendar.DATE)
         if (month == 10 && day == 31)
-            Toast.makeText(this, "\uD83E\uDD70\uD83D\uDE0B\uD83D\uDE1D\uD83D\uDE09", Toast.LENGTH_LONG).show()
+            ToastUtil.makeText("\uD83E\uDD70\uD83D\uDE0B\uD83D\uDE1D\uD83D\uDE09", Toast.LENGTH_LONG)
     }
 
     companion object {
         private const val TAG = "MainActivity"
-        private val logObjectTag = ObjectTag("UI", TAG)
 
         // Fragment 跳转
         private lateinit var navigationItemId: MutableLiveData<Int>

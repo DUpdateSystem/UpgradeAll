@@ -44,6 +44,7 @@ import net.xzos.upgradeall.ui.fragment.AppInfoFragment
 import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.SearchUtils
+import net.xzos.upgradeall.utils.ToastUtil
 import net.xzos.upgradeall.utils.VersioningUtils
 
 class AppSettingFragment : Fragment() {
@@ -86,7 +87,7 @@ class AppSettingFragment : Fragment() {
         val (hubNameStringList, _) = renewApiJsonObject()
         // 修改 apiSpinner
         if (hubNameStringList.isEmpty()) {
-            Toast.makeText(context, R.string.add_something, Toast.LENGTH_LONG).show()
+            ToastUtil.makeText(R.string.add_something, Toast.LENGTH_LONG)
             activity?.onBackPressed()
             setNavigationItemId(R.id.hubCloudFragment)
         }
@@ -117,7 +118,7 @@ class AppSettingFragment : Fragment() {
             val rawVersion = VersioningUtils.getAppVersionNumber(targetChecker)
             val version = net.xzos.upgradeall.core.data_manager.utils.VersioningUtils.matchVersioningString(rawVersion)
             if (rawVersion != null) {
-                Toast.makeText(context, "raw_version: $rawVersion\nversion: $version", Toast.LENGTH_SHORT).show()
+                ToastUtil.makeText("raw_version: $rawVersion\nversion: $version", Toast.LENGTH_SHORT)
             }
         }
         editTarget.threshold = 1
@@ -259,7 +260,7 @@ class AppSettingFragment : Fragment() {
                     AppInfoFragment.bundleApp = app
                 activity?.onBackPressed()  // 跳转主页面
             } else
-                Toast.makeText(context, R.string.failed_to_add, Toast.LENGTH_LONG).show()
+                ToastUtil.makeText(R.string.failed_to_add, Toast.LENGTH_LONG)
             activity?.run {
                 this.floatingActionButton?.visibility = View.VISIBLE
                 this.loadingBar?.visibility = View.GONE
@@ -326,7 +327,6 @@ class AppSettingFragment : Fragment() {
     companion object {
 
         private const val TAG = "UpdateItemSetting"
-        private val logObjectTag = ObjectTag("UI", TAG)
 
         internal var bundleApp: BaseApp? = null
             set(app) {
