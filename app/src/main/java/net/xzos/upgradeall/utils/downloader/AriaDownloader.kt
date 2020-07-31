@@ -134,10 +134,10 @@ class AriaDownloader(private val url: String) {
             downloadFile = file
             downloadNotification.waitDownloadTaskNotification(file.name)
             val text = file.name + context.getString(R.string.download_task_begin)
-            MiscellaneousUtils.showToast(context, text = text)
+            MiscellaneousUtils.showToast(text = text)
             register()
         } else {
-            MiscellaneousUtils.showToast(context, R.string.repeated_download_task)
+            MiscellaneousUtils.showToast(R.string.repeated_download_task)
         }
         return file
     }
@@ -208,7 +208,7 @@ class AriaDownloader(private val url: String) {
         downloadNotification.taskCancel()  // 手动取消通知，因下载完成通知已解绑
         if (PreferencesMap.auto_delete_file) {
             file.delete()
-            MiscellaneousUtils.showToast(context, R.string.auto_deleted_file)
+            MiscellaneousUtils.showToast(R.string.auto_deleted_file)
         }
     }
 

@@ -194,8 +194,7 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private fun toastPromptMarkedVersionNumber() {
         GlobalScope.launch {
             if (Updater(app).getUpdateStatus() != Updater.APP_LATEST)
-                MiscellaneousUtils.showToast(this@AppInfoFragment.context,
-                        if (app.markProcessedVersionNumber != null)
+                MiscellaneousUtils.showToast(if (app.markProcessedVersionNumber != null)
                             R.string.marked_version_number_is_behind_latest
                         else R.string.mark_version_number,
                         Toast.LENGTH_LONG

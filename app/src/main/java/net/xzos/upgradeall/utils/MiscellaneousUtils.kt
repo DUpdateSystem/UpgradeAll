@@ -58,7 +58,7 @@ object MiscellaneousUtils {
                         }
                 )
             } catch (e: ArrayIndexOutOfBoundsException) {
-                showToast(context, R.string.miui_error, duration = Toast.LENGTH_LONG)
+                showToast(R.string.miui_error, duration = Toast.LENGTH_LONG)
                 Intent(Intent.ACTION_VIEW).apply {
                     this.data = Uri.parse(url)
                 }
@@ -89,7 +89,7 @@ object MiscellaneousUtils {
         var havePermission = false
         if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
-                showToast(activity, tipResId)
+                showToast(tipResId)
             }
             ActivityCompat.requestPermissions(activity,
                     arrayOf(permission),
@@ -106,15 +106,15 @@ object MiscellaneousUtils {
                 || appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
     }
 
-    fun showToast(context: Context?, @StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
+    fun showToast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
         Handler(Looper.getMainLooper()).post {
-            Toast.makeText(context ?: MyApplication.context, resId, duration).show()
+            ToastUtil.makeText(resId, duration)
         }
     }
 
-    fun showToast(context: Context?, text: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
+    fun showToast(text: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
         Handler(Looper.getMainLooper()).post {
-            Toast.makeText(context ?: MyApplication.context, text, duration).show()
+            ToastUtil.makeText(text.toString(), duration)
         }
     }
 }

@@ -7,6 +7,7 @@ import android.widget.Toast
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.utils.FileUtil
+import net.xzos.upgradeall.utils.ToastUtil
 
 class SaveFileActivity : FilePrefActivity() {
 
@@ -20,7 +21,7 @@ class SaveFileActivity : FilePrefActivity() {
                             R.string.save_file_successfully
                         else
                             R.string.save_file_failed
-                Toast.makeText(this, textResId, Toast.LENGTH_LONG).show()
+                ToastUtil.makeText(textResId, Toast.LENGTH_LONG)
             }
         }
         finish()

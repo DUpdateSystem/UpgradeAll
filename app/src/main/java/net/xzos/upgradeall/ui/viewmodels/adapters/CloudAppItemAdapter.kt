@@ -19,6 +19,7 @@ import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.utils.IconInfo
 import net.xzos.upgradeall.utils.IconPalette
+import net.xzos.upgradeall.utils.ToastUtil
 
 class CloudAppItemAdapter(
         private val mItemCardViewList: List<CloudConfigListItemView>,
@@ -41,7 +42,7 @@ class CloudAppItemAdapter(
                     // 下载
                     val appUuid = itemCardView.uuid
                     if (appUuid != null) {
-                        Toast.makeText(holder.itemCardView.context, R.string.download_start, Toast.LENGTH_LONG).show()
+                        ToastUtil.makeText(R.string.download_start, Toast.LENGTH_LONG)
                         // 下载数据
                         setDownloadStatus(holder, true)
                         GlobalScope.launch {
@@ -110,7 +111,7 @@ class CloudAppItemAdapter(
                 AlertDialog.Builder(it).apply {
                     setMessage(R.string.whether_download_dependency_hub)
                     setPositiveButton(R.string.ok) { dialog, _ ->
-                        Toast.makeText(context, R.string.start_download_dependency_hub, Toast.LENGTH_LONG).show()
+                        ToastUtil.makeText(R.string.start_download_dependency_hub, Toast.LENGTH_LONG)
                         GlobalScope.launch { CloudConfigGetter.downloadCloudHubConfig(hubUuid) }
                         dialog.cancel()
                     }

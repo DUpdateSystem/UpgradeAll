@@ -17,7 +17,7 @@ class DownloadListDialog private constructor(context: Context,
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.list_content)
         super.onCreate(savedInstanceState)
-        MiscellaneousUtils.showToast(context, R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG)
+        MiscellaneousUtils.showToast(R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG)
         placeholderLayout.visibility = View.VISIBLE
         // 下载文件
         list.setOnItemClickListener { _, _, position, _ ->

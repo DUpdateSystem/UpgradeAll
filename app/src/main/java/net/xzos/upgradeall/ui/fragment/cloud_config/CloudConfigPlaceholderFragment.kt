@@ -103,7 +103,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
             }
         } else {
             if (this@CloudConfigPlaceholderFragment.isVisible)
-                MiscellaneousUtils.showToast(context, R.string.network_error)
+                MiscellaneousUtils.showToast(R.string.network_error)
         }
     }
 

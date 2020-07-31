@@ -238,7 +238,7 @@ object FileUtil {
         val cm = context1.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val mClipData = ClipData.newPlainText("Label", s)
         cm.setPrimaryClip(mClipData)
-        if (showToast) Toast.makeText(context1, R.string.copied_to_pasteboard, Toast.LENGTH_SHORT).show()
+        if (showToast) ToastUtil.makeText(R.string.copied_to_pasteboard, Toast.LENGTH_SHORT)
     }
 
     private fun convertBitmapToFile(destinationFile: File, bitmap: Bitmap) {

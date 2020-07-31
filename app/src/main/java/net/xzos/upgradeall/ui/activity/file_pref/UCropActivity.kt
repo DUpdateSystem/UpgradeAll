@@ -10,6 +10,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.utils.FileUtil
+import net.xzos.upgradeall.utils.ToastUtil
 import java.io.File
 
 class UCropActivity : FilePrefActivity() {
@@ -42,7 +43,7 @@ class UCropActivity : FilePrefActivity() {
                 val cropError = UCrop.getError(resultData!!)
                 if (cropError != null)
                     Log.e(logObjectTag, TAG, "onActivityResult: 图片裁剪错误: $cropError")
-                Toast.makeText(this, R.string.ucrop_error, Toast.LENGTH_LONG).show()
+                ToastUtil.makeText(R.string.ucrop_error, Toast.LENGTH_LONG)
                 finish()
             }
             else -> finish()

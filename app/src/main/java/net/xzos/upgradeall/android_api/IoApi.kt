@@ -37,7 +37,7 @@ object IoApi : IoApi {
                 Log.e(objectTag, TAG, """ downloadFile: 下载任务失败
                         |下载参数: URL: $url, FileName: $fileName, headers: $headers
                         |ERROR_MESSAGE: $e""".trimIndent())
-                MiscellaneousUtils.showToast(context, text = "下载失败: $fileName")
+                MiscellaneousUtils.showToast(text = "下载失败: $fileName")
             }
         } else {
             MiscellaneousUtils.accessByBrowser(url, context)
