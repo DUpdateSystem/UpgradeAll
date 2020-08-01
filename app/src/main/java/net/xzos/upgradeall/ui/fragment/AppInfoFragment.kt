@@ -8,6 +8,8 @@ import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import jonathanfinerty.once.Once
 import kotlinx.android.synthetic.main.fragment_app_info.*
 import kotlinx.android.synthetic.main.fragment_app_info.view.*
 import kotlinx.android.synthetic.main.layout_main.*
@@ -17,12 +19,14 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.route.ReleaseInfoItem
 import net.xzos.upgradeall.core.server_manager.module.app.*
+import net.xzos.upgradeall.data.constants.OnceTag
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
 import net.xzos.upgradeall.ui.fragment.setting.AppSettingFragment
 import net.xzos.upgradeall.ui.viewmodels.dialog.DownloadListDialog
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
+import net.xzos.upgradeall.utils.ToastUtil
 
 
 /**
@@ -192,13 +196,17 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun toastPromptMarkedVersionNumber() {
-        GlobalScope.launch {
-            if (Updater(app).getUpdateStatus() != Updater.APP_LATEST)
-                MiscellaneousUtils.showToast(if (app.markProcessedVersionNumber != null)
-                            R.string.marked_version_number_is_behind_latest
-                        else R.string.mark_version_number,
-                        Toast.LENGTH_LONG
-                )
+        lifecycleScope.launch {
+            if (Updater(app).getUpdateStatus() != Updater.APP_LATEST) {
+                if (app.markProcessedVersionNumber != null) {
+                    ToastUtil.makeText(R.string.marked_version_number_is_behind_latest, Toast.LENGTH_LONG)
+                } else {
+                    if (!Once.beenDone(Once.THIS_APP_INSTALL, OnceTag.APP_INFO_TOOLBAR_MENU_TIP)) {
+                        ToastUtil.makeText(R.string.mark_version_number, Toast.LENGTH_LONG)
+                        Once.markDone(OnceTag.APP_INFO_TOOLBAR_MENU_TIP)
+                    }
+                }
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.viewmodels.pageradapter
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
@@ -244,14 +245,17 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
         with(view) {
             setOnLongClickListener {
                 editTabMode.value = true
+                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                 return@setOnLongClickListener true
             }
             setOnClickListener(View.OnClickListener {
                 if (tabLayout.selectedTabPosition != position) {
                     tabLayout.getTabAt(position)?.select()
                 }
-                if (editTabMode.value == true)
+                if (editTabMode.value == true) {
                     editTabMode.value = false
+                }
+                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                 return@OnClickListener
             })
             editGroupCardView.setOnClickListener {

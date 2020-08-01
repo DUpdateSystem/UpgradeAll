@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
@@ -37,7 +36,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var navController: NavController
+    private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
     init {
         navigationItemId = MutableLiveData(R.id.appListFragment).apply {
@@ -49,11 +48,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        UpdateService.startService(this)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        navController = findNavController(R.id.nav_host_fragment)
+        UpdateService.startService(this)
         setToolbarByNavigation(null)
         toolbar.title = with(applicationInfo) {
             getString(this.labelRes)
@@ -102,12 +100,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 )
             }
             R.id.app_log -> {
-                intent = Intent(this, LogActivity::class.java)
-                startActivity(intent)
+                startActivity(Intent(this, LogActivity::class.java))
             }
             R.id.app_setting -> {
-                intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
+                startActivity(Intent(this, SettingsActivity::class.java))
             }
         }
         drawerLayout.closeDrawer(GravityCompat.START)
@@ -245,7 +241,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     companion object {
-        private const val TAG = "MainActivity"
 
         // Fragment 跳转
         private lateinit var navigationItemId: MutableLiveData<Int>
