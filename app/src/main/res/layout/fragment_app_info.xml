@@ -48,7 +48,7 @@
             android:layout_centerInParent="true"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="50dp"
-            android:layout_toStartOf="@+id/editImageView"
+            android:layout_toStartOf="@+id/ib_edit"
             android:layout_toEndOf="@+id/appIconImageView"
             android:gravity="center|start"
             android:orientation="vertical">
@@ -91,17 +91,18 @@
 
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/editImageView"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+        <ImageButton
+            android:id="@+id/ib_edit"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentEnd="true"
             android:layout_centerInParent="true"
             android:layout_marginEnd="8dp"
             android:backgroundTint="@android:color/transparent"
             android:contentDescription="@string/edit"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_edit"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:tint="@color/text_lowest_priority_color" />
 
     </RelativeLayout>

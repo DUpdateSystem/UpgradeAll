@@ -9,9 +9,10 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -33,7 +34,6 @@ import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.Targe
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_MAGISK_MODULE
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson.AppConfigBean.TargetCheckerBean.Companion.API_TYPE_SHELL_ROOT
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
@@ -83,14 +83,20 @@ class AppSettingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = false  // 禁止开启侧滑栏，启用返回按钮响应事件
-        // 刷新第三方源列表，获取支持的第三方源列表
-        val (hubNameStringList, _) = renewApiJsonObject()
-        // 修改 apiSpinner
-        if (hubNameStringList.isEmpty()) {
-            ToastUtil.makeText(R.string.add_something, Toast.LENGTH_LONG)
-            activity?.onBackPressed()
-            setNavigationItemId(R.id.hubCloudFragment)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            // 刷新第三方源列表，获取支持的第三方源列表
+            val (hubNameStringList, _) = renewApiJsonObject()
+            // 修改 apiSpinner
+            withContext(Dispatchers.Main) {
+                if (hubNameStringList.isEmpty()) {
+                    ToastUtil.makeText(R.string.add_something, Toast.LENGTH_LONG)
+                    activity?.onBackPressed()
+                    setNavigationItemId(R.id.hubCloudFragment)
+                }
+            }
         }
+
         setSettingItem() // 设置预置设置项
         // 以下是按键事件
         // 判断编辑模式
@@ -126,7 +132,7 @@ class AppSettingFragment : Fragment() {
         editTarget.addTextChangedListener {
             if (targetCheckerApi != API_TYPE_SHELL && targetCheckerApi != API_TYPE_SHELL_ROOT) {
                 val text = it.toString()
-                GlobalScope.launch {
+                GlobalScope.launch(Dispatchers.IO) {
                     mutex.withLock {
                         val searchInfoList = searchUtils.search(text)
                         if (text.isNotBlank() && this@AppSettingFragment.isVisible) {
@@ -147,7 +153,7 @@ class AppSettingFragment : Fragment() {
         super.onResume()
         searchUtils.renewData()  // 清除搜索缓存
         activity?.let {
-            it as AppCompatActivity
+            it.window.statusBarColor = ContextCompat.getColor(it, R.color.taupe)
             it.toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.taupe))
             it.collapsingToolbarLayout.contentScrim = it.getDrawable(R.color.taupe)
             it.addFloatingActionButton.visibility = View.GONE
@@ -272,14 +278,18 @@ class AppSettingFragment : Fragment() {
         // 如果是设置修改请求，设置预置设置项
         editName.setText(appDatabase.name)
         editUrl.setText(appDatabase.url)
-        editHub.setText(HubDatabaseManager.getDatabase(appDatabase.hubUuid)?.hubConfig?.info?.hubName)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val text = HubDatabaseManager.getDatabase(appDatabase.hubUuid)?.hubConfig?.info?.hubName
+            withContext(Dispatchers.Main) {
+                editHub.setText(text)
+            }
+        }
         hubUuid = appDatabase.hubUuid
         val versionCheckerGson = appDatabase.targetChecker
-        val versionCheckerApi = versionCheckerGson?.api
         val versionCheckerText = versionCheckerGson?.extraString
-        if (versionCheckerApi != null)
+        versionCheckerGson?.api?.let {
             versionCheckSpinner.setSelection(
-                    when (versionCheckerApi.toLowerCase(AppValue.locale)) {
+                    when (it.toLowerCase(AppValue.locale)) {
                         API_TYPE_APP_PACKAGE -> 0
                         API_TYPE_MAGISK_MODULE -> 1
                         API_TYPE_SHELL -> 2
@@ -287,6 +297,7 @@ class AppSettingFragment : Fragment() {
                         else -> 0
                     }
             )
+        }
         editTarget.setText(versionCheckerText)
     }
 

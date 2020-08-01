@@ -3,7 +3,10 @@ package net.xzos.upgradeall.ui.viewmodels.pageradapter
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.*
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -48,9 +51,9 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                 editTabMode -> {
                     mTabIndexList = getAllTabIndexList()
                     notifyDataSetChanged()
+                    tabLayout.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                 }
-                initTabIndexList().also { tabIndexList = it }
-                        .isNotEmpty() -> {
+                initTabIndexList().also { tabIndexList = it }.isNotEmpty() -> {
                     mTabIndexList = tabIndexList
                     checkUpdate()
                     notifyDataSetChanged()
@@ -158,9 +161,6 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
         notifyDataSetChanged()
     }
 
-    private fun getProgressBarFromCustomTabView(position: Int): ProgressBar? =
-            tabLayout.getTabAt(position)?.customView?.loadingBar
-
     private fun loadGroupViewAndReturnBasicInfo(
             tabIndex: Int,
             groupIconImageView: ImageView,
@@ -244,8 +244,9 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
     private fun setCustomTabViewClickListener(view: View, position: Int) {
         with(view) {
             setOnLongClickListener {
-                editTabMode.value = true
-                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                if (editTabMode.value == false) {
+                    editTabMode.value = true
+                }
                 return@setOnLongClickListener true
             }
             setOnClickListener(View.OnClickListener {
@@ -255,7 +256,6 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                 if (editTabMode.value == true) {
                     editTabMode.value = false
                 }
-                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                 return@OnClickListener
             })
             editGroupCardView.setOnClickListener {
