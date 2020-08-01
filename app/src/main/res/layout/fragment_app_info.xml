@@ -4,9 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginStart="16dp"
-    android:layout_marginTop="16dp"
-    android:layout_marginEnd="24dp"
+    android:layout_margin="16dp"
     android:orientation="vertical">
 
     <LinearLayout
@@ -223,7 +221,7 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="2dp"
                 android:text="@string/more_other_version_number"
                 android:textColor="@color/coolapk_green" />
@@ -297,7 +295,6 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/appUrlTextView"
-            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="@+id/app_url_image_view"
             app:layout_constraintTop_toBottomOf="@+id/appUrlTextView">
 
@@ -308,6 +305,7 @@
                 android:autoLink="web"
                 android:background="@drawable/ic_textview_background_fillet"
                 android:linksClickable="true"
+                android:padding="8dp"
                 android:scrollbars="vertical"
                 android:text="@string/example_changelog"
                 android:textColor="@color/text_low_priority_color"
