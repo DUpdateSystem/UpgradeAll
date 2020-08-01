@@ -7,6 +7,7 @@ import android.view.*
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import jonathanfinerty.once.Once
@@ -57,7 +58,7 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        editImageView.setOnClickListener {
+        ib_edit.setOnClickListener {
             AppSettingFragment.bundleApp = app
             setNavigationItemId(R.id.appSettingFragment)
         }
@@ -69,6 +70,7 @@ class AppInfoFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         placeholderLayout.visibility = View.GONE
         MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = false  // 禁止开启侧滑栏，启用返回按钮响应事件
         activity?.apply {
+            window.statusBarColor = ContextCompat.getColor(this, R.color.coolapk_green)
             toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.coolapk_green))
             collapsingToolbarLayout.contentScrim = getDrawable(R.color.coolapk_green)
             addFloatingActionButton.visibility = View.GONE

@@ -29,6 +29,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.file_pref.UCropActivity
+import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 import net.xzos.upgradeall.utils.FileUtil.NAV_IMAGE_FILE
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.ToastUtil
@@ -111,14 +112,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
+        when {
+            //抽屉为开启状态
+            drawerLayout.isDrawerOpen(GravityCompat.START) -> {
+                drawerLayout.closeDrawer(GravityCompat.START)
+            }
+            //Tab 为编辑模式
+            AppTabSectionsPagerAdapter.editTabMode.value ?: false -> {
+                AppTabSectionsPagerAdapter.editTabMode.value = false
+            }
             // 判断是否是云端仓库页，如果是，则跳转软件列表页
-            val currentDestination = navController.currentDestination?.id
-            if (currentDestination != null && currentDestination == R.id.hubCloudFragment) {
+            navController.currentDestination?.id == R.id.hubCloudFragment -> {
                 setNavigationItemId(R.id.appListFragment)
-            } else super.onBackPressed()
+            }
+            //退出
+            else -> super.onBackPressed()
         }
     }
 
