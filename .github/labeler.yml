@@ -3,9 +3,3 @@ high: '\*\*优先级\*\*\r\n高'
 Medium: '\*\*优先级\*\*\r\n中'
 
 Low: '\*\*优先级\*\*\r\n低'
-
-Todo: '\*\*开发状态\*\*\r\nTodo'
-
-Doing: '\*\*开发状态\*\*\r\nDoing'
-
-Solved: '\*\*开发状态\*\*\r\nSolved'
