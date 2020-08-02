@@ -11,5 +11,5 @@ jobs:
       - uses: actions-ecosystem/action-add-labels@v1
         if: ${{ contains(github.event.issue.labels.*.name, 'bug') || contains(github.event.issue.labels.*.name, 'enhancement') }}
         with:
-          github_token: ${{ secrets.github_token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           labels: Solved
