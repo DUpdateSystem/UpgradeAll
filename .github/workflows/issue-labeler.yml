@@ -2,7 +2,7 @@ name: 'Issue labeler'
 
 on:
   issues:
-    types: [opened, edited]
+    types: [opened]
 
 jobs:
   triage:
@@ -10,6 +10,6 @@ jobs:
     steps:
       - uses: github/issue-labeler@v2.0
         with:
-          repo-token: '${{ secrets.GH_TOKEN }}'
+          repo-token: '${{ secrets.GITHUB_TOKEN }}'
           configuration-path: .github/labeler.yml
           enable-versioned-regex: 0

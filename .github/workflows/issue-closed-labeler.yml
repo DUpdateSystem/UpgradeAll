@@ -1,0 +1,15 @@
+name: 'Closed issue labeler'
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions-ecosystem/action-add-labels@v1
+        if: ${{ contains(github.event.issue.labels.*.name, 'bug') || contains(github.event.issue.labels.*.name, 'enhancement') }}
+        with:
+          github_token: ${{ secrets.github_token }}
+          labels: Solved

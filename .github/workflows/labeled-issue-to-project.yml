@@ -7,38 +7,26 @@ jobs:
   labeled-issue-to-project:
     runs-on: ubuntu-latest
     steps:
-      - name: labeled Todo issue to project
-        uses: konradpabjan/move-labeled-or-milestoned-issue@v2.0
-        if: contains(github.event.issue.labels.*.name, 'Todo')
+      - name: labeled enhancement issue to project
+        uses: alex-page/github-project-automation-plus@v0.2.4
+        if: ${{ contains(github.event.issue.labels.*.name, 'enhancement') }}
         with:
-          action-token: '${{ secrets.GH_TOKEN }}'
-          project-url: 'https://github.com/orgs/DUpdateSystem/projects/1'
-          column-name: 'Android 端需求'
-          label-name: 'Todo'
-
-      - name: labeled Doing issue to project
-        uses: konradpabjan/move-labeled-or-milestoned-issue@v2.0
-        if: contains(github.event.issue.labels.*.name, 'Doing')
-        with:
-          action-token: '${{ secrets.GH_TOKEN }}'
-          project-url: 'https://github.com/orgs/DUpdateSystem/projects/1'
-          column-name: '进行中'
-          label-name: 'Doing'
+          project: Distributed Update System 看板
+          column: 'Android 端需求'
+          repo-token: '${{ secrets.GH_TOKEN }}'
 
       - name: labeled Solved issue to project
-        uses: konradpabjan/move-labeled-or-milestoned-issue@v2.0
-        if: contains(github.event.issue.labels.*.name, 'Solved')
+        uses: alex-page/github-project-automation-plus@v0.2.4
+        if: ${{ contains(github.event.issue.labels.*.name, 'Solved') }}
         with:
-          action-token: '${{ secrets.GH_TOKEN }}'
-          project-url: 'https://github.com/orgs/DUpdateSystem/projects/1'
-          column-name: 'Android 已完成'
-          label-name: 'Solved'
+          project: Distributed Update System 看板
+          column: 'Android 已完成'
+          repo-token: '${{ secrets.GH_TOKEN }}'
 
       - name: labeled bug issue to project
-        uses: konradpabjan/move-labeled-or-milestoned-issue@v2.0
-        if: contains(github.event.issue.labels.*.name, 'bug')
+        uses: alex-page/github-project-automation-plus@v0.2.4
+        if: ${{ contains(github.event.issue.labels.*.name, 'bug') }}
         with:
-          action-token: '${{ secrets.GH_TOKEN }}'
-          project-url: 'https://github.com/orgs/DUpdateSystem/projects/1'
-          column-name: 'BUG'
-          label-name: 'bug'
+          project: Distributed Update System 看板
+          column: 'BUG'
+          repo-token: '${{ secrets.GH_TOKEN }}'
