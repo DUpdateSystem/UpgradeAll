@@ -20,7 +20,7 @@ jobs:
         if: ${{ contains(github.event.issue.labels.*.name, 'Solved') }}
         with:
           project: Distributed Update System 看板
-          column: 'Android 已完成'
+          column: 'Android 端已完成'
           repo-token: '${{ secrets.GH_TOKEN }}'
 
       - name: labeled bug issue to project
