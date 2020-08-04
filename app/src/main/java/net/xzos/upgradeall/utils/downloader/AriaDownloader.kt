@@ -134,7 +134,7 @@ class AriaDownloader(private val url: String) {
             downloadFile = file
             downloadNotification.waitDownloadTaskNotification(file.name)
             val text = file.name + context.getString(R.string.download_task_begin)
-            MiscellaneousUtils.showToast(text = text)
+            MiscellaneousUtils.showToast(text)
             register()
         } else {
             MiscellaneousUtils.showToast(R.string.repeated_download_task)
@@ -218,7 +218,9 @@ class AriaDownloader(private val url: String) {
         private val context = MyApplication.context
         private val mutex = Mutex()
 
-        private val downloadDir = FileUtil.DOWNLOAD_CACHE_DIR
+        private val downloadDir = FileUtil.DOWNLOAD_CACHE_DIR.also {
+            FileUtil.initDir(it)
+        }
 
         private val downloaderMap: HashMap<String, AriaDownloader> = hashMapOf()
         internal fun getDownloader(url: String): AriaDownloader? = downloaderMap[url]

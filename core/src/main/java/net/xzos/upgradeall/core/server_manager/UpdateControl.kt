@@ -61,9 +61,7 @@ open class UpdateControl internal constructor(
     }
 
     fun addApps(appList: Set<BaseApp>) {
-        val allApp: HashSet<BaseApp> = hashSetOf()
-        for (list in appMap.values)
-            allApp.addAll(list)
+        val allApp = getAllApp()
         for (app in appList) {
             if (!allApp.contains(app)) {
                 addAppInDefList(app)
@@ -76,7 +74,7 @@ open class UpdateControl internal constructor(
     }
 
     fun clearApp() {
-        appMap.clear()
+        appMap.clearApp()
     }
 
     private fun addAppInDefList(app: BaseApp) {
@@ -125,6 +123,12 @@ open class UpdateControl internal constructor(
             for (list in this.values) {
                 list.remove(app)
             }
+        }
+    }
+
+    private fun MutableMap<Int, HashSet<BaseApp>>.clearApp() {
+        runAppMapFun {
+            this.clear()
         }
     }
 

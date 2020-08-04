@@ -184,6 +184,7 @@
     <string name="try_kill_repeated_download_task">尝试终止旧的重复任务</string>
     <string name="select_browser">请选择浏览器以打开网页</string>
     <string name="miui_error">你可能遇到了一个 MIUI 导致的错误，正在尝试调用其他方法打开</string>
+    <string name="function_unsupported_error">你的手机暂不支持该功能</string>
     <string name="please_input_custom_url">请输入自定义网址</string>
     <string name="same_as_server_config">跟随服务器配置</string>
     <string name="ignore_app">忽略该跟踪项的更新</string>
