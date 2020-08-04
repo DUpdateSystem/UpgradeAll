@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import com.arialyy.aria.core.Aria
+import jonathanfinerty.once.Once
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import org.jetbrains.annotations.Contract
 import org.litepal.LitePal
@@ -22,6 +23,7 @@ class MyApplication : Application() {
             this.renameTo(File(this.parentFile, "app_metadata_database.db"))
         }
 
+        Once.initialise(this)
         LitePal.initialize(applicationContext)
         Aria.init(this)
         Aria.download(this).removeAllTask(false)  // TODO: 加入下载控制后移除
