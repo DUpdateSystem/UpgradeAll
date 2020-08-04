@@ -1,13 +1,15 @@
 package net.xzos.upgradeall.ui.viewmodels.pageradapter
 
+import android.content.res.ColorStateList
+import android.content.res.Resources
+import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
@@ -38,8 +40,7 @@ import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import java.io.File
 
-class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentManager,
-                                 private val lifecycleOwner: LifecycleOwner) :
+class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentManager, lifecycleOwner: LifecycleOwner) :
         FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     private var mTabIndexList: MutableList<Int> = initTabIndexList()
 
@@ -211,20 +212,28 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
         }
     }
 
+    val Number.dp: Int get() = (toInt() * Resources.getSystem().displayMetrics.density).toInt()
+
     private fun getCustomTabView(position: Int): View {
         return LayoutInflater.from(tabLayout.context)
                 .inflate(R.layout.group_item, tabLayout, false).apply {
                     // 通用 UI 组件初始化
                     loadingBar.visibility = View.GONE
-                    editGroupCardView.visibility = View.GONE
+                    editLayout.isVisible = editTabMode.value!!
                     // 初始化按钮相应
                     setCustomTabViewClickListener(this, position)
                     // 非按钮 Tab 初始化
                     if (position >= 0 && position < mTabIndexList.size) {
                         when (val tabIndex = mTabIndexList[position]) {
                             ADD_TAB_BUTTON_INDEX -> {
-                                groupCardView.visibility = View.GONE
-                                addGroupCardView.visibility = View.VISIBLE
+                                editLayout.isVisible = false
+                                groupIconImageView.apply {
+                                    setImageResource(R.drawable.ic_plus)
+                                    imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.gray))
+                                    layoutParams = FrameLayout.LayoutParams(30.dp, 30.dp).apply {
+                                        gravity = Gravity.CENTER
+                                    }
+                                }
                                 setOnClickListener {
                                     showAddGroupAlertDialog(this, position)
                                 }
@@ -232,11 +241,6 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                             }
                             else -> loadGroupViewAndReturnBasicInfo(tabIndex, groupIconImageView, groupNameTextView)
                         }
-                        groupCardView.visibility = View.VISIBLE
-                        addGroupCardView.visibility = View.GONE
-                        editTabMode.observe(lifecycleOwner, Observer { editTabMode ->
-                            editGroupCardView.visibility = if (editTabMode) View.VISIBLE else View.GONE
-                        })
                     }
                 }
     }
@@ -258,7 +262,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                 }
                 return@OnClickListener
             })
-            editGroupCardView.setOnClickListener {
+            editLayout.setOnClickListener {
                 showAddGroupAlertDialog(this, position)
             }
         }
