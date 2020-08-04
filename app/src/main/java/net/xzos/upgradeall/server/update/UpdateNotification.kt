@@ -66,6 +66,7 @@ object UpdateNotification {
     fun startUpdateNotification(notificationId: Int): Notification {
         builder.setContentTitle("UpgradeAll 更新服务运行中")
                 .setContentText(null)
+                .setProgress(0, 0, false)
                 .setContentIntent(mainActivityPendingIntent)
         return notificationNotify(notificationId)
     }

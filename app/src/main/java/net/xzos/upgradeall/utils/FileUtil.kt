@@ -48,6 +48,7 @@ object FileUtil {
 
     init {
         clearCache()
+        initDir(CACHE_DIR)
     }
 
     fun initDir(dir_file: File) {
@@ -137,7 +138,11 @@ object FileUtil {
             val file = DocumentFile.fromFile(File(initialPath))
             intent.putExtra(EXTRA_INITIAL_URI, file.uri)
         }
-        activity.startActivityForResult(intent, OPEN_REQUEST_CODE)
+        try {
+            activity.startActivityForResult(intent, OPEN_REQUEST_CODE)
+        } catch (e: ActivityNotFoundException) {
+            MiscellaneousUtils.showToast(R.string.function_unsupported_error, duration = Toast.LENGTH_LONG)
+        }
     }
 
     /**
