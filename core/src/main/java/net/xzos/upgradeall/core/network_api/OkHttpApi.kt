@@ -71,6 +71,9 @@ object OkHttpApi {
         } catch (e: IOException) {
             Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: $e")
             null
+        } catch (ignore: Throwable) {
+            Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: $ignore")
+            null
         }
     }
 
