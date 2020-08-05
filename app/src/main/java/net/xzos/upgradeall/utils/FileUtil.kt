@@ -126,7 +126,11 @@ object FileUtil {
         if (mimeType != null)
             intent.type = mimeType
         intent.putExtra(Intent.EXTRA_TITLE, fileName)
-        activity.startActivityForResult(intent, WRITE_REQUEST_CODE)
+        try {
+            activity.startActivityForResult(intent, WRITE_REQUEST_CODE)
+        } catch (e: ActivityNotFoundException) {
+            MiscellaneousUtils.showToast(R.string.function_unsupported_error, duration = Toast.LENGTH_LONG)
+        }
     }
 
     /**

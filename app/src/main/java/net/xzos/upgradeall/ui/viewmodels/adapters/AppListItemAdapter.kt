@@ -4,6 +4,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.GsonBuilder
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
@@ -29,6 +30,7 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel
         val holder = super.onCreateViewHolder(parent, viewType)
         // 单击展开 Release 详情页
         holder.itemCardView.setOnClickListener {
+            if (holder.adapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
             when (val baseApp = mItemCardViewList.getByHolder(holder).extraData.app) {
                 is App -> {
                     AppInfoFragment.bundleApp = baseApp
@@ -41,6 +43,7 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel
             }
         }
         holder.itemCardView.setOnLongClickListener { view ->
+            if (holder.adapterPosition == RecyclerView.NO_POSITION) return@setOnLongClickListener false
             if (AppTabSectionsPagerAdapter.editTabMode.value == false
                     && appListPageViewModel.getTabPageIndex() != UPDATE_PAGE_INDEX)
                 showLongClickPopMenu(view, holder)

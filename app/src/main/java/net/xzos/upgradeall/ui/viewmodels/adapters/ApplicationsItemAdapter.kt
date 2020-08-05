@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
+import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
@@ -24,6 +25,7 @@ class ApplicationsItemAdapter(
         holder.hubNameTextView.visibility = View.GONE
         // 单击展开 Release 详情页
         holder.itemCardView.setOnClickListener {
+            if (holder.adapterPosition == NO_POSITION) return@setOnClickListener
             val app = mItemCardViewList.getByHolder(holder).extraData.app
             if (app is App) {
                 AppInfoFragment.bundleApp = app
@@ -31,6 +33,7 @@ class ApplicationsItemAdapter(
             }
         }
         holder.itemCardView.setOnLongClickListener { view ->
+            if (holder.adapterPosition == NO_POSITION) return@setOnLongClickListener false
             mItemCardViewList.getByHolder(holder).extraData.app?.run {
                 val context = view.context
                 PopupMenu(context, view).let { popupMenu ->
