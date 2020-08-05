@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.utils.ToastUtil
 import java.io.File
 
 object ApkInstaller {
@@ -52,8 +53,13 @@ class AppInstallReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val manager = context.packageManager
         val packageName = intent.data!!.schemeSpecificPart
-        val info = manager.getPackageInfo(packageName, 0)
-        ApkInstaller.completeInstall(info)
+
+        try {
+            val info = manager.getPackageInfo(packageName, 0)
+            ApkInstaller.completeInstall(info)
+        } catch (e: PackageManager.NameNotFoundException) {
+            ToastUtil.makeText(e.toString())
+        }
     }
 
 
