@@ -1,10 +1,10 @@
 package net.xzos.upgradeall.ui.fragment.app_list
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_app_list.*
@@ -31,7 +31,7 @@ class AppListFragment : Fragment() {
         activity?.run {
             navView.setCheckedItem(R.id.app_list)
             app_logo_image_view.visibility = View.GONE
-            window.statusBarColor = ContextCompat.getColor(this, R.color.colorPrimary)
+            window.statusBarColor = Color.TRANSPARENT
             collapsingToolbarLayout.contentScrim = getDrawable(R.color.colorPrimary)
             toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.colorPrimary))
             floatingActionButton.visibility = View.GONE
