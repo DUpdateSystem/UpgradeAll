@@ -7,7 +7,6 @@ import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -18,6 +17,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.layout_appbar.view.*
 import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
@@ -35,7 +35,7 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.ToastUtil
 import java.util.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
@@ -50,11 +50,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+        setSupportActionBar(layout_appbar.toolbar)
 
         UpdateService.startService(this)
         setToolbarByNavigation(null)
-        toolbar.title = with(applicationInfo) {
+        layout_appbar.toolbar.title = with(applicationInfo) {
             getString(this.labelRes)
         }
         setNavController()
@@ -218,7 +218,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun setNavController() {
         actionBarDrawerToggle = ActionBarDrawerToggle(
-                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+                this, drawerLayout, layout_appbar.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
         actionBarDrawerToggle.syncState()
         actionBarDrawerToggle.setToolbarNavigationClickListener {

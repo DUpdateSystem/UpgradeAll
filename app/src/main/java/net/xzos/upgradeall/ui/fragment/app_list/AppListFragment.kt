@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_app_list.*
+import kotlinx.android.synthetic.main.layout_appbar.view.*
 import kotlinx.android.synthetic.main.layout_main.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.activity.MainActivity
@@ -30,10 +31,10 @@ class AppListFragment : Fragment() {
         super.onResume()
         activity?.run {
             navView.setCheckedItem(R.id.app_list)
-            app_logo_image_view.visibility = View.GONE
+            layout_appbar.app_logo_image_view.visibility = View.GONE
             window.statusBarColor = Color.TRANSPARENT
-            collapsingToolbarLayout.contentScrim = getDrawable(R.color.colorPrimary)
-            toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.colorPrimary))
+            layout_appbar.collapsingToolbarLayout.contentScrim = getDrawable(R.color.colorPrimary)
+            layout_appbar.toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.colorPrimary))
             floatingActionButton.visibility = View.GONE
         }
     }

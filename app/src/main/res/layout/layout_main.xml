@@ -6,59 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".ui.activity.MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        app:elevation="0dp">
-
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/collapsingToolbarLayout"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            app:contentScrim="@color/colorPrimary"
-            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
-            app:statusBarScrim="@android:color/transparent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <ImageView
-                    android:id="@+id/toolbar_backdrop_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerInParent="true"
-                    android:background="@color/colorPrimary"
-                    android:contentDescription="@string/backdrop_image"
-                    android:scaleType="centerCrop"
-                    app:layout_collapseMode="parallax"
-                    app:srcCompat="@drawable/backdrop_png" />
-
-                <ImageView
-                    android:id="@+id/app_logo_image_view"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:layout_marginEnd="56dp"
-                    android:layout_marginBottom="56dp"
-                    android:contentDescription="@string/apps_logo"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@android:color/transparent"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-
-    </com.google.android.material.appbar.AppBarLayout>
+    <include
+        android:id="@+id/layout_appbar"
+        layout="@layout/layout_appbar" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -80,17 +30,6 @@
         android:layout_margin="16dp"
         app:background="@color/bright_yellow"
         app:maxImageSize="16dp"
-        app:srcCompat="@drawable/ic_plus"
-        tools:tint="@color/light_gray" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        style="@style/Widget.MaterialComponents.FloatingActionButton"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        app:background="@color/bright_yellow"
         app:srcCompat="@drawable/ic_plus"
         tools:tint="@color/light_gray" />
 

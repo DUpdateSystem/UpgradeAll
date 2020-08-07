@@ -17,6 +17,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.fragment_app_setting.*
+import kotlinx.android.synthetic.main.layout_appbar.view.*
 import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.list_content.*
 import kotlinx.android.synthetic.main.simple_textview.*
@@ -154,8 +155,8 @@ class AppSettingFragment : Fragment() {
         searchUtils.renewData()  // 清除搜索缓存
         activity?.let {
             it.window.statusBarColor = ContextCompat.getColor(it, R.color.taupe)
-            it.toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.taupe))
-            it.collapsingToolbarLayout.contentScrim = it.getDrawable(R.color.taupe)
+            it.layout_appbar.toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.taupe))
+            it.layout_appbar.collapsingToolbarLayout.contentScrim = it.getDrawable(R.color.taupe)
             it.addFloatingActionButton.visibility = View.GONE
             it.floatingActionButton.let { fab ->
                 fab.setOnClickListener {

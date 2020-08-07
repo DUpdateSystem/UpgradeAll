@@ -2,14 +2,13 @@ package net.xzos.upgradeall.ui.activity
 
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceFragmentCompat
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data.PreferencesMap
 
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)

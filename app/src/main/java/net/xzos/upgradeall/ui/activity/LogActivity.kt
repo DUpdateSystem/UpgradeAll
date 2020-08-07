@@ -5,7 +5,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Observer
 import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
@@ -20,7 +19,7 @@ import net.xzos.upgradeall.data.log.LogLiveData
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.LogTabSectionsPagerAdapter
 
-class LogActivity : AppCompatActivity() {
+class LogActivity : BaseActivity() {
 
     private var logSort = "Core"
 
