@@ -2,6 +2,7 @@ package net.xzos.upgradeall.core.log
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.config.AppConfig
@@ -57,15 +58,19 @@ object Log {
                     logMap[logObjectTag] = it
                 }).add(logItemData)
             }
+            notifyChange()
         }
     }
 
     /**
      * 通知日志变化（删除操作）
      */
-    internal fun notifyChange(vararg objectTags: ObjectTag) {
-        for (objectTag in objectTags)
-            LogApi.logChanged(logMap)
+    internal fun notifyChange() {
+        runBlocking {
+            mutex.withLock {
+                LogApi.logChanged(logMap)
+            }
+        }
     }
 
     // 调用Log.v()方法打印日志

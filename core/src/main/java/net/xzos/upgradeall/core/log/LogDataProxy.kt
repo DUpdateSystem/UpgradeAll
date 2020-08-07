@@ -72,19 +72,19 @@ object LogDataProxy {
 
     fun clearLogAll() {
         logMap.clear()
-        Log.notifyChange(*allLogObjectTag.toTypedArray())
+        Log.notifyChange()
     }
 
     fun clearLogBySort(logSort: String) {
         val objectTagList = getObjectTagBySort(logSort)
         for (objectTag in objectTagList)
             logMap.remove(objectTag)
-        Log.notifyChange(*objectTagList.toTypedArray())
+        Log.notifyChange()
     }
 
     fun clearLogByObjectTag(objectTag: ObjectTag) {
         logMap.remove(objectTag)?.run {
-            Log.notifyChange(objectTag)
+            Log.notifyChange()
         }
     }
 }
