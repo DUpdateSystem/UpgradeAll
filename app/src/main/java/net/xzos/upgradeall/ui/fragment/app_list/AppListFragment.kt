@@ -35,7 +35,7 @@ class AppListFragment : Fragment() {
             window.statusBarColor = Color.TRANSPARENT
             layout_appbar.collapsingToolbarLayout.contentScrim = getDrawable(R.color.colorPrimary)
             layout_appbar.toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.colorPrimary))
-            floatingActionButton.visibility = View.GONE
+            addFloatingActionButton.visibility = View.GONE
         }
     }
 }
