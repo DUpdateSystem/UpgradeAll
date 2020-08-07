@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.viewmodels.adapters
 
+import android.content.Intent
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +12,7 @@ import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
-import net.xzos.upgradeall.ui.fragment.AppInfoFragment
+import net.xzos.upgradeall.ui.activity.detail.AppDetailActivity
 import net.xzos.upgradeall.ui.fragment.app_list.page_view.ApplicationsFragment
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
@@ -33,8 +34,8 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel
             if (holder.adapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
             when (val baseApp = mItemCardViewList.getByHolder(holder).extraData.app) {
                 is App -> {
-                    AppInfoFragment.bundleApp = baseApp
-                    setNavigationItemId(R.id.appInfoFragment)
+                    AppDetailActivity.bundleApp = baseApp
+                    it.context.startActivity(Intent(it.context, AppDetailActivity::class.java))
                 }
                 is Applications -> {
                     ApplicationsFragment.bundleApplications = baseApp
