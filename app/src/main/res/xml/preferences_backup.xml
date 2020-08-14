@@ -16,4 +16,41 @@
             app:title="@string/restore" />
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/cloud_backup">
+        <Preference
+            app:key="WEBDAV_BACKUP"
+            app:summary="@string/backup_to_webdav"
+            app:title="@string/backup" />
+
+        <Preference
+            app:key="WEBDAV_RESTORE"
+            app:summary="@string/restore_from_webdav"
+            app:title="@string/restore" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="WebDAV">
+        <EditTextPreference
+            app:key="webdav_url"
+            app:title="@string/webdav_url"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="webdav_username"
+            app:title="@string/webdav_username"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:inputType="textPassword"
+            app:key="webdav_password"
+            app:title="@string/webdav_password"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:defaultValue="/UpgradeAll"
+            app:key="webdav_path"
+            app:summary="@string/webdav_path_desc"
+            app:title="@string/webdav_path"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
 </androidx.preference.PreferenceScreen>

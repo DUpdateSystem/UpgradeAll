@@ -3,29 +3,38 @@ package net.xzos.upgradeall.ui.fragment.setting.preference
 import android.os.Bundle
 import android.view.View
 import androidx.preference.Preference
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data.backup.BackupManager
+import net.xzos.upgradeall.data.backup.CloudBackupManager
 import net.xzos.upgradeall.data.backup.RestoreManager
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.ui.activity.file_pref.SelectFileActivity
+import net.xzos.upgradeall.ui.viewmodels.dialog.CloudBackupListDialog
+import net.xzos.upgradeall.utils.MiscellaneousUtils
+
 
 class BackupFragment : PrefFragment(R.xml.preferences_backup) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setLocalBackup()
+        setCloudBackup()
     }
 
     private fun setLocalBackup() {
         val backupPreference: Preference = findPreference("BACKUP")!!
         backupPreference.setOnPreferenceClickListener {
-            val backupFileBytes = BackupManager().mkZipFileBytes()
-            val context = this.context
-            if (backupFileBytes != null && context != null) {
-                GlobalScope.launch {
+            GlobalScope.launch {
+                MiscellaneousUtils.showToast(R.string.backup_running)
+                val backupFileBytes = BackupManager().mkZipFileBytes()
+                val context = this@BackupFragment.context
+                if (backupFileBytes != null && context != null) {
                     SaveFileActivity.newInstance("UpgradeAll_Backup.zip", "application/zip", backupFileBytes, context)
                 }
+                MiscellaneousUtils.showToast(R.string.backup_stop)
             }
             false
         }
@@ -35,11 +44,38 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
             this.context?.let { context ->
                 GlobalScope.launch {
                     SelectFileActivity.newInstance(context, "application/zip")?.let { uri ->
+                        MiscellaneousUtils.showToast(R.string.restore_running)
                         @Suppress("BlockingMethodInNonBlockingContext")
                         context.contentResolver.openInputStream(uri)?.let { iStream ->
                             val bytes = iStream.readBytes()
                             RestoreManager().parseZip(bytes)
                         }
+                        MiscellaneousUtils.showToast(R.string.restore_stop)
+                    }
+                }
+            }
+            false
+        }
+    }
+
+    private fun setCloudBackup() {
+        val backupPreference: Preference = findPreference("WEBDAV_BACKUP")!!
+        val restorePreference: Preference = findPreference("WEBDAV_RESTORE")!!
+        backupPreference.setOnPreferenceClickListener {
+            CloudBackupManager().backup()
+            false
+        }
+        restorePreference.setOnPreferenceClickListener {
+            GlobalScope.launch {
+                val cloudBackupManager = CloudBackupManager()
+                val fileNameList = cloudBackupManager.getBackupFileList() ?: return@launch
+                context?.let {
+                    withContext(Dispatchers.Main) {
+                        CloudBackupListDialog.show(it, fileNameList, fun(position) {
+                            GlobalScope.launch {
+                                cloudBackupManager.restoreBackup(fileNameList[position])
+                            }
+                        })
                     }
                 }
             }

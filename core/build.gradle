@@ -78,7 +78,7 @@ dependencies {
     // 版本比较
     implementation 'org.apache.maven:maven-artifact:3.6.3'
     // OkHttp
-    implementation "com.squareup.okhttp3:okhttp:4.7.2"
+    implementation "com.squareup.okhttp3:okhttp:4.8.0"
 
     // grpc
     implementation "io.grpc:grpc-okhttp:$grpc_version"
