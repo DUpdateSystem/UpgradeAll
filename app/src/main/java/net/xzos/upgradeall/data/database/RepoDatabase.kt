@@ -9,6 +9,7 @@ import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.AppDatabaseExtraData
 import org.json.JSONObject
 import org.litepal.crud.LitePalSupport
+import java.security.MessageDigest
 
 
 internal class RepoDatabase(
@@ -67,4 +68,31 @@ internal class RepoDatabase(
             if (name.isNotBlank() && url.isNotBlank() && api_uuid.isNotBlank() && type.isNotBlank())
                 super.save()
             else false
+
+    fun parseFromJson(json: JSONObject) {
+        name = json["name"] as String
+        url = json["url"] as String
+        api_uuid = json["api_uuid"] as String
+        type = json["type"] as String
+        extra_data = json["extra_data"] as String
+        versionChecker = json["version_checker"].toString()
+    }
+
+    fun md5(): String {
+        val key = name + url + api_uuid + versionChecker
+        val md = MessageDigest.getInstance("MD5")
+        md.update(key.toByteArray())
+        return md.digest().toString(Charsets.UTF_8)
+    }
+
+    fun toJson(): JSONObject {
+        return JSONObject(mapOf(
+                "name" to name,
+                "url" to url,
+                "api_uuid" to api_uuid,
+                "type" to type,
+                "extra_data" to extra_data,
+                "version_checker" to versionChecker
+        ))
+    }
 }

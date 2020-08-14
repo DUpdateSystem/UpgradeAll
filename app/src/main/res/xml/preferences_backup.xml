@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <PreferenceCategory app:title="@string/local_backup">
+        <Preference
+            app:key="BACKUP"
+            app:summary="@string/backup_to_file"
+            app:title="@string/backup" />
+
+        <Preference
+            app:key="RESTORE"
+            app:summary="@string/restore_from_file"
+            app:title="@string/restore" />
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

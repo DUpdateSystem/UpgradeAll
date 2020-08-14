@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.utils.FileUtil
+import net.xzos.upgradeall.utils.file.FileUtil
 
 
 class SelectDirActivity : FilePrefActivity() {

@@ -9,8 +9,8 @@ import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
-import net.xzos.upgradeall.utils.FileUtil
 import net.xzos.upgradeall.utils.MiscellaneousUtils.showToast
+import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.install.ApkShizukuInstaller
 
 object PreferencesMap {

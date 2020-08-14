@@ -7,7 +7,8 @@ import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.database.AppDatabase.Companion.APP_TYPE_TAG
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
-import net.xzos.upgradeall.utils.FileUtil
+import net.xzos.upgradeall.utils.file.FileUtil
+import java.io.File
 
 
 /**
@@ -16,7 +17,7 @@ import net.xzos.upgradeall.utils.FileUtil
  * user_star_tab : {"name":"","icon":"","enable":"true","item_list":[{"type":"","name":"","icon":"","enable":"true","app_id_list":[0]}]}
  * user_tab_list : [{"name":"","icon":"","enable":"true","item_list":[{"type":"","name":"","icon":"","enable":"true","app_id_list":[0]}]}]
  */
-class UIConfig private constructor(
+data class UIConfig internal constructor(
         @SerializedName("update_tab") var updateTab: PresetTabBean = PresetTabBean(context.getString(R.string.update)).apply {
             icon = FileUtil.UPDATE_TAB_IMAGE_NAME
         },
@@ -76,7 +77,25 @@ class UIConfig private constructor(
                 @SerializedName("type") var type: String,
                 @SerializedName("name") override var name: String,
                 @SerializedName("app_id_list") var appIdList: MutableList<Long> = mutableListOf()
-        ) : BasicInfo(name)
+        ) : BasicInfo(name) {
+            override fun equals(other: Any?): Boolean {
+                return super.equals(other)
+            }
+
+            override fun hashCode(): Int {
+                var result = type.hashCode()
+                result = 31 * result + name.hashCode()
+                result = 31 * result + appIdList.hashCode()
+                return result
+            }
+        }
+
+        fun addItemList(itemList1: List<ItemListBean>) {
+            val addUserTabList = itemList1.filter {
+                !itemList.contains(it)
+            }
+            itemList.addAll(addUserTabList)
+        }
     }
 
     fun addUserTab(name: String, icon: String?): Boolean {
@@ -152,11 +171,22 @@ class UIConfig private constructor(
 
     companion object {
         private val context = MyApplication.context
-        val uiConfig: UIConfig = try {
-            val uiConfig = Gson().fromJson(FileUtil.UI_CONFIG_FILE.readText(), UIConfig::class.java)
-            if (uiConfig.checkData()) uiConfig else UIConfig()
-        } catch (e: Throwable) {
-            UIConfig()
+        val uiConfig: UIConfig = parseUiConfig(FileUtil.UI_CONFIG_FILE)
+        private fun parseUiConfig(file: File): UIConfig {
+            return try {
+                parseUiConfig(file.readText())
+            } catch (e: Throwable) {
+                UIConfig()
+            }
+        }
+
+        fun parseUiConfig(str: String): UIConfig {
+            return try {
+                val uiConfig = Gson().fromJson(str, UIConfig::class.java)
+                if (uiConfig.checkData()) uiConfig else UIConfig()
+            } catch (e: Throwable) {
+                UIConfig()
+            }
         }
     }
 }

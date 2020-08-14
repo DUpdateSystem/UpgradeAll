@@ -18,7 +18,7 @@ import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListPageViewModel
-import net.xzos.upgradeall.utils.FileUtil
+import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.getByHolder
 
 

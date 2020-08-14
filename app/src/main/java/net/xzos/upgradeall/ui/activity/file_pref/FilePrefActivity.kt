@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data_manager.utils.wait
-import net.xzos.upgradeall.utils.FileUtil
+import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.ToastUtil
 
 abstract class FilePrefActivity : AppCompatActivity() {
