@@ -87,6 +87,7 @@
             android:name=".ui.activity.SettingsActivity"
             android:label="@string/setting" />
         <activity android:name=".ui.activity.file_pref.UCropActivity" />
+        <activity android:name=".ui.activity.file_pref.SelectFileActivity" />
         <activity android:name=".ui.activity.file_pref.SelectDirActivity" />
         <activity android:name=".ui.activity.file_pref.SaveFileActivity" />
         <activity

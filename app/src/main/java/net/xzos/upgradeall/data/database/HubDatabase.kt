@@ -2,7 +2,9 @@ package net.xzos.upgradeall.data.database
 
 import com.google.gson.Gson
 import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
+import org.json.JSONObject
 import org.litepal.crud.LitePalSupport
+import java.security.MessageDigest
 
 
 internal class HubDatabase(
@@ -26,5 +28,23 @@ internal class HubDatabase(
                 && !hub_config.isNullOrBlank()) {
             super.save()
         } else false
+    }
+
+    fun parseFromJson(json: JSONObject) {
+        uuid = json["uuid"] as String
+        hub_config = json["hub_config"] as String
+    }
+
+    fun toJson(): JSONObject {
+        return JSONObject(mapOf(
+                "uuid" to uuid,
+                "hub_config" to hub_config
+        ))
+    }
+
+    fun md5(): String {
+        val md = MessageDigest.getInstance("MD5")
+        md.update(uuid.toByteArray())
+        return md.digest().toString()
     }
 }

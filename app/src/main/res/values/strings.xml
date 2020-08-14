@@ -2,6 +2,8 @@
     <string name="app_name">UpgradeAll</string>
     <string name="help">帮助</string>
     <string name="update">更新</string>
+    <string name="backup">备份</string>
+    <string name="restore">恢复</string>
     <string name="app_list">软件列表</string>
     <string name="user_star">星标</string>
     <string name="all_app">全部应用</string>
@@ -191,4 +193,7 @@
     <string name="remove_ignore_app">取消忽略该跟踪项的更新</string>
     <string name="ignore_version">标记该跟踪项的当前版本号</string>
     <string name="remove_ignore_version">取消标记该跟踪项的当前版本号</string>
+    <string name="local_backup">本地备份</string>
+    <string name="backup_to_file">备份为本地文件</string>
+    <string name="restore_from_file">从本地文件恢复</string>
 </resources>

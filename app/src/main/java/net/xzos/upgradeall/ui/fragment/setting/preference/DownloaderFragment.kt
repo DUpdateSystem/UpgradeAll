@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.ui.activity.file_pref.SelectDirActivity
-import net.xzos.upgradeall.utils.FileUtil
+import net.xzos.upgradeall.utils.file.FileUtil
 
 class DownloaderFragment : PrefFragment(R.xml.preferences_downloader) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

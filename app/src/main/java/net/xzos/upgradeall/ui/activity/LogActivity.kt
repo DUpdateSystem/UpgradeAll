@@ -93,8 +93,8 @@ class LogActivity : AppCompatActivity() {
                         Log.d(objectTag, TAG, "已获取日志")
                         GlobalScope.launch {
                             SaveFileActivity.newInstance(
-                                    "Log.txt", logString.toByteArray(),
-                                    "text/plain", this@LogActivity
+                                    "Log.txt", "text/plain",
+                                    logString.toByteArray(), this@LogActivity
                             )
                         }
                     }

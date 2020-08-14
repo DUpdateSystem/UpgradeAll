@@ -22,4 +22,10 @@
         app:layout="@layout/item_preference"
         app:title="@string/install" />
 
+    <Preference
+        android:fragment="net.xzos.upgradeall.ui.fragment.setting.preference.BackupFragment"
+        app:icon="@drawable/ic_backup"
+        app:layout="@layout/item_preference"
+        app:title="@string/backup" />
+
 </androidx.preference.PreferenceScreen>
