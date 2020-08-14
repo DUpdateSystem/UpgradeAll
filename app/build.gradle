@@ -26,7 +26,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 47
-        versionName "0.1.2-rc.5"
+        versionName "0.1.3.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -98,6 +98,9 @@ dependencies {
     // Aria
     implementation 'com.arialyy.aria:core:3.8.8'
     kapt 'com.arialyy.aria:compiler:3.8.8'
+
+    // WebDav
+    implementation 'com.thegrizzlylabs.sardine-android:sardine-android:0.7'
 
     // Shizuku
     implementation 'moe.shizuku.privilege:api:3.1.0'

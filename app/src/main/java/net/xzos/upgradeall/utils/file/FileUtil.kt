@@ -31,8 +31,8 @@ object FileUtil {
     private val logObjectTag = ObjectTag("Core", TAG)
     private val context = MyApplication.context
 
-    val PREFERENCES_FILE by lazy { File(context.filesDir.parentFile, "shared_prefs/${context.packageName}_preferences.xml").getExistsFile() }
-    internal val UI_CONFIG_FILE by lazy { File(context.filesDir, "ui.json").getExistsFile() }
+    val PREFERENCES_FILE by lazy { File(context.filesDir.parentFile, "shared_prefs/${context.packageName}_preferences.xml") }
+    internal val UI_CONFIG_FILE by lazy { File(context.filesDir, "ui.json") }
     internal val IMAGE_DIR by lazy { File(context.filesDir, "images").getExistsFile(true) }
     internal const val UPDATE_TAB_IMAGE_NAME = "update_tab.png"
     internal const val USER_STAR_TAB_IMAGE_NAME = "user_star_tab.png"
@@ -287,10 +287,7 @@ fun File.getMimeType(): String {
 
 fun File.getExistsFile(isDir: Boolean = false): File {
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-    parentFile.mkdirs()
-    if (!exists()) {
-        if (isDir) mkdir()
-        else createNewFile()
-    }
+    if (isDir) mkdirs()
+    else parentFile.mkdirs()
     return this
 }

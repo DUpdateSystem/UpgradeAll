@@ -70,6 +70,16 @@ object PreferencesMap {
         get() = prefs.getInt(DOWNLOAD_MAX_TASK_NUM_KEY, 8)
         set(value) = prefs.edit().putInt(DOWNLOAD_MAX_TASK_NUM_KEY, value).apply()
 
+    // WebDAV
+    val webdav_url
+        get() = prefs.getString("webdav_url", null)
+    val webdav_path
+        get() = prefs.getString("webdav_path", null)
+    val webdav_username
+        get() = prefs.getString("webdav_username", null)
+    val webdav_password
+        get() = prefs.getString("webdav_password", null)
+
     fun initByActivity(activity: Activity) {
         if (install_apk_api == "Shizuku") {
             ApkShizukuInstaller.requestShizukuPermission(activity, 0)

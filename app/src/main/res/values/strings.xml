@@ -196,4 +196,17 @@
     <string name="local_backup">本地备份</string>
     <string name="backup_to_file">备份为本地文件</string>
     <string name="restore_from_file">从本地文件恢复</string>
+    <string name="cloud_backup">云端备份</string>
+    <string name="backup_to_webdav">备份到 WebDAV</string>
+    <string name="restore_from_webdav">从 WebDAV 恢复</string>
+    <string name="webdav_path">WebDAV 存储目录</string>
+    <string name="webdav_path_desc">请确保 WebDAV 下存在目录</string>
+    <string name="webdav_url">WebDAV 网址</string>
+    <string name="webdav_username">WebDAV 帐号</string>
+    <string name="webdav_password">WebDAV 密码</string>
+    <string name="plz_set_webdav">请设置 WebDAV</string>
+    <string name="restore_running">正在恢复</string>
+    <string name="restore_stop">恢复完成</string>
+    <string name="backup_running">正在备份</string>
+    <string name="backup_stop">备份完成</string>
 </resources>
