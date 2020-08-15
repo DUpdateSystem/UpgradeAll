@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.activity.detail
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.NetworkOnMainThreadException
 import android.view.Menu
@@ -32,8 +33,6 @@ import net.xzos.upgradeall.core.route.ReleaseInfoItem
 import net.xzos.upgradeall.core.server_manager.module.app.*
 import net.xzos.upgradeall.data.constants.OnceTag
 import net.xzos.upgradeall.ui.activity.BaseActivity
-import net.xzos.upgradeall.ui.activity.MainActivity
-import net.xzos.upgradeall.ui.fragment.setting.AppSettingFragment
 import net.xzos.upgradeall.ui.viewmodels.dialog.DownloadListDialog
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -74,8 +73,8 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
 
         toolbar.setOnMenuItemClickListener(this)
         ib_edit.setOnClickListener {
-            AppSettingFragment.bundleApp = app
-            MainActivity.setNavigationItemId(R.id.appSettingFragment)
+            AppSettingActivity.bundleApp = app
+            startActivity(Intent(this, AppSettingActivity::class.java))
         }
         floatingActionButton.setOnClickListener {
             showDownloadDialog()
