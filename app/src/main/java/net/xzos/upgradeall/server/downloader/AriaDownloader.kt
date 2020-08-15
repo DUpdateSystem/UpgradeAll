@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.utils.downloader
+package net.xzos.upgradeall.server.downloader
 
 import android.annotation.SuppressLint
 import android.net.Uri
@@ -18,8 +18,8 @@ import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
-import net.xzos.upgradeall.utils.downloader.AriaRegister.getCancelNotifyKey
-import net.xzos.upgradeall.utils.downloader.AriaRegister.getCompleteNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getCancelNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getCompleteNotifyKey
 import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.install.ApkInstaller
 import net.xzos.upgradeall.utils.install.autoAddApkExtension

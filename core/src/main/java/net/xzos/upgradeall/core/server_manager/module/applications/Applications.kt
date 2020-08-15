@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.server_manager.module.applications
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -42,16 +41,16 @@ class Applications(override val appDatabase: AppDatabase,
         checkUpdateStatusChanged()
     })
 
-    private var initData = false
+    private var checkAppList = true
 
     val appList: List<App>
         get() = mainUpdateControl.getAllApp(Updater.APP_OUTDATED, Updater.APP_LATEST, Updater.NETWORK_ERROR).filterIsInstance<App>()
 
     override suspend fun getUpdateStatus(): Int {
         mainUpdateControl.renewAll()
-        if (!initData) {
-            initData = true
-            GlobalScope.launch(Dispatchers.IO) {
+        if (checkAppList) {
+            checkAppList = false
+            GlobalScope.launch {
                 otherUpdateControl.renewAll()
             }
         }

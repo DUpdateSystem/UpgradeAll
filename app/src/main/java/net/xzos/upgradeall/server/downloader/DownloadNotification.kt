@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.utils.downloader
+package net.xzos.upgradeall.server.downloader
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -14,12 +14,12 @@ import com.arialyy.aria.core.task.DownloadTask
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.oberver.ObserverFun
-import net.xzos.upgradeall.utils.downloader.AriaRegister.getCancelNotifyKey
-import net.xzos.upgradeall.utils.downloader.AriaRegister.getCompleteNotifyKey
-import net.xzos.upgradeall.utils.downloader.AriaRegister.getFailNotifyKey
-import net.xzos.upgradeall.utils.downloader.AriaRegister.getRunningNotifyKey
-import net.xzos.upgradeall.utils.downloader.AriaRegister.getStartNotifyKey
-import net.xzos.upgradeall.utils.downloader.AriaRegister.getStopNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getCancelNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getCompleteNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getFailNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getRunningNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getStartNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getStopNotifyKey
 import net.xzos.upgradeall.utils.install.isApkFile
 import java.io.File
 
