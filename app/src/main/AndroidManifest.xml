@@ -83,8 +83,10 @@
         </activity>
         <activity
             android:name=".ui.activity.detail.AppDetailActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.activity.detail.AppSettingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.activity.LogActivity"
             android:label="@string/title_activity_log" />

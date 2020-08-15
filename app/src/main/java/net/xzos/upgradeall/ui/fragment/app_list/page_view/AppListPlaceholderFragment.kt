@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.ui.fragment.app_list.page_view
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
@@ -19,8 +20,7 @@ import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.server_manager.UpdateManager
-import net.xzos.upgradeall.ui.activity.MainActivity
-import net.xzos.upgradeall.ui.fragment.setting.AppSettingFragment
+import net.xzos.upgradeall.ui.activity.detail.AppSettingActivity
 import net.xzos.upgradeall.ui.viewmodels.adapters.AppListItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListPageViewModel
@@ -91,7 +91,6 @@ internal class AppListPlaceholderFragment : AppListContainerFragment() {
                     fab.backgroundTintList = ColorStateList.valueOf((IconPalette.getColorInt(R.color.bright_yellow)))
                 }
                 fab.setColorFilter(IconPalette.getColorInt(R.color.light_gray))
-                fab.visibility = View.VISIBLE
             }
         }
     }
@@ -110,12 +109,12 @@ internal class AppListPlaceholderFragment : AppListContainerFragment() {
                 }
                 list.adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, editModeList)
                 list.setOnItemClickListener { _, _, position, _ ->
-                    AppSettingFragment.bundleEditMode = when (editModeList[position]) {
+                    AppSettingActivity.bundleEditMode = when (editModeList[position]) {
                         context.getString(R.string.add_single_app) -> AppDatabase.APP_TYPE_TAG
                         context.getString(R.string.add_applications) -> AppDatabase.APPLICATIONS_TYPE_TAG
                         else -> null
                     }
-                    MainActivity.setNavigationItemId(R.id.appSettingFragment)
+                    startActivity(Intent(requireContext(), AppSettingActivity::class.java))
                     cancel()
                 }
             }.show()
