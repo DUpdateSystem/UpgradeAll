@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_app_list.*
@@ -23,19 +24,20 @@ class AppListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = true  // 默认允许侧滑
-        AppTabSectionsPagerAdapter.newInstance(groupTabs, viewPager, childFragmentManager, viewLifecycleOwner)
-    }
-
-    override fun onResume() {
-        super.onResume()
         activity?.run {
             navView.setCheckedItem(R.id.app_list)
             layout_appbar.app_logo_image_view.visibility = View.GONE
             window.statusBarColor = Color.TRANSPARENT
             layout_appbar.collapsingToolbarLayout.contentScrim = getDrawable(R.color.colorPrimary)
             layout_appbar.toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.colorPrimary))
-            addFloatingActionButton.visibility = View.GONE
         }
+
+        MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = true  // 默认允许侧滑
+        AppTabSectionsPagerAdapter.newInstance(groupTabs, viewPager, childFragmentManager, viewLifecycleOwner)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        activity?.addFloatingActionButton?.isVisible = true
     }
 }
