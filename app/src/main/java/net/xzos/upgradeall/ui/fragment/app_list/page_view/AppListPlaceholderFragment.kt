@@ -5,16 +5,13 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.layout_main.*
-import kotlinx.android.synthetic.main.list_content.*
 import kotlinx.android.synthetic.main.pageview_app_list.*
-import kotlinx.android.synthetic.main.pageview_app_list.placeholderLayout
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
@@ -98,26 +95,20 @@ internal class AppListPlaceholderFragment : AppListContainerFragment() {
     @SuppressLint("InflateParams")
     private fun showEditModeDialog() {
         context?.let {
-            BottomSheetDialog(it).apply {
-                setContentView(layoutInflater.inflate(R.layout.list_content, null))
-                placeholderLayout.visibility = View.GONE
-                val editModeList = listOf(
-                        R.string.add_single_app,
-                        R.string.add_applications
-                ).map { resId ->
-                    context.getString(resId)
-                }
-                list.adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, editModeList)
-                list.setOnItemClickListener { _, _, position, _ ->
-                    AppSettingActivity.bundleEditMode = when (editModeList[position]) {
-                        context.getString(R.string.add_single_app) -> AppDatabase.APP_TYPE_TAG
-                        context.getString(R.string.add_applications) -> AppDatabase.APPLICATIONS_TYPE_TAG
-                        else -> null
+            val editModeList = arrayOf<CharSequence>(
+                    getString(R.string.add_single_app), getString(R.string.add_applications)
+            )
+            AlertDialog.Builder(it)
+                    .setItems(editModeList) { _, which ->
+                        AppSettingActivity.bundleEditMode = when (editModeList[which]) {
+                            getString(R.string.add_single_app) -> AppDatabase.APP_TYPE_TAG
+                            getString(R.string.add_applications) -> AppDatabase.APPLICATIONS_TYPE_TAG
+                            else -> null
+                        }
+                        startActivity(Intent(requireContext(), AppSettingActivity::class.java))
                     }
-                    startActivity(Intent(requireContext(), AppSettingActivity::class.java))
-                    cancel()
-                }
-            }.show()
+                    .create()
+                    .show()
         }
     }
 
