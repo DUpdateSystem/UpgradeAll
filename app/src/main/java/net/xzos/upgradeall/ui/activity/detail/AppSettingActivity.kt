@@ -44,7 +44,7 @@ class AppSettingActivity : AppCompatActivity() {
 
     private val searchUtils: SearchUtils = SearchUtils()
     private val editMode = bundleEditMode
-    private val app = bundleApp as App// 获取可能来自修改设置项的请求
+    private val app = bundleApp as? App// 获取可能来自修改设置项的请求
     private val targetCheckerApi: String?
         get() = when (versionCheckSpinner.selectedItem.toString()) {
             "APP 版本" -> AppConfigGson.AppConfigBean.TargetCheckerBean.API_TYPE_APP_PACKAGE
@@ -158,7 +158,7 @@ class AppSettingActivity : AppCompatActivity() {
             else false
             if (addRepoSuccess) {
                 // 提醒跟踪项详情页数据已刷新
-                if (app != null && app is App)
+                if (app != null)
                     AppInfoFragment.bundleApp = app
                 finish()
             } else
@@ -275,7 +275,9 @@ class AppSettingActivity : AppCompatActivity() {
         }
         setEndHelpIcon()
         app_logo_image_view.let {
-            IconPalette.loadAppIconView(it, app = app)
+            app?.let { innerApp ->
+                IconPalette.loadAppIconView(it, app = innerApp)
+            }
             it.visibility = View.VISIBLE
         }
 
