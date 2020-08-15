@@ -19,7 +19,6 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         app:background="@color/coolapk_green"
-        app:srcCompat="@drawable/ic_download"
         tools:tint="@color/light_gray" />
 
     <androidx.constraintlayout.widget.ConstraintLayout

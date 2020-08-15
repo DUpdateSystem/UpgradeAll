@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.activity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
@@ -10,6 +11,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
@@ -22,7 +24,6 @@ import kotlinx.android.synthetic.main.layout_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
@@ -33,6 +34,7 @@ import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 import net.xzos.upgradeall.utils.FileUtil.NAV_IMAGE_FILE
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.ToastUtil
+import net.xzos.upgradeall.utils.UiUtils
 import java.util.*
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -47,6 +49,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -59,7 +62,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
         setNavController()
         setNavHeaderView()
-        navView.setNavigationItemSelectedListener(this)
+        navView.apply {
+            setNavigationItemSelectedListener(this@MainActivity)
+            itemBackground = UiUtils.createItemBackgroundMd2(this@MainActivity)
+        }
+
         showToast()
         PreferencesMap.initByActivity(this)
     }
@@ -193,7 +200,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val headerView = navView.getHeaderView(0) as LinearLayout
         headerView.setOnClickListener {
             ToastUtil.makeText(R.string.long_click_to_delete_image)
-            GlobalScope.launch {
+            lifecycleScope.launch {
                 if (UCropActivity.newInstance(19f, 6f, NAV_IMAGE_FILE, this@MainActivity))
                     withContext(Dispatchers.Main) {
                         renewNavImage()

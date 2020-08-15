@@ -28,7 +28,6 @@ class CloudConfigFragment : Fragment() {
         super.onResume()
         MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = true  // 默认允许侧滑
         activity?.apply {
-            floatingActionButton.visibility = View.GONE
             addFloatingActionButton.visibility = View.GONE
             navView.setCheckedItem(R.id.cloud_hub_list)
         }

@@ -44,7 +44,7 @@ class AppSettingActivity : AppCompatActivity() {
 
     private val searchUtils: SearchUtils = SearchUtils()
     private val editMode = bundleEditMode
-    private val app = bundleApp// 获取可能来自修改设置项的请求
+    private val app = bundleApp as App// 获取可能来自修改设置项的请求
     private val targetCheckerApi: String?
         get() = when (versionCheckSpinner.selectedItem.toString()) {
             "APP 版本" -> AppConfigGson.AppConfigBean.TargetCheckerBean.API_TYPE_APP_PACKAGE
@@ -274,6 +274,10 @@ class AppSettingActivity : AppCompatActivity() {
             fab.visibility = View.VISIBLE
         }
         setEndHelpIcon()
+        app_logo_image_view.let {
+            IconPalette.loadAppIconView(it, app = app)
+            it.visibility = View.VISIBLE
+        }
 
         lifecycleScope.launch(Dispatchers.IO) {
             // 刷新第三方源列表，获取支持的第三方源列表

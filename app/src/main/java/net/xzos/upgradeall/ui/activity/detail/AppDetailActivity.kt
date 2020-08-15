@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.ui.activity.detail
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.NetworkOnMainThreadException
 import android.view.Menu
@@ -76,8 +77,13 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
             AppSettingActivity.bundleApp = app
             startActivity(Intent(this, AppSettingActivity::class.java))
         }
-        floatingActionButton.setOnClickListener {
-            showDownloadDialog()
+        floatingActionButton.apply {
+            setImageDrawable(IconPalette.fabDownloadIcon)
+            backgroundTintList = ColorStateList.valueOf((IconPalette.getColorInt(R.color.coolapk_green)))
+            setColorFilter(IconPalette.getColorInt(R.color.white))
+            setOnClickListener {
+                showDownloadDialog()
+            }
         }
     }
 

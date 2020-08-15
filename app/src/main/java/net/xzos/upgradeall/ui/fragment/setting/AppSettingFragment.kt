@@ -158,15 +158,6 @@ class AppSettingFragment : Fragment() {
             it.layout_appbar.toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.taupe))
             it.layout_appbar.collapsingToolbarLayout.contentScrim = it.getDrawable(R.color.taupe)
             it.addFloatingActionButton.visibility = View.GONE
-            it.floatingActionButton.let { fab ->
-                fab.setOnClickListener {
-                    addApp()
-                }
-                fab.setImageDrawable(it.getDrawable(R.drawable.ic_check_mark))
-                fab.backgroundTintList = ColorStateList.valueOf((IconPalette.getColorInt(R.color.taupe)))
-                fab.setColorFilter(IconPalette.getColorInt(R.color.white))
-                fab.visibility = View.VISIBLE
-            }
         }
         setEndHelpIcon()
     }
@@ -249,7 +240,6 @@ class AppSettingFragment : Fragment() {
     private fun addApp() {
         activity?.window?.let {
             activity?.run {
-                this.floatingActionButton?.visibility = View.GONE
                 this.loadingBar?.visibility = View.VISIBLE
             }
             val name = editName.text.toString()
@@ -269,7 +259,6 @@ class AppSettingFragment : Fragment() {
             } else
                 ToastUtil.makeText(R.string.failed_to_add, Toast.LENGTH_LONG)
             activity?.run {
-                this.floatingActionButton?.visibility = View.VISIBLE
                 this.loadingBar?.visibility = View.GONE
             }
         }
