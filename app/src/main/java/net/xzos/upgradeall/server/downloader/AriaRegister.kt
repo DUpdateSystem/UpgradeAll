@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.utils.downloader
+package net.xzos.upgradeall.server.downloader
 
 import com.arialyy.annotations.Download
 import com.arialyy.aria.core.Aria

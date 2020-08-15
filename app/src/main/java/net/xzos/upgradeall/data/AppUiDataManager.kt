@@ -38,8 +38,7 @@ object AppUiDataManager {
         val updateObserver: ObserverFun<Unit> = fun(_: Unit) {
             refreshNeedUpdateAppList()
         }
-        UpdateManager.observeForever(UpdateManager.UPDATE_RUNNING, updateObserver)
-        UpdateManager.observeForever(UpdateManager.UPDATE_FINISHED, updateObserver)
+        UpdateManager.observeForever(UpdateManager.UPDATE_STATUS_CHANGED, updateObserver)
         // 初始化绑定 Map
         appListLiveDataMap[ALL_APP_PAGE_INDEX] = allAppListLiveData
         appListLiveDataMap[UPDATE_PAGE_INDEX] = needUpdateAppListLiveData
