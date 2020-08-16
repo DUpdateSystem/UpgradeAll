@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.viewmodels.adapters
 
+import android.content.Intent
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -7,9 +8,9 @@ import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.server_manager.module.app.App
-import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
-import net.xzos.upgradeall.ui.fragment.AppInfoFragment
+import net.xzos.upgradeall.ui.activity.detail.AppDetailActivity
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.ApplicationsPageViewModel
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -28,8 +29,8 @@ class ApplicationsItemAdapter(
             if (holder.adapterPosition == NO_POSITION) return@setOnClickListener
             val app = mItemCardViewList.getByHolder(holder).extraData.app
             if (app is App) {
-                AppInfoFragment.bundleApp = app
-                setNavigationItemId(R.id.appInfoFragment)
+                AppDetailActivity.bundleApp = app
+                MyApplication.context.startActivity(Intent(MyApplication.context, AppDetailActivity::class.java))
             }
         }
         holder.itemCardView.setOnLongClickListener { view ->

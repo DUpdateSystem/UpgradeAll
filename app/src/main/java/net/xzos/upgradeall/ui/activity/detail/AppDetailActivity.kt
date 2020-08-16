@@ -14,17 +14,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import jonathanfinerty.once.Once
 import kotlinx.android.synthetic.main.activity_app_detail.*
-import kotlinx.android.synthetic.main.fragment_app_info.appChangelogTextView
-import kotlinx.android.synthetic.main.fragment_app_info.appIconImageView
-import kotlinx.android.synthetic.main.fragment_app_info.appModuleName
-import kotlinx.android.synthetic.main.fragment_app_info.appUrlTextView
-import kotlinx.android.synthetic.main.fragment_app_info.cloudVersioningTextView
-import kotlinx.android.synthetic.main.fragment_app_info.cloud_versioning_text_view
-import kotlinx.android.synthetic.main.fragment_app_info.ib_edit
-import kotlinx.android.synthetic.main.fragment_app_info.localVersioningTextView
-import kotlinx.android.synthetic.main.fragment_app_info.nameTextView
-import kotlinx.android.synthetic.main.fragment_app_info.versionMarkImageView
-import kotlinx.android.synthetic.main.fragment_app_info.versioningTextView
 import kotlinx.android.synthetic.main.layout_appbar.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

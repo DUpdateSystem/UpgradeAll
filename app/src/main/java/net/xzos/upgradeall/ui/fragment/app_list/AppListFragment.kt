@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -28,7 +29,7 @@ class AppListFragment : Fragment() {
             navView.setCheckedItem(R.id.app_list)
             layout_appbar.app_logo_image_view.visibility = View.GONE
             window.statusBarColor = Color.TRANSPARENT
-            layout_appbar.collapsingToolbarLayout.contentScrim = getDrawable(R.color.colorPrimary)
+            layout_appbar.collapsingToolbarLayout.contentScrim = ContextCompat.getDrawable(requireContext(), R.color.colorPrimary)
             layout_appbar.toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.colorPrimary))
         }
 

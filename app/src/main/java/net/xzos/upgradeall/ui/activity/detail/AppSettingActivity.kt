@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_app_setting.*
 import kotlinx.android.synthetic.main.layout_appbar.*
 import kotlinx.android.synthetic.main.list_content.*
@@ -32,8 +33,9 @@ import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
+import net.xzos.upgradeall.data.gson.ExtraItem
 import net.xzos.upgradeall.ui.activity.MainActivity
-import net.xzos.upgradeall.ui.fragment.AppInfoFragment
+import net.xzos.upgradeall.ui.viewmodels.adapters.ExtraAdapter
 import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.SearchUtils
@@ -60,6 +62,8 @@ class AppSettingActivity : AppCompatActivity() {
                 targetCheckerApi,
                 editTarget.text.toString()
         )
+
+    private val extraAdapter = ExtraAdapter()
 
     private var hubUuid: String? = null
     private var appDatabase = app?.appDatabase
@@ -142,22 +146,42 @@ class AppSettingActivity : AppCompatActivity() {
 
 
     private fun addApp() {
+        if (editHub.text.isNullOrBlank()) {
+            hub_input_layout.error = getString(R.string.helper_text_cant_be_empty)
+            return
+        }
+        if (editUrl.text.isNullOrBlank()) {
+            url_input_layout.error = getString(R.string.helper_text_cant_be_empty)
+            return
+        }
+        if (editTarget.text.isNullOrBlank()) {
+            versioning_input_layout.error = getString(R.string.helper_text_cant_be_empty)
+            return
+        }
+
         window?.let {
             floatingActionButton.visibility = View.GONE
             loadingBar.visibility = View.VISIBLE
             val name = editName.text.toString()
             val url = editUrl.text.toString()
-            val versionChecker =
-                    if (editMode != AppDatabase.APPLICATIONS_TYPE_TAG)
-                        targetChecker
-                    else null
-            val addRepoSuccess = if (hubUuid != null && editMode != null)
+            val versionChecker = if (editMode != AppDatabase.APPLICATIONS_TYPE_TAG) {
+                targetChecker
+            } else {
+                null
+            }
+            val addRepoSuccess = if (hubUuid != null && editMode != null) {
                 addRepoDatabase(name, hubUuid!!, url, editMode, versionChecker)  // 添加数据库
-            else false
+            } else {
+                false
+            }
+
+            //Todo Extra List 保存至数据库
+            val extraJson = Gson().toJson(extraAdapter.data)
+
             if (addRepoSuccess) {
                 // 提醒跟踪项详情页数据已刷新
                 if (app != null)
-                    AppInfoFragment.bundleApp = app
+                    AppDetailActivity.bundleApp = app
                 finish()
             } else
                 ToastUtil.makeText(R.string.failed_to_add, Toast.LENGTH_LONG)
@@ -260,13 +284,13 @@ class AppSettingActivity : AppCompatActivity() {
     private fun initView() {
         window.statusBarColor = ContextCompat.getColor(this, R.color.taupe)
         toolbar_backdrop_image.setBackgroundColor(IconPalette.getColorInt(R.color.taupe))
-        collapsingToolbarLayout.contentScrim = getDrawable(R.color.taupe)
+        collapsingToolbarLayout.contentScrim = ContextCompat.getDrawable(this, R.color.taupe)
         floatingActionButton.visibility = View.GONE
         floatingActionButton.let { fab ->
             fab.setOnClickListener {
                 addApp()
             }
-            fab.setImageDrawable(getDrawable(R.drawable.ic_check_mark))
+            fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_check_mark))
             fab.backgroundTintList = ColorStateList.valueOf((IconPalette.getColorInt(R.color.taupe)))
             fab.setColorFilter(IconPalette.getColorInt(R.color.white))
             fab.visibility = View.VISIBLE
@@ -277,6 +301,18 @@ class AppSettingActivity : AppCompatActivity() {
                 IconPalette.loadAppIconView(it, app = innerApp)
             }
             it.visibility = View.VISIBLE
+        }
+        rv_extras.adapter = extraAdapter
+        btn_add_extra.setOnClickListener {
+            extraAdapter.addData(0, ExtraItem())
+        }
+        extraAdapter.apply {
+            animationEnable = true
+            setOnItemChildClickListener { _, view, position ->
+                if (view.id == R.id.ib_delete) {
+                    removeAt(position)
+                }
+            }
         }
 
         lifecycleScope.launch(Dispatchers.IO) {

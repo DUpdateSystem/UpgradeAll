@@ -193,4 +193,6 @@
     <string name="ignore_version">标记该跟踪项的当前版本号</string>
     <string name="remove_ignore_version">取消标记该跟踪项的当前版本号</string>
     <string name="dialog_title_select_download_item">选择下载项</string>
+    <string name="btn_add_extra">添加附加项</string>
+    <string name="helper_text_cant_be_empty">不能为空</string>
 </resources>
