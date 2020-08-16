@@ -156,22 +156,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                         this.navigate(R.id.action_appListFragment_to_hubCloudFragment)
                         setToolbarByNavigation(R.id.hubCloudFragment)
                     }
-                    R.id.appInfoFragment -> {
-                        when (currentDestination) {
-                            R.id.appListFragment ->
-                                this.navigate(R.id.action_appListFragment_to_appInfoFragment)
-                            R.id.applicationsFragment ->
-                                this.navigate(R.id.action_applicationsFragment_to_appInfoFragment)
-                        }
-                    }
-                    R.id.appSettingFragment -> {
-                        when (currentDestination) {
-                            R.id.appListFragment ->
-                                this.navigate(R.id.action_appListFragment_to_appSettingFragment)
-                            R.id.appInfoFragment ->
-                                this.navigate(R.id.action_appInfoFragment_to_appSettingFragment)
-                        }
-                    }
                     R.id.applicationsFragment -> {
                         when (currentDestination) {
                             R.id.appListFragment -> {
