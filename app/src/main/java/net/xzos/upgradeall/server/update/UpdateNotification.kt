@@ -49,7 +49,7 @@ object UpdateNotification {
     private fun updateNotify() {
         val allAppsNum = UpdateManager.getAppNum()
         val finishedAppNum = UpdateManager.finishedUpdateAppNum
-        if (allAppsNum < finishedAppNum)
+        if (allAppsNum > finishedAppNum)
             updateStatusNotification(allAppsNum, finishedAppNum)
         else
             finishedNotify()
