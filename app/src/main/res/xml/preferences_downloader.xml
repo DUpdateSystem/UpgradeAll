@@ -28,7 +28,7 @@
         <Preference
             app:enabled="true"
             app:key="SELECT_DOWNLOAD_PATH"
-            app:summary="@string/null_english"
+            app:summary="@string/please_grant_storage_perm"
             app:title="@string/user_download_path" />
 
         <SwitchPreferenceCompat

@@ -8,6 +8,7 @@
         android:defaultValue="System"
         android:entries="@array/install_apk_api_string"
         android:entryValues="@array/install_apk_api"
+        android:summary="%s"
         android:key="install_apk_api"
         android:title="@string/install_apk_api" />
 
