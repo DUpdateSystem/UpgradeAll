@@ -1,51 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/vf_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal">
+    android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:id="@+id/placeholderLayout"
+    <ListView
+        android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="visible">
+        android:paddingHorizontal="8dp" />
 
-        <ProgressBar
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/emptyPlaceHolderTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/nothing_in_there"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="4dip"
-            android:singleLine="true"
-            android:text="@string/loading"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/listContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ListView
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true" />
-
-        <TextView
-            android:id="@+id/emptyPlaceHolderTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/nothing_in_there"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:visibility="gone" />
-    </RelativeLayout>
-
-</LinearLayout>
+</ViewFlipper>

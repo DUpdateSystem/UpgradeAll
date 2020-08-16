@@ -1,44 +1,51 @@
 package net.xzos.upgradeall.ui.viewmodels.dialog
 
-import android.content.Context
+import android.app.Dialog
 import android.os.Bundle
-import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.android.synthetic.main.list_content.*
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.DialogFragment
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.databinding.ListContentBinding
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
-class DownloadListDialog private constructor(context: Context,
-                                             private val fileNameList: List<String>,
+class DownloadListDialog private constructor(private val fileNameList: List<String>,
                                              private val downloadFun: (position: Int, externalDownloader: Boolean) -> Unit
-) : BottomSheetDialog(context) {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        setContentView(R.layout.list_content)
-        super.onCreate(savedInstanceState)
+) : DialogFragment() {
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+
+        val contentBinding = ListContentBinding.inflate(layoutInflater)
         MiscellaneousUtils.showToast(R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG)
-        placeholderLayout.visibility = View.VISIBLE
-        // 下载文件
-        list.setOnItemClickListener { _, _, position, _ ->
-            downloadFun(position, false)
+
+        contentBinding.apply {
+            list.setOnItemClickListener { _, _, position, _ ->
+                downloadFun(position, false)
+            }
+            list.setOnItemLongClickListener { _, _, position, _ ->
+                downloadFun(position, true)
+                return@setOnItemLongClickListener true
+            }
+            if (fileNameList.isNotEmpty()) {
+                list.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, fileNameList)
+            } else {
+                vfContainer.displayedChild = 1
+            }
         }
-        list.setOnItemLongClickListener { _, _, position, _ ->
-            downloadFun(position, true)
-            return@setOnItemLongClickListener true
-        }
-        if (fileNameList.isNotEmpty())
-            list.adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, fileNameList)
-        else
-            emptyPlaceHolderTextView.visibility = View.VISIBLE
-        placeholderLayout.visibility = View.GONE
+
+        return AlertDialog.Builder(requireContext())
+                .setView(contentBinding.root)
+                .setTitle(R.string.dialog_title_select_download_item)
+                .create()
     }
 
     companion object {
-        fun show(context: Context, fileNameList: List<String>,
+        fun show(activity: AppCompatActivity, fileNameList: List<String>,
                  downloadFun: (position: Int, externalDownloader: Boolean) -> Unit
         ) {
-            DownloadListDialog(context, fileNameList, downloadFun).show()
+            DownloadListDialog(fileNameList, downloadFun).run { show(activity.supportFragmentManager, tag) }
         }
     }
 }

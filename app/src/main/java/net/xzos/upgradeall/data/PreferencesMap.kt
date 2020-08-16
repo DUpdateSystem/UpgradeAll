@@ -52,7 +52,7 @@ object PreferencesMap {
     // 下载首选项
     private const val DOWNLOAD_PATH_KEY = "user_download_path"
     var user_download_path: String
-        get() = prefs.getString(DOWNLOAD_PATH_KEY, null) ?: context.getString(R.string.null_english)
+        get() = prefs.getString(DOWNLOAD_PATH_KEY, null) ?: context.getString(R.string.please_grant_storage_perm)
         set(value) {
             prefs.edit().putString(DOWNLOAD_PATH_KEY, value).apply()
             auto_dump_download_file = true

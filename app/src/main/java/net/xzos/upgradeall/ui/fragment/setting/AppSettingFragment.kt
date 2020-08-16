@@ -198,7 +198,6 @@ class AppSettingFragment : Fragment() {
                         editView.setText(hubNameStringList[position])
                     cancel()
                 }
-                placeholderLayout.visibility = View.GONE
             }.show()
         }
     }
@@ -215,7 +214,6 @@ class AppSettingFragment : Fragment() {
                         editView.setText(appUrlList[position])
                         cancel()
                     }
-                    placeholderLayout.visibility = View.GONE
                     if (appUrlList.isNotEmpty()) {
                         editView.setText(appUrlList[0])
                         if (appUrlList.size > 1)
