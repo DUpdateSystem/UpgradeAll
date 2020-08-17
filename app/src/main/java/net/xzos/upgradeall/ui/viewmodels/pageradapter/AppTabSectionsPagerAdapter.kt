@@ -304,7 +304,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                             }
                             it.setNegativeButton(
                                     if (tabBasicInfo!!.enable) R.string.hide
-                                    else R.string.unhide
+                                    else R.string.show
                             ) { dialog, _ ->
                                 tabBasicInfo!!.enable = !tabBasicInfo!!.enable
                                 dialog.cancel()

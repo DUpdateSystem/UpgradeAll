@@ -14,3 +14,4 @@
 /captures
 .externalNativeBuild
 /keystore.properties
+/crowdin.properties

@@ -153,7 +153,7 @@
             android:id="@+id/arrow_image_view"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:contentDescription="@string/direction"
+            android:contentDescription="@string/arrow"
             android:rotation="90"
             android:src="@drawable/ic_arrow"
             android:tint="@color/text_low_priority_color"

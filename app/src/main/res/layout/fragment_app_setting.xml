@@ -167,7 +167,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/taupe"
-        android:text="@string/update_item_setting_versionCheckButton"
+        android:text="@string/test"
         app:layout_constraintBottom_toBottomOf="@+id/versioning_input_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/versioning_input_layout" />

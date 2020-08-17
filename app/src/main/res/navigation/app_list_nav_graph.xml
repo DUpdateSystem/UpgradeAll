@@ -36,7 +36,7 @@
     <fragment
         android:id="@+id/hubCloudFragment"
         android:name="net.xzos.upgradeall.ui.fragment.cloud_config.CloudConfigFragment"
-        android:label="@string/cloud_hub_list">
+        android:label="@string/cloud_rules">
         <action
             android:id="@+id/action_hubCloudFragment_to_appListFragment"
             app:destination="@id/appListFragment"
