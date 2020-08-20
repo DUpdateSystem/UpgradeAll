@@ -1,7 +1,9 @@
 package net.xzos.upgradeall.ui.fragment.setting.preference
 
 import android.os.Bundle
+import android.text.InputType
 import android.view.View
+import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -20,8 +22,21 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
 class BackupFragment : PrefFragment(R.xml.preferences_backup) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        hidePassword()
         setLocalBackup()
         setCloudBackup()
+    }
+
+    private fun hidePassword() {
+        findPreference<EditTextPreference>("webdav_password")?.let { editTextPreference ->
+            editTextPreference.summaryProvider = Preference.SummaryProvider<EditTextPreference> { preference ->
+                "*".repeat(preference.text.length)
+            }
+
+            editTextPreference.setOnBindEditTextListener { editText ->
+                editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            }
+        }
     }
 
     private fun setLocalBackup() {
@@ -82,4 +97,6 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
             false
         }
     }
+
 }
+
