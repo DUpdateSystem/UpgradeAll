@@ -31,7 +31,7 @@
                     android:layout_height="match_parent"
                     android:layout_centerInParent="true"
                     android:background="@color/colorPrimary"
-                    android:contentDescription="@string/backdrop_image"
+                    android:contentDescription="@string/background_image"
                     android:scaleType="centerCrop"
                     app:layout_collapseMode="parallax"
                     app:srcCompat="@drawable/backdrop_png" />

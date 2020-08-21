@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <androidx.preference.SeekBarPreference
-        android:defaultValue="8"
+        android:defaultValue="16"
         android:key="download_thread_num"
         android:max="64"
         android:title="@string/download_thread_num"
@@ -15,8 +15,7 @@
         android:defaultValue="8"
         android:key="download_max_task_num"
         android:max="32"
-        android:summary="@string/download_max_task_num_desc"
-        android:title="@string/download_thread_num"
+        android:title="@string/download_max_task_num"
         app:showSeekBarValue="true" />
 
     <Preference
@@ -33,7 +32,7 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:title="@string/enable_or_disable"
+            android:title="@string/enable"
             app:key="auto_dump_download_file" />
 
     </PreferenceCategory>

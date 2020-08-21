@@ -29,23 +29,22 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="WebDAV">
-        <EditTextPreference
+        <androidx.preference.EditTextPreference
             app:key="webdav_url"
             app:title="@string/webdav_url"
             app:useSimpleSummaryProvider="true" />
 
-        <EditTextPreference
+        <androidx.preference.EditTextPreference
             app:key="webdav_username"
             app:title="@string/webdav_username"
             app:useSimpleSummaryProvider="true" />
 
-        <EditTextPreference
-            android:inputType="textPassword"
+        <androidx.preference.EditTextPreference
             app:key="webdav_password"
             app:title="@string/webdav_password"
             app:useSimpleSummaryProvider="true" />
 
-        <EditTextPreference
+        <androidx.preference.EditTextPreference
             android:defaultValue="/UpgradeAll"
             app:key="webdav_path"
             app:summary="@string/webdav_path_desc"
