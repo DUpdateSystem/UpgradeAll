@@ -15,7 +15,7 @@
     </group>
 
     <group android:checkableBehavior="single">
-        <item android:title="@string/others">
+        <item android:title="@string/other">
             <menu>
                 <item
                     android:id="@+id/app_help"

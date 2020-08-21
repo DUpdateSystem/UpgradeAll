@@ -82,7 +82,7 @@
         </activity>
         <activity
             android:name=".ui.activity.LogActivity"
-            android:label="@string/title_activity_log" />
+            android:label="@string/log" />
         <activity
             android:name=".ui.activity.SettingsActivity"
             android:label="@string/setting" />
