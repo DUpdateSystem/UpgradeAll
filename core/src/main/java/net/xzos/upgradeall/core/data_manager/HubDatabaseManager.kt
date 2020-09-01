@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.data_manager
 
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.data.database.HubDatabase
 import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
@@ -12,18 +13,8 @@ object HubDatabaseManager {
     private val objectTag = ObjectTag("Core", TAG)
 
     // 读取 hub 数据库
-    var hubDatabases: List<HubDatabase> = DatabaseApi.hubDatabases
-        private set
-
-    init {
-        /**
-         * 刷新数据库
-         */
-        DatabaseApi.observeForever<HubDatabase>(DatabaseApi.HUB_DATABASE_CHANGED,
-                fun(_) {
-                    // 更新数据库
-                    hubDatabases = DatabaseApi.hubDatabases
-                })
+    val hubDatabases: HashSet<HubDatabase> = runBlocking {
+        DatabaseApi?.getHubDatabaseList()?.toHashSet() ?: hashSetOf()
     }
 
     fun getDatabase(uuid: String?): HubDatabase? {
@@ -40,29 +31,39 @@ object HubDatabaseManager {
             uuid
     ) != null
 
-    internal fun saveDatabase(hubDatabase: HubDatabase): Boolean {
-        return DatabaseApi.saveHubDatabase(hubDatabase)
+    internal suspend fun insertDatabase(database: HubDatabase): Boolean {
+        return (DatabaseApi?.insertHubDatabase(database) != null).also {
+            if (it) hubDatabases.add(database)
+        }
     }
 
-    internal fun deleteDatabase(hubDatabase: HubDatabase): Boolean {
-        return DatabaseApi.deleteHubDatabase(hubDatabase)
+    internal suspend fun updateDatabase(database: HubDatabase): Boolean {
+        return (DatabaseApi?.updateHubDatabase(database) != true).also {
+            if (it) hubDatabases.add(database)
+        }
+    }
+
+    internal suspend fun deleteDatabase(database: HubDatabase): Boolean {
+        return DatabaseApi?.deleteHubDatabase(database) ?: false
     }
 
 
-    fun addDatabase(hubConfigGsonGson: HubConfigGson): Boolean {
+    suspend fun addDatabase(hubConfigGsonGson: HubConfigGson): Boolean {
         val name: String? = hubConfigGsonGson.info.hubName
         val uuid: String? = hubConfigGsonGson.uuid
 
         // 如果设置了名字与 UUID，则存入数据库
         if (name != null && uuid != null) {
             // 修改数据库
-            (getDatabase(uuid)
-                    ?: HubDatabase.newInstance()).apply {
-                this.uuid = uuid
-                this.hubConfig = hubConfigGsonGson
-                // 存储 js 代码
-            }.save() // 将数据存入 HubDatabase 数据库
-            return true
+            getDatabase(uuid)?.also {
+                it.uuid = uuid
+                it.hubConfig = hubConfigGsonGson
+                return DatabaseApi?.updateHubDatabase(it) ?: false
+            } ?: HubDatabase(uuid, hubConfigGsonGson).also {
+                return DatabaseApi?.insertHubDatabase(it) != 0L
+            }
+            // 存储 js 代码
+            // 将数据存入 HubDatabase 数据库
         }
         return false
     }

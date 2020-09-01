@@ -7,10 +7,14 @@ import androidx.lifecycle.ViewModel
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.config.AppValue
-import net.xzos.upgradeall.core.data.database.AppDatabase
-import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
+import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_APP_PACKAGE
+import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_MAGISK_MODULE
+import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_SHELL
+import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.data.gson.UIConfig
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
@@ -43,20 +47,20 @@ abstract class AppListContainerViewModel : ViewModel() {
     internal fun getAppList(): List<BaseApp> = appListLiveData.value!!
 
     private fun BaseApp.getAppItemCardView(): ItemCardView {
-        val appDatabase = this.appDatabase
         val hubName = HubDatabaseManager.getDatabase(appDatabase.hubUuid)?.hubConfig?.info?.hubName
         val local = AppValue.locale
-        val type = when (appDatabase.type) {
-            AppDatabase.APP_TYPE_TAG -> {
-                when (appDatabase.targetChecker?.api?.toLowerCase(local)) {
-                    AppConfigGson.AppConfigBean.TargetCheckerBean.API_TYPE_APP_PACKAGE -> context.getString(R.string.android_app)
-                    AppConfigGson.AppConfigBean.TargetCheckerBean.API_TYPE_MAGISK_MODULE -> context.getString(R.string.magisk_module)
-                    AppConfigGson.AppConfigBean.TargetCheckerBean.API_TYPE_SHELL -> context.getString(R.string.shell)
-                    AppConfigGson.AppConfigBean.TargetCheckerBean.API_TYPE_SHELL_ROOT -> context.getString(R.string.shell_root)
+        val type = when (this) {
+            is App -> {
+                val appDatabase = this.appDatabase
+                when (appDatabase.packageId?.api?.toLowerCase(local)) {
+                    API_TYPE_APP_PACKAGE -> context.getString(R.string.android_app)
+                    API_TYPE_MAGISK_MODULE -> context.getString(R.string.magisk_module)
+                    API_TYPE_SHELL -> context.getString(R.string.shell)
+                    API_TYPE_SHELL_ROOT -> context.getString(R.string.shell_root)
                     else -> context.getString(R.string.app)
                 }
             }
-            AppDatabase.APPLICATIONS_TYPE_TAG.toLowerCase(local) -> context.getString(R.string.applications)
+            is Applications -> context.getString(R.string.applications)
             else -> ""
         }
         return ItemCardView(

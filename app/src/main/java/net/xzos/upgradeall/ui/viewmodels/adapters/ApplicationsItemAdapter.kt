@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
+import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.ui.activity.detail.AppDetailActivity
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
@@ -35,26 +37,28 @@ class ApplicationsItemAdapter(
         }
         holder.itemCardView.setOnLongClickListener { view ->
             if (holder.adapterPosition == NO_POSITION) return@setOnLongClickListener false
-            mItemCardViewList.getByHolder(holder).extraData.app?.run {
-                val context = view.context
-                PopupMenu(context, view).let { popupMenu ->
-                    popupMenu.menu.let { menu ->
-                        // 保存
-                        menu.add(R.string.save_to_database).let { menuItem ->
-                            menuItem.setOnMenuItemClickListener {
-                                if (this.appDatabase.save(true))
-                                    MiscellaneousUtils.showToast(R.string.save_successfully, Toast.LENGTH_SHORT)
-                                return@setOnMenuItemClickListener true
+            with(mItemCardViewList.getByHolder(holder).extraData.app as App?) {
+                if (this != null) {
+                    val context = view.context
+                    PopupMenu(context, view).let { popupMenu ->
+                        popupMenu.menu.let { menu ->
+                            // 保存
+                            menu.add(R.string.save_to_database).let { menuItem ->
+                                menuItem.setOnMenuItemClickListener {
+                                    if (runBlocking { AppDatabaseManager.insertAppDatabase(this@with.appDatabase) } != 0L)
+                                        MiscellaneousUtils.showToast(R.string.save_successfully, Toast.LENGTH_SHORT)
+                                    return@setOnMenuItemClickListener true
+                                }
                             }
-                        }
-                        // 保存到分组
-                        menu.add(R.string.add_to_group).let { menuItem ->
-                            menuItem.setOnMenuItemClickListener {
-                                showSelectGroupPopMenu(view, holder)
-                                return@setOnMenuItemClickListener true
+                            // 保存到分组
+                            menu.add(R.string.add_to_group).let { menuItem ->
+                                menuItem.setOnMenuItemClickListener {
+                                    showSelectGroupPopMenu(view, holder)
+                                    return@setOnMenuItemClickListener true
+                                }
                             }
+                            popupMenu.show()
                         }
-                        popupMenu.show()
                     }
                 }
             }

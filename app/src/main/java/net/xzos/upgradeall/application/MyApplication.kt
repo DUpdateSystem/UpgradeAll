@@ -8,7 +8,6 @@ import jonathanfinerty.once.Once
 import net.xzos.upgradeall.data.constants.OnceTag
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import org.jetbrains.annotations.Contract
-import org.litepal.LitePal
 import java.io.File
 
 class MyApplication : Application() {
@@ -28,7 +27,6 @@ class MyApplication : Application() {
             Once.markDone(OnceTag.DB_NAME_MIGRATION)
         }
 
-        LitePal.initialize(applicationContext)
         Aria.init(this@MyApplication)
         Aria.download(this@MyApplication).removeAllTask(false)  // TODO: 加入下载控制后移除
         MiscellaneousUtils.initData()

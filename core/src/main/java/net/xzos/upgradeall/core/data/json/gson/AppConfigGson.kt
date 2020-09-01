@@ -32,7 +32,7 @@ data class AppConfigGson(
      */
     class AppConfigBean(
             @SerializedName("hub_info") var hubInfo: HubInfoBean = HubInfoBean(),
-            @SerializedName("target_checker") var targetChecker: TargetCheckerBean = TargetCheckerBean()
+            @SerializedName("target_checker") var targetChecker: PackageIdGson = PackageIdGson()
     ) {
 
         /**
@@ -41,25 +41,5 @@ data class AppConfigGson(
         class HubInfoBean(
             @SerializedName("hub_uuid") var hubUuid: String? = null
         )
-
-        /**
-         * api:
-         * extra_string:
-         */
-        class TargetCheckerBean(
-            @SerializedName("api") var api: String? = null,
-            @SerializedName("extra_string") var extraString: String? = null
-        ) {
-            companion object {
-                @Transient
-                const val API_TYPE_APP_PACKAGE = "app_package"
-                @Transient
-                const val API_TYPE_MAGISK_MODULE = "magisk_module"
-                @Transient
-                const val API_TYPE_SHELL = "shell"
-                @Transient
-                const val API_TYPE_SHELL_ROOT = "shell_root"
-            }
-        }
     }
 }

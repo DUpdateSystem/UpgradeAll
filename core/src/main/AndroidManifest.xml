@@ -1,5 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="net.xzos.upgradeall.core">
-
-    /
-</manifest>
+<manifest package="net.xzos.upgradeall.core" />
