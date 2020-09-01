@@ -1,5 +1,7 @@
 package net.xzos.upgradeall.ui.activity.detail.setting
 
+import android.content.Context
+import android.content.Intent
 import kotlinx.android.synthetic.main.activity_app_setting.*
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
@@ -26,7 +28,7 @@ class ApplicationsSettingActivity : BaseAppSettingActivity() {
     override fun setSettingItem() {}
 
     companion object {
-        internal var bundleDatabase: ApplicationsDatabase? = null
+        private var bundleDatabase: ApplicationsDatabase? = null
             set(value) {
                 BaseAppSettingActivity.bundleDatabase = value
                 field = value
@@ -36,5 +38,10 @@ class ApplicationsSettingActivity : BaseAppSettingActivity() {
                 field = null
                 return app
             }
+
+        fun getInstance(context: Context, database: ApplicationsDatabase?) {
+            bundleDatabase = database ?: ApplicationsDatabase(0, "", "")
+            context.startActivity(Intent(context, ApplicationsSettingActivity::class.java))
+        }
     }
 }
