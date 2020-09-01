@@ -6,14 +6,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.xzos.upgradeall.core.data.database.AppDatabase
+import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
+import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.server_manager.UpdateControl
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
 
-class Applications(override val appDatabase: AppDatabase,
+class Applications(override val appDatabase: ApplicationsDatabase,
                    override var statusRenewedFun: (appStatus: Int) -> Unit = fun(_) {}
 ) : BaseApp, Informer {
 
@@ -29,7 +30,9 @@ class Applications(override val appDatabase: AppDatabase,
     private val applicationsUtils = ApplicationsUtils(appDatabase)
     private val mainUpdateControl = UpdateControl(applicationsUtils.apps, fun(app, appStatus) {
         if (appStatus == Updater.INVALID_APP && app is App) {
-            markInvalidApp(app)
+            runBlocking {
+                markInvalidApp(app)
+            }
         }
         notifyChanged()  // 通知应用列表改变
         checkUpdateStatusChanged()
@@ -58,6 +61,9 @@ class Applications(override val appDatabase: AppDatabase,
         return nonBlockGetUpdateStatus()
     }
 
+    override fun refreshData() {
+    }
+
     private fun checkUpdateStatusChanged() {
         val updateStatus = nonBlockGetUpdateStatus()
         if (updateStatus != tmpUpdateStatus) {
@@ -77,20 +83,24 @@ class Applications(override val appDatabase: AppDatabase,
     private fun markValidApp(app: App) {
         mainUpdateControl.addApp(app)
         otherUpdateControl.delApp(app)
-        val packageName = app.appId?.get(0)?.value
+        val appId = app.appId ?: return
         runMarkAppFun {
-            appDatabase.extraData?.applicationsConfig?.invalidPackageName?.remove(packageName)
-            appDatabase.save(false)
+            appDatabase.invalidPackageList.remove(appId)
+            runBlocking {
+                AppDatabaseManager.updateApplicationsDatabase(appDatabase)
+            }
         }
     }
 
-    private fun markInvalidApp(app: App) {
+    private suspend fun markInvalidApp(app: App) {
         mainUpdateControl.delApp(app)
         otherUpdateControl.addApp(app)
-        val packageName = app.appId?.get(0)?.value ?: return
+        val appId = app.appId ?: return
         runMarkAppFun {
-            appDatabase.extraData?.applicationsConfig?.invalidPackageName?.add(packageName)
-            appDatabase.save(false)
+            appDatabase.invalidPackageList.add(appId)
+            runBlocking {
+                AppDatabaseManager.updateApplicationsDatabase(appDatabase)
+            }
         }
     }
 

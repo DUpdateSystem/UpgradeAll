@@ -15,9 +15,9 @@ import kotlinx.android.synthetic.main.pageview_app_list.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.server_manager.UpdateManager
-import net.xzos.upgradeall.ui.activity.detail.AppSettingActivity
+import net.xzos.upgradeall.ui.activity.detail.setting.AppSettingActivity
+import net.xzos.upgradeall.ui.activity.detail.setting.ApplicationsSettingActivity
 import net.xzos.upgradeall.ui.viewmodels.adapters.AppListItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListPageViewModel
@@ -100,12 +100,12 @@ internal class AppListPlaceholderFragment : AppListContainerFragment() {
             )
             AlertDialog.Builder(it)
                     .setItems(editModeList) { _, which ->
-                        AppSettingActivity.bundleEditMode = when (editModeList[which]) {
-                            getString(R.string.add_single_app) -> AppDatabase.APP_TYPE_TAG
-                            getString(R.string.add_applications) -> AppDatabase.APPLICATIONS_TYPE_TAG
-                            else -> null
+                        when (editModeList[which]) {
+                            getString(R.string.add_single_app) ->
+                                startActivity(Intent(requireContext(), AppSettingActivity::class.java))
+                            getString(R.string.add_applications) ->
+                                startActivity(Intent(requireContext(), ApplicationsSettingActivity::class.java))
                         }
-                        startActivity(Intent(requireContext(), AppSettingActivity::class.java))
                     }
                     .create()
                     .show()

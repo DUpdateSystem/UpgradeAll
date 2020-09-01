@@ -19,10 +19,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.route.ReleaseInfoItem
+import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.server_manager.module.app.*
 import net.xzos.upgradeall.data.constants.OnceTag
 import net.xzos.upgradeall.ui.activity.BaseActivity
+import net.xzos.upgradeall.ui.activity.detail.setting.AppSettingActivity
 import net.xzos.upgradeall.ui.viewmodels.dialog.DownloadListDialog
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -33,11 +34,11 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
     private lateinit var app: App
 
     private var versioningPosition: Int = 0
-    private val releaseInfoList: List<ReleaseInfoItem> by lazy {
+    private val releaseInfoList: List<ReleaseListItem> by lazy {
         return@lazy try {
-            runBlocking { Updater(app).getReleaseInfo() ?: listOf() }
+            runBlocking { Updater(app).getReleaseList()?.filterNotNull() } ?: listOf()
         } catch (ignore: NetworkOnMainThreadException) {
-            listOf<ReleaseInfoItem>()
+            listOf<ReleaseListItem>()
         }
     }
 
@@ -63,7 +64,7 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
 
         toolbar.setOnMenuItemClickListener(this)
         ib_edit.setOnClickListener {
-            AppSettingActivity.bundleApp = app
+            AppSettingActivity.bundleDatabase = app.appDatabase
             startActivity(Intent(this, AppSettingActivity::class.java))
         }
         floatingActionButton.apply {
@@ -79,7 +80,7 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
             IGNORE_VERSION -> {
-                app.setIgnoreUpdate(cloudVersioningTextView.text.toString())
+                app.ignoreVersionNumber = cloudVersioningTextView.text.toString()
             }
             REMOVE_IGNORE_VERSION -> {
                 app.removeIgnoreUpdate()
@@ -126,7 +127,7 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
         val versionNumberList = releaseInfoList.map {
             it.versionNumber
         }
-        val markProcessedVersionNumber = app.markProcessedVersionNumber
+        val markProcessedVersionNumber = app.ignoreVersionNumber
         tv_more_editions.setOnClickListener { view ->
             // 选择版本号
             PopupMenu(view.context, view).let { popupMenu ->
@@ -164,7 +165,7 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
     private fun loadAppInfo() {
         val appDatabase = app.appDatabase
         nameTextView.text = appDatabase.name
-        appModuleName.text = appDatabase.targetChecker?.extraString ?: ""
+        appModuleName.text = appDatabase.packageId?.extraString ?: ""
         val url = appDatabase.url
         with(appUrlTextView) {
             text = url
@@ -206,7 +207,7 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
     private fun toastPromptMarkedVersionNumber() {
         lifecycleScope.launch {
             if (Updater(app).getUpdateStatus() != Updater.APP_LATEST) {
-                if (app.markProcessedVersionNumber != null) {
+                if (app.ignoreVersionNumber != null) {
                     ToastUtil.makeText(R.string.marked_version_number_is_behind_latest, Toast.LENGTH_LONG)
                 } else {
                     if (!Once.beenDone(Once.THIS_APP_INSTALL, OnceTag.APP_INFO_TOOLBAR_MENU_TIP)) {
@@ -227,7 +228,7 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
                 toolbar.menu.add(Menu.NONE, IGNORE_APP, Menu.NONE, R.string.ignore_app)
         }
 
-        if (app.markProcessedVersionNumber == cloudVersioningTextView.text) {
+        if (app.ignoreVersionNumber == cloudVersioningTextView.text) {
             // 当前版本被标记忽略
             versionMarkImageView.visibility = View.VISIBLE
             toolbar.menu.add(Menu.NONE, REMOVE_IGNORE_VERSION, Menu.NONE, R.string.remove_ignore_version)

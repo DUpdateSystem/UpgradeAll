@@ -8,20 +8,20 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.View
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.devs.vectorchildfinder.VectorChildFinder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import java.io.File
+import java.util.concurrent.Executors
 
 
 object IconPalette {
+    private val coroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private val context = MyApplication.context
 
     val fabAddIcon = getPlus(getColorInt(R.color.light_gray))
@@ -79,11 +79,11 @@ object IconPalette {
             file: File? = null,
             hubIconDrawableId: Int? = null
     ) {
-        GlobalScope.launch {
+        GlobalScope.launch(coroutineDispatcher) {
             loadIconView(iconImageView,
                     IconInfo(url = hubIconUrl,
-                            drawable = context.getDrawable(hubIconDrawableId
-                                    ?: R.drawable.ic_application),
+                            drawable = ContextCompat.getDrawable(
+                                    context, hubIconDrawableId ?: R.drawable.ic_application),
                             file = file
                     )
             )
@@ -94,9 +94,9 @@ object IconPalette {
             iconImageView: ImageView,
             hubIconUrl: String? = null
     ) {
-        GlobalScope.launch {
+        GlobalScope.launch(coroutineDispatcher) {
             loadIconView(iconImageView, IconInfo(url = hubIconUrl,
-                    drawable = context.getDrawable(R.drawable.ic_application)
+                    drawable = ContextCompat.getDrawable(context, R.drawable.ic_application)
             ))
         }
     }
@@ -106,12 +106,12 @@ object IconPalette {
             iconInfo: IconInfo? = null,
             app: App? = null
     ) {
-        GlobalScope.launch {
+        GlobalScope.launch(coroutineDispatcher) {
             loadIconView(iconImageView,
                     (iconInfo ?: IconInfo(
-                            app_package = app?.appDatabase?.targetChecker?.extraString
+                            app_package = app?.appDatabase?.packageId?.extraString
                     )).also {
-                        it.drawable = context.getDrawable(R.drawable.ic_android_placeholder)
+                        it.drawable = ContextCompat.getDrawable(context, R.drawable.ic_android_placeholder)
                     }
             )
         }

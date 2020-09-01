@@ -1,113 +1,102 @@
 package net.xzos.upgradeall.android_api
 
 import net.xzos.upgradeall.core.data.database.AppDatabase
-import net.xzos.upgradeall.core.data.database.AppDatabase.Companion.APP_TYPE_TAG
+import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
 import net.xzos.upgradeall.core.data.database.HubDatabase
+import net.xzos.upgradeall.core.system_api.api.DatabaseApi
 import net.xzos.upgradeall.core.system_api.interfaces.DatabaseApi
-import net.xzos.upgradeall.data.database.RepoDatabase
-import org.litepal.LitePal
-import org.litepal.extension.findAll
+import net.xzos.upgradeall.data.database.metaDatabase
+import net.xzos.upgradeall.data.database.table.AppEntity
+import net.xzos.upgradeall.data.database.table.ApplicationsEntity
+import net.xzos.upgradeall.data.database.table.HubEntity
 
 
 object DatabaseApi : DatabaseApi {
 
     init {
-        net.xzos.upgradeall.core.system_api.api.DatabaseApi.setInterfaces(this)
+        DatabaseApi = this
     }
 
-    private val nativeAppDatabase: List<RepoDatabase>
-        get() = LitePal.findAll()
-    private val nativeHubDatabase: List<net.xzos.upgradeall.data.database.HubDatabase>
-        get() = LitePal.findAll()
-
-    override fun getAppDatabaseList(): List<AppDatabase> {
-        return nativeAppDatabase.map {
-            // 新加的属性，@version: 0.1.1-alpha.8（TODO: 两个大版本后移除）
-            if (it.type.isNullOrBlank()) {
-                it.type = APP_TYPE_TAG
-                it.save()
-            }
-            conversionAppDatabase(it)
+    override suspend fun getAppDatabaseList(): List<AppDatabase> {
+        return metaDatabase.appDao().loadAll().map {
+            it.toAppDatabase()
         }
     }
 
-    override fun getHubDatabaseList(): List<HubDatabase> {
-        return nativeHubDatabase.map {
-            HubDatabase(it.uuid, it.hubConfig)
+    override suspend fun getApplicationsDatabaseList(): List<ApplicationsDatabase> {
+        return metaDatabase.applicationsDao().loadAll().map {
+            it.toApplicationsDatabase()
         }
     }
 
-    override fun saveAppDatabase(appDatabase: AppDatabase): AppDatabase? {
-        var database: RepoDatabase? = null
-        for (item in nativeAppDatabase) {
-            if (item.id == appDatabase.id) {
-                database = item
-            }
+    override suspend fun getHubDatabaseList(): List<HubDatabase> {
+        return metaDatabase.hubDao().loadAll().map {
+            it.toHubDatabase()
         }
-        if (database == null)
-            database = RepoDatabase("", "", "", "")
-        database.run {
-            name = appDatabase.name
-            url = appDatabase.url
-            api_uuid = appDatabase.hubUuid
-            type = appDatabase.type
-            targetChecker = appDatabase.targetChecker
-            extraData = appDatabase.extraData
-        }
-        return if (database.save())
-            conversionAppDatabase(database)
-        else null
     }
 
-    override fun deleteAppDatabase(appDatabase: AppDatabase): AppDatabase? {
-        var database: AppDatabase? = null
-        for (item in nativeAppDatabase) {
-            if (item.id == appDatabase.id) {
-                database = conversionAppDatabase(item)
-                item.delete()
-            }
-        }
-        return database
+    override suspend fun insertAppDatabase(appDatabase: AppDatabase): Long? {
+        val rowId = metaDatabase.appDao().insert(appDatabase.toAppEntity())
+        return metaDatabase.appDao().getIdByRowId(rowId)
     }
 
-    override fun saveHubDatabase(hubDatabase: HubDatabase): HubDatabase? {
-        var database: net.xzos.upgradeall.data.database.HubDatabase? = null
-        for (item in nativeHubDatabase) {
-            if (item.uuid == hubDatabase.uuid) {
-                database = item
-            }
-        }
-        if (database == null)
-            database = net.xzos.upgradeall.data.database.HubDatabase("", "")
-        database.run {
-            uuid = hubDatabase.uuid
-            hubConfig = hubDatabase.hubConfig
-        }
-        return if (database.save())
-            conversionHubDatabase(database)
-        else null
+    override suspend fun updateAppDatabase(appDatabase: AppDatabase): Boolean {
+        metaDatabase.appDao().update(appDatabase.toAppEntity())
+        return true
     }
 
-    override fun deleteHubDatabase(hubDatabase: HubDatabase): HubDatabase? {
-        var database: HubDatabase? = null
-        for (item in nativeHubDatabase) {
-            if (item.uuid == hubDatabase.uuid) {
-                database = conversionHubDatabase(item)
-                item.delete()
-            }
-        }
-        return database
+    override suspend fun deleteAppDatabase(appDatabase: AppDatabase): Boolean {
+        metaDatabase.appDao().deleteById(appDatabase.id)
+        return true
     }
 
-    // 本机跟踪项数据库转换通用格式数据库
-    private fun conversionAppDatabase(appDatabase: RepoDatabase): AppDatabase {
-        return AppDatabase(appDatabase.id,
-                appDatabase.name, appDatabase.url, appDatabase.api_uuid, appDatabase.type,
-                appDatabase.targetChecker, appDatabase.extraData)
+    override suspend fun insertApplicationsDatabase(applicationsDatabase: ApplicationsDatabase): Long? {
+        val rowId = metaDatabase.applicationsDao().insert(applicationsDatabase.toApplicationsEntity())
+        return metaDatabase.applicationsDao().getIdByRowId(rowId)
     }
 
-    // 本机软件源数据库转换通用格式数据库
-    private fun conversionHubDatabase(hubDatabase: net.xzos.upgradeall.data.database.HubDatabase): HubDatabase {
-        return HubDatabase(hubDatabase.uuid, hubDatabase.hubConfig)
+    override suspend fun updateApplicationsDatabase(applicationsDatabase: ApplicationsDatabase): Boolean {
+        metaDatabase.applicationsDao().update(applicationsDatabase.toApplicationsEntity())
+        return true
+    }
+
+    override suspend fun deleteApplicationsDatabase(applicationsDatabase: ApplicationsDatabase): Boolean {
+        metaDatabase.applicationsDao().deleteById(applicationsDatabase.id)
+        return true
+    }
+
+    override suspend fun insertHubDatabase(hubDatabase: HubDatabase): Long? {
+        return metaDatabase.hubDao().insert(hubDatabase.toHubEntity())
+    }
+
+    override suspend fun updateHubDatabase(hubDatabase: HubDatabase): Boolean {
+        metaDatabase.hubDao().update(hubDatabase.toHubEntity())
+        return true
+    }
+
+    override suspend fun deleteHubDatabase(hubDatabase: HubDatabase): Boolean {
+        metaDatabase.hubDao().deleteByUuid(hubDatabase.uuid)
+        return true
     }
 }
+
+private fun ApplicationsDatabase.toApplicationsEntity(): ApplicationsEntity =
+        ApplicationsEntity(id, name, hubUuid, auth, extraId, invalidPackageList, ignoreApps)
+
+private fun ApplicationsEntity.toApplicationsDatabase(): ApplicationsDatabase =
+        ApplicationsDatabase(id, name, hubUuid,
+                auth ?: mapOf(), extraId ?: mapOf(),
+                invalidPackageList ?: mutableListOf(), ignoreApps ?: mutableListOf())
+
+// 本机跟踪项数据库转换通用格式数据库
+private fun AppEntity.toAppDatabase(): AppDatabase =
+        AppDatabase(id, name, hubUuid, url, packageId, cloudConfig,
+                auth ?: mapOf(), extraId ?: mapOf(), ignoreVersionNumber)
+
+private fun AppDatabase.toAppEntity(): AppEntity =
+        AppEntity(id, name, hubUuid, auth, extraId, url, packageId, ignoreVersionNumber, cloudConfig)
+
+// 本机软件源数据库转换通用格式数据库
+private fun HubEntity.toHubDatabase(): HubDatabase = HubDatabase(uuid, hubConfig)
+
+private fun HubDatabase.toHubEntity(): HubEntity = HubEntity(uuid, hubConfig)

@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
@@ -55,6 +57,7 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel
 
     private fun showLongClickPopMenu(view: View, holder: CardViewRecyclerViewHolder) {
         mItemCardViewList.getByHolder(holder).extraData.app?.run {
+            val database = appDatabase
             val context = view.context
             PopupMenu(context, view).let { popupMenu ->
                 popupMenu.menu.let { menu ->
@@ -81,20 +84,23 @@ class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel
                         }
                     }
                     // 导出
-                    menu.add(R.string.export).let { menuItem ->
-                        menuItem.setOnMenuItemClickListener {
-                            val appConfigGson = AppDatabaseManager.translateAppConfig(this.appDatabase)
-                            FileUtil.clipStringToClipboard(
-                                    GsonBuilder().setPrettyPrinting().create().toJson(appConfigGson),
-                                    context
-                            )
-                            return@setOnMenuItemClickListener true
+                    if (database is AppDatabase) {
+                        menu.add(R.string.export).let { menuItem ->
+                            menuItem.setOnMenuItemClickListener {
+                                val appConfigGson = AppDatabaseManager.translateAppConfig(database)
+                                FileUtil.clipStringToClipboard(
+                                        GsonBuilder().setPrettyPrinting().create().toJson(appConfigGson),
+                                        context
+                                )
+                                return@setOnMenuItemClickListener true
+                            }
                         }
                     }
                     // 删除数据库
                     menu.add(R.string.delete).let { menuItem ->
                         menuItem.setOnMenuItemClickListener {
-                            if (this.appDatabase.delete() && appListPageViewModel.removeItemFromTabPage(holder.adapterPosition))
+                            if (runBlocking { AppDatabaseManager.deleteDatabase(this@run.appDatabase) }
+                                    && appListPageViewModel.removeItemFromTabPage(holder.adapterPosition))
                                 onItemDismiss(holder.adapterPosition)
                             return@setOnMenuItemClickListener true
                         }

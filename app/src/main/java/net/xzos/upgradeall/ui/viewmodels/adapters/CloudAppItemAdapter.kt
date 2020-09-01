@@ -93,8 +93,8 @@ class CloudAppItemAdapter(
             versionCheckButton.visibility = View.VISIBLE
             setDownloadStatus(holder, true)
             val appConfigGson = CloudConfigGetter.getAppCloudConfig(appUuid)
-            this@run.appDatabase.extraData.let {
-                val localAppVersion = it?.cloudAppConfig?.info?.configVersion
+            this@run.appDatabase.let {
+                val localAppVersion = it.cloudConfig?.info?.configVersion
                 val cloudAppVersion = appConfigGson?.info?.configVersion
                 if (cloudAppVersion != null && localAppVersion != null && cloudAppVersion > localAppVersion)
                     versionCheckButton.setImageResource(R.drawable.ic_check_needupdate)

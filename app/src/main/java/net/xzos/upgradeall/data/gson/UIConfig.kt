@@ -4,8 +4,10 @@ import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.data.database.AppDatabase
-import net.xzos.upgradeall.core.data.database.AppDatabase.Companion.APP_TYPE_TAG
+import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
+import net.xzos.upgradeall.core.data.database.BaseAppDatabase
+import net.xzos.upgradeall.data.gson.UIConfig.Companion.APPLICATIONS_TYPE_TAG
+import net.xzos.upgradeall.data.gson.UIConfig.Companion.APP_TYPE_TAG
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
 import net.xzos.upgradeall.utils.FileUtil
 
@@ -75,7 +77,7 @@ class UIConfig private constructor(
         class ItemListBean(
                 @SerializedName("type") var type: String,
                 @SerializedName("name") override var name: String,
-                @SerializedName("app_id_list") var appIdList: MutableList<Long> = mutableListOf()
+                @SerializedName("app_id_list") var appIdList: MutableList<String> = mutableListOf()
         ) : BasicInfo(name)
     }
 
@@ -152,6 +154,8 @@ class UIConfig private constructor(
 
     companion object {
         private val context = MyApplication.context
+        const val APP_TYPE_TAG = "app"
+        const val APPLICATIONS_TYPE_TAG = "applications"
         val uiConfig: UIConfig = try {
             val uiConfig = Gson().fromJson(FileUtil.UI_CONFIG_FILE.readText(), UIConfig::class.java)
             if (uiConfig.checkData()) uiConfig else UIConfig()
@@ -161,8 +165,37 @@ class UIConfig private constructor(
     }
 }
 
-fun AppDatabase.toItemListBean(): UIConfig.CustomContainerTabListBean.ItemListBean {
+fun BaseAppDatabase.toItemListBean(): UIConfig.CustomContainerTabListBean.ItemListBean {
+    val type = when (this) {
+        is ApplicationsDatabase -> APPLICATIONS_TYPE_TAG
+        else -> APP_TYPE_TAG
+    }
+    val idString = "$type-${id}"
     return UIConfig.CustomContainerTabListBean.ItemListBean(
-            APP_TYPE_TAG, this.name, mutableListOf(this.id)
+            type, this.name, mutableListOf(idString)
     )
+}
+
+fun String.toDatabaseId(): Pair<String, Long> {
+    val l = this.split("-", limit = 2)
+    return Pair(l[0], l[1].toLong())
+}
+
+fun UIConfig.changeAppDatabaseId(databaseIdMap: Map<String, String>) {
+    val changeItemListId = fun(list: MutableList<String>, databaseIdMap: Map<String, String>): MutableList<String> {
+        for (i in list.indices) {
+            val id = list[i]
+            if (id in databaseIdMap.keys) {
+                list.removeAt(i)
+                list.add(i, databaseIdMap.getValue(id))
+            }
+        }
+        return list
+    }
+    for (item in userStarTab.itemList)
+        item.appIdList = changeItemListId(item.appIdList, databaseIdMap)
+    for (userTab in userTabList)
+        for (item in userTab.itemList)
+            item.appIdList = changeItemListId(item.appIdList, databaseIdMap)
+    save()
 }

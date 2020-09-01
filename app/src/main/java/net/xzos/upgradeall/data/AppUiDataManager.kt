@@ -9,7 +9,9 @@ import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.data.gson.UIConfig
+import net.xzos.upgradeall.data.gson.UIConfig.Companion.APPLICATIONS_TYPE_TAG
 import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
+import net.xzos.upgradeall.data.gson.toDatabaseId
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
@@ -89,13 +91,21 @@ object AppUiDataManager {
     private fun refreshAppListMap() {
         appListLiveDataMap[USER_STAR_PAGE_INDEX] = MutableLiveData(
                 uiConfig.userStarTab.itemList.mapNotNull {
-                    AppManager.getBaseApp(it.appIdList[0])
+                    getBaseApp(it.appIdList[0])
                 })
         val userTabList = uiConfig.userTabList
         for (tabPageIndex in 0 until userTabList.size) {
             appListLiveDataMap[tabPageIndex] = MutableLiveData(userTabList[tabPageIndex].itemList.mapNotNull {
-                AppManager.getBaseApp(it.appIdList[0])
+                getBaseApp(it.appIdList[0])
             })
+        }
+    }
+
+    private fun getBaseApp(databaseId: String): BaseApp? {
+        val (type, id) = databaseId.toDatabaseId()
+        return when (type) {
+            APPLICATIONS_TYPE_TAG -> AppManager.getApplications(id)
+            else -> AppManager.getSingleApp(id)
         }
     }
 
@@ -132,7 +142,7 @@ object AppUiDataManager {
 
     fun addItem(itemListBean: UIConfig.CustomContainerTabListBean.ItemListBean, tabPageIndex: Int): Boolean {
         return uiConfig.addItem(itemListBean, tabPageIndex).also {
-            AppManager.getBaseApp(itemListBean.appIdList[0])?.let {
+            getBaseApp(itemListBean.appIdList[0])?.let {
                 appListLiveDataMap[tabPageIndex]?.add(it)
             }
         }

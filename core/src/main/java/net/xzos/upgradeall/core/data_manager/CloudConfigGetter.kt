@@ -77,7 +77,7 @@ object CloudConfigGetter {
      * @see FAILED_GET_DATA 获取 HubConfig 失败
      * @see FAILED 添加数据库失败
      */
-    fun downloadCloudHubConfig(hubUuid: String?): Int {
+    suspend fun downloadCloudHubConfig(hubUuid: String?): Int {
         val cloudHubConfigGson = getHubCloudConfig(hubUuid)
         return if (cloudHubConfigGson != null) {
             if (HubDatabaseManager.addDatabase(cloudHubConfigGson))
@@ -90,47 +90,38 @@ object CloudConfigGetter {
      * 添加数据库成功, NULL 添加数据库失败
      * @return AppDatabase
      */
-    fun downloadCloudAppConfig(appUuid: String?): AppDatabase? {
+    suspend fun downloadCloudAppConfig(appUuid: String?): AppDatabase? {
         val appConfigGson = getAppCloudConfig(appUuid)
         if (appConfigGson != null) {
             // 添加数据库
             val appDatabase =
                     AppDatabaseManager.saveAppConfig(appConfigGson)
             if (appDatabase != null) {
-                Log.i(
-                        objectTag,
-                        TAG, "数据添加成功"
-                )
+                Log.i(objectTag, TAG, "数据添加成功")
                 return appDatabase
             } else
-                Log.e(
-                        objectTag,
-                        TAG, "什么？数据库添加失败！"
-                )
+                Log.e(objectTag, TAG, "什么？数据库添加失败！")
         } else
-            Log.e(
-                    objectTag,
-                    TAG, "获取基础配置文件失败"
-            )
+            Log.e(objectTag, TAG, "获取基础配置文件失败")
         return null
     }
 }
 
-fun AppDatabaseManager.renewAllAppConfigFromCloud() {
+suspend fun AppDatabaseManager.renewAllAppConfigFromCloud() {
     val appConfigList = CloudConfigGetter.appConfigList ?: return
     for (appConfig in appConfigList) {
         val appUuid = appConfig.uuid
-        val appDatabase = getDatabase(uuid = appUuid)
+        val appDatabase = getAppDatabase(uuid = appUuid)
         if (appDatabase != null) {
             val cloudAppVersion = appConfig.info.configVersion
-            val localAppVersion = appDatabase.extraData?.cloudAppConfig?.info?.configVersion ?: 0
+            val localAppVersion = appDatabase.cloudConfig?.info?.configVersion ?: 0
             if (cloudAppVersion > localAppVersion)
                 CloudConfigGetter.downloadCloudAppConfig(appUuid)
         }
     }
 }
 
-fun HubDatabaseManager.renewAllHubConfigFromCloud() {
+suspend fun HubDatabaseManager.renewAllHubConfigFromCloud() {
     val hubConfigList = CloudConfigGetter.hubConfigList ?: return
     for (hubConfig in hubConfigList) {
         val hubUuid = hubConfig.uuid

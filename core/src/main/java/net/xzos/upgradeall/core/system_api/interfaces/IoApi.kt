@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.system_api.interfaces
 
 import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
+import net.xzos.upgradeall.core.data.json.gson.PackageIdGson
 import net.xzos.upgradeall.core.server_manager.module.applications.AppInfo
 
 
@@ -14,7 +15,7 @@ interface IoApi {
     )
 
     // 查询软件信息
-    fun getAppVersionNumber(targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean?): String?
+    fun getAppVersionNumber(targetChecker: PackageIdGson?): String?
 
     // 获取软件信息列表
     fun getAppInfoList(type: String): List<AppInfo>?

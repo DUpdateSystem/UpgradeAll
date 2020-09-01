@@ -3,7 +3,7 @@ package net.xzos.upgradeall.android_api
 import android.content.pm.PackageManager
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.config.AppType
-import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
+import net.xzos.upgradeall.core.data.json.gson.PackageIdGson
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.server_manager.module.applications.AppInfo
@@ -44,6 +44,12 @@ object IoApi : IoApi {
         }
     }
 
+    // 查询软件信息
+    override fun getAppVersionNumber(targetChecker: PackageIdGson?): String? {
+        return VersioningUtils.getAppVersionNumber(targetChecker)
+
+    }
+
     override fun getAppInfoList(type: String): List<AppInfo>? {
         return if (type == AppType.androidApp) {
             val pm = context.packageManager
@@ -53,8 +59,4 @@ object IoApi : IoApi {
             }
         } else null
     }
-
-    // 查询软件信息
-    override fun getAppVersionNumber(targetChecker: AppConfigGson.AppConfigBean.TargetCheckerBean?) =
-            VersioningUtils.getAppVersionNumber(targetChecker)
 }

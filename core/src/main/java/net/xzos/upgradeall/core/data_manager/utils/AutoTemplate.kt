@@ -1,26 +1,22 @@
 package net.xzos.upgradeall.core.data_manager.utils
 
-import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.config.AppValue
 
 
-class AutoTemplate(
-    private val string: String?,
-    private val template: String
-) {
+class AutoTemplate(private val string: String?, private val template: String) {
 
     private val regex = AppValue.git_url_arg_regex
 
-    val args: List<Arg>
+    val args: Map<String, String>
         get() = if (string != null)
             matchArgs(string, template)
-        else listOf()
+        else mapOf()
 
-    fun synthesis(template: String, extraArgs: List<Arg> = listOf()): String {
+    fun synthesis(template: String, extraArgs: Map<String, String> = mapOf()): String {
         return fillArgs(template, args + extraArgs)
     }
 
-    private fun matchArgs(s: String, template: String): MutableList<Arg> {
+    private fun matchArgs(s: String, template: String): Map<String, String> {
         var cropString = s
         val valueList = mutableListOf<String>()
         val keywords = getArgsKeywords(template)
@@ -36,16 +32,11 @@ class AutoTemplate(
             }
         }
         valueList.add(cropString)
-        val args = mutableListOf<Arg>()
+        val args = mutableMapOf<String, String>()
         var i = 0
         for (key in keywords) {
             if (i < valueList.size) {
-                args.add(
-                    Arg(
-                        key.value,
-                        valueList[i]
-                    )
-                )
+                args[key.value] = valueList[i]
             } else break
             i++
         }
@@ -67,10 +58,10 @@ class AutoTemplate(
     }
 
     private fun getArgsKeywords(template: String) =
-        regex.findAll(template)
+            regex.findAll(template)
 
     companion object {
-        fun fillArgs(template: String, args: List<Arg>): String {
+        fun fillArgs(template: String, args: Map<String, String>): String {
             var returnString = template
             for (arg in args) {
                 returnString = returnString.replace(arg.key, arg.value)
@@ -78,9 +69,4 @@ class AutoTemplate(
             return returnString
         }
     }
-
-    data class Arg(
-        val key: String,
-        val value: String
-    )
 }

@@ -4,6 +4,10 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data_manager.utils.DataCache
@@ -20,7 +24,44 @@ object GrpcApi {
     private var updateServerUrl: String = AppConfig.update_server_url
     private var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
 
-    private const val shortDeadlineMs = 15L
+    private const val deadlineMs = 60L
+    private const val grcpWaitTime = 2000L
+
+    private val tmpAppIdMap = hashMapOf<String, HubData>()
+    private val tmpAppIdMutex = Mutex()
+    private val grcpWaitLockList = hashSetOf<String>()
+
+    private fun HashMap<String, HubData>.getHubData(hubUuid: String): HubData {
+        return runBlocking {
+            tmpAppIdMutex.withLock {
+                this@getHubData[hubUuid] ?: HubData().also {
+                    this@getHubData[hubUuid] = it
+                }
+            }
+        }
+    }
+
+    private fun HashMap<String, HubData>.get1(hubUuid: String): HubData? {
+        return runBlocking {
+            tmpAppIdMutex.withLock {
+                this@get1[hubUuid].also {
+                    this@get1.remove(hubUuid)
+                }
+            }
+        }
+    }
+
+    private fun HashSet<String>.getLock(hubUuid: String): Boolean = this@getLock.add(hubUuid)
+
+    private fun HashSet<String>.unLock(hubUuid: String): Boolean = this@unLock.remove(hubUuid)
+
+    private fun HashMap<AppId, Mutex>.removeAppId(appId: AppId) {
+        runBlocking {
+            tmpAppIdMutex.withLock {
+                this@removeAppId.remove(appId)
+            }
+        }
+    }
 
     internal fun setUpdateServerUrl(url: String?): Boolean {
         if (url.isNullOrBlank()) return false
@@ -36,74 +77,123 @@ object GrpcApi {
     suspend fun getCloudConfig(): String? {
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         return try {
-            blockingStub.withDeadlineAfter(shortDeadlineMs, TimeUnit.SECONDS).getCloudConfig(Empty.newBuilder().build()).s
+            blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.SECONDS).getCloudConfig(Empty.newBuilder().build()).s
         } catch (ignore: StatusRuntimeException) {
             null
         }
     }
 
-    suspend fun getAppStatus(hubUuid: String, appId: List<AppIdItem>): AppStatus? {
-        if (hubUuid in invalidHubUuidList) return null
-        if (DataCache.existsAppStatus(hubUuid, appId))
-            return DataCache.getAppStatus(hubUuid, appId)
-        val request = getRequestBuilder(hubUuid, appId)
-        var response: Response? = null
-        do {
-            if (response != null) {
-                val httpProxyResponse = ClientProxy.processRequest(response)
-                request.httpProxy = httpProxyResponse
-            }
-            response = callGetAppStatus(request.build())
-        } while (ClientProxy.needHttpProxy(response))
-        val appStatus = response?.appStatus ?: return null
-        if (!appStatus.validHubUuid) {
-            invalidHubUuidList.add(hubUuid)
-            return null
-        } else {
-            DataCache.cacheAppStatus(hubUuid, appId, appStatus)
+    suspend fun getAppRelease(hubUuid: String, appIdMap: Map<String, String>, auth: Map<String, String>): List<ReleaseListItem>? {
+        with(tmpAppIdMap.getHubData(hubUuid)) {
+            val appId = appIdMap.toAppId()
+            addAppId(appId)
+            setAuth(auth)
         }
-        return appStatus
+        callGetAppRelease1(hubUuid)
+        return if (hubUuid in invalidHubUuidList) null
+        else DataCache.getAppRelease(hubUuid, appIdMap)
+    }
+
+    private suspend fun callGetAppRelease1(hubUuid: String) {
+        if (grcpWaitLockList.getLock(hubUuid)) {
+            delay(grcpWaitTime)
+            val hubData = tmpAppIdMap.get1(hubUuid)
+            if (hubData != null)
+                callGetAppRelease0(hubUuid, hubData.auth, hubData.getAppIdList())
+            grcpWaitLockList.unLock(hubUuid)
+        }
+    }
+
+    private suspend fun callGetAppRelease0(
+            hubUuid: String, auth: Map<String, String>, appIdList: List<AppId>
+    ) {
+        if (hubUuid in invalidHubUuidList) return
+        val request = getReleaseRequestBuilder(hubUuid, appIdList.toList(), auth)
+        val response = callGetAppRelease(request.build()) ?: return
+        if (response.validHubUuid) invalidHubUuidList.add(hubUuid)
+        for (releasePackage in response.releasePackageListList) {
+            val releaseList = releasePackage.releaseListList
+            if (releaseList[0] == null) return
+            val appId = gRPCDictToMap(releasePackage.appId.appIdList)
+            DataCache.cacheAppStatus(hubUuid, appId, releaseList)
+        }
     }
 
 
-    private suspend fun callGetAppStatus(request: Request): Response? {
+    private suspend fun callGetAppRelease(request: ReleaseRequest): ReleaseResponse? {
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         return try {
-            blockingStub.withDeadlineAfter(shortDeadlineMs, TimeUnit.SECONDS).getAppStatus(request)
+            blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.SECONDS).getAppRelease(request)
         } catch (ignore: StatusRuntimeException) {
             if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
-                logDeadlineError("getAppStatus", request.hubUuid, request.appIdList.toString())
+                logDeadlineError("GetAppStatus", request.hubUuid, "hub_uuid: ${request.hubUuid}, num: ${request.appIdListCount}")
             }
             null
         }
     }
 
-    suspend fun getDownloadInfo(hubUuid: String, appId: List<AppIdItem>, assetIndex: List<Int>): DownloadInfo? {
+    suspend fun getDownloadInfo(hubUuid: String, appIdMap: Map<String, String>, auth: Map<String, String>, assetIndex: List<Int>): GetDownloadResponse? {
         if (hubUuid in invalidHubUuidList) return null
+        val appId = appIdMap.toAppId()
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
-        val request = DownloadAssetIndex.newBuilder().setAppIdInfo(
-                getRequestBuilder(hubUuid, appId)
-        ).apply {
-            for (i in assetIndex)
-                addAssetIndex(i)
-        }.build()
+        val request = GetDownloadRequest.newBuilder()
+                .setHubUuid(hubUuid)
+                .setAppId(appId).addAllAssetIndex(assetIndex)
+                .addAllAuth(auth.map {
+                    Dict.newBuilder().setKey(it.key).setValue(it.value).build()
+                })
+                .build()
         return try {
-            blockingStub.withDeadlineAfter(shortDeadlineMs, TimeUnit.SECONDS).getDownloadInfo(request)
+            blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.SECONDS).getDownloadInfo(request)
         } catch (ignore: StatusRuntimeException) {
             if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
-                logDeadlineError("getDownloadInfo", hubUuid, appId.toString())
+                logDeadlineError("GetDownloadInfo", hubUuid, appId.toString())
             }
             null
         }
     }
 
-    private fun getRequestBuilder(hubUuid: String, appId: List<AppIdItem>) =
-            Request.newBuilder().setHubUuid(hubUuid).addAllAppId(appId)
+    private fun getReleaseRequestBuilder(hubUuid: String, appIdList: List<AppId>, authMap: Map<String, String>) =
+            ReleaseRequest.newBuilder()
+                    .setHubUuid(hubUuid)
+                    .addAllAppIdList(appIdList)
+                    .addAllAuth(authMap.map {
+                        Dict.newBuilder().setKey(it.key).setValue(it.value).build()
+                    })
 
     private fun logDeadlineError(tag: String, hubUuid: String, appIdString: String) {
         Log.w(logObjectTag, TAG, """$tag: 请求超时，取消
                 hub_uuid: $hubUuid
                 app_info: $appIdString
             """.trimIndent())
+    }
+
+    private fun Map<String, String>.toAppId() = AppId.newBuilder().addAllAppId(mapTogRPCDictTo(this)).build()
+}
+
+private class HubData {
+    var auth: Map<String, String> = mapOf()
+        private set
+    private val appIdList: HashSet<AppId> = hashSetOf()
+    private val dataMutex = Mutex()
+
+    fun setAuth(auth: Map<String, String>) {
+        if (this.auth != auth) this.auth = auth
+    }
+
+    fun addAppId(appId: AppId) {
+        runBlocking {
+            dataMutex.withLock {
+                appIdList.add(appId)
+            }
+        }
+    }
+
+    fun getAppIdList(): List<AppId> {
+        return runBlocking {
+            dataMutex.withLock {
+                appIdList.toList()
+            }
+        }
     }
 }
