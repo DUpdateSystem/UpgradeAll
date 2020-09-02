@@ -27,8 +27,8 @@ class MyApplication : Application() {
             Once.markDone(OnceTag.DB_NAME_MIGRATION)
         }
 
-        Aria.init(this@MyApplication)
-        Aria.download(this@MyApplication).removeAllTask(false)  // TODO: 加入下载控制后移除
+        Aria.init(this)
+        Aria.download(this).removeAllTask(false)  // TODO: 加入下载控制后移除
         MiscellaneousUtils.initData()
     }
 
