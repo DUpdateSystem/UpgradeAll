@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.ui.fragment.app_list.page_view
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
@@ -101,9 +102,9 @@ internal class AppListPlaceholderFragment : AppListContainerFragment() {
                     .setItems(editModeList) { _, which ->
                         when (editModeList[which]) {
                             getString(R.string.add_single_app) ->
-                                AppSettingActivity.getInstance(requireContext(), null)
+                                startActivity(Intent(requireContext(), AppSettingActivity::class.java))
                             getString(R.string.add_applications) ->
-                                ApplicationsSettingActivity.getInstance(requireContext(), null)
+                                startActivity(Intent(requireContext(), ApplicationsSettingActivity::class.java))
                         }
                     }
                     .create()
