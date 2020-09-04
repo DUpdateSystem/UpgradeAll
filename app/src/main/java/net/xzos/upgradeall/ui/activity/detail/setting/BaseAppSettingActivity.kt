@@ -186,10 +186,10 @@ abstract class BaseAppSettingActivity : AppCompatActivity() {
         // 判断编辑模式
         if (database is ApplicationsDatabase) {
             // 已隐藏无关选项
+            editUrl.visibility = View.GONE
             imageView2.visibility = View.GONE
             textView2.visibility = View.GONE
             versionCheckSpinner.visibility = View.GONE
-            url_input_layout.visibility = View.GONE
             versioning_input_layout.visibility = View.GONE
             versionCheckButton.visibility = View.GONE
         }

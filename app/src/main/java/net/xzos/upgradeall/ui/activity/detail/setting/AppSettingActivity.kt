@@ -1,7 +1,5 @@
 package net.xzos.upgradeall.ui.activity.detail.setting
 
-import android.content.Context
-import android.content.Intent
 import kotlinx.android.synthetic.main.activity_app_setting.*
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
@@ -57,7 +55,6 @@ class AppSettingActivity : BaseAppSettingActivity() {
 
     override fun setSettingItem() {
         // 如果是设置修改请求，设置预置设置项
-        editUrl.setText(appDatabase.url)
         val packageIdGson = appDatabase.packageId
         val versionCheckerText = packageIdGson?.extraString
         versionCheckSpinner.setSelection(
@@ -73,7 +70,7 @@ class AppSettingActivity : BaseAppSettingActivity() {
     }
 
     companion object {
-        private var bundleDatabase: AppDatabase? = null
+        internal var bundleDatabase: AppDatabase? = null
             set(value) {
                 BaseAppSettingActivity.bundleDatabase = value
                 field = value
@@ -83,10 +80,5 @@ class AppSettingActivity : BaseAppSettingActivity() {
                 field = null
                 return app
             }
-
-        fun getInstance(context: Context, database: AppDatabase?) {
-            bundleDatabase = database ?: AppDatabase(0, "", "", "")
-            context.startActivity(Intent(context, AppSettingActivity::class.java))
-        }
     }
 }
