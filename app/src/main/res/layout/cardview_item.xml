@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="72dp"
         android:foreground="?android:attr/selectableItemBackground"
-        app:cardCornerRadius="10dp"
+        app:cardCornerRadius="0dp"
         app:cardElevation="0dp">
 
         <RelativeLayout

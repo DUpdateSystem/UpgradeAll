@@ -29,25 +29,16 @@
 
     </androidx.cardview.widget.CardView>
 
-    <androidx.cardview.widget.CardView
+    <ImageButton
         android:id="@+id/editLayout"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:foreground="?attr/selectableItemBackground"
-        app:cardCornerRadius="11dp"
-        app:cardElevation="0dp"
+        android:background="@drawable/bg_circle"
+        android:contentDescription="@string/edit_group"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_edit_small"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/editGroupImageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/edit_group"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_edit_small" />
-
-    </androidx.cardview.widget.CardView>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ProgressBar
         android:id="@+id/loadingBar"

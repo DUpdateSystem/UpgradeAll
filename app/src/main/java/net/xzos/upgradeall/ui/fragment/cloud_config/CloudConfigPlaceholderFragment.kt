@@ -5,10 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
@@ -40,7 +40,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
     }
 
     private fun renewConfig() {
-        GlobalScope.launch {
+        lifecycleScope.launch {
             if (PreferencesMap.auto_update_app_config)
                 AppDatabaseManager.renewAllAppConfigFromCloud()
             if (PreferencesMap.auto_update_hub_config)
@@ -65,7 +65,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
     }
 
     private fun renewCardView() {
-        GlobalScope.launch {
+        lifecycleScope.launch {
             withContext(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = true }
             withContext(Dispatchers.IO) {
                 CloudConfigGetter.renew()
@@ -88,6 +88,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
             }
             else -> null
         }?.plus(CloudConfigListItemView.newEmptyInstance())
+
         if (itemCardViewList != null) {
             withContext(Dispatchers.Main) {
                 if (this@CloudConfigPlaceholderFragment.isVisible) {

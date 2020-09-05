@@ -8,13 +8,12 @@
         android:dashGap="3dp">
 
     </stroke>
-    <size android:height="1.0dp" />
 
     <corners
-        android:bottomLeftRadius="200dp"
-        android:bottomRightRadius="200dp"
-        android:topLeftRadius="200dp"
-        android:topRightRadius="200dp" />
+        android:bottomLeftRadius="15dp"
+        android:bottomRightRadius="15dp"
+        android:topLeftRadius="15dp"
+        android:topRightRadius="15dp" />
 
 
 </shape>
