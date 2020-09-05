@@ -5,9 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.ViewTreeObserver
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -57,8 +59,18 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         UpdateService.startService(this)
         setToolbarByNavigation(null)
-        layout_appbar.toolbar.title = with(applicationInfo) {
-            getString(this.labelRes)
+        layout_appbar.toolbar.apply {
+            title = with(applicationInfo) {
+                getString(this.labelRes)
+            }
+            val param = layoutParams as FrameLayout.LayoutParams
+            param.topMargin += UiUtils.getStatusBarHeight()
+            layoutParams = param
+        }
+        addFloatingActionButton.apply {
+            val param = layoutParams as CoordinatorLayout.LayoutParams
+            param.bottomMargin += UiUtils.getNavBarHeight(contentResolver)
+            layoutParams = param
         }
         setNavController()
         setNavHeaderView()

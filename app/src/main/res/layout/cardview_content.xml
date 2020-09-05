@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginStart="16dp"
     android:layout_marginEnd="16dp">
 
@@ -26,7 +26,7 @@
         android:layout_marginStart="8dp"
         android:maxLines="1"
         android:text="@string/example_name"
-        android:textColor="@color/text_color"
+        android:textColor="?attr/colorControlNormal"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/appIconImageView"
@@ -47,47 +47,31 @@
         app:layout_constraintBottom_toBottomOf="@+id/nameTextView"
         app:layout_constraintStart_toEndOf="@+id/nameTextView" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout2"
+    <TextView
+        android:id="@+id/typeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:background="@drawable/secondary_rounded_corners"
-        android:backgroundTintMode="multiply"
+        android:maxLines="1"
+        android:paddingHorizontal="8dp"
+        android:text="@string/app"
+        android:textColor="@color/text_low_priority_color"
         app:layout_constraintBottom_toBottomOf="@+id/appIconImageView"
         app:layout_constraintStart_toStartOf="@+id/nameTextView"
-        app:layout_constraintTop_toBottomOf="@+id/nameTextView">
+        app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
 
-        <TextView
-            android:id="@+id/typeTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:maxLines="1"
-            android:text="@string/app"
-            android:textColor="@color/text_low_priority_color" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/descLinearLayout"
+    <TextView
+        android:id="@+id/hubNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
         android:background="@drawable/primary_rounded_corners"
-        app:layout_constraintStart_toEndOf="@+id/linearLayout2"
-        app:layout_constraintTop_toTopOf="@+id/linearLayout2">
-
-        <TextView
-            android:id="@+id/hubNameTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:maxLines="1"
-            android:text="@string/app_hub"
-            android:textColor="@color/text_low_priority_color" />
-    </LinearLayout>
+        android:maxLines="1"
+        android:paddingHorizontal="8dp"
+        android:text="@string/app_hub"
+        android:textColor="@color/text_low_priority_color"
+        app:layout_constraintStart_toEndOf="@+id/typeTextView"
+        app:layout_constraintTop_toTopOf="@+id/typeTextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,7 +2,6 @@ package net.xzos.upgradeall.ui.viewmodels.view.holder
 
 import android.view.View
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
@@ -14,7 +13,6 @@ class CardViewRecyclerViewHolder(val view: View) : RecyclerView.ViewHolder(view)
     val appIconImageView: ImageView = view.appIconImageView
     val nameTextView: TextView = view.nameTextView
     val versioningTextView: TextView = view.versioningTextView
-    val descLinearLayout: LinearLayout = view.descLinearLayout
     val typeTextView: TextView = view.typeTextView
     val hubNameTextView: TextView = view.hubNameTextView
     val versionCheckingBar: ProgressBar = view.statusChangingBar

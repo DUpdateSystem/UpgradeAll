@@ -29,6 +29,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             android:paddingHorizontal="16dp"
             android:paddingVertical="24dp">
 
@@ -52,16 +53,6 @@
                 android:textSize="24sp"
                 app:layout_constraintStart_toEndOf="@+id/imageView1"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_add_extra"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_add_extra"
-                app:layout_constraintBottom_toBottomOf="@id/textView1"
-                app:layout_constraintEnd_toEndOf="@id/hub_input_layout"
-                app:layout_constraintTop_toTopOf="@id/textView1" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/hub_input_layout"
@@ -133,18 +124,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_extras"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:overScrollMode="never"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@id/url_input_layout" />
-
             <ImageView
                 android:id="@+id/imageView2"
                 android:layout_width="24dp"
@@ -165,7 +144,7 @@
                 android:text="@string/versioning_check_setting"
                 android:textSize="24sp"
                 app:layout_constraintStart_toEndOf="@+id/imageView2"
-                app:layout_constraintTop_toBottomOf="@+id/rv_extras" />
+                app:layout_constraintTop_toBottomOf="@+id/url_input_layout" />
 
             <Spinner
                 android:id="@+id/versionCheckSpinner"
@@ -210,6 +189,7 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
+                android:layout_marginTop="4dp"
                 android:text="@string/update_item_setting_versionCheckButton"
                 app:layout_constraintBottom_toBottomOf="@+id/versioning_input_layout"
                 app:layout_constraintEnd_toEndOf="parent"
