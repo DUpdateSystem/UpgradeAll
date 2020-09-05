@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.activity.detail
 
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.NetworkOnMainThreadException
@@ -64,8 +63,7 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
 
         toolbar.setOnMenuItemClickListener(this)
         ib_edit.setOnClickListener {
-            AppSettingActivity.bundleDatabase = app.appDatabase
-            startActivity(Intent(this, AppSettingActivity::class.java))
+            AppSettingActivity.getInstance(this, app.appDatabase)
         }
         floatingActionButton.apply {
             setImageDrawable(IconPalette.fabDownloadIcon)
