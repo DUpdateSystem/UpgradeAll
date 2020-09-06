@@ -9,9 +9,8 @@ import moe.shizuku.api.ShizukuService
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.utils.FileUtil
-import net.xzos.upgradeall.utils.FileUtil.SHELL_SCRIPT_CACHE_FILE
 import net.xzos.upgradeall.utils.MiscellaneousUtils
+import net.xzos.upgradeall.utils.file.FileUtil.SHELL_SCRIPT_CACHE_FILE
 import java.io.File
 
 
@@ -45,7 +44,6 @@ object ApkShizukuInstaller {
     }
 
     private fun exec(command: String): Int? {
-        FileUtil.initDir(SHELL_SCRIPT_CACHE_FILE.parentFile!!)
         SHELL_SCRIPT_CACHE_FILE.writeText(command)
         return execInternal("sh", SHELL_SCRIPT_CACHE_FILE.path)
     }
@@ -61,7 +59,7 @@ object ApkShizukuInstaller {
             process.destroy()
         }
         return exitValue.also {
-            if(exitValue != 0)
+            if (exitValue != 0)
                 Log.e(logObjectTag, TAG, """
                     Error: $errorString
                 """.trimIndent())

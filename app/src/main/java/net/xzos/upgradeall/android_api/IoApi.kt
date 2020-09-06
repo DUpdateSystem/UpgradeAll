@@ -10,7 +10,7 @@ import net.xzos.upgradeall.core.server_manager.module.applications.AppInfo
 import net.xzos.upgradeall.core.system_api.interfaces.IoApi
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.VersioningUtils
-import net.xzos.upgradeall.utils.downloader.AriaDownloader
+import net.xzos.upgradeall.server.downloader.AriaDownloader
 
 
 /**

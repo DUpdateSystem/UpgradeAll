@@ -2,6 +2,7 @@ package net.xzos.upgradeall.core.server_manager
 
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
+import net.xzos.upgradeall.core.data.database.BaseAppDatabase
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
@@ -35,12 +36,12 @@ object AppManager : Informer {
         }
     }
 
-    fun getBaseApp(databaseId: Long): BaseApp? {
-        for (app in apps) {
-            if (databaseId == app.appDatabase.id)
-                return app
+    fun getBaseApp(database: BaseAppDatabase): BaseApp? {
+        return when (database) {
+            is AppDatabase -> getSingleApp(database.id)
+            is ApplicationsDatabase -> getApplications(database.id)
+            else -> null
         }
-        return null
     }
 
     fun getApplications(databaseId: Long? = null, hubUuid: String? = null): Applications? {

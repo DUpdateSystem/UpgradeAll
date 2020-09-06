@@ -11,11 +11,11 @@
         <item
             android:id="@+id/cloud_hub_list"
             android:icon="@drawable/ic_cloud_list"
-            android:title="@string/cloud_hub_list" />
+            android:title="@string/cloud_rules" />
     </group>
 
     <group android:checkableBehavior="single">
-        <item android:title="@string/others">
+        <item android:title="@string/other">
             <menu>
                 <item
                     android:id="@+id/app_help"

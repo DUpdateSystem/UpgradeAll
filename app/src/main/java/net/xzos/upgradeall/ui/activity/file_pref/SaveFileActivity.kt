@@ -6,8 +6,8 @@ import android.content.Intent
 import android.widget.Toast
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.utils.FileUtil
 import net.xzos.upgradeall.utils.ToastUtil
+import net.xzos.upgradeall.utils.file.FileUtil
 
 class SaveFileActivity : FilePrefActivity() {
 
@@ -43,7 +43,7 @@ class SaveFileActivity : FilePrefActivity() {
         private var MIME_TYPE: String? = null
         private var BYTE_ARRAY: ByteArray? = null
 
-        suspend fun newInstance(fileName: String, byteArray: ByteArray, mimeType: String?, context: Context): Boolean {
+        suspend fun newInstance(fileName: String, mimeType: String?, byteArray: ByteArray, context: Context): Boolean {
             isSuccess = false
             FILE_NAME = fileName
             MIME_TYPE = mimeType

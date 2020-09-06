@@ -83,7 +83,7 @@ object GrpcApi {
         }
     }
 
-    suspend fun getAppRelease(hubUuid: String, appIdMap: Map<String, String>, auth: Map<String, String>): List<ReleaseListItem>? {
+    suspend fun getAppRelease(hubUuid: String, appIdMap: Map<String, String?>, auth: Map<String, String?>): List<ReleaseListItem>? {
         with(tmpAppIdMap.getHubData(hubUuid)) {
             val appId = appIdMap.toAppId()
             addAppId(appId)
@@ -105,7 +105,7 @@ object GrpcApi {
     }
 
     private suspend fun callGetAppRelease0(
-            hubUuid: String, auth: Map<String, String>, appIdList: List<AppId>
+            hubUuid: String, auth: Map<String, String?>, appIdList: List<AppId>
     ) {
         if (hubUuid in invalidHubUuidList) return
         val request = getReleaseRequestBuilder(hubUuid, appIdList.toList(), auth)
@@ -132,7 +132,7 @@ object GrpcApi {
         }
     }
 
-    suspend fun getDownloadInfo(hubUuid: String, appIdMap: Map<String, String>, auth: Map<String, String>, assetIndex: List<Int>): GetDownloadResponse? {
+    suspend fun getDownloadInfo(hubUuid: String, appIdMap: Map<String, String?>, auth: Map<String, String?>, assetIndex: List<Int>): GetDownloadResponse? {
         if (hubUuid in invalidHubUuidList) return null
         val appId = appIdMap.toAppId()
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
@@ -153,7 +153,7 @@ object GrpcApi {
         }
     }
 
-    private fun getReleaseRequestBuilder(hubUuid: String, appIdList: List<AppId>, authMap: Map<String, String>) =
+    private fun getReleaseRequestBuilder(hubUuid: String, appIdList: List<AppId>, authMap: Map<String, String?>) =
             ReleaseRequest.newBuilder()
                     .setHubUuid(hubUuid)
                     .addAllAppIdList(appIdList)
@@ -168,16 +168,16 @@ object GrpcApi {
             """.trimIndent())
     }
 
-    private fun Map<String, String>.toAppId() = AppId.newBuilder().addAllAppId(mapTogRPCDictTo(this)).build()
+    private fun Map<String, String?>.toAppId() = AppId.newBuilder().addAllAppId(mapTogRPCDictTo(this)).build()
 }
 
 private class HubData {
-    var auth: Map<String, String> = mapOf()
+    var auth: Map<String, String?> = mapOf()
         private set
     private val appIdList: HashSet<AppId> = hashSetOf()
     private val dataMutex = Mutex()
 
-    fun setAuth(auth: Map<String, String>) {
+    fun setAuth(auth: Map<String, String?>) {
         if (this.auth != auth) this.auth = auth
     }
 

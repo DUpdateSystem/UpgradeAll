@@ -10,7 +10,7 @@ fun gRPCDictToMap(dictList: List<Dict>): Map<String, String> {
     return map
 }
 
-fun mapTogRPCDictTo(map: Map<String, String>): List<Dict> {
+fun mapTogRPCDictTo(map: Map<String, String?>): List<Dict> {
     return map.map {
         Dict.newBuilder().setKey(it.key).setValue(it.value).build()
     }

@@ -24,6 +24,7 @@ object ApkInstaller {
             "System" -> ApkSystemInstaller.install(file)
             "Root" -> ApkRootInstall.install(file)
             "Shizuku" -> ApkShizukuInstaller.install(file)
+            else -> ApkSystemInstaller.install(file)
         }
     }
 

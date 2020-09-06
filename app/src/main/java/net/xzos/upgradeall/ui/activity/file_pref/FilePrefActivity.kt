@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data_manager.utils.wait
-import net.xzos.upgradeall.utils.FileUtil
+import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.ToastUtil
 
 abstract class FilePrefActivity : AppCompatActivity() {
@@ -53,7 +53,7 @@ abstract class FilePrefActivity : AppCompatActivity() {
     ) {
         if (requestCode == PERMISSIONS_REQUEST_WRITE_CONTACTS) {
             if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                ToastUtil.makeText(R.string.file_permission_request, Toast.LENGTH_LONG)
+                ToastUtil.makeText(R.string.please_grant_storage_perm, Toast.LENGTH_LONG)
                 finish()
             } else {
                 checkPermissionAndSelectFile()

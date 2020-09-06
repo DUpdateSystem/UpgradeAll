@@ -8,7 +8,7 @@ class IgnoreApp private constructor(
         @SerializedName("package_id") private var packageIdS: String? = null,
         @SerializedName("version_number") var versionNumber: String? = null
 ) {
-    var packageId: Map<String, String>
+    var packageId: Map<String, String?>
         get() {
             val s = packageIdS ?: return mapOf()
             val json = JSONObject(s)
@@ -27,7 +27,7 @@ class IgnoreApp private constructor(
         }
 
     companion object {
-        fun getInstance(packageId: Map<String, String>, versionNumber: String?) = IgnoreApp().also {
+        fun getInstance(packageId: Map<String, String?>, versionNumber: String?) = IgnoreApp().also {
             it.packageId = packageId
             it.versionNumber = versionNumber
         }

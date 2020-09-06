@@ -43,7 +43,7 @@ class ApplicationsItemAdapter(
                     PopupMenu(context, view).let { popupMenu ->
                         popupMenu.menu.let { menu ->
                             // 保存
-                            menu.add(R.string.save_to_database).let { menuItem ->
+                            menu.add(R.string.save_as_app).let { menuItem ->
                                 menuItem.setOnMenuItemClickListener {
                                     if (runBlocking { AppDatabaseManager.insertAppDatabase(this@with.appDatabase) } != 0L)
                                         MiscellaneousUtils.showToast(R.string.save_successfully, Toast.LENGTH_SHORT)

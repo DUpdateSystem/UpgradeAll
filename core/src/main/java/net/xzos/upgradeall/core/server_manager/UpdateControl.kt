@@ -97,9 +97,9 @@ open class UpdateControl internal constructor(
     // 刷新所有软件并等待，返回需要更新的软件数量
     open suspend fun renewAll() {
         refreshMutex.withLock {
-            withContext(coroutineDispatcher) {
-                // 尝试刷新全部软件
-                coroutineScope {
+            coroutineScope {
+                withContext(coroutineDispatcher) {
+                    // 尝试刷新全部软件
                     for (app in getAllApp()) {
                         launch {
                             app.getUpdateStatus()

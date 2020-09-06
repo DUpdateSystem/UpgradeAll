@@ -12,11 +12,11 @@ import org.json.JSONObject
 
 class Converters {
     @TypeConverter
-    fun fromIgnoreAppList(ignoreAppList: List<IgnoreApp>): String? {
-        val list = ignoreAppList.filter {
+    fun fromIgnoreAppList(ignoreAppList: List<IgnoreApp>?): String? {
+        val list = ignoreAppList?.filter {
             it.packageId.isNotEmpty() && it.versionNumber != null
         }
-        return if (list.isEmpty())
+        return if (list.isNullOrEmpty())
             null
         else
             Gson().toJson(list)
@@ -83,8 +83,8 @@ class Converters {
     }
 
     @TypeConverter
-    fun listMapToString(listMap: List<Map<String, String>>): String? {
-        if (listMap.isEmpty()) return null
+    fun fromListMapToString(listMap: List<Map<String, String?>>?): String? {
+        if (listMap.isNullOrEmpty()) return null
         val jsonArray = JSONArray()
         for (map in listMap) {
             val jsonObject = JSONObject()
@@ -97,8 +97,8 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromMap(dict: Map<String, String?>): String? {
-        if (dict.isEmpty()) return null
+    fun fromMapToString(dict: Map<String, String?>?): String? {
+        if (dict.isNullOrEmpty()) return null
         val jsonObject = JSONObject()
         for ((k, v) in dict.entries) {
             jsonObject.put(k, v)

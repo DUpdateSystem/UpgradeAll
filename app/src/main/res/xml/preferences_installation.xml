@@ -15,7 +15,7 @@
     <SwitchPreferenceCompat
         android:defaultValue="true"
         app:key="auto_install"
-        app:title="@string/auto_install_downloaded" />
+        app:title="@string/auto_install" />
 
     <SwitchPreferenceCompat
         android:defaultValue="false"

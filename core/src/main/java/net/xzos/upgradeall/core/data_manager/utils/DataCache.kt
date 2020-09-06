@@ -12,7 +12,7 @@ object DataCache {
 
     private var dataExpirationTime = AppValue.data_expiration_time
 
-    private fun getCacheKey(hubUuid: String, appId: Map<String, String>): String? {
+    private fun getCacheKey(hubUuid: String, appId: Map<String, String?>): String? {
         var key = hubUuid
         for (i in appId.values) {
             key += "+$i"
@@ -53,7 +53,7 @@ object DataCache {
 
     fun getAppRelease(
             hubUuid: String,
-            appId: Map<String, String>
+            appId: Map<String, String?>
     ): List<ReleaseListItem>? {
         val key = getCacheKey(hubUuid, appId) ?: return null
         cache.appStatusDict[key]?.also {

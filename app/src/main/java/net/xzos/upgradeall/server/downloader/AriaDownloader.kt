@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.utils.downloader
+package net.xzos.upgradeall.server.downloader
 
 import android.annotation.SuppressLint
 import android.net.Uri
@@ -17,10 +17,10 @@ import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
-import net.xzos.upgradeall.utils.FileUtil
 import net.xzos.upgradeall.utils.MiscellaneousUtils
-import net.xzos.upgradeall.utils.downloader.AriaRegister.getCancelNotifyKey
-import net.xzos.upgradeall.utils.downloader.AriaRegister.getCompleteNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getCancelNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getCompleteNotifyKey
+import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.install.ApkInstaller
 import net.xzos.upgradeall.utils.install.autoAddApkExtension
 import net.xzos.upgradeall.utils.install.isApkFile
@@ -122,8 +122,8 @@ class AriaDownloader(private val url: String) {
         val mimeType = FileUtil.getMimeTypeByUri(context, Uri.fromFile(this.downloadFile))
         GlobalScope.launch {
             SaveFileActivity.newInstance(
-                    this@AriaDownloader.downloadFile!!.name, this@AriaDownloader.downloadFile!!.readBytes(),
-                    mimeType, context
+                    this@AriaDownloader.downloadFile!!.name, mimeType,
+                    this@AriaDownloader.downloadFile!!.readBytes(), context
             )
         }
     }
@@ -218,9 +218,7 @@ class AriaDownloader(private val url: String) {
         private val context = MyApplication.context
         private val mutex = Mutex()
 
-        private val downloadDir = FileUtil.DOWNLOAD_CACHE_DIR.also {
-            FileUtil.initDir(it)
-        }
+        private val downloadDir = FileUtil.DOWNLOAD_CACHE_DIR
 
         private val downloaderMap: HashMap<String, AriaDownloader> = hashMapOf()
         internal fun getDownloader(url: String): AriaDownloader? = downloaderMap[url]

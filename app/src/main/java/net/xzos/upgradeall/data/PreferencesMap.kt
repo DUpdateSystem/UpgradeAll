@@ -9,8 +9,8 @@ import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
-import net.xzos.upgradeall.utils.FileUtil
 import net.xzos.upgradeall.utils.MiscellaneousUtils.showToast
+import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.install.ApkShizukuInstaller
 
 object PreferencesMap {
@@ -69,6 +69,16 @@ object PreferencesMap {
     private var download_max_task_num: Int
         get() = prefs.getInt(DOWNLOAD_MAX_TASK_NUM_KEY, 8)
         set(value) = prefs.edit().putInt(DOWNLOAD_MAX_TASK_NUM_KEY, value).apply()
+
+    // WebDAV
+    val webdav_url
+        get() = prefs.getString("webdav_url", null)
+    val webdav_path
+        get() = prefs.getString("webdav_path", null)
+    val webdav_username
+        get() = prefs.getString("webdav_username", null)
+    val webdav_password
+        get() = prefs.getString("webdav_password", null)
 
     fun initByActivity(activity: Activity) {
         if (install_apk_api == "Shizuku") {

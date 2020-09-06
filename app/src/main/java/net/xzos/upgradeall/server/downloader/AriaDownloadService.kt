@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.utils.downloader
+package net.xzos.upgradeall.server.downloader
 
 import android.app.Service
 import android.content.Context
@@ -7,8 +7,8 @@ import android.os.IBinder
 import com.arialyy.aria.core.task.DownloadTask
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.oberver.ObserverFun
-import net.xzos.upgradeall.utils.downloader.AriaRegister.getCancelNotifyKey
-import net.xzos.upgradeall.utils.downloader.AriaRegister.getCompleteNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getCancelNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getCompleteNotifyKey
 
 class AriaDownloadService : Service() {
 

@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.utils
+package net.xzos.upgradeall.utils.file
 
 import android.Manifest
 import android.app.Activity
@@ -19,6 +19,8 @@ import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.utils.MiscellaneousUtils
+import net.xzos.upgradeall.utils.ToastUtil
 import java.io.*
 import java.util.*
 
@@ -29,17 +31,18 @@ object FileUtil {
     private val logObjectTag = ObjectTag("Core", TAG)
     private val context = MyApplication.context
 
-    internal val UI_CONFIG_FILE = File(context.filesDir, "ui.json")
-    private val IMAGE_DIR = File(context.filesDir, "images")
+    val PREFERENCES_FILE by lazy { File(context.filesDir.parentFile, "shared_prefs/${context.packageName}_preferences.xml") }
+    internal val UI_CONFIG_FILE by lazy { File(context.filesDir, "ui.json") }
+    internal val IMAGE_DIR by lazy { File(context.filesDir, "images").getExistsFile(true) }
     internal const val UPDATE_TAB_IMAGE_NAME = "update_tab.png"
     internal const val USER_STAR_TAB_IMAGE_NAME = "user_star_tab.png"
     internal const val ALL_APP_TAB_IMAGE_NAME = "all_app_tab.png"
-    internal val GROUP_IMAGE_DIR = File(IMAGE_DIR, "groups")
-    internal val NAV_IMAGE_FILE = File(IMAGE_DIR, "nav_image.png")
+    internal val GROUP_IMAGE_DIR by lazy { File(IMAGE_DIR, "groups").getExistsFile(true) }
+    internal val NAV_IMAGE_FILE by lazy { File(IMAGE_DIR, "nav_image.png").getExistsFile() }
     private val CACHE_DIR = context.externalCacheDir!!
-    internal val IMAGE_CACHE_FILE = File(CACHE_DIR, "_cache_image.png")
-    internal val DOWNLOAD_CACHE_DIR = File(CACHE_DIR, "Download")
-    internal val SHELL_SCRIPT_CACHE_FILE = File(CACHE_DIR, "run.sh")
+    internal val IMAGE_CACHE_FILE by lazy { File(CACHE_DIR, "_cache_image.png").getExistsFile() }
+    internal val DOWNLOAD_CACHE_DIR by lazy { File(CACHE_DIR, "Download").getExistsFile(true) }
+    internal val SHELL_SCRIPT_CACHE_FILE by lazy { File(CACHE_DIR, "run.sh").getExistsFile() }
     internal val DOWNLOAD_DOCUMENT_FILE: DocumentFile?
         get() = if (PreferencesMap.auto_dump_download_file)
             getDocumentFile(context, Uri.parse(PreferencesMap.user_download_path))
@@ -47,20 +50,14 @@ object FileUtil {
 
 
     init {
-        clearCache()
-        initDir(CACHE_DIR)
+        // clear cache
+        CACHE_DIR.deleteRecursively()
     }
-
-    fun initDir(dir_file: File) {
-        if (!dir_file.exists()) dir_file.mkdirs()
-    }
-
-    private fun clearCache() = CACHE_DIR.deleteRecursively()
 
     fun requestFilePermission(activity: Activity, PERMISSIONS_REQUEST_READ_CONTACTS: Int): Boolean {
         return MiscellaneousUtils.requestPermission(
                 activity, Manifest.permission.READ_EXTERNAL_STORAGE,
-                PERMISSIONS_REQUEST_READ_CONTACTS, R.string.file_permission_request)
+                PERMISSIONS_REQUEST_READ_CONTACTS, R.string.please_grant_storage_perm)
     }
 
     fun getUserGroupIcon(iconFileName: String?): File? =
@@ -237,9 +234,10 @@ object FileUtil {
     }
 
     fun getPicFormGallery(activity: Activity, REQUEST_CODE_LOAD_IMAGE: Int) {
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
+        val intent = Intent().apply {
+            type = "image/*"
+            action = Intent.ACTION_GET_CONTENT
+        }
         activity.startActivityForResult(intent, REQUEST_CODE_LOAD_IMAGE)
     }
 
@@ -285,4 +283,11 @@ fun File.getMimeType(): String {
     val mime = MimeTypeMap.getSingleton()
     val cR = context.contentResolver
     return mime.getExtensionFromMimeType(cR.getType(Uri.fromFile(this))) ?: "*/*"
+}
+
+fun File.getExistsFile(isDir: Boolean = false): File {
+    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+    if (isDir) mkdirs()
+    else parentFile.mkdirs()
+    return this
 }
