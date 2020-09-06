@@ -11,7 +11,7 @@ class AppDatabase(
         var url: String,
         var packageId: PackageIdGson? = null,
         var cloudConfig: AppConfigGson? = null,
-        auth: Map<String, String> = mapOf(),
-        extraId: Map<String, String> = mapOf(),
+        auth: Map<String, String?> = mapOf(),
+        extraId: Map<String, String?> = mapOf(),
         var ignoreVersionNumber: String? = null
 ) : BaseAppDatabase(id, name, hubUuid, auth, extraId)

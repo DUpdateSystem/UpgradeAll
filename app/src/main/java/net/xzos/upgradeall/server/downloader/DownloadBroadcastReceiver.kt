@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.utils.downloader
+package net.xzos.upgradeall.server.downloader
 
 import android.content.BroadcastReceiver
 import android.content.Context

@@ -15,9 +15,9 @@ import net.xzos.upgradeall.core.system_api.api.IoApi
 class App(override val appDatabase: AppDatabase, appId: Map<String, String>? = null) : BaseApp {
     override var statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {}
     val hubDatabase = HubDatabaseManager.getDatabase(appDatabase.hubUuid)
-    var appId: Map<String, String>? = appId ?: getAppIdByUrl()
+    var appId: Map<String, String?>? = appId ?: getAppIdByUrl()
 
-    private fun getAppIdByUrl(): Map<String, String>? {
+    private fun getAppIdByUrl(): Map<String, String?>? {
         if (hubDatabase != null) {
             if (hubDatabase.hubConfig.apiKeywords.isEmpty())
                 return mapOf()

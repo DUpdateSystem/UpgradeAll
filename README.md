@@ -4,7 +4,7 @@ UpgradeAll is a Free and Open Source Software that simplifies the process of fin
 
 # Download
 
-* [GitHub Release](https://github.com/rumboalla/apkupdater/releases/)
+* [GitHub Release](https://github.com/DUpdateSystem/UpgradeAll/releases/)
 
 * [CoolApk](https://www.coolapk.com/apk/net.xzos.upgradeall)
 
@@ -20,7 +20,7 @@ UpgradeAll is a Free and Open Source Software that simplifies the process of fin
 
 * Q: Where's the help document?
 
-* A: Currently we only have [Chinese documents](https://xzos.net/upgradeall-readme/).
+* A: Currently we only have [Chinese documents](https://upgradeall.now.sh/).
 
 # Features
 

@@ -31,19 +31,19 @@ object HubDatabaseManager {
             uuid
     ) != null
 
-    internal suspend fun insertDatabase(database: HubDatabase): Boolean {
+    suspend fun insertDatabase(database: HubDatabase): Boolean {
         return (DatabaseApi?.insertHubDatabase(database) != null).also {
             if (it) hubDatabases.add(database)
         }
     }
 
-    internal suspend fun updateDatabase(database: HubDatabase): Boolean {
+    suspend fun updateDatabase(database: HubDatabase): Boolean {
         return (DatabaseApi?.updateHubDatabase(database) != true).also {
             if (it) hubDatabases.add(database)
         }
     }
 
-    internal suspend fun deleteDatabase(database: HubDatabase): Boolean {
+    suspend fun deleteDatabase(database: HubDatabase): Boolean {
         return DatabaseApi?.deleteHubDatabase(database) ?: false
     }
 

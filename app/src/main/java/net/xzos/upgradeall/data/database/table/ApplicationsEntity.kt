@@ -10,11 +10,10 @@ class ApplicationsEntity(
         id: Long,
         name: String,
         hubUuid: String,
-        auth: Map<String, String>,
-        extraId: Map<String, String>,
+        auth: Map<String, String?>,
+        extraId: Map<String, String?>,
         @ColumnInfo(name = "invalid_package_list")
-        var invalidPackageList: MutableList<Map<String, String>>?,
+        var invalidPackageList: MutableList<Map<String, String?>>?,
         @ColumnInfo(name = "ignore_app_list")
         var ignoreApps: MutableList<IgnoreApp>?
 ) : BaseAppEntity(id, name, hubUuid, auth, extraId)
-

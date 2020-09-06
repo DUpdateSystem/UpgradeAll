@@ -9,9 +9,8 @@ import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.data.gson.UIConfig
-import net.xzos.upgradeall.data.gson.UIConfig.Companion.APPLICATIONS_TYPE_TAG
 import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
-import net.xzos.upgradeall.data.gson.toDatabaseId
+import net.xzos.upgradeall.data.gson.toDatabase
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
@@ -40,8 +39,7 @@ object AppUiDataManager {
         val updateObserver: ObserverFun<Unit> = fun(_: Unit) {
             refreshNeedUpdateAppList()
         }
-        UpdateManager.observeForever(UpdateManager.UPDATE_RUNNING, updateObserver)
-        UpdateManager.observeForever(UpdateManager.UPDATE_FINISHED, updateObserver)
+        UpdateManager.observeForever(UpdateManager.UPDATE_STATUS_CHANGED, updateObserver)
         // 初始化绑定 Map
         appListLiveDataMap[ALL_APP_PAGE_INDEX] = allAppListLiveData
         appListLiveDataMap[UPDATE_PAGE_INDEX] = needUpdateAppListLiveData
@@ -102,11 +100,8 @@ object AppUiDataManager {
     }
 
     private fun getBaseApp(databaseId: String): BaseApp? {
-        val (type, id) = databaseId.toDatabaseId()
-        return when (type) {
-            APPLICATIONS_TYPE_TAG -> AppManager.getApplications(id)
-            else -> AppManager.getSingleApp(id)
-        }
+        val database = databaseId.toDatabase() ?: return null
+        return AppManager.getBaseApp(database)
     }
 
     fun getAppListLivaData(tabPageIndex: Int): MutableLiveData<List<BaseApp>> {

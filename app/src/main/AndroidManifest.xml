@@ -29,7 +29,7 @@
             android:enabled="true"
             android:exported="false" />
         <service
-            android:name=".utils.downloader.AriaDownloadService"
+            android:name=".server.downloader.AriaDownloadService"
             android:enabled="true"
             android:exported="false" />
 
@@ -60,7 +60,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".utils.downloader.DownloadBroadcastReceiver"
+            android:name=".server.downloader.DownloadBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE">
@@ -92,11 +92,12 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.activity.LogActivity"
-            android:label="@string/title_activity_log" />
+            android:label="@string/log" />
         <activity
             android:name=".ui.activity.SettingsActivity"
             android:label="@string/setting" />
         <activity android:name=".ui.activity.file_pref.UCropActivity" />
+        <activity android:name=".ui.activity.file_pref.SelectFileActivity" />
         <activity android:name=".ui.activity.file_pref.SelectDirActivity" />
         <activity android:name=".ui.activity.file_pref.SaveFileActivity" />
         <activity

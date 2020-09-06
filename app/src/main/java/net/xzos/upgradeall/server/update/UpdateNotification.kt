@@ -40,19 +40,19 @@ object UpdateNotification {
 
     init {
         createNotificationChannel()
-        UpdateManager.observeForever<Unit>(UpdateManager.UPDATE_RUNNING, fun(_) {
-            updateNotify()
-        })
-
-        UpdateManager.observeForever<Unit>(UpdateManager.UPDATE_FINISHED, fun(_) {
-            finishedNotify()
+        UpdateManager.observeForever<Unit>(UpdateManager.UPDATE_STATUS_CHANGED, fun(_) {
+            if (UpdateManager.isRunning)
+                updateNotify()
         })
     }
 
     private fun updateNotify() {
         val allAppsNum = UpdateManager.getAppNum()
         val finishedAppNum = UpdateManager.finishedUpdateAppNum
-        updateStatusNotification(allAppsNum, finishedAppNum)
+        if (allAppsNum > finishedAppNum)
+            updateStatusNotification(allAppsNum, finishedAppNum)
+        else
+            finishedNotify()
     }
 
     private fun finishedNotify() {

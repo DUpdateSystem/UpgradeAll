@@ -12,8 +12,8 @@ class AppEntity(
         id: Long,
         name: String,
         hubUuid: String,
-        auth: Map<String, String>,
-        extraId: Map<String, String>,
+        auth: Map<String, String?>,
+        extraId: Map<String, String?>,
         var url: String,
         @ColumnInfo(name = "package_id")
         var packageId: PackageIdGson? = null,
