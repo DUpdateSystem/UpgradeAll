@@ -42,9 +42,9 @@ object DataCache {
         cache.httpResponseDict[url] = Pair(response, Calendar.getInstance())
     }
 
-    fun existsAppStatus(
+    fun existsAppRelease(
             hubUuid: String,
-            appId: Map<String, String>
+            appId: Map<String, String?>
     ): Boolean {
         val key = getCacheKey(hubUuid, appId)
         val releaseInfoDict = cache.appStatusDict

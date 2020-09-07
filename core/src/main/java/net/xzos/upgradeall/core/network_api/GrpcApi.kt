@@ -11,6 +11,7 @@ import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data_manager.utils.DataCache
+import net.xzos.upgradeall.core.data_manager.utils.wait
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.route.*
 import java.util.concurrent.TimeUnit
@@ -27,13 +28,13 @@ object GrpcApi {
     private const val deadlineMs = 60L
     private const val grcpWaitTime = 2000L
 
-    private val tmpAppIdMap = hashMapOf<String, HubData>()
-    private val tmpAppIdMutex = Mutex()
-    private val grcpWaitLockList = hashSetOf<String>()
+    private val tmpAppReleaseRequestMap = hashMapOf<String, HubData>()
+    private val tmpAppReleaseRequestMapMutex = Mutex()
+    private val grcpWaitLockList = hashMapOf<String, Mutex>()
 
     private fun HashMap<String, HubData>.getHubData(hubUuid: String): HubData {
         return runBlocking {
-            tmpAppIdMutex.withLock {
+            tmpAppReleaseRequestMapMutex.withLock {
                 this@getHubData[hubUuid] ?: HubData().also {
                     this@getHubData[hubUuid] = it
                 }
@@ -43,7 +44,7 @@ object GrpcApi {
 
     private fun HashMap<String, HubData>.get1(hubUuid: String): HubData? {
         return runBlocking {
-            tmpAppIdMutex.withLock {
+            tmpAppReleaseRequestMapMutex.withLock {
                 this@get1[hubUuid].also {
                     this@get1.remove(hubUuid)
                 }
@@ -51,13 +52,28 @@ object GrpcApi {
         }
     }
 
-    private fun HashSet<String>.getLock(hubUuid: String): Boolean = this@getLock.add(hubUuid)
+    private fun HashMap<String, Mutex>.setLock(hubUuid: String): Boolean {
+        return if (this.containsKey(hubUuid))
+            false
+        else {
+            this[hubUuid] = Mutex(true)
+            true
+        }
+    }
 
-    private fun HashSet<String>.unLock(hubUuid: String): Boolean = this@unLock.remove(hubUuid)
+    private fun HashMap<String, Mutex>.getLock(hubUuid: String): Mutex? {
+        return this[hubUuid]
+    }
+
+    private fun HashMap<String, Mutex>.unLock(hubUuid: String): Boolean {
+        val mutex = this.remove(hubUuid) ?: return false
+        if (mutex.isLocked) mutex.unlock()
+        return true
+    }
 
     private fun HashMap<AppId, Mutex>.removeAppId(appId: AppId) {
         runBlocking {
-            tmpAppIdMutex.withLock {
+            tmpAppReleaseRequestMapMutex.withLock {
                 this@removeAppId.remove(appId)
             }
         }
@@ -84,23 +100,26 @@ object GrpcApi {
     }
 
     suspend fun getAppRelease(hubUuid: String, appIdMap: Map<String, String?>, auth: Map<String, String?>): List<ReleaseListItem>? {
-        with(tmpAppIdMap.getHubData(hubUuid)) {
+        with(tmpAppReleaseRequestMap.getHubData(hubUuid)) {
             val appId = appIdMap.toAppId()
             addAppId(appId)
             setAuth(auth)
         }
-        callGetAppRelease1(hubUuid)
+        if (!DataCache.existsAppRelease(hubUuid, appIdMap))
+            callGetAppRelease1(hubUuid)
         return if (hubUuid in invalidHubUuidList) null
         else DataCache.getAppRelease(hubUuid, appIdMap)
     }
 
     private suspend fun callGetAppRelease1(hubUuid: String) {
-        if (grcpWaitLockList.getLock(hubUuid)) {
+        if (grcpWaitLockList.setLock(hubUuid)) {
             delay(grcpWaitTime)
-            val hubData = tmpAppIdMap.get1(hubUuid)
+            val hubData = tmpAppReleaseRequestMap.get1(hubUuid)
             if (hubData != null)
                 callGetAppRelease0(hubUuid, hubData.auth, hubData.getAppIdList())
             grcpWaitLockList.unLock(hubUuid)
+        } else {
+            grcpWaitLockList.getLock(hubUuid)?.wait()
         }
     }
 
@@ -110,11 +129,11 @@ object GrpcApi {
         if (hubUuid in invalidHubUuidList) return
         val request = getReleaseRequestBuilder(hubUuid, appIdList.toList(), auth)
         val response = callGetAppRelease(request.build()) ?: return
-        if (response.validHubUuid) invalidHubUuidList.add(hubUuid)
+        if (!response.validHubUuid) invalidHubUuidList.add(hubUuid)
         for (releasePackage in response.releasePackageListList) {
             val releaseList = releasePackage.releaseListList
             if (releaseList[0] == null) return
-            val appId = gRPCDictToMap(releasePackage.appId.appIdList)
+            val appId = gRPCDictToMap(releasePackage.appIdList)
             DataCache.cacheAppStatus(hubUuid, appId, releaseList)
         }
     }
@@ -132,19 +151,18 @@ object GrpcApi {
         }
     }
 
-    suspend fun getDownloadInfo(hubUuid: String, appIdMap: Map<String, String?>, auth: Map<String, String?>, assetIndex: List<Int>): GetDownloadResponse? {
+    suspend fun getDownloadInfo(hubUuid: String, appId: Map<String, String?>, auth: Map<String, String?>, assetIndex: List<Int>): GetDownloadResponse? {
         if (hubUuid in invalidHubUuidList) return null
-        val appId = appIdMap.toAppId()
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         val request = GetDownloadRequest.newBuilder()
                 .setHubUuid(hubUuid)
-                .setAppId(appId).addAllAssetIndex(assetIndex)
+                .addAllAppId(mapTogRPCDictTo(appId)).addAllAssetIndex(assetIndex)
                 .addAllAuth(auth.map {
-                    Dict.newBuilder().setKey(it.key).setValue(it.value).build()
+                    Dict.newBuilder().setK(it.key).setV(it.value).build()
                 })
                 .build()
         return try {
-            blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.SECONDS).getDownloadInfo(request)
+            blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.SECONDS).devGetDownloadInfo(request)
         } catch (ignore: StatusRuntimeException) {
             if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
                 logDeadlineError("GetDownloadInfo", hubUuid, appId.toString())
@@ -158,7 +176,7 @@ object GrpcApi {
                     .setHubUuid(hubUuid)
                     .addAllAppIdList(appIdList)
                     .addAllAuth(authMap.map {
-                        Dict.newBuilder().setKey(it.key).setValue(it.value).build()
+                        Dict.newBuilder().setK(it.key).setV(it.value).build()
                     })
 
     private fun logDeadlineError(tag: String, hubUuid: String, appIdString: String) {

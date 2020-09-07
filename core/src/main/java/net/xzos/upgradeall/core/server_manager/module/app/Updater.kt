@@ -71,21 +71,27 @@ class Updater(private val app: App) {
                 val downloadResponse = if (hubUuid != null && appId != null)
                     GrpcApi.getDownloadInfo(hubUuid, appId, app.appDatabase.auth, fileIndex.toList())
                 else null
-                val list = downloadResponse?.listList ?: return@withContext
-                for (download in list) {
-                    val url = (if (!download.url.isNullOrBlank())
-                        download?.url
-                    else asset.downloadUrl) ?: return@withContext
-                    val headers = hashMapOf<String, String>().also {
-                        for (dict in download?.requestHeaderList ?: listOf())
-                            it[dict.key] = dict.value
+                val list = downloadResponse?.listList
+                if (list != null)
+                    for (download in list) {
+                        val url = (if (!download.url.isNullOrBlank())
+                            download?.url
+                        else asset.downloadUrl) ?: return@withContext
+                        val headers = hashMapOf<String, String>().also {
+                            for (dict in download?.requestHeaderList ?: listOf())
+                                it[dict.k] = dict.v
+                        }
+                        IoApi.downloadFile(
+                                asset.fileName, url,
+                                headers = headers,
+                                externalDownloader = externalDownloader
+                        )
                     }
+                else
                     IoApi.downloadFile(
-                            asset.fileName, url,
-                            headers = headers,
+                            asset.fileName, asset.downloadUrl,
                             externalDownloader = externalDownloader
                     )
-                }
             }
         }
     }

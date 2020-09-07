@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.system_api.api
 
-import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.PackageIdGson
 import net.xzos.upgradeall.core.server_manager.module.applications.AppInfo
 import net.xzos.upgradeall.core.system_api.interfaces.IoApi
