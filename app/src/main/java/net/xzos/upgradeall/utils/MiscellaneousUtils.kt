@@ -57,8 +57,8 @@ object MiscellaneousUtils {
                                 this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         }
                 )
-            } catch (e: ArrayIndexOutOfBoundsException) {
-                showToast(R.string.miui_error, duration = Toast.LENGTH_LONG)
+            } catch (e: Exception) {
+                showToast(R.string.system_browser_error, duration = Toast.LENGTH_LONG)
                 Intent(Intent.ACTION_VIEW).apply {
                     this.data = Uri.parse(url)
                 }

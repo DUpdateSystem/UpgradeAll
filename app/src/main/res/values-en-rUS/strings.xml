@@ -148,7 +148,7 @@
     <string name="download_task_begin">Download task start</string>
     <string name="repeated_download_task">Repeat task, ignore</string>
     <string name="select_browser">Please select a browser to open the page</string>
-    <string name="miui_error">You may have encountered an error caused by MIUI and are trying to call another method to open it</string>
+    <string name="system_browser_error">You may have encountered an error caused by system and are trying to call another method to open it</string>
     <string name="function_unsupported_error">Your phone doesn\'t support this feature yet.</string>
     <string name="please_input_custom_url">Please input custom URL</string>
     <string name="same_as_server_config">Follow Update Server Config</string>
