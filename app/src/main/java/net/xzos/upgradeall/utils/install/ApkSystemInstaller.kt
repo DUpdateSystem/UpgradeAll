@@ -12,6 +12,7 @@ import net.xzos.upgradeall.BuildConfig
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.oberver.Informer
+import net.xzos.upgradeall.utils.ToastUtil
 import java.io.File
 
 
@@ -21,8 +22,13 @@ object ApkSystemInstaller : Informer {
 
     suspend fun install(file: File) {
         withContext(Dispatchers.Default) {
-            val fileUri = file.getApkUri()
-            rowInstall(fileUri)
+            try {
+                val fileUri = file.getApkUri()
+                rowInstall(fileUri)
+            } catch (e: IllegalArgumentException) {
+                e.printStackTrace()
+                ToastUtil.makeText(e.toString())
+            }
         }
     }
 
@@ -41,9 +47,12 @@ object ApkSystemInstaller : Informer {
 
 }
 
+@Throws(IllegalArgumentException::class)
 fun File.getUri(): Uri {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-        FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", this)
+        try {
+            FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", this)
+        } catch (e: IllegalArgumentException) { throw e }
     else Uri.fromFile(this)
 }
 
@@ -59,6 +68,7 @@ fun File.autoAddApkExtension(): File {
     return this
 }
 
+@Throws(IllegalArgumentException::class)
 fun File.getApkUri(): Uri {
     // 修复后缀名
     val apkFile = this.autoAddApkExtension()
@@ -70,6 +80,10 @@ fun File.getApkUri(): Uri {
             e.printStackTrace()
         }
     }
-    return apkFile.getUri()
+    return try {
+        apkFile.getUri()
+    } catch (e: IllegalArgumentException) {
+        throw e
+    }
 }
 
