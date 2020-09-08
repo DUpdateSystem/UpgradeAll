@@ -8,6 +8,7 @@ import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
 import net.xzos.upgradeall.core.data.json.gson.IgnoreApp
 import net.xzos.upgradeall.core.data.json.gson.PackageIdGson
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 class Converters {
@@ -69,17 +70,22 @@ class Converters {
     @TypeConverter
     fun stringToListMap(s: String?): List<Map<String, String>> {
         if (s == null) return emptyList()
-        val jsonArray = JSONArray(s)
-        val list = mutableListOf<Map<String, String>>()
-        for (i in 0 until jsonArray.length()) {
-            val jsonObject = jsonArray.getJSONObject(i)
-            val map = mutableMapOf<String, String>()
-            for (k in jsonObject.keys()) {
-                map[k] = jsonObject.getString(k)
+
+        return try {
+            val jsonArray = JSONArray(s)
+            val list = mutableListOf<Map<String, String>>()
+            for (i in 0 until jsonArray.length()) {
+                val jsonObject = jsonArray.getJSONObject(i)
+                val map = mutableMapOf<String, String>()
+                for (k in jsonObject.keys()) {
+                    map[k] = jsonObject.getString(k)
+                }
+                list.add(map)
             }
-            list.add(map)
+            list
+        } catch (e: JSONException) {
+            emptyList()
         }
-        return list
     }
 
     @TypeConverter
