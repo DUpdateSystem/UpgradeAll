@@ -119,9 +119,11 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
                         ignoreApps = ignoreAppsJson.toString()
                     } catch (e: Throwable) {
                     }
+                    val invalidPackageListString = if (invalidPackageList != null) "'$invalidPackageList'" else null
+                    val ignoreAppsString = if (ignoreApps != null) "'$ignoreApps'" else null
                     database.execSQL("""
                     INSERT INTO applications (name, hub_uuid, auth, extra_id, invalid_package_list, ignore_app_list)
-                    VALUES ('$name', '$hubUuid', null, null, '$invalidPackageList', '$ignoreApps')
+                    VALUES ('$name', '$hubUuid', null, null, $invalidPackageListString, $ignoreAppsString)
                     """)
                 } else {
                     appDatabaseIndex += 1
