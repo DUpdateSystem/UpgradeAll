@@ -58,12 +58,8 @@ object HubDatabaseManager {
             getDatabase(uuid)?.also {
                 it.uuid = uuid
                 it.hubConfig = hubConfigGsonGson
-                return DatabaseApi?.updateHubDatabase(it) ?: false
-            } ?: HubDatabase(uuid, hubConfigGsonGson).also {
-                return DatabaseApi?.insertHubDatabase(it) != 0L
-            }
-            // 存储 js 代码
-            // 将数据存入 HubDatabase 数据库
+                return updateDatabase(it)
+            } ?: return insertDatabase(HubDatabase(uuid, hubConfigGsonGson))
         }
         return false
     }
