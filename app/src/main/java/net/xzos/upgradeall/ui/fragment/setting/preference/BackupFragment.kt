@@ -30,7 +30,7 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
     private fun hidePassword() {
         findPreference<EditTextPreference>("webdav_password")?.let { editTextPreference ->
             editTextPreference.summaryProvider = Preference.SummaryProvider<EditTextPreference> { preference ->
-                "*".repeat(preference.text.length)
+                "*".repeat(preference.text?.length ?: return@SummaryProvider "")
             }
 
             editTextPreference.setOnBindEditTextListener { editText ->
