@@ -7,9 +7,9 @@ import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.coroutines_basic_data_type.CoroutinesMutableMap
+import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableListOf
 import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.data.coroutines_basic_data_type.wait
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
@@ -32,7 +32,7 @@ object GrpcApi {
     private const val grpcWaitTime = 1000L
 
     private val hubDataMap = coroutinesMutableMapOf<String, HubData>()
-    private val grpcWaitLockList = coroutinesMutableMapOf<String, Mutex>()
+    private val grpcWaitLockList = coroutinesMutableListOf<String>(true)
     private val grpcAppItemWaitLockList = coroutinesMutableMapOf<String, Mutex>(true)
 
     private suspend fun CoroutinesMutableMap<String, HubData>.getHubData(hubUuid: String, auth: Map<String, String?>): HubData {
@@ -103,12 +103,12 @@ object GrpcApi {
     }
 
     private suspend fun callGetAppReleaseStream(hubKey: String) {
-        grpcWaitLockList.setLock(hubKey)?.let { mutex ->
-            mutex.withLock {
+        grpcWaitLockList.add(hubKey).let {
+            if (it) {
                 delay(grpcWaitTime)
                 callGetAppReleaseStream0(hubKey)
+                grpcWaitLockList.remove(hubKey)
             }
-            grpcWaitLockList.unLock(hubKey)
         }
     }
 
