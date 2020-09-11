@@ -1,6 +1,8 @@
 package net.xzos.upgradeall.data.backup
 
+import com.google.gson.Gson
 import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.data.gson.UIConfig
@@ -118,8 +120,9 @@ class RestoreManager {
 
     private suspend fun restoreHubDatabase(jsonArray: JSONArray) {
         for (i in 0 until jsonArray.length()) {
-            val database = parseHubDatabaseConfig(jsonArray.getJSONObject(i))
-            HubDatabaseManager.insertDatabase(database)
+            val s = jsonArray.getString(i)
+            val gson = Gson().fromJson(s, HubConfigGson::class.java)
+            HubDatabaseManager.addDatabase(gson)
         }
     }
 }

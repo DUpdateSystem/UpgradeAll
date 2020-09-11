@@ -50,10 +50,7 @@ fun ApplicationsDatabase.md5(): String {
 }
 
 fun HubDatabase.toJson(): JSONObject {
-    return JSONObject(mapOf(
-            "uuid" to uuid,
-            "hub_config" to converters.fromHubConfigGson(hubConfig)
-    ))
+    return JSONObject(converters.fromHubConfigGson(hubConfig))
 }
 
 fun parseAppDatabaseConfig(json: JSONObject): AppDatabase {
@@ -76,12 +73,5 @@ fun parseApplicationsDatabaseConfig(json: JSONObject): ApplicationsDatabase {
             converters.stringToMap(json.getString("extra_id")),
             converters.stringToListMap(json.getString("invalid_package_list")).toCoroutinesMutableList(),
             converters.stringToIgnoreAppList(json.getString("ignore_app_list")).toCoroutinesMutableList()
-    )
-}
-
-fun parseHubDatabaseConfig(json: JSONObject): HubDatabase {
-    return HubDatabase(
-            json.getString("uuid"),
-            converters.stringToHubConfigGson(json.getString("hub_config"))
     )
 }
