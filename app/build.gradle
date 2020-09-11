@@ -20,14 +20,19 @@ android {
             keyAlias = props['KEY_ALIAS']
         }
     }
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 47
         versionName "0.1.4.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
     }
     buildTypes {
         release {
@@ -74,8 +79,7 @@ dependencies {
     implementation "com.google.protobuf:protobuf-javalite:$protoc_version"
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    // jvm 反射
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.6'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
 
     // database
     def room_version = "2.2.5"
@@ -88,7 +92,7 @@ dependencies {
 
     // OkHttp
     implementation 'com.squareup.okhttp3:okhttp:4.8.1'
-    implementation 'com.squareup.okio:okio:2.7.0'
+    implementation 'com.squareup.okio:okio:2.8.0'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.8.1'
 
     // Firebase

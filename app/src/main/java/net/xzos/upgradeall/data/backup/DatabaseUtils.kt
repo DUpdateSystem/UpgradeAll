@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.data.backup
 
 import com.google.gson.Gson
+import net.xzos.upgradeall.core.data.coroutines_basic_data_type.toCoroutinesMutableList
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
 import net.xzos.upgradeall.core.data.database.HubDatabase
@@ -73,8 +74,8 @@ fun parseApplicationsDatabaseConfig(json: JSONObject): ApplicationsDatabase {
             json.getString("name"), json.getString("hub_uuid"),
             converters.stringToMap(json.getString("auth")),
             converters.stringToMap(json.getString("extra_id")),
-            converters.stringToListMap(json.getString("invalid_package_list")).toMutableList(),
-            converters.stringToIgnoreAppList(json.getString("ignore_app_list")).toMutableList()
+            converters.stringToListMap(json.getString("invalid_package_list")).toCoroutinesMutableList(),
+            converters.stringToIgnoreAppList(json.getString("ignore_app_list")).toCoroutinesMutableList()
     )
 }
 

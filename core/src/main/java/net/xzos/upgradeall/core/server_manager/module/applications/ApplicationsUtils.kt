@@ -39,7 +39,7 @@ internal class ApplicationsUtils(applicationsDatabase: ApplicationsDatabase) {
     private fun AppInfo.toAppDatabaseClass(): AppDatabase {
         val packageName = id
         val url = AutoTemplate.fillArgs(appUrlTemplate, mapOf(type to packageName))
-        return AppDatabase(0, name, url, hubUuid, PackageIdGson(API_TYPE_APP_PACKAGE, packageName), auth = auth)
+        return AppDatabase(0, name, hubUuid, url, PackageIdGson(API_TYPE_APP_PACKAGE, packageName), auth = auth)
     }
 }
 

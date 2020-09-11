@@ -44,7 +44,7 @@ class Updater(private val app: App) {
         if (appId != null) {
             dataMutex.withLock {
                 val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
-                return GrpcApi.getAppRelease(hubUuid, appId, app.appDatabase.auth)
+                return GrpcApi.getAppRelease(hubUuid, app.appDatabase.auth, appId)
             }
         }
         return null

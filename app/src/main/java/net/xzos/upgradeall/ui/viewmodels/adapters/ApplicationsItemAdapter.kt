@@ -9,7 +9,6 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.ui.activity.detail.AppDetailActivity
@@ -32,7 +31,9 @@ class ApplicationsItemAdapter(
             val app = mItemCardViewList.getByHolder(holder).extraData.app
             if (app is App) {
                 AppDetailActivity.bundleApp = app
-                MyApplication.context.startActivity(Intent(MyApplication.context, AppDetailActivity::class.java))
+                with(holder.itemCardView.context) {
+                    startActivity(Intent(this, AppDetailActivity::class.java))
+                }
             }
         }
         holder.itemCardView.setOnLongClickListener { view ->

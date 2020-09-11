@@ -1,0 +1,185 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 7,
+    "identityHash": "0e2b3070885859b9789a00a4750ed4ca",
+    "entities": [
+      {
+        "tableName": "app",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`url` TEXT NOT NULL, `package_id` TEXT, `ignore_version_number` TEXT, `cloud_config` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `hub_uuid` TEXT NOT NULL, `auth` TEXT, `extra_id` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageId",
+            "columnName": "package_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ignoreVersionNumber",
+            "columnName": "ignore_version_number",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cloudConfig",
+            "columnName": "cloud_config",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hubUuid",
+            "columnName": "hub_uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "auth",
+            "columnName": "auth",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "extraId",
+            "columnName": "extra_id",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "app_key_value",
+            "unique": true,
+            "columnNames": [
+              "name",
+              "hub_uuid",
+              "url",
+              "package_id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `app_key_value` ON `${TABLE_NAME}` (`name`, `hub_uuid`, `url`, `package_id`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "applications",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`invalid_package_list` TEXT, `ignore_app_list` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `hub_uuid` TEXT NOT NULL, `auth` TEXT, `extra_id` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "invalidPackageList",
+            "columnName": "invalid_package_list",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ignoreApps",
+            "columnName": "ignore_app_list",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hubUuid",
+            "columnName": "hub_uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "auth",
+            "columnName": "auth",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "extraId",
+            "columnName": "extra_id",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "applications_key_value",
+            "unique": true,
+            "columnNames": [
+              "hub_uuid"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `applications_key_value` ON `${TABLE_NAME}` (`hub_uuid`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "hub",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `hub_config` TEXT NOT NULL, PRIMARY KEY(`uuid`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hubConfig",
+            "columnName": "hub_config",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uuid"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0e2b3070885859b9789a00a4750ed4ca')"
+    ]
+  }
+}

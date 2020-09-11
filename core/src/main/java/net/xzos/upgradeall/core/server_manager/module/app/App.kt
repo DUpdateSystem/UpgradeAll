@@ -16,6 +16,7 @@ class App(override val appDatabase: AppDatabase, appId: Map<String, String>? = n
     override var statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {}
     val hubDatabase = HubDatabaseManager.getDatabase(appDatabase.hubUuid)
     var appId: Map<String, String?>? = appId ?: getAppIdByUrl()
+        private set
 
     private fun getAppIdByUrl(): Map<String, String?>? {
         if (hubDatabase != null) {

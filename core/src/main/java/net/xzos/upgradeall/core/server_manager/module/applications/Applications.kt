@@ -3,8 +3,6 @@ package net.xzos.upgradeall.core.server_manager.module.applications
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.oberver.Informer
@@ -18,7 +16,6 @@ class Applications(override val appDatabase: ApplicationsDatabase,
 ) : BaseApp, Informer {
 
     val name = appDatabase.name
-    private val markAppMutex = Mutex()
 
     val needUpdateAppList: List<App>
         get() = runBlocking { mainUpdateControl.getNeedUpdateAppList(false) }.filterIsInstance<App>()
@@ -38,7 +35,7 @@ class Applications(override val appDatabase: ApplicationsDatabase,
     })
     private val otherUpdateControl = UpdateControl(applicationsUtils.excludeApps, fun(app, appStatus) {
         if ((appStatus == Updater.APP_OUTDATED || appStatus == Updater.APP_LATEST) && app is App) {
-            markValidApp(app)
+            runBlocking { markValidApp(app) }
             notifyChanged()
         }
         checkUpdateStatusChanged()
@@ -79,31 +76,19 @@ class Applications(override val appDatabase: ApplicationsDatabase,
         else -> Updater.APP_LATEST
     }
 
-    private fun markValidApp(app: App) {
+    private suspend fun markValidApp(app: App) {
         mainUpdateControl.addApp(app)
         otherUpdateControl.delApp(app)
         val appId = app.appId ?: return
-        runMarkAppFun {
-            appDatabase.invalidPackageList.remove(appId)
-            runBlocking {
-                AppDatabaseManager.updateApplicationsDatabase(appDatabase)
-            }
-        }
+        appDatabase.invalidPackageList.remove(appId)
+        AppDatabaseManager.updateApplicationsDatabase(appDatabase)
     }
 
     private suspend fun markInvalidApp(app: App) {
         mainUpdateControl.delApp(app)
         otherUpdateControl.addApp(app)
         val appId = app.appId ?: return
-        runMarkAppFun {
-            appDatabase.invalidPackageList.add(appId)
-            runBlocking {
-                AppDatabaseManager.updateApplicationsDatabase(appDatabase)
-            }
-        }
-    }
-
-    private fun runMarkAppFun(function: () -> Unit) {
-        runBlocking { markAppMutex.withLock { function() } }
+        appDatabase.invalidPackageList.add(appId)
+        AppDatabaseManager.updateApplicationsDatabase(appDatabase)
     }
 }

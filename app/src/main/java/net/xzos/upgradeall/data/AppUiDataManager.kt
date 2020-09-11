@@ -2,6 +2,7 @@ package net.xzos.upgradeall.data
 
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.runBlocking
+import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.core.server_manager.UpdateManager
@@ -28,9 +29,9 @@ object AppUiDataManager {
     }
 
     // 列表中所有的 APP
-    private val appListLiveDataMap: MutableMap<Int, MutableLiveData<List<BaseApp>>> = mutableMapOf()
+    private val appListLiveDataMap = coroutinesMutableMapOf<Int, MutableLiveData<List<BaseApp>>>(true)
 
-    private val applicationObserverFunMap: MutableMap<Applications, ObserverFun<Unit>> = mutableMapOf()
+    private val applicationObserverFunMap = coroutinesMutableMapOf<Applications, ObserverFun<Unit>>(true)
 
     init {
         AppManager.observeForever<Unit>(fun(_) {

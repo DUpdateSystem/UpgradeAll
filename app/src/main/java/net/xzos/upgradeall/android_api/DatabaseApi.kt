@@ -1,5 +1,7 @@
 package net.xzos.upgradeall.android_api
 
+import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableListOf
+import net.xzos.upgradeall.core.data.coroutines_basic_data_type.toCoroutinesMutableList
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
 import net.xzos.upgradeall.core.data.database.HubDatabase
@@ -86,7 +88,8 @@ private fun ApplicationsDatabase.toApplicationsEntity(): ApplicationsEntity =
 private fun ApplicationsEntity.toApplicationsDatabase(): ApplicationsDatabase =
         ApplicationsDatabase(id, name, hubUuid,
                 auth ?: mapOf(), extraId ?: mapOf(),
-                invalidPackageList ?: mutableListOf(), ignoreApps ?: mutableListOf())
+                invalidPackageList?.toCoroutinesMutableList(true) ?: coroutinesMutableListOf(true),
+                ignoreApps?.toCoroutinesMutableList(true) ?: coroutinesMutableListOf(true))
 
 // 本机跟踪项数据库转换通用格式数据库
 private fun AppEntity.toAppDatabase(): AppDatabase =

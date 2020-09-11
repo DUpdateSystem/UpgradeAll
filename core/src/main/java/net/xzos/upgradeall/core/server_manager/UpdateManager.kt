@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.server_manager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableListOf
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
@@ -14,7 +15,7 @@ object UpdateManager : UpdateControl(AppManager.apps, fun(_, _) {}), Informer {
     const val UPDATE_STATUS_CHANGED = "UPDATE_RUNNING"
     val finishedUpdateAppNum: Int get() = finishedUpdateApp.size
 
-    private val finishedUpdateApp: HashSet<BaseApp> = hashSetOf()
+    private val finishedUpdateApp = coroutinesMutableListOf<BaseApp>()
 
     val isRunning: Boolean get() = refreshMutex.isLocked
 

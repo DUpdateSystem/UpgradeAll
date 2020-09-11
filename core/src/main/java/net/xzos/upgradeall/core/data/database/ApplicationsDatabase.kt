@@ -1,5 +1,7 @@
 package net.xzos.upgradeall.core.data.database
 
+import net.xzos.upgradeall.core.data.coroutines_basic_data_type.CoroutinesMutableList
+import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableListOf
 import net.xzos.upgradeall.core.data.json.gson.IgnoreApp
 
 class ApplicationsDatabase(
@@ -8,8 +10,8 @@ class ApplicationsDatabase(
         hubUuid: String,
         auth: Map<String, String?> = mapOf(),
         extraId: Map<String, String?> = mapOf(),
-        var invalidPackageList: MutableList<Map<String, String?>> = mutableListOf(),
-        var ignoreApps: MutableList<IgnoreApp> = mutableListOf()
+        val invalidPackageList: CoroutinesMutableList<Map<String, String?>> = coroutinesMutableListOf(),
+        val ignoreApps: CoroutinesMutableList<IgnoreApp> = coroutinesMutableListOf()
 ) : BaseAppDatabase(id, name, hubUuid, extraId, auth) {
     fun getIgnoreVersionNumber(appId: Map<String, String?>): String? {
         for (app in ignoreApps) {
