@@ -9,6 +9,7 @@ import net.xzos.upgradeall.core.data.json.gson.CloudConfigList
 import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.data_manager.utils.DataCache
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.network_api.GrpcApi
 import net.xzos.upgradeall.core.network_api.OkHttpApi
@@ -23,11 +24,15 @@ object CloudConfigGetter {
     private const val SUCCESS_GET_DATA = 2
     private const val FAILED_GET_DATA = -2
 
+    private const val CLOUD_CONFIG_CACHE_KEY = "CLOUD_CONFIG"
     private val appCloudRulesHubUrl: String? get() = AppConfig.app_cloud_rules_hub_url
     private var cloudConfig: CloudConfigList? = null
 
     suspend fun renew() {
-        cloudConfig = getCloudConfigFromWeb(appCloudRulesHubUrl)
+        cloudConfig = DataCache.getAnyCache(CLOUD_CONFIG_CACHE_KEY)
+                ?: getCloudConfigFromWeb(appCloudRulesHubUrl)?.also {
+                    DataCache.cacheAny(CLOUD_CONFIG_CACHE_KEY, it)
+                }
     }
 
     val appConfigList: List<AppConfigGson>?

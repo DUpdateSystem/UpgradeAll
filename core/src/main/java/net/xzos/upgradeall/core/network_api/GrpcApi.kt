@@ -88,7 +88,7 @@ object GrpcApi {
 
     suspend fun getAppRelease(hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>): List<ReleaseListItem>? {
         if (hubUuid in invalidHubUuidList) return null
-        if (!DataCache.existsAppRelease(hubUuid, auth, appId)) {
+        return DataCache.getAppRelease(hubUuid, auth, appId) ?: kotlin.run {
             val itemKey = (hubUuid + auth + appId).md5()
             if (grpcAppItemWaitLockList.setLock(itemKey, true) != null) {
                 with(hubDataMap.getHubData(hubUuid, auth)) {
@@ -98,8 +98,8 @@ object GrpcApi {
                 callGetAppReleaseStream(hubKey)
             }
             grpcAppItemWaitLockList.getLock(itemKey)?.wait()
+            DataCache.getAppRelease(hubUuid, auth, appId)
         }
-        return DataCache.getAppRelease(hubUuid, auth, appId)
     }
 
     private suspend fun callGetAppReleaseStream(hubKey: String) {
