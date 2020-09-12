@@ -15,7 +15,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
@@ -28,8 +27,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.server_manager.UpdateManager
-import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.data.AppUiDataManager
 import net.xzos.upgradeall.data.gson.UIConfig
 import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
@@ -46,7 +43,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
 
     init {
         // 设置添加按钮自动弹出
-        editTabMode.observe(lifecycleOwner, Observer { editTabMode ->
+        editTabMode.observe(lifecycleOwner, { editTabMode ->
             val tabIndexList: MutableList<Int>
             when {
                 editTabMode -> {
@@ -56,7 +53,6 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                 }
                 initTabIndexList().also { tabIndexList = it }.isNotEmpty() -> {
                     mTabIndexList = tabIndexList
-                    checkUpdate()
                     notifyDataSetChanged()
                 }
                 else -> {
@@ -68,27 +64,9 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                 }
             }
         })
-        AppUiDataManager.getAppListLivaData(UPDATE_PAGE_INDEX).observe(lifecycleOwner, Observer {
-            checkUpdate()
-        })
-    }
-
-    // 检查更新页面是否刷新
-    private fun checkUpdate() {
-        val needUpdateAppList: List<BaseApp> = AppUiDataManager.getAppListLivaData(UPDATE_PAGE_INDEX).value
-                ?: return
-        when {
-            !UpdateManager.isRunning
-                    && needUpdateAppList.isEmpty()
-                    && editTabMode.value == false ->
-                removeTabPage(mTabIndexList.indexOf(UPDATE_PAGE_INDEX))
-            needUpdateAppList.isNotEmpty() ->
-                addTabPage(UPDATE_PAGE_INDEX, 0)
-        }
     }
 
     override fun getItem(position: Int): Fragment {
-        checkUpdate()
         val tabIndex =
                 if (position < mTabIndexList.size)
                     mTabIndexList[position]
