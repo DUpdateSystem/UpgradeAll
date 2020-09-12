@@ -3,12 +3,10 @@ package net.xzos.upgradeall.ui.activity.detail
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.NetworkOnMainThreadException
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import jonathanfinerty.once.Once
@@ -28,7 +26,8 @@ import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.ToastUtil
 
-class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
+
+class AppDetailActivity : BaseActivity() {
 
     private lateinit var app: App
 
@@ -37,7 +36,7 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
         return@lazy try {
             runBlocking { Updater(app).getReleaseList()?.filterNotNull() } ?: listOf()
         } catch (ignore: NetworkOnMainThreadException) {
-            listOf<ReleaseListItem>()
+            listOf()
         }
     }
 
@@ -53,15 +52,11 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
         collapsingToolbarLayout.setContentScrimColor(color)
         toolbar_backdrop_image.setBackgroundColor(color)
 
-        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        bundleApp?.run {
-            app = this
-        } ?: if (!::app.isLateinit) onBackPressed()
+        bundleApp?.run { app = this }
         initUi()
 
-        toolbar.setOnMenuItemClickListener(this)
         ib_edit.setOnClickListener {
             AppSettingActivity.getInstance(this, app.appDatabase)
         }
@@ -73,25 +68,6 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
                 showDownloadDialog()
             }
         }
-    }
-
-    override fun onMenuItemClick(item: MenuItem): Boolean {
-        when (item.itemId) {
-            IGNORE_VERSION -> {
-                app.ignoreVersionNumber = cloudVersioningTextView.text.toString()
-            }
-            REMOVE_IGNORE_VERSION -> {
-                app.removeIgnoreUpdate()
-            }
-            IGNORE_APP -> {
-                app.setIgnoreUpdate()
-            }
-            REMOVE_IGNORE_APP -> {
-                app.removeIgnoreUpdate()
-            }
-        }
-        renewVersionRelatedItems()
-        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -110,6 +86,9 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
         toastPromptMarkedVersionNumber()
         if (releaseInfoList.isNotEmpty()) {
             loadAppVersioningInfo(0)
+            cloudVersioningTextView.setOnClickListener {
+                loadReleaseIgnorePopupMenu()
+            }
         }
     }
 
@@ -198,8 +177,6 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
         } else {
             latestChangeLog
         }
-
-        renewVersionRelatedItems()
     }
 
     private fun toastPromptMarkedVersionNumber() {
@@ -217,24 +194,47 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
         }
     }
 
-    private fun renewVersionRelatedItems() {
-        toolbar.menu.clear()
-        if (app.getParentApplications() != null) {
-            if (app.isIgnoreUpdate())
-                toolbar.menu.add(Menu.NONE, REMOVE_IGNORE_APP, Menu.NONE, R.string.remove_ignore_app)
-            else
-                toolbar.menu.add(Menu.NONE, IGNORE_APP, Menu.NONE, R.string.ignore_app)
-        }
+    private fun loadReleaseIgnorePopupMenu() {
+        PopupMenu(cloudVersioningTextView.context, cloudVersioningTextView).also { popupMenu ->
+            if (app.getParentApplications() != null) {
+                if (app.isIgnoreUpdate())
+                    popupMenu.menu.add(R.string.remove_ignore_app).let {
+                        it.setOnMenuItemClickListener {
+                            app.removeIgnoreUpdate()
+                            true
+                        }
+                    }
+                else
+                    popupMenu.menu.add(R.string.ignore_app).let {
+                        it.setOnMenuItemClickListener {
+                            app.setIgnoreUpdate()
+                            true
+                        }
+                    }
+            }
 
-        if (app.ignoreVersionNumber == cloudVersioningTextView.text) {
-            // 当前版本被标记忽略
-            versionMarkImageView.visibility = View.VISIBLE
-            toolbar.menu.add(Menu.NONE, REMOVE_IGNORE_VERSION, Menu.NONE, R.string.remove_ignore_version)
-        } else {
-            // 当前版本被未被标记
-            versionMarkImageView.visibility = View.GONE
-            toolbar.menu.add(Menu.NONE, IGNORE_VERSION, Menu.NONE, R.string.ignore_version)
-        }
+            if (app.ignoreVersionNumber == cloudVersioningTextView.text) {
+                // 当前版本被标记忽略
+                versionMarkImageView.visibility = View.VISIBLE
+                popupMenu.menu.add(R.string.remove_ignore_version).let {
+                    it.setOnMenuItemClickListener {
+                        app.removeIgnoreUpdate()
+                        versionMarkImageView.visibility = View.GONE
+                        true
+                    }
+                }
+            } else {
+                // 当前版本被未被标记
+                versionMarkImageView.visibility = View.GONE
+                popupMenu.menu.add(R.string.ignore_version).let {
+                    it.setOnMenuItemClickListener {
+                        app.ignoreVersionNumber = cloudVersioningTextView.text.toString()
+                        versionMarkImageView.visibility = View.VISIBLE
+                        true
+                    }
+                }
+            }
+        }.show()
         loadVersioningPopupMenu()
     }
 
@@ -245,10 +245,5 @@ class AppDetailActivity : BaseActivity(), Toolbar.OnMenuItemClickListener {
                 field = null
                 return app
             }
-
-        private const val IGNORE_APP = Menu.FIRST
-        private const val REMOVE_IGNORE_APP = IGNORE_APP + 1
-        private const val IGNORE_VERSION = REMOVE_IGNORE_APP + 1
-        private const val REMOVE_IGNORE_VERSION = IGNORE_VERSION + 1
     }
 }

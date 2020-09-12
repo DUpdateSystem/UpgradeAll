@@ -12,7 +12,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -45,7 +44,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     init {
         navigationItemId = MutableLiveData(R.id.appListFragment).apply {
-            this.observe(this@MainActivity, Observer { itemId ->
+            this.observe(this@MainActivity, { itemId ->
                 setFrameLayout(itemId)
             })
         }
@@ -85,13 +84,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.dev_help -> {
-                MiscellaneousUtils.accessByBrowser(
-                        "https://xzos.net/upgradeall-developer-documentation/",
-                        this
-                )
-                true
-            }
             android.R.id.home -> {
                 onBackPressed()
                 true

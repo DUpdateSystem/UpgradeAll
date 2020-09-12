@@ -96,9 +96,9 @@
             android:layout_marginTop="32dp"
             android:contentDescription="@string/local_version_number"
             android:src="@drawable/ic_local"
-            android:tint="@color/text_low_priority_color"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/appIconImageView" />
+            app:layout_constraintTop_toBottomOf="@id/appIconImageView"
+            app:tint="@color/text_low_priority_color" />
 
         <TextView
             android:id="@+id/textView"
@@ -131,11 +131,11 @@
             android:contentDescription="@string/arrow"
             android:rotation="90"
             android:src="@drawable/ic_arrow"
-            android:tint="@color/text_low_priority_color"
             app:layout_constraintBottom_toBottomOf="@+id/localVersioningTextView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/localVersioningTextView" />
+            app:layout_constraintTop_toTopOf="@+id/localVersioningTextView"
+            app:tint="@color/text_low_priority_color" />
 
         <ImageView
             android:id="@+id/cloud_versioning_image_view"
@@ -143,9 +143,9 @@
             android:layout_height="16dp"
             android:contentDescription="@string/latest_version_number"
             android:src="@drawable/ic_download"
-            android:tint="@color/light_coolapk_green"
             app:layout_constraintStart_toStartOf="@id/cloudVersioningTextView"
-            app:layout_constraintTop_toTopOf="@id/local_versioning_image_view" />
+            app:layout_constraintTop_toTopOf="@id/local_versioning_image_view"
+            app:tint="@color/light_coolapk_green" />
 
         <TextView
             android:id="@+id/cloud_versioning_text_view"
@@ -199,10 +199,10 @@
             android:contentDescription="@string/more_other_version_number"
             android:rotation="90"
             android:src="@drawable/ic_arrow_small"
-            android:tint="@color/coolapk_green"
             app:layout_constraintBottom_toBottomOf="@id/tv_more_editions"
             app:layout_constraintStart_toEndOf="@id/tv_more_editions"
-            app:layout_constraintTop_toTopOf="@id/tv_more_editions" />
+            app:layout_constraintTop_toTopOf="@id/tv_more_editions"
+            app:tint="@color/coolapk_green" />
 
         <ImageView
             android:id="@+id/update_info_image_view"
@@ -211,9 +211,9 @@
             android:layout_marginTop="40dp"
             android:contentDescription="@string/update_info"
             android:src="@drawable/ic_load"
-            android:tint="@color/coolapk_green"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/localVersioningTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/localVersioningTextView"
+            app:tint="@color/coolapk_green" />
 
         <TextView
             android:id="@+id/update_info_title_text_view"
@@ -234,9 +234,9 @@
             android:layout_marginTop="16dp"
             android:contentDescription="@string/app_main_url"
             android:src="@drawable/ic_url"
-            android:tint="@color/text_low_priority_color"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/update_info_title_text_view" />
+            app:layout_constraintTop_toBottomOf="@+id/update_info_title_text_view"
+            app:tint="@color/text_low_priority_color" />
 
         <TextView
             android:id="@+id/appUrlTextView"
