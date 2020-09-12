@@ -86,6 +86,7 @@ class AppDetailActivity : BaseActivity() {
         toastPromptMarkedVersionNumber()
         if (releaseInfoList.isNotEmpty()) {
             loadAppVersioningInfo(0)
+            loadVersioningPopupMenu()
             cloudVersioningTextView.setOnClickListener {
                 loadReleaseIgnorePopupMenu()
             }
@@ -235,7 +236,6 @@ class AppDetailActivity : BaseActivity() {
                 }
             }
         }.show()
-        loadVersioningPopupMenu()
     }
 
     companion object {

@@ -18,9 +18,9 @@
         android:layout_height="56dp"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
+        android:foregroundTint="@color/light_gray"
         app:background="@color/coolapk_green"
         app:srcCompat="@drawable/ic_download"
-        android:foregroundTint="@color/light_gray"
         tools:tint="@color/light_gray" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -189,20 +189,10 @@
             android:layout_marginEnd="2dp"
             android:text="@string/more_other_version_number"
             android:textColor="@color/coolapk_green"
+            app:drawableEndCompat="@drawable/ic_arrow_small"
             app:layout_constraintEnd_toEndOf="@id/cloudVersioningTextView"
             app:layout_constraintStart_toStartOf="@id/cloudVersioningTextView"
             app:layout_constraintTop_toBottomOf="@id/cloudVersioningTextView" />
-
-        <ImageView
-            android:layout_width="14sp"
-            android:layout_height="14sp"
-            android:contentDescription="@string/more_other_version_number"
-            android:rotation="90"
-            android:src="@drawable/ic_arrow_small"
-            app:layout_constraintBottom_toBottomOf="@id/tv_more_editions"
-            app:layout_constraintStart_toEndOf="@id/tv_more_editions"
-            app:layout_constraintTop_toTopOf="@id/tv_more_editions"
-            app:tint="@color/coolapk_green" />
 
         <ImageView
             android:id="@+id/update_info_image_view"
