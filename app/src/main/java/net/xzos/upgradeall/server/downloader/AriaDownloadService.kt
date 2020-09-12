@@ -61,11 +61,11 @@ class AriaDownloadService : Service() {
 
         private val OBSERVER_FUN_MAP: HashMap<Int, ObserverFun<DownloadTask>> = hashMapOf()
 
-        fun startService(context: Context, url: String, fileName: String, headers: HashMap<String, String>) {
+        fun startService(context: Context, url: String, fileName: String, headers: Map<String, String>) {
             val intent = Intent(context, AriaDownloadService::class.java).apply {
                 putExtra(URL, url)
                 putExtra(FILE_NAME, fileName)
-                putExtra(HEADERS, headers)
+                putExtra(HEADERS, HashMap(headers))
             }
             context.startService(intent)
         }

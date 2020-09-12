@@ -161,9 +161,7 @@ object GrpcApi {
         val request = GetDownloadRequest.newBuilder()
                 .setHubUuid(hubUuid)
                 .addAllAppId(appId.togRPCDict()).addAllAssetIndex(assetIndex)
-                .addAllAuth(auth.map {
-                    Dict.newBuilder().setK(it.key).setV(it.value).build()
-                })
+                .addAllAuth(auth.togRPCDict())
                 .build()
         return try {
             blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.SECONDS).devGetDownloadInfo(request)

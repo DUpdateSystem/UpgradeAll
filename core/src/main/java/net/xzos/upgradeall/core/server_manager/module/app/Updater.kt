@@ -1,11 +1,10 @@
 package net.xzos.upgradeall.core.server_manager.module.app
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.data_manager.utils.VersioningUtils
 import net.xzos.upgradeall.core.network_api.GrpcApi
+import net.xzos.upgradeall.core.network_api.toMap
 import net.xzos.upgradeall.core.route.AssetItem
 import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.system_api.api.IoApi
@@ -63,36 +62,28 @@ class Updater(private val app: App) {
 
     // 使用内置下载器下载文件
     suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false) {
-        withContext(Dispatchers.Default) {
-            getReleaseList()?.let { releaseList ->
-                val asset = releaseList.getAssetsByFileIndex(fileIndex) ?: return@withContext
-                val hubUuid = app.hubDatabase?.uuid
-                val appId = app.appId
-                val downloadResponse = if (hubUuid != null && appId != null)
-                    GrpcApi.getDownloadInfo(hubUuid, appId, app.appDatabase.auth, fileIndex.toList())
-                else null
-                val list = downloadResponse?.listList
-                if (list != null)
-                    for (download in list) {
-                        val url = (if (!download.url.isNullOrBlank())
-                            download?.url
-                        else asset.downloadUrl) ?: return@withContext
-                        val headers = hashMapOf<String, String>().also {
-                            for (dict in download?.requestHeaderList ?: listOf())
-                                it[dict.k] = dict.v
-                        }
-                        IoApi.downloadFile(
-                                asset.fileName, url,
-                                headers = headers,
-                                externalDownloader = externalDownloader
-                        )
-                    }
-                else
+        getReleaseList()?.let { releaseList ->
+            val asset = releaseList.getAssetsByFileIndex(fileIndex) ?: return
+            val hubUuid = app.hubDatabase?.uuid
+            val appId = app.appId
+            val downloadResponse = if (hubUuid != null && appId != null)
+                GrpcApi.getDownloadInfo(hubUuid, appId, app.appDatabase.auth, fileIndex.toList())
+            else null
+            val list = downloadResponse?.listList
+            if (!list.isNullOrEmpty())
+                for (download in list) {
+                    val headers = download?.requestHeaderList?.toMap() ?: mapOf()
                     IoApi.downloadFile(
-                            asset.fileName, asset.downloadUrl,
+                            asset.fileName, download?.url ?: return,
+                            headers = headers,
                             externalDownloader = externalDownloader
                     )
-            }
+                }
+            else
+                IoApi.downloadFile(
+                        asset.fileName, asset.downloadUrl,
+                        externalDownloader = externalDownloader
+                )
         }
     }
 

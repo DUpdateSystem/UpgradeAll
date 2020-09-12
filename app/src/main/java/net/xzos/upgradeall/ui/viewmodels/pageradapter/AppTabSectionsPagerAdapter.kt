@@ -35,9 +35,9 @@ import net.xzos.upgradeall.data.gson.UIConfig
 import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
 import net.xzos.upgradeall.ui.activity.file_pref.UCropActivity
 import net.xzos.upgradeall.ui.fragment.app_list.page_view.AppListPlaceholderFragment
-import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils
+import net.xzos.upgradeall.utils.file.FileUtil
 import java.io.File
 
 class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentManager, lifecycleOwner: LifecycleOwner) :

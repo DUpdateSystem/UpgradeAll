@@ -28,7 +28,7 @@ object IoApi : IoApi {
     private val context = MyApplication.context
 
     // 注释相应平台的下载软件
-    override suspend fun downloadFile(url: String, fileName: String, headers: HashMap<String, String>,
+    override suspend fun downloadFile(url: String, fileName: String, headers: Map<String, String>,
                                       externalDownloader: Boolean) {
         if (!externalDownloader) {
             try {

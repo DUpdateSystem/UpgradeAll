@@ -231,7 +231,7 @@ class AriaDownloader(private val url: String) {
             }
         }
 
-        fun startDownloadService(url: String, fileName: String, headers: HashMap<String, String> = hashMapOf()) {
+        fun startDownloadService(url: String, fileName: String, headers: Map<String, String> = hashMapOf()) {
             AriaDownloadService.startService(context, url, fileName, headers)
         }
     }

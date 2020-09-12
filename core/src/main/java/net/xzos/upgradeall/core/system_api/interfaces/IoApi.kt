@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.system_api.interfaces
 
-import net.xzos.upgradeall.core.data.json.gson.AppConfigGson
 import net.xzos.upgradeall.core.data.json.gson.PackageIdGson
 import net.xzos.upgradeall.core.server_manager.module.applications.AppInfo
 
@@ -10,7 +9,7 @@ interface IoApi {
 
     // 注释相应平台的下载软件
     suspend fun downloadFile(
-            url: String, fileName: String, headers: HashMap<String, String>,
+            url: String, fileName: String, headers: Map<String, String>,
             externalDownloader: Boolean
     )
 

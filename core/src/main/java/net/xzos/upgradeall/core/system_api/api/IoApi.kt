@@ -16,7 +16,7 @@ object IoApi {
 
     // 注释相应平台的下载软件
     internal suspend fun downloadFile(
-            fileName: String, url: String, headers: HashMap<String, String> = hashMapOf(),
+            fileName: String, url: String, headers: Map<String, String> = mapOf(),
             externalDownloader: Boolean
     ) {
         if (url.isBlank()) return
