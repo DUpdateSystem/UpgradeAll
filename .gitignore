@@ -15,3 +15,4 @@
 .externalNativeBuild
 /keystore.properties
 /crowdin.properties
+/core/src/main/proto/
