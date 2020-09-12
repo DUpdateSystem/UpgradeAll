@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
@@ -49,7 +48,7 @@ class ApplicationsFragment : AppListContainerFragment() {
         cardItemRecyclerView.layoutManager = layoutManager
         val adapter = ApplicationsItemAdapter(applicationsPageViewModel)
         cardItemRecyclerView.adapter = adapter
-        viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
+        viewModel.appCardViewList.observe(viewLifecycleOwner, {
             adapter.setItemList(it)
         })
     }

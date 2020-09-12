@@ -13,7 +13,7 @@ import org.json.JSONArray
 import java.io.IOException
 
 class BackupManager {
-    suspend fun mkZipFileBytes(): ByteArray? {
+    fun mkZipFileBytes(): ByteArray? {
         return try {
             val zipFile = ZipFile()
             // backup database

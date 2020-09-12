@@ -5,7 +5,6 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
@@ -67,7 +66,7 @@ internal class AppListPlaceholderFragment : AppListContainerFragment() {
         无用手势代码
          */
         cardItemRecyclerView.adapter = adapter
-        appListPageViewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
+        appListPageViewModel.appCardViewList.observe(viewLifecycleOwner, {
             adapter.setItemList(it)
         })
     }

@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.LogRecyclerViewHolder
 import net.xzos.upgradeall.utils.file.FileUtil
@@ -15,7 +14,7 @@ class LogItemAdapter(mLogList: LiveData<List<String>>, owner: LifecycleOwner) : 
     private val mLogMessages = ArrayList<String>()
 
     init {
-        mLogList.observe(owner, Observer { logList ->
+        mLogList.observe(owner, { logList ->
             renewLogMessage(logList)
         })
     }

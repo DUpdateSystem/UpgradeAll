@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,12 +23,14 @@ import net.xzos.upgradeall.core.data_manager.*
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.ui.viewmodels.adapters.CloudAppItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.adapters.CloudHubItemAdapter
+import net.xzos.upgradeall.ui.viewmodels.adapters.CloudItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 internal class CloudConfigPlaceholderFragment : Fragment() {
 
     private var pageModelIndex = 0
+    private lateinit var adapter: CloudItemAdapter
 
     init {
         renewConfig()
@@ -37,6 +39,9 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pageModelIndex = arguments?.getInt(ARG_SECTION_NUMBER) ?: 0
+        lifecycleScope.launchWhenStarted {
+            renewCardView()
+        }
     }
 
     private fun renewConfig() {
@@ -59,21 +64,17 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         swipeRefreshLayout.setOnRefreshListener { this.renewCardView() }
     }
 
-    override fun onResume() {
-        super.onResume()
-        renewCardView()
-    }
-
     private fun renewCardView() {
         lifecycleScope.launch {
             withContext(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = true }
             withContext(Dispatchers.IO) {
                 CloudConfigGetter.renew()
             }
-            if (pageModelIndex == CLOUD_APP_CONFIG)
+            if (pageModelIndex == CLOUD_APP_CONFIG) {
                 renewCloudList(isAppList = true)
-            else if (pageModelIndex == CLOUD_HUB_CONFIG)
+            } else if (pageModelIndex == CLOUD_HUB_CONFIG) {
                 renewCloudList(isHubList = true)
+            }
             withContext(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = false }
         }
     }
@@ -93,12 +94,13 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
             withContext(Dispatchers.Main) {
                 if (this@CloudConfigPlaceholderFragment.isVisible) {
                     cardItemRecyclerView?.let { view ->
-                        view.layoutManager = GridLayoutManager(activity, 1)
-                        view.adapter = when {
-                            isAppList -> CloudAppItemAdapter(itemCardViewList, context)
-                            isHubList -> CloudHubItemAdapter(itemCardViewList)
-                            else -> null
+                        view.layoutManager = LinearLayoutManager(requireContext())
+                        adapter = when {
+                            isAppList -> CloudAppItemAdapter(itemCardViewList, context).apply { setHasStableIds(true) }
+                            isHubList -> CloudHubItemAdapter(itemCardViewList).apply { setHasStableIds(true) }
+                            else -> throw IllegalArgumentException("wrong argument")
                         }
+                        view.adapter = adapter
                     }
                 }
             }
@@ -128,9 +130,11 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         val name = item.info.hubName
         val hubUuid = item.uuid
         val hubCloudConfig = CloudConfigGetter.getHubCloudConfig(hubUuid)
-        val type = if (hubCloudConfig?.apiKeywords?.contains("android_app_package") == true)
+        val type = if (hubCloudConfig?.apiKeywords?.contains("android_app_package") == true) {
             R.string.applications
-        else R.string.app_hub
+        } else {
+            R.string.app_hub
+        }
         return CloudConfigListItemView(name, type, hubUuid, hubUuid)
     }
 
@@ -142,11 +146,11 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
         internal const val CLOUD_HUB_CONFIG = 1
 
         internal fun newInstance(pageIndex: Int): CloudConfigPlaceholderFragment {
-            val fragment = CloudConfigPlaceholderFragment()
-            val bundle = Bundle()
-            bundle.putInt(ARG_SECTION_NUMBER, pageIndex)
-            fragment.arguments = bundle
-            return fragment
+            return CloudConfigPlaceholderFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(ARG_SECTION_NUMBER, pageIndex)
+                }
+            }
         }
     }
 }

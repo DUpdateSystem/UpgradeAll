@@ -10,7 +10,7 @@
             android:title="@string/app_list" />
         <item
             android:id="@+id/cloud_hub_list"
-            android:icon="@drawable/ic_cloud_list"
+            android:icon="@drawable/ic_outline_cloud"
             android:title="@string/cloud_rules" />
     </group>
 

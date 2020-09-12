@@ -89,7 +89,7 @@ object FileUtil {
         } catch (e: SecurityException) {
             return null
         }
-        return DocumentFile.fromTreeUri(context, treeUri) ?: return null
+        return DocumentFile.fromTreeUri(context, treeUri)
     }
 
     /**

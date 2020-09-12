@@ -87,7 +87,7 @@
     <string name="cloud_version_number">Cloud</string>
     <string name="null_english">NULL</string>
     <string name="more_other_version_number">More version numbers</string>
-    <string name="loading">loading...</string>
+    <string name="loading">loading…</string>
     <string name="add_apps">Add App</string>
     <string name="group_name">Group Name</string>
     <string name="auto_update_hub_config">Auto Update Hub Config</string>
@@ -101,7 +101,7 @@
     <string name="setting_app_name_explain">App Name</string>
     <string name="setting_app_url_explain">Homepage URL of the application</string>
     <string name="setting_app_versioning_explain">App Locator Name\n Confirmation of local application information by this string \n Example: net.xzos.upgradeall \n The search function is enabled when the selected version control module is not Shell.</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="show">Show</string>
     <string name="hide">Hide</string>

@@ -43,7 +43,8 @@ android {
         }
         debug {
             signingConfig signingConfigs.main
-            manifestPlaceholders = [enableCrashReporting: "false"]
+            manifestPlaceholders = [enableCrashReporting: "false", appName: "UpgradeAll-β"]
+            applicationIdSuffix ".debug"
         }
     }
     compileOptions {

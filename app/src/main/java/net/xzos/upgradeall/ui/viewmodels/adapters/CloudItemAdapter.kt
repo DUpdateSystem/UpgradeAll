@@ -37,6 +37,10 @@ open class CloudItemAdapter(private val mItemCardViewList: List<CloudConfigListI
         return mItemCardViewList.size
     }
 
+    override fun getItemId(position: Int): Long {
+        return mItemCardViewList[position].uuid.hashCode().toLong()
+    }
+
     internal fun setDownloadStatus(holder: CardViewRecyclerViewHolder, renew: Boolean) {
         if (renew) {
             holder.versionCheckButton.visibility = View.GONE

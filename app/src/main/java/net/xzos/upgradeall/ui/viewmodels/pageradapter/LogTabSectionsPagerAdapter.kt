@@ -4,7 +4,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.viewpager.widget.PagerAdapter
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.data.log.LogLiveData
@@ -17,7 +16,7 @@ class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, log
 
     init {
         val liveDataLogObjectTagList = LogLiveData.getObjectTagListBySort(logSort)
-        liveDataLogObjectTagList.observe(owner, Observer { logObjectList ->
+        liveDataLogObjectTagList.observe(owner, { logObjectList ->
             mLogObjectList = logObjectList
             notifyDataSetChanged()
         })

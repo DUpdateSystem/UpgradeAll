@@ -51,7 +51,7 @@ class CloudBackupManager {
         })
     }
 
-    private suspend fun privateBackup() {
+    private fun privateBackup() {
         if (webdavUrl == null) {
             MiscellaneousUtils.showToast(R.string.plz_set_webdav)
             return

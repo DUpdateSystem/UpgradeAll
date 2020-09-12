@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.*
 import kotlinx.android.synthetic.main.pageview_app_list.view.*
@@ -18,7 +17,7 @@ abstract class AppListContainerFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.pageview_app_list, container, false).apply {
-            viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
+            viewModel.appCardViewList.observe(viewLifecycleOwner, {
                 placeholderLayout.visibility = if (it.isEmpty())
                     View.VISIBLE
                 else View.GONE
@@ -38,7 +37,7 @@ abstract class AppListContainerFragment : Fragment() {
         setPlaceholderLayoutVisibility(View.VISIBLE)
         placeholderImageVew.setImageResource(R.drawable.ic_isnothing_placeholder)
         placeholderTextView.setText(R.string.click_to_add_something)
-        viewModel.appCardViewList.observe(viewLifecycleOwner, Observer {
+        viewModel.appCardViewList.observe(viewLifecycleOwner, {
             // 列表显示刷新
             setPlaceholderLayoutVisibility(
                     if (it.isNullOrEmpty())
@@ -64,13 +63,13 @@ abstract class AppListContainerFragment : Fragment() {
     private fun setNeedUpdateNumNotification() {
         var appListNum = 0
         var needUpdateAppNum = 0
-        viewModel.appCardViewList.observe(viewLifecycleOwner, Observer { list ->
+        viewModel.appCardViewList.observe(viewLifecycleOwner, { list ->
             with(list.size - 1) {
                 appListNum = if (this >= 0) this else this
             }
             updateOverviewTextView.text = getString(R.string.example_update_overview, appListNum, needUpdateAppNum)
         })
-        viewModel.needUpdateAppsLiveData.observe(viewLifecycleOwner, Observer { list ->
+        viewModel.needUpdateAppsLiveData.observe(viewLifecycleOwner, { list ->
             needUpdateAppNum = list.size
             updateOverviewTextView.text = getString(R.string.example_update_overview, appListNum, needUpdateAppNum)
             if (needUpdateAppNum == 0) {

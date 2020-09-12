@@ -7,8 +7,7 @@
     android:layout_height="match_parent"
     android:layout_margin="16dp"
     android:fitsSystemWindows="true"
-    android:orientation="vertical"
-    tools:context=".ui.fragment.setting.AppSettingFragment">
+    android:orientation="vertical">
 
     <ImageView
         android:id="@+id/imageView1"
@@ -16,10 +15,10 @@
         android:layout_height="24dp"
         android:contentDescription="@string/basic_info"
         android:src="@drawable/ic_load"
-        android:tint="@color/taupe"
         app:layout_constraintBottom_toBottomOf="@+id/textView1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView1" />
+        app:layout_constraintTop_toTopOf="@+id/textView1"
+        app:tint="@color/taupe" />
 
     <TextView
         android:id="@+id/textView1"
@@ -107,10 +106,10 @@
         android:layout_height="24dp"
         android:contentDescription="@string/versioning_check_setting"
         android:src="@drawable/ic_load"
-        android:tint="@color/taupe"
         app:layout_constraintBottom_toBottomOf="@+id/textView2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView2" />
+        app:layout_constraintTop_toTopOf="@+id/textView2"
+        app:tint="@color/taupe" />
 
     <TextView
         android:id="@+id/textView2"

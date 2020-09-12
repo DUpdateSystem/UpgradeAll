@@ -6,7 +6,7 @@ import java.util.*
 class SearchUtils(private val initSearchInfoList: List<SearchInfo>) {
     private val searchResultCacheMap = mutableMapOf<String, List<SearchInfo>>()
 
-    suspend fun search(searchString: String?): List<SearchInfo> {
+    fun search(searchString: String?): List<SearchInfo> {
         return if (searchString.isNullOrBlank()) listOf()
         else getCacheResult(searchString) ?: iterateSearch(searchString)
     }

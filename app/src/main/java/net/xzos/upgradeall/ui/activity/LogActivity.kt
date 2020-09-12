@@ -6,7 +6,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
-import androidx.lifecycle.Observer
 import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
 import kotlinx.android.synthetic.main.activity_log.*
 import kotlinx.coroutines.GlobalScope
@@ -111,7 +110,7 @@ class LogActivity : BaseActivity() {
 
     private fun setFab() {
         val liveDataLogSortList = LogLiveData.sortList
-        liveDataLogSortList.observe(this, Observer { logSortList ->
+        liveDataLogSortList.observe(this, { logSortList ->
             val menu = FabSpeedDialMenu(this)
             for (logSort in logSortList) {
                 if (logSort == "Core")
