@@ -82,13 +82,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.dev_help -> {
-                MiscellaneousUtils.accessByBrowser(
-                        "https://xzos.net/upgradeall-developer-documentation/",
-                        this
-                )
-                true
-            }
             android.R.id.home -> {
                 onBackPressed()
                 true
