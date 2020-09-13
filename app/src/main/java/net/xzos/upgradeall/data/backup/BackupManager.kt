@@ -1,5 +1,7 @@
 package net.xzos.upgradeall.data.backup
 
+import android.annotation.SuppressLint
+import android.os.Build
 import com.google.gson.Gson
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
@@ -11,8 +13,27 @@ import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.file.ZipFile
 import org.json.JSONArray
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
-class BackupManager {
+object BackupManager {
+
+    fun newFileName(): String {
+        val dataFormat = "yyyy-MM-dd_HH-mm"
+        val timeString = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val current = LocalDateTime.now()
+            val formatter = DateTimeFormatter.ofPattern(dataFormat)
+            current.format(formatter)
+        } else {
+            @SuppressLint("SimpleDateFormat")
+            val formatter = SimpleDateFormat(dataFormat)
+            formatter.format(Date())
+        }
+        return "UpgradeAll_$timeString.zip"
+    }
+
     fun mkZipFileBytes(): ByteArray? {
         return try {
             val zipFile = ZipFile()

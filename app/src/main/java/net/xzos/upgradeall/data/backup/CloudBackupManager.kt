@@ -1,7 +1,5 @@
 package net.xzos.upgradeall.data.backup
 
-import android.annotation.SuppressLint
-import android.os.Build
 import android.widget.Toast
 import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
 import com.thegrizzlylabs.sardineandroid.impl.SardineException
@@ -13,10 +11,6 @@ import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.*
 
 
 class CloudBackupManager {
@@ -46,7 +40,7 @@ class CloudBackupManager {
         runWebDAVFun(fun() {
             MiscellaneousUtils.showToast(R.string.restore_running)
             val bytes = sardine.get(webFilePath).readBytes()
-            runBlocking { RestoreManager().parseZip(bytes) }
+            runBlocking { RestoreManager.parseZip(bytes) }
             MiscellaneousUtils.showToast(R.string.restore_stop)
         })
     }
@@ -56,20 +50,10 @@ class CloudBackupManager {
             MiscellaneousUtils.showToast(R.string.plz_set_webdav)
             return
         }
-        val dataFormat = "yyyy-MM-dd_HH-mm"
-        val timeString = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val current = LocalDateTime.now()
-            val formatter = DateTimeFormatter.ofPattern(dataFormat)
-            current.format(formatter)
-        } else {
-            @SuppressLint("SimpleDateFormat")
-            val formatter = SimpleDateFormat(dataFormat)
-            formatter.format(Date())
-        }
-        val fileName = "UpgradeAll_$timeString.zip"
+        val fileName = BackupManager.newFileName()
         val webFilePath = "$webFileParentPath/$fileName"
         MiscellaneousUtils.showToast(R.string.backup_running)
-        val bytes = BackupManager().mkZipFileBytes()
+        val bytes = BackupManager.mkZipFileBytes()
         runWebDAVFun(fun() {
             if (!sardine.exists(webFileParentPath))
                 sardine.createDirectory(webFileParentPath)

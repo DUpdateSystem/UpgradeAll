@@ -57,11 +57,11 @@ fun parseAppDatabaseConfig(json: JSONObject): AppDatabase {
     return AppDatabase(
             0,
             json.getString("name"), json.getString("hub_uuid"), json.getString("url"),
-            converters.stringToPackageId(json.getString("package_id")),
-            converters.stringToAppConfigGson(json.getString("cloud_config")),
-            converters.stringToMap(json.getString("auth")),
-            converters.stringToMap(json.getString("extra_id")),
-            json.getString("ignore_version_number")
+            converters.stringToPackageId(json.getOrNull("package_id")),
+            converters.stringToAppConfigGson(json.getOrNull("cloud_config")),
+            converters.stringToMap(json.getOrNull("auth")),
+            converters.stringToMap(json.getOrNull("extra_id")),
+            json.optString("ignore_version_number")
     )
 }
 
@@ -69,9 +69,16 @@ fun parseApplicationsDatabaseConfig(json: JSONObject): ApplicationsDatabase {
     return ApplicationsDatabase(
             0,
             json.getString("name"), json.getString("hub_uuid"),
-            converters.stringToMap(json.getString("auth")),
-            converters.stringToMap(json.getString("extra_id")),
-            converters.stringToListMap(json.getString("invalid_package_list")).toCoroutinesMutableList(),
-            converters.stringToIgnoreAppList(json.getString("ignore_app_list")).toCoroutinesMutableList()
+            converters.stringToMap(json.getOrNull("auth")),
+            converters.stringToMap(json.getOrNull("extra_id")),
+            converters.stringToListMap(json.getOrNull("invalid_package_list")).toCoroutinesMutableList(),
+            converters.stringToIgnoreAppList(json.getOrNull("ignore_app_list")).toCoroutinesMutableList()
     )
+}
+
+@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+fun JSONObject.getOrNull(key: String): String? = with(this.getString(key)) {
+    if (this != "null")
+        this
+    else null
 }

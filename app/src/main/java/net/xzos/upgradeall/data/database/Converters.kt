@@ -25,7 +25,7 @@ class Converters {
 
     @TypeConverter
     fun stringToIgnoreAppList(s: String?): List<IgnoreApp> {
-        if (s == null) return emptyList()
+        if (s.isNullOrEmpty()) return emptyList()
         val listType = object : TypeToken<ArrayList<IgnoreApp>?>() {}.type
         return Gson().fromJson(s, listType)
     }
@@ -40,7 +40,7 @@ class Converters {
 
     @TypeConverter
     fun stringToList(s: String?): List<String> {
-        if (s == null) return emptyList()
+        if (s.isNullOrEmpty()) return emptyList()
         val listType = object : TypeToken<ArrayList<String>?>() {}.type
         return Gson().fromJson(s, listType)
     }
@@ -52,7 +52,7 @@ class Converters {
 
     @TypeConverter
     fun stringToAppConfigGson(s: String?): AppConfigGson? {
-        if (s == null) return null
+        if (s.isNullOrEmpty()) return null
         return Gson().fromJson(s, AppConfigGson::class.java)
     }
 
@@ -63,13 +63,13 @@ class Converters {
 
     @TypeConverter
     fun stringToPackageId(s: String?): PackageIdGson {
-        if (s == null) return PackageIdGson()
+        if (s.isNullOrEmpty()) return PackageIdGson()
         return Gson().fromJson(s, PackageIdGson::class.java)
     }
 
     @TypeConverter
     fun stringToListMap(s: String?): List<Map<String, String>> {
-        if (s == null) return emptyList()
+        if (s.isNullOrEmpty()) return emptyList()
 
         return try {
             val jsonArray = JSONArray(s)
@@ -114,7 +114,7 @@ class Converters {
 
     @TypeConverter
     fun stringToMap(s: String?): Map<String, String?> {
-        if (s == null) return mapOf()
+        if (s.isNullOrEmpty()) return mapOf()
         val jsonObject = JSONObject(s)
         val map = mutableMapOf<String, String?>()
         for (k in jsonObject.keys()) {
@@ -130,7 +130,7 @@ class Converters {
 
     @TypeConverter
     fun stringToHubConfigGson(s: String?): HubConfigGson {
-        if (s == null) return HubConfigGson()
+        if (s.isNullOrEmpty()) return HubConfigGson()
         return Gson().fromJson(s, HubConfigGson::class.java)
     }
 }

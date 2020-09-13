@@ -44,10 +44,10 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
         backupPreference.setOnPreferenceClickListener {
             GlobalScope.launch {
                 MiscellaneousUtils.showToast(R.string.backup_running)
-                val backupFileBytes = BackupManager().mkZipFileBytes()
+                val backupFileBytes = BackupManager.mkZipFileBytes()
                 val context = this@BackupFragment.context
                 if (backupFileBytes != null && context != null) {
-                    SaveFileActivity.newInstance("UpgradeAll_Backup.zip", "application/zip", backupFileBytes, context)
+                    SaveFileActivity.newInstance(BackupManager.newFileName(), "application/zip", backupFileBytes, context)
                 }
                 MiscellaneousUtils.showToast(R.string.backup_stop)
             }
@@ -63,7 +63,7 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
                         @Suppress("BlockingMethodInNonBlockingContext")
                         context.contentResolver.openInputStream(uri)?.let { iStream ->
                             val bytes = iStream.readBytes()
-                            RestoreManager().parseZip(bytes)
+                            RestoreManager.parseZip(bytes)
                         }
                         MiscellaneousUtils.showToast(R.string.restore_stop)
                     }

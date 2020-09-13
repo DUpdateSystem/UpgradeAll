@@ -18,7 +18,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 
-class RestoreManager {
+object RestoreManager {
     suspend fun parseZip(zipFileByteArray: ByteArray) {
         ZipInputStream(zipFileByteArray.inputStream()).use { zis ->
             var ze: ZipEntry?
