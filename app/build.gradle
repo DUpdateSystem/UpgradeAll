@@ -39,7 +39,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.main
-            manifestPlaceholders = [enableCrashReporting: "true"]
+            manifestPlaceholders = [enableCrashReporting: "true", appName: "UpgradeAll"]
         }
         debug {
             signingConfig signingConfigs.main
