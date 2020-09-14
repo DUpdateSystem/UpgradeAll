@@ -21,13 +21,7 @@ internal class HubData(
         }
     }
 
-    fun getAppIdList(): List<Map<String, String?>> {
-        return runBlocking {
-            dataMutex.withLock {
-                appIdList.toList()
-            }
-        }
-    }
+    fun getAppIdList(): HashSet<Map<String, String?>> = appIdList
 }
 
 

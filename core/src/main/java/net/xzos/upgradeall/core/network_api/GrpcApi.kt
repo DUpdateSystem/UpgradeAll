@@ -5,8 +5,7 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import io.grpc.stub.StreamObserver
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableMap
@@ -119,8 +118,30 @@ object GrpcApi {
         val hubUuid = hubData.hubUuid
         val auth = hubData.auth
         val appIdList = hubData.getAppIdList()
-        val responseObserver: StreamObserver<ReleaseResponse> = object : StreamObserver<ReleaseResponse> {
-            override fun onNext(response: ReleaseResponse) {
+        val request = getReleaseRequestBuilder(hubUuid, appIdList, auth)
+
+        GlobalScope.launch(Dispatchers.IO) {
+            callGetAppRelease(request.build(), hubUuid, auth, appIdList)
+        }
+    }
+
+    private suspend fun callGetAppRelease(
+            request: ReleaseRequest,
+            hubUuid: String, auth: Map<String, String?>, appIdList: HashSet<Map<String, String?>>
+    ): UpdateServerRouteGrpc.UpdateServerRouteStub? {
+        val clearMutex = fun() {
+            for (appId in appIdList.toList()) {
+                val itemKey = (hubUuid + auth + appId).md5()
+                grpcAppItemWaitLockList.unLock(itemKey)
+                appIdList.remove(appId)
+            }
+        }
+
+        val asyncStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
+        try {
+            val releaseResponseIterator = asyncStub.withDeadlineAfter(deadlineMs, TimeUnit.SECONDS).getAppRelease(request)
+            while (withTimeout(deadlineMs) { releaseResponseIterator.hasNext() }) {
+                val response = releaseResponseIterator.next()
                 if (response.validHub) {
                     val releasePackage = response.release
                     val appId = releasePackage.appIdList.toMap()
@@ -128,32 +149,18 @@ object GrpcApi {
                         DataCache.cacheAppStatus(hubUuid, auth, appId, releasePackage.releaseListList)
                     val itemKey = (hubUuid + auth + appId).md5()
                     grpcAppItemWaitLockList.unLock(itemKey)
-                } else
+                    appIdList.remove(appId)
+                } else {
                     invalidHubUuidList.add(hubUuid)
-            }
-
-            override fun onError(t: Throwable) {
-                for (appId in appIdList) {
-                    val itemKey = (hubUuid + auth + appId).md5()
-                    grpcAppItemWaitLockList.unLock(itemKey)
+                    clearMutex()
                 }
             }
-
-            override fun onCompleted() {}
-        }
-        val request = getReleaseRequestBuilder(hubUuid, appIdList, auth)
-        callGetAppRelease(request.build(), responseObserver)
-    }
-
-    private fun callGetAppRelease(request: ReleaseRequest, responseObserver: StreamObserver<ReleaseResponse>): UpdateServerRouteGrpc.UpdateServerRouteStub? {
-        val asyncStub = UpdateServerRouteGrpc.newStub(mChannel)
-        try {
-            asyncStub.withDeadlineAfter(deadlineMs, TimeUnit.SECONDS).getAppRelease(request, responseObserver)
-            return asyncStub
-        } catch (ignore: StatusRuntimeException) {
-            if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
-                logDeadlineError("CallGetAppRelease", request.hubUuid, "hub_uuid: ${request.hubUuid}, num: ${request.appIdListCount}")
+        } catch (e: Throwable) {
+            if ((e is StatusRuntimeException && e.status.code == Status.Code.DEADLINE_EXCEEDED)
+                    || e is TimeoutCancellationException) {
+                logDeadlineError("CallGetAppRelease", request.hubUuid, "hub_uuid: ${hubUuid}, num: ${request.appIdListCount}, cancel: ${appIdList.size}")
             }
+            clearMutex()
         }
         return null
     }
@@ -176,7 +183,7 @@ object GrpcApi {
         }
     }
 
-    private fun getReleaseRequestBuilder(hubUuid: String, appIdList: List<Map<String, String?>>, authMap: Map<String, String?>) =
+    private fun getReleaseRequestBuilder(hubUuid: String, appIdList: HashSet<Map<String, String?>>, authMap: Map<String, String?>) =
             ReleaseRequest.newBuilder()
                     .setHubUuid(hubUuid)
                     .addAllAppIdList(appIdList.map { AppId.newBuilder().addAllAppId(it.togRPCDict()).build() })

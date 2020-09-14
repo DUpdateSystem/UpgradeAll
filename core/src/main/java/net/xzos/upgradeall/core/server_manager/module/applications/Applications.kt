@@ -18,7 +18,9 @@ class Applications(override val appDatabase: ApplicationsDatabase,
     val name = appDatabase.name
 
     val needUpdateAppList: List<App>
-        get() = runBlocking { mainUpdateControl.getNeedUpdateAppList(false) }.filterIsInstance<App>()
+        get() = runBlocking {
+            mainUpdateControl.getNeedUpdateAppList(false)
+        }.filterIsInstance<App>()
 
 
     private var tmpUpdateStatus = 0
