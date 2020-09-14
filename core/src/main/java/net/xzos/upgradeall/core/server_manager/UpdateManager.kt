@@ -3,7 +3,7 @@ package net.xzos.upgradeall.core.server_manager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableListOf
+import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App

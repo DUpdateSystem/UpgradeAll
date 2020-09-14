@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.data.backup
 
 import com.google.gson.Gson
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.toCoroutinesMutableList
+import net.xzos.upgradeall.core.data.coroutines.toCoroutinesMutableList
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
 import net.xzos.upgradeall.core.data.database.HubDatabase

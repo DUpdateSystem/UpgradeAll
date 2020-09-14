@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.network_api
 
+import android.os.Looper
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
@@ -8,14 +9,14 @@ import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.data.config.AppConfig
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.CoroutinesMutableMap
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableListOf
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableMapOf
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.wait
+import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableMap
+import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableListOf
+import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data_manager.utils.DataCache
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.route.*
+import net.xzos.upgradeall.core.utils.wait
 import java.util.concurrent.TimeUnit
 
 
@@ -28,7 +29,7 @@ object GrpcApi {
     private var updateServerUrl: String = AppConfig.update_server_url
     private var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
 
-    private const val deadlineMs = 60L
+    private const val deadlineMs = 10L
     private const val grpcWaitTime = 1000L
 
     private val hubDataMap = coroutinesMutableMapOf<String, HubData>()
@@ -89,6 +90,7 @@ object GrpcApi {
     suspend fun getAppRelease(hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>): List<ReleaseListItem>? {
         if (hubUuid in invalidHubUuidList) return null
         return DataCache.getAppRelease(hubUuid, auth, appId) ?: kotlin.run {
+            if (Looper.myLooper() == Looper.getMainLooper()) return null
             val itemKey = (hubUuid + auth + appId).md5()
             if (grpcAppItemWaitLockList.setLock(itemKey, true) != null) {
                 with(hubDataMap.getHubData(hubUuid, auth)) {
@@ -143,16 +145,17 @@ object GrpcApi {
         callGetAppRelease(request.build(), responseObserver)
     }
 
-
-    private fun callGetAppRelease(request: ReleaseRequest, responseObserver: StreamObserver<ReleaseResponse>) {
+    private fun callGetAppRelease(request: ReleaseRequest, responseObserver: StreamObserver<ReleaseResponse>): UpdateServerRouteGrpc.UpdateServerRouteStub? {
         val asyncStub = UpdateServerRouteGrpc.newStub(mChannel)
         try {
-            asyncStub.getAppRelease(request, responseObserver)
+            asyncStub.withDeadlineAfter(deadlineMs, TimeUnit.SECONDS).getAppRelease(request, responseObserver)
+            return asyncStub
         } catch (ignore: StatusRuntimeException) {
             if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
                 logDeadlineError("CallGetAppRelease", request.hubUuid, "hub_uuid: ${request.hubUuid}, num: ${request.appIdListCount}")
             }
         }
+        return null
     }
 
     suspend fun getDownloadInfo(hubUuid: String, appId: Map<String, String?>, auth: Map<String, String?>, assetIndex: List<Int>): GetDownloadResponse? {

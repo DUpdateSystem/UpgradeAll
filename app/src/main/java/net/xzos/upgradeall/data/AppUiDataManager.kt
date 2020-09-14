@@ -2,7 +2,7 @@ package net.xzos.upgradeall.data
 
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableMapOf
+import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.core.server_manager.UpdateManager

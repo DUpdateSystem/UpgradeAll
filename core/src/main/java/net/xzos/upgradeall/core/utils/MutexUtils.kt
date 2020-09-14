@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.data.coroutines_basic_data_type
+package net.xzos.upgradeall.core.utils
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex

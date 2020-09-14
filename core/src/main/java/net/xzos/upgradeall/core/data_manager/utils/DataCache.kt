@@ -1,8 +1,8 @@
 package net.xzos.upgradeall.core.data_manager.utils
 
 import net.xzos.upgradeall.core.data.config.AppValue
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.CoroutinesMutableMap
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableMapOf
+import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableMap
+import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.route.ReleaseListItem
 import java.util.*
 

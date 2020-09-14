@@ -12,7 +12,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.wait
+import net.xzos.upgradeall.core.utils.wait
 import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.ToastUtil
 

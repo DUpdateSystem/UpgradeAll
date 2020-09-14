@@ -1,6 +1,7 @@
-package net.xzos.upgradeall.core.data.coroutines_basic_data_type
+package net.xzos.upgradeall.core.data.coroutines
 
 import kotlinx.coroutines.sync.Mutex
+import net.xzos.upgradeall.core.utils.runWithLock
 
 class CoroutinesMutableList<E>(hash: Boolean = false, list: List<E>? = null) : MutableList<E> {
     private val mutex = Mutex()

@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.android_api
 
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableListOf
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.toCoroutinesMutableList
+import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableListOf
+import net.xzos.upgradeall.core.data.coroutines.toCoroutinesMutableList
 import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
 import net.xzos.upgradeall.core.data.database.HubDatabase

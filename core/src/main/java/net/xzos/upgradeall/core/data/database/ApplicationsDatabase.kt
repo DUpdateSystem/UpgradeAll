@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.core.data.database
 
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.CoroutinesMutableList
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableListOf
+import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.data.json.gson.IgnoreApp
 
 class ApplicationsDatabase(

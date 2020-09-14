@@ -5,7 +5,7 @@ import eu.darken.rxshell.cmd.RxCmdShell
 import eu.darken.rxshell.root.Root
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.wait
+import net.xzos.upgradeall.core.utils.wait
 
 object Shell {
 

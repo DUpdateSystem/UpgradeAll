@@ -1,6 +1,7 @@
-package net.xzos.upgradeall.core.data.coroutines_basic_data_type
+package net.xzos.upgradeall.core.data.coroutines
 
 import kotlinx.coroutines.sync.Mutex
+import net.xzos.upgradeall.core.utils.runWithLock
 
 class CoroutinesMutableMap<K, V>(hash: Boolean = false, map: Map<K, V>? = null) : MutableMap<K, V> {
     private val mutex = Mutex()

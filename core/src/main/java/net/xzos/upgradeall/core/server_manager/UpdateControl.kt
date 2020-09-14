@@ -4,10 +4,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.CoroutinesMutableList
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.CoroutinesMutableMap
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableListOf
-import net.xzos.upgradeall.core.data.coroutines_basic_data_type.coroutinesMutableMapOf
+import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableMap
+import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableListOf
+import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
 
