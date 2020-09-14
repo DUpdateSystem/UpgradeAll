@@ -128,7 +128,7 @@ object GrpcApi {
     private suspend fun callGetAppRelease(
             request: ReleaseRequest,
             hubUuid: String, auth: Map<String, String?>, appIdList: HashSet<Map<String, String?>>
-    ): UpdateServerRouteGrpc.UpdateServerRouteStub? {
+    ) {
         val clearMutex = fun() {
             for (appId in appIdList.toList()) {
                 val itemKey = (hubUuid + auth + appId).md5()
@@ -152,7 +152,6 @@ object GrpcApi {
                     appIdList.remove(appId)
                 } else {
                     invalidHubUuidList.add(hubUuid)
-                    clearMutex()
                 }
             }
         } catch (e: Throwable) {
@@ -160,9 +159,9 @@ object GrpcApi {
                     || e is TimeoutCancellationException) {
                 logDeadlineError("CallGetAppRelease", request.hubUuid, "hub_uuid: ${hubUuid}, num: ${request.appIdListCount}, cancel: ${appIdList.size}")
             }
+        } finally {
             clearMutex()
         }
-        return null
     }
 
     suspend fun getDownloadInfo(hubUuid: String, appId: Map<String, String?>, auth: Map<String, String?>, assetIndex: List<Int>): GetDownloadResponse? {
