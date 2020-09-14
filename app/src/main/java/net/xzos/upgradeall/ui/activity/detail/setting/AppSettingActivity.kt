@@ -2,8 +2,12 @@ package net.xzos.upgradeall.ui.activity.detail.setting
 
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import kotlinx.android.synthetic.main.activity_app_setting.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.data.database.AppDatabase
@@ -13,14 +17,20 @@ import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_
 import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_SHELL
 import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
+import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
+import net.xzos.upgradeall.utils.SearchUtils
+import net.xzos.upgradeall.utils.ToastUtil
+import net.xzos.upgradeall.utils.VersioningUtils
 
 class AppSettingActivity : BaseAppSettingActivity() {
+
+    private val searchUtils = SearchUtils()
 
     private val appDatabase: AppDatabase = bundleDatabase
             ?: AppDatabase(0, "", "", "")
 
     private val targetCheckerApi: String?
-        get() = when (versionCheckSpinner.selectedItem.toString()) {
+        get() = when (PackageIdApiSpinner.selectedItem.toString()) {
             "APP 版本" -> API_TYPE_APP_PACKAGE
             "Magisk 模块" -> API_TYPE_MAGISK_MODULE
             "自定义 Shell 命令" -> API_TYPE_SHELL
@@ -32,8 +42,13 @@ class AppSettingActivity : BaseAppSettingActivity() {
     private val packageId: PackageIdGson
         get() = PackageIdGson(
                 targetCheckerApi,
-                editTarget.text.toString()
+                editPackageId.text.toString()
         )
+
+    override fun onResume() {
+        super.onResume()
+        searchUtils.renewData()  // 清除搜索缓存
+    }
 
     override fun saveDatabase(): Boolean {
         if (editUrl.text.isNullOrBlank()) {
@@ -60,7 +75,7 @@ class AppSettingActivity : BaseAppSettingActivity() {
         editUrl.setText(appDatabase.url)
         val packageIdGson = appDatabase.packageId
         val versionCheckerText = packageIdGson?.extraString
-        versionCheckSpinner.setSelection(
+        PackageIdApiSpinner.setSelection(
                 when (packageIdGson?.api?.toLowerCase(AppValue.locale)) {
                     API_TYPE_APP_PACKAGE -> 0
                     API_TYPE_MAGISK_MODULE -> 1
@@ -69,7 +84,38 @@ class AppSettingActivity : BaseAppSettingActivity() {
                     else -> 0
                 }
         )
-        editTarget.setText(versionCheckerText)
+        editPackageId.setText(versionCheckerText)
+    }
+
+    override fun initUi() {
+        // 版本检查设置
+        checkPackageIdButton.setOnClickListener {
+            val rawVersion = VersioningUtils.getAppVersionNumber(packageId)
+            val version = net.xzos.upgradeall.core.data_manager.utils.VersioningUtils.matchVersioningString(rawVersion)
+            if (rawVersion != null) {
+                ToastUtil.makeText("raw_version: $rawVersion\nversion: $version", Toast.LENGTH_SHORT)
+            }
+        }
+        editPackageId.threshold = 1
+        val mutex = Mutex()
+        editPackageId.addTextChangedListener {
+            if (targetCheckerApi != API_TYPE_SHELL && targetCheckerApi != API_TYPE_SHELL_ROOT) {
+                val text = it.toString()
+                GlobalScope.launch(Dispatchers.IO) {
+                    mutex.withLock {
+                        if (text.isNotBlank()) {
+                            val searchInfoList = searchUtils.search(text)
+                            if (searchInfoList.isNotEmpty()) {
+                                withContext(Dispatchers.Main) {
+                                    editPackageId.setAdapter(SearchResultItemAdapter(this@AppSettingActivity, searchInfoList))
+                                    editPackageId.showDropDown()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     companion object {

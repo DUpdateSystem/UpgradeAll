@@ -15,7 +15,7 @@
     <string name="add">添加</string>
     <string name="desc">网址</string>
     <string name="name">名称</string>
-    <string name="update_item_setting_editVersionCheckerText">跟踪目标</string>
+    <string name="package_id">跟踪目标</string>
     <string name="basic_info">基础信息</string>
     <string name="versioning_check_setting">版本控制设置</string>
     <string name="test">测试</string>

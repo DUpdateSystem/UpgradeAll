@@ -26,6 +26,7 @@ class ApplicationsSettingActivity : BaseAppSettingActivity() {
     }
 
     override fun setSettingItem() {}
+    override fun initUi() {}
 
     companion object {
         private var bundleDatabase: ApplicationsDatabase? = null

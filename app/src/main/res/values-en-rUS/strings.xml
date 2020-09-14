@@ -16,7 +16,7 @@
     <string name="add">Add</string>
     <string name="desc">URL</string>
     <string name="name">Name</string>
-    <string name="update_item_setting_editVersionCheckerText">App Locator Name</string>
+    <string name="package_id">App Locator Name</string>
     <string name="basic_info">Basic Info</string>
     <string name="versioning_check_setting">Versioning Setting</string>
     <string name="test">Test</string>

@@ -31,11 +31,15 @@ abstract class BaseAppSettingActivity : AppCompatActivity() {
 
     internal var hubUuid: String? = null
 
+    abstract fun initUi()
+    abstract fun saveDatabase(): Boolean
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_app_setting)
 
         initView()
+        initUi()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -50,7 +54,7 @@ abstract class BaseAppSettingActivity : AppCompatActivity() {
         setEndIconOnClickListener(hub_input_layout)
         setEndIconOnClickListener(name_input_layout)
         setEndIconOnClickListener(url_input_layout)
-        setEndIconOnClickListener(versioning_input_layout)
+        setEndIconOnClickListener(package_id_input_layout)
     }
 
     private fun setEndIconOnClickListener(textInputLayout: TextInputLayout) {
@@ -58,7 +62,7 @@ abstract class BaseAppSettingActivity : AppCompatActivity() {
             R.id.hub_input_layout -> R.string.setting_app_hub_explain
             R.id.name_input_layout -> R.string.setting_app_name_explain
             R.id.url_input_layout -> R.string.setting_app_url_explain
-            R.id.versioning_input_layout -> R.string.setting_app_versioning_explain
+            R.id.package_id_input_layout -> R.string.setting_app_versioning_explain
             else -> R.string.null_english
         }) + getString(R.string.detailed_help) + "：" + getString(R.string.readme_url)
         textInputLayout.setEndIconOnClickListener {
@@ -107,8 +111,6 @@ abstract class BaseAppSettingActivity : AppCompatActivity() {
             loadingBar.visibility = View.GONE
         }
     }
-
-    abstract fun saveDatabase(): Boolean
 
     private fun initSetSettingItem() {
         // 如果是设置修改请求，设置预置设置项
@@ -181,10 +183,10 @@ abstract class BaseAppSettingActivity : AppCompatActivity() {
             // 已隐藏无关选项
             imageView2.visibility = View.GONE
             textView2.visibility = View.GONE
-            versionCheckSpinner.visibility = View.GONE
+            PackageIdApiSpinner.visibility = View.GONE
             url_input_layout.visibility = View.GONE
-            versioning_input_layout.visibility = View.GONE
-            versionCheckButton.visibility = View.GONE
+            package_id_input_layout.visibility = View.GONE
+            checkPackageIdButton.visibility = View.GONE
         }
         val editViews = mutableListOf<TextInputEditText>(editHub).apply {
             if (database is ApplicationsDatabase)

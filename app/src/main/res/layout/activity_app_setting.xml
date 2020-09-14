@@ -147,7 +147,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/url_input_layout" />
 
             <Spinner
-                android:id="@+id/versionCheckSpinner"
+                android:id="@+id/PackageIdApiSpinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -158,24 +158,24 @@
                 app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/versioning_input_layout"
+                android:id="@+id/package_id_input_layout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="5dp"
                 android:layout_weight="1"
-                android:hint="@string/update_item_setting_editVersionCheckerText"
+                android:hint="@string/package_id"
                 app:endIconCheckable="true"
                 app:endIconContentDescription="@string/help"
                 app:endIconDrawable="@drawable/ic_help"
                 app:endIconMode="custom"
-                app:layout_constraintEnd_toStartOf="@+id/versionCheckButton"
-                app:layout_constraintStart_toStartOf="@+id/versionCheckSpinner"
-                app:layout_constraintTop_toBottomOf="@+id/versionCheckSpinner">
+                app:layout_constraintEnd_toStartOf="@+id/checkPackageIdButton"
+                app:layout_constraintStart_toStartOf="@+id/PackageIdApiSpinner"
+                app:layout_constraintTop_toBottomOf="@+id/PackageIdApiSpinner">
 
                 <androidx.appcompat.widget.AppCompatAutoCompleteTextView
-                    android:id="@+id/editTarget"
+                    android:id="@+id/editPackageId"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
@@ -185,15 +185,15 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/versionCheckButton"
+                android:id="@+id/checkPackageIdButton"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_marginTop="4dp"
-                android:text="@string/update_item_setting_editVersionCheckerText"
-                app:layout_constraintBottom_toBottomOf="@+id/versioning_input_layout"
+                android:text="@string/test"
+                app:layout_constraintBottom_toBottomOf="@+id/package_id_input_layout"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/versioning_input_layout" />
+                app:layout_constraintTop_toTopOf="@+id/package_id_input_layout" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

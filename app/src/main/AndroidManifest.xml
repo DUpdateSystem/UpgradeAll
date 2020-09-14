@@ -87,10 +87,13 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.activity.detail.setting.AppSettingActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.detail.setting.ApplicationsSettingActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.LogActivity"
             android:label="@string/log" />
