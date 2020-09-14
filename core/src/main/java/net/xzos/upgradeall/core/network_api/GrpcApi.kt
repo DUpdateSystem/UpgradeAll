@@ -141,7 +141,7 @@ object GrpcApi {
 
             override fun onCompleted() {}
         }
-        val request = getReleaseRequestBuilder(hubUuid, appIdList.toList(), auth)
+        val request = getReleaseRequestBuilder(hubUuid, appIdList, auth)
         callGetAppRelease(request.build(), responseObserver)
     }
 

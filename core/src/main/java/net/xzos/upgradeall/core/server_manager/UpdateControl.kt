@@ -18,7 +18,7 @@ open class UpdateControl internal constructor(
 ) {
 
     internal val refreshMutex = Mutex()  // 刷新锁，避免重复请求刷新导致浪费大量资源
-    private val appMap = coroutinesMutableMapOf<Int, CoroutinesMutableList<BaseApp>>()
+    private val appMap = coroutinesMutableMapOf<Int, CoroutinesMutableList<BaseApp>>(true)
 
     fun getAllApp(vararg appStatus: Int): List<BaseApp> {
         val allApp: MutableList<BaseApp> = mutableListOf()
@@ -70,10 +70,16 @@ open class UpdateControl internal constructor(
     }
 
     fun delApp(app: BaseApp) {
+        app.statusRenewedFun = fun(_) {}
         appMap.removeApp(app)
     }
 
     fun clearApp() {
+        for (list in appMap.values) {
+            list.map {
+                it.statusRenewedFun = fun(_) {}
+            }
+        }
         appMap.clear()
     }
 
