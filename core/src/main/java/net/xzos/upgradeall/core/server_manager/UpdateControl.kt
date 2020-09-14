@@ -70,7 +70,6 @@ open class UpdateControl internal constructor(
     }
 
     fun delApp(app: BaseApp) {
-        app.statusRenewedFun = fun(_) {}
         appMap.removeApp(app)
     }
 
