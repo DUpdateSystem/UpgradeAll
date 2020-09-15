@@ -96,10 +96,10 @@ object RestoreManager {
     private fun getDatabaseIdMap(): Map<String, String> {
         val databaseIdMap = mutableMapOf<String, String>()
         for (database in AppDatabaseManager.appDatabases) {
-            databaseIdMap[database.toUiConfigId()] = database.md5()
+            databaseIdMap[database.md5()] = database.toUiConfigId()
         }
         for (database in AppDatabaseManager.applicationsDatabases) {
-            databaseIdMap[database.toUiConfigId()] = database.md5()
+            databaseIdMap[database.md5()] = database.toUiConfigId()
         }
         return databaseIdMap
     }

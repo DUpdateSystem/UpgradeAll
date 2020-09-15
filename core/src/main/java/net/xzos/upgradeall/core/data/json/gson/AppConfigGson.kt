@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.data.json.gson
 
+import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -8,7 +9,7 @@ import com.google.gson.annotations.SerializedName
  * info: {"app_name": "", "config_version": 1, "url": ""}
  * app_config: {"hub_info": {"hub_uuid": ""}, "target_checker": {"api": "", "extra_string": ""}}
  */
-data class AppConfigGson(
+class AppConfigGson(
         @SerializedName("base_version") var baseVersion: Int? = null,
         @SerializedName("uuid") var uuid: String? = null,
         @SerializedName("info") var info: InfoBean = InfoBean(),
@@ -21,9 +22,9 @@ data class AppConfigGson(
      * url:
      */
     class InfoBean(
-        @SerializedName("app_name") var appName: String = "null",
-        @SerializedName("config_version") var configVersion: Int = 0,
-        @SerializedName("url") var url: String? = null
+            @SerializedName("app_name") var appName: String = "null",
+            @SerializedName("config_version") var configVersion: Int = 0,
+            @SerializedName("url") var url: String? = null
     )
 
     /**
@@ -39,7 +40,11 @@ data class AppConfigGson(
          * hub_uuid:
          */
         class HubInfoBean(
-            @SerializedName("hub_uuid") var hubUuid: String? = null
+                @SerializedName("hub_uuid") var hubUuid: String? = null
         )
+    }
+
+    override fun toString(): String {
+        return Gson().toJson(this)
     }
 }

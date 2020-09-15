@@ -48,7 +48,7 @@ class Converters {
     @TypeConverter
     fun fromAppConfigGson(appConfigGson: AppConfigGson?): String? {
         appConfigGson ?: return null
-        return Gson().toJson(appConfigGson)
+        return appConfigGson.toString()
     }
 
     @TypeConverter
@@ -60,7 +60,7 @@ class Converters {
     @TypeConverter
     fun fromPackageId(packageId: PackageIdGson?): String? {
         packageId ?: return null
-        return Gson().toJson(packageId)
+        return packageId.toString()
     }
 
     @TypeConverter
@@ -127,7 +127,7 @@ class Converters {
 
     @TypeConverter
     fun fromHubConfigGson(hubConfigGson: HubConfigGson): String {
-        return Gson().toJson(hubConfigGson)
+        return hubConfigGson.toString()
     }
 
     @TypeConverter

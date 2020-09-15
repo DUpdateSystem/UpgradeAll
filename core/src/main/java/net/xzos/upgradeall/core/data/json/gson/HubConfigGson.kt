@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.data.json.gson
 
+import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -27,4 +28,8 @@ class HubConfigGson(
             @SerializedName("config_version") var configVersion: Int = 0,
             @SerializedName("hub_icon_url ") var hubIconUrl: String? = null
     )
+
+    override fun toString(): String {
+        return Gson().toJson(this)
+    }
 }
