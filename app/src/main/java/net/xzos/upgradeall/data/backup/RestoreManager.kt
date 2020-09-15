@@ -5,6 +5,7 @@ import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
+import net.xzos.upgradeall.data.AppUiDataManager
 import net.xzos.upgradeall.data.gson.UIConfig
 import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
 import net.xzos.upgradeall.data.gson.changeAppDatabaseId
@@ -91,6 +92,7 @@ object RestoreManager {
             userTab.addItemList(user_tab.itemList)
         }
         uiConfig.save()
+        AppUiDataManager.refreshFromUiConfig()
     }
 
     private fun getDatabaseIdMap(): Map<String, String> {

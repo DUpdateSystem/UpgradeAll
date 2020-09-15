@@ -44,7 +44,7 @@ object AppUiDataManager {
         // 初始化绑定 Map
         appListLiveDataMap[ALL_APP_PAGE_INDEX] = allAppListLiveData
         appListLiveDataMap[UPDATE_PAGE_INDEX] = needUpdateAppListLiveData
-        refreshAppListMap()
+        initFromUiConfig()
     }
 
     private fun refreshNeedUpdateAppList() {
@@ -87,7 +87,7 @@ object AppUiDataManager {
         allAppListLiveData.setValueBackground(AppManager.apps)
     }
 
-    private fun refreshAppListMap() {
+    private fun initFromUiConfig() {
         appListLiveDataMap[USER_STAR_PAGE_INDEX] = MutableLiveData(
                 uiConfig.userStarTab.itemList.mapNotNull {
                     getBaseApp(it.appIdList[0])
@@ -95,6 +95,20 @@ object AppUiDataManager {
         val userTabList = uiConfig.userTabList
         for (tabPageIndex in 0 until userTabList.size) {
             appListLiveDataMap[tabPageIndex] = MutableLiveData(userTabList[tabPageIndex].itemList.mapNotNull {
+                getBaseApp(it.appIdList[0])
+            })
+        }
+    }
+
+    fun refreshFromUiConfig() {
+        appListLiveDataMap[USER_STAR_PAGE_INDEX]?.setValueBackground(
+                uiConfig.userStarTab.itemList.mapNotNull {
+                    getBaseApp(it.appIdList[0])
+                })
+        val userTabList = uiConfig.userTabList
+        for (tabPageIndex in 0 until userTabList.size) {
+            val liveData = appListLiveDataMap[tabPageIndex] ?: MutableLiveData()
+            liveData.setValueBackground(userTabList[tabPageIndex].itemList.mapNotNull {
                 getBaseApp(it.appIdList[0])
             })
         }
@@ -111,13 +125,13 @@ object AppUiDataManager {
 
     fun addUserTab(name: String, icon: String?): Boolean {
         return uiConfig.addUserTab(name, icon).also {
-            if (it) refreshAppListMap()
+            if (it) initFromUiConfig()
         }
     }
 
     fun removeUserTab(position: Int? = null, userTabListBean: UIConfig.CustomContainerTabListBean? = null) {
         uiConfig.removeUserTab(position, userTabListBean)
-        refreshAppListMap()
+        initFromUiConfig()
     }
 
     fun removeItemFromTabPage(position: Int, tabPageIndex: Int): Boolean {
