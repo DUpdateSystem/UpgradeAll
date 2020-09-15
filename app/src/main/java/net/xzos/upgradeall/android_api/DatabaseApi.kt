@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.android_api
 
+import android.database.sqlite.SQLiteConstraintException
 import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.data.coroutines.toCoroutinesMutableList
 import net.xzos.upgradeall.core.data.database.AppDatabase
@@ -38,7 +39,11 @@ object DatabaseApi : DatabaseApi {
     }
 
     override suspend fun insertAppDatabase(appDatabase: AppDatabase): Long? {
-        val rowId = metaDatabase.appDao().insert(appDatabase.toAppEntity())
+        val rowId = try {
+            metaDatabase.appDao().insert(appDatabase.toAppEntity())
+        } catch (ignore: SQLiteConstraintException) {
+            return null
+        }
         return metaDatabase.appDao().getIdByRowId(rowId)
     }
 
@@ -53,7 +58,11 @@ object DatabaseApi : DatabaseApi {
     }
 
     override suspend fun insertApplicationsDatabase(applicationsDatabase: ApplicationsDatabase): Long? {
-        val rowId = metaDatabase.applicationsDao().insert(applicationsDatabase.toApplicationsEntity())
+        val rowId = try {
+            metaDatabase.applicationsDao().insert(applicationsDatabase.toApplicationsEntity())
+        } catch (ignore: SQLiteConstraintException) {
+            return null
+        }
         return metaDatabase.applicationsDao().getIdByRowId(rowId)
     }
 
