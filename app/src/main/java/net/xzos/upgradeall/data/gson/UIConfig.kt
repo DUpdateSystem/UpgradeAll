@@ -224,11 +224,15 @@ fun ApplicationsDatabase.toUiConfigId(): String {
 }
 
 fun String.toDatabase(): BaseAppDatabase? {
-    val (type, id) = this.split("-", limit = 2)
-    return when (type) {
-        APP_TYPE_TAG -> AppDatabaseManager.getAppDatabase(id.toLong())
-        APPLICATIONS_TYPE_TAG -> AppDatabaseManager.getApplicationsDatabase(id.toLong())
-        else -> null
+    return try {
+        val (type, id) = this.split("-", limit = 2)
+        when (type) {
+            APP_TYPE_TAG -> AppDatabaseManager.getAppDatabase(id.toLong())
+            APPLICATIONS_TYPE_TAG -> AppDatabaseManager.getApplicationsDatabase(id.toLong())
+            else -> null
+        }
+    } catch (ignore: IndexOutOfBoundsException) {
+        null
     }
 }
 
