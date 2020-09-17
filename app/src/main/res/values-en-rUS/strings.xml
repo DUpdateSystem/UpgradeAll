@@ -175,4 +175,11 @@
     <string name="dialog_title_select_download_item">Please select item</string>
     <string name="btn_add_extra">Add Extra Info</string>
     <string name="helper_text_cant_be_empty">Not empty</string>
+
+    <string name="language">language</string>
+    <string name="custom_language">Custom Language</string>
+    <string name="follow_server_config">Follow Server Config</string>
+    <string name="custom">Custom</string>
+    <string name="system_installer">System Installer</string>
+    <string name="plz_restart">Please restart app</string>
 </resources>

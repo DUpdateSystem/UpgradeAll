@@ -28,4 +28,11 @@
         app:layout="@layout/item_preference"
         app:title="@string/backup" />
 
+    <Preference
+        android:fragment="net.xzos.upgradeall.ui.fragment.setting.preference.LanguageFragment"
+        app:icon="@drawable/ic_language"
+        app:layout="@layout/item_preference"
+        app:title="@string/language" />
+
+
 </androidx.preference.PreferenceScreen>

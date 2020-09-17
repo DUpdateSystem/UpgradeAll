@@ -2,16 +2,16 @@
     <!-- support coreApi -->
     <string-array name="version_checker_support_api">
         <item>
-            APP 版本
+            @string/android_app
         </item>
         <item>
-            Magisk 模块
+            @string/magisk_module
         </item>
         <item>
-            自定义 Shell 命令
+            @string/shell
         </item>
         <item>
-            自定义 Shell 命令（ROOT）
+            @string/shell_root
         </item>
     </string-array>
 
@@ -28,7 +28,7 @@
     </string-array>
     <string-array name="install_apk_api_string">
         <item>
-            系统默认安装器
+            @string/system_installer
         </item>
         <item>
             Root
@@ -40,10 +40,10 @@
 
     <string-array name="cloud_hub_api_string">
         <item>
-            跟随服务器配置
+            @string/follow_server_config
         </item>
         <item>
-            自定义
+            @string/custom
         </item>
     </string-array>
 
@@ -56,4 +56,12 @@
         </item>
     </string-array>
 
+    <string-array name="language_list">
+        <item>
+            zh_CN
+        </item>
+        <item>
+            en_US
+        </item>
+    </string-array>
 </resources>

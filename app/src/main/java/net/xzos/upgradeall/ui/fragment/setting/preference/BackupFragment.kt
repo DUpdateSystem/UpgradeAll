@@ -97,6 +97,4 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
             false
         }
     }
-
 }
-

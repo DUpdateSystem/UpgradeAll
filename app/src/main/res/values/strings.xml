@@ -179,4 +179,11 @@
     <string name="dialog_title_select_download_item">选择下载项</string>
     <string name="btn_add_extra">添加附加项</string>
     <string name="helper_text_cant_be_empty">不能为空</string>
+
+    <string name="language">语言</string>
+    <string name="custom_language">自定义语言</string>
+    <string name="follow_server_config">跟随服务器配置</string>
+    <string name="custom">自定义</string>
+    <string name="system_installer">系统默认安装器</string>
+    <string name="plz_restart">请重启应用</string>
 </resources>

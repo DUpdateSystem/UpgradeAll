@@ -31,10 +31,10 @@ class AppSettingActivity : BaseAppSettingActivity() {
 
     private val targetCheckerApi: String?
         get() = when (PackageIdApiSpinner.selectedItem.toString()) {
-            "APP 版本" -> API_TYPE_APP_PACKAGE
-            "Magisk 模块" -> API_TYPE_MAGISK_MODULE
-            "自定义 Shell 命令" -> API_TYPE_SHELL
-            "自定义 Shell 命令（ROOT）" -> API_TYPE_SHELL_ROOT
+            getString(R.string.android_app) -> API_TYPE_APP_PACKAGE
+            getString(R.string.magisk_module) -> API_TYPE_MAGISK_MODULE
+            getString(R.string.shell) -> API_TYPE_SHELL
+            getString(R.string.shell_root) -> API_TYPE_SHELL_ROOT
             else -> null
         }
 

@@ -2,6 +2,7 @@ package net.xzos.upgradeall.data
 
 import android.app.Activity
 import android.widget.Toast
+import androidx.core.os.ConfigurationCompat
 import androidx.preference.PreferenceManager
 import com.arialyy.aria.core.Aria
 import net.xzos.upgradeall.R
@@ -12,9 +13,10 @@ import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.utils.MiscellaneousUtils.showToast
 import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.install.ApkShizukuInstaller
+import java.util.*
 
 object PreferencesMap {
-    private val context = MyApplication.context
+    val context = MyApplication.context
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     // 更新首选项
@@ -52,7 +54,8 @@ object PreferencesMap {
     // 下载首选项
     private const val DOWNLOAD_PATH_KEY = "user_download_path"
     var user_download_path: String
-        get() = prefs.getString(DOWNLOAD_PATH_KEY, null) ?: context.getString(R.string.please_grant_storage_perm)
+        get() = prefs.getString(DOWNLOAD_PATH_KEY, null)
+                ?: context.getString(R.string.please_grant_storage_perm)
         set(value) {
             prefs.edit().putString(DOWNLOAD_PATH_KEY, value).apply()
             auto_dump_download_file = true
@@ -79,6 +82,21 @@ object PreferencesMap {
         get() = prefs.getString("webdav_username", null)
     val webdav_password
         get() = prefs.getString("webdav_password", null)
+
+    // Language
+    private const val LOCALE_CUSTOM_KEY = "locale_custom"
+    private val locale_custom
+        get() = prefs.getBoolean(LOCALE_CUSTOM_KEY, false)
+
+    private const val LANGUAGE_LOCALE_CODE_KEY = "language_locale_code"
+    val language_locale_code: Locale
+        get() = if (locale_custom) {
+            when (prefs.getString(LANGUAGE_LOCALE_CODE_KEY, null)) {
+                "zh_CN" -> Locale("zh", "CN")
+                "en_US" -> Locale("en", "US")
+                else -> ConfigurationCompat.getLocales(context.resources.configuration)[0]
+            }
+        } else ConfigurationCompat.getLocales(context.resources.configuration)[0]
 
     fun initByActivity(activity: Activity) {
         if (install_apk_api == "Shizuku") {

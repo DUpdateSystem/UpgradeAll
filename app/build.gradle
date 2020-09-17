@@ -90,6 +90,8 @@ dependencies {
     // Test helpers
     testImplementation "androidx.room:room-testing:$room_version"
 
+    // Localization
+    implementation 'com.akexorcist:localization:1.2.6'
 
     // OkHttp
     implementation 'com.squareup.okhttp3:okhttp:4.8.1'
