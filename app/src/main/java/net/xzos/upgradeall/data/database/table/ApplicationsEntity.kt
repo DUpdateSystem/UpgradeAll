@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import net.xzos.upgradeall.core.data.json.gson.IgnoreApp
 
-@Entity(tableName = "applications", indices = [Index(value = ["hub_uuid"], unique = true, name = "applications_key_value")])
+@Entity(tableName = "applications", indices = [Index(value = ["hub_uuid", "extra_id", "auth"], unique = true, name = "applications_key_value")])
 class ApplicationsEntity(
         id: Long,
         name: String,

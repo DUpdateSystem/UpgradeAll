@@ -153,3 +153,13 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
         database.execSQL("DROP TABLE hubdatabase")
     }
 }
+
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("DROP INDEX applications_key_value")
+        database.execSQL("""
+           CREATE UNIQUE INDEX applications_key_value
+           on applications (hub_uuid, extra_id, auth); 
+        """)
+    }
+}

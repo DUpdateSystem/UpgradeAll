@@ -55,6 +55,10 @@ class AppSettingActivity : BaseAppSettingActivity() {
             url_input_layout.error = getString(R.string.helper_text_cant_be_empty)
             return false
         }
+        if (editUrl.text.isNullOrBlank()) {
+            url_input_layout.error = getString(R.string.helper_text_cant_be_empty)
+            return false
+        }
         // 数据处理
         val name = editName.text.toString()
         val url = editUrl.text.toString()

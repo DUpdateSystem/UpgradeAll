@@ -94,11 +94,6 @@ abstract class BaseAppSettingActivity : AppCompatActivity() {
             name_input_layout.error = getString(R.string.helper_text_cant_be_empty)
             return
         }
-        if (editUrl.text.isNullOrBlank()) {
-            url_input_layout.error = getString(R.string.helper_text_cant_be_empty)
-            return
-        }
-
         window?.let {
             floatingActionButton.visibility = View.GONE
             loadingBar.visibility = View.VISIBLE
