@@ -101,8 +101,6 @@
     <string name="setting_app_name_explain">App Name</string>
     <string name="setting_app_url_explain">Homepage URL of the application</string>
     <string name="setting_app_versioning_explain">App Locator Name\n Confirmation of local application information by this string \n Example: net.xzos.upgradeall \n The search function is enabled when the selected version control module is not Shell.</string>
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
     <string name="show">Show</string>
     <string name="hide">Hide</string>
     <string name="split_line">--------------------------------------------------</string>
@@ -176,7 +174,7 @@
     <string name="btn_add_extra">Add Extra Info</string>
     <string name="helper_text_cant_be_empty">Not empty</string>
 
-    <string name="language">language</string>
+    <string name="language">Language</string>
     <string name="custom_language">Custom Language</string>
     <string name="follow_server_config">Follow Server Config</string>
     <string name="custom">Custom</string>

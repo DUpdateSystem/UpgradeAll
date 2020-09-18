@@ -110,12 +110,12 @@ class CloudAppItemAdapter(
             context?.let {
                 AlertDialog.Builder(it).apply {
                     setMessage(R.string.whether_download_dependency_hub)
-                    setPositiveButton(R.string.ok) { dialog, _ ->
+                    setPositiveButton(android.R.string.ok) { dialog, _ ->
                         ToastUtil.makeText(R.string.start_download_dependency_hub, Toast.LENGTH_LONG)
                         GlobalScope.launch { CloudConfigGetter.downloadCloudHubConfig(hubUuid) }
                         dialog.cancel()
                     }
-                    setNegativeButton(R.string.cancel) { dialog, _ ->
+                    setNegativeButton(android.R.string.cancel) { dialog, _ ->
                         dialog.cancel()
                     }
 

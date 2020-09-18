@@ -327,7 +327,7 @@ class AppTabSectionsPagerAdapter(private val tabLayout: TabLayout, fm: FragmentM
                         }
                     }
             it.setView(dialogView)
-            it.setPositiveButton(R.string.ok) { dialog, _ ->
+            it.setPositiveButton(android.R.string.ok) { dialog, _ ->
                 val name = dialogView.groupNameEditText.text.toString()
                 if (name.isNotEmpty()) {
                     if (tabBasicInfo != null) {

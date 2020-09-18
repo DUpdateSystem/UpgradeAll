@@ -46,10 +46,10 @@ class UpdatesPrefFragment : PrefFragment(R.xml.preferences_update), SharedPrefer
                         editUrl.setText(PreferencesMap.cloud_rules_hub_url)
                     }
             setView(dialogView)
-            setPositiveButton(R.string.ok) { _, _ ->
+            setPositiveButton(android.R.string.ok) { _, _ ->
                 setCloudRulesHubUrl(dialogView.editUrl.text?.toString())
             }
-            setNegativeButton(R.string.cancel) { _, _ ->
+            setNegativeButton(android.R.string.cancel) { _, _ ->
             }
             setOnDismissListener {
                 initView()
