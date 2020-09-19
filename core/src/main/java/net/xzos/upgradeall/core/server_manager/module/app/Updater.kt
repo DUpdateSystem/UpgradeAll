@@ -1,17 +1,18 @@
 package net.xzos.upgradeall.core.server_manager.module.app
 
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import android.os.Looper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.data_manager.utils.VersioningUtils
 import net.xzos.upgradeall.core.network_api.GrpcApi
 import net.xzos.upgradeall.core.network_api.toMap
 import net.xzos.upgradeall.core.route.AssetItem
 import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.system_api.api.IoApi
-
+import java.util.concurrent.Executors
 
 class Updater(private val app: App) {
-    private val dataMutex = Mutex()
 
     suspend fun getUpdateStatus(): Int {
         val release = getReleaseList() ?: return NETWORK_ERROR
@@ -39,12 +40,13 @@ class Updater(private val app: App) {
     }
 
     suspend fun getReleaseList(): List<ReleaseListItem?>? {
+        val dispatchers = if (Looper.myLooper() == Looper.getMainLooper())
+            defDispatchers
+        else backgroundDispatchers
         val appId = app.appId
         if (appId != null) {
-            dataMutex.withLock {
-                val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
-                return GrpcApi.getAppRelease(hubUuid, app.appDatabase.auth, appId)
-            }
+            val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
+            return withContext(dispatchers) { GrpcApi.getAppRelease(hubUuid, app.appDatabase.auth, appId) }
         }
         return null
     }
@@ -94,6 +96,8 @@ class Updater(private val app: App) {
         const val APP_OUTDATED = 2
         const val APP_NO_LOCAL = 3
 
+        private val defDispatchers = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+        private val backgroundDispatchers = Dispatchers.IO
     }
 }
 
