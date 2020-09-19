@@ -18,7 +18,7 @@ class IgnoreApp private constructor(
             }
             return map
         }
-        set(value) {
+        private set(value) {
             val json = JSONObject()
             for ((k, v) in value) {
                 json.put(k, v)

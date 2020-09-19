@@ -93,6 +93,14 @@ class AppDetailActivity : BaseActivity() {
         }
     }
 
+    private fun loadReleaseIgnore() {
+        versionMarkImageView.visibility =
+                if (app.ignoreVersionNumber == cloudVersioningTextView.text) {
+                    // 当前版本被标记忽略
+                    View.VISIBLE
+                } else View.GONE
+    }
+
     private fun initEmptyUi() {
         cloudVersioningTextView.setText(R.string.null_english)
         versionMarkImageView.visibility = View.GONE
@@ -105,13 +113,12 @@ class AppDetailActivity : BaseActivity() {
         val versionNumberList = releaseInfoList.map {
             it.versionNumber
         }
-        val markProcessedVersionNumber = app.ignoreVersionNumber
         tv_more_editions.setOnClickListener { view ->
             // 选择版本号
             PopupMenu(view.context, view).let { popupMenu ->
                 for (i in versionNumberList.indices)
                     popupMenu.menu.add(versionNumberList[i].plus(
-                            if (markProcessedVersionNumber == versionNumberList[i])
+                            if (app.ignoreVersionNumber == versionNumberList[i])
                                 getString(R.string.o_mark)
                             else ""
                     )).let {
@@ -178,6 +185,8 @@ class AppDetailActivity : BaseActivity() {
         } else {
             latestChangeLog
         }
+
+        loadReleaseIgnore()
     }
 
     private fun toastPromptMarkedVersionNumber() {
@@ -229,7 +238,7 @@ class AppDetailActivity : BaseActivity() {
                 versionMarkImageView.visibility = View.GONE
                 popupMenu.menu.add(R.string.ignore_version).let {
                     it.setOnMenuItemClickListener {
-                        app.ignoreVersionNumber = cloudVersioningTextView.text.toString()
+                        app.setIgnoreUpdate(cloudVersioningTextView.text.toString())
                         versionMarkImageView.visibility = View.VISIBLE
                         true
                     }

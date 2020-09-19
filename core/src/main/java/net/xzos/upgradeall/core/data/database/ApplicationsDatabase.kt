@@ -10,8 +10,8 @@ class ApplicationsDatabase(
         hubUuid: String,
         auth: Map<String, String?> = mapOf(),
         extraId: Map<String, String?> = mapOf(),
-        val invalidPackageList: CoroutinesMutableList<Map<String, String?>> = coroutinesMutableListOf(),
-        val ignoreApps: CoroutinesMutableList<IgnoreApp> = coroutinesMutableListOf()
+        val invalidPackageList: CoroutinesMutableList<Map<String, String?>> = coroutinesMutableListOf(true),
+        val ignoreApps: CoroutinesMutableList<IgnoreApp> = coroutinesMutableListOf(true)
 ) : BaseAppDatabase(id, name, hubUuid, extraId, auth) {
     fun getIgnoreVersionNumber(appId: Map<String, String?>): String? {
         for (app in ignoreApps) {
@@ -30,5 +30,15 @@ class ApplicationsDatabase(
             }
         }
         if (app != null) ignoreApps.remove(app)
+    }
+
+    fun addIgnore(appId: Map<String, String?>, versionNumber: String) {
+        for (app in ignoreApps) {
+            if (app.packageId == appId) {
+                app.versionNumber = versionNumber
+                return
+            }
+        }
+        ignoreApps.add(IgnoreApp.getInstance(appId, versionNumber))
     }
 }
