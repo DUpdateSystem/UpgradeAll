@@ -26,15 +26,30 @@ object AppDatabaseManager {
         DatabaseApi?.getApplicationsDatabaseList()?.toHashSet() ?: hashSetOf()
     }
 
-    fun getAppDatabase(databaseId: Long? = null, uuid: String? = null): AppDatabase? {
+    fun getAppDatabase(databaseId: Long? = null): AppDatabase? {
         val databaseList =
-                getAppDatabaseList(
-                        databaseId = databaseId,
-                        uuid = uuid
-                )
+                getAppDatabaseList(databaseId = databaseId)
         return if (databaseList.isNotEmpty())
             databaseList[0]
         else null
+    }
+
+    fun getAppDatabase(uuid: String? = null): AppDatabase? {
+        val databaseList =
+                getAppDatabaseList(uuid = uuid)
+        return if (databaseList.isNotEmpty())
+            databaseList[0]
+        else null
+    }
+
+
+    fun getAppDatabase(name: String, hubUuid: String, url: String, packageId: PackageIdGson): AppDatabase? {
+        for (appDatabase in appDatabases) {
+            if (name == appDatabase.name && hubUuid == appDatabase.hubUuid
+                    && url == appDatabase.url && packageId == appDatabase.packageId
+            ) return appDatabase
+        }
+        return null
     }
 
     fun getApplicationsDatabase(databaseId: Long? = null): ApplicationsDatabase? {
@@ -103,9 +118,7 @@ object AppDatabaseManager {
         // 如果设置了名字与 UUID，则存入数据库
         val targetChecker = appConfigGson.appConfig.targetChecker
         // 修改数据库
-        getAppDatabase(
-                uuid = uuid
-        )?.let {
+        (getAppDatabase(uuid) ?: getAppDatabase(name, hubUuid, url, targetChecker))?.let {
             it.name = name
             it.url = url
             it.hubUuid = hubUuid
