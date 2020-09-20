@@ -3,14 +3,26 @@ package net.xzos.upgradeall.application
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import com.akexorcist.localizationactivity.core.LocalizationApplicationDelegate
 import com.arialyy.aria.core.Aria
 import jonathanfinerty.once.Once
+import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.data.constants.OnceTag
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import org.jetbrains.annotations.Contract
 import java.io.File
 
 class MyApplication : Application() {
+
+    private val localizationDelegate = LocalizationApplicationDelegate()
+
+    override fun attachBaseContext(base: Context) {
+        PreferencesMap.setContext(base)
+        val local = PreferencesMap.custom_language_locale ?: return super.attachBaseContext(base)
+        localizationDelegate.setDefaultLanguage(base, local)
+        super.attachBaseContext(localizationDelegate.attachBaseContext(base))
+    }
+
 
     override fun onCreate() {
         super.onCreate()
