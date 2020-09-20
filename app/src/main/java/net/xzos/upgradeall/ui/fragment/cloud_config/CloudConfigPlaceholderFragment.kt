@@ -80,7 +80,7 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
     }
 
     private suspend fun renewCloudList(isAppList: Boolean = false, isHubList: Boolean = false) {
-        val itemCardViewList = when {
+        val itemCardViewList = (when {
             isAppList -> {
                 CloudConfigGetter.appConfigList?.map { getCloudAppItemCardView(it) }
             }
@@ -88,25 +88,26 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
                 CloudConfigGetter.hubConfigList?.map { getCloudHubItemCardView(it) }
             }
             else -> null
-        }?.plus(CloudConfigListItemView.newEmptyInstance())
-
-        if (itemCardViewList != null) {
+        } ?: listOf<CloudConfigListItemView>().also {
             withContext(Dispatchers.Main) {
                 if (this@CloudConfigPlaceholderFragment.isVisible) {
-                    cardItemRecyclerView?.let { view ->
-                        view.layoutManager = LinearLayoutManager(requireContext())
-                        adapter = when {
-                            isAppList -> CloudAppItemAdapter(itemCardViewList, context).apply { setHasStableIds(true) }
-                            isHubList -> CloudHubItemAdapter(itemCardViewList).apply { setHasStableIds(true) }
-                            else -> throw IllegalArgumentException("wrong argument")
-                        }
-                        view.adapter = adapter
-                    }
+                    MiscellaneousUtils.showToast(R.string.network_error)
                 }
             }
-        } else {
-            if (this@CloudConfigPlaceholderFragment.isVisible)
-                MiscellaneousUtils.showToast(R.string.network_error)
+        }).plus(CloudConfigListItemView.newEmptyInstance())
+
+        withContext(Dispatchers.Main) {
+            if (this@CloudConfigPlaceholderFragment.isVisible) {
+                cardItemRecyclerView?.let { view ->
+                    view.layoutManager = LinearLayoutManager(requireContext())
+                    adapter = when {
+                        isAppList -> CloudAppItemAdapter(itemCardViewList, context).apply { setHasStableIds(true) }
+                        isHubList -> CloudHubItemAdapter(itemCardViewList).apply { setHasStableIds(true) }
+                        else -> throw IllegalArgumentException("wrong argument")
+                    }
+                    view.adapter = adapter
+                }
+            }
         }
     }
 
