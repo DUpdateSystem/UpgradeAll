@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.server_manager
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -8,13 +9,18 @@ import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
+import net.xzos.upgradeall.core.network_api.GrpcApi
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 open class UpdateControl internal constructor(
         appList: List<BaseApp>,
-        internal var appUpdateStatusChangedFun: (app: BaseApp, appStatus: Int) -> Unit
+        internal var appUpdateStatusChangedFun: (app: BaseApp, appStatus: Int) -> Unit,
         //  监控 BaseApp 对象更新，用于 Applications 自动记录无效应用 与 UpdateManager 通知更新
+        private val backgroundRunning: Boolean = false
 ) {
 
     internal val refreshMutex = Mutex()  // 刷新锁，避免重复请求刷新导致浪费大量资源
@@ -99,12 +105,24 @@ open class UpdateControl internal constructor(
 
     // 刷新所有软件并等待，返回需要更新的软件数量
     open suspend fun renewAll() {
+        val grpcApi: GrpcApi
+        val coroutineContext: CoroutineContext
+        if (backgroundRunning) {
+            grpcApi = GrpcApi()
+            coroutineContext = EmptyCoroutineContext
+        } else {
+            grpcApi = GrpcApi.grpcApi
+            coroutineContext = Dispatchers.IO
+        }
         refreshMutex.withLock {
             coroutineScope {
                 // 尝试刷新全部软件
                 for (app in getAllApp()) {
-                    launch {
-                        app.getUpdateStatus()
+                    launch(coroutineContext) {
+                        if (app is App)
+                            Updater(app, grpcApi).getUpdateStatus()
+                        else
+                            app.getUpdateStatus()
                     }
                 }
             }

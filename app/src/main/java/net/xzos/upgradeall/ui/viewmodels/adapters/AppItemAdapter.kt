@@ -105,7 +105,7 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
 
         // 检查新版本
         setUpdateStatus(holder, true)
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.IO) {
             val updateStatus = app.getUpdateStatus()
             val latestVersioning = if (app is App)
                 Updater(app).getLatestVersioning()

@@ -2,6 +2,7 @@ package net.xzos.upgradeall.core.data.config
 
 import net.xzos.upgradeall.core.log.Log.VERBOSE
 import net.xzos.upgradeall.core.network_api.GrpcApi
+import net.xzos.upgradeall.core.network_api.GrpcApi.Companion.grpcApi
 import java.util.*
 
 object AppConfig {
@@ -10,7 +11,7 @@ object AppConfig {
     var update_server_url = "update-server.xzos.net:5255"
         set(value) {
             if (value != field)
-                if (GrpcApi.setUpdateServerUrl(value))
+                if (grpcApi.setUpdateServerUrl(value))
                     field = value
         }
 }

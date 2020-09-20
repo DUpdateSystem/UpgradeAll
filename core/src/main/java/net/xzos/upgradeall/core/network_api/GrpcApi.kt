@@ -18,31 +18,20 @@ import net.xzos.upgradeall.core.route.*
 import net.xzos.upgradeall.core.utils.wait
 import java.util.concurrent.TimeUnit
 
-
-@Suppress("RedundantSuspendModifier")
-object GrpcApi {
-
-    private const val TAG = "GrpcApi"
-    private val logObjectTag = ObjectTag(ObjectTag.core, TAG)
-    private val invalidHubUuidList = hashSetOf<String>()
-    private var updateServerUrl: String = AppConfig.update_server_url
-    private var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
-
-    private const val deadlineMs = 10L
-    private const val grpcWaitTime = 1000L
+class GrpcApi {
 
     private val hubDataMap = coroutinesMutableMapOf<String, HubData>()
     private val grpcWaitLockList = coroutinesMutableListOf<String>(true)
     private val grpcAppItemWaitLockList = coroutinesMutableMapOf<String, Mutex>(true)
 
-    private suspend fun CoroutinesMutableMap<String, HubData>.getHubData(hubUuid: String, auth: Map<String, String?>): HubData {
+    private fun CoroutinesMutableMap<String, HubData>.getHubData(hubUuid: String, auth: Map<String, String?>): HubData {
         val hubKey = (hubUuid + auth).md5()
         return this@getHubData[hubKey] ?: HubData(hubUuid, auth).also {
             this@getHubData[hubKey] = it
         }
     }
 
-    private suspend fun CoroutinesMutableMap<String, HubData>.popHubData(hubKey: String): HubData? {
+    private fun CoroutinesMutableMap<String, HubData>.popHubData(hubKey: String): HubData? {
         return this@popHubData.remove(hubKey)
     }
 
@@ -77,6 +66,7 @@ object GrpcApi {
         }
     }
 
+    @Suppress("RedundantSuspendModifier")
     suspend fun getCloudConfig(): String? {
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         return try {
@@ -96,7 +86,9 @@ object GrpcApi {
                     addAppId(appId)
                 }
                 val hubKey = (hubUuid + auth).md5()
-                callGetAppReleaseStream(hubKey)
+                GlobalScope.launch {
+                    callGetAppReleaseStream(hubKey)
+                }
             }
             grpcAppItemWaitLockList.getLock(itemKey)?.wait()
             DataCache.getAppRelease(hubUuid, auth, appId)
@@ -119,10 +111,7 @@ object GrpcApi {
         val auth = hubData.auth
         val appIdList = hubData.getAppIdList()
         val request = getReleaseRequestBuilder(hubUuid, appIdList, auth)
-
-        GlobalScope.launch(Dispatchers.IO) {
-            callGetAppRelease(request.build(), hubUuid, auth, appIdList)
-        }
+        callGetAppRelease(request.build(), hubUuid, auth, appIdList)
     }
 
     private suspend fun callGetAppRelease(
@@ -164,6 +153,7 @@ object GrpcApi {
         }
     }
 
+    @Suppress("RedundantSuspendModifier")
     suspend fun getDownloadInfo(hubUuid: String, appId: Map<String, String?>, auth: Map<String, String?>, assetIndex: List<Int>): GetDownloadResponse? {
         if (hubUuid in invalidHubUuidList) return null
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
@@ -195,5 +185,20 @@ object GrpcApi {
                 hub_uuid: $hubUuid
                 app_info: $appIdString
             """.trimIndent())
+    }
+
+    companion object {
+        val grpcApi by lazy { GrpcApi() }
+
+        private const val TAG = "GrpcApi"
+        private val logObjectTag = ObjectTag(ObjectTag.core, TAG)
+        private val invalidHubUuidList = hashSetOf<String>()
+
+        private var updateServerUrl: String = AppConfig.update_server_url
+        private var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
+
+
+        private const val deadlineMs = 10L
+        private const val grpcWaitTime = 1000L
     }
 }

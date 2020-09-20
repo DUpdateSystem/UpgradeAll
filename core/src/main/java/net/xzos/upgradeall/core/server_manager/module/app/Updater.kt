@@ -1,18 +1,15 @@
 package net.xzos.upgradeall.core.server_manager.module.app
 
-import android.os.Looper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.data_manager.utils.VersioningUtils
 import net.xzos.upgradeall.core.network_api.GrpcApi
 import net.xzos.upgradeall.core.network_api.toMap
 import net.xzos.upgradeall.core.route.AssetItem
 import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.system_api.api.IoApi
-import java.util.concurrent.Executors
 
-class Updater(private val app: App) {
+class Updater(private val app: App,
+              private val grpcApi: GrpcApi = GrpcApi.grpcApi
+) {
 
     suspend fun getUpdateStatus(): Int {
         val release = getReleaseList() ?: return NETWORK_ERROR
@@ -40,13 +37,10 @@ class Updater(private val app: App) {
     }
 
     suspend fun getReleaseList(): List<ReleaseListItem?>? {
-        val dispatchers = if (Looper.myLooper() == Looper.getMainLooper())
-            defDispatchers
-        else backgroundDispatchers
         val appId = app.appId
         if (appId != null) {
             val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
-            return withContext(dispatchers) { GrpcApi.getAppRelease(hubUuid, app.appDatabase.auth, appId) }
+            return grpcApi.getAppRelease(hubUuid, app.appDatabase.auth, appId)
         }
         return null
     }
@@ -69,14 +63,14 @@ class Updater(private val app: App) {
             val hubUuid = app.hubDatabase?.uuid
             val appId = app.appId
             val downloadResponse = if (hubUuid != null && appId != null)
-                GrpcApi.getDownloadInfo(hubUuid, appId, app.appDatabase.auth, fileIndex.toList())
+                grpcApi.getDownloadInfo(hubUuid, appId, app.appDatabase.auth, fileIndex.toList())
             else null
             val list = downloadResponse?.listList
             if (!list.isNullOrEmpty())
                 for (download in list) {
-                    val headers = download?.requestHeaderList?.toMap() ?: mapOf()
+                    val headers = download.requestHeaderList?.toMap() ?: mapOf()
                     IoApi.downloadFile(
-                            asset.fileName, download?.url ?: return,
+                            asset.fileName, download.url ?: return,
                             headers = headers,
                             externalDownloader = externalDownloader
                     )
@@ -95,9 +89,6 @@ class Updater(private val app: App) {
         const val APP_LATEST = 1
         const val APP_OUTDATED = 2
         const val APP_NO_LOCAL = 3
-
-        private val defDispatchers = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-        private val backgroundDispatchers = Dispatchers.IO
     }
 }
 

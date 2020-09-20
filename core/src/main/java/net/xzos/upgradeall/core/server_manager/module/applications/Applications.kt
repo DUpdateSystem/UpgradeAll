@@ -41,7 +41,7 @@ class Applications(override val appDatabase: ApplicationsDatabase,
             notifyChanged()
         }
         checkUpdateStatusChanged()
-    })
+    }, true)
 
     private var checkAppList = true
 
