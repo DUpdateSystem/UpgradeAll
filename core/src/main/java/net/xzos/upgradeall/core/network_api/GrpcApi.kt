@@ -58,7 +58,7 @@ class GrpcApi {
     internal fun setUpdateServerUrl(url: String?): Boolean {
         if (url.isNullOrBlank()) return false
         return try {
-            mChannel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS)
+            mChannel.shutdownNow().awaitTermination(5, TimeUnit.MILLISECONDS)
             mChannel = ManagedChannelBuilder.forTarget(url).usePlaintext().build()
             true
         } catch (e: IllegalArgumentException) {
@@ -70,7 +70,7 @@ class GrpcApi {
     suspend fun getCloudConfig(): String? {
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         return try {
-            blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.SECONDS).getCloudConfig(Empty.newBuilder().build()).s
+            blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.MILLISECONDS).getCloudConfig(Empty.newBuilder().build()).s
         } catch (ignore: StatusRuntimeException) {
             null
         }
@@ -90,8 +90,15 @@ class GrpcApi {
                     callGetAppReleaseStream(hubKey)
                 }
             }
-            grpcAppItemWaitLockList.getLock(itemKey)?.wait()
-            DataCache.getAppRelease(hubUuid, auth, appId)
+            try {
+                withTimeout(deadlineMs) {
+                    grpcAppItemWaitLockList.getLock(itemKey)?.wait()
+                }
+                DataCache.getAppRelease(hubUuid, auth, appId)
+            } catch (ignore: TimeoutCancellationException) {
+                grpcAppItemWaitLockList.unLock(itemKey)
+                null
+            }
         }
     }
 
@@ -128,7 +135,7 @@ class GrpcApi {
 
         val asyncStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         try {
-            val releaseResponseIterator = asyncStub.withDeadlineAfter(deadlineMs, TimeUnit.SECONDS).getAppRelease(request)
+            val releaseResponseIterator = asyncStub.withDeadlineAfter(deadlineMs, TimeUnit.MILLISECONDS).getAppRelease(request)
             while (withTimeout(deadlineMs) { releaseResponseIterator.hasNext() }) {
                 val response = releaseResponseIterator.next()
                 if (response.validHub) {
@@ -146,7 +153,7 @@ class GrpcApi {
         } catch (e: Throwable) {
             if ((e is StatusRuntimeException && e.status.code == Status.Code.DEADLINE_EXCEEDED)
                     || e is TimeoutCancellationException) {
-                logDeadlineError("CallGetAppRelease", request.hubUuid, "hub_uuid: ${hubUuid}, num: ${request.appIdListCount}, cancel: ${appIdList.size}")
+                logDeadlineError("CallGetAppRelease", request.hubUuid, "hub_uuid: ${hubUuid}, num: ${request.appIdListCount}, cancel: ${appIdList.size}, error:$e")
             }
         } finally {
             clearMutex()
@@ -163,7 +170,7 @@ class GrpcApi {
                 .addAllAuth(auth.togRPCDict())
                 .build()
         return try {
-            blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.SECONDS).devGetDownloadInfo(request)
+            blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.MILLISECONDS).devGetDownloadInfo(request)
         } catch (ignore: StatusRuntimeException) {
             if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
                 logDeadlineError("GetDownloadInfo", hubUuid, appId.toString())
@@ -198,7 +205,7 @@ class GrpcApi {
         private var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
 
 
-        private const val deadlineMs = 10L
+        private const val deadlineMs = 10 * 1000L
         private const val grpcWaitTime = 1000L
     }
 }
