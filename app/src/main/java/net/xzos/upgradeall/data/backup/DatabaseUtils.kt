@@ -62,7 +62,7 @@ fun parseAppDatabaseConfig(json: JSONObject): AppDatabase {
             converters.stringToAppConfigGson(json.getOrNull("cloud_config")),
             converters.stringToMap(json.getOrNull("auth")),
             converters.stringToMap(json.getOrNull("extra_id")),
-            json.optString("ignore_version_number")
+            json.getOrNull("ignore_version_number")
     )
 }
 
