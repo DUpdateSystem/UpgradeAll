@@ -41,6 +41,7 @@ object AppUiDataManager {
             refreshNeedUpdateAppList()
         }
         UpdateManager.observeForever(UpdateManager.UPDATE_STATUS_CHANGED, updateObserver)
+        UpdateManager.observeForever(UpdateManager.UPDATE_STATUS_COMPLETE, updateObserver)
         // 初始化绑定 Map
         appListLiveDataMap[ALL_APP_PAGE_INDEX] = allAppListLiveData
         appListLiveDataMap[UPDATE_PAGE_INDEX] = needUpdateAppListLiveData

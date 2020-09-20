@@ -51,9 +51,8 @@ internal class AppListPlaceholderFragment : AppListContainerFragment() {
     private fun initUi() {
         if (appListPageViewModel.getTabPageIndex() == UPDATE_PAGE_INDEX) {
             placeholderImageVew.setImageResource(R.drawable.ic_checking_update)
-            placeholderTextView.setText(R.string.waiting_check_update)
+            placeholderTextView.visibility = View.GONE
         }
-
     }
 
     private fun initAppListAdapter() {

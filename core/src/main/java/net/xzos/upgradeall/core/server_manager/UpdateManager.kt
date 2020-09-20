@@ -13,6 +13,7 @@ import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 
 object UpdateManager : UpdateControl(AppManager.apps, fun(_, _) {}), Informer {
     const val UPDATE_STATUS_CHANGED = "UPDATE_RUNNING"
+    const val UPDATE_STATUS_COMPLETE = "UPDATE_COMPLETE"
     val finishedUpdateAppNum: Int get() = finishedUpdateApp.size
 
     private val finishedUpdateApp = coroutinesMutableListOf<BaseApp>()
@@ -35,6 +36,7 @@ object UpdateManager : UpdateControl(AppManager.apps, fun(_, _) {}), Informer {
     override suspend fun renewAll() {
         finishedUpdateApp.clear()
         super.renewAll()
+        notifyChanged(UPDATE_STATUS_COMPLETE)
     }
 
     suspend fun downloadAllUpdate() {
