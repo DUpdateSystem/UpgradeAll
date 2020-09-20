@@ -185,9 +185,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private fun setNavHeaderView() {
         val headerView = navView.getHeaderView(0) as LinearLayout
         headerView.setOnClickListener {
+            val x = headerView.width.toFloat()
+            val y = headerView.height.toFloat()
             ToastUtil.makeText(R.string.long_click_to_delete_image)
             lifecycleScope.launch {
-                if (UCropActivity.newInstance(19f, 6f, NAV_IMAGE_FILE, this@MainActivity))
+                if (UCropActivity.newInstance(x, y, NAV_IMAGE_FILE, this@MainActivity))
                     withContext(Dispatchers.Main) {
                         renewNavImage()
                     }
