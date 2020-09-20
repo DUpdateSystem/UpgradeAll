@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 
 class GrpcApi {
 
-    private val hubDataMap = coroutinesMutableMapOf<String, HubData>()
+    private val hubDataMap = coroutinesMutableMapOf<String, HubData>(true)
     private val grpcWaitLockList = coroutinesMutableListOf<String>(true)
     private val grpcAppItemWaitLockList = coroutinesMutableMapOf<String, Mutex>(true)
 
@@ -91,7 +91,7 @@ class GrpcApi {
                 }
             }
             try {
-                withTimeout(deadlineMs) {
+                withTimeout(deadlineMs + 1000) {
                     grpcAppItemWaitLockList.getLock(itemKey)?.wait()
                 }
                 DataCache.getAppRelease(hubUuid, auth, appId)
@@ -118,7 +118,8 @@ class GrpcApi {
         val auth = hubData.auth
         val appIdList = hubData.getAppIdList()
         val request = getReleaseRequestBuilder(hubUuid, appIdList, auth)
-        callGetAppRelease(request.build(), hubUuid, auth, appIdList)
+        for (appIdL in appIdList.chunked(50))
+            callGetAppRelease(request.build(), hubUuid, auth, appIdL.toHashSet())
     }
 
     private suspend fun callGetAppRelease(
@@ -135,19 +136,21 @@ class GrpcApi {
 
         val asyncStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
         try {
-            val releaseResponseIterator = asyncStub.withDeadlineAfter(deadlineMs, TimeUnit.MILLISECONDS).getAppRelease(request)
-            while (withTimeout(deadlineMs) { releaseResponseIterator.hasNext() }) {
-                val response = releaseResponseIterator.next()
-                if (response.validHub) {
-                    val releasePackage = response.release
-                    val appId = releasePackage.appIdList.toMap()
-                    if (releasePackage.validData)
-                        DataCache.cacheAppStatus(hubUuid, auth, appId, releasePackage.releaseListList)
-                    val itemKey = (hubUuid + auth + appId).md5()
-                    grpcAppItemWaitLockList.unLock(itemKey)
-                    appIdList.remove(appId)
-                } else {
-                    invalidHubUuidList.add(hubUuid)
+            withTimeout((appIdList.size * deadlineMs * 0.75).toLong()) {
+                val releaseResponseIterator = asyncStub.withDeadlineAfter(deadlineMs, TimeUnit.MILLISECONDS).getAppRelease(request)
+                while (withTimeout(deadlineMs) { releaseResponseIterator.hasNext() }) {
+                    val response = releaseResponseIterator.next()
+                    if (response.validHub) {
+                        val releasePackage = response.release
+                        val appId = releasePackage.appIdList.toMap()
+                        if (releasePackage.validData)
+                            DataCache.cacheAppStatus(hubUuid, auth, appId, releasePackage.releaseListList)
+                        val itemKey = (hubUuid + auth + appId).md5()
+                        grpcAppItemWaitLockList.unLock(itemKey)
+                        appIdList.remove(appId)
+                    } else {
+                        invalidHubUuidList.add(hubUuid)
+                    }
                 }
             }
         } catch (e: Throwable) {
