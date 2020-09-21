@@ -36,7 +36,7 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
             holder.appPlaceholderImageView.visibility = View.GONE
             holder.nameTextView.text = itemCardView.name
             holder.typeTextView.text = itemCardView.type
-            holder.hubNameTextView.text = itemCardView.hubName
+            holder.hubNameTextView.text = itemCardView.hubName.let { if (it.isNullOrEmpty()) { "Unknown" } else { it } }
             val appIconImageView = holder.appIconImageView
             when (this) {
                 is App ->
