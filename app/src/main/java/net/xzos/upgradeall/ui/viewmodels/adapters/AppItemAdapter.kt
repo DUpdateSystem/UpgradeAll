@@ -36,7 +36,6 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
             holder.appPlaceholderImageView.visibility = View.GONE
             holder.nameTextView.text = itemCardView.name
             holder.typeTextView.text = itemCardView.type
-            holder.hubNameTextView.text = itemCardView.hubName.let { if (it.isNullOrEmpty()) { "Unknown" } else { it } }
             val appIconImageView = holder.appIconImageView
             when (this) {
                 is App ->
@@ -45,7 +44,6 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
                     val hubIconUrl = HubDatabaseManager.getDatabase(this.appDatabase.hubUuid)
                             ?.hubConfig?.info?.hubIconUrl
                     IconPalette.loadApplicationsIconView(appIconImageView, hubIconUrl)
-                    holder.hubNameTextView.visibility = View.GONE
                 }
             }
             setAppStatusUI(holder, this)
@@ -63,17 +61,14 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
     fun setItemList(newList: MutableList<ItemCardView>) {
         val operationSteps = list1ToList2(mItemCardViewList, newList)
         for (operationStep in operationSteps) {
-            when (operationStep.operation) {
-                add -> {
-                    operationStep as ListAddOperationStep<*>
-                    onAddItem(operationStep.index, operationStep.element as ItemCardView)
-                }
-                del -> {
-                    operationStep as ListDelOperationStep
+            when (operationStep) {
+                is ListDelOperationStep -> {
                     onItemDismiss(operationStep.index)
                 }
-                swap -> {
-                    operationStep as ListSwapOperationStep
+                is ListAddOperationStep<*> -> {
+                    onAddItem(operationStep.index, operationStep.element as ItemCardView)
+                }
+                is ListSwapOperationStep -> {
                     onItemMove(operationStep.rowIndex, operationStep.newIndex)
                 }
             }

@@ -1,19 +1,15 @@
 package net.xzos.upgradeall.utils
 
-const val add = "ADD"
-const val del = "DEL"
-const val swap = "SWAP"
-
-open class ListOperationStepBase internal constructor(val operation: String)
+open class ListOperationStepBase
 
 class ListAddOperationStep<E> internal constructor(val index: Int, val element: E)
-    : ListOperationStepBase(add)
+    : ListOperationStepBase()
 
 class ListDelOperationStep internal constructor(val index: Int)
-    : ListOperationStepBase(del)
+    : ListOperationStepBase()
 
 class ListSwapOperationStep internal constructor(val rowIndex: Int, val newIndex: Int)
-    : ListOperationStepBase(swap)
+    : ListOperationStepBase()
 
 fun <E> list1ToList2(list1: List<E>, list2: List<E>): List<ListOperationStepBase> {
     if (list1 == list2) return emptyList()

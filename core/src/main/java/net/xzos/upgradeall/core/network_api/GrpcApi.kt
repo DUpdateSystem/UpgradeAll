@@ -114,8 +114,10 @@ class GrpcApi {
         val hubUuid = hubData.hubUuid
         val auth = hubData.auth
         val appIdList = hubData.getAppIdList()
-        for (appIdL in appIdList.chunked(50))
-            callGetAppRelease(hubUuid, auth, appIdL.toHashSet())
+        for (appIdL in appIdList.chunked(15))
+            GlobalScope.launch {
+                callGetAppRelease(hubUuid, auth, appIdL.toHashSet())
+            }
     }
 
     private suspend fun callGetAppRelease(

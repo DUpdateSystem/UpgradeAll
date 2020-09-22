@@ -25,9 +25,23 @@ import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.getByHolder
 
 
-class AppListItemAdapter(private val appListPageViewModel: AppListPageViewModel
+class AppListItemAdapter(
+        private val appListPageViewModel: AppListPageViewModel
 ) : AppItemAdapter(appListPageViewModel.appCardViewList.value ?: mutableListOf(),
         appListPageViewModel.needUpdateAppsLiveData) {
+    override fun onBindViewHolder(holder: CardViewRecyclerViewHolder, position: Int) {
+        val itemCardView = mItemCardViewList[position]
+        itemCardView.extraData.app?.run {
+            holder.hubNameTextView.text = itemCardView.hubName.let {
+                if (it.isNullOrEmpty()) {
+                    "Unknown"
+                } else {
+                    it
+                }
+            }
+        }
+        super.onBindViewHolder(holder, position)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = super.onCreateViewHolder(parent, viewType)

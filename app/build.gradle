@@ -26,7 +26,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 49
-        versionName "0.1.4.9"
+        versionName "0.1.4.10"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
@@ -94,9 +94,9 @@ dependencies {
     implementation 'com.akexorcist:localization:1.2.6'
 
     // OkHttp
-    implementation 'com.squareup.okhttp3:okhttp:4.8.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
     implementation 'com.squareup.okio:okio:2.8.0'
-    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.8.1'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.0'
 
     // Firebase
     implementation 'com.google.firebase:firebase-core:17.5.0'
