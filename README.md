@@ -67,7 +67,7 @@ At the moment these sources are officially supported:
 
 * Chinese Simplified
 
-* English(On Plan)
+* English
 
 # Screenshots
 
