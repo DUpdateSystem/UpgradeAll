@@ -9,7 +9,7 @@ import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.utils.IconPalette
 
-open class CloudItemAdapter(private val mItemCardViewList: List<CloudConfigListItemView>) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
+open class CloudItemAdapter(open var mItemCardViewList: List<CloudConfigListItemView>) : RecyclerView.Adapter<CardViewRecyclerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewRecyclerViewHolder {
         val holder = CardViewRecyclerViewHolder(

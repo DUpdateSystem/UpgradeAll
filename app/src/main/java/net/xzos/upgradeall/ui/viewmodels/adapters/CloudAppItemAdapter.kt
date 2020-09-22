@@ -22,7 +22,7 @@ import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.ToastUtil
 
 class CloudAppItemAdapter(
-        private val mItemCardViewList: List<CloudConfigListItemView>,
+        override var mItemCardViewList: List<CloudConfigListItemView>,
         private val context: Context?
 ) : CloudItemAdapter(mItemCardViewList) {
 

@@ -180,4 +180,6 @@
     <string name="custom">Custom</string>
     <string name="system_installer">System Installer</string>
     <string name="plz_restart">Please restart app</string>
+  <string name="menu_search">Search</string>
+    <string name="menu_search_hint">Search…</string>
 </resources>

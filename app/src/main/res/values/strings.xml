@@ -33,6 +33,8 @@
     <string name="cloud_rules">云规则</string>
     <string name="cloud_rules_repo_url">Git 仓库地址</string>
     <string name="update_server_url">升级服务 URL</string>
+    <string name="menu_search">搜索</string>
+    <string name="menu_search_hint">搜索…</string>
 
     <string name="download">下载</string>
     <string name="install">安装</string>

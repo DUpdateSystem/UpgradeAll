@@ -19,12 +19,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
+    <net.xzos.upgradeall.view.AlwaysMarqueeTextView
         android:id="@+id/nameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:maxLines="1"
         android:text="@string/example_name"
         android:textColor="?attr/colorControlNormal"
         android:textSize="16sp"

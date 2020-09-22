@@ -1,9 +1,9 @@
 package net.xzos.upgradeall.ui.fragment.cloud_config
 
+import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,10 +27,13 @@ import net.xzos.upgradeall.ui.viewmodels.adapters.CloudItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
-internal class CloudConfigPlaceholderFragment : Fragment() {
+internal class CloudConfigPlaceholderFragment : Fragment(), SearchView.OnQueryTextListener {
 
     private var pageModelIndex = 0
     private lateinit var adapter: CloudItemAdapter
+    private var menu: Menu? = null
+    private var isListReady = false
+    private var itemCardViewList: List<CloudConfigListItemView> = listOf()
 
     init {
         renewConfig()
@@ -60,8 +63,35 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary)
         swipeRefreshLayout.setOnRefreshListener { this.renewCardView() }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_cloud_app_list, menu)
+        this.menu = menu
+
+        val searchView = SearchView(requireContext()).apply {
+            setIconifiedByDefault(false)
+            setOnQueryTextListener(this@CloudConfigPlaceholderFragment)
+            queryHint = getText(R.string.menu_search_hint)
+            isQueryRefinementEnabled = true
+
+            findViewById<View>(androidx.appcompat.R.id.search_plate).apply {
+                setBackgroundColor(Color.TRANSPARENT)
+            }
+        }
+
+        menu.findItem(R.id.search).apply {
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW or MenuItem.SHOW_AS_ACTION_IF_ROOM)
+            actionView = searchView
+
+            if (!isListReady) {
+                isVisible = false
+            }
+        }
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     private fun renewCardView() {
@@ -75,12 +105,16 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
             } else if (pageModelIndex == CLOUD_HUB_CONFIG) {
                 renewCloudList(isHubList = true)
             }
-            withContext(Dispatchers.Main) { swipeRefreshLayout?.isRefreshing = false }
+            withContext(Dispatchers.Main) {
+                swipeRefreshLayout?.isRefreshing = false
+                isListReady = true
+                menu?.findItem(R.id.search)?.isVisible = true
+            }
         }
     }
 
     private suspend fun renewCloudList(isAppList: Boolean = false, isHubList: Boolean = false) {
-        val itemCardViewList = (when {
+        itemCardViewList = (when {
             isAppList -> {
                 CloudConfigGetter.appConfigList?.map { getCloudAppItemCardView(it) }
             }
@@ -137,6 +171,17 @@ internal class CloudConfigPlaceholderFragment : Fragment() {
             R.string.app_hub
         }
         return CloudConfigListItemView(name, type, hubUuid, hubUuid)
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        return false
+    }
+
+    override fun onQueryTextChange(newText: String): Boolean {
+        val filter = itemCardViewList.filter { it.name.contains(newText, ignoreCase = true) }
+        adapter.mItemCardViewList = filter
+        adapter.notifyDataSetChanged()
+        return false
     }
 
     companion object {

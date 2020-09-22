@@ -3,9 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackgroundBorderless"
-    android:clickable="true"
-    android:focusable="true"
+    android:clickable="false"
     android:padding="8dp">
 
     <androidx.cardview.widget.CardView
@@ -23,6 +21,7 @@
             android:id="@+id/groupIconImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clickable="false"
             android:contentDescription="@string/group_logo"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_android_placeholder" />
@@ -53,6 +52,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:clickable="false"
         android:maxLines="1"
         android:text="@string/add_group"
         android:textColor="@color/text_low_priority_color"
