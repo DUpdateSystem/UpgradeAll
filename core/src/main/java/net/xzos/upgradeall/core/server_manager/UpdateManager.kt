@@ -16,7 +16,7 @@ object UpdateManager : UpdateControl(AppManager.apps, fun(_, _) {}), Informer {
     const val UPDATE_STATUS_COMPLETE = "UPDATE_COMPLETE"
     val finishedUpdateAppNum: Int get() = finishedUpdateApp.size
 
-    private val finishedUpdateApp = coroutinesMutableListOf<BaseApp>()
+    private val finishedUpdateApp = coroutinesMutableListOf<BaseApp>(true)
 
     val isRunning: Boolean get() = refreshMutex.isLocked
 

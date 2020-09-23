@@ -207,6 +207,6 @@ class GrpcApi {
 
 
         private const val deadlineMs = 10 * 1000L
-        private const val grpcWaitTime = 1000L
+        private const val grpcWaitTime = 200L
     }
 }

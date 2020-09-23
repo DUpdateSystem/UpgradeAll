@@ -20,7 +20,7 @@ object AppValue {
     val locale: Locale = Locale.CHINA
     const val app_config_version = 1
     const val hub_config_version = 3
-    const val data_expiration_time = 30 // 默认本地数据缓存时间
+    const val data_expiration_time = 10 // 默认本地数据缓存时间
     const val default_cloud_rules_hub_url = "FromUpdateServer"
     val git_url_arg_regex = "(%.*?)\\w*".toRegex()
     val version_number_match_regex = "(\\d+(\\.\\d+)*)(([.|\\-|+|_| ]|[0-9A-Za-z])*)".toRegex()
