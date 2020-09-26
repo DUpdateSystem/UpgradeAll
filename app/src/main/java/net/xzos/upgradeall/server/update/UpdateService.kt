@@ -8,7 +8,7 @@ import android.os.IBinder
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.server_manager.UpdateManager
-import net.xzos.upgradeall.server.update.UpdateNotification.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
+import net.xzos.upgradeall.server.update.UpdateNotification.Companion.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
 
 class UpdateService : Service() {
 
@@ -17,8 +17,13 @@ class UpdateService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val notification = UpdateNotification.startUpdateNotification(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
-        startForeground(UPDATE_SERVER_RUNNING_NOTIFICATION_ID, notification)
+        intent?.getBooleanExtra(FOREGROUND, true)?.let {
+            if (it) {
+                val updateNotification = UpdateNotification()
+                val notification = updateNotification.startUpdateNotification(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
+                startForeground(UPDATE_SERVER_RUNNING_NOTIFICATION_ID, notification)
+            }
+        }
         GlobalScope.launch {
             UpdateManager.renewAll()
             stopSelf(startId)
@@ -28,9 +33,13 @@ class UpdateService : Service() {
 
     companion object {
 
-        fun startService(context: Context) {
-            val intent = Intent(context, UpdateService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        private const val FOREGROUND = "FOREGROUND"
+
+        fun startService(context: Context, foreground: Boolean = true) {
+            val intent = Intent(context, UpdateService::class.java).also {
+                it.putExtra(FOREGROUND, foreground)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && foreground)
                 context.startForegroundService(intent)
             else context.startService(intent)
         }

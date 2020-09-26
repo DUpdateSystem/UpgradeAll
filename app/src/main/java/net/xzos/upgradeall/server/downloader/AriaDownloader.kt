@@ -204,7 +204,7 @@ class AriaDownloader(private val url: String) {
 
     private fun completeInstall(file: File) {
         delTask()
-        UpdateService.startService(context)
+        UpdateService.startService(context, false)
         downloadNotification.taskCancel()  // 手动取消通知，因下载完成通知已解绑
         if (PreferencesMap.auto_delete_file) {
             file.delete()

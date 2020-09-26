@@ -20,24 +20,7 @@ import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
-object UpdateNotification {
-    private val context = MyApplication.context
-    private const val UPDATE_SERVICE_CHANNEL_ID = "UpdateServiceNotification"
-    private val UPDATE_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_notification_id)
-    val UPDATE_SERVER_RUNNING_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_server_running_notification_id)
-
-    private val mainActivityPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
-        addNextIntentWithParentStack(Intent(context, MainActivity::class.java))
-        getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-    }
-
-    private val builder = NotificationCompat.Builder(context, UPDATE_SERVICE_CHANNEL_ID).apply {
-        setContentTitle("UpgradeAll 更新服务运行中")
-        setOngoing(true)
-        setSmallIcon(R.drawable.ic_launcher_foreground)
-        priority = NotificationCompat.PRIORITY_LOW
-    }
-
+class UpdateNotification {
     init {
         createNotificationChannel()
         UpdateManager.observeForever<Unit>(UpdateManager.UPDATE_STATUS_CHANGED, fun(_) {
@@ -128,5 +111,24 @@ object UpdateNotification {
 
     private fun cancelNotification() {
         NotificationManagerCompat.from(context).cancel(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
+    }
+
+    companion object {
+        private val context = MyApplication.context
+        private const val UPDATE_SERVICE_CHANNEL_ID = "UpdateServiceNotification"
+        private val UPDATE_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_notification_id)
+        val UPDATE_SERVER_RUNNING_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_server_running_notification_id)
+
+        private val mainActivityPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
+            addNextIntentWithParentStack(Intent(context, MainActivity::class.java))
+            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+
+        private val builder = NotificationCompat.Builder(context, UPDATE_SERVICE_CHANNEL_ID).apply {
+            setContentTitle("UpgradeAll 更新服务运行中")
+            setOngoing(true)
+            setSmallIcon(R.drawable.ic_launcher_foreground)
+            priority = NotificationCompat.PRIORITY_LOW
+        }
     }
 }
