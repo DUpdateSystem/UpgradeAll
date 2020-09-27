@@ -280,9 +280,10 @@ class DownloadNotification(private val downloadId: Int) {
     private fun getSpeedText(task: Download): String {
         val speed = task.downloadedBytesPerSecond
         return when {
-            speed == -1L -> "0 kb/s"
-            speed < 1024L -> "${speed / 1024} mb/s"
-            speed < 1024 * 1024L -> "${speed / (1024 * 1024)} gb/s"
+            speed == -1L -> "0 b/s"
+            speed < 1024L -> "$speed b/s"
+            1024L <= speed && speed < 1024 * 1024L -> "${speed / 1024} kb/s"
+            1024 * 1024L <= speed -> "${speed / (1024 * 1024)} mb/s"
             else -> ""
         }
     }

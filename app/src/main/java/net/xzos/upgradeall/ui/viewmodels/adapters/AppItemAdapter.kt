@@ -59,7 +59,7 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
             mItemCardViewList.size
 
     fun setItemList(newList: MutableList<ItemCardView>) {
-        val operationSteps = list1ToList2(mItemCardViewList, newList)
+        val operationSteps = list1ToList2(mItemCardViewList, newList.toList())
         for (operationStep in operationSteps) {
             when (operationStep) {
                 is ListDelOperationStep -> {
