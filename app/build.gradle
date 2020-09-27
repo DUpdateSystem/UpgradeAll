@@ -26,7 +26,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 49
-        versionName "0.1.4.10"
+        versionName "0.1.4.11"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
@@ -105,9 +105,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
     configurations.compile.exclude group: 'com.google.protobuf', module: 'protobuf-lite'
 
-    // Aria
-    implementation 'com.arialyy.aria:core:3.8.8'
-    kapt 'com.arialyy.aria:compiler:3.8.8'
+    // Fetch
+    implementation "androidx.tonyodev.fetch2:xfetch2:3.1.5"
+    implementation "androidx.tonyodev.fetch2okhttp:xfetch2okhttp:3.1.5"
 
     // WebDav
     implementation 'com.thegrizzlylabs.sardine-android:sardine-android:0.7'

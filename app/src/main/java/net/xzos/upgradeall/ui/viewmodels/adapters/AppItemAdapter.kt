@@ -76,8 +76,14 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
     }
 
     fun onAddItem(position: Int = 0, element: ItemCardView) {
-        mItemCardViewList.add(position, element)
-        notifyItemRangeInserted(position, 1)
+        // TODO: 新的 UI 通知方式
+        if (position < mItemCardViewList.size) {
+            mItemCardViewList.add(position, element)
+            notifyItemRangeInserted(position, 1)
+        } else {
+            mItemCardViewList.add(element)
+            notifyItemRangeInserted(0, 1)
+        }
     }
 
     fun onItemDismiss(position: Int): ItemCardView? {

@@ -18,6 +18,7 @@ fun getSystemLocale(config: Configuration): Locale {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         config.locales.get(0)
     } else {
+        @Suppress("DEPRECATION")
         config.locale
     }
 }

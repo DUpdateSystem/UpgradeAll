@@ -1,25 +1,20 @@
 package net.xzos.upgradeall.server.downloader
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
-import com.arialyy.aria.core.Aria
-import com.arialyy.aria.core.common.HttpOption
-import com.arialyy.aria.core.download.DownloadEntity
-import com.arialyy.aria.core.task.DownloadTask
+import com.tonyodev.fetch2.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.data_manager.utils.FilePathUtils
 import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.server.downloader.AriaRegister.getCancelNotifyKey
+import net.xzos.upgradeall.server.downloader.AriaRegister.getCompleteNotifyKey
 import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
-import net.xzos.upgradeall.server.downloader.AriaRegister.getCancelNotifyKey
-import net.xzos.upgradeall.server.downloader.AriaRegister.getCompleteNotifyKey
 import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.install.ApkInstaller
 import net.xzos.upgradeall.utils.install.autoAddApkExtension
@@ -27,18 +22,18 @@ import net.xzos.upgradeall.utils.install.isApkFile
 import java.io.File
 
 
-class AriaDownloader(private val url: String) {
+class AriaDownloader(private val url: String, private val context: Context) {
 
-    private var taskId: Long = -1L
     private var downloadFile: File? = null
-    private val downloadNotification: DownloadNotification = DownloadNotification(url)
+    private lateinit var request: Request
+    private val downloadNotification: DownloadNotification by lazy { DownloadNotification(request.id) }
 
-    private val completeObserverFun: ObserverFun<DownloadTask> = fun(downloadTask) {
+    private val completeObserverFun: ObserverFun<Download> = fun(downloadTask) {
         taskComplete(downloadTask)
         unregister()
     }
 
-    private val cancelObserverFun: ObserverFun<DownloadTask> = fun(_) {
+    private val cancelObserverFun: ObserverFun<Download> = fun(_) {
         delTask()
     }
 
@@ -47,12 +42,12 @@ class AriaDownloader(private val url: String) {
     }
 
     private fun register() {
-        val registerDownloadMap = downloaderMap.setDownloader(url, this)
+        val registerDownloadMap = setDownloader(request.id, this)
         // 若下载器组成成功，进行下载状态监视功能注册
         if (registerDownloadMap) {
             downloadNotification.register()
-            AriaRegister.observeForever(url.getCompleteNotifyKey(), completeObserverFun)
-            AriaRegister.observeForever(url.getCancelNotifyKey(), cancelObserverFun)
+            AriaRegister.observeForever(request.id.getCompleteNotifyKey(), completeObserverFun)
+            AriaRegister.observeForever(request.id.getCancelNotifyKey(), cancelObserverFun)
         }
     }
 
@@ -62,45 +57,42 @@ class AriaDownloader(private val url: String) {
     }
 
     private fun delDownloader() {
-        downloaderMap.remove(url)
+        downloaderMap.remove(request.id)
     }
 
-    suspend fun start(fileName: String, headers: HashMap<String, String> = hashMapOf()): File? {
-        return mutex.withLock {
-            startAndRegister(fileName, headers)
-        }
+    fun start(fileName: String, headers: HashMap<String, String> = hashMapOf(), registerFun: (downloadId: Int) -> Unit) {
+        startDownloadTask(fileName, headers, fun(request) {
+            val file = File(request.file)
+            downloadNotification.waitDownloadTaskNotification(file.name)
+            val text = file.name + context.getString(R.string.download_task_begin)
+            MiscellaneousUtils.showToast(text)
+            register()
+            registerFun(request.id)
+        }, fun(_) {
+            MiscellaneousUtils.showToast(R.string.repeated_download_task)
+        })
     }
 
     fun resume() {
-        Aria.download(this).load(taskId)
-                .ignoreCheckPermissions()
-                .resume()
+        fetch.resume(request.id)
     }
 
-    fun stop() {
-        Aria.download(this).load(taskId)
-                .ignoreCheckPermissions()
-                .stop()
+    fun pause() {
+        fetch.pause(request.id)
     }
 
     fun restart() {
-        Aria.download(this).load(taskId)
-                .ignoreCheckPermissions()
-                .reStart()
+        fetch.retry(request.id)
     }
 
     private fun cancel() {
-        Aria.download(this).load(taskId)
-                .ignoreCheckPermissions()
-                .cancel(false)
+        fetch.cancel(request.id)
     }
 
     fun delTask() {
         unregister()
         delDownloader()
-        Aria.download(this).load(taskId)
-                .ignoreCheckPermissions()
-                .cancel(true)
+        fetch.delete(request.id)
     }
 
     fun install() {
@@ -128,68 +120,22 @@ class AriaDownloader(private val url: String) {
         }
     }
 
-    private fun startAndRegister(fileName: String, headers: Map<String, String> = hashMapOf()): File? {
-        val file = startDownloadTask(fileName, headers)
-        if (file != null) {
-            downloadFile = file
-            downloadNotification.waitDownloadTaskNotification(file.name)
-            val text = file.name + context.getString(R.string.download_task_begin)
-            MiscellaneousUtils.showToast(text)
-            register()
-        } else {
-            MiscellaneousUtils.showToast(R.string.repeated_download_task)
-        }
-        return file
-    }
-
-    private fun startDownloadTask(fileName: String, headers: Map<String, String>): File? {
+    private fun startDownloadTask(fileName: String, headers: Map<String, String>,
+                                  startFun: (_: Request) -> Unit, errorFun: (_: Error) -> Unit) {
         // 检查重复任务
-        val downloader = getDownloader(url)
-        val taskExists = Aria.download(this).taskExists(url)
-        when {
-            downloader != null && taskExists -> {
-                // 下载未完成
-                // 继续 并返回已有任务文件
-                downloader.resume()
-                val filePath = Aria.download(this).getDownloadEntity(taskId)?.filePath
-                        ?: return null
-                return File(filePath)
-            }
-            downloader != null && !taskExists -> {
-                // 下载已完成或正在等待开始下载
-                return downloader.downloadFile
-            }
-            downloader == null && taskExists -> {
-                // 下载未完成且中途因不明原因被终止
-                val taskId = Aria.download(this).load(url).entity.id
-                Aria.download(this).load(taskId).cancel(true)
-            }
-        }
-        // 检查下载文件列表
-        val taskList = Aria.download(this).totalTaskList
-        val taskFileList = mutableListOf<File>()
-        for (task in taskList) {
-            task as DownloadEntity
-            taskFileList.add(File(task.filePath))
-        }
-        val downloadFile = FilePathUtils.renameSameFile(
-                File(downloadDir, fileName), taskFileList
-        )
-        val option = HttpOption()
+        val file = File(downloadDir, fileName)
+        val filePath = file.path
+        request = Request(url, filePath)
         if (headers.isNotEmpty())
-            option.addHeaders(headers)
-        taskId = Aria.download(this)
-                .load(url)
-                .setFilePath(downloadFile.path)
-                .option(option)
-                .ignoreCheckPermissions()
-                .create()
-        return downloadFile
+            for ((key, value) in headers) {
+                request.addHeader(key, value)
+            }
+        fetch.enqueue(request = request, func = startFun, func2 = errorFun)
     }
 
-    private fun taskComplete(task: DownloadTask) {
+    private fun taskComplete(task: Download) {
         cancel()
-        val file = File(task.filePath).autoAddApkExtension().also {
+        val file = File(task.file).autoAddApkExtension().also {
             downloadFile = it
         }
         // 自动转储
@@ -215,23 +161,35 @@ class AriaDownloader(private val url: String) {
 
     companion object {
         @SuppressLint("StaticFieldLeak")
-        private val context = MyApplication.context
-        private val mutex = Mutex()
+        private lateinit var fetch: Fetch
+
+        init {
+            renewFetch(MyApplication.context)
+        }
+
+        fun renewFetch(context: Context) {
+            val fetchConfiguration = FetchConfiguration.Builder(context)
+                    .setDownloadConcurrentLimit(PreferencesMap.download_max_task_num)
+                    .setHttpDownloader(getDownloader())
+                    .build()
+            fetch = Fetch.Impl.getInstance(fetchConfiguration)
+            fetch.addListener(AriaRegister)
+        }
 
         private val downloadDir = FileUtil.DOWNLOAD_CACHE_DIR
 
-        private val downloaderMap: HashMap<String, AriaDownloader> = hashMapOf()
-        internal fun getDownloader(url: String): AriaDownloader? = downloaderMap[url]
-        private fun HashMap<String, AriaDownloader>.setDownloader(url: String, downloader: AriaDownloader): Boolean {
-            return if (this.containsKey(url)) {
+        private val downloaderMap: HashMap<Int, AriaDownloader> = hashMapOf()
+        internal fun getDownloader(downloadId: Int): AriaDownloader? = downloaderMap[downloadId]
+        private fun setDownloader(downloadId: Int, downloader: AriaDownloader): Boolean {
+            return if (downloaderMap.containsKey(downloadId)) {
                 false
             } else {
-                this[url] = downloader
+                downloaderMap[downloadId] = downloader
                 true
             }
         }
 
-        fun startDownloadService(url: String, fileName: String, headers: Map<String, String> = hashMapOf()) {
+        fun startDownloadService(url: String, fileName: String, headers: Map<String, String> = hashMapOf(), context: Context) {
             AriaDownloadService.startService(context, url, fileName, headers)
         }
     }

@@ -10,7 +10,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.arialyy.aria.core.task.DownloadTask
+import com.tonyodev.fetch2.Download
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.oberver.ObserverFun
@@ -23,7 +23,7 @@ import net.xzos.upgradeall.server.downloader.AriaRegister.getStopNotifyKey
 import net.xzos.upgradeall.utils.install.isApkFile
 import java.io.File
 
-class DownloadNotification(private val url: String) {
+class DownloadNotification(private val downloadId: Int) {
 
     private val notificationIndex: Int = NOTIFICATION_INDEX
 
@@ -31,25 +31,25 @@ class DownloadNotification(private val url: String) {
         priority = NotificationCompat.PRIORITY_LOW
     }
 
-    private val startObserverFun: ObserverFun<DownloadTask> = fun(downloadTask) {
+    private val startObserverFun: ObserverFun<Download> = fun(downloadTask) {
         taskStart(downloadTask)
     }
 
-    private val runningObserverFun: ObserverFun<DownloadTask> = fun(downloadTask) {
+    private val runningObserverFun: ObserverFun<Download> = fun(downloadTask) {
         taskRunning(downloadTask)
     }
 
-    private val stopObserverFun: ObserverFun<DownloadTask> = fun(_) { taskStop() }
+    private val stopObserverFun: ObserverFun<Download> = fun(_) { taskStop() }
 
-    private val completeObserverFun: ObserverFun<DownloadTask> = fun(downloadTask) {
+    private val completeObserverFun: ObserverFun<Download> = fun(downloadTask) {
         taskComplete(downloadTask).also { unregister() }
     }
 
-    private val cancelObserverFun: ObserverFun<DownloadTask> = fun(_) {
+    private val cancelObserverFun: ObserverFun<Download> = fun(_) {
         taskCancel().also { unregister() }
     }
 
-    private val failObserverFun: ObserverFun<DownloadTask> = fun(_) { taskFail() }
+    private val failObserverFun: ObserverFun<Download> = fun(_) { taskFail() }
 
     init {
         createNotificationChannel()
@@ -60,12 +60,12 @@ class DownloadNotification(private val url: String) {
     }
 
     fun register() {
-        AriaRegister.observeForever(url.getStartNotifyKey(), startObserverFun)
-        AriaRegister.observeForever(url.getRunningNotifyKey(), runningObserverFun)
-        AriaRegister.observeForever(url.getStopNotifyKey(), stopObserverFun)
-        AriaRegister.observeForever(url.getCompleteNotifyKey(), completeObserverFun)
-        AriaRegister.observeForever(url.getCancelNotifyKey(), cancelObserverFun)
-        AriaRegister.observeForever(url.getFailNotifyKey(), failObserverFun)
+        AriaRegister.observeForever(downloadId.getStartNotifyKey(), startObserverFun)
+        AriaRegister.observeForever(downloadId.getRunningNotifyKey(), runningObserverFun)
+        AriaRegister.observeForever(downloadId.getStopNotifyKey(), stopObserverFun)
+        AriaRegister.observeForever(downloadId.getCompleteNotifyKey(), completeObserverFun)
+        AriaRegister.observeForever(downloadId.getCancelNotifyKey(), cancelObserverFun)
+        AriaRegister.observeForever(downloadId.getFailNotifyKey(), failObserverFun)
     }
 
     private fun unregister() {
@@ -113,11 +113,11 @@ class DownloadNotification(private val url: String) {
         }
     }
 
-    private fun taskStart(task: DownloadTask) {
-        val progressCurrent: Int = task.percent
-        val speed = task.convertSpeed
+    private fun taskStart(task: Download) {
+        val progressCurrent: Int = task.progress
+        val speed = getSpeedText(task)
         builder.clearActions()
-                .setContentTitle("应用下载: ${File(task.filePath).name}")
+                .setContentTitle("应用下载: ${File(task.file).name}")
                 .setContentText(speed)
                 .setProgress(PROGRESS_MAX, progressCurrent, false)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
@@ -128,11 +128,11 @@ class DownloadNotification(private val url: String) {
         notificationNotify()
     }
 
-    private fun taskRunning(task: DownloadTask) {
-        val progressCurrent: Int = task.percent
-        val speed = task.convertSpeed
+    private fun taskRunning(task: Download) {
+        val progressCurrent: Int = task.progress
+        val speed = getSpeedText(task)
         builder.clearActions()
-                .setContentTitle("应用下载: ${File(task.filePath).name}")
+                .setContentTitle("应用下载: ${File(task.file).name}")
                 .setContentText(speed)
                 .setProgress(PROGRESS_MAX, progressCurrent, false)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
@@ -172,8 +172,8 @@ class DownloadNotification(private val url: String) {
         notificationNotify()
     }
 
-    private fun taskComplete(task: DownloadTask) {
-        val file = File(task.filePath)
+    private fun taskComplete(task: Download) {
+        val file = File(task.file)
         showManualMenuNotification(file)
     }
 
@@ -211,7 +211,7 @@ class DownloadNotification(private val url: String) {
     private fun getSnoozeIntent(extraIdentifierDownloadControlId: Int): Intent {
         return Intent(context, DownloadBroadcastReceiver::class.java).apply {
             action = DownloadBroadcastReceiver.ACTION_SNOOZE
-            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_DOWNLOADER_URL, url)
+            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_DOWNLOADER_URL, downloadId)
             putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, extraIdentifierDownloadControlId)
         }
     }
@@ -274,6 +274,16 @@ class DownloadNotification(private val url: String) {
                 channel.setShowBadge(false)
                 notificationManager.createNotificationChannel(channel)
             }
+        }
+    }
+
+    private fun getSpeedText(task: Download): String {
+        val speed = task.downloadedBytesPerSecond
+        return when {
+            speed == -1L -> "0 kb/s"
+            speed < 1024L -> "${speed / 1024} mb/s"
+            speed < 1024 * 1024L -> "${speed / (1024 * 1024)} gb/s"
+            else -> ""
         }
     }
 }

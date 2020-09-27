@@ -3,12 +3,11 @@ package net.xzos.upgradeall.data
 import android.app.Activity
 import android.content.Context
 import android.widget.Toast
-import androidx.core.os.ConfigurationCompat
 import androidx.preference.PreferenceManager
-import com.arialyy.aria.core.Aria
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.config.AppValue
+import net.xzos.upgradeall.server.downloader.AriaDownloader
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.utils.MiscellaneousUtils.showToast
 import net.xzos.upgradeall.utils.file.FileUtil
@@ -16,7 +15,7 @@ import net.xzos.upgradeall.utils.install.ApkShizukuInstaller
 import java.util.*
 
 object PreferencesMap {
-    private var context: Context? = null
+    private lateinit var context: Context
     fun setContext(context: Context) {
         this.context = context
     }
@@ -36,7 +35,7 @@ object PreferencesMap {
     var cloud_rules_hub_url: String
         get() = prefs.getString(CLOUD_RULES_HUB_URL_KEY, AppValue.default_cloud_rules_hub_url)!!
         set(value) = prefs.edit().putString(CLOUD_RULES_HUB_URL_KEY, value).apply()
-    var update_server_url: String
+    private var update_server_url: String
         get() = prefs.getString(UPDATE_SERVER_URL_KEY, AppConfig.update_server_url)!!
         set(value) = prefs.edit().putString(UPDATE_SERVER_URL_KEY, value).apply()
 
@@ -44,7 +43,7 @@ object PreferencesMap {
         get() = prefs.getBoolean("auto_update_app_config", true)
     val auto_update_hub_config: Boolean
         get() = prefs.getBoolean("auto_update_hub_config", true)
-    val background_sync_time
+    private val background_sync_time
         get() = prefs.getInt("background_sync_time", 18)
 
     // 安装首选项
@@ -59,7 +58,7 @@ object PreferencesMap {
     private const val DOWNLOAD_PATH_KEY = "user_download_path"
     var user_download_path: String
         get() = prefs.getString(DOWNLOAD_PATH_KEY, null)
-                ?: context!!.getString(R.string.please_grant_storage_perm)
+                ?: context.getString(R.string.please_grant_storage_perm)
         set(value) {
             prefs.edit().putString(DOWNLOAD_PATH_KEY, value).apply()
             auto_dump_download_file = true
@@ -69,11 +68,11 @@ object PreferencesMap {
         get() = prefs.getBoolean(AUTO_DUMP_DOWNLOAD_FILE_KEY, false)
         set(value) = prefs.edit().putBoolean(AUTO_DUMP_DOWNLOAD_FILE_KEY, value).apply()
     internal const val DOWNLOAD_THREAD_NUM_KEY = "download_thread_num"
-    private var download_thread_num: Int
+    var download_thread_num: Int
         get() = prefs.getInt(DOWNLOAD_THREAD_NUM_KEY, 6)
         set(value) = prefs.edit().putInt(DOWNLOAD_THREAD_NUM_KEY, value).apply()
     internal const val DOWNLOAD_MAX_TASK_NUM_KEY = "download_max_task_num"
-    private var download_max_task_num: Int
+    var download_max_task_num: Int
         get() = prefs.getInt(DOWNLOAD_MAX_TASK_NUM_KEY, 8)
         set(value) = prefs.edit().putInt(DOWNLOAD_MAX_TASK_NUM_KEY, value).apply()
 
@@ -120,10 +119,7 @@ object PreferencesMap {
 
     private fun syncAndroidConfig() {
         UpdateServiceBroadcastReceiver.setAlarms(background_sync_time)
-        Aria.get(context).downloadConfig.let {
-            it.maxTaskNum = download_max_task_num
-            it.threadNum = download_thread_num
-        }
+        AriaDownloader.renewFetch(context)
     }
 
     // 同步 Core 模块的配置

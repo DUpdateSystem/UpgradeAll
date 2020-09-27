@@ -4,7 +4,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import com.arialyy.aria.core.task.DownloadTask
+import com.tonyodev.fetch2.Download
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.server.downloader.AriaRegister.getCancelNotifyKey
@@ -32,26 +32,29 @@ class AriaDownloadService : Service() {
 
         @Suppress("UNCHECKED_CAST")
         val headers = intent.getSerializableExtra(HEADERS) as HashMap<String, String>
-        val ariaDownloader = AriaDownloader(url)
-        val file = runBlocking { ariaDownloader.start(fileName, headers) }
-        if (file != null) {
-            register(startId, url)
-        } else {
+        val ariaDownloader = AriaDownloader(url, this)
+        try {
+            runBlocking {
+                ariaDownloader.start(fileName, headers, fun(downloadId) {
+                    register(startId, downloadId)
+                })
+            }
+        } catch (ignore: Throwable) {
             stopSelf(startId)
         }
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun register(startId: Int, url: String) {
-        val observerFun: ObserverFun<DownloadTask> = fun(_) {
+    fun register(startId: Int, downloadId: Int) {
+        val observerFun: ObserverFun<Download> = fun(_) {
             stopSelf(startId)
             OBSERVER_FUN_MAP.remove(startId)?.let {
                 AriaRegister.removeObserver(it)
             }
         }
         OBSERVER_FUN_MAP[startId] = observerFun
-        AriaRegister.observeForever(url.getCompleteNotifyKey(), observerFun)
-        AriaRegister.observeForever(url.getCancelNotifyKey(), observerFun)
+        AriaRegister.observeForever(downloadId.getCompleteNotifyKey(), observerFun)
+        AriaRegister.observeForever(downloadId.getCancelNotifyKey(), observerFun)
     }
 
     companion object {
@@ -59,7 +62,7 @@ class AriaDownloadService : Service() {
         private const val FILE_NAME = "FILE_NAME"
         private const val HEADERS = "HEADERS"
 
-        private val OBSERVER_FUN_MAP: HashMap<Int, ObserverFun<DownloadTask>> = hashMapOf()
+        private val OBSERVER_FUN_MAP: HashMap<Int, ObserverFun<Download>> = hashMapOf()
 
         fun startService(context: Context, url: String, fileName: String, headers: Map<String, String>) {
             val intent = Intent(context, AriaDownloadService::class.java).apply {

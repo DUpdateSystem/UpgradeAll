@@ -32,7 +32,7 @@ object IoApi : IoApi {
                                       externalDownloader: Boolean) {
         if (!externalDownloader) {
             try {
-                AriaDownloader.startDownloadService(url, fileName, headers)
+                AriaDownloader.startDownloadService(url, fileName, headers, context)
             } catch (e: IllegalArgumentException) {
                 Log.e(objectTag, TAG, """ downloadFile: 下载任务失败
                         |下载参数: URL: $url, FileName: $fileName, headers: $headers

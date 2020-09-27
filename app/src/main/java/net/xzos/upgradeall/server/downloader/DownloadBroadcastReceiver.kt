@@ -8,12 +8,12 @@ import net.xzos.upgradeall.application.MyApplication
 class DownloadBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val downloaderId = intent.getStringExtra(EXTRA_IDENTIFIER_DOWNLOADER_URL) ?: return
+        val downloaderId = intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOADER_URL, 0)
         val downloader = AriaDownloader.getDownloader(downloaderId) ?: return
         when (intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)) {
             DOWNLOAD_CANCEL -> downloader.delTask()
             DOWNLOAD_RESTART -> downloader.restart()
-            DOWNLOAD_PAUSE -> downloader.stop()
+            DOWNLOAD_PAUSE -> downloader.pause()
             DOWNLOAD_CONTINUE -> downloader.resume()
             INSTALL_APK -> downloader.install()
             SAVE_FILE -> downloader.saveFile()

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import com.akexorcist.localizationactivity.core.LocalizationApplicationDelegate
-import com.arialyy.aria.core.Aria
 import jonathanfinerty.once.Once
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.data.constants.OnceTag
@@ -38,9 +37,6 @@ class MyApplication : Application() {
             }
             Once.markDone(OnceTag.DB_NAME_MIGRATION)
         }
-
-        Aria.init(this@MyApplication)
-        Aria.download(this@MyApplication).removeAllTask(false)  // TODO: 加入下载控制后移除
         MiscellaneousUtils.initData()
     }
 
