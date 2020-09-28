@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import com.akexorcist.localizationactivity.core.LocalizationApplicationDelegate
 import jonathanfinerty.once.Once
+import me.weishu.reflection.Reflection
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.data.constants.OnceTag
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -16,6 +17,7 @@ class MyApplication : Application() {
     private val localizationDelegate = LocalizationApplicationDelegate()
 
     override fun attachBaseContext(base: Context) {
+        Reflection.unseal(this) // bypass hidden api restriction, https://github.com/tiann/FreeReflection
         PreferencesMap.setContext(base)
         val local = PreferencesMap.custom_language_locale ?: return super.attachBaseContext(base)
         localizationDelegate.setDefaultLanguage(base, local)
