@@ -76,6 +76,11 @@ object PreferencesMap {
         get() = prefs.getInt(DOWNLOAD_MAX_TASK_NUM_KEY, 8)
         set(value) = prefs.edit().putInt(DOWNLOAD_MAX_TASK_NUM_KEY, value).apply()
 
+    internal const val DOWNLOAD_AUTO_RETRY_MAX_ATTEMPTS_KEY = "download_auto_retry_max_attempts"
+    var download_auto_retry_max_attempts: Int
+        get() = prefs.getInt(DOWNLOAD_AUTO_RETRY_MAX_ATTEMPTS_KEY, 3)
+        set(value) = prefs.edit().putInt(DOWNLOAD_AUTO_RETRY_MAX_ATTEMPTS_KEY, value).apply()
+
     // WebDAV
     val webdav_url
         get() = prefs.getString("webdav_url", null)
@@ -134,6 +139,8 @@ object PreferencesMap {
             download_thread_num = 1
         if (download_max_task_num <= 0)
             download_max_task_num = 1
+        if (download_auto_retry_max_attempts <= 0)
+            download_auto_retry_max_attempts = 1
         if (FileUtil.DOWNLOAD_DOCUMENT_FILE?.canWrite() != true)
             auto_dump_download_file = false
     }

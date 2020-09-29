@@ -45,7 +45,7 @@ class AriaDownloadService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    fun register(startId: Int, downloadId: Int) {
+    private fun register(startId: Int, downloadId: Int) {
         val observerFun: ObserverFun<Download> = fun(_) {
             stopSelf(startId)
             OBSERVER_FUN_MAP.remove(startId)?.let {

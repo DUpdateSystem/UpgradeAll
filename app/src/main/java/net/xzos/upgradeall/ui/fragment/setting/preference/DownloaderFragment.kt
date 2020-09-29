@@ -22,10 +22,9 @@ class DownloaderFragment : PrefFragment(R.xml.preferences_downloader) {
     }
 
     private fun setSeekBar() {
-        val downloadThreadNumKeyPreference: SeekBarPreference = findPreference(PreferencesMap.DOWNLOAD_THREAD_NUM_KEY)!!
-        downloadThreadNumKeyPreference.min = 1
-        val downloadMaxTaskNumKeyPreference: SeekBarPreference = findPreference(PreferencesMap.DOWNLOAD_MAX_TASK_NUM_KEY)!!
-        downloadMaxTaskNumKeyPreference.min = 1
+        findPreference<SeekBarPreference>(PreferencesMap.DOWNLOAD_THREAD_NUM_KEY)!!.min = 1
+        findPreference<SeekBarPreference>(PreferencesMap.DOWNLOAD_MAX_TASK_NUM_KEY)!!.min = 1
+        findPreference<SeekBarPreference>(PreferencesMap.DOWNLOAD_AUTO_RETRY_MAX_ATTEMPTS_KEY)!!.min = 1
     }
 
     private fun setDownloadPath() {

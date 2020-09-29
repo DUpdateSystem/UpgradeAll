@@ -3,7 +3,9 @@ package net.xzos.upgradeall.server.downloader
 import com.tonyodev.fetch2.Download
 import com.tonyodev.fetch2.FetchListener
 import com.tonyodev.fetch2core.DownloadBlock
+import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.oberver.Informer
+import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 
 object AriaRegister : Informer, FetchListener {
@@ -63,6 +65,8 @@ object AriaRegister : Informer, FetchListener {
     }
 
     override fun onError(download: Download, error: com.tonyodev.fetch2.Error, throwable: Throwable?) {
+        Log.e(AriaDownloader.logTagObject, AriaDownloader.TAG, error.toString())
+        MiscellaneousUtils.showToast(error.toString())
         taskFail(download)
     }
 

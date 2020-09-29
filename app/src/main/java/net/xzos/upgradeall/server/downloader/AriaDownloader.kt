@@ -8,6 +8,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
+import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.downloader.AriaRegister.getCancelNotifyKey
@@ -69,7 +71,7 @@ class AriaDownloader(private val url: String, private val context: Context) {
             register()
             registerFun(request.id)
         }, fun(_) {
-            MiscellaneousUtils.showToast(R.string.repeated_download_task)
+            MiscellaneousUtils.showToast(text = "下载失败: $fileName")
         })
     }
 
@@ -126,6 +128,7 @@ class AriaDownloader(private val url: String, private val context: Context) {
         val file = File(downloadDir, fileName)
         val filePath = file.path
         request = Request(url, filePath)
+        request.autoRetryMaxAttempts = PreferencesMap.download_auto_retry_max_attempts
         if (headers.isNotEmpty())
             for ((key, value) in headers) {
                 request.addHeader(key, value)
@@ -162,6 +165,9 @@ class AriaDownloader(private val url: String, private val context: Context) {
     companion object {
         @SuppressLint("StaticFieldLeak")
         private lateinit var fetch: Fetch
+
+        const val TAG = "Downloader"
+        val logTagObject = ObjectTag(core, TAG)
 
         init {
             renewFetch(MyApplication.context)
