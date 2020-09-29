@@ -1,6 +1,8 @@
 package net.xzos.upgradeall.android_api
 
 import android.util.Log
+import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log.DEBUG
 import net.xzos.upgradeall.core.log.Log.ERROR
@@ -20,7 +22,7 @@ object Log {
         LogApi.observeForever<LogItemData>(PRINT_LOG_TAG, fun(logItemData) {
             printLog(logItemData)
         })
-        LogApi.observeForever<HashMap<ObjectTag, MutableList<LogItemData>>>(LOG_CHANGED_TAG,
+        LogApi.observeForever<CoroutinesMutableMap<ObjectTag, CoroutinesMutableList<LogItemData>>>(LOG_CHANGED_TAG,
                 fun(logMap) {
                     LogLiveData.notifyChange(logMap)
                 }

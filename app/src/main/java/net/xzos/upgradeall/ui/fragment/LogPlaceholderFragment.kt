@@ -9,13 +9,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.fragment_log.*
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.ui.viewmodels.adapters.LogItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.LogPageViewModel
 
 
-class LogPlaceholderFragment : Fragment() {
+class LogPlaceholderFragment(
+        private val bundleLogObjectTag: ObjectTag
+) : Fragment() {
 
     private lateinit var mContext: Context
     private lateinit var logPageViewModel: LogPageViewModel
@@ -28,14 +30,11 @@ class LogPlaceholderFragment : Fragment() {
         super.onCreate(savedInstanceState)
         mContext = requireContext()
         logPageViewModel = ViewModelProvider(this).get(LogPageViewModel::class.java)
-        val logObjectTag = bundleLogObjectTag
-        if (logObjectTag != null) {
-            logPageViewModel.setLogObjectTag(logObjectTag)
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        logPageViewModel.setLogObjectTag(bundleLogObjectTag)
         renewLogList()
     }
 
@@ -48,16 +47,8 @@ class LogPlaceholderFragment : Fragment() {
 
     companion object {
 
-        private var bundleLogObjectTag: ObjectTag? = null
-            get() {
-                return field.also {
-                    bundleLogObjectTag = null
-                }
-            }
-
         internal fun newInstance(logObjectTag: ObjectTag): LogPlaceholderFragment {
-            bundleLogObjectTag = logObjectTag
-            return LogPlaceholderFragment()
+            return LogPlaceholderFragment(logObjectTag)
         }
     }
 }

@@ -5,7 +5,7 @@ import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 
 object LogDataProxy {
 
-    private val logMap = Log.logMap
+    private val logMap get() = Log.logMap
 
     private val allLogObjectTag = logMap.keys.toList()
 
@@ -25,31 +25,31 @@ object LogDataProxy {
             val fullLogString = StringBuilder()
             for (logSort in sortList) {
                 fullLogString.append(
-                    getLogStringBySort(
-                        logSort
-                    )
+                        getLogStringBySort(
+                                logSort
+                        )
                 )
             }
             return fullLogString.toString()
         }
 
     fun getObjectTagBySort(logSort: String): List<ObjectTag> =
-        logMap.keys.filter {
-            it.sort == logSort
-        }
+            logMap.keys.filter {
+                it.sort == logSort
+            }
 
     fun getLogMessageList(objectTag: ObjectTag): List<String> =
-        logMap[objectTag]?.map {
-            it.toString()
-        } ?: listOf()
+            logMap[objectTag]?.map {
+                it.toString()
+            } ?: listOf()
 
     fun getLogStringBySort(logSort: String): String {
         val fullLogString = StringBuilder(logSort + "\n")
         val objectTagList = getObjectTagBySort(logSort)
         for (objectTag in objectTagList) {
             val logString = convertLogMessageToString(
-                objectTag,
-                false
+                    objectTag,
+                    false
             )
             fullLogString.append(logString).append("\n")
         }
@@ -61,7 +61,7 @@ object LogDataProxy {
         val name = "    " + logObjectTag.name
         val logMessageString = StringBuilder()
         val logMessageArray: List<String> =
-            getLogMessageList(logObjectTag)
+                getLogMessageList(logObjectTag)
 
         for (logMessage in logMessageArray)
             logMessageString.append("        ").append(logMessage).append("\n")

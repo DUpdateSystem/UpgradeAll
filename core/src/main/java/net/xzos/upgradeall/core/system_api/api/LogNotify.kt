@@ -1,5 +1,7 @@
 package net.xzos.upgradeall.core.system_api.api
 
+import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.LogItemData
 import net.xzos.upgradeall.core.oberver.Informer
@@ -17,7 +19,7 @@ object LogApi : Informer {
         notifyChanged(PRINT_LOG_TAG, logItemData)
     }
 
-    internal fun logChanged(logMap: HashMap<ObjectTag, MutableList<LogItemData>>) {
+    internal fun logChanged(logMap: CoroutinesMutableMap<ObjectTag, CoroutinesMutableList<LogItemData>>) {
         notifyChanged(LOG_CHANGED_TAG, logMap)
     }
 }

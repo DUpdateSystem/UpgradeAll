@@ -28,6 +28,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.file_pref.UCropActivity
@@ -43,6 +46,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
     init {
+        Log.e(ObjectTag(core, "111"), "111", "111")
+        Log.e(ObjectTag(core, "112"), "112", "111")
         navigationItemId = MutableLiveData(R.id.appListFragment).apply {
             this.observe(this@MainActivity, { itemId ->
                 setFrameLayout(itemId)

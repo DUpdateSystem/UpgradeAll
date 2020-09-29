@@ -3,6 +3,9 @@ package net.xzos.upgradeall.data.log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableMap
+import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.LogDataProxy
 import net.xzos.upgradeall.core.log.LogItemData
@@ -11,11 +14,11 @@ import net.xzos.upgradeall.utils.notifyObserver
 
 object LogLiveData {
 
-    private var logMap = hashMapOf<ObjectTag, MutableList<LogItemData>>()
+    private var logMap = coroutinesMutableMapOf<ObjectTag, CoroutinesMutableList<LogItemData>>(true)
 
     private val mLogMapLiveData = MutableLiveData(logMap)
 
-    fun notifyChange(logMap: HashMap<ObjectTag, MutableList<LogItemData>>) {
+    fun notifyChange(logMap: CoroutinesMutableMap<ObjectTag, CoroutinesMutableList<LogItemData>>) {
         this.logMap = logMap
         mLogMapLiveData.notifyObserver()
     }

@@ -14,6 +14,9 @@ class LogItemAdapter(mLogList: LiveData<List<String>>, owner: LifecycleOwner) : 
     private val mLogMessages = ArrayList<String>()
 
     init {
+        mLogList.value?.let {
+            renewLogMessage(it)
+        }
         mLogList.observe(owner, { logList ->
             renewLogMessage(logList)
         })

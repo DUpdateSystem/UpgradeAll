@@ -6,6 +6,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.config.AppConfig
+import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableListOf
+import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.system_api.api.LogApi
 import org.apache.commons.text.StringEscapeUtils
@@ -37,7 +40,7 @@ object Log {
      */
     private var LEVEL = AppConfig.log_level
 
-    internal val logMap = hashMapOf<ObjectTag, MutableList<LogItemData>>()
+    internal val logMap = coroutinesMutableMapOf<ObjectTag, CoroutinesMutableList<LogItemData>>(true)
     private val mutex = Mutex()
 
     /**
@@ -54,7 +57,7 @@ object Log {
         GlobalScope.launch {
             mutex.withLock {
                 val logObjectTag = logItemData.logObjectTag
-                (logMap[logObjectTag] ?: mutableListOf<LogItemData>().also {
+                (logMap[logObjectTag] ?: coroutinesMutableListOf<LogItemData>().also {
                     logMap[logObjectTag] = it
                 }).add(logItemData)
             }
