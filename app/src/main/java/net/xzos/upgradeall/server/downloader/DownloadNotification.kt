@@ -14,12 +14,12 @@ import com.tonyodev.fetch2.Download
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.oberver.ObserverFun
-import net.xzos.upgradeall.server.downloader.AriaRegister.getCancelNotifyKey
-import net.xzos.upgradeall.server.downloader.AriaRegister.getCompleteNotifyKey
-import net.xzos.upgradeall.server.downloader.AriaRegister.getFailNotifyKey
-import net.xzos.upgradeall.server.downloader.AriaRegister.getRunningNotifyKey
-import net.xzos.upgradeall.server.downloader.AriaRegister.getStartNotifyKey
-import net.xzos.upgradeall.server.downloader.AriaRegister.getStopNotifyKey
+import net.xzos.upgradeall.server.downloader.DownloadRegister.getCancelNotifyKey
+import net.xzos.upgradeall.server.downloader.DownloadRegister.getCompleteNotifyKey
+import net.xzos.upgradeall.server.downloader.DownloadRegister.getFailNotifyKey
+import net.xzos.upgradeall.server.downloader.DownloadRegister.getRunningNotifyKey
+import net.xzos.upgradeall.server.downloader.DownloadRegister.getStartNotifyKey
+import net.xzos.upgradeall.server.downloader.DownloadRegister.getStopNotifyKey
 import net.xzos.upgradeall.utils.install.isApkFile
 import java.io.File
 
@@ -60,21 +60,21 @@ class DownloadNotification(private val downloadId: Int) {
     }
 
     fun register() {
-        AriaRegister.observeForever(downloadId.getStartNotifyKey(), startObserverFun)
-        AriaRegister.observeForever(downloadId.getRunningNotifyKey(), runningObserverFun)
-        AriaRegister.observeForever(downloadId.getStopNotifyKey(), stopObserverFun)
-        AriaRegister.observeForever(downloadId.getCompleteNotifyKey(), completeObserverFun)
-        AriaRegister.observeForever(downloadId.getCancelNotifyKey(), cancelObserverFun)
-        AriaRegister.observeForever(downloadId.getFailNotifyKey(), failObserverFun)
+        DownloadRegister.observeForever(downloadId.getStartNotifyKey(), startObserverFun)
+        DownloadRegister.observeForever(downloadId.getRunningNotifyKey(), runningObserverFun)
+        DownloadRegister.observeForever(downloadId.getStopNotifyKey(), stopObserverFun)
+        DownloadRegister.observeForever(downloadId.getCompleteNotifyKey(), completeObserverFun)
+        DownloadRegister.observeForever(downloadId.getCancelNotifyKey(), cancelObserverFun)
+        DownloadRegister.observeForever(downloadId.getFailNotifyKey(), failObserverFun)
     }
 
     private fun unregister() {
-        AriaRegister.removeObserver(startObserverFun)
-        AriaRegister.removeObserver(runningObserverFun)
-        AriaRegister.removeObserver(stopObserverFun)
-        AriaRegister.removeObserver(completeObserverFun)
-        AriaRegister.removeObserver(cancelObserverFun)
-        AriaRegister.removeObserver(failObserverFun)
+        DownloadRegister.removeObserver(startObserverFun)
+        DownloadRegister.removeObserver(runningObserverFun)
+        DownloadRegister.removeObserver(stopObserverFun)
+        DownloadRegister.removeObserver(completeObserverFun)
+        DownloadRegister.removeObserver(cancelObserverFun)
+        DownloadRegister.removeObserver(failObserverFun)
     }
 
     internal fun waitDownloadTaskNotification(fileName: String? = null) {
@@ -165,7 +165,7 @@ class DownloadNotification(private val downloadId: Int) {
                 .setContentText("下载失败，点击重试")
                 .setSmallIcon(android.R.drawable.stat_sys_download_done)
                 .setProgress(0, 0, false)
-                .setContentIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_RESTART))
+                .setContentIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_RETRY))
                 .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消", delTaskSnoozePendingIntent)
                 .setDeleteIntent(delTaskSnoozePendingIntent)
                 .setOngoing(false)

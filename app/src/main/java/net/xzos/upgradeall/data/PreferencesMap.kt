@@ -7,7 +7,7 @@ import androidx.preference.PreferenceManager
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.config.AppValue
-import net.xzos.upgradeall.server.downloader.AriaDownloader
+import net.xzos.upgradeall.server.downloader.Downloader
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.utils.MiscellaneousUtils.showToast
 import net.xzos.upgradeall.utils.file.FileUtil
@@ -124,7 +124,7 @@ object PreferencesMap {
 
     private fun syncAndroidConfig() {
         UpdateServiceBroadcastReceiver.setAlarms(background_sync_time)
-        AriaDownloader.renewFetch(context)
+        Downloader.renewFetch(context)
     }
 
     // 同步 Core 模块的配置

@@ -30,7 +30,7 @@
             android:enabled="true"
             android:exported="false" />
         <service
-            android:name=".server.downloader.AriaDownloadService"
+            android:name=".server.downloader.DownloadService"
             android:enabled="true"
             android:exported="false" />
 

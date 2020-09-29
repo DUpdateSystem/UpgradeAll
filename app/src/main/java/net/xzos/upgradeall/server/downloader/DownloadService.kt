@@ -7,10 +7,10 @@ import android.os.IBinder
 import com.tonyodev.fetch2.Download
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.oberver.ObserverFun
-import net.xzos.upgradeall.server.downloader.AriaRegister.getCancelNotifyKey
-import net.xzos.upgradeall.server.downloader.AriaRegister.getCompleteNotifyKey
+import net.xzos.upgradeall.server.downloader.DownloadRegister.getCancelNotifyKey
+import net.xzos.upgradeall.server.downloader.DownloadRegister.getCompleteNotifyKey
 
-class AriaDownloadService : Service() {
+class DownloadService : Service() {
 
     override fun onCreate() {
         super.onCreate()
@@ -32,7 +32,7 @@ class AriaDownloadService : Service() {
 
         @Suppress("UNCHECKED_CAST")
         val headers = intent.getSerializableExtra(HEADERS) as HashMap<String, String>
-        val ariaDownloader = AriaDownloader(url, this)
+        val ariaDownloader = Downloader(url, this)
         try {
             runBlocking {
                 ariaDownloader.start(fileName, headers, fun(downloadId) {
@@ -49,12 +49,12 @@ class AriaDownloadService : Service() {
         val observerFun: ObserverFun<Download> = fun(_) {
             stopSelf(startId)
             OBSERVER_FUN_MAP.remove(startId)?.let {
-                AriaRegister.removeObserver(it)
+                DownloadRegister.removeObserver(it)
             }
         }
         OBSERVER_FUN_MAP[startId] = observerFun
-        AriaRegister.observeForever(downloadId.getCompleteNotifyKey(), observerFun)
-        AriaRegister.observeForever(downloadId.getCancelNotifyKey(), observerFun)
+        DownloadRegister.observeForever(downloadId.getCompleteNotifyKey(), observerFun)
+        DownloadRegister.observeForever(downloadId.getCancelNotifyKey(), observerFun)
     }
 
     companion object {
@@ -65,7 +65,7 @@ class AriaDownloadService : Service() {
         private val OBSERVER_FUN_MAP: HashMap<Int, ObserverFun<Download>> = hashMapOf()
 
         fun startService(context: Context, url: String, fileName: String, headers: Map<String, String>) {
-            val intent = Intent(context, AriaDownloadService::class.java).apply {
+            val intent = Intent(context, DownloadService::class.java).apply {
                 putExtra(URL, url)
                 putExtra(FILE_NAME, fileName)
                 putExtra(HEADERS, HashMap(headers))

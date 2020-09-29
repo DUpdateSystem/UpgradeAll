@@ -8,7 +8,7 @@ import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 
-object AriaRegister : Informer, FetchListener {
+object DownloadRegister : Informer, FetchListener {
 
     private const val TASK_START = "TASK_START"
     private const val TASK_RUNNING = "TASK_RUNNING"
@@ -65,7 +65,7 @@ object AriaRegister : Informer, FetchListener {
     }
 
     override fun onError(download: Download, error: com.tonyodev.fetch2.Error, throwable: Throwable?) {
-        Log.e(AriaDownloader.logTagObject, AriaDownloader.TAG, error.toString())
+        Log.e(Downloader.logTagObject, Downloader.TAG, error.toString())
         MiscellaneousUtils.showToast(error.toString())
         taskFail(download)
     }

@@ -9,10 +9,10 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val downloaderId = intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOADER_URL, 0)
-        val downloader = AriaDownloader.getDownloader(downloaderId) ?: return
+        val downloader = Downloader.getDownloader(downloaderId) ?: return
         when (intent.getIntExtra(EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, -1)) {
             DOWNLOAD_CANCEL -> downloader.delTask()
-            DOWNLOAD_RESTART -> downloader.restart()
+            DOWNLOAD_RETRY -> downloader.retry()
             DOWNLOAD_PAUSE -> downloader.pause()
             DOWNLOAD_CONTINUE -> downloader.resume()
             INSTALL_APK -> downloader.install()
@@ -27,7 +27,7 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
 
         internal const val EXTRA_IDENTIFIER_DOWNLOAD_CONTROL = "DOWNLOAD_CONTROL"
         internal const val DOWNLOAD_CANCEL = 1
-        internal const val DOWNLOAD_RESTART = 2
+        internal const val DOWNLOAD_RETRY = 2
         internal const val DOWNLOAD_PAUSE = 3
         internal const val DOWNLOAD_CONTINUE = 4
         internal const val SAVE_FILE = 10

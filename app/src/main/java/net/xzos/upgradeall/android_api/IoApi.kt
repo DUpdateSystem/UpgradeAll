@@ -10,7 +10,7 @@ import net.xzos.upgradeall.core.server_manager.module.applications.AppInfo
 import net.xzos.upgradeall.core.system_api.interfaces.IoApi
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.VersioningUtils
-import net.xzos.upgradeall.server.downloader.AriaDownloader
+import net.xzos.upgradeall.server.downloader.Downloader
 
 
 /**
@@ -32,7 +32,7 @@ object IoApi : IoApi {
                                       externalDownloader: Boolean) {
         if (!externalDownloader) {
             try {
-                AriaDownloader.startDownloadService(url, fileName, headers, context)
+                Downloader.startDownloadService(url, fileName, headers, context)
             } catch (e: IllegalArgumentException) {
                 Log.e(objectTag, TAG, """ downloadFile: 下载任务失败
                         |下载参数: URL: $url, FileName: $fileName, headers: $headers

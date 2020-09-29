@@ -12,8 +12,8 @@ import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.data.PreferencesMap
-import net.xzos.upgradeall.server.downloader.AriaRegister.getCancelNotifyKey
-import net.xzos.upgradeall.server.downloader.AriaRegister.getCompleteNotifyKey
+import net.xzos.upgradeall.server.downloader.DownloadRegister.getCancelNotifyKey
+import net.xzos.upgradeall.server.downloader.DownloadRegister.getCompleteNotifyKey
 import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -24,7 +24,7 @@ import net.xzos.upgradeall.utils.install.isApkFile
 import java.io.File
 
 
-class AriaDownloader(private val url: String, private val context: Context) {
+class Downloader(private val url: String, private val context: Context) {
 
     private var downloadFile: File? = null
     private lateinit var request: Request
@@ -48,18 +48,18 @@ class AriaDownloader(private val url: String, private val context: Context) {
         // 若下载器组成成功，进行下载状态监视功能注册
         if (registerDownloadMap) {
             downloadNotification.register()
-            AriaRegister.observeForever(request.id.getCompleteNotifyKey(), completeObserverFun)
-            AriaRegister.observeForever(request.id.getCancelNotifyKey(), cancelObserverFun)
+            DownloadRegister.observeForever(request.id.getCompleteNotifyKey(), completeObserverFun)
+            DownloadRegister.observeForever(request.id.getCancelNotifyKey(), cancelObserverFun)
         }
     }
 
     private fun unregister() {
-        AriaRegister.removeObserver(completeObserverFun)
-        AriaRegister.removeObserver(cancelObserverFun)
+        DownloadRegister.removeObserver(completeObserverFun)
+        DownloadRegister.removeObserver(cancelObserverFun)
     }
 
     private fun delDownloader() {
-        downloaderMap.remove(request.id)
+        DOWNLOADER_MAP.remove(request.id)
     }
 
     fun start(fileName: String, headers: HashMap<String, String> = hashMapOf(), registerFun: (downloadId: Int) -> Unit) {
@@ -83,7 +83,7 @@ class AriaDownloader(private val url: String, private val context: Context) {
         fetch.pause(request.id)
     }
 
-    fun restart() {
+    fun retry() {
         fetch.retry(request.id)
     }
 
@@ -116,8 +116,8 @@ class AriaDownloader(private val url: String, private val context: Context) {
         val mimeType = FileUtil.getMimeTypeByUri(context, Uri.fromFile(this.downloadFile))
         GlobalScope.launch {
             SaveFileActivity.newInstance(
-                    this@AriaDownloader.downloadFile!!.name, mimeType,
-                    this@AriaDownloader.downloadFile!!.readBytes(), context
+                    this@Downloader.downloadFile!!.name, mimeType,
+                    this@Downloader.downloadFile!!.readBytes(), context
             )
         }
     }
@@ -179,24 +179,24 @@ class AriaDownloader(private val url: String, private val context: Context) {
                     .setHttpDownloader(getDownloader())
                     .build()
             fetch = Fetch.Impl.getInstance(fetchConfiguration)
-            fetch.addListener(AriaRegister)
+            fetch.addListener(DownloadRegister)
         }
 
         private val downloadDir = FileUtil.DOWNLOAD_CACHE_DIR
 
-        private val downloaderMap: HashMap<Int, AriaDownloader> = hashMapOf()
-        internal fun getDownloader(downloadId: Int): AriaDownloader? = downloaderMap[downloadId]
-        private fun setDownloader(downloadId: Int, downloader: AriaDownloader): Boolean {
-            return if (downloaderMap.containsKey(downloadId)) {
+        private val DOWNLOADER_MAP: HashMap<Int, Downloader> = hashMapOf()
+        internal fun getDownloader(downloadId: Int): Downloader? = DOWNLOADER_MAP[downloadId]
+        private fun setDownloader(downloadId: Int, downloader: Downloader): Boolean {
+            return if (DOWNLOADER_MAP.containsKey(downloadId)) {
                 false
             } else {
-                downloaderMap[downloadId] = downloader
+                DOWNLOADER_MAP[downloadId] = downloader
                 true
             }
         }
 
         fun startDownloadService(url: String, fileName: String, headers: Map<String, String> = hashMapOf(), context: Context) {
-            AriaDownloadService.startService(context, url, fileName, headers)
+            DownloadService.startService(context, url, fileName, headers)
         }
     }
 }
