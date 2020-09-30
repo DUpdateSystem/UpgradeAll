@@ -81,6 +81,9 @@ object PreferencesMap {
         get() = prefs.getInt(DOWNLOAD_AUTO_RETRY_MAX_ATTEMPTS_KEY, 3)
         set(value) = prefs.edit().putInt(DOWNLOAD_AUTO_RETRY_MAX_ATTEMPTS_KEY, value).apply()
 
+    val enforce_use_external_downloader: Boolean
+        get() = prefs.getBoolean("enforce_use_external_downloader", false)
+
     // WebDAV
     val webdav_url
         get() = prefs.getString("webdav_url", null)

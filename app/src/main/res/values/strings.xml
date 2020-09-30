@@ -188,4 +188,7 @@
     <string name="plz_restart">请重启应用</string>
 
     <string name="download_auto_retry_max_attempts">下载任务重试次数</string>
+
+    <string name="built_in_downloader_setting">内置下载器设置</string>
+    <string name="use_external_downloader">强制使用外置下载器</string>
 </resources>

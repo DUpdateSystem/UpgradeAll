@@ -183,4 +183,7 @@
     <string name="menu_search">Search</string>
     <string name="menu_search_hint">Search…</string>
     <string name="download_auto_retry_max_attempts">Auto Retry Max Attempts</string>
+
+    <string name="built_in_downloader_setting">Built-in Downloader Setting</string>
+    <string name="use_external_downloader">Forcing the use of external downloader</string>
 </resources>

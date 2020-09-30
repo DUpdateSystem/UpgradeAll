@@ -8,9 +8,10 @@ import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.server_manager.module.applications.AppInfo
 import net.xzos.upgradeall.core.system_api.interfaces.IoApi
+import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.server.downloader.Downloader
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.VersioningUtils
-import net.xzos.upgradeall.server.downloader.Downloader
 
 
 /**
@@ -30,7 +31,7 @@ object IoApi : IoApi {
     // 注释相应平台的下载软件
     override suspend fun downloadFile(url: String, fileName: String, headers: Map<String, String>,
                                       externalDownloader: Boolean) {
-        if (!externalDownloader) {
+        if (!externalDownloader && !PreferencesMap.enforce_use_external_downloader) {
             try {
                 Downloader.startDownloadService(url, fileName, headers, context)
             } catch (e: IllegalArgumentException) {
