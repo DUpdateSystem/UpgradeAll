@@ -34,9 +34,9 @@ object DataCache {
     }
 
     fun getAppRelease(
-            hubUuid: String, auth: Map<String, String?>, appIdList: Map<String, String?>
+            hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>
     ): List<ReleaseListItem>? {
-        val key = hubUuid + auth + appIdList
+        val key = hubUuid + auth + appId
         cache.appReleaseMap[key]?.also {
             if (!it.isExpired()) {
                 return it.first
@@ -46,10 +46,10 @@ object DataCache {
     }
 
     fun cacheAppStatus(
-            hubUuid: String, auth: Map<String, String?>, appIdList: Map<String, String?>,
+            hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>,
             releaseList: List<ReleaseListItem>?
     ) {
-        val key = hubUuid + auth + appIdList
+        val key = hubUuid + auth + appId
         cache.appReleaseMap[key] = Pair(releaseList, Calendar.getInstance())
     }
 

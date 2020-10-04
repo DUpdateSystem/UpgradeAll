@@ -6,24 +6,6 @@ import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.route.Dict
 import java.security.MessageDigest
 
-internal class HubData(
-        val hubUuid: String,
-        val auth: Map<String, String?> = mapOf()
-) {
-    private val appIdList: HashSet<Map<String, String?>> = hashSetOf()
-    private val dataMutex = Mutex()
-
-    fun addAppId(appId: Map<String, String?>) {
-        runBlocking {
-            dataMutex.withLock {
-                appIdList.add(appId)
-            }
-        }
-    }
-
-    fun getAppIdList(): HashSet<Map<String, String?>> = appIdList
-}
-
 
 fun String.md5(): String {
     val md = MessageDigest.getInstance("MD5")
