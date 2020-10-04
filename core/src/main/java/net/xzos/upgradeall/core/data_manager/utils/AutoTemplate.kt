@@ -18,38 +18,48 @@ class AutoTemplate(private val string: String?, private val template: String) {
 
     private fun matchArgs(s: String, template: String): Map<String, String> {
         var cropString = s
-        val valueList = mutableListOf<String>()
-        val keywords = getArgsKeywords(template)
-        val intervalStringList = getIntervalString(keywords, template)
-        for (intervalString in intervalStringList) {
+        val keywordMatchResultList = getArgsKeywords(template)
+        val keywords = keywordMatchResultList.map { it.value }
+        val stringIndexList = getStringIndexList(keywordMatchResultList, template)
+        val args = mutableMapOf<String, String>()
+        val intervalStringMap = mutableMapOf<Int, String>()
+        for (i in stringIndexList.indices) {
+            val item = stringIndexList[i]
+            if (!keywords.contains(item)) {
+                intervalStringMap[i] = item
+            }
+        }
+        for ((index, intervalString) in intervalStringMap.entries) {
             val splitList = cropString.split(intervalString, limit = 2)
             if (splitList.isNotEmpty()) {
-                if (splitList[0].isNotEmpty())
-                    valueList.add(splitList[0])
+                var keyA: String? = null
+                var keyB: String? = null
+                if (index - 1 > 0 && index - 1 < stringIndexList.size)
+                    keyA = stringIndexList[index - 1]
+                if (index + 1 < stringIndexList.size)
+                    keyB = stringIndexList[index + 1]
+                if (keyA != null) {
+                    args[keyA] = splitList[0]
+                }
+                if (keyB != null && splitList.size == 2) {
+                    args[keyB] = splitList[1]
+                }
                 cropString = if (splitList.size == 2) {
                     splitList[1]
                 } else ""
             }
         }
-        valueList.add(cropString)
-        val args = mutableMapOf<String, String>()
-        var i = 0
-        for (key in keywords) {
-            if (i < valueList.size) {
-                args[key.value] = valueList[i]
-            } else break
-            i++
-        }
         return args
     }
 
-    private fun getIntervalString(matchResults: Sequence<MatchResult>, template: String): List<String> {
+    private fun getStringIndexList(matchResults: Sequence<MatchResult>, template: String): List<String> {
         val list = mutableListOf<String>()
         var lastIndex = 0
         for (matchResult in matchResults) {
             val currentIndex = matchResult.range.first
             if (lastIndex != currentIndex)
                 list.add(template.substring(lastIndex, currentIndex))
+            list.add(matchResult.value)
             lastIndex = matchResult.range.last + 1
         }
         if (lastIndex != template.length)

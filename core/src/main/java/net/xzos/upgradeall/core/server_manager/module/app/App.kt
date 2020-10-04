@@ -19,12 +19,15 @@ class App(override val appDatabase: AppDatabase, appId: Map<String, String>? = n
 
     private fun getAppIdByUrl(): Map<String, String?>? {
         if (hubDatabase != null) {
-            if (hubDatabase.hubConfig.apiKeywords.isEmpty())
+            val apiKeywords = hubDatabase.hubConfig.apiKeywords
+            if (apiKeywords.isEmpty())
                 return mapOf()
             for (appUrlTemplate in hubDatabase.hubConfig.appUrlTemplates) {
-                return AutoTemplate(appDatabase.url, appUrlTemplate).args.mapKeys {
+                val m = AutoTemplate(appDatabase.url, appUrlTemplate).args.mapKeys {
                     it.key.substringAfterLast("%")
                 }.filter { it.value.isNotBlank() } + appDatabase.extraId
+                if (m.keys.toList() == apiKeywords)
+                    return m
             }
         }
         return null
