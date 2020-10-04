@@ -62,8 +62,11 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
         val operationSteps = list1ToList2(mItemCardViewList, newList.toList())
         for (operationStep in operationSteps) {
             when (operationStep) {
-                is ListDelOperationStep -> {
-                    onItemDismiss(operationStep.index)
+                is ListDelOperationStep<*> -> {
+                    with(operationStep.element) {
+                        if (this is ItemCardView)
+                            onItemDismiss(this)
+                    }
                 }
                 is ListAddOperationStep<*> -> {
                     onAddItem(operationStep.index, operationStep.element as ItemCardView)
@@ -76,14 +79,14 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
     }
 
     fun onAddItem(position: Int = 0, element: ItemCardView) {
-        // TODO: 新的 UI 通知方式
-        if (position < mItemCardViewList.size) {
-            mItemCardViewList.add(position, element)
-            notifyItemRangeInserted(position, 1)
-        } else {
-            mItemCardViewList.add(element)
-            notifyItemRangeInserted(0, 1)
-        }
+        mItemCardViewList.add(position, element)
+    }
+
+    fun onItemDismiss(element: ItemCardView): ItemCardView? {
+        val position = mItemCardViewList.indexOf(element)
+        val removedItemCardView = mItemCardViewList.removeAt(position)
+        notifyItemRemoved(position)
+        return removedItemCardView
     }
 
     fun onItemDismiss(position: Int): ItemCardView? {

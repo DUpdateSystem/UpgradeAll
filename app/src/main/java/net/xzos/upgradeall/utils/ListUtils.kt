@@ -5,13 +5,15 @@ open class ListOperationStepBase
 class ListAddOperationStep<E> internal constructor(val index: Int, val element: E)
     : ListOperationStepBase()
 
-class ListDelOperationStep internal constructor(val index: Int)
+class ListDelOperationStep<E> internal constructor(val element: E)
     : ListOperationStepBase()
 
 class ListSwapOperationStep internal constructor(val rowIndex: Int, val newIndex: Int)
     : ListOperationStepBase()
 
-fun <E> list1ToList2(list1: List<E>, list2: List<E>): List<ListOperationStepBase> {
+fun <E> list1ToList2(list1t: List<E>, list2t: List<E>): List<ListOperationStepBase> {
+    val list1 = list1t.toMutableList()
+    val list2 = list2t.toList()
     if (list1 == list2) return emptyList()
     val delList = list1.filter {
         !list2.contains(it)
@@ -19,33 +21,29 @@ fun <E> list1ToList2(list1: List<E>, list2: List<E>): List<ListOperationStepBase
     val addList = list2.filter {
         !list1.contains(it)
     }
-    val tmpList = list1.toMutableList()
     val operationSteps = mutableListOf<ListOperationStepBase>()
     // 删除多余项
     for (item in delList) {
-        val index = tmpList.indexOf(item)
-        operationSteps.add(ListDelOperationStep(index))
-        tmpList.removeAt(index)
+        operationSteps.add(ListDelOperationStep(item))
+        list1.remove(item)
     }
     // 添加缺失项
     val addItemMap = hashMapOf<E, Int>()
     for (item in addList) {
-        val index = list2.indexOf(item)
-        if (index < tmpList.size) {
-            tmpList.add(index, item)
-            addItemMap[item] = index
-        } else {
-            tmpList.add(item)
-            addItemMap[item] = tmpList.size - 1
+        var index = list2.indexOf(item)
+        if (index >= list1.size) {
+            index = list1.size
         }
+        list1.add(index, item)
+        addItemMap[item] = index
     }
     // 还原位置
     val swapItemMap = mutableMapOf<E, Pair<Int, Int>>()
-    for (i in tmpList.indices) {
-        val item = tmpList[i]
+    for (i in list1.indices) {
+        val item = list1[i]
         val newIndex = list2.indexOf(item)
         if (i != newIndex) {
-            tmpList[i] = tmpList[newIndex].also { tmpList[newIndex] = tmpList[i] }
+            list1[i] = list1[newIndex].also { list1[newIndex] = list1[i] }
             if (item in addItemMap) {
                 addItemMap[item] = newIndex
             } else {
@@ -55,8 +53,8 @@ fun <E> list1ToList2(list1: List<E>, list2: List<E>): List<ListOperationStepBase
             }
         }
     }
-    val sorted = addItemMap.toList().sortedBy { (_, value) -> value }.toMap()
-    for ((item, index) in sorted.entries) {
+    val sorted = addItemMap.toList().sortedBy { (_, value) -> value }
+    for ((item, index) in sorted) {
         operationSteps.add(ListAddOperationStep(index, item))
     }
     for ((_, index) in swapItemMap) {
