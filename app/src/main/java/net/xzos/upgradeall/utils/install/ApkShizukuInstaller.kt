@@ -7,7 +7,6 @@ import android.content.pm.IPackageInstaller
 import android.content.pm.IPackageInstallerSession
 import android.content.pm.IPackageManager
 import android.content.pm.PackageInstaller
-import android.os.Build
 import android.os.Process
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -20,10 +19,9 @@ import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.utils.MiscellaneousUtils
-import net.xzos.upgradeall.utils.install.shizuku.PackageInstallerUtils
-import net.xzos.upgradeall.utils.file.FileUtil.SHELL_SCRIPT_CACHE_FILE
 import net.xzos.upgradeall.utils.install.shizuku.IIntentSenderAdaptor
 import net.xzos.upgradeall.utils.install.shizuku.IntentSenderUtils
+import net.xzos.upgradeall.utils.install.shizuku.PackageInstallerUtils
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.CountDownLatch
@@ -33,30 +31,22 @@ object ApkShizukuInstaller {
 
     private const val TAG = "ApkShizukuInstaller"
     private val logObjectTag = ObjectTag(ObjectTag.core, TAG)
+
+    @Suppress("ObjectPropertyName")
     private val _packageManager: IPackageManager by lazy {
         IPackageManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("package")))
     }
+
+    @Suppress("ObjectPropertyName")
     private val _packageInstaller: IPackageInstaller by lazy {
         IPackageInstaller.Stub.asInterface(ShizukuBinderWrapper(_packageManager.packageInstaller.asBinder()))
     }
 
     suspend fun install(file: File) {
         withContext(Dispatchers.Default) {
-//            rowInstall(file)
             doApkInstall(file)
         }
         ApkInstaller.completeInstall(file)
-    }
-
-    private fun rowInstall(file: File) {
-        if (!ShizukuService.pingBinder()) {
-            return
-        } else try {
-            val command = "cat ${file.path} | pm install -S ${file.length()}"
-            exec(command)
-        } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, e.toString())
-        }
     }
 
     private fun doApkInstall(file: File) {
@@ -78,13 +68,15 @@ object ApkShizukuInstaller {
             res.append("createSession: ")
 
             val params: PackageInstaller.SessionParams = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-            val installFlags = PackageInstallerUtils.getInstallFlags(params)
+            var installFlags = PackageInstallerUtils.getInstallFlags(params)
+            installFlags = installFlags or (0x00000004 /*PackageManager.INSTALL_ALLOW_TEST*/ or 0x00000002) /*PackageManager.INSTALL_REPLACE_EXISTING*/
             PackageInstallerUtils.setInstallFlags(params, installFlags)
 
             sessionId = packageInstaller.createSession(params)
             res.append(sessionId).append('\n')
 
             res.append('\n').append("write: ")
+            @Suppress("LocalVariableName")
             val _session = IPackageInstallerSession.Stub.asInterface(ShizukuBinderWrapper(_packageInstaller.openSession(sessionId).asBinder()))
             session = PackageInstallerUtils.createSession(_session)
 
@@ -141,34 +133,13 @@ object ApkShizukuInstaller {
                 }
             }
         }
+        Log.i(logObjectTag, TAG, res.toString())
+        MiscellaneousUtils.showToast(res.toString())
     }
 
     fun requestShizukuPermission(activity: Activity, PERMISSIONS_REQUEST_CONTACTS: Int): Boolean {
         return MiscellaneousUtils.requestPermission(
                 activity, ShizukuApiConstants.PERMISSION,
                 PERMISSIONS_REQUEST_CONTACTS, R.string.shizuku_permission_request)
-    }
-
-    private fun exec(command: String): Int? {
-        SHELL_SCRIPT_CACHE_FILE.writeText(command)
-        return execInternal("sh", SHELL_SCRIPT_CACHE_FILE.path)
-    }
-
-    private fun execInternal(vararg command: String): Int? {
-        val process = ShizukuService.newProcess(command, null, null)
-        process.waitFor()
-        val errorString = process.errorStream.bufferedReader().use { it.readText() }
-        val exitValue = process.exitValue()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            process.destroyForcibly()
-        } else {
-            process.destroy()
-        }
-        return exitValue.also {
-            if (exitValue != 0)
-                Log.e(logObjectTag, TAG, """
-                    Error: $errorString
-                """.trimIndent())
-        }
     }
 }
