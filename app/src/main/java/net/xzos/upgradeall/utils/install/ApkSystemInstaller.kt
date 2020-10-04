@@ -4,13 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.StrictMode
-import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.xzos.upgradeall.BuildConfig
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.utils.ToastUtil
 import java.io.File
@@ -46,44 +42,3 @@ object ApkSystemInstaller : Informer {
     }
 
 }
-
-@Throws(IllegalArgumentException::class)
-fun File.getUri(): Uri {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-        try {
-            FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", this)
-        } catch (e: IllegalArgumentException) { throw e }
-    else Uri.fromFile(this)
-}
-
-/**
- * 修复后缀名
- */
-fun File.autoAddApkExtension(): File {
-    if (this.isApkFile()) {
-        if (this.extension != "apk") {
-            this.renameTo(File(parent, "$name.apk"))
-        }
-    }
-    return this
-}
-
-@Throws(IllegalArgumentException::class)
-fun File.getApkUri(): Uri {
-    // 修复后缀名
-    val apkFile = this.autoAddApkExtension()
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        try {
-            val m = StrictMode::class.java.getMethod("disableDeathOnFileUriExposure")
-            m.invoke(null)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-    return try {
-        apkFile.getUri()
-    } catch (e: IllegalArgumentException) {
-        throw e
-    }
-}
-

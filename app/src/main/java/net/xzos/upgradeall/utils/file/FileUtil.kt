@@ -11,7 +11,9 @@ import android.provider.DocumentsContract.EXTRA_INITIAL_URI
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
+import net.xzos.upgradeall.BuildConfig
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
@@ -291,3 +293,15 @@ fun File.getExistsFile(isDir: Boolean = false): File {
     else parentFile.mkdirs()
     return this
 }
+
+@Throws(IllegalArgumentException::class)
+fun File.getProviderUri(): Uri {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+        try {
+            FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", this)
+        } catch (e: IllegalArgumentException) {
+            throw e
+        }
+    else Uri.fromFile(this)
+}
+
