@@ -10,7 +10,6 @@ import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
-import net.xzos.upgradeall.core.data_manager.utils.DataCache
 import net.xzos.upgradeall.core.route.*
 import net.xzos.upgradeall.core.utils.wait
 import java.util.concurrent.TimeUnit
@@ -20,18 +19,27 @@ class GrpcReleaseApi {
     private val hubDataMap = coroutinesMutableMapOf<String, HubData>(true)
     private val grpcWaitLockList = coroutinesMutableListOf<String>(true)
     private val mutex = Mutex()
+    private val grpcRequestLockMap = coroutinesMutableMapOf<String, Mutex>(true)
 
     suspend fun getAppRelease(hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>): List<ReleaseListItem>? {
         return if (Looper.myLooper() == Looper.getMainLooper()) {
             null
         } else {
-            val mutex = Mutex(true)
-            setRequest(hubUuid, auth, appId, fun(_) { mutex.unlock() })
-            GlobalScope.launch {
-                callGetAppReleaseStream(mkHubId(hubUuid, auth))
+            val itemKey = mkAppId(hubUuid, auth, appId)
+            val mutex = grpcRequestLockMap[itemKey] ?: Mutex(true).apply {
+                grpcRequestLockMap[itemKey] = this
+            }.also {
+                GlobalScope.launch {
+                    callGetAppReleaseStream(mkHubId(hubUuid, auth))
+                }
             }
+            var releaseList: List<ReleaseListItem>? = null
+            setRequest(hubUuid, auth, appId, fun(list) {
+                grpcRequestLockMap.remove(itemKey)?.unlock()
+                releaseList = list
+            })
             mutex.wait()
-            return DataCache.getAppRelease(hubUuid, auth, appId)
+            return releaseList
         }
     }
 
@@ -62,7 +70,7 @@ class GrpcReleaseApi {
         val request = mkReleaseRequestBuilder(hubUuid, appIdList, auth)
         val clearMutex = fun() {
             for (appId in appIdList.toList()) {
-                callRequestFun(hubUuid, auth, appId)
+                callRequestFun(hubUuid, auth, appId, null)
             }
         }
 
@@ -74,9 +82,10 @@ class GrpcReleaseApi {
                 if (response.validHub) {
                     val releasePackage = response.release
                     val appId = releasePackage.appIdList.toMap()
-                    if (releasePackage.validData)
-                        DataCache.cacheAppStatus(hubUuid, auth, appId, releasePackage.releaseListList)
-                    callRequestFun(hubUuid, auth, appId)
+                    val releaseList = if (releasePackage.validData)
+                        releasePackage.releaseListList
+                    else null
+                    callRequestFun(hubUuid, auth, appId, releaseList)
                     appIdList.remove(appId)
                 } else {
                     GrpcApi.invalidHubUuidList.add(hubUuid)
@@ -92,12 +101,10 @@ class GrpcReleaseApi {
         }
     }
 
-    private fun callRequestFun(hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>) {
+    private fun callRequestFun(hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>, releaseList: List<ReleaseListItem>?) {
         val itemId = mkAppId(hubUuid, auth, appId)
-        funMap[itemId]?.map { func ->
-            func(DataCache.getAppRelease(hubUuid, auth, appId))
-        }?.let {
-            funMap.remove(itemId)
+        funMap.remove(itemId)?.map { func ->
+            func(releaseList)
         }
     }
 

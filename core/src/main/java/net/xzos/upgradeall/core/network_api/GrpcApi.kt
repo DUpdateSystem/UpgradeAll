@@ -42,7 +42,9 @@ class GrpcApi {
             null
         } else {
             DataCache.getAppRelease(hubUuid, auth, appId)
-                    ?: grpcReleaseApi.getAppRelease(hubUuid, auth, appId)
+                    ?: grpcReleaseApi.getAppRelease(hubUuid, auth, appId).also {
+                        DataCache.cacheAppStatus(hubUuid, auth, appId, it)
+                    }
         }
     }
 
