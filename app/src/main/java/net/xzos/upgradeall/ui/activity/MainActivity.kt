@@ -28,7 +28,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data_manager.utils.AutoTemplate
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.file_pref.UCropActivity
@@ -44,8 +43,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
     init {
-        val a = AutoTemplate("https://f-droid.org/packages/com.termux/","https://f-droid.org/%language/packages/%android_app_package/")
-        val b = a.args
         navigationItemId = MutableLiveData(R.id.appListFragment).apply {
             this.observe(this@MainActivity, { itemId ->
                 setFrameLayout(itemId)
