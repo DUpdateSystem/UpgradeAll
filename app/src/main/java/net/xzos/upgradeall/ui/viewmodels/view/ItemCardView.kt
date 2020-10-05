@@ -11,6 +11,22 @@ class ItemCardView internal constructor(
     fun isEmpty(): Boolean {
         return name == null
     }
+
+    override fun equals(other: Any?): Boolean {
+        return other is ItemCardView
+                && other.name == name
+                && other.type == type
+                && other.hubName == hubName
+                && other.extraData == extraData
+    }
+
+    override fun hashCode(): Int {
+        var result = name?.hashCode() ?: 0
+        result = 31 * result + (type?.hashCode() ?: 0)
+        result = 31 * result + (hubName?.hashCode() ?: 0)
+        result = 31 * result + extraData.hashCode()
+        return result
+    }
 }
 
 data class ItemCardViewExtraData(

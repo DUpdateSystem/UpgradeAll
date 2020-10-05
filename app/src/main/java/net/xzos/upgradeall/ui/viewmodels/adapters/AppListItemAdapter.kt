@@ -91,8 +91,7 @@ class AppListItemAdapter(
                             && tabPageIndex != UPDATE_PAGE_INDEX) {
                         menu.add(R.string.delete_from_group).let { menuItem ->
                             menuItem.setOnMenuItemClickListener {
-                                if (appListPageViewModel.removeItemFromTabPage(holder.adapterPosition))
-                                    onItemDismiss(holder.adapterPosition)
+                                appListPageViewModel.removeItemFromTabPage(holder.adapterPosition)
                                 return@setOnMenuItemClickListener true
                             }
                         }
@@ -113,9 +112,8 @@ class AppListItemAdapter(
                     // 删除数据库
                     menu.add(R.string.delete).let { menuItem ->
                         menuItem.setOnMenuItemClickListener {
-                            if (runBlocking { AppDatabaseManager.deleteDatabase(this@run.appDatabase) }
-                                    && appListPageViewModel.removeItemFromTabPage(holder.adapterPosition))
-                                onItemDismiss(holder.adapterPosition)
+                            if (runBlocking { AppDatabaseManager.deleteDatabase(this@run.appDatabase) })
+                                appListPageViewModel.removeItemFromTabPage(holder.adapterPosition)
                             return@setOnMenuItemClickListener true
                         }
                     }
