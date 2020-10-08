@@ -21,8 +21,10 @@ object VersioningUtils {
 
     /**
      * 对比 versionNumber0 与 versionNumber1
-     * 若，前者比后者大，则返回 true*/
-    internal fun compareVersionNumber(versionNumber0: String?, versionNumber1: String?): Boolean {
+     * 若，前者比后者大，则返回 true
+     * 若，版本号不是语义化版本号，返回 NULL
+     */
+    internal fun compareVersionNumber(versionNumber0: String?, versionNumber1: String?): Boolean? {
         // 检查强制忽略版本号
         if (versionNumber0 == FOREVER_IGNORE) return true
         if (versionNumber1 == FOREVER_IGNORE) return false
@@ -32,6 +34,9 @@ object VersioningUtils {
         // 正常处理版本号
         val matchVersioning0 = matchVersioningString(versionNumber0)
         val matchVersioning1 = matchVersioningString(versionNumber1)
+        if (matchVersioning0.isNullOrBlank() || matchVersioning1.isNullOrBlank()) {
+            return null
+        }
         /*
         接口趋于稳定，取消日志记录
         Log.i(

@@ -41,11 +41,11 @@ private class AppPackageMatchUtils {
     val matchInfoList = packages.map {
         val appName = packageManager.getApplicationLabel(it)
         SearchInfo(
-                AppType.androidApp,
                 MatchInfo(it.packageName, appName.toString(), listOf(
                         MatchString(appName),
                         MatchString(it.packageName)
-                ))
+                )),
+                AppType.androidApp
         )
     }
 }
@@ -67,7 +67,6 @@ private class MagiskModuleMatchUtils {
                 ) ?: return null
         val prop = MiscellaneousUtils.parsePropertiesString(fileString)
         return SearchInfo(
-                AppType.androidMagiskModule,
                 MatchInfo(moduleFolderName,
                         prop.getProperty("name", ""),
                         listOf(
@@ -77,7 +76,8 @@ private class MagiskModuleMatchUtils {
                                 MatchString(prop.getProperty("description", "")
                                 )
                         )
-                )
+                ),
+                AppType.androidMagiskModule
         )
     }
 

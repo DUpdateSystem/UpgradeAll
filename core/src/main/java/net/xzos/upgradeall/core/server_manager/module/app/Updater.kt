@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.core.server_manager.module.app
 
-import net.xzos.upgradeall.core.data_manager.utils.VersioningUtils
+import net.xzos.upgradeall.core.data_manager.utils.*
 import net.xzos.upgradeall.core.network_api.GrpcApi
 import net.xzos.upgradeall.core.network_api.toMap
 import net.xzos.upgradeall.core.route.AssetItem
@@ -12,10 +12,10 @@ class Updater(private val app: App,
 ) {
 
     suspend fun getUpdateStatus(): Int {
-        val release = getReleaseList() ?: return NETWORK_ERROR
+        val release = getReleaseList()
         return when {
+            release == null -> NETWORK_ERROR
             release.isEmpty() -> INVALID_APP
-            release[0] == null -> NETWORK_ERROR
             else -> {
                 val versionNumber = app.ignoreVersionNumber ?: app.installedVersionNumber
                 when {
@@ -33,10 +33,20 @@ class Updater(private val app: App,
         val latestVersion = getLatestVersioning()
         return VersioningUtils.compareVersionNumber(
                 this, latestVersion
-        )
+        ) ?: run {
+            val versionNumberList = getReleaseList()?.map { it.versionNumber } ?: return false
+            val searchUtils = SearchUtils(versionNumberList.map {
+                SearchInfo(MatchInfo(it, it, listOf(MatchString(it))), null)
+            })
+            val searchList = searchUtils.search(this)
+            if (searchList.isNotEmpty()) {
+                val version = searchList[0].matchInfo.matchList[0].matchString
+                versionNumberList.indexOf(version) == 0
+            } else false
+        }
     }
 
-    suspend fun getReleaseList(): List<ReleaseListItem?>? {
+    suspend fun getReleaseList(): List<ReleaseListItem>? {
         val appId = app.appId
         if (appId != null) {
             val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
@@ -51,7 +61,7 @@ class Updater(private val app: App,
         val releaseList = getReleaseList() ?: return null
         return if (appId != null) {
             if (releaseList.isNotEmpty())
-                releaseList[0]?.versionNumber
+                releaseList[0].versionNumber
             else null
         } else null
     }

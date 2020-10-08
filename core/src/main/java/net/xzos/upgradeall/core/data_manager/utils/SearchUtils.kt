@@ -57,8 +57,8 @@ object StringMatchUtils {
 }
 
 data class SearchInfo(
-        val targetSort: CharSequence,
-        val matchInfo: MatchInfo
+        val matchInfo: MatchInfo,
+        val extraInfo: Any?
 ) {
     override fun toString(): String = matchInfo.id
 }

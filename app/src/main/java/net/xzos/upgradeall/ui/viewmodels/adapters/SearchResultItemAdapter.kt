@@ -25,7 +25,7 @@ class SearchResultItemAdapter(context: Context, searchInfoList: List<SearchInfo>
                         IconPalette.loadAppIconView(view.appIconImageView, iconInfo = IconInfo(app_package = targetId))
                         view.nameTextView.text = searchInfo.matchInfo.name
                         view.searchTypeTextView.setText(
-                                when (searchInfo.targetSort) {
+                                when (searchInfo.extraInfo) {
                                     AppType.androidApp -> R.string.app
                                     AppType.androidMagiskModule -> R.string.magisk_module
                                     else -> R.string.app
