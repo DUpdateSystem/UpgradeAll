@@ -24,6 +24,7 @@ import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.install.ApkInstaller
+import net.xzos.upgradeall.utils.install.ApkRootInstall
 import net.xzos.upgradeall.utils.install.autoAddApkExtension
 import net.xzos.upgradeall.utils.install.isApkFile
 import java.io.File
@@ -121,16 +122,34 @@ class Downloader(private val context: Context) {
         fetch.delete(downloadId)
     }
 
-    fun install(file: File = File(requestList[0].file)) {
-        downloadNotification.showInstallNotification(file.name)
-        when {
-            file.isApkFile() -> {
-                ApkInstaller.observeInstall(file, fun(_) {
-                    completeInstall(file)
-                })
-                GlobalScope.launch { ApkInstaller.install(file) }
+    fun install() {
+        if (requestList.size == 0) {
+            val file = File(requestList[0].file)
+            downloadNotification.showInstallNotification(file.name)
+            when {
+                file.isApkFile() -> {
+                    ApkInstaller.observeInstall(file, fun(_) {
+                        completeInstall(file)
+                    })
+                    GlobalScope.launch { ApkInstaller.install(file) }
+                }
+                else -> return
             }
-            else -> return
+        } else {
+            GlobalScope.launch {
+                val apkFilePathList = requestList.map {
+                    it.file
+                }.filter {
+                    File(it).isApkFile()
+                }
+                ApkRootInstall.multipleInstall(apkFilePathList)
+                val obbFilePathList = requestList.map {
+                    it.file
+                }.filter {
+                    File(it).extension == "obb"
+                }
+                ApkRootInstall.obbInstall(obbFilePathList)
+            }
         }
     }
 
@@ -180,10 +199,10 @@ class Downloader(private val context: Context) {
             FileUtil.DOWNLOAD_DOCUMENT_FILE?.let {
                 FileUtil.dumpFile(file, it)
             }
-            // 自动安装
-            if (PreferencesMap.auto_install) {
-                install(file)
-            }
+        }
+        // 自动安装
+        if (PreferencesMap.auto_install) {
+            install()
         }
     }
 
