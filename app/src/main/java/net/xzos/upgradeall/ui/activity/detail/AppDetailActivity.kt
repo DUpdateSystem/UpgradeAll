@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
 import jonathanfinerty.once.Once
 import kotlinx.android.synthetic.main.activity_app_detail.*
@@ -34,7 +35,7 @@ class AppDetailActivity : BaseActivity() {
     private var versioningPosition: Int = 0
     private val releaseInfoList: List<ReleaseListItem> by lazy {
         return@lazy try {
-            runBlocking { Updater(app).getReleaseList()?.filterNotNull() } ?: listOf()
+            runBlocking { Updater(app).getReleaseList() } ?: listOf()
         } catch (ignore: NetworkOnMainThreadException) {
             listOf()
         }
@@ -180,11 +181,11 @@ class AppDetailActivity : BaseActivity() {
             getString(R.string.cloud_version_number)
         }
         cloudVersioningTextView.text = versionNumber
-        appChangelogTextView.text = if (latestChangeLog.isNullOrBlank()) {
+        appChangelogTextView.setText(if (latestChangeLog.isNullOrBlank()) {
             getString(R.string.null_english)
         } else {
-            latestChangeLog
-        }
+            HtmlCompat.fromHtml(latestChangeLog, HtmlCompat.FROM_HTML_MODE_LEGACY);
+        })
 
         loadReleaseIgnore()
     }

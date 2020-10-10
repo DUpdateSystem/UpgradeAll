@@ -58,7 +58,7 @@ class GrpcReleaseApi {
         val hubUuid = hubData.hubUuid
         val auth = hubData.auth
         val appIdList = hubData.getAppIdList()
-        for (appIdL in appIdList.chunked(15))
+        for (appIdL in appIdList.chunked(25))
             GlobalScope.launch {
                 callGetAppRelease(hubUuid, auth, appIdL.toHashSet())
             }
