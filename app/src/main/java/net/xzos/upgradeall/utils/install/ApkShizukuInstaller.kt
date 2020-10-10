@@ -23,7 +23,6 @@ import net.xzos.upgradeall.utils.install.shizuku.IIntentSenderAdaptor
 import net.xzos.upgradeall.utils.install.shizuku.IntentSenderUtils
 import net.xzos.upgradeall.utils.install.shizuku.PackageInstallerUtils
 import java.io.File
-import java.io.IOException
 import java.util.concurrent.CountDownLatch
 
 
@@ -85,24 +84,13 @@ object ApkShizukuInstaller {
             val buf = ByteArray(8192)
             var len: Int
 
-            try {
-                while (inputStream.read(buf).also { len = it } > 0) {
-                    outputStream.write(buf, 0, len)
-                    outputStream.flush()
-                    session.fsync(outputStream)
-                }
-            } finally {
-                try {
-                    inputStream.close()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
-                try {
-                    outputStream.close()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
+            while (inputStream.read(buf).also { len = it } > 0) {
+                outputStream.write(buf, 0, len)
+                outputStream.flush()
+                session.fsync(outputStream)
             }
+            inputStream.close()
+            outputStream.close()
 
             res.append('\n').append("commit: ")
 
