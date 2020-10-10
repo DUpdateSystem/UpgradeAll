@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.server_manager.module.app
 
+import net.xzos.upgradeall.core.data.json.gson.DownloadInfoItem
 import net.xzos.upgradeall.core.data_manager.utils.*
 import net.xzos.upgradeall.core.network_api.GrpcApi
 import net.xzos.upgradeall.core.network_api.toMap
@@ -75,19 +76,17 @@ class Updater(private val app: App,
             val downloadResponse = if (hubUuid != null && appId != null)
                 grpcApi.getDownloadInfo(hubUuid, appId, app.appDatabase.auth, fileIndex.toList())
             else null
-            val list = downloadResponse?.listList
+            val list = downloadResponse?.listList?.map {
+                DownloadInfoItem(it.name, it.url, it.headersList?.toMap()
+                        ?: mapOf(), it.cookiesList?.toMap() ?: mapOf())
+            }
             if (!list.isNullOrEmpty())
                 for (download in list) {
-                    val headers = download.requestHeaderList?.toMap() ?: mapOf()
-                    IoApi.downloadFile(
-                            asset.fileName, download.url ?: return,
-                            headers = headers,
-                            externalDownloader = externalDownloader
-                    )
+                    IoApi.downloadFile(list, externalDownloader)
                 }
             else
                 IoApi.downloadFile(
-                        asset.fileName, asset.downloadUrl,
+                        listOf(DownloadInfoItem(asset.fileName, asset.downloadUrl, mapOf(), mapOf())),
                         externalDownloader = externalDownloader
                 )
         }

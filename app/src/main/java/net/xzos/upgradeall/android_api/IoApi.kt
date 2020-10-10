@@ -9,6 +9,7 @@ import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.server_manager.module.applications.AppInfo
 import net.xzos.upgradeall.core.system_api.interfaces.IoApi
 import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.core.data.json.gson.DownloadInfoItem
 import net.xzos.upgradeall.server.downloader.Downloader
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.VersioningUtils
@@ -29,19 +30,24 @@ object IoApi : IoApi {
     private val context = MyApplication.context
 
     // 注释相应平台的下载软件
-    override suspend fun downloadFile(url: String, fileName: String, headers: Map<String, String>,
-                                      externalDownloader: Boolean) {
+    override suspend fun downloadFile(
+            downloadInfoList: List<DownloadInfoItem>,
+            externalDownloader: Boolean
+    ) {
         if (!externalDownloader && !PreferencesMap.enforce_use_external_downloader) {
             try {
-                Downloader.startDownloadService(url, fileName, headers, context)
+                Downloader.startDownloadService(downloadInfoList, context)
             } catch (e: IllegalArgumentException) {
+                val name = downloadInfoList[0].name
                 Log.e(objectTag, TAG, """ downloadFile: 下载任务失败
-                        |下载参数: URL: $url, FileName: $fileName, headers: $headers
+                        |下载参数: URL: $name
                         |ERROR_MESSAGE: $e""".trimIndent())
-                MiscellaneousUtils.showToast(text = "下载失败: $fileName")
+                MiscellaneousUtils.showToast(text = "下载失败: $name")
             }
         } else {
-            MiscellaneousUtils.accessByBrowser(url, context)
+            for (downloadInfo in downloadInfoList) {
+                MiscellaneousUtils.accessByBrowser(downloadInfo.url, context)
+            }
         }
     }
 

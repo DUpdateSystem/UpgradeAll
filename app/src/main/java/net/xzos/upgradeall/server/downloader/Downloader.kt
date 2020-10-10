@@ -3,11 +3,16 @@ package net.xzos.upgradeall.server.downloader
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import com.tonyodev.fetch2.*
+import com.tonyodev.fetch2.Download
+import com.tonyodev.fetch2.Fetch
+import com.tonyodev.fetch2.FetchConfiguration
+import com.tonyodev.fetch2.Request
+import com.tonyodev.fetch2.util.DEFAULT_GROUP_ID
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
+import net.xzos.upgradeall.core.data.json.gson.DownloadInfoItem
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.oberver.ObserverFun
@@ -24,14 +29,14 @@ import net.xzos.upgradeall.utils.install.isApkFile
 import java.io.File
 
 
-class Downloader(private val url: String, private val context: Context) {
+class Downloader(private val context: Context) {
 
-    private var downloadFile: File? = null
-    private lateinit var request: Request
-    private val downloadNotification: DownloadNotification by lazy { DownloadNotification(request.id) }
+    private val requestList: MutableList<Request> = mutableListOf()
+    private var downloadId = DEFAULT_GROUP_ID
+    private val downloadNotification: DownloadNotification by lazy { DownloadNotification(downloadId) }
 
-    private val completeObserverFun: ObserverFun<Download> = fun(downloadTask) {
-        taskComplete(downloadTask)
+    private val completeObserverFun: ObserverFun<Download> = fun(_) {
+        taskComplete()
         unregister()
     }
 
@@ -44,12 +49,12 @@ class Downloader(private val url: String, private val context: Context) {
     }
 
     private fun register() {
-        val registerDownloadMap = setDownloader(request.id, this)
+        val registerDownloadMap = setDownloader(downloadId, this)
         // 若下载器组成成功，进行下载状态监视功能注册
         if (registerDownloadMap) {
             downloadNotification.register()
-            DownloadRegister.observeForever(request.id.getCompleteNotifyKey(), completeObserverFun)
-            DownloadRegister.observeForever(request.id.getCancelNotifyKey(), cancelObserverFun)
+            DownloadRegister.observeForever(downloadId.getCompleteNotifyKey(), completeObserverFun)
+            DownloadRegister.observeForever(downloadId.getCancelNotifyKey(), cancelObserverFun)
         }
     }
 
@@ -59,46 +64,64 @@ class Downloader(private val url: String, private val context: Context) {
     }
 
     private fun delDownloader() {
-        DOWNLOADER_MAP.remove(request.id)
+        DOWNLOADER_MAP.remove(downloadId)
     }
 
-    fun start(fileName: String, headers: HashMap<String, String> = hashMapOf(), registerFun: (downloadId: Int) -> Unit) {
-        startDownloadTask(fileName, headers, fun(request) {
-            val file = File(request.file)
-            downloadNotification.waitDownloadTaskNotification(file.name)
-            val text = file.name + context.getString(R.string.download_task_begin)
-            MiscellaneousUtils.showToast(text)
-            register()
-            registerFun(request.id)
-        }, fun(_) {
-            MiscellaneousUtils.showToast(text = "下载失败: $fileName")
-        })
+    fun addTask(fileName: String, url: String,
+                headers: Map<String, String> = mapOf(), cookies: Map<String, String> = mapOf()) {
+        val request = makeRequest(fileName, url, headers, cookies)
+        requestList.add(request)
+    }
+
+    fun start(registerFun: (downloadId: Int) -> Unit) {
+        if (requestList.isEmpty()) return
+        val groupId = if (requestList.size == 1) {
+            downloadId = requestList[0].id
+            DEFAULT_GROUP_ID
+        } else {
+            groupId.also {
+                downloadId = it
+            }
+        }
+        for (request in requestList) {
+            request.groupId = groupId
+            fetch.enqueue(request, fun(request) {
+                val file = File(request.file)
+                downloadNotification.waitDownloadTaskNotification(file.name)
+                val text = file.name + context.getString(R.string.download_task_begin)
+                MiscellaneousUtils.showToast(text)
+                register()
+                registerFun(request.id)
+            }, fun(_) {
+                val file = File(request.file)
+                MiscellaneousUtils.showToast(text = "下载失败: ${file.name}")
+            })
+        }
     }
 
     fun resume() {
-        fetch.resume(request.id)
+        fetch.resume(downloadId)
     }
 
     fun pause() {
-        fetch.pause(request.id)
+        fetch.pause(downloadId)
     }
 
     fun retry() {
-        fetch.retry(request.id)
+        fetch.retry(downloadId)
     }
 
     private fun cancel() {
-        fetch.cancel(request.id)
+        fetch.cancel(downloadId)
     }
 
     fun delTask() {
         unregister()
         delDownloader()
-        fetch.delete(request.id)
+        fetch.delete(downloadId)
     }
 
-    fun install() {
-        val file = downloadFile ?: return
+    fun install(file: File = File(requestList[0].file)) {
         downloadNotification.showInstallNotification(file.name)
         when {
             file.isApkFile() -> {
@@ -112,42 +135,55 @@ class Downloader(private val url: String, private val context: Context) {
     }
 
     fun saveFile() {
-        if (downloadFile == null) return
-        val mimeType = FileUtil.getMimeTypeByUri(context, Uri.fromFile(this.downloadFile))
-        GlobalScope.launch {
-            SaveFileActivity.newInstance(
-                    this@Downloader.downloadFile!!.name, mimeType,
-                    this@Downloader.downloadFile!!.readBytes(), context
-            )
+        for (request in requestList) {
+            val file = File(request.file)
+            val mimeType = FileUtil.getMimeTypeByUri(context, Uri.fromFile(file))
+            GlobalScope.launch {
+                SaveFileActivity.newInstance(
+                        file.name, mimeType,
+                        file.readBytes(), context
+                )
+            }
         }
     }
 
-    private fun startDownloadTask(fileName: String, headers: Map<String, String>,
-                                  startFun: (_: Request) -> Unit, errorFun: (_: Error) -> Unit) {
+    private fun makeRequest(fileName: String, url: String,
+                            headers: Map<String, String> = mapOf(), cookies: Map<String, String> = mapOf()
+    ): Request {
         // 检查重复任务
         val file = File(downloadDir, fileName)
         val filePath = file.path
-        request = Request(url, filePath)
+        val request = Request(url, filePath)
         request.autoRetryMaxAttempts = PreferencesMap.download_auto_retry_max_attempts
         if (headers.isNotEmpty())
             for ((key, value) in headers) {
                 request.addHeader(key, value)
             }
-        fetch.enqueue(request = request, func = startFun, func2 = errorFun)
+        if (cookies.isNotEmpty()) {
+            var cookiesStr = ""
+            for ((key, value) in headers) {
+                cookiesStr += "$key: $value; "
+            }
+            if (cookiesStr.isNotBlank()) {
+                cookiesStr = cookiesStr.subSequence(0, cookiesStr.length - 2).toString()
+                request.addHeader("Cookie", cookiesStr)
+            }
+        }
+        return request
     }
 
-    private fun taskComplete(task: Download) {
+    private fun taskComplete() {
         cancel()
-        val file = File(task.file).autoAddApkExtension().also {
-            downloadFile = it
-        }
-        // 自动转储
-        FileUtil.DOWNLOAD_DOCUMENT_FILE?.let {
-            FileUtil.dumpFile(file, it)
-        }
-        // 自动安装
-        if (PreferencesMap.auto_install) {
-            install()
+        for (request in requestList) {
+            val file = File(request.file).autoAddApkExtension()
+            // 自动转储
+            FileUtil.DOWNLOAD_DOCUMENT_FILE?.let {
+                FileUtil.dumpFile(file, it)
+            }
+            // 自动安装
+            if (PreferencesMap.auto_install) {
+                install(file)
+            }
         }
     }
 
@@ -195,8 +231,14 @@ class Downloader(private val url: String, private val context: Context) {
             }
         }
 
-        fun startDownloadService(url: String, fileName: String, headers: Map<String, String> = hashMapOf(), context: Context) {
-            DownloadService.startService(context, url, fileName, headers)
+        fun startDownloadService(downloadInfoList: List<DownloadInfoItem>, context: Context) {
+            DownloadService.startService(context, downloadInfoList)
         }
     }
+
+    private var groupId = DEFAULT_GROUP_ID
+        get() {
+            field += 1
+            return field
+        }
 }

@@ -4,9 +4,11 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.tonyodev.fetch2.Download
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.oberver.ObserverFun
+import net.xzos.upgradeall.core.data.json.gson.DownloadInfoItem
 import net.xzos.upgradeall.server.downloader.DownloadRegister.getCancelNotifyKey
 import net.xzos.upgradeall.server.downloader.DownloadRegister.getCompleteNotifyKey
 
@@ -27,20 +29,15 @@ class DownloadService : Service() {
             stopSelf(startId)
             return START_REDELIVER_INTENT
         }
-        val url = intent.getStringExtra(URL) as String
-        val fileName = intent.getStringExtra(FILE_NAME) as String
-
-        @Suppress("UNCHECKED_CAST")
-        val headers = intent.getSerializableExtra(HEADERS) as HashMap<String, String>
-        val ariaDownloader = Downloader(url, this)
-        try {
-            runBlocking {
-                ariaDownloader.start(fileName, headers, fun(downloadId) {
-                    register(startId, downloadId)
-                })
-            }
-        } catch (ignore: Throwable) {
-            stopSelf(startId)
+        val json = intent.getStringExtra(DOWNLOAD_INFO_LIST)
+        val listType = object : TypeToken<ArrayList<DownloadInfoItem?>?>() {}.type
+        val downloadInfoList: List<DownloadInfoItem> = Gson().fromJson(json, listType)
+        val downloader = Downloader(this)
+        for (downloadInfo in downloadInfoList) {
+            downloader.addTask(downloadInfo.name, downloadInfo.url, downloadInfo.headers, downloadInfo.cookies)
+        }
+        downloader.start { downloadId ->
+            register(startId, downloadId)
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -58,17 +55,13 @@ class DownloadService : Service() {
     }
 
     companion object {
-        private const val URL = "URL"
-        private const val FILE_NAME = "FILE_NAME"
-        private const val HEADERS = "HEADERS"
+        private const val DOWNLOAD_INFO_LIST = "DOWNLOAD_TASK_INFO_DICT"
 
         private val OBSERVER_FUN_MAP: HashMap<Int, ObserverFun<Download>> = hashMapOf()
 
-        fun startService(context: Context, url: String, fileName: String, headers: Map<String, String>) {
+        fun startService(context: Context, downloadInfoList: List<DownloadInfoItem>) {
             val intent = Intent(context, DownloadService::class.java).apply {
-                putExtra(URL, url)
-                putExtra(FILE_NAME, fileName)
-                putExtra(HEADERS, HashMap(headers))
+                putExtra(DOWNLOAD_INFO_LIST, Gson().toJson(downloadInfoList))
             }
             context.startService(intent)
         }
