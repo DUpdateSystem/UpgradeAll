@@ -123,7 +123,7 @@ class Downloader(private val context: Context) {
     }
 
     fun install() {
-        if (requestList.size == 0) {
+        if (requestList.size == 1) {
             val file = File(requestList[0].file)
             downloadNotification.showInstallNotification(file.name)
             when {
