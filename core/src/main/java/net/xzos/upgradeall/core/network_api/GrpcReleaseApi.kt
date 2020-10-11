@@ -58,14 +58,21 @@ class GrpcReleaseApi {
         val hubUuid = hubData.hubUuid
         val auth = hubData.auth
         val appIdList = hubData.getAppIdList()
-        for (appIdL in appIdList.chunked(25))
+        chunkedCallGetAppRelease(hubUuid, auth, appIdList)
+    }
+
+    private suspend fun chunkedCallGetAppRelease(
+            hubUuid: String, auth: Map<String, String?>, appIdList: HashSet<Map<String, String?>>, autoRetryNum: Int = 10
+    ) {
+        appIdList.chunked(chunkedSize).forEach { appIdL ->
             GlobalScope.launch {
-                callGetAppRelease(hubUuid, auth, appIdL.toHashSet())
+                callGetAppRelease(hubUuid, auth, appIdL.toHashSet(), autoRetryNum)
             }
+        }
     }
 
     private suspend fun callGetAppRelease(
-            hubUuid: String, auth: Map<String, String?>, appIdList: HashSet<Map<String, String?>>
+            hubUuid: String, auth: Map<String, String?>, appIdList: HashSet<Map<String, String?>>, autoRetryNum: Int = 10
     ) {
         val request = mkReleaseRequestBuilder(hubUuid, appIdList, auth)
         val clearMutex = fun() {
@@ -95,9 +102,15 @@ class GrpcReleaseApi {
             if ((e is StatusRuntimeException && e.status.code == Status.Code.DEADLINE_EXCEEDED)
                     || e is TimeoutCancellationException) {
                 GrpcApi.logDeadlineError("CallGetAppRelease", request.hubUuid, "hub_uuid: ${hubUuid}, num: ${request.appIdListCount}, cancel: ${appIdList.size}, error:$e")
+                if (chunkedSize > 25) {
+                    chunkedSize = (chunkedSize / 1.2).toInt()
+                }
             }
         } finally {
-            clearMutex()
+            if (appIdList.isNotEmpty() && autoRetryNum > 0)
+                chunkedCallGetAppRelease(hubUuid, auth, appIdList, autoRetryNum - 1)
+            else
+                clearMutex()
         }
     }
 
@@ -122,6 +135,8 @@ class GrpcReleaseApi {
 
     companion object {
         private const val grpcWaitTime = 200L
+
+        private var chunkedSize = 200
 
         private fun CoroutinesMutableMap<String, HubData>.getHubData(hubUuid: String, auth: Map<String, String?>): HubData {
             val hubKey = mkHubId(hubUuid, auth)
