@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.utils.ToastUtil
@@ -17,14 +15,12 @@ object ApkSystemInstaller : Informer {
     private val context: Context = MyApplication.context
 
     suspend fun install(file: File) {
-        withContext(Dispatchers.Default) {
-            try {
-                val fileUri = file.getApkUri()
-                rowInstall(fileUri)
-            } catch (e: IllegalArgumentException) {
-                e.printStackTrace()
-                ToastUtil.makeText(e.toString())
-            }
+        try {
+            val fileUri = file.getApkUri()
+            rowInstall(fileUri)
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+            ToastUtil.makeText(e.toString())
         }
     }
 

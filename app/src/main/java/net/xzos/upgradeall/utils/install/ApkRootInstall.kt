@@ -1,7 +1,5 @@
 package net.xzos.upgradeall.utils.install
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.utils.Shell
@@ -16,9 +14,7 @@ object ApkRootInstall {
     private val logObjectTag = ObjectTag(ObjectTag.core, TAG)
 
     suspend fun install(file: File) {
-        withContext(Dispatchers.Default) {
-            rowInstall(file)
-        }
+        rowInstall(file)
     }
 
     suspend fun multipleInstall(apkFileList: List<File>) {

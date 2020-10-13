@@ -8,8 +8,6 @@ import android.content.pm.IPackageInstallerSession
 import android.content.pm.IPackageManager
 import android.content.pm.PackageInstaller
 import android.os.Process
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import moe.shizuku.api.ShizukuApiConstants
 import moe.shizuku.api.ShizukuBinderWrapper
 import moe.shizuku.api.ShizukuService
@@ -42,9 +40,7 @@ object ApkShizukuInstaller {
     }
 
     suspend fun install(file: File) {
-        withContext(Dispatchers.Default) {
-            doApkInstall(file)
-        }
+        doApkInstall(file)
     }
 
     private fun doApkInstall(file: File) {

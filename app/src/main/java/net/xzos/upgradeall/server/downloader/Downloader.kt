@@ -8,6 +8,7 @@ import com.tonyodev.fetch2.Fetch
 import com.tonyodev.fetch2.FetchConfiguration
 import com.tonyodev.fetch2.Request
 import com.tonyodev.fetch2.util.DEFAULT_GROUP_ID
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
@@ -123,23 +124,21 @@ class Downloader(private val context: Context) {
 
     fun install() {
         val file = File(requestList[0].file)
-        if (requestList.size > 1) {
-            GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.IO) {
+            if (requestList.size > 1) {
                 ApkInstaller.multipleInstall(requestList.map { File(it.file) }, fun(_) {
                     completeInstall()
                 })
-            }
-        } else {
-            when {
-                file.isApkFile() -> {
-                    downloadNotification.showInstallNotification(file.name)
-                    GlobalScope.launch {
+            } else {
+                when {
+                    file.isApkFile() -> {
+                        downloadNotification.showInstallNotification(file.name)
                         ApkInstaller.install(file, fun(_) {
                             completeInstall()
                         })
                     }
+                    else -> return@launch
                 }
-                else -> return
             }
         }
     }
