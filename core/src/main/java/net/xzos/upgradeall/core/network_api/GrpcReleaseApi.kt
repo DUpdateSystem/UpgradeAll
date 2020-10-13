@@ -15,6 +15,8 @@ import net.xzos.upgradeall.core.utils.wait
 import java.util.concurrent.TimeUnit
 
 class GrpcReleaseApi {
+    private var chunkedSize = 200
+
     private val funMap: CoroutinesMutableMap<String, CoroutinesMutableList<(_: List<ReleaseListItem>?) -> Unit>> = coroutinesMutableMapOf(true)
     private val hubDataMap = coroutinesMutableMapOf<String, HubData>(true)
     private val grpcWaitLockList = coroutinesMutableListOf<String>(true)
@@ -135,8 +137,6 @@ class GrpcReleaseApi {
 
     companion object {
         private const val grpcWaitTime = 200L
-
-        private var chunkedSize = 200
 
         private fun CoroutinesMutableMap<String, HubData>.getHubData(hubUuid: String, auth: Map<String, String?>): HubData {
             val hubKey = mkHubId(hubUuid, auth)

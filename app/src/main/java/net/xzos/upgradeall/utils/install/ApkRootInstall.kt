@@ -19,30 +19,30 @@ object ApkRootInstall {
         withContext(Dispatchers.Default) {
             rowInstall(file)
         }
-        ApkInstaller.completeInstall(file)
     }
 
-    suspend fun multipleInstall(filePathList: List<String>) {
+    suspend fun multipleInstall(apkFileList: List<File>) {
         // 参考: https://stackoverflow.com/questions/55212788/is-it-possible-to-merge-install-split-apk-files-aka-app-bundle-on-android-d
-        if (filePathList.isEmpty()) return
+        if (apkFileList.isEmpty()) return
         var apkString = ""
-        for (filePath in filePathList)
-            apkString += "$filePath "
+        for (filePath in apkFileList)
+            apkString += "${filePath.path} "
         val command = "adb install-multiple $apkString"
         runSuShellCommand(command)
     }
 
-    suspend fun obbInstall(obbPathList: List<String>) {
+    suspend fun obbInstall(obbFileList: List<File>) {
         // 参考: https://stackoverflow.com/questions/55212788/is-it-possible-to-merge-install-split-apk-files-aka-app-bundle-on-android-d
-        for (obbFilePath in obbPathList) {
+        for (obbFile in obbFileList) {
             val delimiterIndexList = mutableListOf<Int>()
-            var index: Int = obbFilePath.indexOf('.')
+            val fileName = obbFile.name
+            var index: Int = fileName.indexOf('.')
             while (index >= 0) {
                 println(index)
-                index = obbFilePath.indexOf('.', index + 1)
+                index = fileName.indexOf('.', index + 1)
             }
-            val obbPackageName = obbFilePath.subSequence(delimiterIndexList[1] + 1, delimiterIndexList.last())
-            val command = "mv $obbFilePath /storage/emulated/0/Android/obb/$obbPackageName/."
+            val obbPackageName = fileName.subSequence(delimiterIndexList[1] + 1, delimiterIndexList.last())
+            val command = "mv $obbFile /storage/emulated/0/Android/obb/$obbPackageName/."
             runSuShellCommand(command)
         }
     }

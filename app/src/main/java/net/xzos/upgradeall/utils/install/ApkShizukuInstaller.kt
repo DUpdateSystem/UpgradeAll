@@ -45,7 +45,6 @@ object ApkShizukuInstaller {
         withContext(Dispatchers.Default) {
             doApkInstall(file)
         }
-        ApkInstaller.completeInstall(file)
     }
 
     private fun doApkInstall(file: File) {

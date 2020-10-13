@@ -24,7 +24,6 @@ import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.install.ApkInstaller
-import net.xzos.upgradeall.utils.install.ApkRootInstall
 import net.xzos.upgradeall.utils.install.autoAddApkExtension
 import net.xzos.upgradeall.utils.install.isApkFile
 import java.io.File
@@ -123,32 +122,24 @@ class Downloader(private val context: Context) {
     }
 
     fun install() {
-        if (requestList.size == 1) {
-            val file = File(requestList[0].file)
-            downloadNotification.showInstallNotification(file.name)
-            when {
-                file.isApkFile() -> {
-                    ApkInstaller.observeInstall(file, fun(_) {
-                        completeInstall(file)
-                    })
-                    GlobalScope.launch { ApkInstaller.install(file) }
-                }
-                else -> return
+        val file = File(requestList[0].file)
+        if (requestList.size > 1) {
+            GlobalScope.launch {
+                ApkInstaller.multipleInstall(requestList.map { File(it.file) }, fun(_) {
+                    completeInstall()
+                })
             }
         } else {
-            GlobalScope.launch {
-                val apkFilePathList = requestList.map {
-                    it.file
-                }.filter {
-                    File(it).isApkFile()
+            when {
+                file.isApkFile() -> {
+                    downloadNotification.showInstallNotification(file.name)
+                    GlobalScope.launch {
+                        ApkInstaller.install(file, fun(_) {
+                            completeInstall()
+                        })
+                    }
                 }
-                ApkRootInstall.multipleInstall(apkFilePathList)
-                val obbFilePathList = requestList.map {
-                    it.file
-                }.filter {
-                    File(it).extension == "obb"
-                }
-                ApkRootInstall.obbInstall(obbFilePathList)
+                else -> return
             }
         }
     }
@@ -206,12 +197,14 @@ class Downloader(private val context: Context) {
         }
     }
 
-    private fun completeInstall(file: File) {
+    private fun completeInstall() {
         delTask()
         UpdateService.startService(context, false)
         downloadNotification.taskCancel()  // 手动取消通知，因下载完成通知已解绑
         if (PreferencesMap.auto_delete_file) {
-            file.delete()
+            requestList.map { File(it.file) }.forEach { file ->
+                file.delete()
+            }
             MiscellaneousUtils.showToast(R.string.auto_deleted_file)
         }
     }

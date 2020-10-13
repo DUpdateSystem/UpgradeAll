@@ -18,8 +18,9 @@ object ApkInstaller {
         AppInstallReceiver().register()
     }
 
-    suspend fun install(file: File) {
+    suspend fun install(file: File, observerFun: ObserverFun<Unit>) {
         if (!file.isApkFile()) return
+        observeInstall(file, observerFun)
         when (PreferencesMap.install_apk_api) {
             "System" -> ApkSystemInstaller.install(file)
             "Root" -> ApkRootInstall.install(file)
@@ -28,10 +29,26 @@ object ApkInstaller {
         }
     }
 
-    fun observeInstall(apkFile: File, observerFun: ObserverFun<Unit>) {
+    suspend fun multipleInstall(filePathList: List<File>, observerFun: ObserverFun<Unit>) {
+        val apkFilePathList = filePathList.filter {
+            it.isApkFile()
+        }
+        ApkRootInstall.multipleInstall(apkFilePathList)
+        val obbFilePathList = filePathList.filter {
+            it.extension == "obb"
+        }
+        ApkRootInstall.obbInstall(obbFilePathList)
+        observerFun(Unit)
+    }
+
+    private fun observeInstall(key: String, observerFun: ObserverFun<Unit>) {
+        ApkSystemInstaller.observeForever(key, observerFun)
+    }
+
+    private fun observeInstall(apkFile: File, observerFun: ObserverFun<Unit>) {
         val packageInfo = apkFile.getPackageInfo() ?: return
         val key = Pair(packageInfo.packageName, packageInfo.versionName).getMapKey()
-        ApkSystemInstaller.observeForever(key, observerFun)
+        observeInstall(key, observerFun)
     }
 
     fun completeInstall(packageNameFile: File) {
@@ -41,6 +58,10 @@ object ApkInstaller {
 
     fun completeInstall(packageInfo: PackageInfo) {
         val key = Pair(packageInfo.packageName, packageInfo.versionName).getMapKey()
+        completeInstall(key)
+    }
+
+    fun completeInstall(key: String) {
         ApkSystemInstaller.notifyChanged(key)
         ApkSystemInstaller.removeObserver(key)
     }

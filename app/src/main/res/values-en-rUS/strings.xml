@@ -37,7 +37,7 @@
     <string name="download">Download</string>
     <string name="install">Install</string>
     <string name="auto_install">Auto Install</string>
-    <string name="installing">Installing</string>
+    <string name="installing">Installing: </string>
     <string name="install_apk_api">Install APK method</string>
     <string name="user_download_path">User Download Path</string>
     <string name="download_thread_num">Download Thread Num</string>
