@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.oberver.ObserverFun
 import net.xzos.upgradeall.data.PreferencesMap
@@ -14,18 +16,22 @@ import java.io.File
 
 object ApkInstaller {
 
+    private val installMutex = Mutex()
+
     init {
         AppInstallReceiver().register()
     }
 
     suspend fun install(file: File, observerFun: ObserverFun<Unit>) {
         if (!file.isApkFile()) return
-        observeInstall(file, observerFun)
-        when (PreferencesMap.install_apk_api) {
-            "System" -> ApkSystemInstaller.install(file)
-            "Root" -> ApkRootInstall.install(file)
-            "Shizuku" -> ApkShizukuInstaller.install(file)
-            else -> ApkSystemInstaller.install(file)
+        installMutex.withLock {
+            observeInstall(file, observerFun)
+            when (PreferencesMap.install_apk_api) {
+                "System" -> ApkSystemInstaller.install(file)
+                "Root" -> ApkRootInstall.install(file)
+                "Shizuku" -> ApkShizukuInstaller.install(file)
+                else -> ApkSystemInstaller.install(file)
+            }
         }
     }
 
