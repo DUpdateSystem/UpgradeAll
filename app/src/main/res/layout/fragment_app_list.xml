@@ -15,7 +15,7 @@
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/groupTabs"
             android:layout_width="match_parent"
-            android:layout_height="108dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@drawable/ic_list_header_background"
             android:fitsSystemWindows="true"
