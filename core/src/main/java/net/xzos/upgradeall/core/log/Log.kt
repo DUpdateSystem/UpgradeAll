@@ -70,9 +70,7 @@ object Log {
      */
     internal fun notifyChange() {
         runBlocking {
-            mutex.withLock {
-                LogApi.logChanged(logMap)
-            }
+            LogApi.logChanged(logMap)
         }
     }
 
