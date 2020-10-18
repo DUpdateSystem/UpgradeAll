@@ -35,7 +35,7 @@ class AppDetailActivity : BaseActivity() {
     private var versioningPosition: Int = 0
     private val releaseInfoList: List<ReleaseListItem> by lazy {
         return@lazy try {
-            runBlocking { Updater(app).getReleaseList() } ?: listOf()
+            runBlocking { app.getReleaseList() } ?: listOf()
         } catch (ignore: NetworkOnMainThreadException) {
             listOf()
         }
@@ -143,7 +143,7 @@ class AppDetailActivity : BaseActivity() {
         DownloadListDialog.show(this, fileNameList,
                 fun(position: Int, externalDownloader: Boolean) {
                     GlobalScope.launch {
-                        Updater(app).downloadReleaseFile(Pair(versioningPosition, position), externalDownloader)
+                        app.downloadReleaseFile(Pair(versioningPosition, position), externalDownloader)
                     }
                 })
     }
@@ -181,18 +181,18 @@ class AppDetailActivity : BaseActivity() {
             getString(R.string.cloud_version_number)
         }
         cloudVersioningTextView.text = versionNumber
-        appChangelogTextView.setText(if (latestChangeLog.isNullOrBlank()) {
+        appChangelogTextView.text = if (latestChangeLog.isNullOrBlank()) {
             getString(R.string.null_english)
         } else {
-            HtmlCompat.fromHtml(latestChangeLog, HtmlCompat.FROM_HTML_MODE_LEGACY);
-        })
+            HtmlCompat.fromHtml(latestChangeLog, HtmlCompat.FROM_HTML_MODE_LEGACY)
+        }
 
         loadReleaseIgnore()
     }
 
     private fun toastPromptMarkedVersionNumber() {
         lifecycleScope.launch {
-            if (Updater(app).getUpdateStatus() != Updater.APP_LATEST) {
+            if (app.getUpdateStatus() != Updater.APP_LATEST) {
                 if (app.ignoreVersionNumber != null) {
                     ToastUtil.makeText(R.string.marked_version_number_is_behind_latest, Toast.LENGTH_LONG)
                 } else {

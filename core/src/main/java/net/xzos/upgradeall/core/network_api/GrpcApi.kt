@@ -11,9 +11,20 @@ import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.route.*
 import java.util.concurrent.TimeUnit
 
-class GrpcApi {
+object GrpcApi {
+    internal const val TAG = "GrpcApi"
+    internal val logObjectTag = ObjectTag(ObjectTag.core, TAG)
+    val invalidHubUuidList = hashSetOf<String>()
 
-    private val grpcReleaseApi = GrpcReleaseApi()
+    private var updateServerUrl: String = AppConfig.update_server_url
+    var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
+
+    const val deadlineMs = 10 * 1000L
+    fun logDeadlineError(tag: String, hubUuid: String, appIdString: String) {
+        Log.w(logObjectTag, TAG, """$tag: 请求超时，取消
+hub_uuid: $hubUuid
+$appIdString""".trimIndent())
+    }
 
     internal fun setUpdateServerUrl(url: String?): Boolean {
         if (url.isNullOrBlank()) return false
@@ -42,7 +53,7 @@ class GrpcApi {
             null
         } else {
             DataCache.getAppRelease(hubUuid, auth, appId)
-                    ?: grpcReleaseApi.getAppRelease(hubUuid, auth, appId).also {
+                    ?: GrpcReleaseApi.getAppRelease(hubUuid, auth, appId)?.also {
                         DataCache.cacheAppStatus(hubUuid, auth, appId, it)
                     }
         }
@@ -64,25 +75,6 @@ class GrpcApi {
                 logDeadlineError("GetDownloadInfo", hubUuid, appId.toString())
             }
             null
-        }
-    }
-
-    companion object {
-        val grpcApi by lazy { GrpcApi() }
-
-        private const val TAG = "GrpcApi"
-        private val logObjectTag = ObjectTag(ObjectTag.core, TAG)
-        val invalidHubUuidList = hashSetOf<String>()
-
-        private var updateServerUrl: String = AppConfig.update_server_url
-        var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
-
-        const val deadlineMs = 10 * 1000L
-        fun logDeadlineError(tag: String, hubUuid: String, appIdString: String) {
-            Log.w(logObjectTag, TAG, """$tag: 请求超时，取消
-                hub_uuid: $hubUuid
-                app_info: $appIdString
-            """.trimIndent())
         }
     }
 }

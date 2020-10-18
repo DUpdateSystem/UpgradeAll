@@ -46,10 +46,8 @@ object VersioningUtils {
                 |Fix: 0: $matchVersioning0, 1: $matchVersioning1""".trimMargin()
         )
          */
-        return if (matchVersioning0 != null && matchVersioning1 != null) {
-            val version0 = DefaultArtifactVersion(matchVersioning0)
-            val version1 = DefaultArtifactVersion(matchVersioning1)
-            version0 >= version1
-        } else false
+        val version0 = DefaultArtifactVersion(matchVersioning0)
+        val version1 = DefaultArtifactVersion(matchVersioning1)
+        return version0 >= version1
     }
 }

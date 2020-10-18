@@ -1,5 +1,8 @@
 package net.xzos.upgradeall.core.server_manager.module.app
 
+import android.os.Looper
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.json.gson.DownloadInfoItem
 import net.xzos.upgradeall.core.data_manager.utils.*
 import net.xzos.upgradeall.core.network_api.GrpcApi
@@ -7,10 +10,11 @@ import net.xzos.upgradeall.core.network_api.toMap
 import net.xzos.upgradeall.core.route.AssetItem
 import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.system_api.api.IoApi
+import net.xzos.upgradeall.core.utils.wait
 
-class Updater(private val app: App,
-              private val grpcApi: GrpcApi = GrpcApi.grpcApi
-) {
+class Updater internal constructor(private val app: App) {
+
+    private val dataRefreshMutex = Mutex()
 
     suspend fun getUpdateStatus(): Int {
         val release = getReleaseList()
@@ -48,12 +52,21 @@ class Updater(private val app: App,
     }
 
     suspend fun getReleaseList(): List<ReleaseListItem>? {
-        val appId = app.appId
-        if (appId != null) {
-            val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
-            return grpcApi.getAppRelease(hubUuid, app.appDatabase.auth, appId)
+        val appId = app.appId ?: return null
+        val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
+        val auth = app.appDatabase.auth
+        return if (Looper.myLooper() == Looper.getMainLooper()) {
+            DataCache.getAppRelease(hubUuid, auth, appId)
+        } else {
+            if (dataRefreshMutex.isLocked) {
+                dataRefreshMutex.wait()
+                DataCache.getAppRelease(hubUuid, auth, appId)
+            } else {
+                dataRefreshMutex.withLock {
+                    GrpcApi.getAppRelease(hubUuid, auth, appId)
+                }
+            }
         }
-        return null
     }
 
     // 获取最新版本号
@@ -74,7 +87,7 @@ class Updater(private val app: App,
             val hubUuid = app.hubDatabase?.uuid
             val appId = app.appId
             val downloadResponse = if (hubUuid != null && appId != null)
-                grpcApi.getDownloadInfo(hubUuid, appId, app.appDatabase.auth, fileIndex.toList())
+                GrpcApi.getDownloadInfo(hubUuid, appId, app.appDatabase.auth, fileIndex.toList())
             else null
             val list = downloadResponse?.listList?.map {
                 DownloadInfoItem(it.name, it.url, it.headersList?.toMap()

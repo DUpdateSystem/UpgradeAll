@@ -112,7 +112,7 @@ open class AppItemAdapter(internal val mItemCardViewList: MutableList<ItemCardVi
         GlobalScope.launch(Dispatchers.IO) {
             val updateStatus = app.getUpdateStatus()
             val latestVersioning = if (app is App)
-                Updater(app).getLatestVersioning()
+                app.getLatestVersioning()
             else null
             withContext(Dispatchers.Main) {
                 when (updateStatus) {

@@ -6,6 +6,7 @@ import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.data_manager.utils.AutoTemplate
 import net.xzos.upgradeall.core.data_manager.utils.VersioningUtils.FOREVER_IGNORE
+import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
@@ -17,6 +18,7 @@ class App(override val appDatabase: AppDatabase, appId: Map<String, String>? = n
     var appId: Map<String, String?>? = appId ?: getAppIdByUrl()
         private set
 
+    private val updater by lazy { Updater(this) }
     private fun getAppIdByUrl(): Map<String, String?>? {
         if (hubDatabase != null) {
             val apiKeywords = hubDatabase.hubConfig.apiKeywords
@@ -40,10 +42,6 @@ class App(override val appDatabase: AppDatabase, appId: Map<String, String>? = n
                     ?: appDatabase.ignoreVersionNumber
         }
 
-    override suspend fun getUpdateStatus(): Int {
-        return Updater(this).getUpdateStatus()
-    }
-
     override fun refreshData() {
         appId = getAppIdByUrl()
     }
@@ -51,6 +49,22 @@ class App(override val appDatabase: AppDatabase, appId: Map<String, String>? = n
     // 获取已安装版本号
     val installedVersionNumber: String?
         get() = IoApi.getAppVersionNumber(this.appDatabase.packageId)
+
+    override suspend fun getUpdateStatus(): Int {
+        return updater.getUpdateStatus()
+    }
+
+    suspend fun getReleaseList(): List<ReleaseListItem>? {
+        return updater.getReleaseList()
+    }
+
+    suspend fun getLatestVersioning(): String? {
+        return updater.getLatestVersioning()
+    }
+
+    suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false) {
+        return updater.downloadReleaseFile(fileIndex, externalDownloader)
+    }
 }
 
 fun App.getParentApplications(): Applications? = if (this.appDatabase.id != 0L) null

@@ -7,7 +7,6 @@ import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
-import net.xzos.upgradeall.core.server_manager.module.app.Updater
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 
 
@@ -50,7 +49,7 @@ object UpdateManager : UpdateControl(AppManager.apps, fun(_, _) {}), Informer {
         withContext(Dispatchers.IO) {
             for (app in appList) {
                 launch(Dispatchers.IO) {
-                    Updater(app).downloadReleaseFile(Pair(0, 0))
+                    app.downloadReleaseFile(Pair(0, 0))
                 }
             }
         }
