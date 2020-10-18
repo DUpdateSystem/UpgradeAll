@@ -24,7 +24,7 @@ import net.xzos.upgradeall.utils.VersioningUtils
 
 class AppSettingActivity : BaseAppSettingActivity() {
 
-    private val searchUtils = SearchUtils()
+    private val searchUtils by lazy { SearchUtils() }
 
     private val appDatabase: AppDatabase = bundleDatabase
             ?: AppDatabase(0, "", "", "")
@@ -44,11 +44,6 @@ class AppSettingActivity : BaseAppSettingActivity() {
                 targetCheckerApi,
                 editPackageId.text.toString()
         )
-
-    override fun onResume() {
-        super.onResume()
-        searchUtils.renewData()  // 清除搜索缓存
-    }
 
     override fun saveDatabase(): Boolean {
         if (editUrl.text.isNullOrBlank()) {
@@ -101,6 +96,9 @@ class AppSettingActivity : BaseAppSettingActivity() {
             }
         }
         editPackageId.threshold = 1
+        editPackageId.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) searchUtils.renewData()  // 清除搜索缓存
+        }
         val mutex = Mutex()
         editPackageId.addTextChangedListener {
             if (targetCheckerApi != API_TYPE_SHELL && targetCheckerApi != API_TYPE_SHELL_ROOT) {
