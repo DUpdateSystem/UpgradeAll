@@ -69,7 +69,7 @@ object GrpcReleaseApi {
         }
     }
 
-    private suspend fun callGetAppRelease(
+    internal suspend fun callGetAppRelease(
             hubUuid: String, auth: Map<String, String?>, appIdList0: Collection<Map<String, String?>>, autoRetryNum: Int
     ) {
         val appIdList = appIdList0.toMutableList()
@@ -134,7 +134,7 @@ object GrpcReleaseApi {
         }
     }
 
-    private suspend fun setRequest(hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>, func: (_: List<ReleaseListItem>?) -> Unit) {
+    internal suspend fun setRequest(hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>, func: (_: List<ReleaseListItem>?) -> Unit) {
         mutex.withLock {
             val itemKey = mkAppId(hubUuid, auth, appId)
             hubDataMap.getHubData(hubUuid, auth).addAppId(appId)

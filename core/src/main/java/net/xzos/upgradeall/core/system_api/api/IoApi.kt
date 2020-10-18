@@ -10,6 +10,7 @@ import net.xzos.upgradeall.core.system_api.interfaces.IoApi
 object IoApi {
 
     private var ioApiInterface: IoApi? = null
+    private var appInfoListTmpMap: MutableMap<String, List<AppInfo>> = mutableMapOf()
 
     fun setInterfaces(interfacesClass: IoApi) {
         ioApiInterface = interfacesClass
@@ -31,6 +32,8 @@ object IoApi {
 
     // 获取软件信息列表
     fun getAppInfoList(type: String): List<AppInfo>? {
-        return ioApiInterface?.getAppInfoList(type)
+        return appInfoListTmpMap[type] ?: ioApiInterface?.getAppInfoList(type)?.also {
+            appInfoListTmpMap[type] = it
+        }
     }
 }

@@ -19,7 +19,7 @@ object GrpcApi {
     private var updateServerUrl: String = AppConfig.update_server_url
     var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
 
-    const val deadlineMs = 10 * 1000L
+    const val deadlineMs = 20 * 1000L
     fun logDeadlineError(tag: String, hubUuid: String, appIdString: String) {
         Log.w(logObjectTag, TAG, """$tag: 请求超时，取消
 hub_uuid: $hubUuid

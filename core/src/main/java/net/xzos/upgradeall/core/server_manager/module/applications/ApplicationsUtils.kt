@@ -21,19 +21,24 @@ internal class ApplicationsUtils(applicationsDatabase: ApplicationsDatabase) {
     private val appType = AppType.androidApp
     // 暂时锁定应用市场模式为 android 应用
 
-    internal val apps: List<App>
-        get() = allApp.filter {
-            !excludePackageName.contains(it.appId)
-        }
-    internal val excludeApps: List<App>
-        get() = allApp.filter {
-            excludePackageName.contains(it.appId)
-        }
-
-    private val allApp: List<App> by lazy {
-        IoApi.getAppInfoList(appType)?.map {
-            App(it.toAppDatabaseClass(), mapOf(it.type to it.id))
+    fun getApps(): List<App> {
+        return IoApi.getAppInfoList(appType)?.filter {
+            !excludePackageName.contains(mapOf(it.type to it.id))
+        }?.map {
+            mkApp(it)
         } ?: listOf()
+    }
+
+    fun getExcludeAppIdList(): Map<Map<String, String>, AppInfo> {
+        return IoApi.getAppInfoList(appType)?.filter {
+            excludePackageName.contains(mapOf(it.type to it.id))
+        }?.associateBy(
+                { mapOf(it.type to it.id) }, { it }
+        ) ?: mapOf()
+    }
+
+    fun mkApp(appInfo: AppInfo): App {
+        return App(appInfo.toAppDatabaseClass(), mapOf(appInfo.type to appInfo.id))
     }
 
     private fun AppInfo.toAppDatabaseClass(): AppDatabase {
