@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.Intent
 import kotlinx.android.synthetic.main.activity_app_setting.*
 import kotlinx.coroutines.runBlocking
+import net.xzos.upgradeall.core.data.config.AppType
 import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
+import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 
 class ApplicationsSettingActivity : BaseAppSettingActivity() {
 
@@ -24,6 +26,25 @@ class ApplicationsSettingActivity : BaseAppSettingActivity() {
         else
             runBlocking { AppDatabaseManager.updateApplicationsDatabase(applicationsDatabase) }
     }
+
+    override fun getHubJsonObject(): Pair<List<String>, List<String>> {
+        // api接口名称列表
+        // 清空 apiSpinnerList
+        val hubNameStringList = mutableListOf<String>()
+        val hubUuidStringList = mutableListOf<String>()
+        // 获取自定义源
+        HubDatabaseManager.hubDatabases.filter {
+            it.hubConfig.apiKeywords.contains(AppType.androidApp)
+        }.forEach {  // 读取 hub 数据库
+            val name: String = it.hubConfig.info.hubName
+            val apiUuid: String = it.uuid
+            hubNameStringList.add(name)
+            // 记录可用的api UUID
+            hubUuidStringList.add(apiUuid)
+        }
+        return Pair(hubNameStringList, hubUuidStringList)
+    }
+
 
     override fun setSettingItem() {}
     override fun initUi() {}

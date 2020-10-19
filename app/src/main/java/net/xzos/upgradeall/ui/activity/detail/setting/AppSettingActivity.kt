@@ -17,6 +17,7 @@ import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_
 import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_SHELL
 import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_SHELL_ROOT
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
+import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeall.utils.SearchUtils
 import net.xzos.upgradeall.utils.ToastUtil
@@ -44,6 +45,22 @@ class AppSettingActivity : BaseAppSettingActivity() {
                 targetCheckerApi,
                 editPackageId.text.toString()
         )
+
+    override fun getHubJsonObject(): Pair<List<String>, List<String>> {
+        // api接口名称列表
+        // 清空 apiSpinnerList
+        val hubNameStringList = mutableListOf<String>()
+        val hubUuidStringList = mutableListOf<String>()
+        // 获取自定义源
+        HubDatabaseManager.hubDatabases.forEach {  // 读取 hub 数据库
+            val name: String = it.hubConfig.info.hubName
+            val apiUuid: String = it.uuid
+            hubNameStringList.add(name)
+            // 记录可用的api UUID
+            hubUuidStringList.add(apiUuid)
+        }
+        return Pair(hubNameStringList, hubUuidStringList)
+    }
 
     override fun saveDatabase(): Boolean {
         if (editUrl.text.isNullOrBlank()) {

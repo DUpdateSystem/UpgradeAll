@@ -31,8 +31,8 @@ abstract class BaseAppSettingActivity : AppCompatActivity() {
 
     internal var hubUuid: String? = null
 
-    abstract fun initUi()
-    abstract fun saveDatabase(): Boolean
+    internal abstract fun initUi()
+    internal abstract fun saveDatabase(): Boolean
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,7 +74,7 @@ abstract class BaseAppSettingActivity : AppCompatActivity() {
     }
 
     private fun showHubSelectDialog(vararg editViews: TextInputEditText) {
-        val (hubNameStringList, hubUuidStringList) = renewApiJsonObject()
+        val (hubNameStringList, hubUuidStringList) = getHubJsonObject()
         AlertDialog.Builder(this)
                 .setItems(hubNameStringList.toTypedArray()) { _, which ->
                     hubUuid = hubUuidStringList[which]
@@ -120,24 +120,9 @@ abstract class BaseAppSettingActivity : AppCompatActivity() {
         setSettingItem()
     }
 
-    abstract fun setSettingItem()
+    internal abstract fun setSettingItem()
 
-    private fun renewApiJsonObject(): Pair<List<String>, List<String>> {
-        // api接口名称列表
-        // 清空 apiSpinnerList
-        val hubNameStringList = mutableListOf<String>()
-        val hubUuidStringList = mutableListOf<String>()
-        // 获取自定义源
-        val hubList = HubDatabaseManager.hubDatabases  // 读取 hub 数据库
-        for (hubDatabase in hubList) {
-            val name: String = hubDatabase.hubConfig.info.hubName
-            val apiUuid: String = hubDatabase.uuid
-            hubNameStringList.add(name)
-            // 记录可用的api UUID
-            hubUuidStringList.add(apiUuid)
-        }
-        return Pair(hubNameStringList, hubUuidStringList)
-    }
+    internal abstract fun getHubJsonObject(): Pair<List<String>, List<String>>
 
     private fun initView() {
         setSupportActionBar(toolbar)
@@ -160,7 +145,7 @@ abstract class BaseAppSettingActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             // 刷新第三方源列表，获取支持的第三方源列表
-            val (hubNameStringList, _) = renewApiJsonObject()
+            val (hubNameStringList, _) = getHubJsonObject()
             // 修改 apiSpinner
             withContext(Dispatchers.Main) {
                 if (hubNameStringList.isEmpty()) {
