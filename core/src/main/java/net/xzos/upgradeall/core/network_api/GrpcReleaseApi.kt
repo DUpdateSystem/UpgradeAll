@@ -12,7 +12,6 @@ import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.route.*
 import net.xzos.upgradeall.core.utils.wait
-import java.util.concurrent.TimeUnit
 
 object GrpcReleaseApi {
     private const val grpcWaitTime = 200L
@@ -81,8 +80,8 @@ object GrpcReleaseApi {
         }
 
         try {
-            val asyncStub = UpdateServerRouteGrpc.newBlockingStub(GrpcApi.mChannel)
-            val releaseResponseIterator = asyncStub.withDeadlineAfter(GrpcApi.deadlineMs, TimeUnit.MILLISECONDS).getAppRelease(request.build())
+            val blockingStub = UpdateServerRouteGrpc.newBlockingStub(GrpcApi.mChannel)
+            val releaseResponseIterator = blockingStub.getAppRelease(request.build())
             var response: ReleaseResponse
             while (withTimeout(GrpcApi.deadlineMs * 3) {
                         releaseResponseIterator.next()
