@@ -35,7 +35,9 @@ object GrpcReleaseApi {
         setRequest(hubUuid, auth, appId, fun(list) {
             releaseList = list
         })
-        callGetAppReleaseStream(mkHubId(hubUuid, auth))
+        GlobalScope.launch {
+            callGetAppReleaseStream(mkHubId(hubUuid, auth))
+        }
         mutex.wait()
         return releaseList
     }
@@ -50,7 +52,7 @@ object GrpcReleaseApi {
         }
     }
 
-    private fun callGetAppReleaseStream0(hubKey: String) {
+    private suspend fun callGetAppReleaseStream0(hubKey: String) {
         val hubData = hubDataMap.popHubData(hubKey) ?: return
         val hubUuid = hubData.hubUuid
         val auth = hubData.auth
@@ -58,7 +60,7 @@ object GrpcReleaseApi {
         chunkedCallGetAppRelease(hubUuid, auth, appIdList)
     }
 
-    private fun chunkedCallGetAppRelease(
+    private suspend fun chunkedCallGetAppRelease(
             hubUuid: String, auth: Map<String, String?>, appIdList: Collection<Map<String, String?>>, autoRetryNum: Int = 3
     ) {
         appIdList.chunked(chunkedSize).forEach { chunkedList ->
@@ -74,30 +76,41 @@ object GrpcReleaseApi {
         val appIdList = appIdList0.toMutableList()
         val request = mkReleaseRequestBuilder(hubUuid, appIdList, auth)
         val clearMutex = fun() {
-            for (appId in appIdList.toList()) {
-                callRequestFun(hubUuid, auth, appId, null)
+            val size = appIdList.size
+            if (size > 0) {
+                Log.w(GrpcApi.logObjectTag, GrpcApi.TAG, "callGetAppRelease: 放弃请求 hub_uuid: $hubUuid num: $size")
+                for (appId in appIdList.toList()) {
+                    callRequestFun(hubUuid, auth, appId, null)
+                }
             }
         }
-
+        if (hubUuid in GrpcApi.invalidHubUuidList) {
+            clearMutex()
+            return
+        }
         try {
             val blockingStub = UpdateServerRouteGrpc.newBlockingStub(GrpcApi.mChannel)
             val releaseResponseIterator = blockingStub.getAppRelease(request.build())
-            var response: ReleaseResponse
+            var firstIndex = true
             while (withTimeout(GrpcApi.deadlineMs * 3) {
-                        releaseResponseIterator.next()
-                    }.also { response = it } != null
+                        releaseResponseIterator.hasNext()
+                    }
             ) {
-                if (response.validHub) {
-                    val releasePackage = response.release
-                    val appId = releasePackage.appIdList.toMap()
-                    val releaseList = if (releasePackage.validData)
-                        releasePackage.releaseListList
-                    else null
-                    callRequestFun(hubUuid, auth, appId, releaseList)
-                    appIdList.remove(appId)
-                } else {
-                    GrpcApi.invalidHubUuidList.add(hubUuid)
+                val response = releaseResponseIterator.next()
+                if (firstIndex) {
+                    if (!response.validHub) {
+                        GrpcApi.invalidHubUuidList.add(hubUuid)
+                        break
+                    }
                 }
+                firstIndex = false
+                val releasePackage = response.release
+                val appId = releasePackage.appIdList.toMap()
+                val releaseList = if (releasePackage.validData)
+                    releasePackage.releaseListList
+                else null
+                callRequestFun(hubUuid, auth, appId, releaseList)
+                appIdList.remove(appId)
             }
         } catch (e: Throwable) {
             if (e !is NoSuchElementException) {
@@ -119,7 +132,6 @@ object GrpcReleaseApi {
                     Log.w(GrpcApi.logObjectTag, GrpcApi.TAG, "callGetAppRelease: 重新请求 hub_uuid: $hubUuid num: $size")
                     chunkedCallGetAppRelease(hubUuid, auth, appIdList, autoRetryNum - 1)
                 } else {
-                    Log.w(GrpcApi.logObjectTag, GrpcApi.TAG, "callGetAppRelease: 放弃请求 hub_uuid: $hubUuid num: $size")
                     clearMutex()
                 }
             }
@@ -186,4 +198,3 @@ private fun mkReleaseRequestBuilder(hubUuid: String, appIdList: Collection<Map<S
                 .addAllAuth(authMap.map {
                     Dict.newBuilder().setK(it.key).setV(it.value).build()
                 })
-
