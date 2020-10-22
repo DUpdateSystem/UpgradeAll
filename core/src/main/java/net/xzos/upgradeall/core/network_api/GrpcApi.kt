@@ -69,7 +69,7 @@ $appIdString""".trimIndent())
                 .addAllAuth(auth.togRPCDict())
                 .build()
         return try {
-            blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.MILLISECONDS).devGetDownloadInfo(request)
+            blockingStub.withDeadlineAfter(deadlineMs * 2, TimeUnit.MILLISECONDS).devGetDownloadInfo(request)
         } catch (ignore: StatusRuntimeException) {
             if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
                 logDeadlineError("GetDownloadInfo", hubUuid, appId.toString())

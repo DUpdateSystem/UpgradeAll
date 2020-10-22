@@ -164,13 +164,12 @@ class Downloader(private val context: Context) {
         val filePath = file.path
         val request = Request(url, filePath)
         request.autoRetryMaxAttempts = PreferencesMap.download_auto_retry_max_attempts
-        if (headers.isNotEmpty())
-            for ((key, value) in headers) {
-                request.addHeader(key, value)
-            }
+        for ((key, value) in headers) {
+            request.addHeader(key, value)
+        }
         if (cookies.isNotEmpty()) {
             var cookiesStr = ""
-            for ((key, value) in headers) {
+            for ((key, value) in cookies) {
                 cookiesStr += "$key: $value; "
             }
             if (cookiesStr.isNotBlank()) {
@@ -227,6 +226,7 @@ class Downloader(private val context: Context) {
                     .build()
             fetch = Fetch.Impl.getInstance(fetchConfiguration)
             fetch.addListener(DownloadRegister)
+            fetch.removeAll()
         }
 
         private val downloadDir = FileUtil.DOWNLOAD_CACHE_DIR

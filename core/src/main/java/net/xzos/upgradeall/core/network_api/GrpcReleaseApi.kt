@@ -113,17 +113,15 @@ object GrpcReleaseApi {
                 appIdList.remove(appId)
             }
         } catch (e: Throwable) {
-            if (e !is NoSuchElementException) {
-                if ((e is StatusRuntimeException && e.status.code == Status.Code.DEADLINE_EXCEEDED)
-                        || e is TimeoutCancellationException) {
-                    GrpcApi.logDeadlineError("CallGetAppRelease", request.hubUuid,
-                            "hub_uuid: ${hubUuid}, num: ${request.appIdListCount}, cancel: ${appIdList.size}, error:$e")
-                    if (chunkedSize > 25) {
-                        chunkedSize = (chunkedSize / 1.2).toInt()
-                    }
-                } else {
-                    Log.w(GrpcApi.logObjectTag, GrpcApi.TAG, "callGetAppRelease: 请求失败 hub_uuid: $hubUuid e: $e".trimIndent())
+            if ((e is StatusRuntimeException && e.status.code == Status.Code.DEADLINE_EXCEEDED)
+                    || e is TimeoutCancellationException) {
+                GrpcApi.logDeadlineError("CallGetAppRelease", request.hubUuid,
+                        "hub_uuid: ${hubUuid}, num: ${request.appIdListCount}, cancel: ${appIdList.size}, error:$e")
+                if (chunkedSize > 25) {
+                    chunkedSize = (chunkedSize / 1.2).toInt()
                 }
+            } else {
+                Log.w(GrpcApi.logObjectTag, GrpcApi.TAG, "callGetAppRelease: 请求失败 hub_uuid: $hubUuid e: $e".trimIndent())
             }
         } finally {
             val size = appIdList.size
