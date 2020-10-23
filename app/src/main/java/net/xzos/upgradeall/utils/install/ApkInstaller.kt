@@ -37,7 +37,7 @@ object ApkInstaller {
 
     suspend fun multipleInstall(filePathList: List<File>, observerFun: ObserverFun<Unit>) {
         val apkFilePathList = filePathList.filter {
-            it.isApkFile()
+            it.extension == "apk"
         }
         ApkRootInstall.multipleInstall(apkFilePathList)
         val obbFilePathList = filePathList.filter {
