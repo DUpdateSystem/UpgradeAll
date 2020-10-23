@@ -78,8 +78,11 @@ class Downloader(private val context: Context) {
         }
     }
 
-    fun start(taskName: String, registerFun: (downloadId: Int) -> Unit) {
-        if (requestList.isEmpty()) return
+    fun start(taskName: String, registerFun: (downloadId: Int) -> Unit, failedFun: () -> Unit) {
+        if (requestList.isEmpty()) {
+            failedFun()
+            return
+        }
         val groupId = if (requestList.size == 1) {
             downloadId = requestList[0].id
             DEFAULT_GROUP_ID
@@ -107,6 +110,7 @@ class Downloader(private val context: Context) {
             }, fun(_) {
                 val file = File(request.file)
                 MiscellaneousUtils.showToast(text = "下载失败: ${file.name}")
+                failedFun()
             })
         }
     }

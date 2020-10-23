@@ -39,6 +39,8 @@ class DownloadService : Service() {
         }
         downloader.start(taskName, fun(downloadId) {
             register(startId, downloadId)
+        }, fun() {
+            stopSelf(startId)
         })
         return super.onStartCommand(intent, flags, startId)
     }
