@@ -18,11 +18,12 @@ object IoApi {
 
     // 注释相应平台的下载软件
     internal suspend fun downloadFile(
+            taskName: String,
             downloadInfoList: List<DownloadInfoItem>,
             externalDownloader: Boolean
     ) {
         if (downloadInfoList.isEmpty()) return
-        ioApiInterface?.downloadFile(downloadInfoList, externalDownloader)
+        ioApiInterface?.downloadFile(taskName, downloadInfoList, externalDownloader)
     }
 
     // 查询软件信息

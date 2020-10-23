@@ -11,12 +11,14 @@ import com.tonyodev.fetch2.util.DEFAULT_GROUP_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.json.gson.DownloadInfoItem
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.oberver.ObserverFun
+import net.xzos.upgradeall.core.utils.runWithLock
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.downloader.DownloadRegister.getCancelNotifyKey
 import net.xzos.upgradeall.server.downloader.DownloadRegister.getCompleteNotifyKey
@@ -70,11 +72,13 @@ class Downloader(private val context: Context) {
 
     fun addTask(fileName: String, url: String,
                 headers: Map<String, String> = mapOf(), cookies: Map<String, String> = mapOf()) {
-        val request = makeRequest(fileName, url, headers, cookies)
-        requestList.add(request)
+        if (url.isNotBlank()) {
+            val request = makeRequest(fileName, url, headers, cookies)
+            requestList.add(request)
+        }
     }
 
-    fun start(registerFun: (downloadId: Int) -> Unit) {
+    fun start(taskName: String, registerFun: (downloadId: Int) -> Unit) {
         if (requestList.isEmpty()) return
         val groupId = if (requestList.size == 1) {
             downloadId = requestList[0].id
@@ -84,15 +88,22 @@ class Downloader(private val context: Context) {
                 downloadId = it
             }
         }
+        downloadNotification.taskName = taskName
+        var start = false
+        val mutex = Mutex()
         for (request in requestList) {
             request.groupId = groupId
             fetch.enqueue(request, fun(request) {
-                val file = File(request.file)
-                downloadNotification.waitDownloadTaskNotification(file.name)
-                val text = file.name + context.getString(R.string.download_task_begin)
-                MiscellaneousUtils.showToast(text)
-                register()
-                registerFun(request.id)
+                mutex.runWithLock {
+                    if (start) return@runWithLock
+                    val file = File(request.file)
+                    downloadNotification.waitDownloadTaskNotification()
+                    val text = file.name + context.getString(R.string.download_task_begin)
+                    MiscellaneousUtils.showToast(text)
+                    start = true
+                    register()
+                    registerFun(request.id)
+                }
             }, fun(_) {
                 val file = File(request.file)
                 MiscellaneousUtils.showToast(text = "下载失败: ${file.name}")
@@ -123,13 +134,13 @@ class Downloader(private val context: Context) {
     }
 
     fun install() {
-        val file = File(requestList[0].file)
         GlobalScope.launch(Dispatchers.IO) {
             if (requestList.size > 1) {
                 ApkInstaller.multipleInstall(requestList.map { File(it.file) }, fun(_) {
                     completeInstall()
                 })
             } else {
+                val file = File(requestList[0].file)
                 when {
                     file.isApkFile() -> {
                         downloadNotification.showInstallNotification(file.name)
@@ -242,8 +253,8 @@ class Downloader(private val context: Context) {
             }
         }
 
-        fun startDownloadService(downloadInfoList: List<DownloadInfoItem>, context: Context) {
-            DownloadService.startService(context, downloadInfoList)
+        fun startDownloadService(taskName: String, downloadInfoList: List<DownloadInfoItem>, context: Context) {
+            DownloadService.startService(taskName, downloadInfoList, context)
         }
     }
 

@@ -10,6 +10,7 @@ interface IoApi {
 
     // 注释相应平台的下载软件
     suspend fun downloadFile(
+            taskName: String,
             downloadInfoList: List<DownloadInfoItem>,
             externalDownloader: Boolean
     )

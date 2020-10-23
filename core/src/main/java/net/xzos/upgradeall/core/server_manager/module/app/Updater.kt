@@ -89,19 +89,14 @@ class Updater internal constructor(private val app: App) {
             val downloadResponse = if (hubUuid != null && appId != null)
                 GrpcApi.getDownloadInfo(hubUuid, appId, app.appDatabase.auth, fileIndex.toList())
             else null
-            val list = downloadResponse?.listList?.map {
+            var list = downloadResponse?.listList?.map {
                 DownloadInfoItem(it.name, it.url, it.headersList?.toMap()
                         ?: mapOf(), it.cookiesList?.toMap() ?: mapOf())
             }
-            if (!list.isNullOrEmpty())
-                for (download in list) {
-                    IoApi.downloadFile(list, externalDownloader)
-                }
-            else
-                IoApi.downloadFile(
-                        listOf(DownloadInfoItem(asset.fileName, asset.downloadUrl, mapOf(), mapOf())),
-                        externalDownloader = externalDownloader
-                )
+            if (list.isNullOrEmpty())
+                list = listOf(DownloadInfoItem(asset.fileName, asset.downloadUrl, mapOf(), mapOf()))
+            val taskName = app.appDatabase.name
+            IoApi.downloadFile(taskName, list, externalDownloader)
         }
     }
 

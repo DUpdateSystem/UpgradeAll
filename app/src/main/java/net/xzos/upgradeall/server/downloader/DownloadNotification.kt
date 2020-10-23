@@ -25,6 +25,7 @@ import java.io.File
 
 class DownloadNotification(private val downloadId: Int) {
 
+    lateinit var taskName: String
     private val notificationIndex: Int = NOTIFICATION_INDEX
 
     private val builder = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID).apply {
@@ -77,14 +78,10 @@ class DownloadNotification(private val downloadId: Int) {
         DownloadRegister.removeObserver(failObserverFun)
     }
 
-    internal fun waitDownloadTaskNotification(fileName: String? = null) {
-        var text = "应用下载"
-        if (fileName != null) {
-            text += "：$fileName"
-        }
+    internal fun waitDownloadTaskNotification() {
         builder.clearActions()
                 .setOngoing(true)
-                .setContentTitle(text)
+                .setContentTitle("应用下载 $taskName")
                 .setContentText("正在准备")
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setProgress(0, PROGRESS_MAX, true)
@@ -117,7 +114,7 @@ class DownloadNotification(private val downloadId: Int) {
         val progressCurrent: Int = task.progress
         val speed = getSpeedText(task)
         builder.clearActions()
-                .setContentTitle("应用下载: ${File(task.file).name}")
+                .setContentTitle("应用下载: $taskName")
                 .setContentText(speed)
                 .setProgress(PROGRESS_MAX, progressCurrent, false)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
@@ -132,7 +129,7 @@ class DownloadNotification(private val downloadId: Int) {
         val progressCurrent: Int = task.progress
         val speed = getSpeedText(task)
         builder.clearActions()
-                .setContentTitle("应用下载: ${File(task.file).name}")
+                .setContentTitle("应用下载: $taskName")
                 .setContentText(speed)
                 .setProgress(PROGRESS_MAX, progressCurrent, false)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
@@ -179,7 +176,7 @@ class DownloadNotification(private val downloadId: Int) {
 
     private fun showManualMenuNotification(file: File) {
         builder.clearActions().run {
-            setContentTitle("下载完成: ${file.name}")
+            setContentTitle("下载完成: $taskName")
             val contentText = "文件路径: ${file.path}"
             setContentText(contentText)
             setStyle(NotificationCompat.BigTextStyle()
