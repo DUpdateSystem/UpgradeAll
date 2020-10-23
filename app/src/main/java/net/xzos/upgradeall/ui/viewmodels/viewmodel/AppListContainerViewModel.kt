@@ -29,7 +29,9 @@ abstract class AppListContainerViewModel : ViewModel() {
         appListLiveData.setValueBackground(list)
     }
 
-    internal val needUpdateAppsLiveData: MutableLiveData<MutableList<BaseApp>> = mutableLiveDataOf()  // 需要升级的 APP
+    internal val needUpdateAppsLiveData = mutableLiveDataOf<MutableList<BaseApp>>().also {
+        it.setValueBackground(mutableListOf())
+    }  // 需要升级的 APP
     private val context = MyApplication.context
 
     // 列表中所有的 APP 项的信息
