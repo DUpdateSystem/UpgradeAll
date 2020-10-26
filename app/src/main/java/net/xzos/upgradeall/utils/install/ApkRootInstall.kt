@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.utils.install
 
-import net.xzos.upgradeall.application.MyApplication.Companion.context
+import eu.darken.rxshell.cmd.Cmd
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.utils.Shell
@@ -20,28 +20,31 @@ object ApkRootInstall {
 
     suspend fun multipleInstall(apkFileList: List<File>) {
         // 参考: https://stackoverflow.com/questions/55212788/is-it-possible-to-merge-install-split-apk-files-aka-app-bundle-on-android-d/55475988#55475988
-        val packageInstaller = context.packageManager.packageInstaller
-        val nameSizeMap = HashMap<File, Long>()
         var totalSize: Long = 0
         for (file in apkFileList) {
-            Log.d(logObjectTag, "AppLog", "File " + file.name)
-            nameSizeMap[file] = file.length()
+            Log.d(logObjectTag, TAG, "multipleInstall: file: ${file.name}")
             totalSize += file.length()
         }
-        runSuShellCommand("pm install-create -S $totalSize")
-        val sessions = packageInstaller.allSessions
-        val sessionId = sessions[0].sessionId.toString()
-        for ((file, value) in nameSizeMap) {
-            runSuShellCommand("pm install-write -S $value $sessionId ${file.name} ${file.absolutePath}")
+        val result = runSuShellCommand("pm install-create -S $totalSize") ?: return
+        val resultString = result.getOutputString()
+        val sessionIdRegex = "[1-9]\\d*".toRegex()
+        val sessionIdMatch = sessionIdRegex.find(resultString) ?: return
+        val sessionId = sessionIdMatch.value.toLong()
+        Log.d(logObjectTag, TAG, "multipleInstall: create session: $sessionId")
+        for (file in apkFileList) {
+            runSuShellCommand("pm install-write -S ${file.length()} $sessionId ${file.name} ${file.absolutePath}")
+            Log.d(logObjectTag, TAG, "multipleInstall: write session: $sessionId file: ${file.name}")
         }
         runSuShellCommand("pm install-commit $sessionId")
+        Log.d(logObjectTag, TAG, "multipleInstall: write commit: $sessionId")
     }
 
     suspend fun obbInstall(obbFileList: List<File>) {
         // 参考: https://stackoverflow.com/questions/55212788/is-it-possible-to-merge-install-split-apk-files-aka-app-bundle-on-android-d
         for (obbFile in obbFileList) {
             val delimiterIndexList = mutableListOf<Int>()
-            val fileName = "main.61175.com.pixel.gun3d.obb"
+            val fileName = obbFile.name
+            Log.d(logObjectTag, TAG, "multipleInstall: obb name: $fileName")
             var index: Int = fileName.indexOf('.')
             delimiterIndexList.add(index)
             while (true) {
@@ -53,6 +56,7 @@ object ApkRootInstall {
             }
             val obbPackageName = fileName.subSequence(delimiterIndexList[1] + 1, delimiterIndexList.last())
             val command = "mv $obbFile /storage/emulated/0/Android/obb/$obbPackageName/."
+            Log.d(logObjectTag, TAG, "multipleInstall: obb command: $command")
             runSuShellCommand(command)
         }
     }
@@ -62,8 +66,8 @@ object ApkRootInstall {
         runSuShellCommand(command)
     }
 
-    private fun runSuShellCommand(command: String) {
-        try {
+    private fun runSuShellCommand(command: String): Cmd.Result? {
+        return try {
             Shell.runSuShellCommand(command)?.also {
                 if (it.exitCode != 0)
                     Log.e(logObjectTag, TAG, """
@@ -72,6 +76,7 @@ object ApkRootInstall {
             }
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, e.toString())
+            null
         }
     }
 }
