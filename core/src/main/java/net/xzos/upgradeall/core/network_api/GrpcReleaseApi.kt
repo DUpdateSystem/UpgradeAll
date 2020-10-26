@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.network_api
 
+import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import kotlinx.coroutines.*
@@ -61,17 +62,21 @@ object GrpcReleaseApi {
     }
 
     private suspend fun chunkedCallGetAppRelease(
-            hubUuid: String, auth: Map<String, String?>, appIdList: Collection<Map<String, String?>>, autoRetryNum: Int = 3
+            hubUuid: String, auth: Map<String, String?>,
+            appIdList: Collection<Map<String, String?>>, autoRetryNum: Int = 3,
     ) {
+        val channel = GrpcApi.getChannel()
         appIdList.chunked(chunkedSize).forEach { chunkedList ->
             GlobalScope.launch {
-                callGetAppRelease(hubUuid, auth, chunkedList, autoRetryNum)
+                callGetAppRelease(hubUuid, auth, chunkedList, autoRetryNum, channel)
             }
         }
     }
 
     internal suspend fun callGetAppRelease(
-            hubUuid: String, auth: Map<String, String?>, appIdList0: Collection<Map<String, String?>>, autoRetryNum: Int
+            hubUuid: String, auth: Map<String, String?>,
+            appIdList0: Collection<Map<String, String?>>, autoRetryNum: Int,
+            channel: ManagedChannel = GrpcApi.getChannel(),
     ) {
         val appIdList = appIdList0.toMutableList()
         val request = mkReleaseRequestBuilder(hubUuid, appIdList, auth)
@@ -89,7 +94,7 @@ object GrpcReleaseApi {
             return
         }
         try {
-            val blockingStub = UpdateServerRouteGrpc.newBlockingStub(GrpcApi.mChannel)
+            val blockingStub = UpdateServerRouteGrpc.newBlockingStub(channel)
             val releaseResponseIterator = blockingStub.getAppRelease(request.build())
             var firstIndex = true
             while (withTimeout(GrpcApi.deadlineMs * 3) {

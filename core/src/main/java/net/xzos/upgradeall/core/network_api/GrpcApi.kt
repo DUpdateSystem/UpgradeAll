@@ -16,8 +16,8 @@ object GrpcApi {
     internal val logObjectTag = ObjectTag(ObjectTag.core, TAG)
     val invalidHubUuidList = hashSetOf<String>()
 
-    private var updateServerUrl: String = AppConfig.update_server_url
-    var mChannel: ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
+    private val updateServerUrl get() = AppConfig.update_server_url
+    fun getChannel(): ManagedChannel = ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
 
     const val deadlineMs = 20 * 1000L
     fun logDeadlineError(tag: String, hubUuid: String, appIdString: String) {
@@ -26,20 +26,9 @@ hub_uuid: $hubUuid
 $appIdString""".trimIndent())
     }
 
-    internal fun setUpdateServerUrl(url: String?): Boolean {
-        if (url.isNullOrBlank()) return false
-        return try {
-            mChannel.shutdownNow().awaitTermination(5, TimeUnit.MILLISECONDS)
-            mChannel = ManagedChannelBuilder.forTarget(url).usePlaintext().build()
-            true
-        } catch (e: IllegalArgumentException) {
-            false
-        }
-    }
-
     @Suppress("RedundantSuspendModifier")
     suspend fun getCloudConfig(): String? {
-        val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
+        val blockingStub = UpdateServerRouteGrpc.newBlockingStub(getChannel())
         return try {
             blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.MILLISECONDS).getCloudConfig(Empty.newBuilder().build()).s
         } catch (ignore: StatusRuntimeException) {
@@ -62,7 +51,7 @@ $appIdString""".trimIndent())
     @Suppress("RedundantSuspendModifier")
     suspend fun getDownloadInfo(hubUuid: String, appId: Map<String, String?>, auth: Map<String, String?>, assetIndex: List<Int>): GetDownloadResponse? {
         if (hubUuid in invalidHubUuidList) return null
-        val blockingStub = UpdateServerRouteGrpc.newBlockingStub(mChannel)
+        val blockingStub = UpdateServerRouteGrpc.newBlockingStub(getChannel())
         val request = GetDownloadRequest.newBuilder()
                 .setHubUuid(hubUuid)
                 .addAllAppId(appId.togRPCDict()).addAllAssetIndex(assetIndex)

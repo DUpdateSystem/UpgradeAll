@@ -1,18 +1,12 @@
 package net.xzos.upgradeall.core.data.config
 
 import net.xzos.upgradeall.core.log.Log.VERBOSE
-import net.xzos.upgradeall.core.network_api.GrpcApi
 import java.util.*
 
 object AppConfig {
     const val log_level = VERBOSE // TODO: 详细日志模式
     var app_cloud_rules_hub_url: String? = null
     var update_server_url = "update-server.xzos.net:5255"
-        set(value) {
-            if (value != field)
-                if (GrpcApi.setUpdateServerUrl(value))
-                    field = value
-        }
 }
 
 object AppValue {
