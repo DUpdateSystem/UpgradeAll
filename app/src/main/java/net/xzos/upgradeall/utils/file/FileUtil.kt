@@ -281,6 +281,19 @@ object FileUtil {
     }
 }
 
+fun File.getFileByAutoRename(): File {
+    var index = 0
+    val name = this.nameWithoutExtension
+    val extension = this.extension
+    val parent = this.parentFile
+    var file = this
+    while (file.exists()) {
+        file = File(parent, name + index + extension)
+        index += 1
+    }
+    return file
+}
+
 fun File.getMimeType(): String {
     val mime = MimeTypeMap.getSingleton()
     val cR = context.contentResolver

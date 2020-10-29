@@ -26,6 +26,7 @@ import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.file.FileUtil
+import net.xzos.upgradeall.utils.file.getFileByAutoRename
 import net.xzos.upgradeall.utils.install.ApkInstaller
 import net.xzos.upgradeall.utils.install.autoAddApkExtension
 import net.xzos.upgradeall.utils.install.isApkFile
@@ -175,7 +176,7 @@ class Downloader(private val context: Context) {
                             headers: Map<String, String> = mapOf(), cookies: Map<String, String> = mapOf()
     ): Request {
         // 检查重复任务
-        val file = File(downloadDir, fileName)
+        val file = File(downloadDir, fileName).getFileByAutoRename()
         val filePath = file.path
         val request = Request(url, filePath)
         request.autoRetryMaxAttempts = PreferencesMap.download_auto_retry_max_attempts
