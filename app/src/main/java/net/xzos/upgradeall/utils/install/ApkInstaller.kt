@@ -39,12 +39,18 @@ object ApkInstaller {
         val apkFilePathList = filePathList.filter {
             it.extension == "apk"
         }
-        ApkRootInstall.multipleInstall(apkFilePathList)
+        installMutex.withLock {
+            observeInstall(filePathList[0], observerFun)
+            when (PreferencesMap.install_apk_api) {
+                "System" -> ApkSystemInstaller.multipleInstall(apkFilePathList)
+                "Root" -> ApkRootInstall.multipleInstall(apkFilePathList)
+                else -> ApkSystemInstaller.multipleInstall(apkFilePathList)
+            }
+        }
         val obbFilePathList = filePathList.filter {
             it.extension == "obb"
         }
         ApkRootInstall.obbInstall(obbFilePathList)
-        observerFun(Unit)
     }
 
     private fun observeInstall(key: String, observerFun: ObserverFun<Unit>) {

@@ -3,8 +3,10 @@ package net.xzos.upgradeall.server.update
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInstaller
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.server_manager.UpdateManager
