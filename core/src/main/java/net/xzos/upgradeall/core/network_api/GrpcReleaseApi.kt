@@ -61,7 +61,7 @@ object GrpcReleaseApi {
         chunkedCallGetAppRelease(hubUuid, auth, appIdList)
     }
 
-    private suspend fun chunkedCallGetAppRelease(
+    internal suspend fun chunkedCallGetAppRelease(
             hubUuid: String, auth: Map<String, String?>,
             appIdList: Collection<Map<String, String?>>, autoRetryNum: Int = 3,
     ) {
@@ -73,7 +73,7 @@ object GrpcReleaseApi {
         }
     }
 
-    internal suspend fun callGetAppRelease(
+    private suspend fun callGetAppRelease(
             hubUuid: String, auth: Map<String, String?>,
             appIdList0: Collection<Map<String, String?>>, autoRetryNum: Int,
             channel: ManagedChannel = GrpcApi.getChannel(),

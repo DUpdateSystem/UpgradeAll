@@ -66,7 +66,7 @@ class Applications(override val appDatabase: ApplicationsDatabase,
                     }
                 }
             })
-        GrpcReleaseApi.callGetAppRelease(hubUuid, auth, excludeAppIdList.keys, 0)
+        GrpcReleaseApi.chunkedCallGetAppRelease(hubUuid, auth, excludeAppIdList.keys, 2)
     }
 
     override fun refreshData() {
