@@ -7,7 +7,6 @@ import android.view.MenuItem
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.GravityCompat
@@ -35,8 +34,8 @@ import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.ToastUtil
 import net.xzos.upgradeall.utils.UiUtils
+import net.xzos.upgradeall.utils.egg
 import net.xzos.upgradeall.utils.file.FileUtil.NAV_IMAGE_FILE
-import java.util.*
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -76,7 +75,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             itemBackground = UiUtils.createItemBackgroundMd2(this@MainActivity)
         }
 
-        showToast()
+        egg()
         PreferencesMap.initByActivity(this)
     }
 
@@ -233,14 +232,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private fun delNavImage() {
         NAV_IMAGE_FILE.delete()
         navHeaderImageView.setImageDrawable(null)
-    }
-
-    private fun showToast() {
-        val cal = Calendar.getInstance()
-        val month = cal.get(Calendar.MONTH) + 1
-        val day = cal.get(Calendar.DATE)
-        if (month == 10 && day == 31)
-            ToastUtil.makeText("\uD83E\uDD70\uD83D\uDE0B\uD83D\uDE1D\uD83D\uDE09", Toast.LENGTH_LONG)
     }
 
     companion object {
