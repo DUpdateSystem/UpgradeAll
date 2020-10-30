@@ -47,6 +47,10 @@ object ApkSystemInstaller : Informer {
     }
 
     suspend fun multipleInstall(apkFileList: List<File>) {
+        doMultipleInstall(apkFileList)
+    }
+
+    private fun doMultipleInstall(apkFileList: List<File>) {
         var totalSize: Long = 0
         try {
             for (listOfFile in apkFileList) {
@@ -63,24 +67,21 @@ object ApkSystemInstaller : Informer {
         val installParams = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
         installParams.setSize(totalSize)
         try {
-            @Suppress("BlockingMethodInNonBlockingContext")
             val sessionId = packageInstaller.createSession(installParams)
             Log.d(logObjectTag, TAG, "Success: created install session [$sessionId]")
+            val session = packageInstaller.openSession(sessionId)
             for (apkFile in apkFileList) {
-                doWriteSession(packageInstaller, sessionId, apkFile)
+                doWriteSession(session, apkFile)
             }
-            doCommitSession(packageInstaller, sessionId)
+            doCommitSession(session)
             Log.d(logObjectTag, TAG, "Success")
         } catch (e: IOException) {
             Log.e(logObjectTag, TAG, "multipleInstall: " + e.message)
         }
     }
 
-    private fun doWriteSession(packageInstaller: PackageInstaller, sessionId: Int, apkFile: File): Int {
-        var session: PackageInstaller.Session? = null
+    private fun doWriteSession(session: PackageInstaller.Session, apkFile: File) {
         try {
-
-            session = packageInstaller.openSession(sessionId)
 
             val inputStream = apkFile.inputStream()
             val outputStream = session.openWrite(apkFile.name, 0, apkFile.length())
@@ -97,32 +98,52 @@ object ApkSystemInstaller : Informer {
             outputStream.close()
 
             Log.d(logObjectTag, TAG, "Success: streamed bytes")
-            return PackageInstaller.STATUS_SUCCESS
         } catch (e: IOException) {
             Log.e(logObjectTag, TAG, "Error: failed to write; " + e.message)
-            return PackageInstaller.STATUS_FAILURE
         } finally {
             try {
-                session?.close()
+                session.close()
             } catch (e: IOException) {
                 Log.e(logObjectTag, TAG, "Error: failed to close session; " + e.message)
             }
         }
     }
 
-    private fun doCommitSession(packageInstaller: PackageInstaller, sessionId: Int) {
-        var session: PackageInstaller.Session? = null
+    private fun doCommitSession(session: PackageInstaller.Session) {
         try {
-            session = packageInstaller.openSession(sessionId)
             val callbackIntent = Intent(context, ApkInstallerService::class.java)
             val pendingIntent = PendingIntent.getService(context, 0, callbackIntent, 0)
             session.commit(pendingIntent.intentSender)
             session.close()
-            Log.d(logObjectTag, TAG, "doCommitSession: install request sent, " + packageInstaller.mySessions)
+            Log.d(logObjectTag, TAG, "doCommitSession: install request sent")
         } catch (e: IOException) {
             Log.e(logObjectTag, TAG, "doCommitSession: " + e.message)
         } finally {
-            session!!.close()
+            session.close()
         }
     }
+
+    suspend fun obbInstall(obbFileList: List<File>) {
+        // 参考: https://stackoverflow.com/questions/55212788/is-it-possible-to-merge-install-split-apk-files-aka-app-bundle-on-android-d
+        for (obbFile in obbFileList) {
+            val delimiterIndexList = mutableListOf<Int>()
+            val fileName = obbFile.name
+            Log.d(logObjectTag, TAG, "multipleInstall: obb name: $fileName")
+            var index: Int = fileName.indexOf('.')
+            delimiterIndexList.add(index)
+            while (true) {
+                index = fileName.indexOf('.', index + 1)
+                if (index >= 0)
+                    delimiterIndexList.add(index)
+                else
+                    break
+            }
+            val obbPackageName = fileName.subSequence(delimiterIndexList[1] + 1, delimiterIndexList.last())
+            val command = "mv $obbFile /storage/emulated/0/Android/obb/$obbPackageName/."
+            Log.d(logObjectTag, TAG, "multipleInstall: obb command: $command")
+
+            obbFile.renameTo(File("/storage/emulated/0/Android/obb/$obbPackageName/", obbFile.name))
+        }
+    }
+
 }
