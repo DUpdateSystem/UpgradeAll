@@ -15,7 +15,7 @@ object VersioningUtils {
     fun matchVersioningString(versionString: CharSequence?): String? {
         return if (versionString != null) {
             val regex = AppValue.version_number_match_regex
-            regex.find(versionString)?.value
+            regex.find(versionString)?.value?.trim()
         } else null
     }
 
