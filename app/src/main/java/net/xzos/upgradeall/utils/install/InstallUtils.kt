@@ -29,7 +29,10 @@ fun File.getApkUri(): Uri {
 fun File.autoAddApkExtension(): File {
     if (this.isApkFile()) {
         if (this.extension != "apk") {
-            this.renameTo(File(parent, "$name.apk"))
+            val newFile = File(parent, "$name.apk")
+            return if (this.renameTo(newFile))
+                newFile
+            else this
         }
     }
     return this
