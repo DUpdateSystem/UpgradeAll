@@ -18,6 +18,7 @@ class UpdateServiceBroadcastReceiver : BroadcastReceiver() {
         private val context = MyApplication.context
         private val ACTION_SNOOZE = "${context.packageName}.UPDATE_SERVICE_BROADCAST"
         fun setAlarms(t_h: Int) {
+            if (t_h <= 0) return
             val alarmTime: Long = t_h.toLong() * 60 * 60 * 1000
             val alarmIntent = PendingIntent.getBroadcast(
                     context, 0,
