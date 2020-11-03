@@ -18,5 +18,6 @@ object AppValue {
     const val default_cloud_rules_hub_url = "FromUpdateServer"
     const val def_update_server_url = "update-server.xzos.net:5255"
     val git_url_arg_regex = "(%.*?)\\w*".toRegex()
-    val version_number_match_regex = "(\\d+(\\.\\d+)*)(([.|\\-|+|_| ]|[0-9A-Za-z])*)".toRegex()
+    val version_number_strict_match_regex = "\\d+(\\.\\d+)+([.|\\-|+|_| ]*[A-Za-z0-9]+)*".toRegex()
+    val version_number_match_regex = "\\d+(\\.\\d+)*([.|\\-|+|_| ]*[A-Za-z0-9]+)*".toRegex()
 }

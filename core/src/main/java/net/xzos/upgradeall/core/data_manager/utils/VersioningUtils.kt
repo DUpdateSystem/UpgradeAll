@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.data_manager.utils
 
-import net.xzos.upgradeall.core.data.config.AppValue
+import net.xzos.upgradeall.core.data.config.AppValue.version_number_match_regex
+import net.xzos.upgradeall.core.data.config.AppValue.version_number_strict_match_regex
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion
 
@@ -14,8 +15,8 @@ object VersioningUtils {
 
     fun matchVersioningString(versionString: CharSequence?): String? {
         return if (versionString != null) {
-            val regex = AppValue.version_number_match_regex
-            regex.find(versionString)?.value?.trim()
+            (version_number_strict_match_regex.find(versionString)
+                    ?: version_number_match_regex.find(versionString))?.value
         } else null
     }
 
@@ -24,7 +25,7 @@ object VersioningUtils {
      * 若，前者比后者大，则返回 true
      * 若，版本号不是语义化版本号，返回 NULL
      */
-    internal fun compareVersionNumber(versionNumber0: String?, versionNumber1: String?): Boolean? {
+    fun compareVersionNumber(versionNumber0: String?, versionNumber1: String?): Boolean? {
         // 检查强制忽略版本号
         if (versionNumber0 == FOREVER_IGNORE) return true
         if (versionNumber1 == FOREVER_IGNORE) return false
