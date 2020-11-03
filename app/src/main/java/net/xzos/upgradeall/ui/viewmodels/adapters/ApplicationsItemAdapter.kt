@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.viewmodels.adapters
 
-import android.content.Intent
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -30,10 +29,7 @@ class ApplicationsItemAdapter(
             if (holder.adapterPosition == NO_POSITION) return@setOnClickListener
             val app = mItemCardViewList.getByHolder(holder).extraData.app
             if (app is App) {
-                AppDetailActivity.bundleApp = app
-                with(holder.itemCardView.context) {
-                    startActivity(Intent(this, AppDetailActivity::class.java))
-                }
+                AppDetailActivity.startActivity(holder.itemCardView.context, app)
             }
         }
         holder.itemCardView.setOnLongClickListener { view ->

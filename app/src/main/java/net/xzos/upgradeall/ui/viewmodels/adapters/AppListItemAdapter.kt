@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.viewmodels.adapters
 
-import android.content.Intent
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -50,8 +49,7 @@ class AppListItemAdapter(
             if (holder.adapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
             when (val baseApp = mItemCardViewList.getByHolder(holder).extraData.app) {
                 is App -> {
-                    AppDetailActivity.bundleApp = baseApp
-                    it.context.startActivity(Intent(it.context, AppDetailActivity::class.java))
+                    AppDetailActivity.startActivity(it.context, baseApp)
                 }
                 is Applications -> {
                     ApplicationsFragment.bundleApplications = baseApp

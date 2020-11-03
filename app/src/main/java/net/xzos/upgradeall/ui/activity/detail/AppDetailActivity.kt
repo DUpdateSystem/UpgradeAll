@@ -1,5 +1,7 @@
 package net.xzos.upgradeall.ui.activity.detail
 
+import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.NetworkOnMainThreadException
@@ -44,6 +46,7 @@ class AppDetailActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_app_detail)
+        bundleApp?.run { app = this } ?: onBackPressed()
         initView()
     }
 
@@ -55,7 +58,6 @@ class AppDetailActivity : BaseActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        bundleApp?.run { app = this }
         initUi()
 
         ib_edit.setOnClickListener {
@@ -249,11 +251,11 @@ class AppDetailActivity : BaseActivity() {
     }
 
     companion object {
-        internal var bundleApp: App? = null
-            get() {
-                val app = field
-                field = null
-                return app
-            }
+        private var bundleApp: App? = null
+
+        fun startActivity(context: Context, app: App) {
+            bundleApp = app
+            context.startActivity(Intent(context, AppDetailActivity::class.java))
+        }
     }
 }
