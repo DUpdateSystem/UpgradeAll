@@ -76,7 +76,7 @@ object GrpcReleaseApi {
     private suspend fun callGetAppRelease(
             hubUuid: String, auth: Map<String, String?>,
             appIdList0: Collection<Map<String, String?>>, autoRetryNum: Int,
-            channel: ManagedChannel = GrpcApi.getChannel(),
+            channel: ManagedChannel? = GrpcApi.getChannel(),
     ) {
         val appIdList = appIdList0.toMutableList()
         val request = mkReleaseRequestBuilder(hubUuid, appIdList, auth)
@@ -89,7 +89,7 @@ object GrpcReleaseApi {
                 }
             }
         }
-        if (hubUuid in GrpcApi.invalidHubUuidList) {
+        if (hubUuid in GrpcApi.invalidHubUuidList || channel == null) {
             clearMutex()
             return
         }
