@@ -11,9 +11,11 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.tonyodev.fetch2.Download
+import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.oberver.ObserverFun
+import net.xzos.upgradeall.core.utils.runWithLock
 import net.xzos.upgradeall.server.downloader.DownloadRegister.getCancelNotifyKey
 import net.xzos.upgradeall.server.downloader.DownloadRegister.getCompleteNotifyKey
 import net.xzos.upgradeall.server.downloader.DownloadRegister.getFailNotifyKey
@@ -229,16 +231,21 @@ class DownloadNotification(private val downloadId: Int) {
         private const val PROGRESS_MAX = 100
         private val context = MyApplication.context
         private var initNotificationChannel = false
+        private val mutex = Mutex()
 
         private const val DOWNLOAD_SERVICE_NOTIFICATION_INDEX = 200
         private var NOTIFICATION_INDEX = 201
-            get() = field.also {
-                field++
+            get() = mutex.runWithLock {
+                field.also {
+                    field++
+                }
             }
+
         private var PENDING_INTENT_INDEX = 0
-            get() {
-                field++
-                return field
+            get() = mutex.runWithLock {
+                field.also {
+                    field++
+                }
             }
 
         private val downloadServiceNotificationBuilder = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID)
