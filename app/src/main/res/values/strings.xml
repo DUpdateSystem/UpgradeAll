@@ -202,4 +202,13 @@
     <string name="home_settings">设置</string>
     <string name="home_about">关于</string>
 
+    <!--  Hub  -->
+    <string name="hub_tab_updates">更新</string>
+    <string name="hub_tab_all">全部</string>
+    <string name="hub_tab_ignored">已忽略</string>
+    <string name="hub_tooltip_priority">优先级</string>
+    <string name="hub_format_app_update_tip">共 %d 个应用更新</string>
+    <string name="hub_update_all">全部升级</string>
+    <string name="hub_ignore_all">全部忽略</string>
+
 </resources>

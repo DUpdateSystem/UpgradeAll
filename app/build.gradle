@@ -72,6 +72,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation "androidx.drawerlayout:drawerlayout:1.1.1"
+    implementation 'androidx.viewpager2:viewpager2:1.1.0-alpha01'
 
     implementation 'androidx.fragment:fragment-ktx:1.2.5'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.2'
