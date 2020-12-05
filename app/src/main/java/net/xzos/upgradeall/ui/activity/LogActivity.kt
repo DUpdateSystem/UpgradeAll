@@ -16,6 +16,7 @@ import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.LogDataProxy
 import net.xzos.upgradeall.data.log.LogLiveData
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
+import net.xzos.upgradeall.ui.base.BaseActivity
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.LogTabSectionsPagerAdapter
 
 class LogActivity : BaseActivity() {

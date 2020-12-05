@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.data.backup
 
-import android.annotation.SuppressLint
 import android.os.Build
 import com.google.gson.Gson
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
@@ -12,6 +11,7 @@ import net.xzos.upgradeall.data.gson.toUiConfigId
 import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.file.ZipFile
 import org.json.JSONArray
+import org.json.JSONObject
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -27,8 +27,7 @@ object BackupManager {
             val formatter = DateTimeFormatter.ofPattern(dataFormat)
             current.format(formatter)
         } else {
-            @SuppressLint("SimpleDateFormat")
-            val formatter = SimpleDateFormat(dataFormat)
+            val formatter = SimpleDateFormat(dataFormat, Locale.getDefault())
             formatter.format(Date())
         }
         return "UpgradeAll_$timeString.zip"
@@ -61,8 +60,9 @@ object BackupManager {
     private fun backupAllAppDatabase(): JSONArray {
         val databaseList = AppDatabaseManager.appDatabases
         val json = JSONArray()
+        var data: JSONObject
         for (database in databaseList) {
-            val data = database.toJson()
+            data = database.toJson()
             json.put(data)
         }
         return json
@@ -71,8 +71,9 @@ object BackupManager {
     private fun backupAllApplicationsDatabase(): JSONArray {
         val databaseList = AppDatabaseManager.applicationsDatabases
         val json = JSONArray()
+        var data: JSONObject
         for (database in databaseList) {
-            val data = database.toJson()
+            data = database.toJson()
             json.put(data)
         }
         return json
@@ -81,8 +82,9 @@ object BackupManager {
     private fun backupAllHubDatabase(): JSONArray {
         val databaseList = HubDatabaseManager.hubDatabases
         val json = JSONArray()
+        var data: JSONObject
         for (database in databaseList) {
-            val data = database.toJson()
+            data = database.toJson()
             json.put(data)
         }
         return json

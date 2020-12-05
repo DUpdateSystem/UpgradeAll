@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceFragmentCompat
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.ui.base.BaseActivity
 
 
 class SettingsActivity : BaseActivity() {

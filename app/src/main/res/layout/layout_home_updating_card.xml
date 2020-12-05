@@ -32,8 +32,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/white" />
 
-            <TextView
-                android:id="@+id/tv_title"
+            <net.xzos.upgradeall.view.TextSwitcherView
+                android:id="@+id/ts_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
@@ -56,8 +56,8 @@
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/tv_title"
-                app:layout_constraintTop_toBottomOf="@id/tv_title" />
+                app:layout_constraintStart_toStartOf="@id/ts_title"
+                app:layout_constraintTop_toBottomOf="@id/ts_title" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

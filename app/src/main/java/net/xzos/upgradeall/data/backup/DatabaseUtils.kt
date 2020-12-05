@@ -28,8 +28,7 @@ fun AppDatabase.md5(): String {
     val key = name + hubUuid + url + packageId
     val md = MessageDigest.getInstance("MD5")
     md.update(key.toByteArray())
-    val a = md.digest().toString(Charsets.UTF_8)
-    return a
+    return md.digest().toString(Charsets.UTF_8)
 }
 
 fun ApplicationsDatabase.toJson(): JSONObject {

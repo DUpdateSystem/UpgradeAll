@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.activity
+package net.xzos.upgradeall.ui.base
 
 import android.content.Context
 import android.os.Bundle

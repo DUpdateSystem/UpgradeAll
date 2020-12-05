@@ -12,7 +12,7 @@ class CustomDownloader @JvmOverloads constructor(okHttpClient: OkHttpClient? = n
         return FileDownloaderType.PARALLEL //For chunk downloading
     }
 
-    override fun getFileSlicingCount(request: Downloader.ServerRequest, contentLength: Long): Int? {
+    override fun getFileSlicingCount(request: Downloader.ServerRequest, contentLength: Long): Int {
         return PreferencesMap.download_thread_num
     }
 }

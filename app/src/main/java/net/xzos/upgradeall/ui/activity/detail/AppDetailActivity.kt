@@ -22,7 +22,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.server_manager.module.app.*
 import net.xzos.upgradeall.data.constants.OnceTag
-import net.xzos.upgradeall.ui.activity.BaseActivity
+import net.xzos.upgradeall.ui.base.BaseActivity
 import net.xzos.upgradeall.ui.activity.detail.setting.AppSettingActivity
 import net.xzos.upgradeall.ui.viewmodels.dialog.DownloadListDialog
 import net.xzos.upgradeall.utils.IconPalette
