@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.activity.detail.setting
+package net.xzos.upgradeall.ui.detail.setting
 
 import android.content.res.ColorStateList
 import android.os.Bundle

@@ -106,14 +106,14 @@
             android:label="@string/home_module_file_management">
         </activity>
         <activity
-            android:name=".ui.activity.detail.AppDetailActivity"
+            android:name="net.xzos.upgradeall.ui.detail.AppDetailActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ui.activity.detail.setting.AppSettingActivity"
+            android:name="net.xzos.upgradeall.ui.detail.setting.AppSettingActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".ui.activity.detail.setting.ApplicationsSettingActivity"
+            android:name="net.xzos.upgradeall.ui.detail.setting.ApplicationsSettingActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
         <activity

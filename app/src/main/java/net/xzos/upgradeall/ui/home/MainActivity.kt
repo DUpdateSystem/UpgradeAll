@@ -2,6 +2,7 @@ package net.xzos.upgradeall.ui.home
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.viewModels
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
@@ -17,12 +18,14 @@ import net.xzos.upgradeall.ui.home.adapter.HomeModuleNonCardBean
 import net.xzos.upgradeall.ui.magisk.MagiskModuleActivity
 import net.xzos.upgradeall.ui.others.OthersActivity
 import net.xzos.upgradeall.ui.rss.RssActivity
+import net.xzos.upgradeall.ui.viewmodels.viewmodel.HomeViewModel
 import net.xzos.upgradeall.utils.ToastUtil
 import net.xzos.upgradeall.utils.egg
 
 class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val viewModel by viewModels<HomeViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +45,6 @@ class MainActivity : BaseActivity() {
                 adapter = homeAdapter
                 setHasFixedSize(true)
             }
-            layoutUpdatingCard.tsTitle.setText(getString(R.string.home_updating))
         }
         val moduleList = listOf(
                 HomeModuleCardBean(R.drawable.ic_home_file_management, R.string.home_module_file_management) {
@@ -71,5 +73,16 @@ class MainActivity : BaseActivity() {
                 },
         )
         homeAdapter.setList(moduleList)
+        binding.layoutUpdatingCard.apply {
+            layoutCard.setOnClickListener {
+                tsTitle.setText(getString(R.string.home_checking_updates))
+                viewModel.checkUpdates()
+            }
+        }
+
+        viewModel.needUpdateCountLiveData.observe(this, {
+            binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), it)
+            binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_check_updates))
+        })
     }
 }

@@ -8,6 +8,7 @@
     android:paddingVertical="2dp">
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/layout_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/colorDarkAccent"
@@ -37,7 +38,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:text="@string/home_updating"
+                android:text="@string/home_checking_updates"
                 android:textAppearance="?attr/textAppearanceSubtitle1"
                 android:textColor="@color/white"
                 android:textStyle="bold"
@@ -53,7 +54,7 @@
                 android:text="@string/home_format_items_need_update"
                 android:textAppearance="?attr/textAppearanceSubtitle2"
                 android:textColor="@color/white"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:textStyle="normal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

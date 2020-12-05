@@ -5,6 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.databinding.FragmentHubListBinding
 import net.xzos.upgradeall.ui.apphub.adapter.HubListAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
@@ -27,12 +31,20 @@ class HubListFragment : Fragment() {
                 adapter = this@HubListFragment.adapter
             }
         }
-        val list = mutableListOf<ItemCardView>()
-        var itemCardView: ItemCardView
-        for (i in 1..10) {
-            itemCardView = ItemCardView(name = i.toString(), extraData = ItemCardViewExtraData(uuid = "123456789"))
-            list.add(itemCardView)
+        adapter.setOnItemClickListener { adapter, view, position ->
+
         }
-        adapter.setList(list)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val list = mutableListOf<ItemCardView>()
+            var itemCardView: ItemCardView
+            for (i in 1..10) {
+                itemCardView = ItemCardView(name = i.toString(), extraData = ItemCardViewExtraData(uuid = "123456789"))
+                list.add(itemCardView)
+            }
+            withContext(Dispatchers.Main) {
+                adapter.setList(list)
+            }
+        }
     }
 }

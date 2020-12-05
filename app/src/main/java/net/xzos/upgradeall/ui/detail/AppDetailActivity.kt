@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.activity.detail
+package net.xzos.upgradeall.ui.detail
 
 import android.content.Context
 import android.content.Intent
@@ -23,7 +23,7 @@ import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.server_manager.module.app.*
 import net.xzos.upgradeall.data.constants.OnceTag
 import net.xzos.upgradeall.ui.base.BaseActivity
-import net.xzos.upgradeall.ui.activity.detail.setting.AppSettingActivity
+import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
 import net.xzos.upgradeall.ui.viewmodels.dialog.DownloadListDialog
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.MiscellaneousUtils

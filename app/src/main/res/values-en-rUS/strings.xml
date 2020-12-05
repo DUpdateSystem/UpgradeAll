@@ -184,7 +184,8 @@
 
     <string name="built_in_downloader_setting">Built-in Downloader Setting</string>
     <string name="use_external_downloader">Forcing the use of external downloader</string>
-    <string name="home_updating">Updating…</string>
+    <string name="home_checking_updates">Checking updates…</string>
+    <string name="home_check_updates">Check updates</string>
     <string name="home_format_items_need_update">%d tracking item(s) need to be updated</string>
     <string name="home_module_file_management">File Management</string>
     <string name="home_module_apps">Apps</string>
