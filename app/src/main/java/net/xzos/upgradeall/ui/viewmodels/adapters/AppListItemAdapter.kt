@@ -12,7 +12,6 @@ import net.xzos.upgradeall.core.data.database.AppDatabase
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
-import net.xzos.upgradeall.ui.activity.MainActivity.Companion.setNavigationItemId
 import net.xzos.upgradeall.ui.activity.detail.AppDetailActivity
 import net.xzos.upgradeall.ui.fragment.app_list.page_view.ApplicationsFragment
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter
@@ -53,7 +52,6 @@ class AppListItemAdapter(
                 }
                 is Applications -> {
                     ApplicationsFragment.bundleApplications = baseApp
-                    setNavigationItemId(R.id.applicationsFragment)
                 }
             }
         }

@@ -10,7 +10,6 @@ import kotlinx.android.synthetic.main.content_list.*
 import kotlinx.android.synthetic.main.fragment_applications.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
-import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.ui.viewmodels.adapters.ApplicationsItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.ApplicationsPageViewModel
 
@@ -30,7 +29,6 @@ class ApplicationsFragment : AppListContainerFragment() {
         applicationsPageViewModel = ViewModelProvider(this).get(ApplicationsPageViewModel::class.java)
         adapter = ApplicationsItemAdapter(applicationsPageViewModel)
         viewModel = applicationsPageViewModel
-        MainActivity.actionBarDrawerToggle.isDrawerIndicatorEnabled = false  // 禁止开启侧滑栏，启用返回按钮响应事件
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

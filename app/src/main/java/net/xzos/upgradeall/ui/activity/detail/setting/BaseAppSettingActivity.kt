@@ -21,7 +21,6 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
 import net.xzos.upgradeall.core.data.database.BaseAppDatabase
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
-import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.ToastUtil
 
@@ -150,7 +149,6 @@ abstract class BaseAppSettingActivity : AppCompatActivity() {
             withContext(Dispatchers.Main) {
                 if (hubNameStringList.isEmpty()) {
                     ToastUtil.makeText(R.string.add_something, Toast.LENGTH_LONG)
-                    MainActivity.setNavigationItemId(R.id.hubCloudFragment)
                     finish()
                 }
             }

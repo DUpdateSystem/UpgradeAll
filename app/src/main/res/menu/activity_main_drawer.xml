@@ -23,12 +23,12 @@
                     android:title="@string/help" />
                 <item
                     android:id="@+id/app_log"
-                    android:icon="@drawable/ic_log"
-                    android:title="@string/log" />
+                    android:icon="@drawable/ic_home_log"
+                    android:title="@string/home_log" />
                 <item
                     android:id="@+id/app_setting"
-                    android:icon="@drawable/ic_setting"
-                    android:title="@string/setting" />
+                    android:icon="@drawable/ic_home_setting"
+                    android:title="@string/home_settings" />
             </menu>
         </item>
     </group>

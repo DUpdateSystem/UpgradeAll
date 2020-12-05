@@ -10,8 +10,6 @@
     <string name="app">软件</string>
     <string name="magisk_module">Magisk 模块</string>
     <string name="app_hub">软件源</string>
-    <string name="log">日志</string>
-    <string name="setting">设置</string>
     <string name="add">添加</string>
     <string name="desc">网址</string>
     <string name="name">名称</string>
@@ -191,4 +189,17 @@
 
     <string name="built_in_downloader_setting">内置下载器设置</string>
     <string name="use_external_downloader">强制使用外置下载器</string>
+
+    <!--  Home  -->
+    <string name="home_updating">正在更新…</string>
+    <string name="home_module_file_management">文件管理</string>
+    <string name="home_module_apps">应用</string>
+    <string name="home_module_magisk_module">Magisk 模块</string>
+    <string name="home_module_rss">RSS</string>
+    <string name="home_module_others">其它</string>
+    <string name="home_format_items_need_update">共 %d 个跟踪项需要更新</string>
+    <string name="home_log">日志</string>
+    <string name="home_settings">设置</string>
+    <string name="home_about">关于</string>
+
 </resources>

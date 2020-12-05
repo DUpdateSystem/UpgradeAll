@@ -36,13 +36,13 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.main
             manifestPlaceholders = [enableCrashReporting: "true", appName: "UpgradeAll"]
         }
         debug {
-            signingConfig signingConfigs.main
+            minifyEnabled false
             manifestPlaceholders = [enableCrashReporting: "false", appName: "UpgradeAll-β"]
             applicationIdSuffix ".debug"
         }
@@ -99,9 +99,9 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.0'
 
     // Firebase
-    implementation 'com.google.firebase:firebase-perf:19.0.10'
+    implementation 'com.google.firebase:firebase-perf:19.0.8'
     implementation 'com.google.firebase:firebase-analytics:18.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.2.2'
     configurations.compile.exclude group: 'com.google.protobuf', module: 'protobuf-lite'
 
     // Fetch
@@ -145,6 +145,7 @@ dependencies {
 
     //RecyclerView
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.6'
+    implementation 'com.absinthe.libraries.utils:utils:1.1.0'
 
     implementation project(path: ':core')
 }
