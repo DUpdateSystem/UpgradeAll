@@ -2,23 +2,31 @@ package net.xzos.upgradeall.ui.activity
 
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.core.content.ContextCompat
+import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.preference.PreferenceFragmentCompat
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.data.PreferencesMap
-import net.xzos.upgradeall.ui.base.BaseActivity
+import net.xzos.upgradeall.databinding.SettingsActivityBinding
+import net.xzos.upgradeall.ui.base.AppBarActivity
 
 
-class SettingsActivity : BaseActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
+class SettingsActivity : AppBarActivity() {
+
+    private lateinit var binding: SettingsActivityBinding
+
+    override fun initBinding(): View {
+        binding = SettingsActivityBinding.inflate(layoutInflater)
+        return binding.root
+    }
+
+    override fun getAppBar(): Toolbar = binding.appbar.toolbar
+
+    override fun initView() {
         supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.settings, SettingsFragment())
                 .commit()
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        window.statusBarColor = ContextCompat.getColor(this, R.color.colorPrimaryDark)
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
