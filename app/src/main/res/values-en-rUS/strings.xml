@@ -172,6 +172,9 @@
     <string name="btn_add_extra">Add Extra Info</string>
     <string name="helper_text_cant_be_empty">Not empty</string>
 
+    <string name="ui">UI</string>
+    <string name="enable_bottom_sheet">enable bottom sheet</string>
+    <string name="enable_simple_bottom_main">show simple bottom on main page</string>
     <string name="language">Language</string>
     <string name="custom_language">Custom Language</string>
     <string name="follow_server_config">Follow Server Config</string>
