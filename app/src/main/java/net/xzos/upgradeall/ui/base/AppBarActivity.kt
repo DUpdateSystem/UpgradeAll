@@ -5,6 +5,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import com.absinthe.libraries.utils.extensions.addPaddingTop
+import net.xzos.upgradeall.utils.UxUtils.getStatusBarHeight
 
 abstract class AppBarActivity : BaseActivity() {
 
@@ -17,7 +18,7 @@ abstract class AppBarActivity : BaseActivity() {
         setContentView(initBinding())
         setSupportActionBar(getAppBar())
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        (getAppBar().parent as View).addPaddingTop(getStatusBarHeight())
+        (getAppBar().parent as View).addPaddingTop(getStatusBarHeight(resources))
         initView()
     }
 
@@ -26,10 +27,5 @@ abstract class AppBarActivity : BaseActivity() {
             finish()
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun getStatusBarHeight(): Int {
-        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-        return resources.getDimensionPixelSize(resourceId)
     }
 }

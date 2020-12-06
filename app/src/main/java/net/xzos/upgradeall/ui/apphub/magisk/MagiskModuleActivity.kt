@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.magisk
+package net.xzos.upgradeall.ui.apphub.magisk
 
 import net.xzos.upgradeall.ui.apphub.AppHubActivity
 

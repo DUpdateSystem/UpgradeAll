@@ -94,16 +94,20 @@
             android:label="@string/home_module_rss">
         </activity>
         <activity
-            android:name=".ui.magisk.MagiskModuleActivity"
+            android:name="net.xzos.upgradeall.ui.apphub.magisk.MagiskModuleActivity"
             android:label="@string/home_module_magisk_module">
         </activity>
         <activity
-            android:name=".ui.apps.AppsActivity"
+            android:name="net.xzos.upgradeall.ui.apphub.apps.AppsActivity"
             android:label="@string/home_module_apps">
         </activity>
         <activity
-            android:name=".ui.filemanagement.FileManagementActivity"
+            android:name="net.xzos.upgradeall.ui.apphub.filemanagement.FileManagementActivity"
             android:label="@string/home_module_file_management">
+        </activity>
+        <activity
+            android:name="net.xzos.upgradeall.ui.apphub.discover.DiscoverActivity"
+            android:label="@string/home_module_discovery">
         </activity>
         <activity
             android:name="net.xzos.upgradeall.ui.detail.AppDetailActivity"

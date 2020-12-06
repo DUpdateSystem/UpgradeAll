@@ -205,4 +205,5 @@
     <string name="hub_format_app_update_tip">A total of %d app(s) updates</string>
     <string name="hub_update_all">Update all</string>
     <string name="hub_ignore_all">Ignore all</string>
+    <string name="home_module_discovery">Discover</string>
 </resources>

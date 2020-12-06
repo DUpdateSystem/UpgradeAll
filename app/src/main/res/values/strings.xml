@@ -196,6 +196,7 @@
     <!--  Home  -->
     <string name="home_checking_updates">正在检查更新…</string>
     <string name="home_check_updates">检查更新</string>
+    <string name="home_module_discovery">探索</string>
     <string name="home_module_file_management">文件管理</string>
     <string name="home_module_apps">应用</string>
     <string name="home_module_magisk_module">Magisk 模块</string>

@@ -12,12 +12,14 @@ import net.xzos.upgradeall.core.server_manager.module.applications.Applications
 import net.xzos.upgradeall.data.gson.UIConfig
 import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
 import net.xzos.upgradeall.data.gson.toDatabase
-import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.ALL_APP_PAGE_INDEX
-import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
-import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.USER_STAR_PAGE_INDEX
 import net.xzos.upgradeall.utils.mutableLiveDataOf
 import net.xzos.upgradeall.utils.notifyObserver
 import net.xzos.upgradeall.utils.setValueBackground
+
+const val ADD_TAB_BUTTON_INDEX = -4
+const val UPDATE_PAGE_INDEX = -3
+const val USER_STAR_PAGE_INDEX = -2
+const val ALL_APP_PAGE_INDEX = -1
 
 object AppUiDataManager {
     // 需要升级的 APP
