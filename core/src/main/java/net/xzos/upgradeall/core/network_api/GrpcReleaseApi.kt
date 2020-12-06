@@ -97,7 +97,7 @@ object GrpcReleaseApi {
             val blockingStub = UpdateServerRouteGrpc.newBlockingStub(channel)
             val releaseResponseIterator = blockingStub.getAppRelease(request.build())
             var firstIndex = true
-            while (withTimeout(GrpcApi.deadlineMs * 3) {
+            while (withTimeout(GrpcApi.deadlineMs) {
                         releaseResponseIterator.hasNext()
                     }
             ) {
