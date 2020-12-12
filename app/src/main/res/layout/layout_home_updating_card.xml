@@ -51,7 +51,6 @@
                 android:id="@+id/tv_subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/home_format_items_need_update"
                 android:textAppearance="?attr/textAppearanceSubtitle2"
                 android:textColor="@color/white"
                 android:textSize="12sp"

@@ -60,8 +60,8 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="24dp"
                 android:gravity="center_vertical"
-                android:text="@string/hub_format_app_update_tip"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="@string/hub_format_app_update_tip" />
 
             <TextView
                 android:id="@+id/tv_update_all"
