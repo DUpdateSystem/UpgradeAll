@@ -14,6 +14,7 @@ import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.LogActivity
 import net.xzos.upgradeall.ui.activity.SettingsActivity
 import net.xzos.upgradeall.ui.apphub.apps.AppsActivity
+import net.xzos.upgradeall.ui.apphub.discover.DiscoverActivity
 import net.xzos.upgradeall.ui.base.BaseActivity
 import net.xzos.upgradeall.ui.apphub.filemanagement.FileManagementActivity
 import net.xzos.upgradeall.ui.home.adapter.HomeModuleAdapter
@@ -51,7 +52,7 @@ class MainActivity : BaseActivity() {
         }
         val moduleList = listOf(
                 HomeModuleCardBean(R.drawable.ic_home_discovery, R.string.home_module_discovery) {
-                    startActivity(Intent(this, FileManagementActivity::class.java))
+                    startActivity(Intent(this, DiscoverActivity::class.java))
                 },
                 HomeModuleCardBean(R.drawable.ic_home_file_management, R.string.home_module_file_management) {
                     startActivity(Intent(this, FileManagementActivity::class.java))
