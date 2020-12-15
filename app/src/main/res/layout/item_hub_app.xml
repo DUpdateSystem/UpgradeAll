@@ -13,62 +13,42 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@null"
-        android:paddingHorizontal="24dp"
-        android:paddingVertical="16dp">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp">
 
         <ImageView
             android:id="@+id/iv_icon"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:contentDescription="App icon"
+            android:src="@mipmap/ic_launcher"
             android:transitionName="app_icon"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:src="@mipmap/ic_launcher"
             tools:background="@drawable/ic_launcher_foreground"
             tools:ignore="HardcodedText" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tv_app_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginHorizontal="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="16sp"
+            android:transitionName="app_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/iv_icon"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="@id/iv_icon"
+            tools:text="@string/app_name" />
 
-            <TextView
-                android:id="@+id/tv_app_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:textSize="16sp"
-                android:transitionName="app_name"
-                tools:text="@string/app_name" />
-
-            <TextView
-                android:id="@+id/tv_package_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:textSize="14sp"
-                android:transitionName="package_name"
-                tools:text="net.xzos.upgradeall" />
-
-            <TextView
-                android:id="@+id/tv_version"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="12sp"
-                android:transitionName="version_name"
-                tools:text="1.0.0(100)" />
-
-        </LinearLayout>
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/tv_app_name"
+            app:layout_constraintStart_toStartOf="@id/tv_app_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_app_name"
+            app:singleLine="true" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

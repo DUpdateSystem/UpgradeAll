@@ -36,7 +36,7 @@
 
     <Preference
         android:fragment="net.xzos.upgradeall.ui.fragment.setting.preference.UISettingFragment"
-        app:icon="@drawable/ic_search_cloud"
+        app:icon="@drawable/ic_settings_ui"
         app:layout="@layout/item_preference"
         app:title="@string/ui" />
 

@@ -9,6 +9,5 @@ class HubListAdapter : BaseQuickAdapter<ItemCardView, BaseViewHolder>(R.layout.i
 
     override fun convert(holder: BaseViewHolder, item: ItemCardView) {
         holder.setText(R.id.tv_app_name, item.name)
-        holder.setText(R.id.tv_package_name, item.extraData.uuid)
     }
 }

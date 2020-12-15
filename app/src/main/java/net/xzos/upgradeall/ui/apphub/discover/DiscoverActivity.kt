@@ -1,9 +1,11 @@
 package net.xzos.upgradeall.ui.apphub.discover
 
+import android.graphics.Color
 import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
+import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.ActivityDiscoverBinding
 import net.xzos.upgradeall.ui.apphub.adapter.DiscoveryAdapter
 import net.xzos.upgradeall.ui.base.AppBarActivity
@@ -27,9 +29,13 @@ class DiscoverActivity : AppBarActivity() {
         binding.rvList.apply {
             adapter = this@DiscoverActivity.adapter
         }
-        binding.srlContainer.setOnRefreshListener {
-            binding.srlContainer.isRefreshing = true
-            viewModel.requestCloudApplications()
+        binding.srlContainer.apply {
+            setProgressBackgroundColorSchemeResource(R.color.colorPrimary)
+            setColorSchemeColors(Color.WHITE)
+            setOnRefreshListener {
+                binding.srlContainer.isRefreshing = true
+                viewModel.requestCloudApplications()
+            }
         }
         adapter.setOnItemClickListener { _, _, position ->
             adapter.getItem(position).uuid?.let {
