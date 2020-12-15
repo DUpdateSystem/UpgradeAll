@@ -37,7 +37,7 @@
                 android:id="@+id/ts_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="@dimen/home_card_text_margin_start"
                 android:text="@string/home_checking_updates"
                 android:textAppearance="?attr/textAppearanceSubtitle1"
                 android:textColor="@color/white"

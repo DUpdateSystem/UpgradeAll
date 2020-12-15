@@ -18,6 +18,7 @@
     <color name="text_low_priority_color">#FFB2B2B2</color>
     <color name="text_lowest_priority_color">#FFE5E5E5</color>
     <color name="normal_background">#FFFFFFFF</color>
+    <color name="normal_text">#121212</color>
 
     <!--Dark Theme-->
     <color name="colorDarkAccent">#4285f4</color>

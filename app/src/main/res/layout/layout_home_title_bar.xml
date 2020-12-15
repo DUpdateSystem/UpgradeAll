@@ -12,7 +12,7 @@
         android:layout_height="48dp"
         android:importantForAccessibility="no"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_logo" />
+        android:src="@drawable/ic_logo_home" />
 
     <TextView
         android:layout_width="wrap_content"

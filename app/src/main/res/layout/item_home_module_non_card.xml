@@ -30,7 +30,7 @@
             android:id="@+id/tv_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
+            android:layout_marginStart="@dimen/home_card_text_margin_start"
             android:layout_weight="1"
             android:textAppearance="?attr/textAppearanceListItem"
             tools:text="@string/home_module_magisk_module" />

@@ -36,7 +36,7 @@ class MainActivity : BaseActivity() {
         setContentView(binding.root)
         initView()
 
-        UpdateService.startService(this)
+        checkUpdate()
         PreferencesMap.initByActivity(this)
     }
 
@@ -82,8 +82,7 @@ class MainActivity : BaseActivity() {
         homeAdapter.setList(moduleList)
         binding.layoutUpdatingCard.apply {
             layoutCard.setOnClickListener {
-                tsTitle.setText(getString(R.string.home_checking_updates))
-                UpdateService.startService(this@MainActivity)
+                checkUpdate()
             }
         }
 
@@ -91,5 +90,10 @@ class MainActivity : BaseActivity() {
             binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), it.size)
             binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_check_updates))
         })
+    }
+
+    private fun checkUpdate() {
+        binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_checking_updates))
+        UpdateService.startService(this@MainActivity)
     }
 }

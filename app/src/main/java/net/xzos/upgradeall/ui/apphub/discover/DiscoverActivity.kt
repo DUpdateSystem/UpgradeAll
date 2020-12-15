@@ -43,6 +43,7 @@ class DiscoverActivity : AppBarActivity() {
             binding.srlContainer.isRefreshing = false
         })
 
+        binding.srlContainer.isRefreshing = true
         viewModel.requestCloudApplications()
     }
 }
