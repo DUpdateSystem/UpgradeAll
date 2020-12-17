@@ -5,6 +5,11 @@ import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.ActivityDiscoverBinding
 import net.xzos.upgradeall.ui.apphub.adapter.DiscoveryAdapter
@@ -33,15 +38,23 @@ class DiscoverActivity : AppBarActivity() {
             setProgressBackgroundColorSchemeResource(R.color.colorPrimary)
             setColorSchemeColors(Color.WHITE)
             setOnRefreshListener {
-                binding.srlContainer.isRefreshing = true
-                viewModel.requestCloudApplications()
+                requestCloudApplications()
             }
         }
-        adapter.setOnItemClickListener { _, _, position ->
-            adapter.getItem(position).uuid?.let {
-                viewModel.downloadApplicationData(this, it)
-            } ?: let {
-                Log.d("DiscoverActivity", "uuid is null")
+        adapter.apply {
+            setOnItemClickListener { _, _, position ->
+                getItem(position).uuid?.let {
+                    viewModel.downloadApplicationData(this@DiscoverActivity, it)
+
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        delay(500)
+                        withContext(Dispatchers.Main) {
+                            viewModel.requestCloudApplications()
+                        }
+                    }
+                } ?: let {
+                    Log.d("DiscoverActivity", "uuid is null")
+                }
             }
         }
         viewModel.cloudApplications.observe(this, {
@@ -49,6 +62,10 @@ class DiscoverActivity : AppBarActivity() {
             binding.srlContainer.isRefreshing = false
         })
 
+        requestCloudApplications()
+    }
+
+    private fun requestCloudApplications() {
         binding.srlContainer.isRefreshing = true
         viewModel.requestCloudApplications()
     }

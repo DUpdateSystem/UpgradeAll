@@ -1,9 +1,8 @@
 package net.xzos.upgradeall.ui.apphub.adapter
 
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import android.widget.ImageView
+import androidx.core.view.isGone
 import com.absinthe.libraries.utils.extensions.layoutInflater
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -49,11 +48,10 @@ class DiscoveryAdapter : BaseQuickAdapter<CloudConfigListItemView, BaseViewHolde
             chipGroup.addView(hubChip, -1, ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
 
+        holder.getView<ImageView>(R.id.iv_done).isGone = AppManager.getSingleApp(uuid = item.uuid) == null
+    }
 
-        AppManager.getSingleApp(uuid = item.uuid)?.run {
-            holder.itemView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.material_green_200))
-        } ?: run {
-            holder.itemView.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
-        }
+    override fun getItemId(position: Int): Long {
+        return data[position].hashCode().toLong()
     }
 }
