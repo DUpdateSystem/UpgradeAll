@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.apphub
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.databinding.FragmentHubListBinding
 import net.xzos.upgradeall.ui.apphub.adapter.HubListAdapter
+import net.xzos.upgradeall.ui.detail.AppDetailActivity
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
 import net.xzos.upgradeall.ui.viewmodels.view.ItemCardViewExtraData
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppHubViewModel
@@ -35,7 +37,7 @@ class HubListFragment : Fragment() {
             }
         }
         adapter.setOnItemClickListener { adapter, view, position ->
-
+            startActivity(Intent(requireActivity(), AppDetailActivity::class.java))
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
