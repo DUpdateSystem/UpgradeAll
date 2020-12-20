@@ -14,6 +14,7 @@
         app:cardBackgroundColor="@color/light_gray"
         app:cardCornerRadius="32dp"
         app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
