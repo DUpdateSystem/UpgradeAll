@@ -206,4 +206,6 @@
     <string name="hub_update_all">Update all</string>
     <string name="hub_ignore_all">Ignore all</string>
     <string name="home_module_discovery">Discover</string>
+    <string name="clean_all_log_alert_message">It will drop all logs</string>
+    <string name="clean_sort_log_alert_message">It will drop current sort logs</string>
 </resources>

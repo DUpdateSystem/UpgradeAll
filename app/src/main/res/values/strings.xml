@@ -58,6 +58,8 @@
     <string name="navigation_head_image">侧滑菜单背景图</string>
     <string name="clean_sort_log">清空当前分类的日志</string>
     <string name="clean_all_log">清空全部日志</string>
+    <string name="clean_sort_log_alert_message">当前分类的日志将丢失</string>
+    <string name="clean_all_log_alert_message">所有历史日志将丢失</string>
     <string name="export_all">全部导出</string>
     <string name="clean_log">清空日志</string>
     <string name="other">其他</string>

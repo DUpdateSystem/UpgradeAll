@@ -29,7 +29,7 @@
 
     <!--  Home  -->
     <dimen name="home_card_corner_radius">8dp</dimen>
-    <dimen name="home_card_elevation">2dp</dimen>
+    <dimen name="home_card_elevation">3dp</dimen>
     <dimen name="home_card_icon_size">24dp</dimen>
     <dimen name="home_card_padding_horizontal">48dp</dimen>
     <dimen name="home_card_text_margin_start">24dp</dimen>

@@ -4,6 +4,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
@@ -59,11 +60,19 @@ class LogActivity : AppBarActivity() {
                     when (popItem.itemId) {
                         // 清空当前分类的日志
                         R.id.log_del_sort -> {
-                            LogDataProxy.clearLogBySort(logSort)
+                            AlertDialog.Builder(this)
+                                    .setTitle(R.string.clean_sort_log)
+                                    .setMessage(R.string.clean_sort_log_alert_message)
+                                    .setPositiveButton(android.R.string.ok) { _, _ -> LogDataProxy.clearLogBySort(logSort) }
+                                    .setNegativeButton(android.R.string.cancel, null)
                         }
                         // 清空全部日志
                         R.id.log_del_all -> {
-                            LogDataProxy.clearLogAll()
+                            AlertDialog.Builder(this)
+                                    .setTitle(R.string.clean_all_log)
+                                    .setMessage(R.string.clean_all_log_alert_message)
+                                    .setPositiveButton(android.R.string.ok) { _, _ -> LogDataProxy.clearLogAll() }
+                                    .setNegativeButton(android.R.string.cancel, null)
                         }
                     }
                     setViewPage(logSort)
