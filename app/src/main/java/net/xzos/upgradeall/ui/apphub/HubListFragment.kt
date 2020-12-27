@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.apphub
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.databinding.FragmentHubListBinding
 import net.xzos.upgradeall.ui.apphub.adapter.HubListAdapter
 import net.xzos.upgradeall.ui.detail.AppDetailActivity
@@ -36,21 +36,13 @@ class HubListFragment : Fragment() {
                 adapter = this@HubListFragment.adapter
             }
         }
-        adapter.setOnItemClickListener { adapter, view, position ->
-            startActivity(Intent(requireActivity(), AppDetailActivity::class.java))
+        adapter.setOnItemClickListener { _, _, position ->
+            AppDetailActivity.startActivity(requireContext(), adapter.data[position].extraData.app as App)
         }
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            val list = mutableListOf<ItemCardView>()
-            var itemCardView: ItemCardView
-            for (i in 1..(1..10).random()) {
-                itemCardView = ItemCardView(name = i.toString(), extraData = ItemCardViewExtraData(uuid = "123456789"))
-                list.add(itemCardView)
-            }
-            withContext(Dispatchers.Main) {
-                adapter.setList(list)
-            }
-        }
+        viewModel.appCardViewList.observe(viewLifecycleOwner, {
+            adapter.setList(it)
+        })
     }
 
     override fun onResume() {

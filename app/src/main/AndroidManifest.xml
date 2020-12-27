@@ -110,8 +110,7 @@
             android:label="@string/home_module_discovery">
         </activity>
         <activity
-            android:name="net.xzos.upgradeall.ui.detail.AppDetailActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:name="net.xzos.upgradeall.ui.detail.AppDetailActivity" />
         <activity
             android:name="net.xzos.upgradeall.ui.detail.setting.AppSettingActivity"
             android:theme="@style/AppTheme.NoActionBar"

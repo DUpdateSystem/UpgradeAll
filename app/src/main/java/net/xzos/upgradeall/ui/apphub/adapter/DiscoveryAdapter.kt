@@ -1,7 +1,9 @@
 package net.xzos.upgradeall.ui.apphub.adapter
 
+import android.content.res.ColorStateList
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.view.isGone
 import com.absinthe.libraries.utils.extensions.layoutInflater
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -11,11 +13,19 @@ import com.google.android.material.chip.ChipGroup
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
+import net.xzos.upgradeall.utils.UxUtils
+import java.util.*
+import java.util.regex.Pattern
 
 class DiscoveryAdapter : BaseQuickAdapter<CloudConfigListItemView, BaseViewHolder>(R.layout.item_hub_app) {
 
     override fun convert(holder: BaseViewHolder, item: CloudConfigListItemView) {
         holder.setText(R.id.tv_app_name, item.name)
+        holder.getView<TextView>(R.id.iv_icon).apply {
+            val firstChar = item.name.toCharArray().find { !pattern.matcher(it.toString()).find() }
+            text = firstChar.toString().toUpperCase(Locale.ROOT)
+            backgroundTintList = ColorStateList.valueOf(UxUtils.getRandomColor())
+        }
 
         val chipGroup = holder.getView<ChipGroup>(R.id.chipGroup)
         chipGroup.removeAllViewsInLayout()
@@ -53,5 +63,9 @@ class DiscoveryAdapter : BaseQuickAdapter<CloudConfigListItemView, BaseViewHolde
 
     override fun getItemId(position: Int): Long {
         return data[position].hashCode().toLong()
+    }
+
+    companion object {
+        private val pattern = Pattern.compile("[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]$")
     }
 }
