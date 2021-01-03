@@ -10,38 +10,33 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.server_manager.UpdateManager
-import net.xzos.upgradeall.core.server_manager.module.BaseApp
-import net.xzos.upgradeall.core.server_manager.module.app.App
-import net.xzos.upgradeall.core.server_manager.module.applications.Applications
+import net.xzos.upgradeall.core.manager.AppManager
+import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_OUTDATED
 import net.xzos.upgradeall.ui.activity.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 class UpdateNotification {
     init {
         createNotificationChannel()
-        UpdateManager.observeForever<Unit>(UpdateManager.UPDATE_STATUS_CHANGED, fun(_) {
-            if (UpdateManager.isRunning)
-                updateStatusNotify()
-        })
-        UpdateManager.observeForever<Unit>(UpdateManager.UPDATE_STATUS_COMPLETE, fun(_) {
-            finishedNotify()
-        })
     }
 
-    private fun updateStatusNotify() {
-        val allAppsNum = UpdateManager.getAppNum()
-        val finishedAppNum = UpdateManager.finishedUpdateAppNum
+    val renewStatusFun = fun(renewingAppNum: Int) { updateStatusNotify(renewingAppNum) }
+
+    private fun updateStatusNotify(renewingAppNum: Int) {
+        val allAppsNum = AppManager.getAppList().size
+        val finishedAppNum = allAppsNum - renewingAppNum
         updateStatusNotification(allAppsNum, finishedAppNum)
+        if (renewingAppNum == 0) {
+            finishedNotify()
+        }
     }
 
     private fun finishedNotify() {
-        val needUpdateAppList = runBlocking { UpdateManager.getNeedUpdateAppList(block = false) }
-        if (needUpdateAppList.isNotEmpty())
-            updateNotification(needUpdateAppList)
+        val needUpdateAppList = AppManager.getAppMap()[APP_OUTDATED]
+        if (!needUpdateAppList.isNullOrEmpty())
+            updateNotification(needUpdateAppList.size)
         else
             cancelNotification()
     }
@@ -63,16 +58,8 @@ class UpdateNotification {
         notificationNotify(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
     }
 
-    private fun updateNotification(needUpdateAppList: Set<BaseApp>) {
-        val needUpdateApplicationList = needUpdateAppList.filterIsInstance<Applications>()
-        var needUpdateAppNum = needUpdateAppList.filterIsInstance<App>().size
-        for (applications in needUpdateApplicationList) {
-            needUpdateAppNum += runBlocking { applications.needUpdateAppList }.size
-        }
-        var text = "$needUpdateAppNum 个应用需要更新"
-        if (needUpdateApplicationList.isNotEmpty()) {
-            text += "（ ${needUpdateApplicationList.size} 个应用市场）"
-        }
+    private fun updateNotification(needUpdateAppNum: Int) {
+        val text = "$needUpdateAppNum 个应用需要更新"
         if (!MiscellaneousUtils.isBackground()) {
             builder.run {
                 setContentTitle(text)

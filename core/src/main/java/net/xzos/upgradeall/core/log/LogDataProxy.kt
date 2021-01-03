@@ -1,8 +1,5 @@
 package net.xzos.upgradeall.core.log
 
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
-
-
 object LogDataProxy {
 
     private val logMap get() = Log.logMap
@@ -25,49 +22,51 @@ object LogDataProxy {
             val fullLogString = StringBuilder()
             for (logSort in sortList) {
                 fullLogString.append(
-                        getLogStringBySort(
-                                logSort
-                        )
+                    getLogStringBySort(
+                        logSort
+                    )
                 )
             }
             return fullLogString.toString()
         }
 
     fun getObjectTagBySort(logSort: String): List<ObjectTag> =
-            logMap.keys.filter {
-                it.sort == logSort
-            }
+        logMap.keys.filter {
+            it.sort == logSort
+        }
 
     fun getLogMessageList(objectTag: ObjectTag): List<String> =
-            logMap[objectTag]?.map {
-                it.toString()
-            } ?: listOf()
+        logMap[objectTag]?.map {
+            it.toString()
+        } ?: listOf()
 
     fun getLogStringBySort(logSort: String): String {
         val fullLogString = StringBuilder(logSort + "\n")
         val objectTagList = getObjectTagBySort(logSort)
         for (objectTag in objectTagList) {
             val logString = convertLogMessageToString(
-                    objectTag,
-                    false
+                objectTag,
             )
             fullLogString.append(logString).append("\n")
         }
         return fullLogString.toString()
     }
 
-    private fun convertLogMessageToString(logObjectTag: ObjectTag, printSort: Boolean = true): String? {
+    private fun convertLogMessageToString(
+        logObjectTag: ObjectTag,
+        printSort: Boolean = false
+    ): String {
         val sort = logObjectTag.sort
         val name = "    " + logObjectTag.name
         val logMessageString = StringBuilder()
         val logMessageArray: List<String> =
-                getLogMessageList(logObjectTag)
+            getLogMessageList(logObjectTag)
 
         for (logMessage in logMessageArray)
             logMessageString.append("        ").append(logMessage).append("\n")
-        return if (printSort)
+        return (if (printSort)
             sort + "\n"
-        else "" + name + "\n" + logMessageString
+        else "") + name + "\n" + logMessageString
     }
 
     fun clearLogAll() {

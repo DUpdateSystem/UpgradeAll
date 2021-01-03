@@ -1,20 +1,32 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'com.google.protobuf'
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'com.google.protobuf'
+}
 
 def grpc_version = '1.33.0'
+def protoc_version = '3.14.0'
+
 android {
     compileSdkVersion 30
+    buildToolsVersion "30.0.2"
 
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
-        versionName "1.0"
+        versionName "0.9"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+    }
+
+    kapt {
+        arguments {
+            // ROOM export schema
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
     }
 
     buildTypes {
@@ -23,18 +35,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
-    sourceSets {
-        main {
-            java {
-                srcDirs "${protobuf.generatedFilesBaseDir}/main/java"
-                srcDirs "${protobuf.generatedFilesBaseDir}/main/grpc"
-            }
-        }
-    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 
     protobuf {
@@ -57,27 +63,54 @@ android {
             }
         }
     }
+    sourceSets {
+        main {
+            java {
+                srcDirs "${protobuf.generatedFilesBaseDir}/main/java"
+                srcDirs "${protobuf.generatedFilesBaseDir}/main/grpc"
+            }
+        }
+    }
+
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
+    // Shizuku
+    implementation 'moe.shizuku.privilege:api:3.1.0'
+    implementation 'me.weishu:free_reflection:3.0.1'
+
+    // DocumentFile
+    implementation "androidx.documentfile:documentfile:1.0.1"
+
     // kotlin 协程
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
-    // 数据处理
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
+
+    // Room Database
+    def room_version = "2.2.6"
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    // Kotlin Extensions and Coroutines support for Room
+    implementation "androidx.room:room-ktx:$room_version"
+    // Test helpers
+    testImplementation "androidx.room:room-testing:$room_version"
+
+    // Gson
     implementation 'com.google.code.gson:gson:2.8.6'
+
     // 字符串匹配；日志打印去除转义字符
     implementation 'org.apache.commons:commons-text:1.9'
+
     // 版本比较
     implementation 'org.apache.maven:maven-artifact:3.6.3'
-    // OkHttp
-    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
 
     // grpc
     implementation "io.grpc:grpc-okhttp:$grpc_version"
@@ -85,4 +118,15 @@ dependencies {
     implementation "io.grpc:grpc-stub:$grpc_version"
     implementation "com.google.protobuf:protobuf-javalite:$protoc_version"
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+    // OkHttp
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+
+    // Fetch
+    implementation "androidx.tonyodev.fetch2:xfetch2:3.1.5"
+    implementation "androidx.tonyodev.fetch2okhttp:xfetch2okhttp:3.1.5"
+
+    // shell
+    implementation 'eu.darken.rxshell:core:1.0.9'
+    implementation 'eu.darken.rxshell:root:1.0.9'
 }

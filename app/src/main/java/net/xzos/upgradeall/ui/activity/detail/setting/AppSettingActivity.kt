@@ -21,7 +21,7 @@ import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeall.utils.SearchUtils
 import net.xzos.upgradeall.utils.ToastUtil
-import net.xzos.upgradeall.utils.VersioningUtils
+import net.xzos.upgradeall.core.utils.VersionGetter
 
 class AppSettingActivity : BaseAppSettingActivity() {
 
@@ -106,7 +106,7 @@ class AppSettingActivity : BaseAppSettingActivity() {
     override fun initUi() {
         // 版本检查设置
         checkPackageIdButton.setOnClickListener {
-            val rawVersion = VersioningUtils.getAppVersionNumber(packageId)
+            val rawVersion = VersionGetter.getAppVersionNumber(packageId)
             val version = net.xzos.upgradeall.core.data_manager.utils.VersioningUtils.matchVersioningString(rawVersion)
             if (rawVersion != null) {
                 ToastUtil.makeText("raw_version: $rawVersion\nversion: $version", Toast.LENGTH_SHORT)

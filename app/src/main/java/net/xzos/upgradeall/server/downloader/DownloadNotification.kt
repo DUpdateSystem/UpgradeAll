@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.server.downloader
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -14,18 +13,12 @@ import com.tonyodev.fetch2.Download
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.oberver.ObserverFun
+import net.xzos.upgradeall.core.downloader.DownloadOb
+import net.xzos.upgradeall.core.module.app.FileAsset
 import net.xzos.upgradeall.core.utils.runWithLock
-import net.xzos.upgradeall.server.downloader.DownloadRegister.getCancelNotifyKey
-import net.xzos.upgradeall.server.downloader.DownloadRegister.getCompleteNotifyKey
-import net.xzos.upgradeall.server.downloader.DownloadRegister.getFailNotifyKey
-import net.xzos.upgradeall.server.downloader.DownloadRegister.getRunningNotifyKey
-import net.xzos.upgradeall.server.downloader.DownloadRegister.getStartNotifyKey
-import net.xzos.upgradeall.server.downloader.DownloadRegister.getStopNotifyKey
-import net.xzos.upgradeall.utils.install.isApkFile
 import java.io.File
 
-class DownloadNotification(private val downloadId: Int) {
+class DownloadNotification(private val fileAsset: FileAsset) {
 
     lateinit var taskName: String
     private val notificationIndex: Int = NOTIFICATION_INDEX
@@ -34,50 +27,10 @@ class DownloadNotification(private val downloadId: Int) {
         priority = NotificationCompat.PRIORITY_LOW
     }
 
-    private val startObserverFun: ObserverFun<Download> = fun(downloadTask) {
-        taskStart(downloadTask)
-    }
-
-    private val runningObserverFun: ObserverFun<Download> = fun(downloadTask) {
-        taskRunning(downloadTask)
-    }
-
-    private val stopObserverFun: ObserverFun<Download> = fun(_) { taskStop() }
-
-    private val completeObserverFun: ObserverFun<Download> = fun(downloadTask) {
-        taskComplete(downloadTask).also { unregister() }
-    }
-
-    private val cancelObserverFun: ObserverFun<Download> = fun(_) {
-        taskCancel().also { unregister() }
-    }
-
-    private val failObserverFun: ObserverFun<Download> = fun(_) { taskFail() }
+    val downloadOb = DownloadOb({ taskStart(it) }, { taskRunning(it) }, { taskStop() }, { taskComplete(it) }, { taskCancel() }, { taskFail() })
 
     init {
         createNotificationChannel()
-    }
-
-    fun finalize() {
-        unregister()
-    }
-
-    fun register() {
-        DownloadRegister.observeForever(downloadId.getStartNotifyKey(), startObserverFun)
-        DownloadRegister.observeForever(downloadId.getRunningNotifyKey(), runningObserverFun)
-        DownloadRegister.observeForever(downloadId.getStopNotifyKey(), stopObserverFun)
-        DownloadRegister.observeForever(downloadId.getCompleteNotifyKey(), completeObserverFun)
-        DownloadRegister.observeForever(downloadId.getCancelNotifyKey(), cancelObserverFun)
-        DownloadRegister.observeForever(downloadId.getFailNotifyKey(), failObserverFun)
-    }
-
-    private fun unregister() {
-        DownloadRegister.removeObserver(startObserverFun)
-        DownloadRegister.removeObserver(runningObserverFun)
-        DownloadRegister.removeObserver(stopObserverFun)
-        DownloadRegister.removeObserver(completeObserverFun)
-        DownloadRegister.removeObserver(cancelObserverFun)
-        DownloadRegister.removeObserver(failObserverFun)
     }
 
     internal fun waitDownloadTaskNotification() {
@@ -103,13 +56,6 @@ class DownloadNotification(private val downloadId: Int) {
         // TODO: 更全面的安装过程检测
         // 安装失败后回退操作
         notificationNotify()
-    }
-
-    @SuppressLint("RestrictedApi")  // 修复 mActions 无法操作
-    private fun NotificationCompat.Builder.clearActions(): NotificationCompat.Builder {
-        return this.apply {
-            mActions.clear()
-        }
     }
 
     private fun taskStart(task: Download) {
@@ -154,7 +100,7 @@ class DownloadNotification(private val downloadId: Int) {
         notificationNotify()
     }
 
-    fun taskCancel() {
+    private fun taskCancel() {
         cancelNotification()
     }
 
@@ -185,7 +131,7 @@ class DownloadNotification(private val downloadId: Int) {
                     .bigText(contentText))
             setSmallIcon(android.R.drawable.stat_sys_download_done)
             setProgress(0, 0, false)
-            if (file.isApkFile()) {
+            if (fileAsset.installable) {
                 addAction(R.drawable.ic_check_mark_circle, "安装 APK 文件",
                         getSnoozePendingIntent(DownloadBroadcastReceiver.INSTALL_APK))
             }
@@ -210,7 +156,7 @@ class DownloadNotification(private val downloadId: Int) {
     private fun getSnoozeIntent(extraIdentifierDownloadControlId: Int): Intent {
         return Intent(context, DownloadBroadcastReceiver::class.java).apply {
             action = DownloadBroadcastReceiver.ACTION_SNOOZE
-            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_DOWNLOADER_URL, downloadId)
+            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_DOWNLOADER_ID, fileAsset.downloader?.downloadId?.getKeyString())
             putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, extraIdentifierDownloadControlId)
         }
     }
@@ -252,7 +198,11 @@ class DownloadNotification(private val downloadId: Int) {
                 .setContentTitle("下载服务运行中").setSmallIcon(android.R.drawable.stat_sys_download_done)
                 .apply { priority = NotificationCompat.PRIORITY_LOW }
 
-        fun getDownloadServiceNotification(): Pair<Int, Notification> {
+        val downloadServiceNotificationMaker = fun(): Pair<Int, Notification> {
+            return getDownloadServiceNotification()
+        }
+
+        private fun getDownloadServiceNotification(): Pair<Int, Notification> {
             return Pair(DOWNLOAD_SERVICE_NOTIFICATION_INDEX,
                     notificationNotify(DOWNLOAD_SERVICE_NOTIFICATION_INDEX, downloadServiceNotificationBuilder.build()))
         }

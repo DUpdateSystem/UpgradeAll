@@ -3,13 +3,10 @@ package net.xzos.upgradeall.server.update
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInstaller
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import net.xzos.upgradeall.core.server_manager.UpdateManager
+import kotlinx.coroutines.runBlocking
+import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.server.update.UpdateNotification.Companion.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
 
 class UpdateService : Service() {
@@ -24,11 +21,11 @@ class UpdateService : Service() {
                 val updateNotification = UpdateNotification()
                 val notification = updateNotification.startUpdateNotification(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
                 startForeground(UPDATE_SERVER_RUNNING_NOTIFICATION_ID, notification)
+                runBlocking {
+                    AppManager.renewApp(updateNotification.renewStatusFun)
+                    stopSelf(startId)
+                }
             }
-        }
-        GlobalScope.launch {
-            UpdateManager.renewAll()
-            stopSelf(startId)
         }
         return super.onStartCommand(intent, flags, startId)
     }

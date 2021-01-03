@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.list_item_search.view.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.config.AppType
-import net.xzos.upgradeall.core.data_manager.utils.SearchInfo
+import net.xzos.upgradeall.core.utils.SearchInfo
 import net.xzos.upgradeall.utils.IconInfo
 import net.xzos.upgradeall.utils.IconPalette
 
