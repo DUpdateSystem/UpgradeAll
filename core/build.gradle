@@ -5,12 +5,12 @@ plugins {
     id 'com.google.protobuf'
 }
 
-def grpc_version = '1.33.0'
+def grpc_version = '1.34.1'
 def protoc_version = '3.14.0'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.2"
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         minSdkVersion 21
