@@ -5,10 +5,10 @@ import android.content.pm.PackageManager
 import eu.darken.rxshell.cmd.Cmd
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.data.config.AppType
-import net.xzos.upgradeall.core.data_manager.utils.MatchInfo
-import net.xzos.upgradeall.core.data_manager.utils.MatchString
-import net.xzos.upgradeall.core.data_manager.utils.SearchInfo
-import net.xzos.upgradeall.core.data_manager.utils.SearchUtils
+import net.xzos.upgradeall.core.utils.MatchInfo
+import net.xzos.upgradeall.core.utils.MatchString
+import net.xzos.upgradeall.core.utils.SearchInfo
+import net.xzos.upgradeall.core.utils.SearchUtils
 
 class SearchUtils {
 

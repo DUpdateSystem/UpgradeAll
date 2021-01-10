@@ -3,12 +3,12 @@ package net.xzos.upgradeall.data.log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableList
-import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableMap
-import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.LogDataProxy
 import net.xzos.upgradeall.core.log.LogItemData
+import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
+import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.utils.notifyObserver
 
 

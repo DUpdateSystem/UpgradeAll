@@ -73,11 +73,6 @@ object MiscellaneousUtils {
                 @Suppress("DEPRECATION")
                 context.resources.configuration.locale
 
-    fun parsePropertiesString(s: String): Properties =
-            Properties().apply {
-                this.load(StringReader(s))
-            }
-
     fun mapOfJsonObject(jsonObjectString: String): Map<*, *> {
         return try {
             Gson().fromJson(jsonObjectString, Map::class.java)

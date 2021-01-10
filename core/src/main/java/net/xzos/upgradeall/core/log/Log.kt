@@ -5,12 +5,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.xzos.upgradeall.core.data.config.AppConfig
-import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableList
-import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableListOf
-import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
-import net.xzos.upgradeall.core.system_api.api.LogApi
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
+import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import org.apache.commons.text.StringEscapeUtils
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,9 +35,10 @@ object Log {
      * 假如当前LEVEL的值为常量2（DEBUG），那么你只能打印从DEBUG（2）到ERROR（5）之间的日志信息；
      * 假如你要是不想让日志信息打印出现，那么将LEVEL的值置为NOTHING即可。
      */
-    private var LEVEL = AppConfig.log_level
+    private var LEVEL = VERBOSE
 
-    internal val logMap = coroutinesMutableMapOf<ObjectTag, CoroutinesMutableList<LogItemData>>(true)
+    internal val logMap =
+        coroutinesMutableMapOf<ObjectTag, CoroutinesMutableList<LogItemData>>(true)
     private val mutex = Mutex()
 
     /**
@@ -70,7 +68,7 @@ object Log {
      */
     internal fun notifyChange() {
         runBlocking {
-            LogApi.logChanged(logMap)
+            LogNotify.logChanged(logMap)
         }
     }
 
@@ -79,7 +77,7 @@ object Log {
         if (LEVEL <= VERBOSE) {
             val logItemData = LogItemData(VERBOSE, logObjectTag, tag, msg)
             addLogMessage(logItemData)
-            LogApi.printLog(logItemData)
+            LogNotify.printLog(logItemData)
         }
     }
 
@@ -88,7 +86,7 @@ object Log {
         if (LEVEL <= DEBUG) {
             val logItemData = LogItemData(DEBUG, logObjectTag, tag, msg)
             addLogMessage(logItemData)
-            LogApi.printLog(logItemData)
+            LogNotify.printLog(logItemData)
         }
     }
 
@@ -97,7 +95,7 @@ object Log {
         if (LEVEL <= INFO) {
             val logItemData = LogItemData(INFO, logObjectTag, tag, msg)
             addLogMessage(logItemData)
-            LogApi.printLog(logItemData)
+            LogNotify.printLog(logItemData)
         }
     }
 
@@ -106,7 +104,7 @@ object Log {
         if (LEVEL <= WARN) {
             val logItemData = LogItemData(WARN, logObjectTag, tag, msg)
             addLogMessage(logItemData)
-            LogApi.printLog(logItemData)
+            LogNotify.printLog(logItemData)
         }
     }
 
@@ -115,7 +113,7 @@ object Log {
         if (LEVEL <= ERROR) {
             val logItemData = LogItemData(ERROR, logObjectTag, tag, msg)
             addLogMessage(logItemData)
-            LogApi.printLog(logItemData)
+            LogNotify.printLog(logItemData)
         }
     }
 }
@@ -124,7 +122,7 @@ object Log {
  * 存储单条日志信息
  */
 class LogItemData(
-        val logLevel: Int, val logObjectTag: ObjectTag, val tag: String, val msg: String
+    val logLevel: Int, val logObjectTag: ObjectTag, val tag: String, val msg: String
 ) {
     override fun toString(): String {
         // 确定日志等级标志

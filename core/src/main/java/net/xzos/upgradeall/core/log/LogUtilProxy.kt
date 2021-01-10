@@ -1,7 +1,5 @@
 package net.xzos.upgradeall.core.log
 
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
-
 class LogUtilProxy(private val objectTag: ObjectTag, private val tag: String) {
 
     fun v(msg: String) {

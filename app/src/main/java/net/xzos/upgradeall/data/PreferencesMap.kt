@@ -2,16 +2,16 @@ package net.xzos.upgradeall.data
 
 import android.app.Activity
 import android.content.Context
-import android.widget.Toast
 import androidx.preference.PreferenceManager
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.config.AppConfig
-import net.xzos.upgradeall.core.data.config.AppValue
-import net.xzos.upgradeall.server.downloader.Downloader
+import net.xzos.upgradeall.application.MyApplication
+import net.xzos.upgradeall.core.data.CoreConfig
+import net.xzos.upgradeall.core.data.DEF_UPDATE_SERVER_URL
+import net.xzos.upgradeall.core.initCore
+import net.xzos.upgradeall.core.installer.ApkShizukuInstaller
+import net.xzos.upgradeall.server.downloader.DownloadNotification
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
-import net.xzos.upgradeall.utils.MiscellaneousUtils.showToast
 import net.xzos.upgradeall.utils.file.FileUtil
-import net.xzos.upgradeall.utils.install.ApkShizukuInstaller
 import java.util.*
 
 object PreferencesMap {
@@ -22,21 +22,23 @@ object PreferencesMap {
 
     private val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
 
+    private const val DEFAULT_CLOUD_RULES_HUB_URL = DEF_UPDATE_SERVER_URL
+
     // 更新首选项
     private const val UPDATE_SERVER_URL_KEY = "update_server_url"
     const val CUSTOM_CLOUD_RULES_HUB_URL_KEY = "custom_cloud_rules_hub_url"
     private const val CLOUD_RULES_HUB_URL_KEY = "cloud_rules_hub_url"
     val custom_cloud_rules_hub_url: Boolean
         get() {
-            val customCloudRulesHubUrl = prefs.getString(CUSTOM_CLOUD_RULES_HUB_URL_KEY, AppValue.default_cloud_rules_hub_url)!!
-            return customCloudRulesHubUrl != AppValue.default_cloud_rules_hub_url
+            val customCloudRulesHubUrl = prefs.getString(CUSTOM_CLOUD_RULES_HUB_URL_KEY, DEFAULT_CLOUD_RULES_HUB_URL)!!
+            return customCloudRulesHubUrl != DEFAULT_CLOUD_RULES_HUB_URL
         }
 
     var cloud_rules_hub_url: String
-        get() = prefs.getString(CLOUD_RULES_HUB_URL_KEY, AppValue.default_cloud_rules_hub_url)!!
+        get() = prefs.getString(CLOUD_RULES_HUB_URL_KEY, DEFAULT_CLOUD_RULES_HUB_URL)!!
         set(value) = prefs.edit().putString(CLOUD_RULES_HUB_URL_KEY, value).apply()
     private var update_server_url: String
-        get() = prefs.getString(UPDATE_SERVER_URL_KEY, AppConfig.update_server_url)!!
+        get() = prefs.getString(UPDATE_SERVER_URL_KEY, cloud_rules_hub_url)!!
         set(value) = prefs.edit().putString(UPDATE_SERVER_URL_KEY, value).apply()
 
     val auto_update_app_config: Boolean
@@ -47,11 +49,11 @@ object PreferencesMap {
         get() = prefs.getInt("background_sync_time", 18)
 
     // 安装首选项
-    val install_apk_api
-        get() = prefs.getString("install_apk_api", "System")
-    val auto_install
+    private val install_apk_api: String
+        get() = prefs.getString("install_apk_api", "System")!!
+    val auto_install: Boolean
         get() = prefs.getBoolean("auto_install", true)
-    val auto_delete_file
+    val auto_delete_file: Boolean
         get() = prefs.getBoolean("auto_delete_file", false)
 
     // 下载首选项
@@ -111,7 +113,7 @@ object PreferencesMap {
 
     fun initByActivity(activity: Activity) {
         if (install_apk_api == "Shizuku") {
-            ApkShizukuInstaller.requestShizukuPermission(activity, 0)
+            ApkShizukuInstaller.initByActivity(activity, 0)
         }
     }
 
@@ -127,14 +129,17 @@ object PreferencesMap {
 
     private fun syncAndroidConfig() {
         UpdateServiceBroadcastReceiver.setAlarms(background_sync_time)
-        Downloader.renewFetch(context)
     }
 
     // 同步 Core 模块的配置
     private fun syncCoreConfig() {
-        AppConfig.app_cloud_rules_hub_url = if (custom_cloud_rules_hub_url)
-            cloud_rules_hub_url
-        else null
+        val coreConfig = CoreConfig(MyApplication.context,
+                10, update_server_url, cloud_rules_hub_url,
+                FileUtil.DOWNLOAD_DOCUMENT_FILE,
+                download_max_task_num, download_thread_num, download_auto_retry_max_attempts,
+                install_apk_api
+        )
+        initCore(coreConfig, DownloadNotification.downloadServiceNotificationMaker)
     }
 
     private fun checkSetting() {
@@ -149,11 +154,5 @@ object PreferencesMap {
     }
 
     // 检查设置数据
-    private fun checkUpdateSettingAndSync() {
-        AppConfig.update_server_url = update_server_url  // 可能需要重启客户端才能同步
-        if (AppConfig.update_server_url != update_server_url) {
-            update_server_url = AppConfig.update_server_url
-            showToast(R.string.reset_update_server_url_configuration, duration = Toast.LENGTH_LONG)
-        }
-    }
+    private fun checkUpdateSettingAndSync() {}
 }
