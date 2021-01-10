@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.server.downloader
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -172,6 +173,17 @@ class DownloadNotification(private val fileAsset: FileAsset) {
         return PendingIntent.getBroadcast(context, PENDING_INTENT_INDEX, snoozeIntent, flags)
     }
 
+    private fun getSpeedText(task: Download): String {
+        val speed = task.downloadedBytesPerSecond
+        return when {
+            speed == -1L -> "0 b/s"
+            speed < 1024L -> "$speed b/s"
+            1024L <= speed && speed < 1024 * 1024L -> "${speed / 1024} kb/s"
+            1024 * 1024L <= speed -> "${speed / (1024 * 1024)} mb/s"
+            else -> ""
+        }
+    }
+
     companion object {
         private const val DOWNLOAD_CHANNEL_ID = "DownloadNotification"
         private const val PROGRESS_MAX = 100
@@ -229,16 +241,12 @@ class DownloadNotification(private val fileAsset: FileAsset) {
                 notificationManager.createNotificationChannel(channel)
             }
         }
-    }
 
-    private fun getSpeedText(task: Download): String {
-        val speed = task.downloadedBytesPerSecond
-        return when {
-            speed == -1L -> "0 b/s"
-            speed < 1024L -> "$speed b/s"
-            1024L <= speed && speed < 1024 * 1024L -> "${speed / 1024} kb/s"
-            1024 * 1024L <= speed -> "${speed / (1024 * 1024)} mb/s"
-            else -> ""
+        @SuppressLint("RestrictedApi")  // 修复 mActions 无法操作
+        private fun NotificationCompat.Builder.clearActions(): NotificationCompat.Builder {
+            return this.apply {
+                mActions.clear()
+            }
         }
     }
 }

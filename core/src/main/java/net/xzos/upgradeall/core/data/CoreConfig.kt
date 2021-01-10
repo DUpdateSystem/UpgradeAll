@@ -25,8 +25,8 @@ data class CoreConfig(
 }
 
 data class WebDavConfig(
-        internal val url: String,
-        internal val path: String,
-        internal val username: String,
-        internal val password: String,
+        internal val url: String?,
+        internal val path: String?,
+        internal val username: String?,
+        internal val password: String?,
 )
