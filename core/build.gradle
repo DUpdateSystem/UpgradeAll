@@ -121,6 +121,9 @@ dependencies {
     // OkHttp
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
 
+    // WebDav
+    implementation 'com.thegrizzlylabs.sardine-android:sardine-android:0.7'
+
     // Fetch
     implementation "androidx.tonyodev.fetch2:xfetch2:3.1.5"
     implementation "androidx.tonyodev.fetch2okhttp:xfetch2okhttp:3.1.5"

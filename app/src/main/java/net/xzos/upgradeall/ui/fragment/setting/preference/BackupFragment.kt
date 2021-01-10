@@ -3,6 +3,7 @@ package net.xzos.upgradeall.ui.fragment.setting.preference
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
+import android.widget.Toast
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import kotlinx.coroutines.Dispatchers
@@ -10,9 +11,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.data.backup.BackupManager
-import net.xzos.upgradeall.data.backup.CloudBackupManager
-import net.xzos.upgradeall.data.backup.RestoreManager
+import net.xzos.upgradeall.core.data.backup.BackupManager
+import net.xzos.upgradeall.core.data.backup.CloudBackupManager
+import net.xzos.upgradeall.core.data.backup.RestoreManager
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.ui.activity.file_pref.SelectFileActivity
 import net.xzos.upgradeall.ui.viewmodels.dialog.CloudBackupListDialog
@@ -77,7 +78,11 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
         val backupPreference: Preference = findPreference("WEBDAV_BACKUP")!!
         val restorePreference: Preference = findPreference("WEBDAV_RESTORE")!!
         backupPreference.setOnPreferenceClickListener {
-            CloudBackupManager().backup()
+            CloudBackupManager().backup(
+                    { MiscellaneousUtils.showToast(R.string.backup_running) },
+                    { MiscellaneousUtils.showToast(R.string.backup_stop) },
+                    { MiscellaneousUtils.showToast(it.message.toString(), Toast.LENGTH_LONG) },
+            )
             false
         }
         restorePreference.setOnPreferenceClickListener {
@@ -88,7 +93,12 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
                     withContext(Dispatchers.Main) {
                         CloudBackupListDialog.show(it, fileNameList, fun(position) {
                             GlobalScope.launch {
-                                cloudBackupManager.restoreBackup(fileNameList[position])
+                                cloudBackupManager.restoreBackup(
+                                        fileNameList[position],
+                                        { MiscellaneousUtils.showToast(R.string.restore_running) },
+                                        { MiscellaneousUtils.showToast(R.string.restore_stop) },
+                                        { MiscellaneousUtils.showToast(it.message.toString(), Toast.LENGTH_LONG) },
+                                )
                             }
                         })
                     }

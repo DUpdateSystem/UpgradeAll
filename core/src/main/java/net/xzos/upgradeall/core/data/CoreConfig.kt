@@ -23,3 +23,10 @@ data class CoreConfig(
         androidContext.resources.configuration.locale
     }
 }
+
+data class WebDavConfig(
+        internal val url: String,
+        internal val path: String,
+        internal val username: String,
+        internal val password: String,
+)
