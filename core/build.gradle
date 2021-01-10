@@ -86,7 +86,6 @@ dependencies {
 
     // Shizuku
     implementation 'moe.shizuku.privilege:api:3.1.0'
-    implementation 'me.weishu:free_reflection:3.0.1'
 
     // DocumentFile
     implementation "androidx.documentfile:documentfile:1.0.1"
@@ -129,6 +128,6 @@ dependencies {
     implementation "androidx.tonyodev.fetch2okhttp:xfetch2okhttp:3.1.5"
 
     // shell
-    implementation 'eu.darken.rxshell:core:1.0.9'
-    implementation 'eu.darken.rxshell:root:1.0.9'
+    api 'eu.darken.rxshell:core:1.0.9'
+    api 'eu.darken.rxshell:root:1.0.9'
 }

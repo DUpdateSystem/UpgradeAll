@@ -4,10 +4,6 @@ import android.content.Context
 import android.content.Intent
 import kotlinx.android.synthetic.main.activity_app_setting.*
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.data.config.AppType
-import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
-import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
-import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 
 class ApplicationsSettingActivity : BaseAppSettingActivity() {
 

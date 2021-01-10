@@ -16,9 +16,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.android_api.DatabaseApi
-import net.xzos.upgradeall.android_api.IoApi
-import net.xzos.upgradeall.android_api.Log
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.data.AppUiDataManager
 import net.xzos.upgradeall.data.PreferencesMap

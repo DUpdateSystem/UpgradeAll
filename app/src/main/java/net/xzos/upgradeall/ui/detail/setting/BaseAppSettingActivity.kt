@@ -18,9 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
-import net.xzos.upgradeall.core.data.database.BaseAppDatabase
-import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.utils.IconPalette
 import net.xzos.upgradeall.utils.ToastUtil
 

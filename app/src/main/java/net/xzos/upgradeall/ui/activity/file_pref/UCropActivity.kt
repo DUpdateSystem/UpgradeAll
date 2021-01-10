@@ -7,8 +7,8 @@ import android.net.Uri
 import android.widget.Toast
 import com.yalantis.ucrop.UCrop
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
+import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.ToastUtil
 import java.io.File

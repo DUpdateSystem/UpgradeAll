@@ -15,7 +15,7 @@ import com.devs.vectorchildfinder.VectorChildFinder
 import kotlinx.coroutines.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.module.app.App
 import java.io.File
 import java.util.concurrent.Executors
 

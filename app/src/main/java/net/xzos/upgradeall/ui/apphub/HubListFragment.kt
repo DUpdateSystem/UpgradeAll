@@ -6,16 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.xzos.upgradeall.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.databinding.FragmentHubListBinding
 import net.xzos.upgradeall.ui.apphub.adapter.HubListAdapter
 import net.xzos.upgradeall.ui.detail.AppDetailActivity
-import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
-import net.xzos.upgradeall.ui.viewmodels.view.ItemCardViewExtraData
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppHubViewModel
 
 class HubListFragment : Fragment() {

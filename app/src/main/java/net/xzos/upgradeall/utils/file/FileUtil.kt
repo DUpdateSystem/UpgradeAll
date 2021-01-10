@@ -17,9 +17,8 @@ import net.xzos.upgradeall.BuildConfig
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.core.data.config.AppValue
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
+import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.ToastUtil

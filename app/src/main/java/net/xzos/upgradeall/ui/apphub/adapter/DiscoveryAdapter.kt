@@ -11,7 +11,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.server_manager.AppManager
+import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.utils.UxUtils
 import java.util.*

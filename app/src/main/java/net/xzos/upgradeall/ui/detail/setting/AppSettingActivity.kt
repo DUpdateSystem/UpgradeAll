@@ -9,19 +9,9 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.config.AppValue
-import net.xzos.upgradeall.core.data.database.AppDatabase
-import net.xzos.upgradeall.core.data.json.gson.PackageIdGson
-import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_APP_PACKAGE
-import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_MAGISK_MODULE
-import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_SHELL
-import net.xzos.upgradeall.core.data.json.gson.PackageIdGson.Companion.API_TYPE_SHELL_ROOT
-import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
-import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
 import net.xzos.upgradeall.utils.SearchUtils
 import net.xzos.upgradeall.utils.ToastUtil
-import net.xzos.upgradeall.core.utils.VersionGetter
 
 class AppSettingActivity : BaseAppSettingActivity() {
 

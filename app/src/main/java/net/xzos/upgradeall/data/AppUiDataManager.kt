@@ -2,16 +2,11 @@ package net.xzos.upgradeall.data
 
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
-import net.xzos.upgradeall.core.oberver.ObserverFun
-import net.xzos.upgradeall.core.server_manager.AppManager
-import net.xzos.upgradeall.core.server_manager.UpdateManager
-import net.xzos.upgradeall.core.server_manager.module.BaseApp
-import net.xzos.upgradeall.core.server_manager.module.app.App
-import net.xzos.upgradeall.core.server_manager.module.applications.Applications
-import net.xzos.upgradeall.data.gson.UIConfig
-import net.xzos.upgradeall.data.gson.UIConfig.Companion.uiConfig
-import net.xzos.upgradeall.data.gson.toDatabase
+import net.xzos.upgradeall.core.data.json.UIConfig
+import net.xzos.upgradeall.core.data.json.uiConfig
+import net.xzos.upgradeall.core.manager.AppManager
+import net.xzos.upgradeall.core.module.app.App
+import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.utils.mutableLiveDataOf
 import net.xzos.upgradeall.utils.notifyObserver
 import net.xzos.upgradeall.utils.setValueBackground
