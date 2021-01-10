@@ -10,9 +10,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.data.backup.BackupManager
-import net.xzos.upgradeall.data.backup.CloudBackupManager
-import net.xzos.upgradeall.data.backup.RestoreManager
+import net.xzos.upgradeall.core.data.backup.BackupManager
+import net.xzos.upgradeall.core.data.backup.CloudBackupManager
+import net.xzos.upgradeall.core.data.backup.RestoreManager
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
 import net.xzos.upgradeall.ui.activity.file_pref.SelectFileActivity
 import net.xzos.upgradeall.ui.viewmodels.dialog.CloudBackupListDialog

@@ -1,78 +1,68 @@
-package net.xzos.upgradeall.data.backup
+package net.xzos.upgradeall.core.data.backup
 
-import android.widget.Toast
 import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
-import com.thegrizzlylabs.sardineandroid.impl.SardineException
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.data.PreferencesMap
-import net.xzos.upgradeall.utils.MiscellaneousUtils
+import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.utils.Func
+import net.xzos.upgradeall.core.utils.FuncR
+import net.xzos.upgradeall.core.webDavConfig
 
 
 class CloudBackupManager {
     private val sardine = OkHttpSardine().apply {
-        setCredentials(PreferencesMap.webdav_username, PreferencesMap.webdav_password)
+        setCredentials(webDavConfig.username, webDavConfig.password)
     }
 
-    private val webdavUrl: String? = formatUrl(PreferencesMap.webdav_url)
-    private val webFileParentPath = "$webdavUrl${formatUrl(PreferencesMap.webdav_path)}"
+    private val webdavUrl: String? = formatUrl(webDavConfig.url)
+    private val webFileParentPath = "$webdavUrl${formatUrl(webDavConfig.path)}"
 
     fun getBackupFileList(): List<String>? {
         @Suppress("UNCHECKED_CAST")
         return runWebDAVFun(fun(): List<String> {
             val list = sardine.list(webFileParentPath)
             return list.subList(1, list.size).map { it.name }
-        })
+        }, fun(_) {})
     }
 
-    fun backup() {
+    fun backup(startFunc: Func, stopFunc: Func, errorFunc: FuncR<Throwable>) {
         GlobalScope.launch {
-            privateBackup()
+            doBackup(startFunc, stopFunc, errorFunc)
         }
     }
 
-    suspend fun restoreBackup(fileName: String) {
+    suspend fun restoreBackup(fileName: String, startFunc: Func, stopFunc: Func, errorFunc: FuncR<Throwable>) {
         val webFilePath = "$webFileParentPath/$fileName"
         runWebDAVFun(fun() {
-            MiscellaneousUtils.showToast(R.string.restore_running)
+            startFunc.call()
             val bytes = sardine.get(webFilePath).readBytes()
             runBlocking { RestoreManager.parseZip(bytes) }
-            MiscellaneousUtils.showToast(R.string.restore_stop)
-        })
+            stopFunc.call()
+        }, fun(e) { errorFunc.call(e) })
     }
 
-    private fun privateBackup() {
-        if (webdavUrl == null) {
-            MiscellaneousUtils.showToast(R.string.plz_set_webdav)
-            return
-        }
+    private suspend fun doBackup(startFunc: Func, stopFunc: Func, errorFunc: FuncR<Throwable>) {
+        // TODO: 试试空网址导致的出错
         val fileName = BackupManager.newFileName()
         val webFilePath = "$webFileParentPath/$fileName"
-        MiscellaneousUtils.showToast(R.string.backup_running)
+        startFunc.call()
         val bytes = BackupManager.mkZipFileBytes()
         runWebDAVFun(fun() {
             if (!sardine.exists(webFileParentPath))
                 sardine.createDirectory(webFileParentPath)
             sardine.put(webFilePath, bytes)
-        })
-        MiscellaneousUtils.showToast(R.string.backup_stop)
+        }, fun(e) { errorFunc.call(e) })
+        stopFunc.call()
     }
 
-    private fun <E> runWebDAVFun(function: () -> E): E? {
+    private fun <E> runWebDAVFun(function: () -> E, errorFun: (e: Throwable) -> Unit): E? {
         return try {
             function()
-        } catch (e: SardineException) {
-            if (e.statusCode == 409)
-                MiscellaneousUtils.showToast(R.string.webdav_path_desc, Toast.LENGTH_LONG)
-            Log.e(objectTag, TAG, e.toString())
-            null
         } catch (e: Throwable) {
-            MiscellaneousUtils.showToast(e.toString(), Toast.LENGTH_LONG)
-            Log.e(objectTag, TAG, e.toString())
+            errorFun(e)
+            Log.e(objectTag, TAG, e.stackTrace.toString())
             null
         }
     }
