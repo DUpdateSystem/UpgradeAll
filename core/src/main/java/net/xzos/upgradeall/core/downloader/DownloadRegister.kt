@@ -13,7 +13,7 @@ import net.xzos.upgradeall.core.utils.oberver.ObserverFun
 internal object DownloadRegister : Informer, FetchListener, FetchGroupListener {
 
     private val downloadObFunMap: CoroutinesMutableMap<FuncR<Download>, ObserverFun<Download>> =
-        coroutinesMutableMapOf(true)
+            coroutinesMutableMapOf(true)
 
     private const val TASK_START = "TASK_START"
     private const val TASK_RUNNING = "TASK_RUNNING"
@@ -101,19 +101,19 @@ internal object DownloadRegister : Informer, FetchListener, FetchGroupListener {
     }
 
     override fun onProgress(
-        download: Download,
-        etaInMilliSeconds: Long,
-        downloadedBytesPerSecond: Long
+            download: Download,
+            etaInMilliSeconds: Long,
+            downloadedBytesPerSecond: Long
     ) {
         taskRunning(DownloadId(false, download.id), download)
     }
 
     override fun onProgress(
-        groupId: Int,
-        download: Download,
-        etaInMilliSeconds: Long,
-        downloadedBytesPerSecond: Long,
-        fetchGroup: FetchGroup
+            groupId: Int,
+            download: Download,
+            etaInMilliSeconds: Long,
+            downloadedBytesPerSecond: Long,
+            fetchGroup: FetchGroup
     ) {
         taskRunning(DownloadId(false, groupId), download)
     }
@@ -135,19 +135,19 @@ internal object DownloadRegister : Informer, FetchListener, FetchGroupListener {
     }
 
     override fun onStarted(
-        download: Download,
-        downloadBlocks: List<DownloadBlock>,
-        totalBlocks: Int
+            download: Download,
+            downloadBlocks: List<DownloadBlock>,
+            totalBlocks: Int
     ) {
         taskStart(DownloadId(false, download.id), download)
     }
 
     override fun onStarted(
-        groupId: Int,
-        download: Download,
-        downloadBlocks: List<DownloadBlock>,
-        totalBlocks: Int,
-        fetchGroup: FetchGroup
+            groupId: Int,
+            download: Download,
+            downloadBlocks: List<DownloadBlock>,
+            totalBlocks: Int,
+            fetchGroup: FetchGroup
     ) {
         taskStart(DownloadId(true, groupId), download)
     }
@@ -182,11 +182,11 @@ internal object DownloadRegister : Informer, FetchListener, FetchGroupListener {
     }
 
     override fun onError(
-        groupId: Int,
-        download: Download,
-        error: Error,
-        throwable: Throwable?,
-        fetchGroup: FetchGroup
+            groupId: Int,
+            download: Download,
+            error: Error,
+            throwable: Throwable?,
+            fetchGroup: FetchGroup
     ) {
         Log.e(Downloader.logTagObject, Downloader.TAG, error.toString())
         taskFail(DownloadId(true, groupId), download)
@@ -218,26 +218,26 @@ internal object DownloadRegister : Informer, FetchListener, FetchGroupListener {
 
     override fun onQueued(download: Download, waitingOnNetwork: Boolean) {}
     override fun onQueued(
-        groupId: Int,
-        download: Download,
-        waitingNetwork: Boolean,
-        fetchGroup: FetchGroup
+            groupId: Int,
+            download: Download,
+            waitingNetwork: Boolean,
+            fetchGroup: FetchGroup
     ) {
     }
 
     override fun onDownloadBlockUpdated(
-        groupId: Int,
-        download: Download,
-        downloadBlock: DownloadBlock,
-        totalBlocks: Int,
-        fetchGroup: FetchGroup
+            groupId: Int,
+            download: Download,
+            downloadBlock: DownloadBlock,
+            totalBlocks: Int,
+            fetchGroup: FetchGroup
     ) {
     }
 
     override fun onDownloadBlockUpdated(
-        download: Download,
-        downloadBlock: DownloadBlock,
-        totalBlocks: Int
+            download: Download,
+            downloadBlock: DownloadBlock,
+            totalBlocks: Int
     ) {
     }
 

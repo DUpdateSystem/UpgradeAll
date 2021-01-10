@@ -7,6 +7,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.CoreConfig
 import net.xzos.upgradeall.core.data.DEF_UPDATE_SERVER_URL
+import net.xzos.upgradeall.core.data.WebDavConfig
 import net.xzos.upgradeall.core.initCore
 import net.xzos.upgradeall.core.installer.ApkShizukuInstaller
 import net.xzos.upgradeall.server.downloader.DownloadNotification
@@ -139,7 +140,10 @@ object PreferencesMap {
                 download_max_task_num, download_thread_num, download_auto_retry_max_attempts,
                 install_apk_api
         )
-        initCore(coreConfig, DownloadNotification.downloadServiceNotificationMaker)
+        initCore(coreConfig,
+                WebDavConfig(webdav_url, webdav_path, webdav_username, webdav_password),
+                DownloadNotification.downloadServiceNotificationMaker
+        )
     }
 
     private fun checkSetting() {
