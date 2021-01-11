@@ -41,6 +41,26 @@ class Hub(private val hubDatabase: HubEntity) {
         ignoreAppIdList.remove(appId)
     }
 
+    private fun getAppPriority(app: App): Int {
+        val appId = getValidKey(app) ?: return NORMAL_PRIORITY_APP
+        val ignoreAppIdList = hubDatabase.autoIgnoreAppIdList
+        return if (ignoreAppIdList.contains(appId))
+            LOW_PRIORITY_APP
+        else NORMAL_PRIORITY_APP
+    }
+
+    private fun setLowPriorityApp(app: App) {
+        val appId = getValidKey(app) ?: return
+        val ignoreAppIdList = hubDatabase.autoIgnoreAppIdList
+        ignoreAppIdList.add(appId)
+    }
+
+    private fun unsetLowPriorityApp(app: App) {
+        val appId = getValidKey(app) ?: return
+        val ignoreAppIdList = hubDatabase.autoIgnoreAppIdList
+        ignoreAppIdList.remove(appId)
+    }
+
     internal fun getUrl(app: App): String? {
         val appId = app.appId
         val argsKey = appId.keys
@@ -55,7 +75,13 @@ class Hub(private val hubDatabase: HubEntity) {
     }
 
     internal suspend fun getAppReleaseList(app: App): List<ReleaseListItem>? {
-        return GrpcApi.getAppRelease(uuid, hubDatabase.auth, app.appId)
+        val appId = getValidKey(app) ?: return null
+        return GrpcApi.getAppRelease(uuid, hubDatabase.auth, appId, getAppPriority(app))?.also {
+            if (it.isEmpty())
+                setLowPriorityApp(app)
+            else
+                unsetLowPriorityApp(app)
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -64,5 +90,10 @@ class Hub(private val hubDatabase: HubEntity) {
 
     override fun hashCode(): Int {
         return uuid.hashCode()
+    }
+
+    companion object {
+        private const val LOW_PRIORITY_APP = -1
+        private const val NORMAL_PRIORITY_APP = 0
     }
 }

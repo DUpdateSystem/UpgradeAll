@@ -68,7 +68,7 @@ class Converters {
     }
 
     @TypeConverter
-    fun stringToListMap(s: String?): List<Map<String, String>> {
+    fun stringToListMap(s: String?): Collection<Map<String, String>> {
         if (s.isNullOrEmpty()) return emptyList()
 
         return try {
@@ -89,7 +89,7 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromListMapToString(listMap: List<Map<String, String?>>?): String? {
+    fun fromListMapToString(listMap: Collection<Map<String, String?>>?): String? {
         if (listMap.isNullOrEmpty()) return null
         val jsonArray = JSONArray()
         for (map in listMap) {

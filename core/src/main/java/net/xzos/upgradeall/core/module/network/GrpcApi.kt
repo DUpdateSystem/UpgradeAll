@@ -35,7 +35,7 @@ internal object GrpcApi {
     const val deadlineMs = 20 * 1000L
     fun logDeadlineError(tag: String, hubUuid: String, appIdString: String) {
         Log.w(
-            logObjectTag, TAG, """$tag: 请求超时，取消
+                logObjectTag, TAG, """$tag: 请求超时，取消
 hub_uuid: $hubUuid
 $appIdString""".trimIndent()
         )
@@ -47,43 +47,43 @@ $appIdString""".trimIndent()
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(channel)
         return try {
             blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.MILLISECONDS)
-                .getCloudConfig(Empty.newBuilder().build()).s
+                    .getCloudConfig(Empty.newBuilder().build()).s
         } catch (ignore: StatusRuntimeException) {
             null
         }
     }
 
     suspend fun getAppRelease(
-        hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>
+            hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>, priority: Int
     ): List<ReleaseListItem>? {
         return if (hubUuid in invalidHubUuidList) {
             null
         } else {
             DataCache.getAppRelease(hubUuid, auth, appId)
-                ?: GrpcReleaseApi.getAppRelease(hubUuid, auth, appId)?.also {
-                    DataCache.cacheAppStatus(hubUuid, auth, appId, it)
-                }
+                    ?: GrpcReleaseApi.getAppRelease(hubUuid, auth, appId, priority)?.also {
+                        DataCache.cacheAppStatus(hubUuid, auth, appId, it)
+                    }
         }
     }
 
     @Suppress("RedundantSuspendModifier")
     suspend fun getDownloadInfo(
-        hubUuid: String,
-        appId: Map<String, String?>,
-        auth: Map<String, String?>,
-        assetIndex:Pair<Int, Int>
+            hubUuid: String,
+            appId: Map<String, String?>,
+            auth: Map<String, String?>,
+            assetIndex: Pair<Int, Int>
     ): GetDownloadResponse? {
         if (hubUuid in invalidHubUuidList) return null
         val channel = getChannel() ?: return null
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(channel)
         val request = GetDownloadRequest.newBuilder()
-            .setHubUuid(hubUuid)
-            .addAllAppId(appId.togRPCDict()).addAllAssetIndex(assetIndex.toList())
-            .addAllAuth(auth.togRPCDict())
-            .build()
+                .setHubUuid(hubUuid)
+                .addAllAppId(appId.togRPCDict()).addAllAssetIndex(assetIndex.toList())
+                .addAllAuth(auth.togRPCDict())
+                .build()
         return try {
             blockingStub.withDeadlineAfter(deadlineMs * 2, TimeUnit.MILLISECONDS)
-                .devGetDownloadInfo(request)
+                    .devGetDownloadInfo(request)
         } catch (ignore: StatusRuntimeException) {
             if (ignore.status.code == Status.Code.DEADLINE_EXCEEDED) {
                 logDeadlineError("GetDownloadInfo", hubUuid, appId.toString())
