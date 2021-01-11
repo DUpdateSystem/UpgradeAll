@@ -2,7 +2,6 @@ package net.xzos.upgradeall.core.data.backup
 
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.json.UIConfig
-import net.xzos.upgradeall.core.data.json.UIConfig.Companion.addAppId
 import net.xzos.upgradeall.core.data.json.parseUiConfig
 import net.xzos.upgradeall.core.data.json.save
 import net.xzos.upgradeall.core.data.json.uiConfig
@@ -60,9 +59,8 @@ object RestoreManager {
     }
 
     private fun restoreUiConfig(uiConfigBackup: UIConfig) {
-        for (item in uiConfigBackup.user_star) {
-            for (appId in item.app_id_list)
-                uiConfig.user_star.addAppId(item.group_name, appId)
+        for (item in uiConfigBackup.user_star_app_id_list) {
+            uiConfig.user_star_app_id_list.add(item)
         }
         uiConfig.save()
     }
