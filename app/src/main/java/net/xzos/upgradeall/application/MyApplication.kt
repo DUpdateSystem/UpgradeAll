@@ -3,6 +3,7 @@ package net.xzos.upgradeall.application
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import com.absinthe.libraries.utils.utils.Utility
 import com.akexorcist.localizationactivity.core.LocalizationApplicationDelegate
 import jonathanfinerty.once.Once
 import me.weishu.reflection.Reflection
@@ -30,6 +31,7 @@ class MyApplication : Application() {
         context = applicationContext
 
         Once.initialise(this)
+        Utility.init(this)
 
         // 修补旧版本的命名
         if (!Once.beenDone(Once.THIS_APP_INSTALL, OnceTag.DB_NAME_MIGRATION)) {

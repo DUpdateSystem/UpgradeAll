@@ -24,10 +24,32 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
+
+        <service
+            android:name=".server.ApkInstallerService"
+            android:enabled="true"
+            android:exported="true" />
         <service
             android:name=".server.update.UpdateService"
             android:enabled="true"
             android:exported="false" />
+
+        <provider
+            android:name="moe.shizuku.api.ShizukuBinderReceiveProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <receiver
             android:name=".server.update.UpdateServiceBroadcastReceiver"
@@ -49,10 +71,9 @@
         </receiver>
 
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name=".ui.home.MainActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
@@ -61,22 +82,45 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activity.detail.AppDetailActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:name=".ui.others.OthersActivity"
+            android:label="@string/home_module_others">
+        </activity>
         <activity
-            android:name=".ui.activity.detail.setting.AppSettingActivity"
+            android:name=".ui.rss.RssActivity"
+            android:label="@string/home_module_rss">
+        </activity>
+        <activity
+            android:name="net.xzos.upgradeall.ui.apphub.magisk.MagiskModuleActivity"
+            android:label="@string/home_module_magisk_module">
+        </activity>
+        <activity
+            android:name="net.xzos.upgradeall.ui.apphub.apps.AppsActivity"
+            android:label="@string/home_module_apps">
+        </activity>
+        <activity
+            android:name="net.xzos.upgradeall.ui.apphub.filemanagement.FileManagementActivity"
+            android:label="@string/home_module_file_management">
+        </activity>
+        <activity
+            android:name="net.xzos.upgradeall.ui.apphub.discover.DiscoverActivity"
+            android:label="@string/home_module_discovery">
+        </activity>
+        <activity
+            android:name="net.xzos.upgradeall.ui.detail.AppDetailActivity" />
+        <activity
+            android:name="net.xzos.upgradeall.ui.detail.setting.AppSettingActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".ui.activity.detail.setting.ApplicationsSettingActivity"
+            android:name="net.xzos.upgradeall.ui.detail.setting.ApplicationsSettingActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.LogActivity"
-            android:label="@string/log" />
+            android:label="@string/home_log" />
         <activity
             android:name=".ui.activity.SettingsActivity"
-            android:label="@string/setting" />
+            android:label="@string/home_settings" />
         <activity android:name=".ui.activity.file_pref.UCropActivity" />
         <activity android:name=".ui.activity.file_pref.SelectFileActivity" />
         <activity android:name=".ui.activity.file_pref.SelectDirActivity" />
@@ -89,6 +133,9 @@
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="${enableCrashReporting}" />
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
     </application>
 
 </manifest>

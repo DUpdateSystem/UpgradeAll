@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.data.backup
 
-import android.annotation.SuppressLint
 import android.os.Build
 import com.google.gson.Gson
 import net.xzos.upgradeall.core.data.json.UIConfig
@@ -9,6 +8,7 @@ import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.utils.file.FileUtil
 import net.xzos.upgradeall.core.utils.file.ZipFile
 import org.json.JSONArray
+import org.json.JSONObject
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -24,8 +24,7 @@ object BackupManager {
             val formatter = DateTimeFormatter.ofPattern(dataFormat)
             current.format(formatter)
         } else {
-            @SuppressLint("SimpleDateFormat")
-            val formatter = SimpleDateFormat(dataFormat)
+            val formatter = SimpleDateFormat(dataFormat, Locale.getDefault())
             formatter.format(Date())
         }
         return "UpgradeAll_$timeString.zip"
@@ -56,8 +55,9 @@ object BackupManager {
     private suspend fun backupAllAppDatabase(): JSONArray {
         val databaseList = metaDatabase.appDao().loadAll()
         val json = JSONArray()
+        var data: JSONObject
         for (database in databaseList) {
-            val data = database.toJson()
+            data = database.toJson()
             json.put(data)
         }
         return json
@@ -66,8 +66,20 @@ object BackupManager {
     private suspend fun backupAllHubDatabase(): JSONArray {
         val databaseList = metaDatabase.hubDao().loadAll()
         val json = JSONArray()
+        var data: JSONObject
         for (database in databaseList) {
-            val data = database.toJson()
+            data = database.toJson()
+            json.put(data)
+        }
+        return json
+    }
+
+    private fun backupAllHubDatabase(): JSONArray {
+        val databaseList = HubDatabaseManager.hubDatabases
+        val json = JSONArray()
+        var data: JSONObject
+        for (database in databaseList) {
+            data = database.toJson()
             json.put(data)
         }
         return json

@@ -11,8 +11,6 @@
     <string name="app">App</string>
     <string name="magisk_module">Magisk Module</string>
     <string name="app_hub">App Hub</string>
-    <string name="log">Log</string>
-    <string name="setting">Setting</string>
     <string name="add">Add</string>
     <string name="desc">URL</string>
     <string name="name">Name</string>
@@ -174,6 +172,9 @@
     <string name="btn_add_extra">Add Extra Info</string>
     <string name="helper_text_cant_be_empty">Not empty</string>
 
+    <string name="ui">UI</string>
+    <string name="enable_bottom_sheet">enable bottom sheet</string>
+    <string name="enable_simple_bottom_main">show simple bottom on main page</string>
     <string name="language">Language</string>
     <string name="custom_language">Custom Language</string>
     <string name="follow_server_config">Follow Server Config</string>
@@ -186,4 +187,25 @@
 
     <string name="built_in_downloader_setting">Built-in Downloader Setting</string>
     <string name="use_external_downloader">Forcing the use of external downloader</string>
+    <string name="home_checking_updates">Checking updates…</string>
+    <string name="home_check_updates">Check updates</string>
+    <string name="home_format_items_need_update">%d tracking item(s) need to be updated</string>
+    <string name="home_module_file_management">File Management</string>
+    <string name="home_module_apps">Apps</string>
+    <string name="home_module_magisk_module">Magisk modules</string>
+    <string name="home_module_rss">RSS</string>
+    <string name="home_module_others">Others</string>
+    <string name="home_log">Logs</string>
+    <string name="home_settings">Settings</string>
+    <string name="home_about">About</string>
+    <string name="hub_tab_updates">Updates</string>
+    <string name="hub_tab_all">All</string>
+    <string name="hub_tab_ignored">Ignored</string>
+    <string name="hub_tooltip_priority">Priority</string>
+    <string name="hub_format_app_update_tip">A total of %d app(s) updates</string>
+    <string name="hub_update_all">Update all</string>
+    <string name="hub_ignore_all">Ignore all</string>
+    <string name="home_module_discovery">Discover</string>
+    <string name="clean_all_log_alert_message">It will drop all logs</string>
+    <string name="clean_sort_log_alert_message">It will drop current sort logs</string>
 </resources>

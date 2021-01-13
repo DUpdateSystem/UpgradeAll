@@ -28,13 +28,21 @@ allprojects {
     repositories {
         google()
         jcenter()
+        mavenCentral()
         maven { url "https://jitpack.io" }
         maven { url 'https://dl.bintray.com/rikkaw/Shizuku' }
+        maven { url 'https://dl.bintray.com/absinthe/libraries' }
     }
 }
 
 repositories {
+    google()
+    jcenter()
     mavenCentral()
+    maven { url "https://jitpack.io" }
+    maven { url 'https://maven.aliyun.com/repository/central' }
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    maven { url 'https://maven.aliyun.com/repository/google' }
 }
 
 compileKotlin {

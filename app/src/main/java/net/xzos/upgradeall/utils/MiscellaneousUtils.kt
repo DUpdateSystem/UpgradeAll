@@ -34,6 +34,7 @@ object MiscellaneousUtils {
     fun initData() {
         initObject()
         PreferencesMap.sync()
+        egg()
     }
 
     private fun initObject() {

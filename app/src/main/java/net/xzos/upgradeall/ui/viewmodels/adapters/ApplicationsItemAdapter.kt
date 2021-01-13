@@ -10,7 +10,7 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.server_manager.module.app.App
-import net.xzos.upgradeall.ui.activity.detail.AppDetailActivity
+import net.xzos.upgradeall.ui.detail.AppDetailActivity
 import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.ApplicationsPageViewModel
 import net.xzos.upgradeall.utils.MiscellaneousUtils

@@ -4,269 +4,138 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".ui.activity.detail.AppDetailActivity">
+    android:background="?android:colorBackground">
 
-    <include
-        android:id="@+id/layout_appbar"
-        layout="@layout/layout_appbar" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        style="@style/Widget.MaterialComponents.FloatingActionButton"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:foregroundTint="@color/light_gray"
-        app:background="@color/coolapk_green"
-        app:srcCompat="@drawable/ic_download"
-        tools:tint="@color/light_gray" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/header_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="wrap_content"
+        android:background="@null">
 
-        <ImageView
-            android:id="@+id/appIconImageView"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:contentDescription="@string/apps_logo"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_android_placeholder" />
-
-        <TextView
-            android:id="@+id/nameTextView"
-            android:layout_width="wrap_content"
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:maxLines="1"
-            android:text="@string/example_name"
-            android:textColor="@color/text_color"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/appIconImageView"
-            app:layout_constraintTop_toTopOf="@id/appIconImageView" />
+            android:background="@null"
+            app:expandedTitleTextAppearance="@style/AppTheme.ToolbarTitleExpanded"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-        <TextView
-            android:id="@+id/versioningTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:maxLines="1"
-            android:textColor="@color/text_lowest_priority_color"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@id/nameTextView"
-            app:layout_constraintStart_toEndOf="@id/nameTextView"
-            app:layout_constraintTop_toTopOf="@id/nameTextView"
-            tools:text="@string/example_version_number" />
-
-        <TextView
-            android:id="@+id/appModuleName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:text="@string/example_package_name"
-            android:textColor="@color/text_low_priority_color"
-            app:layout_constraintBottom_toBottomOf="@id/appIconImageView"
-            app:layout_constraintStart_toStartOf="@id/nameTextView"
-            app:layout_constraintTop_toBottomOf="@id/nameTextView" />
-
-        <ImageButton
-            android:id="@+id/ib_edit"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/edit"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_edit"
-            android:tint="@color/text_lowest_priority_color"
-            app:layout_constraintBottom_toBottomOf="@id/appIconImageView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/appIconImageView" />
-
-        <ImageView
-            android:id="@+id/local_versioning_image_view"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_marginTop="32dp"
-            android:contentDescription="@string/local_version_number"
-            android:src="@drawable/ic_local"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/appIconImageView"
-            app:tint="@color/text_low_priority_color" />
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/local_version_number"
-            android:textColor="@color/text_low_priority_color"
-            app:layout_constraintBottom_toBottomOf="@+id/local_versioning_image_view"
-            app:layout_constraintStart_toEndOf="@+id/local_versioning_image_view"
-            app:layout_constraintTop_toTopOf="@id/local_versioning_image_view" />
-
-        <TextView
-            android:id="@+id/localVersioningTextView"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="16dp"
-            android:text="@string/example_version_number"
-            android:textStyle="bold"
-            app:autoSizeMaxTextSize="40sp"
-            app:autoSizeTextType="uniform"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/local_versioning_image_view" />
-
-        <ImageView
-            android:id="@+id/arrow_image_view"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:contentDescription="@string/arrow"
-            android:rotation="90"
-            android:src="@drawable/ic_arrow"
-            app:layout_constraintBottom_toBottomOf="@+id/localVersioningTextView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/localVersioningTextView"
-            app:tint="@color/text_low_priority_color" />
-
-        <ImageView
-            android:id="@+id/cloud_versioning_image_view"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:contentDescription="@string/latest_version_number"
-            android:src="@drawable/ic_download"
-            app:layout_constraintStart_toStartOf="@id/cloudVersioningTextView"
-            app:layout_constraintTop_toTopOf="@id/local_versioning_image_view"
-            app:tint="@color/light_coolapk_green" />
-
-        <TextView
-            android:id="@+id/cloud_versioning_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/latest_version_number"
-            android:textColor="@color/light_coolapk_green"
-            app:layout_constraintStart_toEndOf="@+id/cloud_versioning_image_view"
-            app:layout_constraintTop_toTopOf="@id/cloud_versioning_image_view" />
-
-        <ImageView
-            android:id="@+id/versionMarkImageView"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:contentDescription="@string/version_number_is_marked_as_processed"
-            app:layout_constraintBottom_toBottomOf="@+id/cloud_versioning_text_view"
-            app:layout_constraintStart_toEndOf="@+id/cloud_versioning_text_view"
-            app:layout_constraintTop_toTopOf="@+id/cloud_versioning_text_view"
-            app:srcCompat="@drawable/ic_dot" />
-
-        <TextView
-            android:id="@+id/cloudVersioningTextView"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
-            android:layout_marginEnd="4dp"
-            android:text="@string/example_version_number"
-            android:textColor="@color/coolapk_green"
-            android:textStyle="bold"
-            app:autoSizeMaxTextSize="40sp"
-            app:autoSizeTextType="uniform"
-            app:layout_constraintBottom_toBottomOf="@+id/localVersioningTextView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/localVersioningTextView" />
-
-        <TextView
-            android:id="@+id/tv_more_editions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="2dp"
-            android:text="@string/more_other_version_number"
-            android:textColor="@color/coolapk_green"
-            app:drawableEndCompat="@drawable/ic_arrow_small"
-            app:layout_constraintEnd_toEndOf="@id/cloudVersioningTextView"
-            app:layout_constraintStart_toStartOf="@id/cloudVersioningTextView"
-            app:layout_constraintTop_toBottomOf="@id/cloudVersioningTextView" />
-
-        <ImageView
-            android:id="@+id/update_info_image_view"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="40dp"
-            android:contentDescription="@string/update_info"
-            android:src="@drawable/ic_load"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/localVersioningTextView"
-            app:tint="@color/coolapk_green" />
-
-        <TextView
-            android:id="@+id/update_info_title_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/update_info"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toBottomOf="@+id/update_info_image_view"
-            app:layout_constraintStart_toEndOf="@+id/update_info_image_view"
-            app:layout_constraintTop_toTopOf="@+id/update_info_image_view" />
-
-        <ImageView
-            android:id="@+id/app_url_image_view"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="60dp"
-            android:layout_marginTop="16dp"
-            android:contentDescription="@string/app_main_url"
-            android:src="@drawable/ic_url"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/update_info_title_text_view"
-            app:tint="@color/text_low_priority_color" />
-
-        <TextView
-            android:id="@+id/appUrlTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:maxLines="1"
-            android:text="@string/example_app_url"
-            android:textColor="@color/text_low_priority_color"
-            app:layout_constraintBottom_toBottomOf="@+id/app_url_image_view"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/app_url_image_view"
-            app:layout_constraintTop_toTopOf="@+id/app_url_image_view" />
-
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/appChangelogScrollView"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="8dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/app_url_image_view"
-            app:layout_constraintTop_toBottomOf="@+id/appUrlTextView">
-
-            <TextView
-                android:id="@+id/appChangelogTextView"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/header_content_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autoLink="web"
-                android:background="@drawable/ic_textview_background_fillet"
-                android:linksClickable="true"
-                android:padding="8dp"
-                android:scrollbars="vertical"
-                android:textColor="@color/text_low_priority_color"
-                android:textSize="14sp"
-                tools:text="@string/example_changelog" />
+                android:paddingHorizontal="24dp"
+                android:paddingTop="?attr/actionBarSize"
+                app:layout_collapseMode="parallax">
 
-        </androidx.core.widget.NestedScrollView>
+                <ImageView
+                    android:id="@+id/iv_app_icon"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:contentDescription="App icon"
+                    android:transitionName="app_icon"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:background="@drawable/ic_launcher_foreground"
+                    android:src="@mipmap/ic_launcher_round"
+                    tools:ignore="HardcodedText" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <com.absinthe.libraries.view.AlwaysMarqueeTextView
+                    android:id="@+id/tv_app_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="24dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/normal_text"
+                    android:textSize="16sp"
+                    android:transitionName="app_name"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/iv_app_icon"
+                    app:layout_constraintTop_toTopOf="@id/iv_app_icon"
+                    tools:text="@string/app_name"
+                    android:text="@string/app_name"/>
+
+                <TextView
+                    android:id="@+id/tv_package_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/normal_text"
+                    android:textSize="14sp"
+                    android:transitionName="package_name"
+                    app:layout_constraintEnd_toEndOf="@id/tv_app_name"
+                    app:layout_constraintStart_toStartOf="@id/tv_app_name"
+                    app:layout_constraintTop_toBottomOf="@id/tv_app_name"
+                    tools:text="net.xzos.upgradeall"
+                    android:text="net.xzos.upgradeall" />
+
+                <TextView
+                    android:id="@+id/tv_version"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="12sp"
+                    android:transitionName="version_name"
+                    app:layout_constraintEnd_toEndOf="@id/tv_app_name"
+                    app:layout_constraintStart_toStartOf="@id/tv_package_name"
+                    app:layout_constraintTop_toBottomOf="@id/tv_package_name"
+                    tools:text="1.0.0(100)"
+                    android:text="1.0.0(100)"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:titleTextColor="@color/normal_text" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="40dp"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/menu"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <AutoCompleteTextView
+                android:id="@+id/tv_more_version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/mark_version_number"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/changelog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/bg_app_detail_changelog"
+            android:padding="20dp"
+            android:textColor="@color/normal_text"
+            tools:text="1. 优化系统流畅度\n2. 提高系统的安全性和稳定性" />
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_update"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="40dp"
+        android:text="@string/update"
+        android:layout_gravity="bottom"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

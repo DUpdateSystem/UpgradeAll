@@ -128,7 +128,7 @@ internal class CloudConfigPlaceholderFragment : Fragment(), SearchView.OnQueryTe
                     MiscellaneousUtils.showToast(R.string.network_error)
                 }
             }
-        }).plus(CloudConfigListItemView.newEmptyInstance())
+        }).plus(CloudConfigListItemView())
 
         withContext(Dispatchers.Main) {
             if (this@CloudConfigPlaceholderFragment.isVisible) {

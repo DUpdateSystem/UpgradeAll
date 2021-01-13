@@ -19,7 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <net.xzos.upgradeall.view.AlwaysMarqueeTextView
+    <com.absinthe.libraries.view.AlwaysMarqueeTextView
         android:id="@+id/nameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -12,9 +12,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.manager.AppManager
-import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_OUTDATED
-import net.xzos.upgradeall.ui.activity.MainActivity
+import net.xzos.upgradeall.core.server_manager.UpdateManager
+import net.xzos.upgradeall.core.server_manager.module.BaseApp
+import net.xzos.upgradeall.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.server_manager.module.applications.Applications
+import net.xzos.upgradeall.ui.home.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 class UpdateNotification {

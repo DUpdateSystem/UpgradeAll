@@ -1,13 +1,13 @@
 package net.xzos.upgradeall.ui.activity
 
-import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.Toolbar
 import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
-import kotlinx.android.synthetic.main.activity_log.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
@@ -15,23 +15,24 @@ import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.LogDataProxy
 import net.xzos.upgradeall.data.log.LogLiveData
+import net.xzos.upgradeall.databinding.ActivityLogBinding
 import net.xzos.upgradeall.ui.activity.file_pref.SaveFileActivity
+import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.LogTabSectionsPagerAdapter
 
-class LogActivity : BaseActivity() {
+class LogActivity : AppBarActivity() {
 
     private var logSort = "Core"
+    private lateinit var binding: ActivityLogBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_log)
-        // 设置 ActionBar
-        val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.elevation = 0f // 关闭toolbar阴影
-        }
+    override fun initBinding(): View {
+        binding = ActivityLogBinding.inflate(layoutInflater)
+        return binding.root
+    }
 
+    override fun getAppBar(): Toolbar = binding.appbar.toolbar
+
+    override fun initView() {
         setFab()
         setViewPage(logSort)
     }
@@ -59,11 +60,19 @@ class LogActivity : BaseActivity() {
                     when (popItem.itemId) {
                         // 清空当前分类的日志
                         R.id.log_del_sort -> {
-                            LogDataProxy.clearLogBySort(logSort)
+                            AlertDialog.Builder(this)
+                                    .setTitle(R.string.clean_sort_log)
+                                    .setMessage(R.string.clean_sort_log_alert_message)
+                                    .setPositiveButton(android.R.string.ok) { _, _ -> LogDataProxy.clearLogBySort(logSort) }
+                                    .setNegativeButton(android.R.string.cancel, null)
                         }
                         // 清空全部日志
                         R.id.log_del_all -> {
-                            LogDataProxy.clearLogAll()
+                            AlertDialog.Builder(this)
+                                    .setTitle(R.string.clean_all_log)
+                                    .setMessage(R.string.clean_all_log_alert_message)
+                                    .setPositiveButton(android.R.string.ok) { _, _ -> LogDataProxy.clearLogAll() }
+                                    .setNegativeButton(android.R.string.cancel, null)
                         }
                     }
                     setViewPage(logSort)
@@ -113,24 +122,24 @@ class LogActivity : BaseActivity() {
         liveDataLogSortList.observe(this, { logSortList ->
             val menu = FabSpeedDialMenu(this)
             for (logSort in logSortList) {
-                if (logSort == "Core")
+                if (logSort == "Core") {
                     menu.add(resources.getString(R.string.main_program)).setIcon(R.drawable.ic_core)
-                else
+                } else {
                     menu.add(logSort).setIcon(R.drawable.ic_cloud)
+                }
             }
-            sortFab.setMenu(menu)
-            sortFab.addOnMenuItemClickListener { _, _, integer ->
+            binding.sortFab.setMenu(menu)
+            binding.sortFab.addOnMenuItemClickListener { _, _, integer ->
                 logSort = logSortList.toList()[integer - 1]
                 setViewPage(logSort)
             }
         })
     }
 
-
     private fun setViewPage(sort: String) {
         val sectionsPagerAdapter = LogTabSectionsPagerAdapter(this, supportFragmentManager, sort)
-        viewPager.adapter = sectionsPagerAdapter
-        logTabs.setupWithViewPager(viewPager)
+        binding.viewPager.adapter = sectionsPagerAdapter
+        binding.logTabs.setupWithViewPager(binding.viewPager)
     }
 
     companion object {

@@ -1,13 +1,16 @@
-package net.xzos.upgradeall.ui.activity
+package net.xzos.upgradeall.ui.base
 
 import android.content.Context
+import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.absinthe.libraries.utils.utils.UiUtils
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.getSystemLocale
 import net.xzos.upgradeall.utils.wrapContextWrapper
 
 
 open class BaseActivity : AppCompatActivity() {
+
     override fun attachBaseContext(newBase: Context?) {
         val locale = PreferencesMap.custom_language_locale
         if (locale != null && newBase != null
@@ -15,5 +18,10 @@ open class BaseActivity : AppCompatActivity() {
             super.attachBaseContext(wrapContextWrapper(newBase, locale))
         } else
             super.attachBaseContext(newBase)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        UiUtils.setSystemBarStyle(window)
     }
 }

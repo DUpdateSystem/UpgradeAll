@@ -93,22 +93,12 @@ dependencies {
 
     // kotlin 协程
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
-
-    // Room Database
-    def room_version = "2.2.6"
-    implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
-    // Kotlin Extensions and Coroutines support for Room
-    implementation "androidx.room:room-ktx:$room_version"
-    // Test helpers
-    testImplementation "androidx.room:room-testing:$room_version"
-
-    // Gson
+    // 数据处理
     implementation 'com.google.code.gson:gson:2.8.6'
 
     // 字符串匹配；日志打印去除转义字符
     implementation 'org.apache.commons:commons-text:1.9'
-
+    implementation 'org.apache.commons:commons-lang3:3.11'
     // 版本比较
     implementation 'org.apache.maven:maven-artifact:3.6.3'
 

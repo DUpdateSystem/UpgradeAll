@@ -26,7 +26,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 52
-        versionName "0.1.5"
+        versionName "1.0.0-alpha01"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
@@ -36,13 +36,13 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.main
             manifestPlaceholders = [enableCrashReporting: "true", appName: "UpgradeAll"]
         }
         debug {
-            signingConfig signingConfigs.main
+            minifyEnabled false
             manifestPlaceholders = [enableCrashReporting: "false", appName: "UpgradeAll-β"]
             applicationIdSuffix ".debug"
         }
@@ -72,6 +72,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation "androidx.drawerlayout:drawerlayout:1.1.1"
+    implementation 'androidx.viewpager2:viewpager2:1.1.0-alpha01'
 
     implementation 'androidx.fragment:fragment-ktx:1.2.5'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.2'

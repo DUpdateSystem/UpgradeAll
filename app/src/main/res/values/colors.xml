@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="white">#FFFFFF</color>
-    <color name="colorAccent">#E91E63</color>
+    <color name="colorAccent">#4285f4</color>
     <color name="colorPrimary">#FF007EE9</color>
     <color name="colorPrimaryDark">#FF007EE9</color>
     <color name="primary">#FF6200EE</color>
@@ -18,6 +18,7 @@
     <color name="text_low_priority_color">#FFB2B2B2</color>
     <color name="text_lowest_priority_color">#FFE5E5E5</color>
     <color name="normal_background">#FFFFFFFF</color>
+    <color name="normal_text">#121212</color>
 
     <!--Dark Theme-->
     <color name="colorDarkAccent">#4285f4</color>

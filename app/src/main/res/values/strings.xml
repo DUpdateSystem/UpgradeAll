@@ -10,8 +10,6 @@
     <string name="app">软件</string>
     <string name="magisk_module">Magisk 模块</string>
     <string name="app_hub">软件源</string>
-    <string name="log">日志</string>
-    <string name="setting">设置</string>
     <string name="add">添加</string>
     <string name="desc">网址</string>
     <string name="name">名称</string>
@@ -60,6 +58,8 @@
     <string name="navigation_head_image">侧滑菜单背景图</string>
     <string name="clean_sort_log">清空当前分类的日志</string>
     <string name="clean_all_log">清空全部日志</string>
+    <string name="clean_sort_log_alert_message">当前分类的日志将丢失</string>
+    <string name="clean_all_log_alert_message">所有历史日志将丢失</string>
     <string name="export_all">全部导出</string>
     <string name="clean_log">清空日志</string>
     <string name="other">其他</string>
@@ -180,6 +180,9 @@
     <string name="btn_add_extra">添加附加项</string>
     <string name="helper_text_cant_be_empty">不能为空</string>
 
+    <string name="ui">界面</string>
+    <string name="enable_bottom_sheet">平铺菜单按钮</string>
+    <string name="enable_simple_bottom_main">在主页以简略图标显示按钮</string>
     <string name="language">语言</string>
     <string name="custom_language">自定义语言</string>
     <string name="follow_server_config">跟随服务器配置</string>
@@ -191,4 +194,28 @@
 
     <string name="built_in_downloader_setting">内置下载器设置</string>
     <string name="use_external_downloader">强制使用外置下载器</string>
+
+    <!--  Home  -->
+    <string name="home_checking_updates">正在检查更新…</string>
+    <string name="home_check_updates">检查更新</string>
+    <string name="home_module_discovery">探索</string>
+    <string name="home_module_file_management">文件管理</string>
+    <string name="home_module_apps">应用</string>
+    <string name="home_module_magisk_module">Magisk 模块</string>
+    <string name="home_module_rss">RSS</string>
+    <string name="home_module_others">其它</string>
+    <string name="home_format_items_need_update">共 %d 个跟踪项需要更新</string>
+    <string name="home_log">日志</string>
+    <string name="home_settings">设置</string>
+    <string name="home_about">关于</string>
+
+    <!--  Hub  -->
+    <string name="hub_tab_updates">更新</string>
+    <string name="hub_tab_all">全部</string>
+    <string name="hub_tab_ignored">已忽略</string>
+    <string name="hub_tooltip_priority">优先级</string>
+    <string name="hub_format_app_update_tip">共 %d 个应用更新</string>
+    <string name="hub_update_all">全部升级</string>
+    <string name="hub_ignore_all">全部忽略</string>
+
 </resources>

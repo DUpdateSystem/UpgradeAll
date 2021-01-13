@@ -14,8 +14,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.server_manager.UpdateManager
-import net.xzos.upgradeall.ui.activity.detail.setting.AppSettingActivity
-import net.xzos.upgradeall.ui.activity.detail.setting.ApplicationsSettingActivity
+import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
+import net.xzos.upgradeall.ui.detail.setting.ApplicationsSettingActivity
 import net.xzos.upgradeall.ui.viewmodels.adapters.AppListItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.pageradapter.AppTabSectionsPagerAdapter.Companion.UPDATE_PAGE_INDEX
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppListPageViewModel
