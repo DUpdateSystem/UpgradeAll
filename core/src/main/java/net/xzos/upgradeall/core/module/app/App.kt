@@ -20,6 +20,8 @@ class App(
 
     val name get() = appDatabase.name
     val hubList get() = HubManager.hubMap.values.filter { it.isValidApp(this) }
+
+    val installedVersionNumber:String? = updater.getInstalledVersionNumber()
     fun getUrl(hub: Hub): String? = hub.getUrl(this)
 
     fun setStatusRenewedFun(statusRenewedFun: (appStatus: Int) -> Unit) {

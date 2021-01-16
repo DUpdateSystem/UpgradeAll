@@ -29,7 +29,7 @@ class Updater internal constructor(
     }
 
     private fun getIgnoreVersionNumber(): String? = app.appDatabase.ignoreVersionNumber
-    private fun getInstalledVersionNumber(): String? = getAppVersion(app.appId)
+    internal fun getInstalledVersionNumber(): String? = getAppVersion(app.appId)
 
     private fun isLatestVersionNumber(localVersionNumber: String, versionNumberList: List<String>): Boolean {
         if (versionNumberList.isEmpty()) return true

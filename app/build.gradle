@@ -121,6 +121,7 @@ dependencies {
 
     //RecyclerView
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.6'
+    implementation 'com.absinthe.libraries.utils:utils:1.1.0'
 
     implementation project(path: ':core')
 }
