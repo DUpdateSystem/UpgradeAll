@@ -15,19 +15,34 @@ class App(
         val appDatabase: AppEntity,
         statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
 ) {
-    val appId: Map<String, String?> get() = appDatabase.appId
     private val updater = Updater(this, statusRenewedFun)
 
+    /* App 对象的属性字典*/
+    val appId: Map<String, String?> get() = appDatabase.appId
+
+    /* App 名称 */
     val name get() = appDatabase.name
+
+    /* 这个 App 可用的软件源 */
     val hubList get() = HubManager.hubMap.values.filter { it.isValidApp(this) }
 
-    val installedVersionNumber:String? = updater.getInstalledVersionNumber()
+    /* App 在本地的版本号 */
+    val installedVersionNumber: String? = updater.getInstalledVersionNumber()
+
+    /* 获取相应软件源的网址 */
     fun getUrl(hub: Hub): String? = hub.getUrl(this)
 
+    /* 设置 App 版本号数据刷新时的回调函数 */
     fun setStatusRenewedFun(statusRenewedFun: (appStatus: Int) -> Unit) {
         updater.statusRenewedFun = statusRenewedFun
     }
 
+    /* 清除 App 版本号数据刷新时的回调函数 */
+    fun renewStatusRenewedFun() {
+        updater.statusRenewedFun = fun(_: Int) {}
+    }
+
+    /* 版本号数据列表 */
     val versionList: List<Version>
         get() {
             val versionNumberList = sortVersionNumberList(versionMap.keys)
@@ -41,6 +56,7 @@ class App(
     private val versionMap = coroutinesMutableMapOf<String, Version>(true)
     private val versionMapLock: Mutex = Mutex()
 
+    /* 刷新版本号数据 */
     suspend fun update() {
         coroutineScope {
             for (hub in hubList)
@@ -51,6 +67,7 @@ class App(
         getReleaseStatus()
     }
 
+    /* 获取 App 的更新状态*/
     fun getReleaseStatus(): Int {
         return updater.getUpdateStatus()
     }

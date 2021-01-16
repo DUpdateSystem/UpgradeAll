@@ -11,8 +11,15 @@ import net.xzos.upgradeall.core.module.network.toMap
 import net.xzos.upgradeall.core.utils.Func
 import net.xzos.upgradeall.core.utils.FuncR
 
+
+/**
+ * 文件数据列表
+ * 用来提供下载{@link #download}、安装{@link #installable}{@link #install}功能
+ */
 class FileAsset(
+        /* 文件数据名称，用来给用户看的 */
         val name: String,
+        /* 默认下载链接 */
         internal val downloadUrl: String,
         internal val fileType: String,
         internal val assetIndex: Pair<Int, Int>,
@@ -21,6 +28,7 @@ class FileAsset(
 ) {
     private val hub: Hub = _hub!!
     private val app: App = _app!!
+    /* 下载管理器 */
     var downloader: Downloader? = null
 
     suspend fun download(

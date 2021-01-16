@@ -9,7 +9,7 @@ class Updater internal constructor(
 
     private var tmpUpdateStatus: Int = NETWORK_ERROR - 1
 
-    fun getUpdateStatus(): Int {
+    internal fun getUpdateStatus(): Int {
         val releaseList = app.versionList
         val status = if (releaseList.isEmpty()) {
             NETWORK_ERROR
