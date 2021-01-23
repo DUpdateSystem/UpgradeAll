@@ -2,14 +2,13 @@ package net.xzos.upgradeall.core.utils.coroutines
 
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.runWithLock
-import java.util.concurrent.CountDownLatch
 
-class CoroutinesMutableList<E>(hash: Boolean = false, list: List<E>? = null) : MutableList<E> {
+class CoroutinesMutableList<E>(hash: Boolean = false, collection: Collection<E>? = null) : MutableList<E> {
     private val mutex = Mutex()
     private val list = if (hash) hashSetOf<E>() else mutableListOf()
 
     init {
-        list?.let { addAll(it) }
+        collection?.let { addAll(it) }
     }
 
     override val size: Int get() = list.size
@@ -161,4 +160,4 @@ class CoroutinesMutableList<E>(hash: Boolean = false, list: List<E>? = null) : M
 }
 
 fun <E> coroutinesMutableListOf(hash: Boolean = false) = CoroutinesMutableList<E>(hash)
-fun <E> List<E>.toCoroutinesMutableList(hash: Boolean = false) = CoroutinesMutableList(hash, this)
+fun <E> Collection<E>.toCoroutinesMutableList(hash: Boolean = false) = CoroutinesMutableList(hash, this)

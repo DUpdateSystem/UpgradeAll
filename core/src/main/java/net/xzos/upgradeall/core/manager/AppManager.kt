@@ -11,10 +11,13 @@ import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_LATEST
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_NO_LOCAL
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_OUTDATED
 import net.xzos.upgradeall.core.module.app.Updater.Companion.NETWORK_ERROR
+import net.xzos.upgradeall.core.utils.FuncR
 import net.xzos.upgradeall.core.utils.coroutines.*
 
 
 object AppManager {
+
+    var appMapStatusChangedFun: FuncR<Map<Int, List<App>>>? = null
 
     private val appMap = coroutinesMutableMapOf<Int, CoroutinesMutableList<App>>(true)
 
@@ -94,15 +97,21 @@ object AppManager {
 
     private fun setAppMap(app: App) {
         val releaseStatus = app.getReleaseStatus()
+        var changed = false
         getAppList(releaseStatus).run {
             if (!contains(app)) {
                 add(app)
+                changed = true
             }
         }
         appMap.forEach {
-            if (it.key != releaseStatus)
+            if (it.key != releaseStatus) {
                 it.value.remove(app)
+                changed = true
+            }
         }
+        if (changed)
+            appMapStatusChangedFun?.call(getAppMap())
     }
 
     /**

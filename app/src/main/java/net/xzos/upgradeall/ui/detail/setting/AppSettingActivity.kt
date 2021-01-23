@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.apphub.apps.setting
+package net.xzos.upgradeall.ui.detail.setting
 
 import android.os.Bundle
 import android.view.LayoutInflater

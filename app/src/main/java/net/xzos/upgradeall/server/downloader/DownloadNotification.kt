@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.server.downloader
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -239,13 +238,6 @@ class DownloadNotification(private val fileAsset: FileAsset) {
                 channel.enableVibration(false)
                 channel.setShowBadge(false)
                 notificationManager.createNotificationChannel(channel)
-            }
-        }
-
-        @SuppressLint("RestrictedApi")  // 修复 mActions 无法操作
-        private fun NotificationCompat.Builder.clearActions(): NotificationCompat.Builder {
-            return this.apply {
-                mActions.clear()
             }
         }
     }

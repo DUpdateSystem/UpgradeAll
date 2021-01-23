@@ -7,6 +7,8 @@ import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.core.data.json.AppConfigGson
 import net.xzos.upgradeall.core.data.json.HubConfigGson
 import net.xzos.upgradeall.core.data.json.IgnoreApp
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -69,8 +71,7 @@ class Converters {
         return Gson().fromJson(s, HubConfigGson::class.java)
     }
 
-    @TypeConverter
-    fun stringToListMap(s: String?): Collection<Map<String, String>> {
+    private fun stringToCollectionMap(s: String?): Collection<Map<String, String>> {
         if (s.isNullOrEmpty()) return emptyList()
 
         return try {
@@ -91,7 +92,26 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromListMapToString(listMap: Collection<Map<String, String?>>?): String? {
+    fun stringToCoroutinesMutableListMap(s: String?): CoroutinesMutableList<Map<String, String?>> {
+        return stringToCollectionMap(s).toCoroutinesMutableList(true)
+    }
+
+    @TypeConverter
+    fun fromCoroutinesMutableListMapToString(listMap: CoroutinesMutableList<Map<String, String?>>?): String? {
+        return fromCollectionMapToString(listMap)
+    }
+
+    @TypeConverter
+    fun stringToSetMap(s: String?): HashSet<Map<String, String?>> {
+        return stringToCollectionMap(s).toHashSet()
+    }
+
+    @TypeConverter
+    fun fromListMapToString(listMap: HashSet<Map<String, String?>>?): String? {
+        return fromCollectionMapToString(listMap)
+    }
+
+    private fun fromCollectionMapToString(listMap: Collection<Map<String, String?>>?): String? {
         if (listMap.isNullOrEmpty()) return null
         val jsonArray = JSONArray()
         for (map in listMap) {

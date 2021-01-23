@@ -84,14 +84,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2'
 
-    // database
-    def room_version = "2.2.6"
-    implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
-    implementation "androidx.room:room-ktx:$room_version"
-    // Test helpers
-    testImplementation "androidx.room:room-testing:$room_version"
-
     // Localization
     implementation 'com.akexorcist:localization:1.2.6'
 
