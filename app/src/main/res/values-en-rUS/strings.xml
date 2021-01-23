@@ -170,7 +170,6 @@
     <string name="backup_stop">Backup complete</string>
     <string name="dialog_title_select_download_item">Please select item</string>
     <string name="btn_add_extra">Add Extra Info</string>
-    <string name="helper_text_cant_be_empty">Not empty</string>
 
     <string name="ui">UI</string>
     <string name="enable_bottom_sheet">enable bottom sheet</string>
@@ -208,4 +207,18 @@
     <string name="home_module_discovery">Discover</string>
     <string name="clean_all_log_alert_message">It will drop all logs</string>
     <string name="clean_sort_log_alert_message">It will drop current sort logs</string>
+
+    <!-- APP Setting -->
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="attr_list">Attributes List</string>
+    <string name="key">key</string>
+    <string name="value">value</string>
+    <string name="parse_attr_by_url">Parse attributes from URL</string>
+    <string name="add_attr">Add attributes</string>
+    <string name="open_list">Open list</string>
+    <string name="plz_input_app_url">Please input APP\'s URL</string>
+    <string name="not_match_any_template">Cannot match any template.</string>
+    <string name="helper_text_cant_be_empty">Not empty</string>
+    <string name="helper_text_attr_cant_be_empty">Attributes List not empty</string>
 </resources>

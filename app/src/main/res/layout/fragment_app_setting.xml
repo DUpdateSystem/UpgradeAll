@@ -31,7 +31,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/hub_input_layout"
+        android:id="@+id/name_input_layout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -67,7 +67,7 @@
         app:endIconMode="custom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/hub_input_layout">
+        app:layout_constraintTop_toBottomOf="@+id/name_input_layout">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editName"

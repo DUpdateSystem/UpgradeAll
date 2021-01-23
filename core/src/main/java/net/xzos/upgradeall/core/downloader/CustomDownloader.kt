@@ -13,7 +13,7 @@ class CustomDownloader @JvmOverloads constructor(okHttpClient: OkHttpClient? = n
     }
 
     override fun getFileSlicingCount(request: Downloader.ServerRequest, contentLength: Long): Int {
-        return PreferencesMap.download_thread_num
+        return coreConfig.download_thread_num
     }
 }
 

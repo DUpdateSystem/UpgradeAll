@@ -191,18 +191,16 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
         val hubUuid = appJson.getString("hub_uuid")
         val hubJson = allHubDatabaseMap[hubUuid] ?: return null
         val urlTemplates = hubJson.getJSONArray("app_url_templates")
-        var appId: Map<String, String?>? = null
         for (i in 0 until urlTemplates.length()) {
             val urlTemp = urlTemplates.getString(i)
             val keyList = AutoTemplate.getArgsKeywords(urlTemp)
             val autoTemplate = AutoTemplate(appJson.getString("url"), urlTemp)
             val args = autoTemplate.args
             if (args.keys == keyList) {
-                appId = args
-                break
+                return args
             }
         }
-        return appId
+        return null
     }
 
     private fun renewIgnoreVersionNumber(applicationJson: JSONObject) {

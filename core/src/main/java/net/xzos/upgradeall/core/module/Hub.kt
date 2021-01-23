@@ -9,6 +9,7 @@ import net.xzos.upgradeall.core.utils.AutoTemplate
 class Hub(private val hubDatabase: HubEntity) {
     val name get() = hubDatabase.hubConfig.info.hubName
     val uuid get() = hubDatabase.uuid
+    val hubConfig get() = hubDatabase.hubConfig
     fun isValidApp(app: App): Boolean {
         val appId = getValidKey(app) ?: return false
         for (ignoreAppId in hubDatabase.ignoreAppIdList) {

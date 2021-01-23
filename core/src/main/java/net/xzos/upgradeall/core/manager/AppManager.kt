@@ -29,14 +29,16 @@ object AppManager {
      * 以更新状态{@link Updater}为键值的字典
      * 在完成数据刷新{@link #renewApp}后，可以通过 App 类型{@link Constant}获取可以通过该字典来查看各个更新状态的 App 列表
      */
-    fun getAppMap(appType: String): Map<Int, List<App>> {
-        val appMap = mutableMapOf<Int, List<App>>()
-        this.appMap.forEach {
-            appMap[it.key] = it.value.filter { app ->
-                app.appId.containsKey(appType)
+    fun getAppMap(appType: String? = null): Map<Int, List<App>> {
+        return if (appType != null) {
+            mutableMapOf<Int, List<App>>().apply {
+                this@AppManager.appMap.forEach {
+                    this[it.key] = it.value.filter { app ->
+                        app.appId.containsKey(appType)
+                    }
+                }
             }
-        }
-        return appMap
+        } else appMap
     }
 
     /**
@@ -56,6 +58,14 @@ object AppManager {
      */
     fun getAppList(): List<App> {
         return appList
+    }
+
+    fun getAppByUuid(uuid: String): App? {
+        appList.forEach {
+            if (uuid == it.appDatabase.cloudConfig?.uuid)
+                return it
+        }
+        return null
     }
 
     /**

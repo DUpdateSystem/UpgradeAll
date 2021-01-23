@@ -2,6 +2,7 @@ package net.xzos.upgradeall.core.database
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.core.data.json.AppConfigGson
 import net.xzos.upgradeall.core.data.json.HubConfigGson
@@ -9,6 +10,7 @@ import net.xzos.upgradeall.core.data.json.IgnoreApp
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+
 
 class Converters {
     @TypeConverter
@@ -104,22 +106,17 @@ class Converters {
 
     @TypeConverter
     fun fromMapToString(dict: Map<String, String?>?): String? {
-        if (dict.isNullOrEmpty()) return null
-        val jsonObject = JSONObject()
-        for ((k, v) in dict.entries) {
-            jsonObject.put(k, v)
-        }
-        return jsonObject.toString()
+        dict?.run {
+            val gson = GsonBuilder().serializeNulls().create()
+            return gson.toJson(dict)
+        } ?: return null
     }
 
     @TypeConverter
     fun stringToMap(s: String?): Map<String, String?> {
-        if (s.isNullOrEmpty()) return mapOf()
-        val jsonObject = JSONObject(s)
-        val map = mutableMapOf<String, String?>()
-        for (k in jsonObject.keys()) {
-            map[k] = jsonObject.getString(k)
-        }
-        return map
+        s?.run {
+            val type = object : TypeToken<Map<String?, String?>?>() {}.type
+            return Gson().fromJson(s, type)
+        } ?: return emptyMap()
     }
 }

@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.utils.file.FileUtil
 
 

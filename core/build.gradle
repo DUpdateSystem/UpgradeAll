@@ -86,13 +86,13 @@ dependencies {
 
     // Shizuku
     implementation 'moe.shizuku.privilege:api:3.1.0'
-    implementation 'me.weishu:free_reflection:3.0.1'
+    api 'me.weishu:free_reflection:3.0.1'
 
     // DocumentFile
     implementation "androidx.documentfile:documentfile:1.0.1"
 
     // kotlin 协程
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2'
     // 数据处理
     implementation 'com.google.code.gson:gson:2.8.6'
 

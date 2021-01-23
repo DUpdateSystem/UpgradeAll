@@ -44,7 +44,7 @@ class DiscoverActivity : AppBarActivity() {
         adapter.apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).uuid?.let {
-                    viewModel.downloadApplicationData(this@DiscoverActivity, it)
+                    viewModel.downloadApplicationData(it)
 
                     lifecycleScope.launch(Dispatchers.IO) {
                         delay(500)

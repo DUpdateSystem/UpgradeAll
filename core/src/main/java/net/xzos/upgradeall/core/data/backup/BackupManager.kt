@@ -74,17 +74,6 @@ object BackupManager {
         return json
     }
 
-    private fun backupAllHubDatabase(): JSONArray {
-        val databaseList = HubDatabaseManager.hubDatabases
-        val json = JSONArray()
-        var data: JSONObject
-        for (database in databaseList) {
-            data = database.toJson()
-            json.put(data)
-        }
-        return json
-    }
-
     private fun backupUiConfig(): UIConfig {
         return uiConfig.copy()
     }

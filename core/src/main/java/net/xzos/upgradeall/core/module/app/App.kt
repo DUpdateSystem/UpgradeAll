@@ -24,7 +24,7 @@ class App(
     val name get() = appDatabase.name
 
     /* 这个 App 可用的软件源 */
-    val hubList get() = HubManager.hubMap.values.filter { it.isValidApp(this) }
+    val hubListUuid get() = HubManager.getHubList().filter { it.isValidApp(this) }.map { it.uuid }
 
     /* App 在本地的版本号 */
     val installedVersionNumber: String? = updater.getInstalledVersionNumber()
@@ -59,10 +59,11 @@ class App(
     /* 刷新版本号数据 */
     suspend fun update() {
         coroutineScope {
-            for (hub in hubList)
+            hubListUuid.mapNotNull { HubManager.getHub(it) }.forEach {
                 launch {
-                    renewVersionList(hub)
+                    renewVersionList(it)
                 }
+            }
         }
         getReleaseStatus()
     }
@@ -70,6 +71,22 @@ class App(
     /* 获取 App 的更新状态*/
     fun getReleaseStatus(): Int {
         return updater.getUpdateStatus()
+    }
+
+    fun getLatestVersionNumber(): String? {
+        return if (isLatestVersion())
+            installedVersionNumber
+        else {
+            val versionList = this.versionList
+            return if (versionList.isNotEmpty())
+                versionList[0].name
+            else null
+        }
+    }
+
+    /* 获取 App 的更新状态*/
+    fun isLatestVersion(): Boolean {
+        return updater.getUpdateStatus() == Updater.APP_LATEST
     }
 
     private suspend fun renewVersionList(hub: Hub) {
