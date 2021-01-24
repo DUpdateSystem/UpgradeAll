@@ -5,8 +5,6 @@ import android.os.Bundle
 import com.absinthe.libraries.utils.extensions.addPaddingBottom
 import com.absinthe.libraries.utils.extensions.addPaddingTop
 import com.absinthe.libraries.utils.utils.UiUtils
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.Updater
@@ -40,9 +38,9 @@ class MainActivity : BaseActivity() {
         setContentView(binding.root)
         initView()
 
+        checkUpdate()
         PreferencesMap.initByActivity(this)
     }
-
 
 
     private fun initView() {
