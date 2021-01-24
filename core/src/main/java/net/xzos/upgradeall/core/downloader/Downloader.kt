@@ -18,6 +18,7 @@ import net.xzos.upgradeall.core.utils.wait
 import java.io.File
 
 
+/* 下载管理 */
 class Downloader(val fileAsset: FileAsset) {
 
     var downloadId: DownloadId = DownloadId(false, -1)

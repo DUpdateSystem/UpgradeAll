@@ -1,147 +1,190 @@
 package net.xzos.upgradeall.ui.detail.setting
 
-import android.content.Context
-import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
-import androidx.core.widget.addTextChangedListener
-import kotlinx.android.synthetic.main.activity_app_setting.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
+import androidx.core.view.get
+import androidx.core.view.size
+import androidx.lifecycle.lifecycleScope
+import com.absinthe.libraries.utils.extensions.activity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.ui.viewmodels.adapters.SearchResultItemAdapter
-import net.xzos.upgradeall.utils.SearchUtils
+import net.xzos.upgradeall.core.database.table.AppEntity
+import net.xzos.upgradeall.core.manager.AppManager
+import net.xzos.upgradeall.core.manager.HubManager
+import net.xzos.upgradeall.core.utils.AutoTemplate
+import net.xzos.upgradeall.databinding.ActivityAppSettingBinding
+import net.xzos.upgradeall.databinding.ItemAppAttrSettingBinding
+import net.xzos.upgradeall.databinding.ViewEditviewBinding
+import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.utils.ToastUtil
 
-class AppSettingActivity : BaseAppSettingActivity() {
 
-    private val searchUtils by lazy { SearchUtils() }
+class AppSettingActivity : AppBarActivity() {
 
-    private val appDatabase: AppDatabase = bundleDatabase
-            ?: AppDatabase(0, "", "", "")
+    private val database: AppEntity? = bundleDatabase // 获取可能来自修改设置项的请求
+    private lateinit var binding: ActivityAppSettingBinding
 
-    private val targetCheckerApi: String?
-        get() = when (PackageIdApiSpinner.selectedItem.toString()) {
-            getString(R.string.android_app) -> API_TYPE_APP_PACKAGE
-            getString(R.string.magisk_module) -> API_TYPE_MAGISK_MODULE
-            getString(R.string.shell) -> API_TYPE_SHELL
-            getString(R.string.shell_root) -> API_TYPE_SHELL_ROOT
-            else -> null
-        }
+    internal var hubUuid: String? = null
 
-    // 获取versionChecker
-    private val packageId: PackageIdGson
-        get() = PackageIdGson(
-                targetCheckerApi,
-                editPackageId.text.toString()
-        )
-
-    override fun getHubJsonObject(): Pair<List<String>, List<String>> {
-        // api接口名称列表
-        // 清空 apiSpinnerList
-        val hubNameStringList = mutableListOf<String>()
-        val hubUuidStringList = mutableListOf<String>()
-        // 获取自定义源
-        HubDatabaseManager.hubDatabases.forEach {  // 读取 hub 数据库
-            val name: String = it.hubConfig.info.hubName
-            val apiUuid: String = it.uuid
-            hubNameStringList.add(name)
-            // 记录可用的api UUID
-            hubUuidStringList.add(apiUuid)
-        }
-        return Pair(hubNameStringList, hubUuidStringList)
-    }
-
-    override fun saveDatabase(): Boolean {
-        if (editUrl.text.isNullOrBlank()) {
-            url_input_layout.error = getString(R.string.helper_text_cant_be_empty)
-            return false
-        }
-        if (editUrl.text.isNullOrBlank()) {
-            url_input_layout.error = getString(R.string.helper_text_cant_be_empty)
-            return false
-        }
-        // 数据处理
-        val name = editName.text.toString()
-        val url = editUrl.text.toString()
-        with(appDatabase) {
-            this.hubUuid = this@AppSettingActivity.hubUuid ?: return false
-            this.url = url
-            this.packageId = this@AppSettingActivity.packageId
-            this.name = name
-        }
-        return if (appDatabase.id == 0L)
-            runBlocking { AppDatabaseManager.insertAppDatabase(appDatabase) != 0L }
-        else
-            runBlocking { AppDatabaseManager.updateAppDatabase(appDatabase) }
-    }
-
-    override fun setSettingItem() {
-        // 如果是设置修改请求，设置预置设置项
-        editUrl.setText(appDatabase.url)
-        val packageIdGson = appDatabase.packageId
-        val versionCheckerText = packageIdGson?.extraString
-        PackageIdApiSpinner.setSelection(
-                when (packageIdGson?.api?.toLowerCase(AppValue.locale)) {
-                    API_TYPE_APP_PACKAGE -> 0
-                    API_TYPE_MAGISK_MODULE -> 1
-                    API_TYPE_SHELL -> 2
-                    API_TYPE_SHELL_ROOT -> 3
-                    else -> 0
-                }
-        )
-        editPackageId.setText(versionCheckerText)
-    }
-
-    override fun initUi() {
-        // 版本检查设置
-        checkPackageIdButton.setOnClickListener {
-            val rawVersion = VersionGetter.getAppVersionNumber(packageId)
-            val version = net.xzos.upgradeall.core.data_manager.utils.VersioningUtils.matchVersioningString(rawVersion)
-            if (rawVersion != null) {
-                ToastUtil.makeText("raw_version: $rawVersion\nversion: $version", Toast.LENGTH_SHORT)
+    private val attrMap: Map<String, String?>
+        get() {
+            val attrList = binding.attrList
+            val map = mutableMapOf<String, String>()
+            for (i in 0 until attrList.size) {
+                val view = ItemAppAttrSettingBinding.bind(attrList[i])
+                map[view.keyEdit.text.toString()] = view.valueEdit.text.toString()
+            }
+            return map.filter { it.key.isNotBlank() }.mapValues {
+                if (it.value.isBlank())
+                    null
+                else it.value
             }
         }
-        editPackageId.threshold = 1
-        editPackageId.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) searchUtils.renewData()  // 清除搜索缓存
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_app_setting)
+
+        initView()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> onBackPressed()
+            R.id.parse_attr_from_url -> showUrlDialog()
+            else -> return super.onOptionsItemSelected(item)
         }
-        val mutex = Mutex()
-        editPackageId.addTextChangedListener {
-            if (targetCheckerApi != API_TYPE_SHELL && targetCheckerApi != API_TYPE_SHELL_ROOT) {
-                val text = it.toString()
-                GlobalScope.launch(Dispatchers.IO) {
-                    mutex.withLock {
-                        if (text.isNotBlank()) {
-                            val searchInfoList = searchUtils.search(text)
-                            if (searchInfoList.isNotEmpty()) {
-                                withContext(Dispatchers.Main) {
-                                    editPackageId.setAdapter(SearchResultItemAdapter(this@AppSettingActivity, searchInfoList))
-                                    editPackageId.showDropDown()
-                                }
-                            }
+        return true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_app_setting, menu)
+        return true
+    }
+
+    private fun showUrlDialog() {
+        val urlTemplateList = mutableListOf<String>()
+        for (hub in HubManager.getHubList())
+            urlTemplateList.addAll(hub.hubConfig.appUrlTemplates)
+        activity?.let {
+            val binding = ViewEditviewBinding.inflate(it.layoutInflater)
+            binding.editUrl.setHint(R.string.plz_input_app_url)
+            val builder = AlertDialog.Builder(it)
+            builder.setView(binding.root)
+                    .setPositiveButton(R.string.ok) { dialog, _ ->
+                        val url = binding.editUrl.text.toString()
+                        val appIdMap = AutoTemplate.urlToAppId(url, urlTemplateList)
+                        if (appIdMap != null) {
+                            for ((k, v) in appIdMap)
+                                addAttr(k, v)
+                            dialog.cancel()
+                        } else {
+                            binding.editUrl.error = getString(R.string.not_match_any_template)
                         }
                     }
+                    .setNegativeButton(R.string.cancel) { dialog, _ ->
+                        dialog.cancel()
+                    }
+            builder.create()
+        }
+    }
+
+    private suspend fun addApp() {
+        val name = binding.nameEdit.text.toString()
+        val appId = attrMap
+        if (name.isBlank()) {
+            binding.nameEdit.error = getString(R.string.helper_text_cant_be_empty)
+            return
+        }
+        if (appId.isEmpty()) {
+            ToastUtil.makeText(R.string.helper_text_attr_cant_be_empty)
+            return
+        }
+        val appEntity = database?.apply {
+            this.name = name
+            this.appId = appId
+        } ?: AppEntity(0, name, appId)
+        window?.let {
+            binding.addButton.visibility = View.GONE
+            binding.loadingBar.visibility = View.VISIBLE
+
+            if (AppManager.updateApp(appEntity) != null)
+                finish()
+            else
+                ToastUtil.makeText(R.string.failed_to_add, Toast.LENGTH_LONG)
+            binding.addButton.visibility = View.VISIBLE
+            binding.loadingBar.visibility = View.GONE
+        }
+    }
+
+    private fun initSetSettingItem() {
+        // 如果是设置修改请求，设置预置设置项
+        binding.nameEdit.setText(database?.name)
+    }
+
+    private fun addAttr(key: String, value: String?) {
+        addAttr().run {
+            keyEdit.setText(key)
+            valueEdit.setText(value)
+        }
+    }
+
+    private fun addAttr(): ItemAppAttrSettingBinding {
+        val attrList = binding.attrList
+        val binding = ItemAppAttrSettingBinding.inflate(LayoutInflater.from(attrList.context))
+        val view = binding.root
+        binding.deleteButton.setOnClickListener {
+            attrList.removeView(view)
+        }
+        attrList.addView(view)
+        return binding
+    }
+
+    override fun initBinding(): View {
+        binding = ActivityAppSettingBinding.inflate(layoutInflater)
+        return binding.root
+    }
+
+    override fun getAppBar(): Toolbar = binding.appbar.toolbar
+
+    override fun initView() {
+        window.statusBarColor = ContextCompat.getColor(this, R.color.taupe)
+        binding.addButton.let { fab ->
+            fab.setOnClickListener {
+                GlobalScope.launch { addApp() }
+            }
+            fab.visibility = View.VISIBLE
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            // 刷新第三方源列表，获取支持的第三方源列表
+            withContext(Dispatchers.Main) {
+                if (HubManager.getHubList().isEmpty()) {
+                    ToastUtil.makeText(R.string.add_something, Toast.LENGTH_LONG)
+                    finish()
                 }
             }
         }
+
+        initSetSettingItem() // 设置预置设置项
     }
 
     companion object {
-        private var bundleDatabase: AppDatabase? = null
-            set(value) {
-                BaseAppSettingActivity.bundleDatabase = value
-                field = value
-            }
+        internal var bundleDatabase: AppEntity? = null
             get() {
                 val app = field
                 field = null
                 return app
             }
-
-        fun getInstance(context: Context, database: AppDatabase?) {
-            bundleDatabase = database ?: AppDatabase(0, "", "", "")
-            context.startActivity(Intent(context, AppSettingActivity::class.java))
-        }
     }
 }

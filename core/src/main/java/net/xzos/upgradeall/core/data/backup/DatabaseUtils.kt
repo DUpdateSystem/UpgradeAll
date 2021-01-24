@@ -30,7 +30,7 @@ fun HubEntity.toJson(): JSONObject {
             "uuid" to uuid,
             "hub_config" to Gson().toJson(hubConfig),
             "auth" to converters.fromMapToString(auth),
-            "ignore_app_id_list" to converters.fromListMapToString(ignoreAppIdList.toList()),
+            "ignore_app_id_list" to converters.fromListMapToString(ignoreAppIdList),
     ))
 }
 
@@ -56,7 +56,7 @@ fun parseHubEntityConfig(json: JSONObject): HubEntity{
             json.getString("uuid"),
             converters.stringToHubConfigGson(json.getString("hub_config")),
             converters.stringToMap(json.getOrNull("auth")),
-            converters.stringToListMap(json.getOrNull("ignore_app_id_list")).toHashSet(),
+            converters.stringToSetMap(json.getOrNull("ignore_app_id_list")),
     )
 }
 

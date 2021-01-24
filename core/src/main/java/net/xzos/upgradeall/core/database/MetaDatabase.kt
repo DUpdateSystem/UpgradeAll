@@ -7,6 +7,9 @@ import androidx.room.TypeConverters
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.database.dao.AppDao
 import net.xzos.upgradeall.core.database.dao.HubDao
+import net.xzos.upgradeall.core.database.migration.MIGRATION_6_7
+import net.xzos.upgradeall.core.database.migration.MIGRATION_7_8
+import net.xzos.upgradeall.core.database.migration.MIGRATION_8_9
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.HubEntity
 
@@ -18,11 +21,12 @@ abstract class MetaDatabase : RoomDatabase() {
 }
 
 val metaDatabase = Room
-    .databaseBuilder(
-        coreConfig.androidContext,
-        MetaDatabase::class.java,
-        "app_metadata_database.db"
-    )
-    .addMigrations(MIGRATION_6_7)
-    .addMigrations(MIGRATION_7_8)
-    .build()
+        .databaseBuilder(
+                coreConfig.androidContext,
+                MetaDatabase::class.java,
+                "app_metadata_database.db"
+        )
+        .addMigrations(MIGRATION_6_7)
+        .addMigrations(MIGRATION_7_8)
+        .addMigrations(MIGRATION_8_9)
+        .build()

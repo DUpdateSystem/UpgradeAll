@@ -5,25 +5,28 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.android.synthetic.main.list_content.*
-import net.xzos.upgradeall.R
+import net.xzos.upgradeall.databinding.ListContentBinding
 
 class CloudBackupListDialog private constructor(
         context: Context,
         private val fileNameList: List<String>,
         private val clickFun: (position: Int) -> Unit
 ) : BottomSheetDialog(context) {
+    private lateinit var binding: ListContentBinding
     override fun onCreate(savedInstanceState: Bundle?) {
-        setContentView(R.layout.list_content)
         super.onCreate(savedInstanceState)
+        binding = ListContentBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        super.onCreate(savedInstanceState)
+        val list = binding.list
         list.setOnItemClickListener { _, _, position, _ ->
             clickFun(position)
             dismiss()
         }
         if (fileNameList.isNotEmpty())
-            list.adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, fileNameList)
+            binding.list.adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, fileNameList)
         else
-            emptyPlaceHolderTextView.visibility = View.VISIBLE
+            binding.emptyPlaceHolderTextView.visibility = View.VISIBLE
     }
 
     companion object {

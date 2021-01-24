@@ -1,17 +1,14 @@
-package net.xzos.upgradeall.core.database
+package net.xzos.upgradeall.core.database.migration
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import net.xzos.upgradeall.core.data.json.UIConfig
-import net.xzos.upgradeall.core.data.json.changeAppDatabaseId
-import net.xzos.upgradeall.core.data.json.save
 import org.json.JSONArray
 import org.json.JSONObject
 
+
 val MIGRATION_6_7 = object : Migration(6, 7) {
     override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL(
-            """
+        database.execSQL("""
             CREATE TABLE app
             (
             id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -28,15 +25,13 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
         """
         )
 
-        database.execSQL(
-            """
+        database.execSQL("""
            CREATE UNIQUE INDEX app_key_value
            on app (name, hub_uuid, url, package_id); 
         """
         )
 
-        database.execSQL(
-            """
+        database.execSQL("""
             CREATE TABLE applications
             (
             id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -51,15 +46,13 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
         """
         )
 
-        database.execSQL(
-            """
+        database.execSQL("""
            CREATE UNIQUE INDEX applications_key_value
            on applications (hub_uuid); 
         """
         )
 
-        database.execSQL(
-            """
+        database.execSQL("""
             CREATE TABLE hub
             (
             uuid TEXT PRIMARY KEY NOT NULL,
@@ -71,8 +64,7 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
             while (moveToNext()) {
                 val uuid = getString(getColumnIndex("uuid"))
                 val hubConfig = getString(getColumnIndex("hub_config"))
-                database.execSQL(
-                    """
+                database.execSQL("""
                     INSERT INTO hub (uuid, hub_config)
                     VALUES ('$uuid', '$hubConfig');
                 """
@@ -100,7 +92,7 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
                     var ignoreApps: String? = null
                     try {
                         val invalidPackageListJson = extraData?.getJSONObject("applications_config")
-                            ?.getJSONArray("invalid_package_name")!!
+                                ?.getJSONArray("invalid_package_name")!!
                         val json = JSONArray()
                         for (i in 0 until invalidPackageListJson.length()) {
                             val p = invalidPackageListJson.getString(i)
@@ -113,7 +105,7 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
                     }
                     try {
                         val ignoreAppsJson = extraData?.getJSONObject("applications_config")
-                            ?.getJSONArray("ignore_apps")!!
+                                ?.getJSONArray("ignore_apps")!!
                         for (i in 0 until ignoreAppsJson.length()) {
                             val item = ignoreAppsJson.getJSONObject(i)
                             val packageId = item.getString("package")
@@ -126,7 +118,7 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
                     }
                     try {
                         val ignoreAppsJson = extraData?.getJSONObject("applications_config")
-                            ?.getJSONArray("ignore_apps")!!
+                                ?.getJSONArray("ignore_apps")!!
                         for (i in 0 until ignoreAppsJson.length()) {
                             val item = ignoreAppsJson.getJSONObject(i)
                             if (item.getBoolean("forever"))
@@ -136,10 +128,9 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
                     } catch (e: Throwable) {
                     }
                     val invalidPackageListString =
-                        if (invalidPackageList != null) "'$invalidPackageList'" else null
+                            if (invalidPackageList != null) "'$invalidPackageList'" else null
                     val ignoreAppsString = if (ignoreApps != null) "'$ignoreApps'" else null
-                    database.execSQL(
-                        """
+                    database.execSQL("""
                     INSERT INTO applications (name, hub_uuid, auth, extra_id, invalid_package_list, ignore_app_list)
                     VALUES ('$name', '$hubUuid', null, null, $invalidPackageListString, $ignoreAppsString)
                     """
@@ -157,11 +148,10 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
                     } catch (e: Throwable) {
                     }
                     val ignoreVersionNumberString =
-                        if (ignoreVersionNumber != null) "'$ignoreVersionNumber'" else null
+                            if (ignoreVersionNumber != null) "'$ignoreVersionNumber'" else null
                     val cloudConfigString = if (cloudConfig != null) "'$cloudConfig'" else null
                     val packageIdString = if (packageId != null) "'$packageId'" else null
-                    database.execSQL(
-                        """
+                    database.execSQL("""
                     INSERT INTO app (name, hub_uuid, auth, extra_id, url, package_id, ignore_version_number, cloud_config)
                     VALUES ('$name', '$hubUuid', null, null, '$url', $packageIdString, $ignoreVersionNumberString, $cloudConfigString);
                     """
@@ -169,24 +159,8 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
                 }
             }
         }
-        with(UIConfig.uiConfig) {
-            changeAppDatabaseId(databaseIdMap)
-            save()
-        }
         database.execSQL("DROP TABLE android_metadata")
         database.execSQL("DROP TABLE repodatabase")
         database.execSQL("DROP TABLE hubdatabase")
-    }
-}
-
-val MIGRATION_7_8 = object : Migration(7, 8) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("DROP INDEX applications_key_value")
-        database.execSQL(
-            """
-           CREATE UNIQUE INDEX applications_key_value
-           on applications (hub_uuid, extra_id, auth); 
-        """
-        )
     }
 }

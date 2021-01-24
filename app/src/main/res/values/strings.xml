@@ -178,7 +178,6 @@
     <string name="backup_stop">备份完成</string>
     <string name="dialog_title_select_download_item">选择下载项</string>
     <string name="btn_add_extra">添加附加项</string>
-    <string name="helper_text_cant_be_empty">不能为空</string>
 
     <string name="ui">界面</string>
     <string name="enable_bottom_sheet">平铺菜单按钮</string>
@@ -218,4 +217,17 @@
     <string name="hub_update_all">全部升级</string>
     <string name="hub_ignore_all">全部忽略</string>
 
+    <!-- APP Setting -->
+    <string name="ok">确认</string>
+    <string name="cancel">取消</string>
+    <string name="attr_list">属性列表</string>
+    <string name="key">键</string>
+    <string name="value">值</string>
+    <string name="parse_attr_by_url">从 URL 解析属性列表</string>
+    <string name="add_attr">添加属性</string>
+    <string name="open_list">展开列表</string>
+    <string name="plz_input_app_url">请输入软件网址</string>
+    <string name="not_match_any_template">无法匹配任意一种模板</string>
+    <string name="helper_text_cant_be_empty">不能为空</string>
+    <string name="helper_text_attr_cant_be_empty">属性列表不能为空</string>
 </resources>

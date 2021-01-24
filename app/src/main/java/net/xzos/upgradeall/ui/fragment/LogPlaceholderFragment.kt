@@ -8,9 +8,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import kotlinx.android.synthetic.main.fragment_log.*
-import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.databinding.FragmentLogBinding
 import net.xzos.upgradeall.ui.viewmodels.adapters.LogItemAdapter
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.LogPageViewModel
 
@@ -19,12 +18,15 @@ class LogPlaceholderFragment(
         private val bundleLogObjectTag: ObjectTag
 ) : Fragment() {
 
+    private lateinit var binding: FragmentLogBinding
     private lateinit var mContext: Context
     private lateinit var logPageViewModel: LogPageViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.fragment_log, container, false)
+                              savedInstanceState: Bundle?): View {
+        binding = FragmentLogBinding.inflate(layoutInflater)
+        return binding.root
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,9 +42,9 @@ class LogPlaceholderFragment(
 
     private fun renewLogList() {
         val layoutManager = GridLayoutManager(mContext, 1)
-        logListRecyclerView.layoutManager = layoutManager
+        binding.logListRecyclerView.layoutManager = layoutManager
         val adapter = LogItemAdapter(logPageViewModel.logList, this@LogPlaceholderFragment)
-        logListRecyclerView.adapter = adapter
+        binding.logListRecyclerView.adapter = adapter
     }
 
     companion object {

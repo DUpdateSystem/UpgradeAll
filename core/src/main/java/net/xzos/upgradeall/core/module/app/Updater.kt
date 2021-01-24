@@ -9,7 +9,7 @@ class Updater internal constructor(
 
     private var tmpUpdateStatus: Int = NETWORK_ERROR - 1
 
-    fun getUpdateStatus(): Int {
+    internal fun getUpdateStatus(): Int {
         val releaseList = app.versionList
         val status = if (releaseList.isEmpty()) {
             NETWORK_ERROR
@@ -29,7 +29,7 @@ class Updater internal constructor(
     }
 
     private fun getIgnoreVersionNumber(): String? = app.appDatabase.ignoreVersionNumber
-    private fun getInstalledVersionNumber(): String? = getAppVersion(app.appId)
+    internal fun getInstalledVersionNumber(): String? = getAppVersion(app.appId)
 
     private fun isLatestVersionNumber(localVersionNumber: String, versionNumberList: List<String>): Boolean {
         if (versionNumberList.isEmpty()) return true

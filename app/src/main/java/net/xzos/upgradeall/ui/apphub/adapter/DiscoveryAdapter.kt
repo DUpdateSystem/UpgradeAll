@@ -30,10 +30,10 @@ class DiscoveryAdapter : BaseQuickAdapter<CloudConfigListItemView, BaseViewHolde
         val chipGroup = holder.getView<ChipGroup>(R.id.chipGroup)
         chipGroup.removeAllViewsInLayout()
 
-        item.type?.let {
+        item.type.let {
             val typeChip = (context.layoutInflater.inflate(R.layout.single_chip_layout, chipGroup, false) as Chip).apply {
                 setText(it)
-                val iconRes = when(it) {
+                val iconRes = when (it) {
                     R.string.android_app -> R.drawable.ic_android_placeholder
                     R.string.magisk_module -> R.drawable.ic_home_magisk_module
                     R.string.shell -> R.drawable.ic_type_shell
@@ -44,10 +44,10 @@ class DiscoveryAdapter : BaseQuickAdapter<CloudConfigListItemView, BaseViewHolde
             }
             chipGroup.addView(typeChip, -1, ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
-        item.hubName?.let {
+        item.hubName.let {
             val hubChip = (context.layoutInflater.inflate(R.layout.single_chip_layout, chipGroup, false) as Chip).apply {
                 text = it
-                val iconRes = when(it) {
+                val iconRes = when (it) {
                     "GitHub" -> R.drawable.ic_hub_github
                     "Google Play" -> R.drawable.ic_hub_google_play
                     "酷安" -> R.drawable.ic_hub_coolapk
@@ -58,7 +58,7 @@ class DiscoveryAdapter : BaseQuickAdapter<CloudConfigListItemView, BaseViewHolde
             chipGroup.addView(hubChip, -1, ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
 
-        holder.getView<ImageView>(R.id.iv_done).isGone = AppManager.getSingleApp(uuid = item.uuid) == null
+        holder.getView<ImageView>(R.id.iv_done).isGone = AppManager.getAppByUuid(item.uuid) == null
     }
 
     override fun getItemId(position: Int): Long {

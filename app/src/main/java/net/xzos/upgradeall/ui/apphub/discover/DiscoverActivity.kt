@@ -43,8 +43,8 @@ class DiscoverActivity : AppBarActivity() {
         }
         adapter.apply {
             setOnItemClickListener { _, _, position ->
-                getItem(position).uuid?.let {
-                    viewModel.downloadApplicationData(this@DiscoverActivity, it)
+                getItem(position).uuid.let {
+                    viewModel.downloadApplicationData(it)
 
                     lifecycleScope.launch(Dispatchers.IO) {
                         delay(500)
@@ -52,8 +52,6 @@ class DiscoverActivity : AppBarActivity() {
                             viewModel.requestCloudApplications()
                         }
                     }
-                } ?: let {
-                    Log.d("DiscoverActivity", "uuid is null")
                 }
             }
         }

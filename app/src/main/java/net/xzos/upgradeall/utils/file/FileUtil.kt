@@ -22,6 +22,7 @@ import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.ToastUtil
+import net.xzos.upgradeall.utils.getSystemLocale
 import java.io.*
 import java.util.*
 
@@ -158,7 +159,7 @@ object FileUtil {
             val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
                     .toString())
             MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                    fileExtension.toLowerCase(AppValue.locale))
+                    fileExtension.toLowerCase(getSystemLocale(context.resources.configuration)))
         } ?: "*/*"
     }
 

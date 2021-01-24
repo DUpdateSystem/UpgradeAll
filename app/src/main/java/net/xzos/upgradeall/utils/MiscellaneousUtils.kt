@@ -14,15 +14,10 @@ import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
-import com.google.gson.Gson
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.data.AppUiDataManager
 import net.xzos.upgradeall.data.PreferencesMap
-import net.xzos.upgradeall.ui.viewmodels.view.ItemCardView
-import net.xzos.upgradeall.ui.viewmodels.view.holder.CardViewRecyclerViewHolder
 import org.json.JSONException
-import java.io.StringReader
 import java.util.*
 
 
@@ -35,12 +30,6 @@ object MiscellaneousUtils {
     }
 
     private fun initObject() {
-        // 初始化 System API
-        DatabaseApi
-        Log
-        IoApi
-        // 初始化数据观察 register
-        AppUiDataManager
     }
 
     fun accessByBrowser(url: String?, context: Context?) {
@@ -69,14 +58,6 @@ object MiscellaneousUtils {
             else
                 @Suppress("DEPRECATION")
                 context.resources.configuration.locale
-
-    fun mapOfJsonObject(jsonObjectString: String): Map<*, *> {
-        return try {
-            Gson().fromJson(jsonObjectString, Map::class.java)
-        } catch (e: JSONException) {
-            mapOf<Any, Any>()
-        }
-    }
 
     fun requestPermission(activity: Activity, permission: String, PERMISSIONS_REQUEST_CONTACTS: Int, tipResId: Int): Boolean {
         var havePermission = false
@@ -129,13 +110,6 @@ fun <T> MutableLiveData<T>.setValueBackground(value: T) {
         this.value = value
     }
 }
-
-/**
- * 拓展 ItemCardView 数据队列
- * 使其可用 holder 直接获取数据
- */
-fun MutableList<ItemCardView>.getByHolder(holder: CardViewRecyclerViewHolder): ItemCardView =
-        this[holder.adapterPosition]
 
 /**
  * 返回 MutableLiveData

@@ -51,8 +51,8 @@ class AutoTemplate(private val string: String?, private val template: String) {
     }
 
     private fun getStringIndexList(
-        matchResults: Sequence<MatchResult>,
-        template: String
+            matchResults: Sequence<MatchResult>,
+            template: String
     ): List<String> {
         val list = mutableListOf<String>()
         var lastIndex = 0
@@ -79,6 +79,20 @@ class AutoTemplate(private val string: String?, private val template: String) {
                 returnString = returnString.replace(arg.key, arg.value ?: "NULL")
             }
             return returnString
+        }
+
+        fun urlToAppId(url: String, templateList: List<String>): Map<String, String>? {
+            if (url.isBlank() || templateList.isEmpty())
+                return null
+            for (template in templateList) {
+                val keyList = getArgsKeywords(template).map { it.value.replaceFirst("%", "") }
+                val autoTemplate = AutoTemplate(url, template)
+                val args = autoTemplate.args
+                if (args.keys == keyList) {
+                    return args
+                }
+            }
+            return null
         }
     }
 }

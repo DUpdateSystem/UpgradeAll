@@ -22,7 +22,7 @@ class AppEntity(
         @ColumnInfo(name = "app_id")
         var appId: Map<String, String?>,
         @ColumnInfo(name = "ignore_version_number")
-        var ignoreVersionNumber: String?,
+        var ignoreVersionNumber: String? = null,
         @ColumnInfo(name = "cloud_config")
         var cloudConfig: AppConfigGson? = null,
 )

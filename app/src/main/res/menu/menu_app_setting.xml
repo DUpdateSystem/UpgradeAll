@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/parse_attr_from_url"
+        android:title="@string/parse_attr_by_url" />
+</menu>

@@ -6,21 +6,22 @@ import com.absinthe.libraries.utils.extensions.addPaddingBottom
 import com.absinthe.libraries.utils.extensions.addPaddingTop
 import com.absinthe.libraries.utils.utils.UiUtils
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.data.AppUiDataManager
+import net.xzos.upgradeall.core.manager.AppManager
+import net.xzos.upgradeall.core.module.app.Updater
+import net.xzos.upgradeall.core.utils.FuncR
 import net.xzos.upgradeall.data.PreferencesMap
-import net.xzos.upgradeall.data.UPDATE_PAGE_INDEX
 import net.xzos.upgradeall.databinding.ActivityMainBinding
 import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.activity.LogActivity
 import net.xzos.upgradeall.ui.activity.SettingsActivity
 import net.xzos.upgradeall.ui.apphub.apps.AppsActivity
 import net.xzos.upgradeall.ui.apphub.discover.DiscoverActivity
-import net.xzos.upgradeall.ui.base.BaseActivity
 import net.xzos.upgradeall.ui.apphub.filemanagement.FileManagementActivity
+import net.xzos.upgradeall.ui.apphub.magisk.MagiskModuleActivity
+import net.xzos.upgradeall.ui.base.BaseActivity
 import net.xzos.upgradeall.ui.home.adapter.HomeModuleAdapter
 import net.xzos.upgradeall.ui.home.adapter.HomeModuleCardBean
 import net.xzos.upgradeall.ui.home.adapter.HomeModuleNonCardBean
-import net.xzos.upgradeall.ui.apphub.magisk.MagiskModuleActivity
 import net.xzos.upgradeall.ui.others.OthersActivity
 import net.xzos.upgradeall.ui.rss.RssActivity
 import net.xzos.upgradeall.utils.ToastUtil
@@ -86,10 +87,11 @@ class MainActivity : BaseActivity() {
             }
         }
 
-        AppUiDataManager.getAppListLivaData(UPDATE_PAGE_INDEX).observe(this, {
-            binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), it.size)
+        AppManager.appMapStatusChangedFun = FuncR {
+            val needUpdateNum = it[Updater.APP_OUTDATED]
+            binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), needUpdateNum)
             binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_check_updates))
-        })
+        }
     }
 
     private fun checkUpdate() {

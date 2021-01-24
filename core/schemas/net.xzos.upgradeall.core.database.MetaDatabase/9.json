@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 9,
-    "identityHash": "e99a3be078c1c32d2223536506b9c0a1",
+    "identityHash": "50c7cbddd98a849b1921d202b7e8a90b",
     "entities": [
       {
         "tableName": "app",
@@ -59,7 +59,7 @@
       },
       {
         "tableName": "hub",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `hub_config` TEXT NOT NULL, `auth` TEXT NOT NULL, `ignore_app_id_list` TEXT NOT NULL, PRIMARY KEY(`uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `hub_config` TEXT NOT NULL, `auth` TEXT NOT NULL, `ignore_app_id_list` TEXT NOT NULL, `auto_ignore_app_id_list` TEXT NOT NULL, PRIMARY KEY(`uuid`))",
         "fields": [
           {
             "fieldPath": "uuid",
@@ -84,6 +84,12 @@
             "columnName": "ignore_app_id_list",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "autoIgnoreAppIdList",
+            "columnName": "auto_ignore_app_id_list",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -99,7 +105,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e99a3be078c1c32d2223536506b9c0a1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '50c7cbddd98a849b1921d202b7e8a90b')"
     ]
   }
 }

@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.databinding.FragmentHubListBinding
 import net.xzos.upgradeall.ui.apphub.adapter.HubListAdapter
 import net.xzos.upgradeall.ui.detail.AppDetailActivity
@@ -31,7 +30,7 @@ class HubListFragment : Fragment() {
             }
         }
         adapter.setOnItemClickListener { _, _, position ->
-            AppDetailActivity.startActivity(requireContext(), adapter.data[position].extraData.app as App)
+            AppDetailActivity.startActivity(requireContext(), adapter.data[position].app)
         }
 
         viewModel.appCardViewList.observe(viewLifecycleOwner, {

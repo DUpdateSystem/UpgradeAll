@@ -5,7 +5,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager.widget.PagerAdapter
-import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
+import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.data.log.LogLiveData
 import net.xzos.upgradeall.ui.fragment.LogPlaceholderFragment
 

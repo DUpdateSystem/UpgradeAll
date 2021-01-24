@@ -6,11 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.ListPreference
-import kotlinx.android.synthetic.main.view_editview.view.*
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.data.PreferencesMap.CUSTOM_CLOUD_RULES_HUB_URL_KEY
+import net.xzos.upgradeall.databinding.ViewEditviewBinding
 
 class UpdatesPrefFragment : PrefFragment(R.xml.preferences_update), SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -40,14 +39,12 @@ class UpdatesPrefFragment : PrefFragment(R.xml.preferences_update), SharedPrefer
 
     private fun showGitUrlDialog() {
         val context = requireContext()
+        val binding = ViewEditviewBinding.inflate(LayoutInflater.from(context))
         AlertDialog.Builder(context).apply {
-            val dialogView = LayoutInflater.from(context)
-                    .inflate(R.layout.view_editview, null).apply {
-                        editUrl.setText(PreferencesMap.cloud_rules_hub_url)
-                    }
-            setView(dialogView)
+            binding.editUrl.setText(PreferencesMap.cloud_rules_hub_url)
+            setView(binding.root)
             setPositiveButton(android.R.string.ok) { _, _ ->
-                setCloudRulesHubUrl(dialogView.editUrl.text?.toString())
+                setCloudRulesHubUrl(binding.editUrl.text.toString())
             }
             setNegativeButton(android.R.string.cancel) { _, _ ->
             }
@@ -57,8 +54,8 @@ class UpdatesPrefFragment : PrefFragment(R.xml.preferences_update), SharedPrefer
         }.create().show()
     }
 
-    private fun setCloudRulesHubUrl(s: String?) {
-        PreferencesMap.cloud_rules_hub_url = s ?: AppValue.default_cloud_rules_hub_url
+    private fun setCloudRulesHubUrl(s: String) {
+        PreferencesMap.cloud_rules_hub_url = s
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
