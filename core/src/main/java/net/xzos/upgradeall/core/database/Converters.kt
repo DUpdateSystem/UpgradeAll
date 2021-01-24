@@ -2,7 +2,6 @@ package net.xzos.upgradeall.core.database
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.core.data.json.AppConfigGson
 import net.xzos.upgradeall.core.data.json.HubConfigGson
@@ -71,7 +70,7 @@ class Converters {
         return Gson().fromJson(s, HubConfigGson::class.java)
     }
 
-    private fun stringToCollectionMap(s: String?): Collection<Map<String, String>> {
+    private fun stringToCollectionMap(s: String?): Collection<Map<String, String?>> {
         if (s.isNullOrEmpty()) return emptyList()
 
         return try {
@@ -126,17 +125,20 @@ class Converters {
 
     @TypeConverter
     fun fromMapToString(dict: Map<String, String?>?): String? {
-        dict?.run {
-            val gson = GsonBuilder().serializeNulls().create()
-            return gson.toJson(dict)
-        } ?: return null
+        return JSONObject().apply {
+            for ((k, v) in dict?.iterator()?: return null) {
+                put(k, v)
+            }
+        }.toString()
     }
 
     @TypeConverter
-    fun stringToMap(s: String?): Map<String, String?> {
-        s?.run {
-            val type = object : TypeToken<Map<String?, String?>?>() {}.type
-            return Gson().fromJson(s, type)
-        } ?: return emptyMap()
+    fun stringToMap(s: String?): MutableMap<String, String?> {
+        return mutableMapOf<String, String?>().apply {
+            val jsonObject = JSONObject(s?: return mutableMapOf())
+            for (k in jsonObject.keys()) {
+                this[k] = jsonObject.getString(k)
+            }
+        }
     }
 }

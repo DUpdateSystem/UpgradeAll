@@ -41,5 +41,5 @@ class HubConfigGson(
 suspend fun HubConfigGson.toHubEntity(): HubEntity {
     return metaDatabase.hubDao().loadByUuid(this.uuid)?.also {
         it.hubConfig = this
-    } ?: HubEntity(this.uuid, this, mapOf())
+    } ?: HubEntity(this.uuid, this, mutableMapOf())
 }

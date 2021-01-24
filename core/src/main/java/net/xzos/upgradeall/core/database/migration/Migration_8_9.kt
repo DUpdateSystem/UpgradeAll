@@ -3,7 +3,6 @@ package net.xzos.upgradeall.core.database.migration
 import androidx.core.database.getStringOrNull
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.google.gson.Gson
 import net.xzos.upgradeall.core.data.backup.getOrNull
 import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.file.FileUtil
@@ -32,7 +31,6 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
     private fun deleteOldDatabase(database: SupportSQLiteDatabase) {
         database.execSQL("DROP INDEX app_key_value")
         database.execSQL("DROP INDEX applications_key_value")
-        database.execSQL("CREATE UNIQUE INDEX app_key_value on app (app_id)")
         database.execSQL("DROP TABLE app")
         database.execSQL("DROP TABLE applications")
         database.execSQL("DROP TABLE hub")
@@ -50,14 +48,15 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
         database.execSQL("""
             CREATE TABLE hub
             (
-            uuid INTEGER PRIMARY KEY NOT NULL,
+            uuid TEXT PRIMARY KEY NOT NULL,
             hub_config TEXT NOT NULL,
-            auth TEXT DEFAULT NULL,
-            ignore_app_id_list TEXT DEFAULT null,
-            auto_ignore_app_id_list TEXT DEFAULT null
+            auth TEXT NOT NULL,
+            ignore_app_id_list TEXT NOT NULL,
+            user_ignore_app_id_list TEXT NOT NULL
             );
         """
         )
+        database.execSQL("CREATE UNIQUE INDEX app_key_value on app (app_id)")
     }
 
     private fun renewDatabaseData() {
@@ -72,14 +71,14 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
         for (appJson in appDatabaseMap.values) {
             database.execSQL("""
             INSERT INTO app (name, app_id, ignore_version_number, cloud_config)
-            VALUES (${appJson.getString("name")}, ${appJson.getString("app_id")}, ${appJson.getOrNull("ignore_version_number")}, ${appJson.getOrNull("cloud_config")});
+            VALUES ('${appJson.getString("name")}', '${appJson.getString("app_id")}', '${appJson.getOrNull("ignore_version_number")}', '${appJson.getOrNull("cloud_config")}');
             """
             )
         }
-        for (hubJson in hubDatabaseMap.values) {
+        for ((hub_uuid, hubJson) in hubDatabaseMap) {
             database.execSQL("""
-            INSERT INTO hub(uuid, hub_config, ignore_app_id_list, auto_ignore_app_id_list)
-            VALUES (${hubJson.getString("hub_uuid")}, ${hubJson.getString("hub_config")}, ${hubJson.getOrNull("ignore_app_id_list")}, ${hubJson.getOrNull("auto_ignore_app_id_list")});
+            INSERT INTO hub(uuid, hub_config, auth, ignore_app_id_list, user_ignore_app_id_list)
+            VALUES ('$hub_uuid', '${hubJson.getString("hub_config")}', '{}', '${hubJson.getOrNull("invalid_package_list") ?: "[]"}', '${hubJson.getOrNull("user_ignore_app_id_list") ?: "[]"}');
             """
             )
         }
@@ -132,15 +131,22 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
     }
 
     private fun renewUiConfig() {
-        val json = JSONObject(FileUtil.UI_CONFIG_FILE.readText())
-        val starJson = json.getJSONObject("user_star_tab")
+        val starJson = try {
+            val json = JSONObject(FileUtil.UI_CONFIG_FILE.readText())
+            json.getJSONObject("user_star_tab")
+        } catch (ignore: Throwable) {
+            return
+        }
         val starJsonList = starJson.getJSONArray("item_list")
         val appIdList = mutableListOf<Pair<String, Long>>()
         for (i in 0 until starJsonList.length()) {
             val item = starJsonList.getJSONObject(i)
             val s = item.getJSONArray("app_id_list").getString(0)
-            val (type, id) = s.split("-", limit = 2)
-            appIdList.add(Pair(type, id.toLong()))
+            try {
+                val (type, id) = s.split("-", limit = 2)
+                appIdList.add(Pair(type, id.toLong()))
+            } catch (ignore: Throwable) {
+            }
         }
 
         val newStarJson = JSONArray()
@@ -153,11 +159,9 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
             }
         }
         val newJson = JSONObject().apply {
-            put("user_star_app_id_list", starJson)
+            put("user_star_app_id_list", newStarJson)
         }
-        FileUtil.UI_CONFIG_FILE.writeText(
-                Gson().toJson(newJson)
-        )
+        FileUtil.UI_CONFIG_FILE.writeText(newJson.toString())
     }
 
     private fun checkHubDatabase() {
@@ -172,7 +176,7 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
     }
 
     private fun renewAppId() {
-        for ((id, json) in appDatabaseMap) {
+        for ((id, json) in appDatabaseMap.toMap()) {
             val appIdMap = urlToAppId(json)
             if (appIdMap == null) {
                 appDatabaseMap.remove(id)
@@ -190,27 +194,30 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
     private fun urlToAppId(appJson: JSONObject): Map<String, String?>? {
         val hubUuid = appJson.getString("hub_uuid")
         val hubJson = allHubDatabaseMap[hubUuid] ?: return null
-        val urlTemplates = hubJson.getJSONArray("app_url_templates")
+        val urlTemplates = hubJson.getJSONObject("hub_config").getJSONArray("app_url_templates")
         for (i in 0 until urlTemplates.length()) {
             val urlTemp = urlTemplates.getString(i)
-            val keyList = AutoTemplate.getArgsKeywords(urlTemp)
+            val keyList = AutoTemplate.getArgsKeywords(urlTemp).map { it.value }.toList()
             val autoTemplate = AutoTemplate(appJson.getString("url"), urlTemp)
             val args = autoTemplate.args
-            if (args.keys == keyList) {
-                return args
+            if (args.keys.toList() == keyList) {
+                return args.mapKeys { it.key.replaceFirst("%", "") }
             }
         }
         return null
     }
 
     private fun renewIgnoreVersionNumber(applicationJson: JSONObject) {
-        val oldJsonArray = applicationJson.getJSONArray("ignore_app_id_list")
+        val oldJsonArray = JSONArray(applicationJson.getOrNull("ignore_app_list") ?: return)
+        val hubJson = hubDatabaseMap[applicationJson.getString("hub_uuid")] ?: return
         for (i in 0 until oldJsonArray.length()) {
             val ignoreAppJson = oldJsonArray.getJSONObject(i)
             val versionNumber = ignoreAppJson.getOrNull("version_number") ?: continue
             if (versionNumber != "FOREVER_IGNORE") {
-                val appIdJson = ignoreAppJson.getJSONObject("package_id")
-                ignoreVersionNumberMap[appIdJson] = versionNumber
+                val appIdJsonS = ignoreAppJson.getOrNull("package_id") ?: continue
+                val appIdJson = JSONObject(appIdJsonS)
+                ignoreVersionNumberMap[cleanAppId(appIdJson, hubJson.getJSONObject("hub_config"))
+                        ?: continue] = versionNumber
             }
         }
     }
@@ -221,30 +228,33 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
         val jsonArray = JSONArray().apply {
             for (i in 0 until oldJsonArray.length()) {
                 val appIdJson = oldJsonArray.getJSONObject(i)
-                put(cleanAppId(appIdJson, hubJson) ?: continue)
+                put(cleanAppId(appIdJson, hubJson.getJSONObject("hub_config")) ?: continue)
             }
         }
-        applicationJson.put("invalid_package_list", jsonArray)
+        hubJson.put("invalid_package_list", jsonArray)
+        hubDatabaseMap[applicationJson.getString("hub_uuid")] = hubJson
     }
 
     private fun renewIgnoreAppIdList(applicationJson: JSONObject) {
-        val oldJsonArray = JSONArray(applicationJson.getOrNull("ignore_app_id_list") ?: return)
+        val oldJsonArray = JSONArray(applicationJson.getOrNull("ignore_app_list") ?: return)
         val hubJson = hubDatabaseMap[applicationJson.getString("hub_uuid")] ?: return
         val jsonArray = JSONArray().apply {
             for (i in 0 until oldJsonArray.length()) {
                 val ignoreAppJson = oldJsonArray.getJSONObject(i)
                 if (ignoreAppJson.getOrNull("version_number") == "FOREVER_IGNORE") {
-                    val appIdJson = ignoreAppJson.getJSONObject("package_id")
-                    put(cleanAppId(appIdJson, hubJson) ?: continue)
+                    val appIdJsonS = ignoreAppJson.getOrNull("package_id") ?: continue
+                    val appIdJson = JSONObject(appIdJsonS)
+                    put(cleanAppId(appIdJson, hubJson.getJSONObject("hub_config")) ?: continue)
                 }
             }
         }
-        applicationJson.put("auto_ignore_app_id_list", jsonArray)
+        hubJson.put("user_ignore_app_id_list", jsonArray)
+        hubDatabaseMap[applicationJson.getString("hub_uuid")] = hubJson
     }
 
     private fun cleanAppId(appIdJson: JSONObject, hubJson: JSONObject): JSONObject? {
         val key = mutableListOf<String>().apply {
-            val json = hubJson.getJSONObject("hub_config").getJSONArray("api_keywords")
+            val json = hubJson.getJSONArray("api_keywords")
             for (i in 0 until json.length())
                 add(json.getString(i))
         }
@@ -274,8 +284,8 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
                     put("name", name)
                     put("url", url)
                     put("hub_uuid", hubUuid)
-                    put("ignore_version_number", ignoreVersionNumber)
-                    put("cloud_config", cloudConfig)
+                    put("ignore_version_number", ignoreVersionNumber ?: JSONObject.NULL)
+                    put("cloud_config", cloudConfig ?: JSONObject.NULL)
                 }
                 appDatabaseMap[id] = appJson
             }
@@ -290,8 +300,8 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
                 val json = JSONObject().apply {
                     put("name", name)
                     put("hub_uuid", hubUuid)
-                    put("invalid_package_list", invalidPackageList)
-                    put("ignore_app_list", ignoreApps)
+                    put("invalid_package_list", invalidPackageList ?: JSONObject.NULL)
+                    put("ignore_app_list", ignoreApps ?: JSONObject.NULL)
                 }
                 applicationDatabaseMap[id] = json
             }
@@ -300,7 +310,7 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
             while (moveToNext()) {
                 val uuid = getString(getColumnIndex("uuid"))
                 val hubConfig = JSONObject(getString(getColumnIndex("hub_config")))
-                allHubDatabaseMap[uuid] = hubConfig
+                allHubDatabaseMap[uuid] = JSONObject().apply { put("hub_config", hubConfig) }
             }
         }
     }

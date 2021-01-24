@@ -44,7 +44,7 @@ class Hub(private val hubDatabase: HubEntity) {
 
     private fun getAppPriority(app: App): Int {
         val appId = getValidKey(app) ?: return NORMAL_PRIORITY_APP
-        val ignoreAppIdList = hubDatabase.autoIgnoreAppIdList
+        val ignoreAppIdList = hubDatabase.userIgnoreAppIdList
         return if (ignoreAppIdList.contains(appId))
             LOW_PRIORITY_APP
         else NORMAL_PRIORITY_APP
@@ -52,13 +52,13 @@ class Hub(private val hubDatabase: HubEntity) {
 
     private fun setLowPriorityApp(app: App) {
         val appId = getValidKey(app) ?: return
-        val ignoreAppIdList = hubDatabase.autoIgnoreAppIdList
+        val ignoreAppIdList = hubDatabase.userIgnoreAppIdList
         ignoreAppIdList.add(appId)
     }
 
     private fun unsetLowPriorityApp(app: App) {
         val appId = getValidKey(app) ?: return
-        val ignoreAppIdList = hubDatabase.autoIgnoreAppIdList
+        val ignoreAppIdList = hubDatabase.userIgnoreAppIdList
         ignoreAppIdList.remove(appId)
     }
 
