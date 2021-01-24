@@ -5,6 +5,8 @@ import android.os.Bundle
 import com.absinthe.libraries.utils.extensions.addPaddingBottom
 import com.absinthe.libraries.utils.extensions.addPaddingTop
 import com.absinthe.libraries.utils.utils.UiUtils
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.Updater
@@ -26,6 +28,7 @@ import net.xzos.upgradeall.ui.others.OthersActivity
 import net.xzos.upgradeall.ui.rss.RssActivity
 import net.xzos.upgradeall.utils.ToastUtil
 import net.xzos.upgradeall.utils.UxUtils
+import net.xzos.upgradeall.utils.runUiFun
 
 class MainActivity : BaseActivity() {
 
@@ -37,9 +40,10 @@ class MainActivity : BaseActivity() {
         setContentView(binding.root)
         initView()
 
-        checkUpdate()
         PreferencesMap.initByActivity(this)
     }
+
+
 
     private fun initView() {
         val homeAdapter = HomeModuleAdapter()
@@ -88,9 +92,11 @@ class MainActivity : BaseActivity() {
         }
 
         AppManager.appMapStatusChangedFun = FuncR {
-            val needUpdateNum = it[Updater.APP_OUTDATED]
-            binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), needUpdateNum)
-            binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_check_updates))
+            runUiFun {
+                val needUpdateNum = it[Updater.APP_OUTDATED]?.size ?: 0
+                binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), needUpdateNum)
+                binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_check_updates))
+            }
         }
     }
 

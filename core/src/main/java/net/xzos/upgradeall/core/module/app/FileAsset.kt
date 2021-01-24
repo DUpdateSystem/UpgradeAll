@@ -23,11 +23,9 @@ class FileAsset(
         internal val downloadUrl: String,
         internal val fileType: String,
         internal val assetIndex: Pair<Int, Int>,
-        _app: App? = null,
-        _hub: Hub? = null,
+        private val app: App,
+        private val hub: Hub,
 ) {
-    private val hub: Hub = _hub!!
-    private val app: App = _app!!
     /* 下载管理器 */
     var downloader: Downloader? = null
 
@@ -90,5 +88,16 @@ class FileAsset(
                 }
             }
         }
+    }
+
+    companion object{
+        class TmpFileAsset(
+                /* 文件数据名称，用来给用户看的 */
+                val name: String,
+                /* 默认下载链接 */
+                internal val downloadUrl: String,
+                internal val fileType: String,
+                internal val assetIndex: Pair<Int, Int>,
+        )
     }
 }

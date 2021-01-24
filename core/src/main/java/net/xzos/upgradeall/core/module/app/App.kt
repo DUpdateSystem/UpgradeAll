@@ -103,15 +103,15 @@ class App(
                         ?: Version(versionNumber, mutableListOf()).also {
                             versionMap[versionNumber] = it
                         }
-                val asset = Asset(hub, release.changeLog, this,
+                val asset = Asset(hub, release.changeLog,
                         release.assetsList.mapIndexed { assetIndex, assetItem ->
-                            FileAsset(
+                            FileAsset.Companion.TmpFileAsset(
                                     assetItem.fileName,
                                     assetItem.downloadUrl,
                                     assetItem.fileType,
                                     Pair(versionIndex, assetIndex)
                             )
-                        })
+                        }, this)
                 version.assetList.add(asset)
             }
         }

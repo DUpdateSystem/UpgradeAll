@@ -14,10 +14,10 @@ class Hub(private val hubDatabase: HubEntity) {
         val appId = getValidKey(app) ?: return false
         for (ignoreAppId in hubDatabase.ignoreAppIdList) {
             if (ignoreAppId == appId) {
-                return true
+                return false
             }
         }
-        return false
+        return true
     }
 
     private fun getValidKey(app: App): Map<String, String>? {

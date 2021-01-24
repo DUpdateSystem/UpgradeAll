@@ -17,7 +17,6 @@ import androidx.lifecycle.MutableLiveData
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.data.PreferencesMap
-import org.json.JSONException
 import java.util.*
 
 
@@ -115,3 +114,9 @@ fun <T> MutableLiveData<T>.setValueBackground(value: T) {
  * 返回 MutableLiveData
  */
 fun <T> mutableLiveDataOf(): MutableLiveData<T> = MutableLiveData()
+
+fun runUiFun(f: () -> Unit) {
+    Handler(Looper.getMainLooper()).post {
+        f()
+    }
+}

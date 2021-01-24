@@ -13,6 +13,8 @@ import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import java.io.StringReader
 import java.security.MessageDigest
 import java.util.*
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 fun String.md5(): String {
     val md = MessageDigest.getInstance("MD5")
@@ -33,8 +35,8 @@ suspend fun Mutex.wait() {
     }
 }
 
-fun <T> Mutex.runWithLock(action: () -> T): T {
-    return runBlocking {
+fun <T> Mutex.runWithLock(context: CoroutineContext = EmptyCoroutineContext,action: () -> T): T {
+    return runBlocking(context) {
         this@runWithLock.withLock {
             action()
         }
