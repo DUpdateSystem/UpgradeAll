@@ -91,15 +91,17 @@ class MainActivity : BaseActivity() {
 
         AppManager.appMapStatusChangedFun = FuncR {
             runUiFun {
-                val needUpdateNum = it[Updater.APP_OUTDATED]?.size ?: 0
+                val needUpdateNum = it[Updater.APP_OUTDATED]
                 binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), needUpdateNum)
                 binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_check_updates))
+                binding.layoutUpdatingCard.ivIcon.setImageResource(R.drawable.ic_done)
             }
         }
     }
 
     private fun checkUpdate() {
         binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_checking_updates))
+        binding.layoutUpdatingCard.ivIcon.setImageResource(R.drawable.ic_loading)
         UpdateService.startService(this@MainActivity)
     }
 }
