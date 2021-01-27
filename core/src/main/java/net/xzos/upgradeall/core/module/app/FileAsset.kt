@@ -79,8 +79,8 @@ class FileAsset(
                     else -> {
                         ApkInstaller.multipleInstall(
                                 downloader!!.downloadDir,
-                                fun(e) { failedInstallObserverFun.call(e) },
-                                fun(_) { completeInstallFunc.call() }
+                                fun(e) { failedInstallObserverFun(e) },
+                                fun(_) { completeInstallFunc() }
                         )
                     }
                 }

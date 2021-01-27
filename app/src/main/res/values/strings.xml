@@ -216,6 +216,7 @@
     <string name="hub_format_app_update_tip">共 %d 个应用更新</string>
     <string name="hub_update_all">全部升级</string>
     <string name="hub_ignore_all">全部忽略</string>
+    <string name="num_zero">0</string>
 
     <!-- APP Setting -->
     <string name="ok">确认</string>

@@ -22,6 +22,27 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
     var downloadId: DownloadId = DownloadId(false, -1)
     val downloadDir = FileUtil.getNewRandomNameFile(FileUtil.DOWNLOAD_CACHE_DIR)
 
+    private var _downloadOb: DownloadOb? = null
+    fun setStatusChangedFun(func: () -> Unit) {
+        val downloadOb = DownloadOb(
+                { func() }, { func() }, { func() }, { func() }, { func() }, { func() }
+        ).apply {
+            _downloadOb = this
+        }
+        DownloadRegister.registerOb(downloadId, downloadOb)
+    }
+
+    fun cleanStatusChangedFun() {
+        _downloadOb?.run {
+            DownloadRegister.unRegisterByOb(this)
+            _downloadOb = null
+        }
+    }
+
+    private fun unregister(downloadOb: DownloadOb) {
+    }
+
+
     private val fetch = DownloadService.getFetch()
 
     private val requestList: MutableList<Request> = mutableListOf()
@@ -111,6 +132,15 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
         } ?: return -1
     }
 
+    suspend fun getDownloadList(): List<Download> {
+        getFetchDownload(downloadId)?.run {
+            return listOf(this)
+        } ?: getFetchGroup(downloadId)?.run {
+            return this.downloads
+        }
+        return emptyList()
+    }
+
     fun retry() {
         if (downloadId.isGroup) {
             fetch.getDownloadsInGroup(downloadId.id) {
@@ -127,14 +157,6 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
             fetch.cancelGroup(downloadId.id)
         else
             fetch.cancel(downloadId.id)
-    }
-
-    private fun register(downloadOb: DownloadOb) {
-        DownloadRegister.registerOb(downloadId, downloadOb)
-    }
-
-    private fun unregister(downloadOb: DownloadOb) {
-        DownloadRegister.unRegisterByOb(downloadOb)
     }
 
     private fun delTask() {
@@ -202,27 +224,23 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
         return request
     }
 
+    @Suppress("RedundantSuspendModifier")
     private suspend fun getFetchDownload(downloadId: DownloadId): Download? {
-        var download: Download? = null
-        with(Mutex(true)) {
-            if (!downloadId.isGroup)
-                fetch.getDownload(downloadId.id) {
-                    unlockAfterComplete { download = it }
-                }
-            wait()
+        if (downloadId.isGroup) return null
+        val valueLock = ValueLock<Download?>()
+        fetch.getDownload(downloadId.id) {
+            valueLock.value = it
         }
-        return download
+        return valueLock.value
     }
 
+    @Suppress("RedundantSuspendModifier")
     private suspend fun getFetchGroup(downloadId: DownloadId): FetchGroup? {
-        var download: FetchGroup? = null
-        with(Mutex(true)) {
-            if (downloadId.isGroup)
-                fetch.getFetchGroup(downloadId.id) {
-                    unlockAfterComplete { download = it }
-                }
-            wait()
+        if (!downloadId.isGroup) return null
+        val valueLock = ValueLock<FetchGroup>()
+        fetch.getFetchGroup(downloadId.id) {
+            valueLock.value = it
         }
-        return download
+        return valueLock.value
     }
 }

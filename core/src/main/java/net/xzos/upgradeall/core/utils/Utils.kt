@@ -29,7 +29,7 @@ fun parsePropertiesString(s: String): Properties {
 }
 
 fun Mutex.unlockAfterComplete(action: () -> Unit) {
-    action
+    action()
     if (this.isLocked) {
         this.unlock()
     }

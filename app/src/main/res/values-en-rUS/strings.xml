@@ -207,6 +207,7 @@
     <string name="home_module_discovery">Discover</string>
     <string name="clean_all_log_alert_message">It will drop all logs</string>
     <string name="clean_sort_log_alert_message">It will drop current sort logs</string>
+    <string name="num_zero">0</string>
 
     <!-- APP Setting -->
     <string name="ok">OK</string>
