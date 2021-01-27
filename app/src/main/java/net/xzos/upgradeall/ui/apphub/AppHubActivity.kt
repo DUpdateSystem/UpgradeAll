@@ -44,7 +44,7 @@ open class AppHubActivity : AppBarActivity() {
                 }
 
                 override fun createFragment(position: Int): Fragment {
-                    return HubListFragment()
+                    return HubListFragment.newInstance(position)
                 }
             }
         }

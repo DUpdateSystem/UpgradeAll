@@ -11,11 +11,14 @@ import net.xzos.upgradeall.ui.apphub.adapter.HubListAdapter
 import net.xzos.upgradeall.ui.detail.AppDetailActivity
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppHubViewModel
 
+private const val EXTRA_INDEX = "EXTRA_INDEX"
+
 class HubListFragment : Fragment() {
 
     private lateinit var binding: FragmentHubListBinding
     private val adapter = HubListAdapter()
     private val viewModel by activityViewModels<AppHubViewModel>()
+    private val index by lazy { arguments?.getInt(EXTRA_INDEX) ?: -1 }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentHubListBinding.inflate(inflater)
@@ -41,5 +44,15 @@ class HubListFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.itemCountLiveData.value = adapter.itemCount
+    }
+
+    companion object {
+        fun newInstance(index: Int): HubListFragment {
+            return HubListFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(EXTRA_INDEX, index)
+                }
+            }
+        }
     }
 }
