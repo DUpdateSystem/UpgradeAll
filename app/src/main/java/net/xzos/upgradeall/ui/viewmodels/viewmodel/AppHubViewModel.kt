@@ -10,7 +10,7 @@ class AppHubViewModel : AppListContainerViewModel() {
 
     private val mTabPageIndex = MutableLiveData<String>().apply {
         this.observeForever { appType ->
-            AppManager.getAppList(appType)
+            setAppList(AppManager.getAppList(appType))
         }
     }
 

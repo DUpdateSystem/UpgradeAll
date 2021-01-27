@@ -36,8 +36,8 @@ class HubListFragment : Fragment() {
             AppDetailActivity.startActivity(requireContext(), adapter.data[position].app)
         }
 
-        viewModel.appCardViewList.observe(viewLifecycleOwner, {
-            adapter.setList(it)
+        viewModel.appListLiveData.observe(viewLifecycleOwner, {
+            adapter.setList(viewModel.appCardViewList.value)
         })
     }
 

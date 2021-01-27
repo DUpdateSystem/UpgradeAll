@@ -11,7 +11,7 @@ import net.xzos.upgradeall.utils.mutableLiveDataOf
 import net.xzos.upgradeall.utils.setValueBackground
 
 abstract class AppListContainerViewModel : ViewModel() {
-    private val appListLiveData: MutableLiveData<List<App>> = mutableLiveDataOf()  // 列表中所有的 APP
+    val appListLiveData: MutableLiveData<List<App>> = mutableLiveDataOf()  // 列表中所有的 APP
 
     internal fun setAppList(list: List<App>) {
         appListLiveData.setValueBackground(list)
@@ -30,6 +30,4 @@ abstract class AppListContainerViewModel : ViewModel() {
             }.toMutableList()
         }
     }
-
-    internal fun getAppList(): List<App> = appListLiveData.value!!
 }
