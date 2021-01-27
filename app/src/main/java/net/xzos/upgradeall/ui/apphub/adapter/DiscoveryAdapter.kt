@@ -17,7 +17,7 @@ import net.xzos.upgradeall.utils.UxUtils
 import java.util.*
 import java.util.regex.Pattern
 
-class DiscoveryAdapter : BaseQuickAdapter<CloudConfigListItemView, BaseViewHolder>(R.layout.item_hub_app) {
+class DiscoveryAdapter : BaseQuickAdapter<CloudConfigListItemView, BaseViewHolder>(R.layout.item_discover_app) {
 
     override fun convert(holder: BaseViewHolder, item: CloudConfigListItemView) {
         holder.setText(R.id.tv_app_name, item.name)
