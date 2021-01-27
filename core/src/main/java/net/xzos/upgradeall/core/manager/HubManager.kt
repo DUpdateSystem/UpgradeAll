@@ -7,11 +7,11 @@ import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.module.Hub
 
 object HubManager {
-    private val hubMap: MutableMap<String, Hub> =
-            runBlocking { metaDatabase.hubDao().loadAll() }.associateBy({ it.uuid }, { Hub(it) })
-                    .toMutableMap()
+    private val hubMap: MutableMap<String, Hub> = runBlocking { metaDatabase.hubDao().loadAll() }
+            .associateBy({ it.uuid }, { Hub(it) })
+            .toMutableMap()
 
-    fun getHubList(): Collection<Hub> = hubMap.values
+    fun getHubList(): List<Hub> = hubMap.values.toList()
 
     fun getHub(uuid: String): Hub? = hubMap[uuid]
 

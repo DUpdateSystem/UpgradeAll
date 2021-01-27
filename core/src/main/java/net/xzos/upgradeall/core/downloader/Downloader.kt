@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.downloader
 
 import com.tonyodev.fetch2.Download
+import com.tonyodev.fetch2.FetchGroup
 import com.tonyodev.fetch2.Request
 import com.tonyodev.fetch2.util.DEFAULT_GROUP_ID
 import kotlinx.coroutines.sync.Mutex
@@ -8,21 +9,39 @@ import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.module.app.FileAsset
-import net.xzos.upgradeall.core.utils.Func
-import net.xzos.upgradeall.core.utils.FuncR
+import net.xzos.upgradeall.core.utils.*
 import net.xzos.upgradeall.core.utils.file.FileUtil
 import net.xzos.upgradeall.core.utils.file.getFileByAutoRename
 import net.xzos.upgradeall.core.utils.oberver.ObserverFun
-import net.xzos.upgradeall.core.utils.runWithLock
-import net.xzos.upgradeall.core.utils.wait
 import java.io.File
 
 
 /* 下载管理 */
-class Downloader(val fileAsset: FileAsset) {
+class Downloader internal constructor(val name: String, val fileAsset: FileAsset) {
 
     var downloadId: DownloadId = DownloadId(false, -1)
     val downloadDir = FileUtil.getNewRandomNameFile(FileUtil.DOWNLOAD_CACHE_DIR)
+
+    private var _downloadOb: DownloadOb? = null
+    fun setStatusChangedFun(func: () -> Unit) {
+        val downloadOb = DownloadOb(
+                { func() }, { func() }, { func() }, { func() }, { func() }, { func() }
+        ).apply {
+            _downloadOb = this
+        }
+        DownloadRegister.registerOb(downloadId, downloadOb)
+    }
+
+    fun cleanStatusChangedFun() {
+        _downloadOb?.run {
+            DownloadRegister.unRegisterByOb(this)
+            _downloadOb = null
+        }
+    }
+
+    private fun unregister(downloadOb: DownloadOb) {
+    }
+
 
     private val fetch = DownloadService.getFetch()
 
@@ -41,22 +60,11 @@ class Downloader(val fileAsset: FileAsset) {
     }
 
     suspend fun getFileList(): List<File> {
-        val mutex = Mutex(true)
-        val fileList = mutableListOf<File>()
-        if (downloadId.isGroup)
-            fetch.getDownloadsInGroup(downloadId.id) {
-                for (download in it) {
-                    fileList.add(File(download.file))
-                }
-                mutex.unlock()
-            }
-        else
-            fetch.getDownload(downloadId.id) {
-                if (it != null) fileList.add(File(it.file))
-                mutex.unlock()
-            }
-        mutex.wait()
-        return fileList
+        getFetchDownload(downloadId)?.run {
+            return listOf(File(this.file))
+        } ?: getFetchGroup(downloadId)?.run {
+            return downloads.map { File(it.file) }
+        } ?: return listOf()
     }
 
     fun removeFile() {
@@ -73,11 +81,11 @@ class Downloader(val fileAsset: FileAsset) {
         }
     }
 
-    fun start(taskStartedFun: FuncR<Int>, taskStartFailedFun: Func, downloadOb: DownloadOb) {
+    fun start(taskStartedFun: (Int) -> Unit, taskStartFailedFun: () -> Unit, downloadOb: DownloadOb) {
         if (!downloadDir.exists())
             downloadDir.mkdirs()
         if (requestList.isEmpty()) {
-            taskStartFailedFun.call()
+            taskStartFailedFun()
             return
         }
         downloadId = if (requestList.size == 1)
@@ -94,10 +102,10 @@ class Downloader(val fileAsset: FileAsset) {
                     start = true
                     DownloadRegister.registerOb(downloadId, downloadOb)
                     register()
-                    taskStartedFun.call(request.id)
+                    taskStartedFun(request.id)
                 }
             }, fun(_) {
-                taskStartFailedFun.call()
+                taskStartFailedFun()
             })
         }
     }
@@ -114,6 +122,23 @@ class Downloader(val fileAsset: FileAsset) {
             fetch.pauseGroup(downloadId.id)
         else
             fetch.pause(downloadId.id)
+    }
+
+    suspend fun getDownloadProgress(): Int {
+        getFetchDownload(downloadId)?.run {
+            return progress
+        } ?: getFetchGroup(downloadId)?.run {
+            return groupDownloadProgress
+        } ?: return -1
+    }
+
+    suspend fun getDownloadList(): List<Download> {
+        getFetchDownload(downloadId)?.run {
+            return listOf(this)
+        } ?: getFetchGroup(downloadId)?.run {
+            return this.downloads
+        }
+        return emptyList()
     }
 
     fun retry() {
@@ -197,5 +222,25 @@ class Downloader(val fileAsset: FileAsset) {
             }
         }
         return request
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    private suspend fun getFetchDownload(downloadId: DownloadId): Download? {
+        if (downloadId.isGroup) return null
+        val valueLock = ValueLock<Download?>()
+        fetch.getDownload(downloadId.id) {
+            valueLock.value = it
+        }
+        return valueLock.value
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    private suspend fun getFetchGroup(downloadId: DownloadId): FetchGroup? {
+        if (!downloadId.isGroup) return null
+        val valueLock = ValueLock<FetchGroup>()
+        fetch.getFetchGroup(downloadId.id) {
+            valueLock.value = it
+        }
+        return valueLock.value
     }
 }

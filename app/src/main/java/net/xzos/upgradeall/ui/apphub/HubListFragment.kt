@@ -5,20 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import net.xzos.upgradeall.databinding.FragmentHubListBinding
-import net.xzos.upgradeall.ui.apphub.adapter.HubListAdapter
-import net.xzos.upgradeall.ui.detail.AppDetailActivity
-import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppHubViewModel
+import net.xzos.upgradeall.ui.viewmodels.view.ListView
+import net.xzos.upgradeall.ui.viewmodels.viewmodel.ListContainerViewModel
 
-private const val EXTRA_INDEX = "EXTRA_INDEX"
-
-class HubListFragment : Fragment() {
+abstract class HubListFragment<T: ListView> : Fragment() {
 
     private lateinit var binding: FragmentHubListBinding
-    private val adapter = HubListAdapter()
-    private val viewModel by activityViewModels<AppHubViewModel>()
-    private val index by lazy { arguments?.getInt(EXTRA_INDEX) ?: -1 }
+    protected abstract val adapter: BaseQuickAdapter<T, BaseViewHolder>
+    protected abstract val viewModel: ListContainerViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentHubListBinding.inflate(inflater)
@@ -27,32 +24,11 @@ class HubListFragment : Fragment() {
     }
 
     private fun initView() {
-        binding.apply {
-            rvList.apply {
-                adapter = this@HubListFragment.adapter
-            }
-        }
-        adapter.setOnItemClickListener { _, _, position ->
-            AppDetailActivity.startActivity(requireContext(), adapter.data[position].app)
-        }
+        binding.rvList.adapter = this.adapter
 
-        viewModel.appListLiveData.observe(viewLifecycleOwner, {
-            adapter.setList(viewModel.appCardViewList.value)
+        viewModel.getList().observe(viewLifecycleOwner, {
+            @Suppress("UNCHECKED_CAST")
+            adapter.setList(it as Collection<T>)
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.itemCountLiveData.value = adapter.itemCount
-    }
-
-    companion object {
-        fun newInstance(index: Int): HubListFragment {
-            return HubListFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(EXTRA_INDEX, index)
-                }
-            }
-        }
     }
 }

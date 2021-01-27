@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import net.xzos.upgradeall.core.manager.AppManager
 
 
-class AppHubViewModel : AppListContainerViewModel() {
+class HubViewModel : ListContainerViewModel() {
 
     val itemCountLiveData: MutableLiveData<Int> = MutableLiveData(0)
 

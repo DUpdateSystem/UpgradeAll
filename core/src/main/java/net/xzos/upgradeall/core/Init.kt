@@ -6,6 +6,8 @@ import net.xzos.upgradeall.core.data.CoreConfig
 import net.xzos.upgradeall.core.data.WebDavConfig
 import net.xzos.upgradeall.core.downloader.DownloadService
 import net.xzos.upgradeall.core.installer.ApkShizukuInstaller
+import net.xzos.upgradeall.core.manager.AppManager
+import net.xzos.upgradeall.core.manager.HubManager
 
 
 lateinit var coreConfig: CoreConfig
@@ -28,4 +30,11 @@ fun initCore(
     webDavConfig = _webDavConfig
     downloaderNotificationMaker?.run { DownloadService.setNotificationMaker(this) }
     activity?.run { ApkShizukuInstaller.initByActivity(this, 0) }
+    initObject()
+}
+
+// 提前初始化 Object，避免多线程时属性初始化错误
+private fun initObject() {
+    HubManager
+    AppManager
 }

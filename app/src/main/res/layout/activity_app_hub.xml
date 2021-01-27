@@ -10,6 +10,7 @@
         layout="@layout/app_bar" />
 
     <LinearLayout
+        android:id="@+id/tab_layout_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"

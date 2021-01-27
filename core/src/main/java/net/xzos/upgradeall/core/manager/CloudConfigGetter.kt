@@ -12,7 +12,6 @@ import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.module.network.DataCache
 import net.xzos.upgradeall.core.module.network.GrpcApi
 import net.xzos.upgradeall.core.module.network.OkHttpApi
-import net.xzos.upgradeall.core.utils.FuncR
 
 
 object CloudConfigGetter {
@@ -87,18 +86,18 @@ object CloudConfigGetter {
      * @see FAILED_GET_HUB_DATA 获取 HubConfig 失败
      * @see FAILED 添加数据库失败
      */
-    private suspend fun downloadCloudHubConfig(hubUuid: String?, notifyFun: FuncR<Int>): Boolean {
+    private suspend fun downloadCloudHubConfig(hubUuid: String?, notifyFun: (Int) -> Unit): Boolean {
         getHubCloudConfig(hubUuid)?.run {
-            notifyFun.call(SUCCESS_GET_HUB_DATA)
+            notifyFun(SUCCESS_GET_HUB_DATA)
             if (HubManager.updateHub(this.toHubEntity())) {
-                notifyFun.call(SUCCESS_SAVE_HUB_DATA)
-                notifyFun.call(SUCCESS)
+                notifyFun(SUCCESS_SAVE_HUB_DATA)
+                notifyFun(SUCCESS)
                 return true
             } else {
-                notifyFun.call(FAILED_SAVE_HUB_DATA)
-                notifyFun.call(FAILED)
+                notifyFun(FAILED_SAVE_HUB_DATA)
+                notifyFun(FAILED)
             }
-        } ?: notifyFun.call(FAILED_GET_HUB_DATA)
+        } ?: notifyFun(FAILED_GET_HUB_DATA)
         return false
     }
 
@@ -106,28 +105,28 @@ object CloudConfigGetter {
      * 添加数据库成功, NULL 添加数据库失败
      * @return AppDatabase
      */
-    suspend fun downloadCloudAppConfig(appUuid: String?, notifyFun: FuncR<Int>): AppEntity? {
+    suspend fun downloadCloudAppConfig(appUuid: String?, notifyFun: (Int) -> Unit): AppEntity? {
         getAppCloudConfig(appUuid)?.run {
-            notifyFun.call(SUCCESS_GET_APP_DATA)
+            notifyFun(SUCCESS_GET_APP_DATA)
             if (solveHubDependency(this.baseHubUuid, notifyFun)) {
                 this.toAppEntity()?.run {
                     // 添加数据库
                     val appDatabase = AppManager.updateApp(this)
                     if (appDatabase != null) {
-                        notifyFun.call(SUCCESS_SAVE_APP_DATA)
-                        notifyFun.call(SUCCESS)
+                        notifyFun(SUCCESS_SAVE_APP_DATA)
+                        notifyFun(SUCCESS)
                         return appDatabase
                     } else {
-                        notifyFun.call(FAILED_SAVE_APP_DATA)
-                        notifyFun.call(FAILED)
+                        notifyFun(FAILED_SAVE_APP_DATA)
+                        notifyFun(FAILED)
                     }
-                } ?: notifyFun.call(FAILED_GET_APP_DATA)
+                } ?: notifyFun(FAILED_GET_APP_DATA)
             }
-        } ?: notifyFun.call(FAILED_GET_APP_DATA)
+        } ?: notifyFun(FAILED_GET_APP_DATA)
         return null
     }
 
-    private suspend fun solveHubDependency(hubUuid: String, notifyFun: FuncR<Int>): Boolean {
+    private suspend fun solveHubDependency(hubUuid: String, notifyFun: (Int) -> Unit): Boolean {
         return if (HubManager.getHub(hubUuid) == null) {
             downloadCloudHubConfig(hubUuid, notifyFun)
         } else true

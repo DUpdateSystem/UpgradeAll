@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            android:background="@null"
+            android:clipToPadding="false"
+            android:paddingHorizontal="16dp">
+
+            <TextView
+                android:id="@+id/iv_icon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_circle"
+                android:contentDescription="App icon"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:transitionName="app_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="HardcodedText"
+                tools:text="A" />
+
+            <TextView
+                android:id="@+id/tv_app_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="16sp"
+                android:transitionName="app_name"
+                app:layout_constraintBottom_toBottomOf="@+id/iv_icon"
+                app:layout_constraintStart_toEndOf="@id/iv_icon"
+                app:layout_constraintTop_toTopOf="@id/iv_icon"
+                tools:text="@string/app_name" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroup"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="@id/tv_app_name"
+                app:layout_constraintStart_toStartOf="@id/tv_app_name"
+                app:layout_constraintTop_toBottomOf="@id/tv_app_name"
+                app:singleLine="true" />
+
+            <TextView
+                android:id="@+id/tv_completed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:drawablePadding="4dp"
+                android:text="@string/num_zero"
+                android:textColor="@color/coolapk_green"
+                app:drawableLeftCompat="@drawable/bg_circle"
+                app:drawableTint="@color/coolapk_green"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_downloading"
+                app:layout_constraintEnd_toStartOf="@+id/tv_downloading"
+                app:layout_constraintTop_toTopOf="@+id/tv_downloading"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <TextView
+                android:id="@+id/tv_downloading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:drawablePadding="4dp"
+                android:text="@string/num_zero"
+                android:textColor="@color/colorBlue"
+                app:drawableLeftCompat="@drawable/bg_circle"
+                app:drawableTint="@color/colorBlue"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_failed"
+                app:layout_constraintEnd_toStartOf="@+id/tv_failed"
+                app:layout_constraintTop_toTopOf="@+id/tv_failed"
+                app:layout_constraintVertical_bias="1.0" />
+
+            <TextView
+                android:id="@+id/tv_failed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="4dp"
+                android:text="@string/num_zero"
+                android:textColor="@color/colorRed"
+                app:drawableLeftCompat="@drawable/bg_circle"
+                app:drawableTint="@color/colorRed"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ProgressBar
+            android:id="@+id/determinateBar"
+            style="@android:style/Widget.Material.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:progress="25"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -8,8 +8,6 @@ import net.xzos.upgradeall.core.installer.isApkFile
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.network.GrpcApi
 import net.xzos.upgradeall.core.module.network.toMap
-import net.xzos.upgradeall.core.utils.Func
-import net.xzos.upgradeall.core.utils.FuncR
 
 
 /**
@@ -23,17 +21,15 @@ class FileAsset(
         internal val downloadUrl: String,
         internal val fileType: String,
         internal val assetIndex: Pair<Int, Int>,
-        _app: App? = null,
-        _hub: Hub? = null,
+        private val app: App,
+        private val hub: Hub,
 ) {
-    private val hub: Hub = _hub!!
-    private val app: App = _app!!
     /* 下载管理器 */
     var downloader: Downloader? = null
 
     suspend fun download(
-            taskStartedFun: FuncR<Int>,
-            taskStartFailedFun: Func,
+            taskStartedFun: (Int) -> Unit,
+            taskStartFailedFun: () -> Unit,
             downloadOb: DownloadOb,
     ) {
         val appId = app.appId
@@ -52,7 +48,7 @@ class FileAsset(
         }
         if (list.isNullOrEmpty())
             list = listOf(DownloadInfoItem(name, downloadUrl, mapOf(), mapOf()))
-        downloader = Downloader(this).apply {
+        downloader = Downloader(name, this).apply {
             for (downloadInfo in list) {
                 addTask(
                         downloadInfo.name,
@@ -69,26 +65,37 @@ class FileAsset(
     val installable: Boolean
         get() = downloader?.downloadDir?.isApkFile() ?: false
 
-    suspend fun install(failedInstallObserverFun: FuncR<Throwable>, completeInstallFunc: Func) {
+    suspend fun install(failedInstallObserverFun: (Throwable) -> Unit, completeInstallFunc: () -> Unit) {
         if (installable) {
             downloader?.getFileList()?.run {
                 when (this.size) {
                     0 -> return
                     1 -> {
                         ApkInstaller.install(this[0],
-                                fun(e) { failedInstallObserverFun.call(e) },
-                                fun(_) { completeInstallFunc.call() }
+                                fun(e) { failedInstallObserverFun(e) },
+                                fun(_) { completeInstallFunc() }
                         )
                     }
                     else -> {
                         ApkInstaller.multipleInstall(
                                 downloader!!.downloadDir,
-                                fun(e) { failedInstallObserverFun.call(e) },
-                                fun(_) { completeInstallFunc.call() }
+                                fun(e) { failedInstallObserverFun(e) },
+                                fun(_) { completeInstallFunc() }
                         )
                     }
                 }
             }
         }
+    }
+
+    companion object {
+        class TmpFileAsset(
+                /* 文件数据名称，用来给用户看的 */
+                val name: String,
+                /* 默认下载链接 */
+                internal val downloadUrl: String,
+                internal val fileType: String,
+                internal val assetIndex: Pair<Int, Int>,
+        )
     }
 }

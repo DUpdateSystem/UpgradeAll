@@ -10,7 +10,8 @@ class Asset(
         val hub: Hub,
         /* 更新日志 */
         val changeLog: String?,
-        _app: App, _fileAssetList: List<FileAsset>
+        _fileAssetList: List<FileAsset.Companion.TmpFileAsset>,
+        _app: App,
 ) {
     /* 文件数据列表 */
     val fileAssetList: List<FileAsset> = _fileAssetList.map {

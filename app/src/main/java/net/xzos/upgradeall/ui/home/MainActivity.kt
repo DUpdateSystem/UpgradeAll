@@ -8,7 +8,6 @@ import com.absinthe.libraries.utils.utils.UiUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.Updater
-import net.xzos.upgradeall.core.utils.FuncR
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
 import net.xzos.upgradeall.server.update.UpdateService
@@ -26,6 +25,7 @@ import net.xzos.upgradeall.ui.others.OthersActivity
 import net.xzos.upgradeall.ui.rss.RssActivity
 import net.xzos.upgradeall.utils.ToastUtil
 import net.xzos.upgradeall.utils.UxUtils
+import net.xzos.upgradeall.utils.runUiFun
 
 class MainActivity : BaseActivity() {
 
@@ -40,6 +40,7 @@ class MainActivity : BaseActivity() {
         checkUpdate()
         PreferencesMap.initByActivity(this)
     }
+
 
     private fun initView() {
         val homeAdapter = HomeModuleAdapter()
@@ -87,11 +88,13 @@ class MainActivity : BaseActivity() {
             }
         }
 
-        AppManager.appMapStatusChangedFun = FuncR {
-            val needUpdateNum = it[Updater.APP_OUTDATED]
-            binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), needUpdateNum)
-            binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_check_updates))
-            binding.layoutUpdatingCard.ivIcon.setImageResource(R.drawable.ic_done)
+        AppManager.appMapStatusChangedFun = {
+            runUiFun {
+                val needUpdateNum = it[Updater.APP_OUTDATED]?.size ?: 0
+                binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), needUpdateNum)
+                binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_check_updates))
+                binding.layoutUpdatingCard.ivIcon.setImageResource(R.drawable.ic_done)
+            }
         }
     }
 

@@ -17,7 +17,6 @@ import androidx.lifecycle.MutableLiveData
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.data.PreferencesMap
-import org.json.JSONException
 import java.util.*
 
 
@@ -81,13 +80,13 @@ object MiscellaneousUtils {
     }
 
     fun showToast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
-        Handler(Looper.getMainLooper()).post {
+        runUiFun {
             ToastUtil.makeText(resId, duration)
         }
     }
 
     fun showToast(text: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
-        Handler(Looper.getMainLooper()).post {
+        runUiFun {
             ToastUtil.makeText(text.toString(), duration)
         }
     }
@@ -97,7 +96,7 @@ object MiscellaneousUtils {
  * 拓展 LiveData 监听列表元素添加、删除操作的支持
  */
 fun <T> MutableLiveData<T>.notifyObserver() {
-    Handler(Looper.getMainLooper()).post {
+    runUiFun {
         this.value = this.value
     }
 }
@@ -106,7 +105,7 @@ fun <T> MutableLiveData<T>.notifyObserver() {
  * 拓展 LiveData 设置值操作
  */
 fun <T> MutableLiveData<T>.setValueBackground(value: T) {
-    Handler(Looper.getMainLooper()).post {
+    runUiFun {
         this.value = value
     }
 }
@@ -115,3 +114,9 @@ fun <T> MutableLiveData<T>.setValueBackground(value: T) {
  * 返回 MutableLiveData
  */
 fun <T> mutableLiveDataOf(): MutableLiveData<T> = MutableLiveData()
+
+fun runUiFun(f: () -> Unit) {
+    Handler(Looper.getMainLooper()).post {
+        f()
+    }
+}

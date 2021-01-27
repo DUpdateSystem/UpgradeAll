@@ -9,7 +9,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.ActivityAppHubBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
-import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppHubViewModel
+import net.xzos.upgradeall.ui.viewmodels.viewmodel.HubViewModel
 
 const val TAB_UPDATE = 0
 const val TAB_ALL = 1
@@ -17,8 +17,8 @@ const val TAB_IGNORED = 2
 
 open class AppHubActivity : AppBarActivity() {
 
-    private lateinit var binding: ActivityAppHubBinding
-    private val viewModel by viewModels<AppHubViewModel>()
+    protected lateinit var binding: ActivityAppHubBinding
+    private val viewModel by viewModels<HubViewModel>()
 
     override fun initBinding(): View {
         binding = ActivityAppHubBinding.inflate(layoutInflater)
