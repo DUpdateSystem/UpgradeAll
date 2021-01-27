@@ -6,8 +6,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
-import net.xzos.upgradeall.core.utils.Func
-import net.xzos.upgradeall.core.utils.FuncR
 import net.xzos.upgradeall.core.webDavConfig
 
 
@@ -27,34 +25,34 @@ class CloudBackupManager {
         }, fun(_) {})
     }
 
-    fun backup(startFunc: Func, stopFunc: Func, errorFunc: FuncR<Throwable>) {
+    fun backup(startFunc: () -> Unit, stopFunc: () -> Unit, errorFunc: (Throwable) -> Unit) {
         GlobalScope.launch {
             doBackup(startFunc, stopFunc, errorFunc)
         }
     }
 
-    suspend fun restoreBackup(fileName: String, startFunc: Func, stopFunc: Func, errorFunc: FuncR<Throwable>) {
+    suspend fun restoreBackup(fileName: String, startFunc: () -> Unit, stopFunc: () -> Unit, errorFunc: (Throwable) -> Unit) {
         val webFilePath = "$webFileParentPath/$fileName"
         runWebDAVFun(fun() {
-            startFunc.call()
+            startFunc()
             val bytes = sardine.get(webFilePath).readBytes()
             runBlocking { RestoreManager.parseZip(bytes) }
-            stopFunc.call()
-        }, fun(e) { errorFunc.call(e) })
+            stopFunc()
+        }, fun(e) { errorFunc(e) })
     }
 
-    private suspend fun doBackup(startFunc: Func, stopFunc: Func, errorFunc: FuncR<Throwable>) {
+    private suspend fun doBackup(startFunc: () -> Unit, stopFunc: () -> Unit, errorFunc: (Throwable) -> Unit) {
         // TODO: 试试空网址导致的出错
         val fileName = BackupManager.newFileName()
         val webFilePath = "$webFileParentPath/$fileName"
-        startFunc.call()
+        startFunc()
         val bytes = BackupManager.mkZipFileBytes()
         runWebDAVFun(fun() {
             if (!sardine.exists(webFileParentPath))
                 sardine.createDirectory(webFileParentPath)
             sardine.put(webFilePath, bytes)
-        }, fun(e) { errorFunc.call(e) })
-        stopFunc.call()
+        }, fun(e) { errorFunc(e) })
+        stopFunc()
     }
 
     private fun <E> runWebDAVFun(function: () -> E, errorFun: (e: Throwable) -> Unit): E? {

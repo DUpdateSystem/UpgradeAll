@@ -28,6 +28,13 @@ fun parsePropertiesString(s: String): Properties {
     }
 }
 
+fun Mutex.unlockAfterComplete(action: () -> Unit) {
+    action
+    if (this.isLocked) {
+        this.unlock()
+    }
+}
+
 suspend fun Mutex.wait() {
     if (this.isLocked) {
         this.lock()
@@ -35,7 +42,7 @@ suspend fun Mutex.wait() {
     }
 }
 
-fun <T> Mutex.runWithLock(context: CoroutineContext = EmptyCoroutineContext,action: () -> T): T {
+fun <T> Mutex.runWithLock(context: CoroutineContext = EmptyCoroutineContext, action: () -> T): T {
     return runBlocking(context) {
         this@runWithLock.withLock {
             action()

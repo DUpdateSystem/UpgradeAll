@@ -8,7 +8,6 @@ import com.absinthe.libraries.utils.utils.UiUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.Updater
-import net.xzos.upgradeall.core.utils.FuncR
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
 import net.xzos.upgradeall.server.update.UpdateService
@@ -89,7 +88,7 @@ class MainActivity : BaseActivity() {
             }
         }
 
-        AppManager.appMapStatusChangedFun = FuncR {
+        AppManager.appMapStatusChangedFun = {
             runUiFun {
                 val needUpdateNum = it[Updater.APP_OUTDATED]?.size ?: 0
                 binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), needUpdateNum)

@@ -1,13 +1,12 @@
 package net.xzos.upgradeall.core.downloader
 
 import com.tonyodev.fetch2.Download
-import net.xzos.upgradeall.core.utils.FuncR
 
 class DownloadOb(
-        internal val startFunc: FuncR<Download>,
-        internal val runningFunc: FuncR<Download>,
-        internal val stopFunc: FuncR<Download>,
-        internal val completeFunc: FuncR<Download>,
-        internal val cancelFunc: FuncR<Download>,
-        internal val failFunc: FuncR<Download>,
+        internal val startFunc: (Download) -> Unit,
+        internal val runningFunc: (Download) -> Unit,
+        internal val stopFunc: (Download) -> Unit,
+        internal val completeFunc: (Download) -> Unit,
+        internal val cancelFunc: (Download) -> Unit,
+        internal val failFunc: (Download) -> Unit,
 )

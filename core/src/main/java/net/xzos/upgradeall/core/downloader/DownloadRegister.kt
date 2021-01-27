@@ -3,7 +3,6 @@ package net.xzos.upgradeall.core.downloader
 import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2core.DownloadBlock
 import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.core.utils.FuncR
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.oberver.Informer
@@ -12,7 +11,7 @@ import net.xzos.upgradeall.core.utils.oberver.ObserverFun
 
 internal object DownloadRegister : Informer, FetchListener, FetchGroupListener {
 
-    private val downloadObFunMap: CoroutinesMutableMap<FuncR<Download>, ObserverFun<Download>> =
+    private val downloadObFunMap: CoroutinesMutableMap<(Download) -> Unit, ObserverFun<Download>> =
             coroutinesMutableMapOf(true)
 
     private const val TASK_START = "TASK_START"
@@ -31,32 +30,32 @@ internal object DownloadRegister : Informer, FetchListener, FetchGroupListener {
 
     fun registerOb(downloadId: DownloadId, downloadOb: DownloadOb) {
         observeForever(downloadId.getStartNotifyKey(), fun(download: Download) {
-            downloadOb.startFunc.call(download)
+            downloadOb.startFunc(download)
         }.also {
             downloadObFunMap[downloadOb.startFunc] = it
         })
         observeForever(downloadId.getRunningNotifyKey(), fun(download: Download) {
-            downloadOb.runningFunc.call(download)
+            downloadOb.runningFunc(download)
         }.also {
             downloadObFunMap[downloadOb.runningFunc] = it
         })
         observeForever(downloadId.getStopNotifyKey(), fun(download: Download) {
-            downloadOb.stopFunc.call(download)
+            downloadOb.stopFunc(download)
         }.also {
             downloadObFunMap[downloadOb.stopFunc] = it
         })
         observeForever(downloadId.getCompleteNotifyKey(), fun(download: Download) {
-            downloadOb.completeFunc.call(download)
+            downloadOb.completeFunc(download)
         }.also {
             downloadObFunMap[downloadOb.completeFunc] = it
         })
         observeForever(downloadId.getCancelNotifyKey(), fun(download: Download) {
-            downloadOb.cancelFunc.call(download)
+            downloadOb.cancelFunc(download)
         }.also {
             downloadObFunMap[downloadOb.cancelFunc] = it
         })
         observeForever(downloadId.getFailNotifyKey(), fun(download: Download) {
-            downloadOb.failFunc.call(download)
+            downloadOb.failFunc(download)
         }.also {
             downloadObFunMap[downloadOb.failFunc] = it
         })

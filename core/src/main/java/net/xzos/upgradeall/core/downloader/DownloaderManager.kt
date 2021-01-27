@@ -6,6 +6,8 @@ import java.io.IOException
 object DownloaderManager {
     private val downloaderList = coroutinesMutableListOf<Downloader>(true)
 
+    fun getDownloaderList(): List<Downloader> = downloaderList
+
     fun getDownloader(downloadId: DownloadId): Downloader? {
         val list = downloaderList.filter { it.downloadId == downloadId }
         return if (list.isNotEmpty())
