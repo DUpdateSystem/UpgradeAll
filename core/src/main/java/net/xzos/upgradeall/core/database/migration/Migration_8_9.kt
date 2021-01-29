@@ -8,6 +8,7 @@ import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.file.FileUtil
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.*
 
 
 val MIGRATION_8_9 = object : Migration(8, 9) {
@@ -177,7 +178,7 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
 
     private fun renewAppId() {
         for ((id, json) in appDatabaseMap.toMap()) {
-            val appIdMap = urlToAppId(json)
+            val appIdMap = urlToAppId(json)?.plus(packageIdToAppId(json) ?: mapOf())
             if (appIdMap == null) {
                 appDatabaseMap.remove(id)
                 continue
@@ -188,6 +189,23 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
                 }
             }
             json.put("app_id", appIdJson)
+        }
+    }
+
+    private fun packageIdToAppId(appJson: JSONObject): Map<String, String?>? {
+        val packageId = JSONObject(appJson.getString("package_id"))
+        val k = packageId.getString("api")
+        val v = packageId.getString("extra_string")
+        return mapOf(Pair(appIdConverter(k) ?: return null, v))
+    }
+
+    private fun appIdConverter(s: String): String? {
+        return when (s.toLowerCase(Locale.ENGLISH)) {
+            "app_package" -> "android_app_package"
+            "magisk_module" -> "android_magisk_module"
+            "shell" -> "android_custom_shell"
+            "shell_root" -> "android_custom_shell_root"
+            else -> null
         }
     }
 
@@ -277,12 +295,14 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
                 val id = getLong(getColumnIndex("id"))
                 val name = getString(getColumnIndex("name"))
                 val url = getString(getColumnIndex("url"))
+                val packageId = getString(getColumnIndex("package_id"))
                 val hubUuid = getString(getColumnIndex("hub_uuid"))
                 val ignoreVersionNumber = getStringOrNull(getColumnIndex("ignore_version_number"))
                 val cloudConfig = getStringOrNull(getColumnIndex("cloud_config"))
                 val appJson = JSONObject().apply {
                     put("name", name)
                     put("url", url)
+                    put("package_id", packageId)
                     put("hub_uuid", hubUuid)
                     put("ignore_version_number", ignoreVersionNumber ?: JSONObject.NULL)
                     put("cloud_config", cloudConfig ?: JSONObject.NULL)
