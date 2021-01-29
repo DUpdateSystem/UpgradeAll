@@ -20,6 +20,7 @@ data class CoreConfig(
     internal val locale: Locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         androidContext.resources.configuration.locales.get(0)
     } else {
+        @Suppress("DEPRECATION")
         androidContext.resources.configuration.locale
     }
 }
