@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.databinding.ActivityAppHubBinding
 import net.xzos.upgradeall.ui.apphub.apps.AppHubListFragment
 import net.xzos.upgradeall.ui.base.AppBarActivity
@@ -29,6 +30,7 @@ abstract class AppHubActivity : AppBarActivity() {
     override fun getAppBar(): Toolbar = binding.appbar.toolbar
 
     override fun initView() {
+        viewModel.setAppType(ANDROID_APP_TYPE)
         val types = listOf(
                 TAB_UPDATE, TAB_ALL, TAB_IGNORED
         )

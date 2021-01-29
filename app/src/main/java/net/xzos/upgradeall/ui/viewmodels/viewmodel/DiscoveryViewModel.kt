@@ -31,15 +31,11 @@ class DiscoveryViewModel(application: Application) : ListContainerViewModel<Clou
         }
     }
 
-    override fun doLoadData(): List<CloudConfigListItemView> {
-        viewModelScope.launch(Dispatchers.IO) {
-            CloudConfigGetter.renew()
-
-            return@launch withContext(Dispatchers.Main) {
-                CloudConfigGetter.appConfigList?.mapNotNull { getCloudAppItemCardView(it) }
-            }
-        }
-        return emptyList()
+    override suspend fun doLoadData(): List<CloudConfigListItemView> {
+        CloudConfigGetter.renew()
+        return withContext(Dispatchers.Main) {
+            CloudConfigGetter.appConfigList?.mapNotNull { getCloudAppItemCardView(it) }
+        } ?: emptyList()
     }
 
     companion object {

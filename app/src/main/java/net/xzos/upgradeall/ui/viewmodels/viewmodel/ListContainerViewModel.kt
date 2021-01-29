@@ -31,7 +31,7 @@ abstract class ListContainerViewModel<T : ListItemView>(application: Application
         }
     }
 
-    abstract fun doLoadData(): List<T>
+    abstract suspend fun doLoadData(): List<T>
 
     private fun setList(list: List<T>) {
         listLiveData.setValueBackground(list)

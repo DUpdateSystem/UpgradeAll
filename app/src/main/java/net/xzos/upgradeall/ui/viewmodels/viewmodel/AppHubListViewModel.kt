@@ -28,7 +28,7 @@ class AppHubListViewModel(application: Application) : ListContainerViewModel<App
         mAppType.value = appType
     }
 
-    override fun doLoadData(): List<AppListItemView> {
+    override suspend fun doLoadData(): List<AppListItemView> {
         mAppType.value?.run {
             return AppManager.getAppList(this)
                     .filter {
