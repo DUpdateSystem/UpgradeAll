@@ -9,9 +9,11 @@ class AppListItemView(val app: App) : ListItemView(app.name) {
         get() {
             val latestVersionNumber = app.getLatestVersionNumber()
             val installedVersionNumber = app.installedVersionNumber
-            return if (latestVersionNumber == installedVersionNumber)
-                installedVersionNumber ?: ""
-            else "$installedVersionNumber > $latestVersionNumber"
+            return when {
+                installedVersionNumber == null -> latestVersionNumber ?: ""
+                latestVersionNumber == installedVersionNumber -> installedVersionNumber
+                else -> "$installedVersionNumber > $latestVersionNumber"
+            }
         }
 
     override fun equals(other: Any?): Boolean {

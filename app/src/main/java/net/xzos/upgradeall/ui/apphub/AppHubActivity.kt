@@ -17,7 +17,7 @@ const val TAB_UPDATE = 0
 const val TAB_ALL = 1
 const val TAB_IGNORED = 2
 
-abstract class AppHubActivity : AppBarActivity() {
+abstract class AppHubActivity(private val appType:String) : AppBarActivity() {
 
     protected lateinit var binding: ActivityAppHubBinding
     private val viewModel by viewModels<AppHubViewModel>()
@@ -47,7 +47,7 @@ abstract class AppHubActivity : AppBarActivity() {
                 }
 
                 override fun createFragment(position: Int): Fragment {
-                    return AppHubListFragment.newInstance(position)
+                    return AppHubListFragment.newInstance(position, appType)
                 }
             }
         }

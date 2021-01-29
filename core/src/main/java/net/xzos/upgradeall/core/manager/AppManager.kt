@@ -62,6 +62,10 @@ object AppManager {
         return appList
     }
 
+    fun getAppListWithoutKey(excludeAppType: String): List<App> {
+        return appList.filter { !it.appId.containsKey(excludeAppType) }
+    }
+
     fun getAppByUuid(uuid: String): App? {
         appList.forEach {
             if (uuid == it.appDatabase.cloudConfig?.uuid)
