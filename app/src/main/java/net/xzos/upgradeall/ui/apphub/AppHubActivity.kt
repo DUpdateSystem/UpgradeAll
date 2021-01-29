@@ -8,17 +8,18 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.ActivityAppHubBinding
+import net.xzos.upgradeall.ui.apphub.apps.AppHubListFragment
 import net.xzos.upgradeall.ui.base.AppBarActivity
-import net.xzos.upgradeall.ui.viewmodels.viewmodel.HubViewModel
+import net.xzos.upgradeall.ui.viewmodels.viewmodel.AppHubViewModel
 
 const val TAB_UPDATE = 0
 const val TAB_ALL = 1
 const val TAB_IGNORED = 2
 
-open class AppHubActivity : AppBarActivity() {
+abstract class AppHubActivity : AppBarActivity() {
 
     protected lateinit var binding: ActivityAppHubBinding
-    private val viewModel by viewModels<HubViewModel>()
+    private val viewModel by viewModels<AppHubViewModel>()
 
     override fun initBinding(): View {
         binding = ActivityAppHubBinding.inflate(layoutInflater)
@@ -44,7 +45,7 @@ open class AppHubActivity : AppBarActivity() {
                 }
 
                 override fun createFragment(position: Int): Fragment {
-                    return HubListFragment.newInstance(position)
+                    return AppHubListFragment.newInstance(position)
                 }
             }
         }

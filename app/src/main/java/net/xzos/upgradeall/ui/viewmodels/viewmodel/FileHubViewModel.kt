@@ -1,12 +1,12 @@
 package net.xzos.upgradeall.ui.viewmodels.viewmodel
 
-import net.xzos.upgradeall.core.downloader.DownloaderManager
+import android.app.Application
 import net.xzos.upgradeall.ui.viewmodels.view.FileItemView
 
 
-class FileHubViewModel : ListContainerViewModel() {
+class FileHubViewModel(application: Application) : ListContainerViewModel<FileItemView>(application) {
 
-    override fun loadData() {
-        DownloaderManager.getDownloaderList().map { FileItemView(it.name, it) }
+    override fun doLoadData(): List<FileItemView> {
+        return emptyList()
     }
 }

@@ -1,23 +1,13 @@
 package net.xzos.upgradeall.ui.apphub.filemanagement
 
-import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.activity.viewModels
 import net.xzos.upgradeall.ui.apphub.HubListActivity
+import net.xzos.upgradeall.ui.apphub.adapter.FileHubListAdapter
+import net.xzos.upgradeall.ui.viewmodels.view.FileItemView
+import net.xzos.upgradeall.ui.viewmodels.view.holder.FileHubListViewHolder
+import net.xzos.upgradeall.ui.viewmodels.viewmodel.FileHubViewModel
 
-class FileManagementActivity : HubListActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding.viewpager.apply {
-            adapter = object : FragmentStateAdapter(this@FileManagementActivity) {
-                override fun getItemCount(): Int {
-                    return 1
-                }
-
-                override fun createFragment(position: Int): Fragment {
-                    return FileHubListFragment()
-                }
-            }
-        }
-    }
+class FileManagementActivity : HubListActivity<FileItemView, FileHubListViewHolder>() {
+    override val viewModel by viewModels<FileHubViewModel>()
+    override val adapter = FileHubListAdapter()
 }

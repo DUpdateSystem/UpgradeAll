@@ -57,7 +57,11 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
-    android.buildFeatures.viewBinding = true  // 视图绑定
+    buildFeatures {
+        // 视图绑定
+        dataBinding true
+        viewBinding true
+    }
 }
 
 dependencies {

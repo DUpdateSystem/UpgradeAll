@@ -1,22 +1,41 @@
 package net.xzos.upgradeall.ui.viewmodels.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import net.xzos.upgradeall.ui.viewmodels.view.ListView
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import net.xzos.upgradeall.core.utils.runWithLock
+import net.xzos.upgradeall.ui.viewmodels.view.ListItemView
 import net.xzos.upgradeall.utils.mutableLiveDataOf
 import net.xzos.upgradeall.utils.setValueBackground
 
-abstract class ListContainerViewModel : ViewModel() {
-    private val listLiveData: MutableLiveData<List<ListView>> by lazy {
-        mutableLiveDataOf<List<ListView>>().also { loadData() }
+abstract class ListContainerViewModel<T : ListItemView>(application: Application) : AndroidViewModel(application) {
+    private var refresh = Mutex()
+    private val listLiveData: MutableLiveData<List<T>> by lazy {
+        mutableLiveDataOf<List<T>>().also {
+            loadData()
+        }
     }
 
-    abstract fun loadData()
+    fun loadData() {
+        if (!refresh.isLocked) {
+            refresh.runWithLock {
+                viewModelScope.launch(Dispatchers.IO) {
+                    setList(doLoadData())
+                }
+            }
+        }
+    }
 
-    fun setList(list: List<ListView>) {
+    abstract fun doLoadData(): List<T>
+
+    private fun setList(list: List<T>) {
         listLiveData.setValueBackground(list)
     }
 
-    fun getList(): LiveData<List<ListView>> = listLiveData
+    fun getList(): LiveData<List<T>> = listLiveData
 }
