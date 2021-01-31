@@ -31,12 +31,12 @@ object PreferencesMap {
     private const val CLOUD_RULES_HUB_URL_KEY = "cloud_rules_hub_url"
     val custom_cloud_rules_hub_url: Boolean
         get() {
-            val customCloudRulesHubUrl = prefs.getString(CUSTOM_CLOUD_RULES_HUB_URL_KEY, DEFAULT_CLOUD_RULES_HUB_URL)!!
-            return customCloudRulesHubUrl != DEFAULT_CLOUD_RULES_HUB_URL
+            val customCloudRulesHubUrl = prefs.getString(CUSTOM_CLOUD_RULES_HUB_URL_KEY, "FromUpdateServer")!!
+            return customCloudRulesHubUrl.toLowerCase(Locale.ENGLISH) == "Custom"
         }
 
-    var cloud_rules_hub_url: String
-        get() = prefs.getString(CLOUD_RULES_HUB_URL_KEY, DEFAULT_CLOUD_RULES_HUB_URL)!!
+    var cloud_rules_hub_url: String?
+        get() = prefs.getString(CLOUD_RULES_HUB_URL_KEY, null)
         set(value) = prefs.edit().putString(CLOUD_RULES_HUB_URL_KEY, value).apply()
     private var update_server_url: String
         get() = prefs.getString(UPDATE_SERVER_URL_KEY, cloud_rules_hub_url)!!
@@ -134,11 +134,16 @@ object PreferencesMap {
 
     // 同步 Core 模块的配置
     private fun syncCoreConfig() {
-        val coreConfig = CoreConfig(MyApplication.context,
-                10, update_server_url, cloud_rules_hub_url,
-                FileUtil.DOWNLOAD_DOCUMENT_FILE,
-                download_max_task_num, download_thread_num, download_auto_retry_max_attempts,
-                install_apk_api
+        val coreConfig = CoreConfig(
+                androidContext = MyApplication.context,
+                data_expiration_time = 10,
+                update_server_url = update_server_url,
+                cloud_rules_hub_url = cloud_rules_hub_url,
+                user_download_document_file = FileUtil.DOWNLOAD_DOCUMENT_FILE,
+                download_max_task_num = download_max_task_num,
+                download_thread_num = download_thread_num,
+                download_auto_retry_max_attempts = download_auto_retry_max_attempts,
+                install_apk_api = install_apk_api
         )
         initCore(coreConfig,
                 WebDavConfig(webdav_url, webdav_path, webdav_username, webdav_password),

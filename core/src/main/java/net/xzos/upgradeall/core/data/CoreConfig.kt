@@ -9,7 +9,7 @@ data class CoreConfig(
         @JvmField internal val androidContext: Context,
         internal val data_expiration_time: Int,
         internal val update_server_url: String,
-        internal val cloud_rules_hub_url: String,
+        internal val cloud_rules_hub_url: String?,
         internal val user_download_document_file: DocumentFile?,
         internal val download_max_task_num: Int,
         internal val download_thread_num: Int,

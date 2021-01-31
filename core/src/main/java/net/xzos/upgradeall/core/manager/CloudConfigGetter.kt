@@ -30,7 +30,7 @@ object CloudConfigGetter {
     private const val FAILED_SAVE_HUB_DATA = FAILED - 4
 
     private const val CLOUD_CONFIG_CACHE_KEY = "CLOUD_CONFIG"
-    private val appCloudRulesHubUrl: String get() = coreConfig.cloud_rules_hub_url
+    private val appCloudRulesHubUrl: String? get() = coreConfig.cloud_rules_hub_url
     private var cloudConfig: CloudConfigList? = null
 
     suspend fun renew() {

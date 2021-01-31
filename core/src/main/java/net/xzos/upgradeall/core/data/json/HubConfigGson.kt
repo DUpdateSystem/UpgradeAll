@@ -6,7 +6,7 @@ import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.HubEntity
 
 /**
- * base_version: 2
+ * base_version: 6
  * config_version: 1
  * uuid:
  * info: {"hub_name": "", "hub_icon_url": ""}

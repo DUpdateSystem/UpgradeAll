@@ -47,7 +47,7 @@ $appIdString""".trimIndent()
         val blockingStub = UpdateServerRouteGrpc.newBlockingStub(channel)
         return try {
             blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.MILLISECONDS)
-                    .getCloudConfig(Empty.newBuilder().build()).s
+                    .getCloudConfig(Str.newBuilder().setS("dev").build()).s
         } catch (ignore: StatusRuntimeException) {
             null
         }
