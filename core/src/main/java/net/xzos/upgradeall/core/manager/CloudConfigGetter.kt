@@ -62,7 +62,7 @@ object CloudConfigGetter {
     }
 
 
-    fun getAppCloudConfig(appUuid: String?): AppConfigGson? {
+    private fun getAppCloudConfig(appUuid: String?): AppConfigGson? {
         val appConfigList = this.appConfigList ?: return null
         for (appConfigGson in appConfigList) {
             if (appConfigGson.uuid == appUuid)

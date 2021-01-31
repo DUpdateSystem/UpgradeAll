@@ -2,9 +2,9 @@ package net.xzos.upgradeall.core.data.json
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
-import net.xzos.upgradeall.core.database.Converters
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
+import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.utils.AutoTemplate
 
@@ -30,15 +30,8 @@ class AppConfigGson(
     class InfoBean(
             @SerializedName("name") val name: String,
             @SerializedName("url") var url: String,
-            @SerializedName("extra_map") private var _extra_map: String,
-    ) {
-
-        var extraMap: Map<String, String?>
-            get() = Converters().stringToMap(_extra_map)
-            set(value) {
-                _extra_map = Converters().fromMapToString(value)!!
-            }
-    }
+            @SerializedName("extra_map") var extraMap: Map<String, String?>,
+    )
 
     override fun toString(): String {
         return Gson().toJson(this)
@@ -46,8 +39,8 @@ class AppConfigGson(
 }
 
 fun AppConfigGson.getAppId(): Map<String, String?>? {
-    val hub = HubManager.getHub(baseHubUuid) ?: return null
-    return info.extraMap.plus(AutoTemplate.urlToAppId(info.url, hub.hubConfig.appUrlTemplates)
+    val hubConfig = CloudConfigGetter.getHubCloudConfig(baseHubUuid) ?: return null
+    return info.extraMap.plus(AutoTemplate.urlToAppId(info.url, hubConfig.appUrlTemplates)
             ?: mapOf())
 }
 

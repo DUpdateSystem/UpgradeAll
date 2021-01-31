@@ -42,15 +42,15 @@ class DiscoveryViewModel(application: Application) : ListContainerViewModel<Clou
         private fun getCloudAppItemCardView(appConfig: AppConfigGson): CloudConfigListItemView? {
             val name = appConfig.info.name
             val appUuid = appConfig.uuid
-            val appCloudConfig = CloudConfigGetter.getAppCloudConfig(appUuid)
-            val type: Int = when (appCloudConfig?.getAppId()?.getPackageId()?.first) {
+            val appId = appConfig.getAppId()
+            val type: Int = when (appId?.getPackageId()?.first) {
                 ANDROID_APP_TYPE -> R.string.android_app
                 ANDROID_MAGISK_MODULE_TYPE -> R.string.magisk_module
                 ANDROID_CUSTOM_SHELL -> R.string.shell
                 ANDROID_CUSTOM_SHELL_ROOT -> R.string.shell_root
                 else -> return null
             }
-            val hubUuid = appCloudConfig.baseHubUuid
+            val hubUuid = appConfig.baseHubUuid
             val hubName = CloudConfigGetter.getHubCloudConfig(hubUuid)?.info?.hubName ?: return null
             return CloudConfigListItemView(name, type, hubName, appUuid)
         }
