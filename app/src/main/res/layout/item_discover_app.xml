@@ -29,6 +29,7 @@
                 android:id="@+id/iv_icon"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:background="@drawable/bg_circle"
                 android:contentDescription="App icon"
                 android:gravity="center"
                 android:textSize="20sp"
