@@ -10,6 +10,6 @@ abstract class ListItemView(
     val nameFirst: String get() =  firstChar.toString().toUpperCase(Locale.ROOT)
 
     companion object {
-        private val pattern = Pattern.compile("[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]$")
+        val pattern = Pattern.compile("[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]$")
     }
 }
