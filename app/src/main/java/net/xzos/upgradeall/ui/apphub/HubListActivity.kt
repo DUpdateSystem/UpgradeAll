@@ -17,10 +17,7 @@ abstract class HubListActivity<L : ListItemView, T : RecyclerViewHolder<L>> : Ap
     protected abstract val viewModel: ListContainerViewModel<L>
 
     override fun initView() {
-        adapter.dataSet = viewModel.getList().value ?: emptyList()
-        binding.rvList.apply {
-            adapter = this.adapter
-        }
+        binding.rvList.apply { adapter = this.adapter }
         viewModel.getList().observe(this) {
             adapter.dataSet = it
             binding.srlContainer.isRefreshing = false

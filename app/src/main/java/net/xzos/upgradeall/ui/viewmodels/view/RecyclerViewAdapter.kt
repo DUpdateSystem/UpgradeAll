@@ -5,10 +5,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.RecyclerViewHolder
+import net.xzos.upgradeall.utils.runUiFun
 
-abstract class RecyclerViewAdapter<L : ListItemView, T : RecyclerViewHolder<L>>(
-        var dataSet: List<L> = emptyList()
-) : RecyclerView.Adapter<T>() {
+abstract class RecyclerViewAdapter<L : ListItemView, T : RecyclerViewHolder<L>> : RecyclerView.Adapter<T>() {
+
+    var dataSet: List<L> = emptyList()
+        set(value) {
+            field = value
+            runUiFun { notifyDataSetChanged() }
+        }
 
     var mOnItemClickListener: ((view: View, position: Int) -> Unit)? = null
 
