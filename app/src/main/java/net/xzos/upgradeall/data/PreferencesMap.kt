@@ -23,8 +23,6 @@ object PreferencesMap {
 
     private val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
 
-    private const val DEFAULT_CLOUD_RULES_HUB_URL = DEF_UPDATE_SERVER_URL
-
     // 更新首选项
     private const val UPDATE_SERVER_URL_KEY = "update_server_url"
     const val CUSTOM_CLOUD_RULES_HUB_URL_KEY = "custom_cloud_rules_hub_url"
@@ -39,7 +37,7 @@ object PreferencesMap {
         get() = prefs.getString(CLOUD_RULES_HUB_URL_KEY, null)
         set(value) = prefs.edit().putString(CLOUD_RULES_HUB_URL_KEY, value).apply()
     private var update_server_url: String
-        get() = prefs.getString(UPDATE_SERVER_URL_KEY, cloud_rules_hub_url)!!
+        get() = prefs.getString(UPDATE_SERVER_URL_KEY, DEF_UPDATE_SERVER_URL)!!
         set(value) = prefs.edit().putString(UPDATE_SERVER_URL_KEY, value).apply()
 
     val auto_update_app_config: Boolean
