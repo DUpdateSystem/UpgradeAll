@@ -17,6 +17,10 @@ abstract class RecyclerViewAdapter<L : ListItemView, T : RecyclerViewHolder<L>> 
 
     var mOnItemClickListener: ((view: View, position: Int) -> Unit)? = null
 
+    init {
+        setHasStableIds(true)
+    }
+
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): T {
         val layoutInflater = LayoutInflater.from(viewGroup.context)
         return getViewHolder(layoutInflater, viewGroup).apply {
@@ -38,6 +42,8 @@ abstract class RecyclerViewAdapter<L : ListItemView, T : RecyclerViewHolder<L>> 
     }
 
     override fun getItemCount() = dataSet.size
+
+    override fun getItemId(position: Int) = dataSet[position].hashCode().toLong()
 
     fun getItemData(position: Int) = dataSet[position]
 
