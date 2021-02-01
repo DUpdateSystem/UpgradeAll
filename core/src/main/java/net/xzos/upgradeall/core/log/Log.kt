@@ -144,4 +144,4 @@ class LogItemData(
     }
 }
 
-fun errorToString(e: Throwable) = e.stackTraceToString()
+fun Throwable.msg() = this.stackTraceToString()

@@ -12,6 +12,7 @@ import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.utils.oberver.ObserverFun
 import java.io.File
 
@@ -121,7 +122,7 @@ class AppInstallReceiver : BroadcastReceiver() {
             val info = manager.getPackageInfo(packageName, 0)
             ApkInstaller.notifyCompleteInstall(info)
         } catch (e: PackageManager.NameNotFoundException) {
-            Log.e(logObjectTag, TAG, "error: ${e.message}")
+            Log.e(logObjectTag, TAG, "error: ${e.msg()}")
         }
     }
 

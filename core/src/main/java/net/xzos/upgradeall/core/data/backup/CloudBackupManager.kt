@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.webDavConfig
 
 
@@ -60,7 +61,7 @@ class CloudBackupManager {
             function()
         } catch (e: Throwable) {
             errorFun(e)
-            Log.e(objectTag, TAG, e.stackTrace.toString())
+            Log.e(objectTag, TAG, e.msg())
             null
         }
     }

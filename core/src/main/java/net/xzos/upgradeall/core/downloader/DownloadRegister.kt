@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.downloader
 import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2core.DownloadBlock
 import net.xzos.upgradeall.core.log.Log
+import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.oberver.Informer
@@ -176,7 +177,7 @@ internal object DownloadRegister : Informer, FetchListener, FetchGroupListener {
     }
 
     override fun onError(download: Download, error: Error, throwable: Throwable?) {
-        Log.e(Downloader.logTagObject, Downloader.TAG, error.toString())
+        Log.e(Downloader.logTagObject, Downloader.TAG, "error: $error, throwable: ${throwable?.msg()}")
         taskFail(DownloadId(false, download.id), download)
     }
 
@@ -187,7 +188,7 @@ internal object DownloadRegister : Informer, FetchListener, FetchGroupListener {
             throwable: Throwable?,
             fetchGroup: FetchGroup
     ) {
-        Log.e(Downloader.logTagObject, Downloader.TAG, error.toString())
+        Log.e(Downloader.logTagObject, Downloader.TAG, "error: $error, throwable: ${throwable?.msg()}")
         taskFail(DownloadId(true, groupId), download)
     }
 

@@ -11,7 +11,7 @@ import net.xzos.upgradeall.core.data.DEF_UPDATE_SERVER_URL
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
-import net.xzos.upgradeall.core.log.errorToString
+import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.route.*
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import java.net.URISyntaxException
@@ -34,10 +34,10 @@ internal object GrpcApi {
                 val channel = try {
                     ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
                 } catch (e: URISyntaxException) {
-                    Log.e(logObjectTag, TAG, "gRPC 接口地址格式有误，$e")
+                    Log.e(logObjectTag, TAG, "gRPC 接口地址格式有误，${e.msg()}")
                     ManagedChannelBuilder.forTarget(DEF_UPDATE_SERVER_URL).usePlaintext().build()
                 } catch (e: Throwable) {
-                    Log.e(logObjectTag, TAG, "gRPC 初始化失败，$e")
+                    Log.e(logObjectTag, TAG, "gRPC 初始化失败，${e.msg()}")
                     null
                 }
                 channel?.apply {
@@ -49,8 +49,7 @@ internal object GrpcApi {
 
     const val deadlineMs = 20 * 1000L
     fun logDeadlineError(tag: String, hubUuid: String, appIdString: String) {
-        Log.w(
-                logObjectTag, TAG, """$tag: 请求超时，取消
+        Log.w(logObjectTag, TAG, """$tag: 请求超时，取消
 hub_uuid: $hubUuid
 $appIdString""".trimIndent()
         )
@@ -64,7 +63,7 @@ $appIdString""".trimIndent()
             blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.MILLISECONDS)
                     .getCloudConfig(Str.newBuilder().setS("dev").build()).s
         } catch (e: StatusRuntimeException) {
-            Log.e(logObjectTag, TAG, "gRPC CloudConfig 获取失败，${errorToString(e)}")
+            Log.e(logObjectTag, TAG, "gRPC CloudConfig 获取失败，${e.msg()}")
             null
         }
     }

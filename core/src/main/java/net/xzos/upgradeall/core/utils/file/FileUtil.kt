@@ -17,6 +17,7 @@ import androidx.documentfile.provider.DocumentFile
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.log.msg
 import java.io.*
 import java.util.*
 
@@ -123,7 +124,7 @@ internal object FileUtil {
         try {
             activity.startActivityForResult(intent, WRITE_REQUEST_CODE)
         } catch (e: ActivityNotFoundException) {
-            Log.e(logObjectTag, TAG, "你的手机暂不支持该功能")
+            Log.e(logObjectTag, TAG, "你的手机暂不支持该功能. error: ${e.msg()}")
             throw e
         }
     }
@@ -140,7 +141,7 @@ internal object FileUtil {
         try {
             activity.startActivityForResult(intent, OPEN_REQUEST_CODE)
         } catch (e: ActivityNotFoundException) {
-            Log.e(logObjectTag, TAG, "你的手机暂不支持该功能")
+            Log.e(logObjectTag, TAG, "你的手机暂不支持该功能. error: ${e.msg()}")
             throw e
         }
     }
@@ -225,7 +226,7 @@ internal object FileUtil {
                 Log.e(
                     logObjectTag, TAG, """
                 writeTextFromUri: 写入文件异常: 
-                ERROR_MESSAGE: $e
+                ERROR_MESSAGE: ${e.msg()}
                 URI_PATH: ${uri.path}
             """.trimIndent()
                 )
@@ -233,7 +234,7 @@ internal object FileUtil {
                 Log.e(
                     logObjectTag, TAG, """
                 writeTextFromUri: 写入文件异常（数据读写安全故障）: 
-                ERROR_MESSAGE: $e
+                ERROR_MESSAGE: ${e.msg()}
                 URI_PATH: ${uri.path}
             """.trimIndent()
                 )

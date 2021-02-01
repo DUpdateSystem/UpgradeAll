@@ -7,6 +7,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.log.Log
+import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.route.*
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
@@ -143,7 +144,7 @@ internal object GrpcReleaseApi {
                 Log.w(
                         GrpcApi.logObjectTag,
                         GrpcApi.TAG,
-                        "callGetAppRelease: 请求失败 hub_uuid: $hubUuid e: $e".trimIndent()
+                        "callGetAppRelease: 请求失败 hub_uuid: $hubUuid e: ${e.msg()}".trimIndent()
                 )
             }
         } finally {

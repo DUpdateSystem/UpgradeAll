@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.installer
 import eu.darken.rxshell.cmd.Cmd
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.utils.Shell
 import net.xzos.upgradeall.core.utils.getErrorsString
 import net.xzos.upgradeall.core.utils.getOutputString
@@ -82,7 +83,7 @@ object ApkRootInstall {
                     )
             }
         } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, e.stackTraceToString())
+            Log.e(logObjectTag, TAG, e.msg())
             throw e
         }
     }

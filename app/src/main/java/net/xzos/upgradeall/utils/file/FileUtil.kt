@@ -19,6 +19,7 @@ import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.ToastUtil
@@ -221,13 +222,13 @@ object FileUtil {
             } catch (e: IOException) {
                 Log.e(logObjectTag, TAG, """
                 writeTextFromUri: 写入文件异常: 
-                ERROR_MESSAGE: $e
+                ERROR_MESSAGE: ${e.msg()}
                 URI_PATH: ${uri.path}
             """.trimIndent())
             } catch (e: SecurityException) {
                 Log.e(logObjectTag, TAG, """
                 writeTextFromUri: 写入文件异常（数据读写安全故障）: 
-                ERROR_MESSAGE: $e
+                ERROR_MESSAGE: ${e.msg()}
                 URI_PATH: ${uri.path}
             """.trimIndent())
             }

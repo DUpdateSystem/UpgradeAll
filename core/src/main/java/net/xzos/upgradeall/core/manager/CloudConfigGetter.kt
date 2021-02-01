@@ -11,6 +11,7 @@ import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.module.network.DataCache
 import net.xzos.upgradeall.core.module.network.GrpcApi
 import net.xzos.upgradeall.core.module.network.OkHttpApi
@@ -62,7 +63,7 @@ object CloudConfigGetter {
             try {
                 Gson().fromJson(jsonText, CloudConfigList::class.java)
             } catch (e: JsonSyntaxException) {
-                Log.e(objectTag, TAG, "refreshData: ERROR_MESSAGE: $e")
+                Log.e(objectTag, TAG, "refreshData: ERROR_MESSAGE: ${e.msg()}")
                 null
             }
         } else null

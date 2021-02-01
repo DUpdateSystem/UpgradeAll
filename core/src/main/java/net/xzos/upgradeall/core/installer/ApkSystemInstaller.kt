@@ -9,6 +9,7 @@ import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.utils.oberver.Informer
 import java.io.File
 import java.io.IOException
@@ -58,7 +59,7 @@ object ApkSystemInstaller : Informer {
                 }
             }
         } catch (e: Exception) {
-            Log.e(logObjectTag, TAG, "multipleInstall: " + e.message)
+            Log.e(logObjectTag, TAG, "multipleInstall: " + e.msg())
             return
         }
         val packageInstaller = context.packageManager.packageInstaller
@@ -75,7 +76,7 @@ object ApkSystemInstaller : Informer {
             doCommitSession(session)
             Log.d(logObjectTag, TAG, "Success")
         } catch (e: IOException) {
-            Log.e(logObjectTag, TAG, "multipleInstall: " + e.message)
+            Log.e(logObjectTag, TAG, "multipleInstall: " + e.msg())
         }
     }
 
@@ -98,12 +99,12 @@ object ApkSystemInstaller : Informer {
 
             Log.d(logObjectTag, TAG, "Success: streamed bytes")
         } catch (e: IOException) {
-            Log.e(logObjectTag, TAG, "Error: failed to write; " + e.message)
+            Log.e(logObjectTag, TAG, "Error: failed to write; " + e.msg())
         } finally {
             try {
                 session.close()
             } catch (e: IOException) {
-                Log.e(logObjectTag, TAG, "Error: failed to close session; " + e.message)
+                Log.e(logObjectTag, TAG, "Error: failed to close session; " + e.msg())
             }
         }
     }
@@ -116,7 +117,7 @@ object ApkSystemInstaller : Informer {
             session.close()
             Log.d(logObjectTag, TAG, "doCommitSession: install request sent")
         } catch (e: IOException) {
-            Log.e(logObjectTag, TAG, "doCommitSession: " + e.message)
+            Log.e(logObjectTag, TAG, "doCommitSession: " + e.msg())
         } finally {
             session.close()
         }

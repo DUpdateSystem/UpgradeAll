@@ -7,6 +7,7 @@ import android.os.IBinder
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.log.msg
 
 class ApkInstallerService : Service() {
 
@@ -25,7 +26,7 @@ class ApkInstallerService : Service() {
                 try {
                     startActivity(confirmationIntent)
                 } catch (e: Exception) {
-                    Log.e(logObjectTag, TAG, "Request Activity e: ${e.message}")
+                    Log.e(logObjectTag, TAG, "Request Activity e: ${e.msg()}")
                 }
             }
             PackageInstaller.STATUS_SUCCESS -> Log.d(logObjectTag, TAG, "Installation succeed")

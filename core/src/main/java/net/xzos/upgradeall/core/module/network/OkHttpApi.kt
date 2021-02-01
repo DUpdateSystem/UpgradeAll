@@ -2,6 +2,7 @@ package net.xzos.upgradeall.core.module.network
 
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.log.msg
 import okhttp3.*
 import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaType
@@ -69,10 +70,10 @@ object OkHttpApi {
         return try {
             okHttpClient.newCall(request).execute()
         } catch (e: IOException) {
-            Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: $e")
+            Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: ${e.msg()}")
             null
-        } catch (ignore: Throwable) {
-            Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: $ignore")
+        } catch (e: Throwable) {
+            Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: ${e.msg()}")
             null
         }
     }
@@ -87,7 +88,7 @@ object OkHttpApi {
                     addHeader(key, headers.getValue(key))
             }
         } catch (e: IllegalArgumentException) {
-            Log.e(objectTag, TAG, "getHttpResponse: URL: $url $e ")
+            Log.e(objectTag, TAG, "getHttpResponse: URL: $url ${e.msg()} ")
             null
         }
     }
