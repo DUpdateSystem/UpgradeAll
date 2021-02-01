@@ -1,11 +1,6 @@
 package net.xzos.upgradeall.ui.apphub.discover
 
 import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.ui.apphub.HubListActivity
 import net.xzos.upgradeall.ui.apphub.adapter.DiscoveryAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
@@ -22,14 +17,8 @@ class DiscoverActivity : HubListActivity<CloudConfigListItemView, DiscoverListVi
         super.initView()
         adapter.apply {
             setOnItemClickListener { _, position ->
-                getItemData(position).uuid.let {
-                    viewModel.downloadApplicationData(it)
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        delay(500)
-                        withContext(Dispatchers.Main) {
-                            viewModel.loadData()
-                        }
-                    }
+                getItemData(position).uuid.run {
+                    ConfigDownloadDialog(this, viewModel).show(supportFragmentManager)
                 }
             }
         }

@@ -116,16 +116,14 @@ object PreferencesMap {
         }
     }
 
-    // 检查设置
-    // 设置 Android 平台设置
-    // 设置内核设置
     fun sync() {
         checkSetting()
+        syncCoreConfig()
         checkUpdateSettingAndSync()
         syncAndroidConfig()
-        syncCoreConfig()
     }
 
+    // 设置 Android 平台设置
     private fun syncAndroidConfig() {
         UpdateServiceBroadcastReceiver.setAlarms(background_sync_time)
     }
@@ -149,6 +147,7 @@ object PreferencesMap {
         )
     }
 
+    // 检查设置
     private fun checkSetting() {
         if (download_thread_num <= 0)
             download_thread_num = 1

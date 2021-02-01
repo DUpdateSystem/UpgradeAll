@@ -13,7 +13,7 @@ import net.xzos.upgradeall.core.utils.AutoTemplate
  * config_version: 1
  * uuid:
  * base_hub_uuid:
- * info: {"name": "", "url": , "extra_map": ""}
+ * info: {"name": "", "desc": "", "url": , "extra_map": ""}
  */
 class AppConfigGson(
         @SerializedName("base_version") val baseVersion: Int,
@@ -26,10 +26,12 @@ class AppConfigGson(
     /**
      * app_name:
      * url:
+     * desc:
      */
     class InfoBean(
             @SerializedName("name") val name: String,
             @SerializedName("url") var url: String,
+            @SerializedName("desc") var desc: String?,
             @SerializedName("extra_map") var extraMap: Map<String, String?>,
     )
 

@@ -9,6 +9,7 @@ import com.yalantis.ucrop.UCrop
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.log.errorToString
 import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.ToastUtil
 import java.io.File
@@ -42,7 +43,7 @@ class UCropActivity : FilePrefActivity() {
             UCrop.RESULT_ERROR -> {
                 val cropError = UCrop.getError(resultData!!)
                 if (cropError != null)
-                    Log.e(logObjectTag, TAG, "onActivityResult: 图片裁剪错误: $cropError")
+                    Log.e(logObjectTag, TAG, "onActivityResult: 图片裁剪错误: ${errorToString(cropError)}")
                 ToastUtil.makeText(R.string.ucrop_error, Toast.LENGTH_LONG)
                 finish()
             }

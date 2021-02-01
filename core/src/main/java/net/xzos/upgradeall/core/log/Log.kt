@@ -38,7 +38,7 @@ object Log {
     private var LEVEL = VERBOSE
 
     internal val logMap =
-        coroutinesMutableMapOf<ObjectTag, CoroutinesMutableList<LogItemData>>(true)
+            coroutinesMutableMapOf<ObjectTag, CoroutinesMutableList<LogItemData>>(true)
     private val mutex = Mutex()
 
     /**
@@ -122,7 +122,7 @@ object Log {
  * 存储单条日志信息
  */
 class LogItemData(
-    val logLevel: Int, val logObjectTag: ObjectTag, val tag: String, val msg: String
+        val logLevel: Int, val logObjectTag: ObjectTag, val tag: String, val msg: String
 ) {
     override fun toString(): String {
         // 确定日志等级标志
@@ -143,3 +143,5 @@ class LogItemData(
         return StringEscapeUtils.unescapeJava(logString)
     }
 }
+
+fun errorToString(e: Throwable) = e.stackTraceToString()

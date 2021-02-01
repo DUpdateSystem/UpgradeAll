@@ -23,11 +23,7 @@ abstract class RecyclerViewAdapter<L : ListItemView, T : RecyclerViewHolder<L>> 
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): T {
         val layoutInflater = LayoutInflater.from(viewGroup.context)
-        return getViewHolder(layoutInflater, viewGroup).apply {
-            itemView.setOnClickListener {
-
-            }
-        }
+        return getViewHolder(layoutInflater, viewGroup)
     }
 
     abstract fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): T

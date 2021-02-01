@@ -4,12 +4,16 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.DEF_UPDATE_SERVER_URL
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.log.errorToString
 import net.xzos.upgradeall.core.route.*
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import java.net.URISyntaxException
 import java.util.concurrent.TimeUnit
 
@@ -19,16 +23,27 @@ internal object GrpcApi {
     val invalidHubUuidList = hashSetOf<String>()
 
     private val updateServerUrl get() = coreConfig.update_server_url
+    private val channelList = CoroutinesMutableList<ManagedChannel>(true)
+    private val getterMutex = Mutex()
 
-    fun getChannel(): ManagedChannel? {
-        return try {
-            ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
-        } catch (e: URISyntaxException) {
-            Log.e(logObjectTag, TAG, "gRPC 接口地址格式有误，$e")
-            ManagedChannelBuilder.forTarget(DEF_UPDATE_SERVER_URL).usePlaintext().build()
-        } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, "gRPC 初始化失败，$e")
-            null
+    suspend fun getChannel(): ManagedChannel? {
+        return getterMutex.withLock {
+            if (channelList.size >= 3) {
+                channelList.random()
+            } else {
+                val channel = try {
+                    ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
+                } catch (e: URISyntaxException) {
+                    Log.e(logObjectTag, TAG, "gRPC 接口地址格式有误，$e")
+                    ManagedChannelBuilder.forTarget(DEF_UPDATE_SERVER_URL).usePlaintext().build()
+                } catch (e: Throwable) {
+                    Log.e(logObjectTag, TAG, "gRPC 初始化失败，$e")
+                    null
+                }
+                channel?.apply {
+                    channelList.add(this)
+                }
+            }
         }
     }
 
@@ -48,7 +63,8 @@ $appIdString""".trimIndent()
         return try {
             blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.MILLISECONDS)
                     .getCloudConfig(Str.newBuilder().setS("dev").build()).s
-        } catch (ignore: StatusRuntimeException) {
+        } catch (e: StatusRuntimeException) {
+            Log.e(logObjectTag, TAG, "gRPC CloudConfig 获取失败，${errorToString(e)}")
             null
         }
     }

@@ -91,7 +91,6 @@ abstract class HubListActivity<L : ListItemView, T : RecyclerViewHolder<L>> : Ap
                 it.name.contains(newText, ignoreCase = true)
             }
             adapter.dataSet = filter
-            adapter.notifyDataSetChanged()
         }
         return false
     }

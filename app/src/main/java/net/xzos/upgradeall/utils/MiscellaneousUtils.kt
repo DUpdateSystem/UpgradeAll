@@ -14,8 +14,11 @@ import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
+import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.data.PreferencesMap
 import java.util.*
 
@@ -25,10 +28,20 @@ object MiscellaneousUtils {
     fun initData() {
         initObject()
         PreferencesMap.sync()
+        GlobalScope.launch { renewData() }
         egg()
     }
 
     private fun initObject() {
+    }
+
+    private suspend fun renewData() {
+        if (PreferencesMap.auto_update_hub_config) {
+            CloudConfigGetter.renewAllHubConfigFromCloud()
+        }
+        if (PreferencesMap.auto_update_app_config) {
+            CloudConfigGetter.renewAllAppConfigFromCloud()
+        }
     }
 
     fun accessByBrowser(url: String?, context: Context?) {

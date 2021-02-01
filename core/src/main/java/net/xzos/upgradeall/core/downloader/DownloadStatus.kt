@@ -1,36 +1,36 @@
 package net.xzos.upgradeall.core.downloader
 
-enum class DownloadStatus(val value: Int) {
+enum class DownloadStatus {
 
     /** Indicates when a download is newly created and not yet queued.*/
-    NONE(0),
+    NONE,
 
     /** Indicates when a newly created download is queued.*/
-    QUEUED(1),
+    QUEUED,
 
     /** Indicates when a download is currently being downloaded.*/
-    DOWNLOADING(2),
+    DOWNLOADING,
 
     /** Indicates when a download is paused.*/
-    PAUSED(3),
+    PAUSED,
 
     /** Indicates when a download is completed.*/
-    COMPLETED(4),
+    COMPLETED,
 
     /** Indicates when a download is cancelled.*/
-    CANCELLED(5),
+    CANCELLED,
 
     /** Indicates when a download has failed.*/
-    FAILED(6),
+    FAILED,
 
     /** Indicates when a download has been removed and is no longer managed by Fetch.*/
-    REMOVED(7),
+    REMOVED,
 
     /** Indicates when a download has been deleted and is no longer managed by Fetch.*/
-    DELETED(8),
+    DELETED,
 
     /** Indicates when a download has been Added to Fetch for management.*/
-    ADDED(9);
+    ADDED;
 
     companion object {
 

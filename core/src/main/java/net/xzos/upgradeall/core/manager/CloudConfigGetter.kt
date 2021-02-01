@@ -2,6 +2,8 @@ package net.xzos.upgradeall.core.manager
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.json.*
 import net.xzos.upgradeall.core.database.metaDatabase
@@ -32,11 +34,16 @@ object CloudConfigGetter {
     private const val CLOUD_CONFIG_CACHE_KEY = "CLOUD_CONFIG"
     private val appCloudRulesHubUrl: String? get() = coreConfig.cloud_rules_hub_url
     private var cloudConfig: CloudConfigList? = null
+    private val renewMutex = Mutex()
 
     suspend fun renew() {
         cloudConfig = DataCache.getAnyCache(CLOUD_CONFIG_CACHE_KEY)
-                ?: getCloudConfigFromWeb(appCloudRulesHubUrl)?.also {
-                    DataCache.cacheAny(CLOUD_CONFIG_CACHE_KEY, it)
+                ?: if (renewMutex.isLocked)
+                    DataCache.getAnyCache(CLOUD_CONFIG_CACHE_KEY)
+                else renewMutex.withLock {
+                    getCloudConfigFromWeb(appCloudRulesHubUrl)?.also {
+                        DataCache.cacheAny(CLOUD_CONFIG_CACHE_KEY, it)
+                    }
                 }
     }
 
@@ -62,7 +69,7 @@ object CloudConfigGetter {
     }
 
 
-    private fun getAppCloudConfig(appUuid: String?): AppConfigGson? {
+    fun getAppCloudConfig(appUuid: String?): AppConfigGson? {
         val appConfigList = this.appConfigList ?: return null
         for (appConfigGson in appConfigList) {
             if (appConfigGson.uuid == appUuid)
@@ -133,6 +140,7 @@ object CloudConfigGetter {
     }
 
     suspend fun renewAllAppConfigFromCloud() {
+        renew()
         val appConfigList = appConfigList ?: return
         val appDatabaseMap = metaDatabase.appDao().loadAll()
                 .filter { it.cloudConfig != null }
@@ -148,6 +156,7 @@ object CloudConfigGetter {
     }
 
     suspend fun renewAllHubConfigFromCloud() {
+        renew()
         val hubConfigList = hubConfigList ?: return
         val hubDao = metaDatabase.hubDao()
         for (hubConfig in hubConfigList) {

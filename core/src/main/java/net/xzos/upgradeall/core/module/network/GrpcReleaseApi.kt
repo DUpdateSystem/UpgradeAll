@@ -83,7 +83,7 @@ internal object GrpcReleaseApi {
     private suspend fun callGetAppRelease(
             hubUuid: String, auth: Map<String, String?>,
             appIdList0: Collection<Map<String, String?>>, autoRetryNum: Int,
-            channel: ManagedChannel? = GrpcApi.getChannel(),
+            channel: ManagedChannel?,
     ) {
         val appIdList = appIdList0.toMutableList()
         val request = mkReleaseRequestBuilder(hubUuid, appIdList, auth)

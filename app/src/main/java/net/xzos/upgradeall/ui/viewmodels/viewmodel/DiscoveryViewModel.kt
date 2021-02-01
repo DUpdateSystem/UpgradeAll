@@ -17,6 +17,7 @@ import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.utils.getPackageId
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.utils.ToastUtil
+import net.xzos.upgradeall.utils.runUiFun
 
 class DiscoveryViewModel(application: Application) : ListContainerViewModel<CloudConfigListItemView>(application) {
 
@@ -26,7 +27,7 @@ class DiscoveryViewModel(application: Application) : ListContainerViewModel<Clou
         viewModelScope.launch(Dispatchers.IO) {
             // 下载数据
             CloudConfigGetter.downloadCloudAppConfig(uuid) {
-                ToastUtil.makeText(it, Toast.LENGTH_LONG)
+                runUiFun { ToastUtil.makeText(it, Toast.LENGTH_LONG) }
             }
         }
     }
