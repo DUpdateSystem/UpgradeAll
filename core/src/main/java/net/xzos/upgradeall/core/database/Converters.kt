@@ -5,7 +5,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.core.data.json.AppConfigGson
 import net.xzos.upgradeall.core.data.json.HubConfigGson
-import net.xzos.upgradeall.core.data.json.IgnoreApp
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
 import org.json.JSONArray
@@ -14,23 +13,6 @@ import org.json.JSONObject
 
 
 class Converters {
-    @TypeConverter
-    fun fromIgnoreAppList(ignoreAppList: List<IgnoreApp>?): String? {
-        val list = ignoreAppList?.filter {
-            it.packageId.isNotEmpty()
-        }
-        return if (list.isNullOrEmpty())
-            null
-        else
-            Gson().toJson(list)
-    }
-
-    @TypeConverter
-    fun stringToIgnoreAppList(s: String?): List<IgnoreApp> {
-        if (s.isNullOrEmpty()) return emptyList()
-        val listType = object : TypeToken<ArrayList<IgnoreApp>?>() {}.type
-        return Gson().fromJson(s, listType)
-    }
 
     @TypeConverter
     fun fromStringList(list: List<String>): String? {
@@ -96,7 +78,7 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromCoroutinesMutableListMapToString(listMap: CoroutinesMutableList<Map<String, String?>>?): String? {
+    fun fromCoroutinesMutableListMapToString(listMap: CoroutinesMutableList<Map<String, String?>>): String {
         return fromCollectionMapToString(listMap)
     }
 
@@ -106,12 +88,11 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromListMapToString(listMap: HashSet<Map<String, String?>>?): String? {
+    fun fromListMapToString(listMap: HashSet<Map<String, String?>>): String {
         return fromCollectionMapToString(listMap)
     }
 
-    private fun fromCollectionMapToString(listMap: Collection<Map<String, String?>>?): String? {
-        if (listMap.isNullOrEmpty()) return null
+    private fun fromCollectionMapToString(listMap: Collection<Map<String, String?>>): String {
         val jsonArray = JSONArray()
         for (map in listMap) {
             val jsonObject = JSONObject()
