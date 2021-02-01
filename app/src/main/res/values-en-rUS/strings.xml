@@ -47,6 +47,7 @@
     <string name="auto_dump_download_file">Auto Dump Download File</string>
     <string name="enable">Enable</string>
     <string name="save_successfully">Save Success</string>
+    <string name="save_failed">Save Failed</string>
     <string name="save_as_app">Save As single Item</string>
     <string name="main_program">Main Program</string>
     <string name="click_to_add_something">Click tab to start</string>

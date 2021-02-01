@@ -21,16 +21,16 @@ object CloudConfigGetter {
     private const val TAG = "CloudConfigGetter"
     private val objectTag = ObjectTag(core, TAG)
 
-    private const val SUCCESS = 1
-    private const val FAILED = -1
-    private const val SUCCESS_GET_APP_DATA = SUCCESS + 1
-    private const val SUCCESS_GET_HUB_DATA = SUCCESS + 2
-    private const val SUCCESS_SAVE_APP_DATA = SUCCESS + 3
-    private const val SUCCESS_SAVE_HUB_DATA = SUCCESS + 4
-    private const val FAILED_GET_APP_DATA = FAILED - 1
-    private const val FAILED_GET_HUB_DATA = FAILED - 2
-    private const val FAILED_SAVE_APP_DATA = FAILED - 3
-    private const val FAILED_SAVE_HUB_DATA = FAILED - 4
+    const val SUCCESS = 1
+    const val FAILED = -1
+    const val SUCCESS_GET_APP_DATA = SUCCESS + 1
+    const val SUCCESS_GET_HUB_DATA = SUCCESS + 2
+    const val SUCCESS_SAVE_APP_DATA = SUCCESS + 3
+    const val SUCCESS_SAVE_HUB_DATA = SUCCESS + 4
+    const val FAILED_GET_APP_DATA = FAILED - 1
+    const val FAILED_GET_HUB_DATA = FAILED - 2
+    const val FAILED_SAVE_APP_DATA = FAILED - 3
+    const val FAILED_SAVE_HUB_DATA = FAILED - 4
 
     private const val CLOUD_CONFIG_CACHE_KEY = "CLOUD_CONFIG"
     private val appCloudRulesHubUrl: String? get() = coreConfig.cloud_rules_hub_url

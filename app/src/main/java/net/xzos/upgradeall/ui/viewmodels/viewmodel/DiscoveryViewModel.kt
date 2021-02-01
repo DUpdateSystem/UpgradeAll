@@ -19,7 +19,7 @@ import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.utils.ToastUtil
 import net.xzos.upgradeall.utils.runUiFun
 
-class DiscoveryViewModel(application: Application) : ListContainerViewModel<CloudConfigListItemView>(application) {
+class DiscoveryViewModel(private val _application: Application) : ListContainerViewModel<CloudConfigListItemView>(_application) {
 
     fun downloadApplicationData(uuid: String) {
         ToastUtil.makeText(R.string.download_start, Toast.LENGTH_LONG)
@@ -27,9 +27,16 @@ class DiscoveryViewModel(application: Application) : ListContainerViewModel<Clou
         viewModelScope.launch(Dispatchers.IO) {
             // 下载数据
             CloudConfigGetter.downloadCloudAppConfig(uuid) {
-                runUiFun { ToastUtil.makeText(it, Toast.LENGTH_LONG) }
+                runUiFun {
+                    ToastUtil.makeText(getStatusMessage(it), Toast.LENGTH_LONG)
+                }
             }
         }
+    }
+
+    private fun getStatusMessage(status: Int): String {
+        return if (status > 0) _application.getString(R.string.save_successfully)
+        else "${_application.getString(R.string.save_failed)}, status: $status"
     }
 
     override suspend fun doLoadData(): List<CloudConfigListItemView> {

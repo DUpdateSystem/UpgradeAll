@@ -49,6 +49,7 @@
     <string name="auto_dump_download_file">自动转储下载文件</string>
     <string name="enable">启用</string>
     <string name="save_successfully">保存成功</string>
+    <string name="save_failed">保存失败</string>
     <string name="save_as_app">保存为单个更新项</string>
     <string name="main_program">主程序</string>
     <string name="click_to_add_something">按下加号添加应用/源吧</string>

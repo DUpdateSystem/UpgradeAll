@@ -64,7 +64,7 @@ class ConfigDownloadDialog(
                 ?: throw IllegalStateException("Config cannot be null")
         val localVersion = AppManager.getAppByUuid(uuid)?.appDatabase?.cloudConfig?.configVersion
                 ?: return false
-        return appConfigGson.configVersion >= localVersion
+        return appConfigGson.configVersion > localVersion
     }
 
     companion object {
