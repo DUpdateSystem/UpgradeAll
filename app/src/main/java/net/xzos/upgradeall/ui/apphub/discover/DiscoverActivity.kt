@@ -6,6 +6,7 @@ import net.xzos.upgradeall.ui.apphub.adapter.DiscoveryAdapter
 import net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView
 import net.xzos.upgradeall.ui.viewmodels.view.holder.DiscoverListViewHolder
 import net.xzos.upgradeall.ui.viewmodels.viewmodel.DiscoveryViewModel
+import net.xzos.upgradeall.utils.runUiFun
 
 
 class DiscoverActivity : HubListActivity<CloudConfigListItemView, DiscoverListViewHolder>() {
@@ -18,7 +19,9 @@ class DiscoverActivity : HubListActivity<CloudConfigListItemView, DiscoverListVi
         adapter.apply {
             setOnItemClickListener { _, position ->
                 getItemData(position).uuid.run {
-                    ConfigDownloadDialog(this, viewModel).show(supportFragmentManager)
+                    ConfigDownloadDialog(this) {
+                        runUiFun { viewModel.loadData() }
+                    }.show(supportFragmentManager)
                 }
             }
         }

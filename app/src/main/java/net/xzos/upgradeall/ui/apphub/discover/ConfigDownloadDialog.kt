@@ -1,20 +1,26 @@
 package net.xzos.upgradeall.ui.apphub.discover
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.*
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
-import net.xzos.upgradeall.ui.viewmodels.viewmodel.DiscoveryViewModel
+import net.xzos.upgradeall.core.utils.wait
+import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 class ConfigDownloadDialog(
         private val uuid: String,
-        private val viewModel: DiscoveryViewModel
+        private val dismissFun: () -> Unit
 ) : DialogFragment() {
 
     fun show(manager: FragmentManager) {
@@ -37,10 +43,12 @@ class ConfigDownloadDialog(
             builder.setTitle(cloudConfig.info.name)
                     .setPositiveButton(positiveButtonText
                     ) { _, _ ->
-                        runBlocking {
+                        val mutex = Mutex(true)
+                        lifecycleScope.launch(Dispatchers.IO) {
                             download()
-                            dismiss()
+                            mutex.unlock()
                         }
+                        runBlocking { mutex.wait() }
                     }.setNegativeButton(R.string.cancel
                     ) { _, _ ->
                         dismiss()
@@ -50,14 +58,27 @@ class ConfigDownloadDialog(
     }
 
     private suspend fun download() {
-        viewModel.downloadApplicationData(uuid)
-        viewModel.viewModelScope.launch(Dispatchers.IO) {
-            delay(500)
-            withContext(Dispatchers.Main) {
-                viewModel.loadData()
-            }
+        downloadApplicationData(uuid)
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        dismissFun()
+    }
+
+    private suspend fun downloadApplicationData(uuid: String) {
+        MiscellaneousUtils.showToast(R.string.download_start, Toast.LENGTH_LONG)
+        // 下载数据
+        CloudConfigGetter.downloadCloudAppConfig(uuid) {
+            MiscellaneousUtils.showToast(getStatusMessage(it), Toast.LENGTH_LONG)
         }
     }
+
+    private fun getStatusMessage(status: Int): String {
+        return if (status > 0) getString(R.string.save_successfully)
+        else "${getString(R.string.save_failed)}, status: $status"
+    }
+
 
     private fun needUpdate(): Boolean {
         val appConfigGson = CloudConfigGetter.getAppCloudConfig(uuid)

@@ -3,7 +3,7 @@ package net.xzos.upgradeall.core.utils.coroutines
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.runWithLock
 
-internal class CoroutinesCount(count: Int) {
+class CoroutinesCount(count: Int) {
     var count: Int = count
         private set
     private val mutex = Mutex()
