@@ -6,6 +6,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.json.*
+import net.xzos.upgradeall.core.database.dao.HubDao
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.log.Log
@@ -135,9 +136,10 @@ object CloudConfigGetter {
     }
 
     private suspend fun solveHubDependency(hubUuid: String, notifyFun: (Int) -> Unit): Boolean {
-        return if (HubManager.getHub(hubUuid) == null) {
+        return if (HubManager.getHub(hubUuid) == null)
             downloadCloudHubConfig(hubUuid, notifyFun)
-        } else true
+        else
+            renewHubConfig(hubUuid)
     }
 
     suspend fun renewAllAppConfigFromCloud() {
@@ -158,15 +160,18 @@ object CloudConfigGetter {
 
     suspend fun renewAllHubConfigFromCloud() {
         renew()
-        val hubConfigList = hubConfigList ?: return
         val hubDao = metaDatabase.hubDao()
-        for (hubConfig in hubConfigList) {
-            val hubUuid = hubConfig.uuid
-            val hubDatabase = hubDao.loadByUuid(hubUuid) ?: return
-            val cloudHubVersion = hubConfig.configVersion
-            val localHubVersion = hubDatabase.hubConfig.configVersion
-            if (cloudHubVersion > localHubVersion)
-                downloadCloudHubConfig(hubUuid) {}
+        hubConfigList?.forEach {
+            renewHubConfig(it.uuid, hubDao)
         }
+    }
+
+    private suspend fun renewHubConfig(hubUuid: String, hubDao: HubDao = metaDatabase.hubDao()): Boolean {
+        val hubDatabase = hubDao.loadByUuid(hubUuid) ?: return false
+        val cloudHubVersion = getHubCloudConfig(hubUuid)?.configVersion ?: return false
+        val localHubVersion = hubDatabase.hubConfig.configVersion
+        return if (cloudHubVersion > localHubVersion)
+            downloadCloudHubConfig(hubUuid) {}
+        else true
     }
 }

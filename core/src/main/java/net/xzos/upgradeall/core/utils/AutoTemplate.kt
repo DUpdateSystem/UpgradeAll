@@ -88,7 +88,7 @@ class AutoTemplate(private val string: String?, private val template: String) {
                 val keyList = getArgsKeywords(template).map { it.value }.toList()
                 val autoTemplate = AutoTemplate(url, template)
                 val args = autoTemplate.args
-                if (args.keys == keyList) {
+                if (args.keys.toList() == keyList) {
                     return args.mapKeys { it.key.replaceFirst("%", "") }
                 }
             }

@@ -8,7 +8,6 @@ import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.file.FileUtil
 import org.json.JSONArray
 import org.json.JSONObject
-import java.sql.Types.NULL
 import java.util.*
 
 
@@ -215,6 +214,7 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
     }
 
     private fun urlToAppId(appJson: JSONObject): Map<String, String?>? {
+        // AutoTemplate urlToAppId 的拷贝，避免后续架构升级导致数据库升级逻辑错误
         val hubUuid = appJson.getString("hub_uuid")
         val hubJson = allHubDatabaseMap[hubUuid] ?: return null
         val urlTemplates = hubJson.getJSONObject("hub_config").getJSONArray("app_url_templates")

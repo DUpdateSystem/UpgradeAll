@@ -5,7 +5,6 @@ import com.google.gson.annotations.SerializedName
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
-import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.utils.AutoTemplate
 
 /**
