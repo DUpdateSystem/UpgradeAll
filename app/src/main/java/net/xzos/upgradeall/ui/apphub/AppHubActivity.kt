@@ -17,7 +17,7 @@ const val TAB_UPDATE = 0
 const val TAB_ALL = 1
 const val TAB_IGNORED = 2
 
-abstract class AppHubActivity(private val appType:String) : AppBarActivity() {
+abstract class AppHubActivity(private val appType: String) : AppBarActivity() {
 
     protected lateinit var binding: ActivityAppHubBinding
     private val viewModel by viewModels<AppHubViewModel>()
@@ -36,8 +36,8 @@ abstract class AppHubActivity(private val appType:String) : AppBarActivity() {
         )
         val tabTitles = listOf(
                 getText(R.string.hub_tab_updates),
+                getText(R.string.user_star),
                 getText(R.string.hub_tab_all),
-                getText(R.string.hub_tab_ignored)
         )
 
         binding.viewpager.apply {

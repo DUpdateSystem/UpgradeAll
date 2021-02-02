@@ -1,8 +1,6 @@
 package net.xzos.upgradeall.ui.viewmodels.viewmodel
 
 import android.app.Application
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL
@@ -18,9 +16,8 @@ class DiscoveryViewModel(application: Application) : ListContainerViewModel<Clou
 
     override suspend fun doLoadData(): List<CloudConfigListItemView> {
         CloudConfigGetter.renew()
-        return withContext(Dispatchers.Main) {
-            CloudConfigGetter.appConfigList?.mapNotNull { getCloudAppItemCardView(it) }
-        } ?: emptyList()
+        return CloudConfigGetter.appConfigList?.mapNotNull { getCloudAppItemCardView(it) }
+                ?: emptyList()
     }
 
     companion object {

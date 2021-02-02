@@ -2,6 +2,7 @@
 .gradle
 /local.properties
 /app/release/
+/app/debug/
 #/.idea/caches
 #/.idea/libraries
 #/.idea/modules.xml

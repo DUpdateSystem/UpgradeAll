@@ -16,22 +16,23 @@ import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.module.network.DataCache
 import net.xzos.upgradeall.core.module.network.GrpcApi
 import net.xzos.upgradeall.core.module.network.OkHttpApi
+import net.xzos.upgradeall.core.utils.wait
 
 
 object CloudConfigGetter {
     private const val TAG = "CloudConfigGetter"
     private val objectTag = ObjectTag(core, TAG)
 
-    const val SUCCESS = 1
-    const val FAILED = -1
-    const val SUCCESS_GET_APP_DATA = SUCCESS + 1
-    const val SUCCESS_GET_HUB_DATA = SUCCESS + 2
-    const val SUCCESS_SAVE_APP_DATA = SUCCESS + 3
-    const val SUCCESS_SAVE_HUB_DATA = SUCCESS + 4
-    const val FAILED_GET_APP_DATA = FAILED - 1
-    const val FAILED_GET_HUB_DATA = FAILED - 2
-    const val FAILED_SAVE_APP_DATA = FAILED - 3
-    const val FAILED_SAVE_HUB_DATA = FAILED - 4
+    private const val SUCCESS = 1
+    private const val FAILED = -1
+    private const val SUCCESS_GET_APP_DATA = SUCCESS + 1
+    private const val SUCCESS_GET_HUB_DATA = SUCCESS + 2
+    private const val SUCCESS_SAVE_APP_DATA = SUCCESS + 3
+    private const val SUCCESS_SAVE_HUB_DATA = SUCCESS + 4
+    private const val FAILED_GET_APP_DATA = FAILED - 1
+    private const val FAILED_GET_HUB_DATA = FAILED - 2
+    private const val FAILED_SAVE_APP_DATA = FAILED - 3
+    private const val FAILED_SAVE_HUB_DATA = FAILED - 4
 
     private const val CLOUD_CONFIG_CACHE_KEY = "CLOUD_CONFIG"
     private val appCloudRulesHubUrl: String? get() = coreConfig.cloud_rules_hub_url
@@ -40,9 +41,10 @@ object CloudConfigGetter {
 
     suspend fun renew() {
         cloudConfig = DataCache.getAnyCache(CLOUD_CONFIG_CACHE_KEY)
-                ?: if (renewMutex.isLocked)
+                ?: if (renewMutex.isLocked) {
+                    renewMutex.wait()
                     DataCache.getAnyCache(CLOUD_CONFIG_CACHE_KEY)
-                else renewMutex.withLock {
+                } else renewMutex.withLock {
                     getCloudConfigFromWeb(appCloudRulesHubUrl)?.also {
                         DataCache.cacheAny(CLOUD_CONFIG_CACHE_KEY, it)
                     }
@@ -52,7 +54,7 @@ object CloudConfigGetter {
     val appConfigList: List<AppConfigGson>?
         get() = cloudConfig?.appList
 
-    val hubConfigList: List<HubConfigGson>?
+    private val hubConfigList: List<HubConfigGson>?
         get() = cloudConfig?.hubList
 
     private suspend fun getCloudConfigFromWeb(url: String?): CloudConfigList? {
