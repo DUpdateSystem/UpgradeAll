@@ -8,6 +8,7 @@ import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.file.FileUtil
 import org.json.JSONArray
 import org.json.JSONObject
+import java.sql.Types.NULL
 import java.util.*
 
 
@@ -70,9 +71,13 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
 
     private fun createNewDatabase(database: SupportSQLiteDatabase) {
         for (appJson in appDatabaseMap.values) {
+            val ignoreVersionNumber = appJson.getOrNull("ignore_version_number")
+            val ignoreVersionNumberS = if (ignoreVersionNumber == null) null else "'$ignoreVersionNumber'"
+            val cloudConfig = appJson.getOrNull("cloud_config")
+            val cloudConfigS = if (cloudConfig == null) null else "'$cloudConfig'"
             database.execSQL("""
             INSERT INTO app (name, app_id, ignore_version_number, cloud_config)
-            VALUES ('${appJson.getString("name")}', '${appJson.getString("app_id")}', '${appJson.getOrNull("ignore_version_number")}', '${appJson.getOrNull("cloud_config")}');
+            VALUES ('${appJson.getString("name")}', '${appJson.getString("app_id")}', $ignoreVersionNumberS, $cloudConfigS);
             """
             )
         }
