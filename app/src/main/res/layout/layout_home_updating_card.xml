@@ -33,7 +33,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/white" />
 
-            <net.xzos.upgradeall.view.TextSwitcherView
+            <net.xzos.upgradeall.ui.home.view.TextSwitcherView
                 android:id="@+id/ts_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

@@ -5,7 +5,7 @@
 
         <variable
             name="item"
-            type="net.xzos.upgradeall.ui.viewmodels.view.CloudConfigListItemView" />
+            type="net.xzos.upgradeall.ui.discover.DiscoverListItemView" />
     </data>
 
     <com.google.android.material.card.MaterialCardView xmlns:app="http://schemas.android.com/apk/res-auto"

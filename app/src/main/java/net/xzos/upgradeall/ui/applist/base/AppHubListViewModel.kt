@@ -1,0 +1,47 @@
+package net.xzos.upgradeall.ui.applist.base
+
+import android.app.Application
+import androidx.lifecycle.MutableLiveData
+import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
+import net.xzos.upgradeall.core.manager.AppManager
+import net.xzos.upgradeall.core.module.app.Updater
+import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
+
+
+class AppHubListViewModel(application: Application) : ListContainerViewModel<AppListItemView>(application) {
+
+    private val mAppType = MutableLiveData<String>().apply {
+        this.observeForever {
+            loadData()
+        }
+    }
+    private val mTabPageIndex = MutableLiveData(0).apply {
+        this.observeForever {
+            loadData()
+        }
+    }
+
+    internal fun setTabPageIndex(tabPageIndex: Int) {
+        mTabPageIndex.value = tabPageIndex
+    }
+
+    internal fun setAppType(appType: String) {
+        mAppType.value = appType
+    }
+
+    override suspend fun doLoadData(): List<AppListItemView> {
+        mAppType.value?.run {
+            val list = if (this == ANDROID_APP_TYPE)
+                AppManager.getAppListWithoutKey(ANDROID_MAGISK_MODULE_TYPE)
+            else
+                AppManager.getAppList(this)
+            return list.filter {
+                if (mTabPageIndex.value == 0)
+                    it.getReleaseStatus() == Updater.APP_OUTDATED
+                else true
+            }.map { AppListItemView(it) }
+        }
+        return emptyList()
+    }
+}

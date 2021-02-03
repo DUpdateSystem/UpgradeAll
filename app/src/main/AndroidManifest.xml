@@ -90,19 +90,19 @@
             android:label="@string/home_module_rss">
         </activity>
         <activity
-            android:name="net.xzos.upgradeall.ui.apphub.magisk.MagiskModuleActivity"
+            android:name="net.xzos.upgradeall.ui.applist.magisk.MagiskModuleActivity"
             android:label="@string/home_module_magisk_module">
         </activity>
         <activity
-            android:name="net.xzos.upgradeall.ui.apphub.apps.AppsActivity"
+            android:name="net.xzos.upgradeall.ui.applist.apps.AppsActivity"
             android:label="@string/home_module_apps">
         </activity>
         <activity
-            android:name="net.xzos.upgradeall.ui.apphub.filemanagement.FileManagementActivity"
+            android:name="net.xzos.upgradeall.ui.filemanagement.FileManagementActivity"
             android:label="@string/home_module_file_management">
         </activity>
         <activity
-            android:name="net.xzos.upgradeall.ui.apphub.discover.DiscoverActivity"
+            android:name="net.xzos.upgradeall.ui.discover.DiscoverActivity"
             android:label="@string/home_module_discovery">
         </activity>
         <activity
@@ -116,15 +116,15 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".ui.activity.LogActivity"
+            android:name=".ui.log.LogActivity"
             android:label="@string/home_log" />
         <activity
-            android:name=".ui.activity.SettingsActivity"
+            android:name=".ui.preference.SettingsActivity"
             android:label="@string/home_settings" />
-        <activity android:name=".ui.activity.file_pref.UCropActivity" />
-        <activity android:name=".ui.activity.file_pref.SelectFileActivity" />
-        <activity android:name=".ui.activity.file_pref.SelectDirActivity" />
-        <activity android:name=".ui.activity.file_pref.SaveFileActivity" />
+        <activity android:name="net.xzos.upgradeall.ui.legacy.file_pref.UCropActivity" />
+        <activity android:name="net.xzos.upgradeall.ui.legacy.file_pref.SelectFileActivity" />
+        <activity android:name="net.xzos.upgradeall.ui.legacy.file_pref.SelectDirActivity" />
+        <activity android:name="net.xzos.upgradeall.ui.legacy.file_pref.SaveFileActivity" />
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="fullSensor"

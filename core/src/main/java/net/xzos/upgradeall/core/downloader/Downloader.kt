@@ -39,10 +39,6 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
         }
     }
 
-    private fun unregister(downloadOb: DownloadOb) {
-    }
-
-
     private val fetch = DownloadService.getFetch()
 
     private val requestList: MutableList<Request> = mutableListOf()
