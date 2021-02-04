@@ -1,15 +1,11 @@
 package net.xzos.upgradeall.ui.discover
 
-import android.content.res.ColorStateList
 import android.view.ViewGroup
 import com.absinthe.libraries.utils.extensions.layoutInflater
 import com.google.android.material.chip.Chip
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.ItemDiscoverAppBinding
-import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
-import net.xzos.upgradeall.utils.UxUtils
-import java.util.*
 
 class DiscoverListViewHolder(private val binding: ItemDiscoverAppBinding)
     : RecyclerViewHolder<DiscoverListItemView>(binding) {
@@ -20,11 +16,6 @@ class DiscoverListViewHolder(private val binding: ItemDiscoverAppBinding)
         val layoutInflater = context.layoutInflater
         val chipGroup = binding.chipGroup
         chipGroup.removeAllViewsInLayout()
-        binding.ivIcon.apply {
-            val firstChar = itemView.name.toCharArray().find { !ListItemView.pattern.matcher(it.toString()).find() }
-            text = firstChar.toString().toUpperCase(Locale.ROOT)
-            backgroundTintList = ColorStateList.valueOf(UxUtils.getRandomColor())
-        }
         itemView.type.let {
             val typeChip = (layoutInflater.inflate(R.layout.single_chip_layout, chipGroup, false) as Chip).apply {
                 setText(it)
