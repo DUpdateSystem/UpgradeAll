@@ -9,6 +9,7 @@ class HomeModuleAdapter : BaseMultiItemQuickAdapter<HomeModuleBean, BaseViewHold
     init {
         addItemType(STYLE_CARD, R.layout.item_home_module_card)
         addItemType(STYLE_NON_CARD, R.layout.item_home_module_non_card)
+        addItemType(STYLE_SIMPLE_CARD, R.layout.item_home_module_non_card)
     }
 
     override fun convert(holder: BaseViewHolder, item: HomeModuleBean) {

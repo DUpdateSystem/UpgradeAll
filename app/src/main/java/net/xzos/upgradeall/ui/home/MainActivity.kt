@@ -17,6 +17,7 @@ import net.xzos.upgradeall.ui.applist.magisk.MagiskModuleActivity
 import net.xzos.upgradeall.ui.discover.DiscoverActivity
 import net.xzos.upgradeall.ui.filemanagement.FileManagementActivity
 import net.xzos.upgradeall.ui.home.adapter.HomeModuleAdapter
+import net.xzos.upgradeall.ui.home.adapter.HomeModuleBean
 import net.xzos.upgradeall.ui.home.adapter.HomeModuleCardBean
 import net.xzos.upgradeall.ui.home.adapter.HomeModuleNonCardBean
 import net.xzos.upgradeall.ui.log.LogActivity
@@ -52,7 +53,7 @@ class MainActivity : BaseActivity() {
             }
             layoutTitleBar.root.addPaddingTop(UxUtils.getStatusBarHeight(resources))
         }
-        val moduleList = listOf(
+        val moduleList = mutableListOf<HomeModuleBean>(
                 HomeModuleCardBean(R.drawable.ic_home_discovery, R.string.home_module_discovery) {
                     startActivity(Intent(this, DiscoverActivity::class.java))
                 },
@@ -70,17 +71,23 @@ class MainActivity : BaseActivity() {
                 },
                 HomeModuleCardBean(R.drawable.ic_home_others, R.string.home_module_others) {
                     startActivity(Intent(this, OthersActivity::class.java))
-                },
-                HomeModuleNonCardBean(R.drawable.ic_home_log, R.string.home_log) {
-                    startActivity(Intent(this, LogActivity::class.java))
-                },
-                HomeModuleNonCardBean(R.drawable.ic_home_setting, R.string.home_settings) {
-                    startActivity(Intent(this, SettingsActivity::class.java))
-                },
-                HomeModuleNonCardBean(R.drawable.ic_home_about, R.string.home_about) {
-                    ToastUtil.makeText(R.string.home_about)
-                },
+                }
         )
+        if (!PreferencesMap.enable_simple_bottom_main) {
+            moduleList.addAll(listOf(
+                    HomeModuleNonCardBean(R.drawable.ic_home_log, R.string.home_log) {
+                        startActivity(Intent(this, LogActivity::class.java))
+                    },
+                    HomeModuleNonCardBean(R.drawable.ic_home_setting, R.string.home_settings) {
+                        startActivity(Intent(this, SettingsActivity::class.java))
+                    },
+                    HomeModuleNonCardBean(R.drawable.ic_home_about, R.string.home_about) {
+                        ToastUtil.makeText(R.string.home_about)
+                    }
+            ))
+        } else {
+
+        }
         homeAdapter.setList(moduleList)
         binding.layoutUpdatingCard.apply {
             layoutCard.setOnClickListener {

@@ -110,6 +110,11 @@ object PreferencesMap {
             }
         } else null
 
+    //UI
+    private const val ENABLE_SIMPLE_BOTTOM_MAIN = "enable_simple_bottom_main"
+    val enable_simple_bottom_main
+        get() = prefs.getBoolean(ENABLE_SIMPLE_BOTTOM_MAIN, false)
+
     fun initByActivity(activity: Activity) {
         if (install_apk_api == "Shizuku") {
             ApkShizukuInstaller.initByActivity(activity, 0)

@@ -7,6 +7,7 @@ import com.chad.library.adapter.base.entity.MultiItemEntity
 
 const val STYLE_CARD = 0
 const val STYLE_NON_CARD = 1
+const val STYLE_SIMPLE_CARD = 2
 
 abstract class HomeModuleBean(
         @DrawableRes val iconRes: Int,
