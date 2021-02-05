@@ -1,11 +1,20 @@
 package net.xzos.upgradeall.ui.applist.base
 
+import android.graphics.drawable.Drawable
+import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.module.app.App
+import net.xzos.upgradeall.core.utils.getPackageId
 import net.xzos.upgradeall.ui.base.list.ListItemView
 
-class AppListItemView(val app: App) : ListItemView(app.name) {
+abstract class BaseAppListItemView(private val app: App) : ListItemView(app.name) {
 
     override val name get() = app.name
+
+    val icon: Drawable? by lazy {
+        context.packageManager.getApplicationIcon(app.appId.getPackageId()?.second
+                ?: return@lazy null)
+    }
+
     val version: String
         get() {
             val latestVersionNumber = app.getLatestVersionNumber()
@@ -18,7 +27,7 @@ class AppListItemView(val app: App) : ListItemView(app.name) {
         }
 
     override fun equals(other: Any?): Boolean {
-        return other is AppListItemView
+        return other is BaseAppListItemView
                 && other.app == app
     }
 

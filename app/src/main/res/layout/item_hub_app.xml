@@ -5,7 +5,7 @@
 
         <variable
             name="appItem"
-            type="net.xzos.upgradeall.ui.applist.base.AppListItemView" />
+            type="net.xzos.upgradeall.ui.applist.base.BaseAppListItemView" />
     </data>
 
     <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -48,7 +48,7 @@
                 android:text="@{appItem.name}"
                 android:textSize="16sp"
                 android:transitionName="app_name"
-                app:layout_constraintEnd_toStartOf="@id/iv_more"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/iv_icon"
                 app:layout_constraintTop_toTopOf="@id/iv_icon"
                 tools:text="@string/app_name" />
@@ -62,32 +62,10 @@
                 android:text="@{appItem.version}"
                 android:textSize="14sp"
                 android:transitionName="version_name"
-                app:layout_constraintEnd_toStartOf="@id/iv_more"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/iv_icon"
                 app:layout_constraintTop_toBottomOf="@id/tv_app_name"
                 tools:text="@string/app_name" />
-
-            <ImageButton
-                android:id="@+id/iv_more"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:importantForAccessibility="no"
-                android:src="@drawable/ic_baseline_more_vert_24"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btn_update"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_update"
-                android:layout_width="80dp"
-                android:layout_height="36dp"
-                android:background="@drawable/bg_update_btn"
-                android:text="@string/update"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

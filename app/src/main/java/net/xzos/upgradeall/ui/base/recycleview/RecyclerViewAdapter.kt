@@ -7,19 +7,15 @@ import androidx.recyclerview.widget.RecyclerView
 import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.utils.runUiFun
 
-abstract class RecyclerViewAdapter<L : ListItemView, T : RecyclerViewHolder<L>> : RecyclerView.Adapter<T>() {
+abstract class RecyclerViewAdapter<L : ListItemView, T : RecyclerViewHolder<in L>> : RecyclerView.Adapter<T>() {
 
-    var dataSet: List<L> = emptyList()
+    var dataSet: List<L> = listOf<L>().also { setHasStableIds(true) }
         set(value) {
             field = value
             runUiFun { notifyDataSetChanged() }
         }
 
     var mOnItemClickListener: ((view: View, position: Int) -> Unit)? = null
-
-    init {
-        setHasStableIds(true)
-    }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): T {
         val layoutInflater = LayoutInflater.from(viewGroup.context)

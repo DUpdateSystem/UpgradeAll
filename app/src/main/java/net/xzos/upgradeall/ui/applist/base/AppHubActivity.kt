@@ -45,7 +45,7 @@ abstract class AppHubActivity(private val appType: String) : AppBarActivity() {
                 }
 
                 override fun createFragment(position: Int): Fragment {
-                    return AppHubListFragment.newInstance(position, appType)
+                    return getAppHubListFragment(position, appType)
                 }
             }
         }

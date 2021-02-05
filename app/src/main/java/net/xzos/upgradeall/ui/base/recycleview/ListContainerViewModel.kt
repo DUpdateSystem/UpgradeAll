@@ -13,7 +13,7 @@ import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.utils.mutableLiveDataOf
 import net.xzos.upgradeall.utils.setValueBackground
 
-abstract class ListContainerViewModel<T : ListItemView>(application: Application) : AndroidViewModel(application) {
+abstract class ListContainerViewModel<T>(application: Application) : AndroidViewModel(application) {
     private var refresh = Mutex()
     private val listLiveData: MutableLiveData<List<T>> by lazy {
         mutableLiveDataOf<List<T>>().also {

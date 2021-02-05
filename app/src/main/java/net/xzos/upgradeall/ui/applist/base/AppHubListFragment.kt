@@ -4,33 +4,28 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.Fragment
+import net.xzos.upgradeall.ui.applist.base.normal.NormalAppHubListFragment
+import net.xzos.upgradeall.ui.applist.base.star.StarAppHubListFragment
+import net.xzos.upgradeall.ui.applist.base.update.UpdateAppHubListFragment
 import net.xzos.upgradeall.ui.base.list.HubListFragment
+import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
 
-private const val EXTRA_INDEX = "EXTRA_INDEX"
-private const val EXTRA_APP_TYPE = "EXTRA_APP_TYPE"
-
-class AppHubListFragment : HubListFragment<AppListItemView>() {
-
-    override val adapter = AppHubListAdapter()
-    override val viewModel by viewModels<AppHubListViewModel>()
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val appType = arguments?.getString(EXTRA_APP_TYPE)!!
-        val index = arguments?.getInt(EXTRA_INDEX)!!
-        viewModel.setAppType(appType)
-        viewModel.setTabPageIndex(index)
-        return super.onCreateView(inflater, container, savedInstanceState)
+fun getAppHubListFragment(index: Int, appType: String): Fragment {
+    return when (index) {
+        0 -> UpdateAppHubListFragment(appType)
+        1 -> StarAppHubListFragment(appType)
+        else -> NormalAppHubListFragment(appType)
     }
+}
 
-    companion object {
-        fun newInstance(index: Int, appType: String): AppHubListFragment {
-            return AppHubListFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(EXTRA_INDEX, index)
-                    putString(EXTRA_APP_TYPE, appType)
-                }
-            }
-        }
+abstract class AppHubListFragment<L : BaseAppListItemView, LV : RecyclerViewHolder<L>>(private val sAppType: String) : HubListFragment<L, LV>() {
+
+    abstract override val viewModel: AppHubListViewModel<L>
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        viewModel.setAppType(sAppType)
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
 }

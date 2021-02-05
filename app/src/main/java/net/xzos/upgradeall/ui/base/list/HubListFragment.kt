@@ -5,28 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.chad.library.adapter.base.BaseQuickAdapter
-import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import net.xzos.upgradeall.databinding.FragmentHubListBinding
-import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
+import net.xzos.upgradeall.ui.applist.base.AppHubListViewModel
+import net.xzos.upgradeall.ui.applist.base.BaseAppListItemView
+import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
-abstract class HubListFragment<T : ListItemView> : Fragment() {
+abstract class HubListFragment<L : ListItemView, T : RecyclerViewHolder<L>> : HubListPart<L, T>, Fragment() {
 
-    private lateinit var binding: FragmentHubListBinding
-    protected abstract val adapter: BaseQuickAdapter<T, BaseViewHolder>
-    protected abstract val viewModel: ListContainerViewModel<T>
+    override lateinit var binding: FragmentHubListBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentHubListBinding.inflate(inflater)
-        initView()
+        val activity = activity ?: throw RuntimeException("No Activity")
+        initView(activity, viewLifecycleOwner)
         return binding.root
-    }
-
-    private fun initView() {
-        binding.rvList.adapter = this.adapter
-
-        viewModel.getList().observe(viewLifecycleOwner, {
-            adapter.setList(it)
-        })
     }
 }

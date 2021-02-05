@@ -10,6 +10,10 @@
         android:id="@+id/appbar"
         layout="@layout/app_bar" />
 
+    <include
+        android:id="@+id/fragment_hub_list"
+        layout="@layout/fragment_hub_list" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/srl_container"
         android:layout_width="match_parent"

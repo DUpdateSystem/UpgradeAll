@@ -6,53 +6,32 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import com.absinthe.libraries.utils.extensions.addPaddingBottom
-import com.absinthe.libraries.utils.utils.UiUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.ActivityDiscoverBinding
+import net.xzos.upgradeall.databinding.FragmentHubListBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
-import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
-import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 
-abstract class HubListActivity<L : ListItemView, T : RecyclerViewHolder<L>> : AppBarActivity(), SearchView.OnQueryTextListener {
-    protected lateinit var binding: ActivityDiscoverBinding
-    protected abstract val adapter: RecyclerViewAdapter<L, T>
-    protected abstract val viewModel: ListContainerViewModel<L>
+abstract class HubListActivity<L : ListItemView, T : RecyclerViewHolder<L>> : HubListPart<L, T>, AppBarActivity(), SearchView.OnQueryTextListener {
+    lateinit var activityBinding: ActivityDiscoverBinding
+    override lateinit var binding: FragmentHubListBinding
     private var isListReady = false
     private var menu: Menu? = null
 
     override fun initView() {
-        binding.rvList.apply {
-            adapter = this@HubListActivity.adapter
-            addPaddingBottom(UiUtils.getNavBarHeight(contentResolver))
-        }
         viewModel.getList().observe(this) {
-            adapter.dataSet = it
-            binding.srlContainer.isRefreshing = false
             isListReady = true
             menu?.findItem(R.id.search)?.isVisible = true
         }
-        binding.srlContainer.apply {
-            setProgressBackgroundColorSchemeResource(R.color.colorPrimary)
-            setColorSchemeColors(Color.WHITE)
-            setOnRefreshListener {
-                refreshList()
-            }
-        }
-        refreshList()
+        super.initView(this, this)
     }
 
-    override fun getAppBar(): Toolbar = binding.appbar.toolbar
+    override fun getAppBar(): Toolbar = activityBinding.appbar.toolbar
 
     override fun initBinding(): View {
-        binding = ActivityDiscoverBinding.inflate(layoutInflater)
-        return binding.root
-    }
-
-    private fun refreshList() {
-        binding.srlContainer.isRefreshing = true
-        viewModel.loadData()
+        activityBinding = ActivityDiscoverBinding.inflate(layoutInflater)
+        binding = activityBinding.fragmentHubList
+        return activityBinding.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
