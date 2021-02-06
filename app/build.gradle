@@ -9,18 +9,6 @@ plugins {
 }
 
 android {
-    signingConfigs {
-        main {
-            def propsFile = rootProject.file('keystore.properties')
-            def props = new Properties()
-            props.load(new FileInputStream(propsFile))
-
-            storeFile file(props['STORE_FILE_PATH'])
-            storePassword props['STORE_PASSWORD']
-            keyPassword props['KEY_PASSWORD']
-            keyAlias = props['KEY_ALIAS']
-        }
-    }
     compileSdkVersion 30
     defaultConfig {
         applicationId "net.xzos.upgradeall"
@@ -39,7 +27,6 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.main
             manifestPlaceholders = [enableCrashReporting: "true", appName: "UpgradeAll"]
         }
         debug {
