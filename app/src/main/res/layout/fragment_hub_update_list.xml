@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tab_layout_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@null">
+
+        <TextView
+            android:id="@+id/tv_app_update_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="24dp"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="@string/hub_format_app_update_tip" />
+
+        <TextView
+            android:id="@+id/tv_update_all"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="8dp"
+            android:text="@string/hub_update_all"
+            app:layout_constraintEnd_toStartOf="@id/tv_ignore_all" />
+
+        <TextView
+            android:id="@+id/tv_ignore_all"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="8dp"
+            android:text="@string/hub_ignore_all"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/fragment_hub_list"
+        layout="@layout/fragment_hub_list" />
+
+</LinearLayout>

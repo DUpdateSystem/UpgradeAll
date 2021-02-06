@@ -1,30 +1,53 @@
 package net.xzos.upgradeall.ui.applist.base
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
+import net.xzos.upgradeall.core.data.json.uiConfig
 import net.xzos.upgradeall.core.manager.AppManager
+import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater
-import net.xzos.upgradeall.utils.setValueBackground
+import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 
 
-class AppHubViewModel(application: Application) : AndroidViewModel(application) {
+class AppHubViewModel(application: Application)
+    : ListContainerViewModel<App>(application) {
 
-    val itemCountLiveData: MutableLiveData<Int> by lazy {
-        MutableLiveData(0).also {
-            AppManager.appMapStatusChangedFun = { map ->
-                val appType = mAppType.value
-                val needUpdateNum = map[Updater.APP_OUTDATED]?.filter {
-                    it.appId.containsKey(appType)
-                }?.size ?: 0
-                itemCountLiveData.setValueBackground(needUpdateNum)
-            }
+    private val mTabIndex = MutableLiveData<Int>().apply {
+        this.observeForever {
+            loadData()
+        }
+    }
+    private val mAppType = MutableLiveData<String>().apply {
+        this.observeForever {
+            loadData()
         }
     }
 
-    private val mAppType = MutableLiveData<String>()
-
-    internal fun setAppType(appType: String) {
+    fun setAppType(appType: String) {
         mAppType.value = appType
+    }
+
+    fun setTabIndex(tabIndex: Int) {
+        mTabIndex.value = tabIndex
+    }
+
+    private fun getAppList(): List<App> {
+        mAppType.value?.run {
+            return if (this == ANDROID_APP_TYPE)
+                AppManager.getAppListWithoutKey(ANDROID_MAGISK_MODULE_TYPE)
+            else
+                AppManager.getAppList(this)
+        } ?: return emptyList()
+    }
+
+    override suspend fun doLoadData(): List<App> {
+        val list = getAppList()
+        return when (mTabIndex.value) {
+            0 -> list.filter { it.getReleaseStatus() == Updater.APP_OUTDATED }
+            1 -> list.filter { uiConfig.user_star_app_id_list.contains(it.appId) }
+            else -> list
+        }
     }
 }

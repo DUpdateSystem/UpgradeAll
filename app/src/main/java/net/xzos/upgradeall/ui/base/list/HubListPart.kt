@@ -12,11 +12,12 @@ import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
-interface HubListPart<L : ListItemView, out T : RecyclerViewHolder<in L>> {
+interface HubListPart<T, L : ListItemView, out RH : RecyclerViewHolder<in L>> {
 
     var binding: FragmentHubListBinding
-    val adapter: RecyclerViewAdapter<in L, out T>
-    val viewModel: ListContainerViewModel<L>
+    val adapter: RecyclerViewAdapter<in L, out RH>
+    val viewModel: ListContainerViewModel<T>
+    val listContainerViewConvertFun: (T) -> L
 
     fun initView(activity: ComponentActivity, lifecycleOwner: LifecycleOwner) {
         adapter.lifecycleScope = activity.lifecycleScope
@@ -24,8 +25,8 @@ interface HubListPart<L : ListItemView, out T : RecyclerViewHolder<in L>> {
             adapter = this@HubListPart.adapter
             addPaddingBottom(UiUtils.getNavBarHeight(activity.windowManager))
         }
-        viewModel.getList().observe(lifecycleOwner) {
-            adapter.dataSet = it
+        viewModel.getList().observe(lifecycleOwner) { list ->
+            adapter.dataSet = list.map { listContainerViewConvertFun(it) }
             binding.srlContainer.isRefreshing = false
         }
         binding.srlContainer.apply {

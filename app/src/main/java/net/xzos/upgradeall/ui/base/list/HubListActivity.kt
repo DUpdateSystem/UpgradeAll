@@ -12,11 +12,13 @@ import net.xzos.upgradeall.databinding.FragmentHubListBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
-abstract class HubListActivity<L : ListItemView, T : RecyclerViewHolder<L>> : HubListPart<L, T>, AppBarActivity(), SearchView.OnQueryTextListener {
+abstract class HubListActivity<L : ListItemView, T : RecyclerViewHolder<L>>
+    : HubListPart<L, L, T>, AppBarActivity(), SearchView.OnQueryTextListener {
     lateinit var activityBinding: ActivityDiscoverBinding
     override lateinit var binding: FragmentHubListBinding
     private var isListReady = false
     private var menu: Menu? = null
+    override val listContainerViewConvertFun: (L) -> L = fun(i) = i
 
     override fun initView() {
         viewModel.getList().observe(this) {
