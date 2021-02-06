@@ -33,6 +33,12 @@ class AppHubViewModel(application: Application)
         mTabIndex.value = tabIndex
     }
 
+    fun setAutoRenewFun() {
+        AppManager.appMapStatusChangedFun = {
+            loadData()
+        }
+    }
+
     private fun getAppList(): List<App> {
         mAppType.value?.run {
             return if (this == ANDROID_APP_TYPE)

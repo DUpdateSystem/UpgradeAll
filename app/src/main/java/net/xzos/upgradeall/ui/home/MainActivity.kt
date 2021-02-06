@@ -7,13 +7,14 @@ import com.absinthe.libraries.utils.extensions.addPaddingTop
 import com.absinthe.libraries.utils.utils.UiUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
+import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
 import net.xzos.upgradeall.server.update.UpdateService
-import net.xzos.upgradeall.ui.base.BaseActivity
 import net.xzos.upgradeall.ui.applist.apps.AppsActivity
 import net.xzos.upgradeall.ui.applist.magisk.MagiskModuleActivity
+import net.xzos.upgradeall.ui.base.BaseActivity
 import net.xzos.upgradeall.ui.discover.DiscoverActivity
 import net.xzos.upgradeall.ui.filemanagement.FileManagementActivity
 import net.xzos.upgradeall.ui.home.adapter.*
@@ -91,14 +92,22 @@ class MainActivity : BaseActivity() {
                 checkUpdate()
             }
         }
+    }
 
+    override fun onResume() {
+        super.onResume()
+        renewUpdateStatus(AppManager.getAppMap())
         AppManager.appMapStatusChangedFun = {
-            runUiFun {
-                val needUpdateNum = it[Updater.APP_OUTDATED]?.size ?: 0
-                binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), needUpdateNum)
-                binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_check_updates))
-                binding.layoutUpdatingCard.ivIcon.setImageResource(R.drawable.ic_done)
-            }
+            renewUpdateStatus(it)
+        }
+    }
+
+    private fun renewUpdateStatus(appMap: Map<Int, List<App>>) {
+        runUiFun {
+            val needUpdateNum = appMap[Updater.APP_OUTDATED]?.size ?: 0
+            binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), needUpdateNum)
+            binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_check_updates))
+            binding.layoutUpdatingCard.ivIcon.setImageResource(R.drawable.ic_done)
         }
     }
 

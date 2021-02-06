@@ -54,4 +54,9 @@ abstract class AppHubActivity(private val appType: String) : AppBarActivity() {
         }
         mediator.attach()
     }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.setAutoRenewFun()
+    }
 }
