@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.data.json
 
 import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import net.xzos.upgradeall.core.utils.file.FileUtil
 import java.io.File
 
@@ -12,7 +13,7 @@ import java.io.File
 val uiConfig: UIConfig = parseUiConfig(FileUtil.UI_CONFIG_FILE)
 
 data class UIConfig(
-        val user_star_app_id_list: HashSet<Map<String, String?>>
+        @SerializedName("user_star_app_id_list") val userStarAppIdList: HashSet<Map<String, String?>>
 )
 
 private fun parseUiConfig(file: File): UIConfig {

@@ -59,8 +59,8 @@ object RestoreManager {
     }
 
     private fun restoreUiConfig(uiConfigBackup: UIConfig) {
-        for (item in uiConfigBackup.user_star_app_id_list) {
-            uiConfig.user_star_app_id_list.add(item)
+        for (item in uiConfigBackup.userStarAppIdList) {
+            uiConfig.userStarAppIdList.add(item)
         }
         uiConfig.save()
     }

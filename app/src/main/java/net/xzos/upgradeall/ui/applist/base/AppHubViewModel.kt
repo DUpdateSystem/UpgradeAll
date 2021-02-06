@@ -52,7 +52,7 @@ class AppHubViewModel(application: Application)
         val list = getAppList()
         return when (mTabIndex.value) {
             0 -> list.filter { it.getReleaseStatus() == Updater.APP_OUTDATED }
-            1 -> list.filter { uiConfig.user_star_app_id_list.contains(it.appId) }
+            1 -> list.filter { uiConfig.userStarAppIdList.contains(it.appId) }
             else -> list
         }
     }
