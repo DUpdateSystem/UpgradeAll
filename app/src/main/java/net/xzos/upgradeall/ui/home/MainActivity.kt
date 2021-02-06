@@ -16,10 +16,7 @@ import net.xzos.upgradeall.ui.applist.apps.AppsActivity
 import net.xzos.upgradeall.ui.applist.magisk.MagiskModuleActivity
 import net.xzos.upgradeall.ui.discover.DiscoverActivity
 import net.xzos.upgradeall.ui.filemanagement.FileManagementActivity
-import net.xzos.upgradeall.ui.home.adapter.HomeModuleAdapter
-import net.xzos.upgradeall.ui.home.adapter.HomeModuleBean
-import net.xzos.upgradeall.ui.home.adapter.HomeModuleCardBean
-import net.xzos.upgradeall.ui.home.adapter.HomeModuleNonCardBean
+import net.xzos.upgradeall.ui.home.adapter.*
 import net.xzos.upgradeall.ui.log.LogActivity
 import net.xzos.upgradeall.ui.others.OthersActivity
 import net.xzos.upgradeall.ui.preference.SettingsActivity
@@ -86,7 +83,7 @@ class MainActivity : BaseActivity() {
                     }
             ))
         } else {
-
+            moduleList.add(HomeSimpleCardBean())
         }
         homeAdapter.setList(moduleList)
         binding.layoutUpdatingCard.apply {

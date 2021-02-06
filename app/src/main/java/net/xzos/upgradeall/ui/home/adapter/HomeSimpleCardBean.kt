@@ -1,11 +1,3 @@
 package net.xzos.upgradeall.ui.home.adapter
 
-import android.view.View
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-
-class HomeSimpleCardBean(
-        @DrawableRes iconRes: Int,
-        @StringRes titleRes: Int,
-        clickListener: View.OnClickListener
-) : HomeModuleBean(iconRes, titleRes, clickListener, STYLE_NON_CARD)
+class HomeSimpleCardBean : HomeModuleBean(0, 0, null, STYLE_SIMPLE_CARD)

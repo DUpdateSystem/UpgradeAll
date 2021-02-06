@@ -12,6 +12,6 @@ const val STYLE_SIMPLE_CARD = 2
 abstract class HomeModuleBean(
         @DrawableRes val iconRes: Int,
         @StringRes val titleRes: Int,
-        val clickListener: View.OnClickListener,
+        val clickListener: View.OnClickListener?,
         override val itemType: Int
 ) : MultiItemEntity
