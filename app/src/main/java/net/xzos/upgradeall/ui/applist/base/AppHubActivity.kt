@@ -48,6 +48,7 @@ abstract class AppHubActivity(private val appType: String) : AppBarActivity() {
                     return getAppHubListFragment(position, appType)
                 }
             }
+            offscreenPageLimit = 1
         }
 
         val mediator = TabLayoutMediator(binding.tabLayout, binding.viewpager) { tab, position ->
