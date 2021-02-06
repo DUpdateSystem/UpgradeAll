@@ -49,7 +49,7 @@ class MainActivity : BaseActivity() {
             rvModules.apply {
                 adapter = homeAdapter
                 setHasFixedSize(true)
-                addPaddingBottom(UiUtils.getNavBarHeight(contentResolver))
+                addPaddingBottom(UiUtils.getNavBarHeight(windowManager))
             }
             layoutTitleBar.root.addPaddingTop(UxUtils.getStatusBarHeight(resources))
         }

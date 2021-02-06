@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.4.21'
+    ext.kotlin_version = '1.4.30'
     ext.protobuf_version = '0.8.12'
     ext.protoc_version = '3.14.0'
     repositories {
@@ -11,7 +11,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobuf_version"
 
         classpath 'com.google.gms:google-services:4.3.5'

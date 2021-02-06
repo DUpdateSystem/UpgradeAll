@@ -45,7 +45,7 @@ class AppDetailActivity : AppBarActivity() {
     override fun initView() {
         binding.btnUpdate.apply {
             layoutParams = (layoutParams as CoordinatorLayout.LayoutParams).apply {
-                setMargins(marginStart, marginTop, marginEnd, marginBottom + UiUtils.getNavBarHeight(contentResolver))
+                setMargins(marginStart, marginTop, marginEnd, marginBottom + UiUtils.getNavBarHeight(windowManager))
             }
         }
         val items = versionList.map { it.name }
