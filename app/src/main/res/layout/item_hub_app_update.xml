@@ -31,12 +31,12 @@
                 layout="@layout/item_hub_app"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintEnd_toStartOf="@+id/iv_more"
+                app:layout_constraintEnd_toStartOf="@+id/iv_status"
                 app:layout_constraintStart_toStartOf="parent" />
 
 
             <ImageButton
-                android:id="@+id/iv_more"
+                android:id="@+id/iv_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"

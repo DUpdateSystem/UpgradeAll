@@ -31,8 +31,10 @@
                 android:id="@+id/iv_icon"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="@drawable/bg_circle"
+                android:background="@{appItem.icon}"
+                android:backgroundTint="@{appItem.iconBackgroundTint}"
                 android:gravity="center"
+                android:text="@{appItem.nameFirst}"
                 android:textSize="20sp"
                 android:transitionName="app_icon"
                 app:layout_constraintStart_toStartOf="parent"
@@ -68,14 +70,6 @@
                 tools:text="@string/app_name" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/progress_indicator"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:visibility="gone"
-            tools:visibility="visible" />
 
     </com.google.android.material.card.MaterialCardView>
 

@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.runWithLock
-import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.utils.mutableLiveDataOf
 import net.xzos.upgradeall.utils.setValueBackground
 

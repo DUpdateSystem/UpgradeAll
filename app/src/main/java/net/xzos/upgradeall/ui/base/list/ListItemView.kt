@@ -9,7 +9,7 @@ abstract class ListItemView(
         open val name: String,
 ) {
     private val firstChar get() = name.toCharArray().find { !pattern.matcher(it.toString()).find() }
-    val nameFirst: String get() = firstChar.toString().toUpperCase(Locale.ROOT)
+    open val nameFirst: String get() = firstChar.toString().toUpperCase(Locale.ROOT)
     val backgroundTint = ColorStateList.valueOf(UxUtils.getRandomColor())
 
     companion object {

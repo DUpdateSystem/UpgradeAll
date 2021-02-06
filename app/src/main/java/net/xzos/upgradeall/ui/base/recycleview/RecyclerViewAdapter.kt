@@ -3,11 +3,15 @@ package net.xzos.upgradeall.ui.base.recycleview
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.utils.runUiFun
 
 abstract class RecyclerViewAdapter<L : ListItemView, T : RecyclerViewHolder<in L>> : RecyclerView.Adapter<T>() {
+
+    lateinit var lifecycleScope: LifecycleCoroutineScope
 
     var dataSet: List<L> = listOf<L>().also { setHasStableIds(true) }
         set(value) {
@@ -25,11 +29,15 @@ abstract class RecyclerViewAdapter<L : ListItemView, T : RecyclerViewHolder<in L
     abstract fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): T
 
     override fun onBindViewHolder(viewHolder: T, position: Int) {
-        viewHolder.bind(dataSet[position])
+        val itemView = dataSet[position]
+        viewHolder.bind(itemView)
         viewHolder.itemView.setOnClickListener {
             mOnItemClickListener?.run {
                 this(it, position)
             }
+        }
+        lifecycleScope.launch {
+            viewHolder.loadExtraUi(itemView)
         }
     }
 

@@ -25,7 +25,7 @@ abstract class AppHubListFragment<L : BaseAppListItemView, LV : RecyclerViewHold
     abstract override val viewModel: AppHubListViewModel<L>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        viewModel.setAppType(sAppType)
+        viewModel.mAppType = sAppType
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 }

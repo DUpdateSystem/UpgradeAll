@@ -5,6 +5,7 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -18,6 +19,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
+import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.data.PreferencesMap
 import java.util.*
@@ -101,6 +103,14 @@ object MiscellaneousUtils {
     fun showToast(text: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
         runUiFun {
             ToastUtil.makeText(text.toString(), duration)
+        }
+    }
+
+    fun getAppIcon(context: Context, packageName: String): Drawable? {
+        return try {
+            context.packageManager.getApplicationIcon(packageName)
+        } catch (ignore: PackageManager.NameNotFoundException) {
+            null
         }
     }
 }

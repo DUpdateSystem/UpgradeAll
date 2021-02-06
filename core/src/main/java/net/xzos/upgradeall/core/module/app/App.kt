@@ -10,12 +10,14 @@ import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.utils.VersioningUtils.sortVersionNumberList
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
+import net.xzos.upgradeall.core.utils.wait
 
 class App(
         val appDatabase: AppEntity,
         statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
 ) {
     private val updater = Updater(this, statusRenewedFun)
+    private val renewMutex = Mutex()
 
     /* App 对象的属性字典*/
     val appId: Map<String, String?> get() = appDatabase.appId
@@ -58,14 +60,29 @@ class App(
 
     /* 刷新版本号数据 */
     suspend fun update() {
-        coroutineScope {
-            hubListUuid.mapNotNull { HubManager.getHub(it) }.forEach {
-                launch {
-                    renewVersionList(it)
+        if (renewMutex.isLocked)
+            renewMutex.wait()
+        else {
+            doUpdate()
+        }
+    }
+
+    private suspend fun doUpdate() {
+        renewMutex.withLock {
+            coroutineScope {
+                hubListUuid.mapNotNull { HubManager.getHub(it) }.forEach {
+                    launch {
+                        renewVersionList(it)
+                    }
                 }
             }
+            getReleaseStatus()
         }
-        getReleaseStatus()
+    }
+
+    suspend fun getReleaseStatusWaitRenew(): Int {
+        renewMutex.wait()
+        return updater.getUpdateStatus()
     }
 
     /* 获取 App 的更新状态*/

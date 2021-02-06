@@ -7,14 +7,13 @@ import net.xzos.upgradeall.ui.applist.base.BaseAppListItemView
 
 class NormalAppListItemView(val app: App) : BaseAppListItemView(app) {
 
-    val statusIcon: Int
-        get() {
-            return when (app.getReleaseStatus()) {
-                Updater.APP_LATEST -> R.drawable.ic_check_mark_circle
-                Updater.APP_OUTDATED -> R.drawable.ic_check_needupdate
-                Updater.NETWORK_ERROR -> R.drawable.ic_del_or_error
-                Updater.APP_NO_LOCAL -> R.drawable.ic_local_error
-                else -> R.drawable.ic_check_mark_circle
-            }
+    suspend fun getStatusIcon(): Int {
+        return when (app.getReleaseStatusWaitRenew()) {
+            Updater.APP_LATEST -> R.drawable.ic_check_mark_circle
+            Updater.APP_OUTDATED -> R.drawable.ic_check_needupdate
+            Updater.NETWORK_ERROR -> R.drawable.ic_del_or_error
+            Updater.APP_NO_LOCAL -> R.drawable.ic_local_error
+            else -> R.drawable.ic_check_mark_circle
         }
+    }
 }

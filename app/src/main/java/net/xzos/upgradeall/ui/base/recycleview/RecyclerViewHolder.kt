@@ -11,4 +11,6 @@ abstract class RecyclerViewHolder<L : ListItemView>(private val binding: ViewDat
     }
 
     abstract fun doBind(itemView: L)
+
+    open suspend fun loadExtraUi(itemView: L) {}
 }

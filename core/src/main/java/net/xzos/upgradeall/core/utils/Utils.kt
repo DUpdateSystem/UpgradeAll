@@ -37,8 +37,7 @@ fun Mutex.unlockAfterComplete(action: () -> Unit) {
 
 suspend fun Mutex.wait() {
     if (this.isLocked) {
-        this.lock()
-        this.unlock()
+        withLock { }
     }
 }
 
