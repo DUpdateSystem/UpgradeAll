@@ -11,8 +11,8 @@ import net.xzos.upgradeall.databinding.ActivityAppHubBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 
 const val TAB_UPDATE = 0
-const val TAB_ALL = 1
-const val TAB_IGNORED = 2
+const val TAB_STAR = 1
+const val TAB_ALL = 2
 
 abstract class AppHubActivity(private val appType: String) : AppBarActivity() {
 
@@ -29,7 +29,7 @@ abstract class AppHubActivity(private val appType: String) : AppBarActivity() {
     override fun initView() {
         viewModel.setAppType(appType)
         val types = listOf(
-                TAB_UPDATE, TAB_ALL, TAB_IGNORED
+                TAB_UPDATE, TAB_STAR, TAB_ALL
         )
         val tabTitles = listOf(
                 getText(R.string.hub_tab_updates),

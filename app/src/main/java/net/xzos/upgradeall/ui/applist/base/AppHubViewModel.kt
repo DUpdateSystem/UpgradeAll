@@ -51,8 +51,8 @@ class AppHubViewModel(application: Application)
     override suspend fun doLoadData(): List<App> {
         val list = getAppList()
         return when (mTabIndex.value) {
-            0 -> list.filter { it.getReleaseStatus() == Updater.APP_OUTDATED }
-            1 -> list.filter { uiConfig.userStarAppIdList.contains(it.appId) }
+            TAB_UPDATE -> list.filter { it.getReleaseStatus() == Updater.APP_OUTDATED }
+            TAB_STAR -> list.filter { uiConfig.userStarAppIdList.contains(it.appId) }
             else -> list
         }
     }

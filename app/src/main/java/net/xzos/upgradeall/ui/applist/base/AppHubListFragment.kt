@@ -24,10 +24,4 @@ abstract class AppHubListFragment<L : BaseAppListItemView, LV : RecyclerViewHold
         super.onResume()
         viewModel.setTabIndex(tabIndex)
     }
-
-    companion object {
-        const val UPDATE_TAB = 0
-        const val STAR_TAB = 1
-        const val NORMAL_TAB = 2
-    }
 }
