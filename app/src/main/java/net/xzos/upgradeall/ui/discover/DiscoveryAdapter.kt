@@ -5,7 +5,10 @@ import android.view.ViewGroup
 import net.xzos.upgradeall.databinding.ItemDiscoverAppBinding
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 
-class DiscoveryAdapter : RecyclerViewAdapter<DiscoverListItemView, DiscoverListViewHolder>() {
+class DiscoveryAdapter(
+        override val handler: DiscoverListItemHandler
+) : RecyclerViewAdapter<DiscoverListItemView, DiscoverListItemHandler, DiscoverListViewHolder>() {
+
 
     override fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): DiscoverListViewHolder {
         val binding = ItemDiscoverAppBinding.inflate(layoutInflater, viewGroup, false)

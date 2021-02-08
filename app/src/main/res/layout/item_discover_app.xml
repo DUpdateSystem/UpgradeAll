@@ -6,6 +6,10 @@
         <variable
             name="item"
             type="net.xzos.upgradeall.ui.discover.DiscoverListItemView" />
+
+        <variable
+            name="handler"
+            type="net.xzos.upgradeall.ui.discover.DiscoverListItemHandler" />
     </data>
 
     <com.google.android.material.card.MaterialCardView xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -13,6 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
+        android:onClick="@{() -> handler.onClickDiscover(item.uuid)}"
         android:focusable="true"
         app:cardCornerRadius="0dp"
         app:cardElevation="0dp">

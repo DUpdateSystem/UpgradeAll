@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import net.xzos.upgradeall.databinding.FragmentHubListBinding
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
-abstract class HubListFragment<T, L : ListItemView, RH : RecyclerViewHolder<L>> : HubListPart<T, L, RH>, Fragment() {
+abstract class HubListFragment<T, L : ListItemView, RH : RecyclerViewHolder<L, *, *>> : HubListPart<T, L, RH>, Fragment() {
 
     override lateinit var binding: FragmentHubListBinding
 

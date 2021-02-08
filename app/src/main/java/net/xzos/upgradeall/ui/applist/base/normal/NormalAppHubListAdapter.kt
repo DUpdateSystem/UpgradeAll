@@ -5,7 +5,9 @@ import android.view.ViewGroup
 import net.xzos.upgradeall.databinding.ItemHubAppNormalBinding
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 
-class NormalAppHubListAdapter : RecyclerViewAdapter<NormalAppListItemView, NormalAppHubListViewHolder>() {
+class NormalAppHubListAdapter : RecyclerViewAdapter<NormalAppListItemView, NormalAppHubListItemHandler, NormalAppHubListViewHolder>() {
+
+    override val handler: NormalAppHubListItemHandler = NormalAppHubListItemHandler()
 
     override fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): NormalAppHubListViewHolder {
         val binding = ItemHubAppNormalBinding.inflate(layoutInflater, viewGroup, false)

@@ -12,10 +12,10 @@ import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
-interface HubListPart<T, L : ListItemView, out RH : RecyclerViewHolder<in L>> {
+interface HubListPart<T, L : ListItemView, out RH : RecyclerViewHolder<in L, *, *>> {
 
     var binding: FragmentHubListBinding
-    val adapter: RecyclerViewAdapter<in L, out RH>
+    val adapter: RecyclerViewAdapter<in L, *, out RH>
     val viewModel: ListContainerViewModel<T>
     val listContainerViewConvertFun: (T) -> L
 

@@ -11,7 +11,7 @@ import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.UxUtils
 
-abstract class BaseAppListItemView(private val app: App) : ListItemView(app.name) {
+abstract class BaseAppListItemView(val app: App) : ListItemView(app.name) {
 
     override val name get() = app.name
     override val nameFirst: String

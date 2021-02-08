@@ -8,7 +8,11 @@ import net.xzos.upgradeall.databinding.ItemDiscoverAppBinding
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
 class DiscoverListViewHolder(private val binding: ItemDiscoverAppBinding)
-    : RecyclerViewHolder<DiscoverListItemView>(binding) {
+    : RecyclerViewHolder<DiscoverListItemView, DiscoverListItemHandler, ItemDiscoverAppBinding>(binding, binding) {
+
+    override fun setHandler(handler: DiscoverListItemHandler) {
+        TODO("Not yet implemented")
+    }
 
     override fun doBind(itemView: DiscoverListItemView) {
         binding.item = itemView

@@ -6,6 +6,10 @@
         <variable
             name="appItem"
             type="net.xzos.upgradeall.ui.applist.base.BaseAppListItemView" />
+
+        <variable
+            name="handler"
+            type="net.xzos.upgradeall.ui.applist.base.AppHubListItemHandler" />
     </data>
 
     <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -16,7 +20,7 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
-        app:cardCornerRadius="0dp"
+        android:onClick="@{(view) -> handler.onClickApp(view, appItem.app)}"
         app:cardElevation="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout

@@ -1,13 +1,13 @@
 package net.xzos.upgradeall.ui.applist.base.update
 
 import net.xzos.upgradeall.databinding.ItemHubAppUpdateBinding
-import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
+import net.xzos.upgradeall.ui.applist.base.AppHubListViewHolder
 
 class UpdateAppHubListViewHolder(private val binding: ItemHubAppUpdateBinding)
-    : RecyclerViewHolder<UpdateAppListItemView>(binding) {
+    : AppHubListViewHolder<UpdateAppListItemView, UpdateAppHubListItemHandler>(binding.mainInfo, binding) {
 
     override fun doBind(itemView: UpdateAppListItemView) {
-        binding.mainInfo.appItem = itemView
+        super.doBind(itemView)
         binding.item = itemView
     }
 }

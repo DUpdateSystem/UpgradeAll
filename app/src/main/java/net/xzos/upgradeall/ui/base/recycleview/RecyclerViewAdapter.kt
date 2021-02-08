@@ -9,8 +9,9 @@ import kotlinx.coroutines.launch
 import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.utils.runUiFun
 
-abstract class RecyclerViewAdapter<L : ListItemView, T : RecyclerViewHolder<in L>> : RecyclerView.Adapter<T>() {
+abstract class RecyclerViewAdapter<L : ListItemView, RHA : RecyclerViewHandler, T : RecyclerViewHolder<in L, RHA, *>> : RecyclerView.Adapter<T>() {
 
+    abstract val handler: RHA?
     lateinit var lifecycleScope: LifecycleCoroutineScope
 
     var dataSet: List<L> = listOf<L>().also { setHasStableIds(true) }
@@ -23,7 +24,9 @@ abstract class RecyclerViewAdapter<L : ListItemView, T : RecyclerViewHolder<in L
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): T {
         val layoutInflater = LayoutInflater.from(viewGroup.context)
-        return getViewHolder(layoutInflater, viewGroup)
+        return getViewHolder(layoutInflater, viewGroup).apply {
+            handler?.let { this.setHandler(it) }
+        }
     }
 
     abstract fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): T
