@@ -1,7 +1,6 @@
 package net.xzos.upgradeall.ui.discover
 
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -20,7 +19,7 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 class ConfigDownloadDialog(
         private val uuid: String,
-        private val dismissFun: () -> Unit
+        private val changedFun: () -> Unit
 ) : DialogFragment() {
 
     fun show(manager: FragmentManager) {
@@ -49,6 +48,7 @@ class ConfigDownloadDialog(
                             mutex.unlock()
                         }
                         runBlocking { mutex.wait() }
+                        changedFun()
                     }.setNegativeButton(R.string.cancel
                     ) { _, _ ->
                         dismiss()
@@ -59,11 +59,6 @@ class ConfigDownloadDialog(
 
     private suspend fun download() {
         downloadApplicationData(uuid)
-    }
-
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        dismissFun()
     }
 
     private suspend fun downloadApplicationData(uuid: String) {
