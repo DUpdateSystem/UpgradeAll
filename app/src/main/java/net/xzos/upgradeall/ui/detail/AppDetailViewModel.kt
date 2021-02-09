@@ -5,7 +5,7 @@ import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.databinding.BaseObservable
-import androidx.databinding.Bindable
+import androidx.databinding.ObservableField
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
@@ -46,22 +46,18 @@ class AppDetailViewModel(val app: App) : ListItemView, BaseObservable() {
 
     val versionList: List<Version> by lazy { runBlocking { app.versionList }.asReversed() }
 
-    @Bindable
-    var versionListItem: String? = null
-
-    @Bindable
-    var changelog: CharSequence? = null
-        set(value) {
-            field = when {
-                value.isNullOrBlank() -> {
-                    context.getString(R.string.null_english)
-                }
-                value.hasHTMLTags() -> {
-                    HtmlCompat.fromHtml(value.toString(), HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS)
-                }
-                else -> value
+    var changelogData = ObservableField<CharSequence>()
+    private fun setChangelog(changelog: CharSequence?) {
+        changelogData.set(when {
+            changelog.isNullOrBlank() -> {
+                context.getString(R.string.null_english)
             }
-        }
+            changelog.hasHTMLTags() -> {
+                HtmlCompat.fromHtml(changelog.toString(), HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS)
+            }
+            else -> changelog
+        })
+    }
 
     fun setVersionInfo(position: Int) {
         if (position >= versionList.size) return
@@ -69,7 +65,6 @@ class AppDetailViewModel(val app: App) : ListItemView, BaseObservable() {
             versionList.size + position
         else position
         val versionItem = versionList[index]
-        versionListItem = versionItem.name
         var latestChangeLog = ""
         for (asset in versionItem.assetList) {
             val changelog = asset.changeLog
@@ -77,7 +72,7 @@ class AppDetailViewModel(val app: App) : ListItemView, BaseObservable() {
                 latestChangeLog += "${asset.hub.name}\n${changelog}\n"
             }
         }
-        changelog = latestChangeLog
+        setChangelog(latestChangeLog)
     }
 
     override fun equals(other: Any?): Boolean {

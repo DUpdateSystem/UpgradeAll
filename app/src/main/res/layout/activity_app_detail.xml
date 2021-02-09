@@ -132,13 +132,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    <AutoCompleteTextView
                         android:id="@+id/tv_more_version"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/mark_version_number"
+                        android:hint="@string/version_number"
                         android:inputType="none"
-                        android:text="@={appItem.versionListItem}" />
+                        tools:text="@string/example_version_number" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -150,7 +150,7 @@
                     android:layout_marginTop="40dp"
                     android:background="@drawable/bg_app_detail_changelog"
                     android:padding="20dp"
-                    android:text="@={appItem.changelog}"
+                    android:text="@={appItem.changelogData}"
                     android:textColor="@color/normal_text"
                     tools:text="1. 优化系统流畅度\n2. 提高系统的安全性和稳定性" />
             </LinearLayout>

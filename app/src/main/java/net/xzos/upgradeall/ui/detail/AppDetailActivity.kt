@@ -51,11 +51,16 @@ class AppDetailActivity : AppBarActivity() {
         val items = versionList.map { it.name }
         val adapter = ArrayAdapter(this, R.layout.item_more_version, items)
 
-        binding.tvMoreVersion.setAdapter(adapter)
-        binding.tvMoreVersion.setOnItemClickListener { _, _, position, _ ->
-            viewModel.setVersionInfo(position)
+        binding.tvMoreVersion.run {
+            setAdapter(adapter)
+            setOnItemClickListener { _, _, position, _ ->
+                viewModel.setVersionInfo(position)
+            }
+
+            // 设置初始的版本信息
+            setText(items[0], false)
+            viewModel.setVersionInfo(0)
         }
-        viewModel.setVersionInfo(0)
     }
 
     companion object {
