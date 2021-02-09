@@ -11,7 +11,7 @@ class DiscoverListViewHolder(private val binding: ItemDiscoverAppBinding)
     : RecyclerViewHolder<DiscoverListItemView, DiscoverListItemHandler, ItemDiscoverAppBinding>(binding, binding) {
 
     override fun setHandler(handler: DiscoverListItemHandler) {
-        TODO("Not yet implemented")
+        binding.handler = handler
     }
 
     override fun doBind(itemView: DiscoverListItemView) {
