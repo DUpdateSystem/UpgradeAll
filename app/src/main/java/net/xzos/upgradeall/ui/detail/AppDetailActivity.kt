@@ -36,6 +36,11 @@ class AppDetailActivity : AppBarActivity() {
         super.onCreate(savedInstanceState)
     }
 
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        binding.toolbar.title = binding.appItem?.name ?: ""
+    }
+
     override fun initView() {
         binding.btnUpdate.apply {
             layoutParams = (layoutParams as CoordinatorLayout.LayoutParams).apply {

@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
-import com.absinthe.libraries.utils.extensions.addPaddingTop
-import net.xzos.upgradeall.utils.UxUtils.getStatusBarHeight
+import com.absinthe.libraries.utils.extensions.paddingTopCompat
+import com.absinthe.libraries.utils.utils.UiUtils
 
 abstract class AppBarActivity : BaseActivity() {
 
@@ -18,7 +18,7 @@ abstract class AppBarActivity : BaseActivity() {
         setContentView(initBinding())
         setSupportActionBar(getAppBar())
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        (getAppBar().parent as View).addPaddingTop(getStatusBarHeight(resources))
+        window.decorView.paddingTopCompat = UiUtils.getStatusBarHeight()
         initView()
     }
 

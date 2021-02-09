@@ -106,6 +106,7 @@
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
+                    android:background="?android:colorBackground"
                     app:layout_collapseMode="pin"
                     app:titleTextColor="@color/normal_text" />
 
@@ -121,6 +122,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="60dp"
                 android:orientation="vertical"
                 android:padding="40dp">
 
@@ -160,7 +162,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_margin="40dp"
-            android:text="@string/update" />
+            android:text="@string/update"
+            app:elevation="5dp" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
