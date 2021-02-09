@@ -1,141 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?android:colorBackground">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/header_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@null">
+    <data>
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/collapsing_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            app:expandedTitleTextAppearance="@style/AppTheme.ToolbarTitleExpanded"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+        <variable
+            name="appItem"
+            type="net.xzos.upgradeall.ui.detail.AppDetailViewModel" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/header_content_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="24dp"
-                android:paddingTop="?attr/actionBarSize"
-                app:layout_collapseMode="parallax">
+        <variable
+            name="handler"
+            type="net.xzos.upgradeall.ui.detail.AppDetailHandler" />
+    </data>
 
-                <ImageView
-                    android:id="@+id/iv_app_icon"
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:contentDescription="App icon"
-                    android:transitionName="app_icon"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:background="@drawable/ic_launcher_foreground"
-                    android:src="@mipmap/ic_launcher_round"
-                    tools:ignore="HardcodedText" />
-
-                <com.absinthe.libraries.view.AlwaysMarqueeTextView
-                    android:id="@+id/tv_app_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="24dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/normal_text"
-                    android:textSize="16sp"
-                    android:transitionName="app_name"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/iv_app_icon"
-                    app:layout_constraintTop_toTopOf="@id/iv_app_icon"
-                    tools:text="@string/app_name"
-                    android:text="@string/app_name"/>
-
-                <TextView
-                    android:id="@+id/tv_package_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/normal_text"
-                    android:textSize="14sp"
-                    android:transitionName="package_name"
-                    app:layout_constraintEnd_toEndOf="@id/tv_app_name"
-                    app:layout_constraintStart_toStartOf="@id/tv_app_name"
-                    app:layout_constraintTop_toBottomOf="@id/tv_app_name"
-                    tools:text="net.xzos.upgradeall"
-                    android:text="net.xzos.upgradeall" />
-
-                <TextView
-                    android:id="@+id/tv_version"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-condensed"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
-                    android:transitionName="version_name"
-                    app:layout_constraintEnd_toEndOf="@id/tv_app_name"
-                    app:layout_constraintStart_toStartOf="@id/tv_package_name"
-                    app:layout_constraintTop_toBottomOf="@id/tv_package_name"
-                    tools:text="1.0.0(100)"
-                    android:text="1.0.0(100)"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:titleTextColor="@color/normal_text" />
-
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="40dp"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+        android:background="?android:colorBackground">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/menu"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <AutoCompleteTextView
-                android:id="@+id/tv_more_version"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/mark_version_number"
-                android:inputType="none" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/changelog"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/header_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:background="@drawable/bg_app_detail_changelog"
-            android:padding="20dp"
-            android:textColor="@color/normal_text"
-            tools:text="1. 优化系统流畅度\n2. 提高系统的安全性和稳定性" />
+            android:background="@null">
 
-    </LinearLayout>
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/collapsing_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                app:expandedTitleTextAppearance="@style/AppTheme.ToolbarTitleExpanded"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_update"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="40dp"
-        android:text="@string/update"
-        android:layout_gravity="bottom"/>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/header_content_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="24dp"
+                    android:paddingTop="?attr/actionBarSize"
+                    app:layout_collapseMode="parallax">
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+                    <TextView
+                        android:id="@+id/iv_app_icon"
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:background="@{appItem.icon}"
+                        android:backgroundTint="@{appItem.iconBackgroundTint}"
+                        android:contentDescription="App icon"
+                        android:gravity="center"
+                        android:src="@mipmap/ic_launcher_round"
+                        android:text="@{appItem.nameFirst}"
+                        android:textSize="20sp"
+                        android:transitionName="app_icon"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:background="@drawable/ic_launcher_foreground"
+                        tools:ignore="HardcodedText" />
+
+                    <com.absinthe.libraries.view.AlwaysMarqueeTextView
+                        android:id="@+id/tv_app_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="24dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="@{appItem.name}"
+                        android:textColor="@color/normal_text"
+                        android:textSize="16sp"
+                        android:transitionName="app_name"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/iv_app_icon"
+                        app:layout_constraintTop_toTopOf="@id/iv_app_icon"
+                        tools:text="@string/app_name" />
+
+                    <TextView
+                        android:id="@+id/tv_package_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:text="@{appItem.packageName}"
+                        android:textColor="@color/normal_text"
+                        android:textSize="14sp"
+                        android:transitionName="package_name"
+                        app:layout_constraintEnd_toEndOf="@id/tv_app_name"
+                        app:layout_constraintStart_toStartOf="@id/tv_app_name"
+                        app:layout_constraintTop_toBottomOf="@id/tv_app_name"
+                        tools:text="net.xzos.upgradeall" />
+
+                    <TextView
+                        android:id="@+id/tv_version"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@{appItem.version}"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="12sp"
+                        android:transitionName="version_name"
+                        app:layout_constraintEnd_toEndOf="@id/tv_app_name"
+                        app:layout_constraintStart_toStartOf="@id/tv_package_name"
+                        app:layout_constraintTop_toBottomOf="@id/tv_package_name"
+                        tools:text="1.0.0(100)" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:layout_collapseMode="pin"
+                    app:titleTextColor="@color/normal_text" />
+
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="40dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/menu"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/tv_more_version"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/mark_version_number"
+                        android:inputType="none"
+                        android:text="@={appItem.versionListItem}" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+                <TextView
+                    android:id="@+id/changelog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dp"
+                    android:background="@drawable/bg_app_detail_changelog"
+                    android:padding="20dp"
+                    android:text="@={appItem.changelog}"
+                    android:textColor="@color/normal_text"
+                    tools:text="1. 优化系统流畅度\n2. 提高系统的安全性和稳定性" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_update"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_margin="40dp"
+            android:text="@string/update" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

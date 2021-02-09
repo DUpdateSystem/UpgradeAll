@@ -5,10 +5,10 @@ import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.ui.base.list.ListItemView
 
 class DiscoverListItemView(
-        name: String,
+        override val name: String,
         val type: Int,
         val hubName: String,
         val uuid: String
-) : ListItemView(name) {
+) : ListItemView {
     val isSavedIvVisibility = if (AppManager.getAppByUuid(uuid) == null) View.GONE else View.VISIBLE
 }

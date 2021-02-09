@@ -6,9 +6,9 @@ import net.xzos.upgradeall.core.downloader.Downloader
 import net.xzos.upgradeall.ui.base.list.ListItemView
 
 class FileItemView(
-        name: String,
+        override val name: String,
         val downloader: Downloader,
-) : ListItemView(name) {
+) : ListItemView {
     val downloadingNum get() = runBlocking { downloader.getDownloadList() }.filter { it.status == Status.DOWNLOADING }.size
     val completedNum get() = runBlocking { downloader.getDownloadList() }.filter { it.status == Status.COMPLETED }.size
     val failedNum get() = runBlocking { downloader.getDownloadList() }.filter { it.status == Status.FAILED }.size

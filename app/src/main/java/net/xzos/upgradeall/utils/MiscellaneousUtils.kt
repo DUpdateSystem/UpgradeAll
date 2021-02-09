@@ -19,10 +19,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.data.PreferencesMap
 import java.util.*
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 
 object MiscellaneousUtils {
@@ -44,6 +45,14 @@ object MiscellaneousUtils {
         if (PreferencesMap.auto_update_app_config) {
             CloudConfigGetter.renewAllAppConfigFromCloud()
         }
+    }
+
+    private const val HTML_PATTERN = "<(\"[^\"]*\"|'[^']*'|[^'\">])*>"
+    private val pattern: Pattern = Pattern.compile(HTML_PATTERN)
+
+    fun CharSequence.hasHTMLTags(): Boolean {
+        val matcher: Matcher = pattern.matcher(this)
+        return matcher.find()
     }
 
     fun accessByBrowser(url: String?, context: Context?) {
