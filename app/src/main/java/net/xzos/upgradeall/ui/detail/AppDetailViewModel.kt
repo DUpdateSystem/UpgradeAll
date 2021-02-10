@@ -49,6 +49,7 @@ class AppDetailViewModel(val app: App) : ListItemView, BaseObservable() {
     // 下载状态信息
     val downloadData = DownloadStatusData()
 
+    var currentVersion: Version? = null
     val changelogData = ObservableField<CharSequence>()
     private fun setChangelog(changelog: CharSequence?) {
         changelogData.set(when {
@@ -68,6 +69,7 @@ class AppDetailViewModel(val app: App) : ListItemView, BaseObservable() {
             versionList.size + position
         else position
         val versionItem = versionList[index]
+        currentVersion = versionItem
         var latestChangeLog = ""
         for (asset in versionItem.assetList) {
             val changelog = asset.changeLog

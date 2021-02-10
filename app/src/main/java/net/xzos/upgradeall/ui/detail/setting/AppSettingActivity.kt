@@ -1,5 +1,7 @@
 package net.xzos.upgradeall.ui.detail.setting
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -21,6 +23,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
+import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.databinding.ActivityAppSettingBinding
 import net.xzos.upgradeall.databinding.ItemAppAttrSettingBinding
@@ -181,10 +184,10 @@ class AppSettingActivity : AppBarActivity() {
 
     companion object {
         internal var bundleDatabase: AppEntity? = null
-            get() {
-                val app = field
-                field = null
-                return app
-            }
+
+        fun startActivity(context: Context, app: App? = null) {
+            bundleDatabase = app?.appDatabase
+            context.startActivity(Intent(context, AppSettingActivity::class.java))
+        }
     }
 }

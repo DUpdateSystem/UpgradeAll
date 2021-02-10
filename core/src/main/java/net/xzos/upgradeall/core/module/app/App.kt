@@ -117,7 +117,7 @@ class App(
             releaseList.forEachIndexed { versionIndex, release ->
                 val versionNumber = release.versionNumber
                 val version = versionMap[versionNumber]
-                        ?: Version(versionNumber, mutableListOf()).also {
+                        ?: Version(this.appDatabase, versionNumber, mutableListOf()).also {
                             versionMap[versionNumber] = it
                         }
                 val asset = Asset(hub, release.changeLog,

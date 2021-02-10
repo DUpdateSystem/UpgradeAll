@@ -217,6 +217,7 @@
     <string name="completed">Completed</string>
     <string name="cancelled">Cancelled</string>
     <string name="retry">Retry</string>
+    <string name="change_hub_priority">Change Hub Priority</string>
 
     <!-- APP Setting -->
     <string name="ok">OK</string>

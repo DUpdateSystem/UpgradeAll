@@ -162,12 +162,13 @@
             android:layout_height="40dp"
             android:layout_gravity="bottom"
             android:layout_margin="40dp"
-            android:text="@{appItem.downloadData.getDownloadStatus(appItem.downloadData.downloadStatusData)}"
+            android:text="@={appItem.downloadData.downloadStatusData}"
             android:textColor="@color/white"
             app:buttonCornerRadius="3dp"
             app:progressBgColor="#75A6FF"
             app:progressColor="#4586F3"
-            app:showProgressNum="true" />
+            app:showProgressNum="true"
+            tools:text="@string/download" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

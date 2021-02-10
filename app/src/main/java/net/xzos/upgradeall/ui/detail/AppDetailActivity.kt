@@ -3,24 +3,22 @@ package net.xzos.upgradeall.ui.detail
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.marginBottom
 import androidx.core.view.marginTop
-import androidx.lifecycle.lifecycleScope
 import com.absinthe.libraries.utils.utils.UiUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.base.view.ProgressButton
+import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
 
 
 class AppDetailActivity : AppBarActivity() {
@@ -36,11 +34,47 @@ class AppDetailActivity : AppBarActivity() {
         return binding.root
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.menu_app_detail, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.edit_app -> {
+                AppSettingActivity.startActivity(this, app)
+                true
+            }
+            R.id.change_hub_priority -> {
+                TODO("修改软件源优先级")
+            }
+            R.id.ignore_current_version -> {
+                viewModel.currentVersion?.switchIgnoreStatus()?.also { renewMenu() }
+                true
+            }
+            R.id.ignore_app -> {
+                TODO("忽略该跟踪项")
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val item = menu.findItem(R.id.ignore_current_version)
+        val currentVersion = viewModel.currentVersion ?: return false
+        item.setTitle(if (currentVersion.isIgnored) R.string.remove_ignore_version
+        else R.string.ignore_version)
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun getAppBar(): Toolbar = binding.toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         bundleApp?.run { app = this } ?: onBackPressed()
         super.onCreate(savedInstanceState)
+        getAppBar().showOverflowMenu()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -84,6 +118,10 @@ class AppDetailActivity : AppBarActivity() {
             }
 
         })
+    }
+
+    private fun renewMenu() {
+        invalidateOptionsMenu()
     }
 
     companion object {
