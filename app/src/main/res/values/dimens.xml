@@ -33,4 +33,6 @@
     <dimen name="home_card_icon_size">24dp</dimen>
     <dimen name="home_card_padding_horizontal">48dp</dimen>
     <dimen name="home_card_text_margin_start">24dp</dimen>
+
+    <dimen name="btn_update_corner">18dp</dimen>
 </resources>

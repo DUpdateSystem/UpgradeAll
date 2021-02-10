@@ -156,14 +156,18 @@
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
-        <com.google.android.material.button.MaterialButton
+        <net.xzos.upgradeall.ui.base.view.ProgressButton
             android:id="@+id/btn_update"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_gravity="bottom"
             android:layout_margin="40dp"
-            android:text="@string/update"
-            app:elevation="5dp" />
+            android:text="@{appItem.downloadData.getDownloadStatus(appItem.downloadData.downloadStatusData)}"
+            android:textColor="@color/white"
+            app:buttonCornerRadius="3dp"
+            app:progressBgColor="#75A6FF"
+            app:progressColor="#4586F3"
+            app:showProgressNum="true" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

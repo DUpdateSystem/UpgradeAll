@@ -3,17 +3,24 @@ package net.xzos.upgradeall.ui.detail
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.marginBottom
 import androidx.core.view.marginTop
+import androidx.lifecycle.lifecycleScope
 import com.absinthe.libraries.utils.utils.UiUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
+import net.xzos.upgradeall.ui.base.view.ProgressButton
 
 
 class AppDetailActivity : AppBarActivity() {
@@ -58,9 +65,25 @@ class AppDetailActivity : AppBarActivity() {
             }
 
             // 设置初始的版本信息
-            setText(items[0], false)
+            if (!items.isNullOrEmpty()) {
+                setText(items[0], false)
+            }
             viewModel.setVersionInfo(0)
         }
+        binding.btnUpdate.setOnStateListener(object : ProgressButton.OnStateListener {
+            override fun onFinish() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onStop() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onContinue() {
+                TODO("Not yet implemented")
+            }
+
+        })
     }
 
     companion object {
