@@ -46,7 +46,10 @@ class AppDetailViewModel(val app: App) : ListItemView, BaseObservable() {
 
     val versionList: List<Version> by lazy { runBlocking { app.versionList }.asReversed() }
 
-    var changelogData = ObservableField<CharSequence>()
+    // 下载状态信息
+    val downloadData = DownloadStatusData()
+
+    val changelogData = ObservableField<CharSequence>()
     private fun setChangelog(changelog: CharSequence?) {
         changelogData.set(when {
             changelog.isNullOrBlank() -> {

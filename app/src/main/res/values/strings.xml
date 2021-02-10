@@ -221,6 +221,13 @@
 
     <!-- APP Detail-->
     <string name="version_number">版本号</string>
+    <string name="waiting">等待中</string>
+    <string name="queued">队列中</string>
+    <string name="downloading">下载中</string>
+    <string name="paused">暂停中</string>
+    <string name="completed">已完成</string>
+    <string name="cancelled">已取消</string>
+    <string name="retry">重试</string>
 
     <!-- APP Setting -->
     <string name="ok">确认</string>

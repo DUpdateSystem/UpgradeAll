@@ -210,6 +210,13 @@
     <string name="clean_sort_log_alert_message">It will drop current sort logs</string>
     <string name="num_zero">0</string>
     <string name="version_number">Version Number</string>
+    <string name="waiting">Waiting</string>
+    <string name="queued">Queued</string>
+    <string name="downloading">Downloading</string>
+    <string name="paused">Paused</string>
+    <string name="completed">Completed</string>
+    <string name="cancelled">Cancelled</string>
+    <string name="retry">Retry</string>
 
     <!-- APP Setting -->
     <string name="ok">OK</string>
