@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
@@ -124,7 +123,6 @@ class AppSettingActivity : AppBarActivity() {
     }
 
     override fun initView() {
-        window.statusBarColor = ContextCompat.getColor(this, R.color.taupe)
         binding.addButton.let { fab ->
             fab.setOnClickListener {
                 GlobalScope.launch { addApp() }

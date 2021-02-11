@@ -12,6 +12,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.marginBottom
 import androidx.core.view.marginTop
+import com.absinthe.libraries.utils.extensions.addPaddingTop
 import com.absinthe.libraries.utils.utils.UiUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
@@ -19,6 +20,7 @@ import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.base.view.ProgressButton
 import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
+import net.xzos.upgradeall.utils.actionBarSize
 
 
 class AppDetailActivity : AppBarActivity() {
@@ -79,6 +81,7 @@ class AppDetailActivity : AppBarActivity() {
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         binding.toolbar.title = binding.appItem?.name ?: ""
+        binding.headerContentLayout.addPaddingTop(actionBarSize())
     }
 
     override fun initView() {
