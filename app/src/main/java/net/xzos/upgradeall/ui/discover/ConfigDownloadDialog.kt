@@ -28,7 +28,6 @@ class ConfigDownloadDialog(
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
-            // Use the Builder class for convenient dialog construction
             val builder = AlertDialog.Builder(it)
             val positiveButtonText = if (needUpdate())
                 R.string.update
