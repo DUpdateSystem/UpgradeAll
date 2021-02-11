@@ -10,15 +10,16 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater
+import net.xzos.upgradeall.core.utils.getAppName
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
 import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.applist.apps.AppsActivity
 import net.xzos.upgradeall.ui.applist.magisk.MagiskModuleActivity
 import net.xzos.upgradeall.ui.base.BaseActivity
-import net.xzos.upgradeall.ui.hubmanager.HubManagerActivity
 import net.xzos.upgradeall.ui.filemanagement.FileManagementActivity
 import net.xzos.upgradeall.ui.home.adapter.*
+import net.xzos.upgradeall.ui.hubmanager.HubManagerActivity
 import net.xzos.upgradeall.ui.log.LogActivity
 import net.xzos.upgradeall.ui.preference.SettingsActivity
 import net.xzos.upgradeall.utils.ToastUtil
@@ -43,7 +44,7 @@ class MainActivity : BaseActivity() {
 
     private fun initView() {
         @SuppressLint("SetTextI18n")
-        binding.layoutTitleBar.tabName.text = getString(R.string.app_name) + getChineseNewYearExtraText()
+        binding.layoutTitleBar.tabName.text = getAppName(packageName, this) + getChineseNewYearExtraText()
         val homeAdapter = HomeModuleAdapter()
         binding.apply {
             rvModules.apply {

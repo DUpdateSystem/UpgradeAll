@@ -19,15 +19,13 @@ fun Map<String, String?>.getPackageId(): Pair<String, String>? {
 
 internal fun getAppVersion(appId: Map<String, String?>): String? {
     val (api, key) = appId.getPackageId() ?: return null
-    val version: String?
-    version = when (api.toLowerCase(coreConfig.locale)) {
+    return when (api.toLowerCase(coreConfig.locale)) {
         ANDROID_APP_TYPE -> getAndroidAppVersion(key)
         ANDROID_MAGISK_MODULE_TYPE -> getMagiskModuleVersion(key)
         ANDROID_CUSTOM_SHELL -> Shell.runShellCommand(key)?.getOutputString()
         ANDROID_CUSTOM_SHELL_ROOT -> Shell.runSuShellCommand(key)?.getOutputString()
         else -> null
     }
-    return version
 }
 
 

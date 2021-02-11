@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.utils
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -20,6 +21,7 @@ import java.security.MessageDigest
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+
 
 fun String.md5(): String {
     val md = MessageDigest.getInstance("MD5")
@@ -90,4 +92,14 @@ fun getAllLocalKeyList(): List<String> {
             }
         }
     }.toList()
+}
+
+fun getAppName(packageName: String, context: Context): String? {
+    val pm = context.applicationContext.packageManager
+    val ai = try {
+        pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+    } catch (e: PackageManager.NameNotFoundException) {
+        null
+    }
+    return pm.getApplicationLabel(ai ?: return null).toString()
 }
