@@ -21,7 +21,8 @@
         android:clickable="true"
         android:focusable="true"
         android:onClick="@{(view) -> handler.onClickApp(view, appItem.app)}"
-        app:cardElevation="0dp">
+        app:cardElevation="0dp"
+        app:onLongClickListener="@{(view) -> handler.showPopup(view, appItem.app)}">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

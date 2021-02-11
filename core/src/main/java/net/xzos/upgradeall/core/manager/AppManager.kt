@@ -129,6 +129,7 @@ object AppManager {
             appDao.update(appDatabase)
         }
         appList.add(App(appDatabase))
+        appMapStatusChangedFun?.apply { this(appMap) }
         return appDatabase
     }
 
@@ -138,5 +139,9 @@ object AppManager {
     suspend fun removeApp(app: App) {
         metaDatabase.appDao().delete(app.appDatabase)
         appList.remove(app)
+        appMap.forEach {
+            it.value.remove(app)
+        }
+        appMapStatusChangedFun?.apply { this(appMap) }
     }
 }

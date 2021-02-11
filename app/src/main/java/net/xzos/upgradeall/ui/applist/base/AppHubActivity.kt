@@ -1,5 +1,8 @@
 package net.xzos.upgradeall.ui.applist.base
 
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
@@ -9,6 +12,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.ActivityAppHubBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
+import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
 
 const val TAB_UPDATE = 0
 const val TAB_STAR = 1
@@ -58,5 +62,21 @@ abstract class AppHubActivity(private val appType: String) : AppBarActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.setAutoRenewFun()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.menu_app_list, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.add_app -> {
+                AppSettingActivity.startActivity(this)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }

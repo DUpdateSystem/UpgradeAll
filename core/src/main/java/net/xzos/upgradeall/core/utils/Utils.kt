@@ -7,9 +7,14 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL
+import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL_ROOT
+import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.manager.HubManager
 import java.io.StringReader
 import java.security.MessageDigest
 import java.util.*
@@ -74,4 +79,15 @@ fun requestPermission(
     } else
         havePermission = true
     return havePermission
+}
+
+fun getAllLocalKeyList(): List<String> {
+    return hashSetOf(ANDROID_APP_TYPE, ANDROID_MAGISK_MODULE_TYPE, ANDROID_CUSTOM_SHELL, ANDROID_CUSTOM_SHELL_ROOT).apply {
+        for (hub in HubManager.getHubList()) {
+            for (urlTemp in hub.hubConfig.appUrlTemplates) {
+                val keys = AutoTemplate.getArgsKeywords(urlTemp).map { it.value.replaceFirst("%", "") }
+                addAll(keys)
+            }
+        }
+    }.toList()
 }

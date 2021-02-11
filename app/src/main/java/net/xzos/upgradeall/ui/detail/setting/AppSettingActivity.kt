@@ -151,7 +151,7 @@ class AppSettingActivity : AppBarActivity() {
     }
 
     companion object {
-        internal var bundleDatabase: AppEntity? = null
+        private var bundleDatabase: AppEntity? = null
 
         fun startActivity(context: Context, app: App? = null) {
             bundleDatabase = app?.appDatabase
