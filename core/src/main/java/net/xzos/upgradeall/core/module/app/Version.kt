@@ -24,6 +24,7 @@ class Version(
 
     /* 忽略这个版本 */
     fun ignore() {
+        appEntity.ignoreVersionNumber = name
         runBlocking { metaDatabase.appDao().update(appEntity) }
     }
 

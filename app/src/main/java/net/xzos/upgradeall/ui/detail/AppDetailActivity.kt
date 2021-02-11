@@ -2,7 +2,11 @@ package net.xzos.upgradeall.ui.detail
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -16,6 +20,7 @@ import com.absinthe.libraries.utils.extensions.addPaddingTop
 import com.absinthe.libraries.utils.utils.UiUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
+import net.xzos.upgradeall.core.module.app.Version
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.base.view.ProgressButton
@@ -90,17 +95,16 @@ class AppDetailActivity : AppBarActivity() {
                 setMargins(marginStart, marginTop, marginEnd, marginBottom + UiUtils.getNavBarHeight(windowManager))
             }
         }
-        val versionList = viewModel.versionList
-        val items = versionList.map { it.name }
-        val adapter = ArrayAdapter(this, R.layout.item_more_version, items)
 
         binding.tvMoreVersion.run {
-            setAdapter(adapter)
+            setVersionAdapter()
             setOnItemClickListener { _, _, position, _ ->
                 viewModel.setVersionInfo(position)
             }
 
             // 设置初始的版本信息
+            val versionList = viewModel.versionList
+            val items = versionList.map { getVersionName(it) }
             if (!items.isNullOrEmpty()) {
                 setText(items[0], false)
             }
@@ -122,8 +126,28 @@ class AppDetailActivity : AppBarActivity() {
         })
     }
 
+    private fun getVersionName(version: Version): SpannableStringBuilder {
+        val versionName = version.name
+        val sb = SpannableStringBuilder()
+        sb.append(versionName)
+        if (version.isIgnored) {
+            val colorSpan = ForegroundColorSpan(Color.BLUE)
+            sb.setSpan(colorSpan, 0, versionName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        return sb
+    }
+
+    private fun setVersionAdapter() {
+        val versionList = viewModel.versionList
+        val items = versionList.map { getVersionName(it) }
+        val adapter = ArrayAdapter(this, R.layout.item_more_version, items)
+
+        binding.tvMoreVersion.setAdapter(adapter)
+    }
+
     private fun renewMenu() {
         invalidateOptionsMenu()
+        setVersionAdapter()
     }
 
     companion object {
