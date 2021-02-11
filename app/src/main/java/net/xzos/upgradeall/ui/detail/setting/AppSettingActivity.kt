@@ -8,13 +8,11 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
-import com.absinthe.libraries.utils.extensions.activity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -24,10 +22,8 @@ import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.databinding.ActivityAppSettingBinding
 import net.xzos.upgradeall.databinding.ItemAppAttrSettingBinding
-import net.xzos.upgradeall.databinding.ViewEditviewBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListAdapter
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListViewModel
@@ -70,30 +66,11 @@ class AppSettingActivity : AppBarActivity() {
     }
 
     private fun showUrlDialog() {
-        val urlTemplateList = mutableListOf<String>()
-        for (hub in HubManager.getHubList())
-            urlTemplateList.addAll(hub.hubConfig.appUrlTemplates)
-        activity?.let {
-            val binding = ViewEditviewBinding.inflate(it.layoutInflater)
-            binding.editUrl.setHint(R.string.plz_input_app_url)
-            val builder = AlertDialog.Builder(it)
-            builder.setView(binding.root)
-                    .setPositiveButton(R.string.ok) { dialog, _ ->
-                        val url = binding.editUrl.text.toString()
-                        val appIdMap = AutoTemplate.urlToAppId(url, urlTemplateList)
-                        if (appIdMap != null) {
-                            for ((k, v) in appIdMap)
-                                viewModel.addItem(k, v)
-                            dialog.cancel()
-                        } else {
-                            binding.editUrl.error = getString(R.string.not_match_any_template)
-                        }
-                    }
-                    .setNegativeButton(R.string.cancel) { dialog, _ ->
-                        dialog.cancel()
-                    }
-            builder.create()
-        }
+        UrlParserDialog(fun(map) {
+            map.forEach {
+                viewModel.addItem(it.key, it.value)
+            }
+        }).show(supportFragmentManager)
     }
 
     private suspend fun addApp() {
