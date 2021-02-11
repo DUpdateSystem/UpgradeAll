@@ -4,8 +4,8 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingVertical="16dp"
-    android:paddingHorizontal="@dimen/home_card_padding_horizontal">
+    android:paddingHorizontal="@dimen/home_card_padding_horizontal"
+    android:paddingVertical="16dp">
 
     <ImageView
         android:layout_width="48dp"
@@ -15,6 +15,7 @@
         android:src="@drawable/ic_logo_home" />
 
     <TextView
+        android:id="@+id/tab_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"

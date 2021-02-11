@@ -21,6 +21,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.utils.egg.egg
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern

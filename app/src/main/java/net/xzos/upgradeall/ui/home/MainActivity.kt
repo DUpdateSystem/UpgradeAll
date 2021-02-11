@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.home
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import com.absinthe.libraries.utils.extensions.addPaddingBottom
@@ -24,6 +25,7 @@ import net.xzos.upgradeall.ui.preference.SettingsActivity
 import net.xzos.upgradeall.ui.rss.RssActivity
 import net.xzos.upgradeall.utils.ToastUtil
 import net.xzos.upgradeall.utils.UxUtils
+import net.xzos.upgradeall.utils.egg.getChineseNewYearExtraText
 import net.xzos.upgradeall.utils.runUiFun
 
 class MainActivity : BaseActivity() {
@@ -42,6 +44,8 @@ class MainActivity : BaseActivity() {
 
 
     private fun initView() {
+        @SuppressLint("SetTextI18n")
+        binding.layoutTitleBar.tabName.text = getString(R.string.app_name) + getChineseNewYearExtraText()
         val homeAdapter = HomeModuleAdapter()
         binding.apply {
             rvModules.apply {
