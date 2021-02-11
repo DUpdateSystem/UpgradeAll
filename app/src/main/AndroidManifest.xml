@@ -61,12 +61,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.others.OthersActivity"
-            android:label="@string/home_module_others">
-        </activity>
-        <activity
-            android:name=".ui.rss.RssActivity"
-            android:label="@string/home_module_rss">
+            android:name=".ui.hubmanager.HubManagerActivity"
+            android:label="@string/app_hub">
         </activity>
         <activity
             android:name="net.xzos.upgradeall.ui.applist.magisk.MagiskModuleActivity"

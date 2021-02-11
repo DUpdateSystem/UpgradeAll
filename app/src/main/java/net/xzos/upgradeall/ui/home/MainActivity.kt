@@ -16,13 +16,11 @@ import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.applist.apps.AppsActivity
 import net.xzos.upgradeall.ui.applist.magisk.MagiskModuleActivity
 import net.xzos.upgradeall.ui.base.BaseActivity
-import net.xzos.upgradeall.ui.discover.DiscoverActivity
+import net.xzos.upgradeall.ui.hubmanager.HubManagerActivity
 import net.xzos.upgradeall.ui.filemanagement.FileManagementActivity
 import net.xzos.upgradeall.ui.home.adapter.*
 import net.xzos.upgradeall.ui.log.LogActivity
-import net.xzos.upgradeall.ui.others.OthersActivity
 import net.xzos.upgradeall.ui.preference.SettingsActivity
-import net.xzos.upgradeall.ui.rss.RssActivity
 import net.xzos.upgradeall.utils.ToastUtil
 import net.xzos.upgradeall.utils.UxUtils
 import net.xzos.upgradeall.utils.egg.getChineseNewYearExtraText
@@ -57,7 +55,10 @@ class MainActivity : BaseActivity() {
         }
         val moduleList = mutableListOf<HomeModuleBean>(
                 HomeModuleCardBean(R.drawable.ic_home_discovery, R.string.home_module_discovery) {
-                    startActivity(Intent(this, DiscoverActivity::class.java))
+                    startActivity(Intent(this, HubManagerActivity::class.java))
+                },
+                HomeModuleCardBean(R.drawable.ic_home_hub, R.string.app_hub) {
+                    startActivity(Intent(this, HubManagerActivity::class.java))
                 },
                 HomeModuleCardBean(R.drawable.ic_home_file_management, R.string.home_module_file_management) {
                     startActivity(Intent(this, FileManagementActivity::class.java))
@@ -68,12 +69,6 @@ class MainActivity : BaseActivity() {
                 HomeModuleCardBean(R.drawable.ic_home_magisk_module, R.string.home_module_magisk_module) {
                     startActivity(Intent(this, MagiskModuleActivity::class.java))
                 },
-                HomeModuleCardBean(R.drawable.ic_home_rss, R.string.home_module_rss) {
-                    startActivity(Intent(this, RssActivity::class.java))
-                },
-                HomeModuleCardBean(R.drawable.ic_home_others, R.string.home_module_others) {
-                    startActivity(Intent(this, OthersActivity::class.java))
-                }
         )
         if (!PreferencesMap.enable_simple_bottom_main) {
             moduleList.addAll(listOf(

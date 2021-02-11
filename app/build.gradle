@@ -14,8 +14,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 55
-        versionName "0.9.0-alpha.5"
+        versionCode 56
+        versionName "0.9.0-beta"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="net.xzos.upgradeall.ui.hubmanager.HubManagerListItemView" />
+
+        <variable
+            name="handler"
+            type="net.xzos.upgradeall.ui.hubmanager.HubManagerListItemHandler" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="0dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:clipToPadding="false"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp">
+
+                <TextView
+                    android:id="@+id/iv_icon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_circle"
+                    android:backgroundTint="@{item.backgroundTint}"
+                    android:contentDescription="App icon"
+                    android:gravity="center"
+                    android:text="@{item.nameFirst}"
+                    android:textSize="20sp"
+                    android:transitionName="app_icon"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="HardcodedText"
+                    tools:text="A" />
+
+                <TextView
+                    android:id="@+id/tv_app_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="@{item.name}"
+                    android:textSize="16sp"
+                    android:transitionName="app_name"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/enable_switch"
+                    app:layout_constraintStart_toEndOf="@id/iv_icon"
+                    app:layout_constraintTop_toTopOf="@id/iv_icon"
+                    tools:text="@string/app_name" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/enable_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="@={item.observable.enableHub}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</layout>

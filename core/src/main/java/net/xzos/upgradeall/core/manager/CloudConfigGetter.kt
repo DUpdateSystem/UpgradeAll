@@ -54,7 +54,7 @@ object CloudConfigGetter {
     val appConfigList: List<AppConfigGson>?
         get() = cloudConfig?.appList
 
-    private val hubConfigList: List<HubConfigGson>?
+    val hubConfigList: List<HubConfigGson>?
         get() = cloudConfig?.hubList
 
     private suspend fun getCloudConfigFromWeb(url: String?): CloudConfigList? {
@@ -97,7 +97,7 @@ object CloudConfigGetter {
      * @see FAILED_GET_HUB_DATA 获取 HubConfig 失败
      * @see FAILED 添加数据库失败
      */
-    private suspend fun downloadCloudHubConfig(hubUuid: String?, notifyFun: (Int) -> Unit): Boolean {
+    suspend fun downloadCloudHubConfig(hubUuid: String?, notifyFun: (Int) -> Unit): Boolean {
         getHubCloudConfig(hubUuid)?.run {
             notifyFun(SUCCESS_GET_HUB_DATA)
             if (HubManager.updateHub(this.toHubEntity())) {
