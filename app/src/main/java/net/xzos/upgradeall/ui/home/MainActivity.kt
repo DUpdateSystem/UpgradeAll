@@ -17,6 +17,7 @@ import net.xzos.upgradeall.server.update.UpdateService
 import net.xzos.upgradeall.ui.applist.apps.AppsActivity
 import net.xzos.upgradeall.ui.applist.magisk.MagiskModuleActivity
 import net.xzos.upgradeall.ui.base.BaseActivity
+import net.xzos.upgradeall.ui.discover.DiscoverActivity
 import net.xzos.upgradeall.ui.filemanagement.FileManagementActivity
 import net.xzos.upgradeall.ui.home.adapter.*
 import net.xzos.upgradeall.ui.hubmanager.HubManagerActivity
@@ -56,7 +57,7 @@ class MainActivity : BaseActivity() {
         }
         val moduleList = mutableListOf<HomeModuleBean>(
                 HomeModuleCardBean(R.drawable.ic_home_discovery, R.string.home_module_discovery) {
-                    startActivity(Intent(this, HubManagerActivity::class.java))
+                    startActivity(Intent(this, DiscoverActivity::class.java))
                 },
                 HomeModuleCardBean(R.drawable.ic_home_hub, R.string.app_hub) {
                     startActivity(Intent(this, HubManagerActivity::class.java))
