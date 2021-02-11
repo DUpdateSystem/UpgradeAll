@@ -220,6 +220,7 @@
     <string name="change_hub_priority">Change Hub Priority</string>
 
     <!-- APP Setting -->
+    <string name="edit_app">Edit App</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="attr_list">Attributes List</string>

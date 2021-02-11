@@ -3,11 +3,11 @@ package net.xzos.upgradeall.ui.detail.setting
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -29,6 +29,8 @@ import net.xzos.upgradeall.databinding.ActivityAppSettingBinding
 import net.xzos.upgradeall.databinding.ItemAppAttrSettingBinding
 import net.xzos.upgradeall.databinding.ViewEditviewBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
+import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListAdapter
+import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListViewModel
 import net.xzos.upgradeall.utils.ToastUtil
 
 
@@ -36,8 +38,7 @@ class AppSettingActivity : AppBarActivity() {
 
     private val database: AppEntity? = bundleDatabase // 获取可能来自修改设置项的请求
     private lateinit var binding: ActivityAppSettingBinding
-
-    internal var hubUuid: String? = null
+    private val viewModel by viewModels<AttrListViewModel>()
 
     private val attrMap: Map<String, String?>
         get() {
@@ -53,13 +54,6 @@ class AppSettingActivity : AppBarActivity() {
                 else it.value
             }
         }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_app_setting)
-
-        initView()
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -89,7 +83,7 @@ class AppSettingActivity : AppBarActivity() {
                         val appIdMap = AutoTemplate.urlToAppId(url, urlTemplateList)
                         if (appIdMap != null) {
                             for ((k, v) in appIdMap)
-                                addAttr(k, v)
+                                viewModel.addItem(k, v)
                             dialog.cancel()
                         } else {
                             binding.editUrl.error = getString(R.string.not_match_any_template)
@@ -132,25 +126,12 @@ class AppSettingActivity : AppBarActivity() {
 
     private fun initSetSettingItem() {
         // 如果是设置修改请求，设置预置设置项
-        binding.nameEdit.setText(database?.name)
-    }
-
-    private fun addAttr(key: String, value: String?) {
-        addAttr().run {
-            keyEdit.setText(key)
-            valueEdit.setText(value)
+        database?.run {
+            binding.nameEdit.setText(name)
+            appId.forEach {
+                viewModel.addItem(it.key, it.value)
+            }
         }
-    }
-
-    private fun addAttr(): ItemAppAttrSettingBinding {
-        val attrList = binding.attrList
-        val binding = ItemAppAttrSettingBinding.inflate(LayoutInflater.from(attrList.context))
-        val view = binding.root
-        binding.deleteButton.setOnClickListener {
-            attrList.removeView(view)
-        }
-        attrList.addView(view)
-        return binding
     }
 
     override fun initBinding(): View {
@@ -159,6 +140,11 @@ class AppSettingActivity : AppBarActivity() {
     }
 
     override fun getAppBar(): Toolbar = binding.appbar.toolbar
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        getAppBar().setTitle(R.string.edit_app)
+    }
 
     override fun initView() {
         window.statusBarColor = ContextCompat.getColor(this, R.color.taupe)
@@ -179,6 +165,13 @@ class AppSettingActivity : AppBarActivity() {
             }
         }
 
+        binding.attrList.adapter = AttrListAdapter(lifecycleScope, viewModel).apply {
+            viewModel.adapter = this
+        }
+
+        binding.ibAddAttr.setOnClickListener {
+            viewModel.addEmptyItem()
+        }
         initSetSettingItem() // 设置预置设置项
     }
 

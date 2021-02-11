@@ -12,12 +12,13 @@ import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Version
 import net.xzos.upgradeall.core.utils.getPackageId
+import net.xzos.upgradeall.ui.base.list.ListItemTextView
 import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.MiscellaneousUtils.hasHTMLTags
 import net.xzos.upgradeall.utils.UxUtils
 
-class AppDetailViewModel(val app: App) : ListItemView, BaseObservable() {
+class AppDetailViewModel(val app: App) : ListItemTextView, BaseObservable() {
 
     override val name get() = app.name
     val packageName get() = app.appId.getPackageId()?.second

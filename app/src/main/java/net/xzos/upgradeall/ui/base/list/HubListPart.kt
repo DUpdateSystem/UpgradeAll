@@ -14,7 +14,7 @@ import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
 interface HubListPart<T, L : ListItemView, out RH : RecyclerViewHolder<in L, *, *>> {
 
-    var binding: FragmentHubListBinding
+    val binding: FragmentHubListBinding
     val adapter: RecyclerViewAdapter<in L, *, out RH>
     val viewModel: ListContainerViewModel<T>
     val listContainerViewConvertFun: (T) -> L

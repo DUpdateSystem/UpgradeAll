@@ -12,7 +12,7 @@ import net.xzos.upgradeall.databinding.FragmentHubListBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
-abstract class HubListActivity<L : ListItemView, T : RecyclerViewHolder<L, *, *>>
+abstract class HubListActivity<L : ListItemTextView, T : RecyclerViewHolder<L, *, *>>
     : HubListPart<L, L, T>, AppBarActivity(), SearchView.OnQueryTextListener {
     lateinit var activityBinding: ActivityDiscoverBinding
     override lateinit var binding: FragmentHubListBinding

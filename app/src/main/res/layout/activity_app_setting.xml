@@ -23,10 +23,11 @@
         android:src="@drawable/ic_check_mark"
         tools:tint="@color/light_gray" />
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -98,27 +99,28 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/attr_list"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_weight="1"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
-            <ImageView
-                android:id="@+id/imageView"
+            <ImageButton
+                android:id="@+id/ib_addAttr"
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
+                android:adjustViewBounds="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/add_attr"
+                android:padding="24dp"
                 app:layout_constraintEnd_toEndOf="@+id/attr_list"
                 app:layout_constraintStart_toStartOf="@+id/attr_list"
                 app:layout_constraintTop_toBottomOf="@+id/attr_list"
                 app:srcCompat="@drawable/ic_add_2"
-                app:tint="@color/text_color"
-                tools:layout_editor_absoluteX="60dp"
-                tools:layout_editor_absoluteY="322dp" />
+                app:tint="@color/text_color" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <ProgressBar
         android:id="@+id/loadingBar"

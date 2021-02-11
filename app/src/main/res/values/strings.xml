@@ -231,6 +231,7 @@
     <string name="change_hub_priority">软件源优先级</string>
 
     <!-- APP Setting -->
+    <string name="edit_app">编辑跟踪项</string>
     <string name="ok">确认</string>
     <string name="cancel">取消</string>
     <string name="attr_list">属性列表</string>

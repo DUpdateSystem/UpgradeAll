@@ -55,7 +55,6 @@ class AppDetailActivity : AppBarActivity() {
             }
             R.id.ignore_app -> {
                 TODO("忽略该跟踪项")
-                true
             }
             else -> super.onOptionsItemSelected(item)
         }
@@ -63,7 +62,7 @@ class AppDetailActivity : AppBarActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val item = menu.findItem(R.id.ignore_current_version)
-        val currentVersion = viewModel.currentVersion ?: return false
+        val currentVersion = viewModel.currentVersion ?: return true
         item.setTitle(if (currentVersion.isIgnored) R.string.remove_ignore_version
         else R.string.ignore_version)
         return super.onPrepareOptionsMenu(menu)
