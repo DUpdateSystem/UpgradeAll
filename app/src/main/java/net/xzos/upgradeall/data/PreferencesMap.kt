@@ -15,10 +15,12 @@ import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.utils.file.FileUtil
 import java.util.*
 
+
 object PreferencesMap {
-    private lateinit var context: Context
-    fun setContext(context: Context) {
-        this.context = context
+    private lateinit var getContextFun: () -> Context
+    private val context: Context get() = getContextFun()
+    fun setContext(getContextFun: () -> Context) {
+        this.getContextFun = getContextFun
     }
 
     private val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(context) }

@@ -4,6 +4,7 @@ import com.tonyodev.fetch2.Download
 import com.tonyodev.fetch2.FetchGroup
 import com.tonyodev.fetch2.Request
 import com.tonyodev.fetch2.util.DEFAULT_GROUP_ID
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.log.ObjectTag
@@ -39,7 +40,7 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
         }
     }
 
-    private val fetch = DownloadService.getFetch()
+    private val fetch = runBlocking { DownloadService.getFetch() }
 
     private val requestList: MutableList<Request> = mutableListOf()
     private val completeObserverFun: ObserverFun<Download> = fun(_) {
@@ -53,6 +54,14 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
 
     fun finalize() {
         delTask()
+    }
+
+    fun register(downloadOb: DownloadOb) {
+        DownloadRegister.registerOb(downloadId, downloadOb)
+    }
+
+    fun unregister(downloadOb: DownloadOb) {
+        DownloadRegister.unRegisterByOb(downloadOb)
     }
 
     suspend fun getFileList(): List<File> {
@@ -77,7 +86,7 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
         }
     }
 
-    fun start(taskStartedFun: (Int) -> Unit, taskStartFailedFun: () -> Unit, downloadOb: DownloadOb) {
+    fun start(taskStartedFun: (Int) -> Unit, taskStartFailedFun: () -> Unit, vararg downloadOb: DownloadOb) {
         if (!downloadDir.exists())
             downloadDir.mkdirs()
         if (requestList.isEmpty()) {
@@ -96,7 +105,7 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
                 mutex.runWithLock {
                     if (start) return@runWithLock
                     start = true
-                    DownloadRegister.registerOb(downloadId, downloadOb)
+                    downloadOb.forEach { register(it) }
                     register()
                     taskStartedFun(request.id)
                 }

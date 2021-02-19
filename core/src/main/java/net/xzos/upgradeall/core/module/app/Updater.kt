@@ -1,5 +1,8 @@
 package net.xzos.upgradeall.core.module.app
 
+import kotlinx.coroutines.sync.Mutex
+import net.xzos.upgradeall.core.downloader.DownloadOb
+import net.xzos.upgradeall.core.downloader.Downloader
 import net.xzos.upgradeall.core.utils.*
 
 class Updater internal constructor(
@@ -8,6 +11,37 @@ class Updater internal constructor(
 ) {
 
     private var tmpUpdateStatus: Int = NETWORK_ERROR - 1
+
+    suspend fun upgradeApp(
+            taskStartedFun: (Int) -> Unit,
+            taskStartFailedFun: () -> Unit,
+            downloadOb: DownloadOb,
+    ): Downloader? {
+        app.update()
+        val fileAsset = app.versionList.firstOrNull()
+                ?.assetList?.firstOrNull()
+                ?.fileAssetList?.firstOrNull()
+                ?: return null
+        return download(fileAsset, taskStartedFun, taskStartFailedFun, downloadOb)
+    }
+
+    suspend fun download(
+            fileAsset: FileAsset,
+            taskStartedFun: (Int) -> Unit,
+            taskStartFailedFun: () -> Unit,
+            downloadOb: DownloadOb,
+    ): Downloader? {
+        val mutex = Mutex(true)
+        fileAsset.download({
+            taskStartedFun(it)
+            mutex.unlock()
+        }, {
+            taskStartFailedFun()
+            mutex.unlock()
+        }, downloadOb)
+        mutex.wait()
+        return fileAsset.downloader
+    }
 
     internal fun getUpdateStatus(): Int {
         val releaseList = app.versionList

@@ -37,7 +37,7 @@ class AppDetailActivity : AppBarActivity() {
     override fun initBinding(): View {
         binding = ActivityAppDetailBinding.inflate(layoutInflater)
         binding.appItem = AppDetailViewModel(app).also { viewModel = it }
-        binding.handler = AppDetailHandler()
+        binding.handler = AppDetailHandler(viewModel, supportFragmentManager)
         return binding.root
     }
 
@@ -112,15 +112,12 @@ class AppDetailActivity : AppBarActivity() {
         }
         binding.btnUpdate.setOnStateListener(object : ProgressButton.OnStateListener {
             override fun onFinish() {
-                TODO("Not yet implemented")
             }
 
             override fun onStop() {
-                TODO("Not yet implemented")
             }
 
             override fun onContinue() {
-                TODO("Not yet implemented")
             }
 
         })

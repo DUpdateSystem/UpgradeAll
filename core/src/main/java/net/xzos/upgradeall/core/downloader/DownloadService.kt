@@ -8,6 +8,7 @@ import android.os.IBinder
 import com.tonyodev.fetch2.Fetch
 import com.tonyodev.fetch2.FetchConfiguration
 import net.xzos.upgradeall.core.coreConfig
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 
 
 internal class DownloadService : Service() {
@@ -19,6 +20,14 @@ internal class DownloadService : Service() {
             val (notificationId, notification) = this()
             startForeground(notificationId, notification)
         }
+        getService = fun() = this
+    }
+
+    override fun onDestroy() {
+        fetch = null
+        getService = fun() = null
+        coroutinesCount.down()
+        super.onDestroy()
     }
 
     private fun renewFetch() {
@@ -30,6 +39,7 @@ internal class DownloadService : Service() {
             addListener(DownloadRegister)
             removeAll()
         }
+        coroutinesCount.up()
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -37,27 +47,27 @@ internal class DownloadService : Service() {
     }
 
     companion object {
-        private var service: Service? = null
+        private var getService: () -> Service? = fun() = null
         private var fetch: Fetch? = null
+        private val coroutinesCount = CoroutinesCount(0)
 
         private var notificationMaker: (() -> Pair<Int, Notification>)? = null
 
-        fun setNotificationMaker(
-                notificationMaker: () -> Pair<Int, Notification>
-        ) {
+        fun setNotificationMaker(notificationMaker: () -> Pair<Int, Notification>) {
             this.notificationMaker = notificationMaker
         }
 
-        fun getFetch(): Fetch {
-            if (fetch == null)
+        suspend fun getFetch(): Fetch {
+            if (fetch == null) {
                 startService(coreConfig.androidContext)
+            }
+            coroutinesCount.waitNum(1)
             return fetch!!
         }
 
         fun close() {
             fetch?.close()
-            fetch = null
-            service?.stopSelf()
+            getService()?.stopSelf()
 
         }
 

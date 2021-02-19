@@ -36,7 +36,7 @@
                 app:tint="@color/coolapk_green" />
 
             <TextView
-                android:id="@+id/nameTextView"
+                android:id="@+id/tv_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

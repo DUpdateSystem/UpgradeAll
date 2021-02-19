@@ -27,13 +27,13 @@ class DownloadNotification(private val fileAsset: FileAsset) {
         priority = NotificationCompat.PRIORITY_LOW
     }
 
-    val downloadOb = DownloadOb({ taskStart(it) }, { taskRunning(it) }, { taskStop() }, { taskComplete(it) }, { taskCancel() }, { taskFail() })
+    fun getDownloadOb() = DownloadOb({ taskStart(it) }, { taskRunning(it) }, { taskStop() }, { taskComplete(it) }, { taskCancel() }, { taskFail() })
 
     init {
         createNotificationChannel()
     }
 
-    internal fun waitDownloadTaskNotification() {
+    internal fun waitDownloadTaskNotification(taskName: String) {
         builder.clearActions()
                 .setOngoing(true)
                 .setContentTitle("应用下载 $taskName")
@@ -149,7 +149,7 @@ class DownloadNotification(private val fileAsset: FileAsset) {
         notificationNotify(notificationIndex, builder.build())
     }
 
-    private fun cancelNotification() {
+    fun cancelNotification() {
         NotificationManagerCompat.from(context).cancel(notificationIndex)
     }
 
@@ -186,7 +186,7 @@ class DownloadNotification(private val fileAsset: FileAsset) {
     companion object {
         private const val DOWNLOAD_CHANNEL_ID = "DownloadNotification"
         private const val PROGRESS_MAX = 100
-        private val context = MyApplication.context
+        private val context get() = MyApplication.context
         private var initNotificationChannel = false
         private val mutex = Mutex()
 
@@ -205,9 +205,10 @@ class DownloadNotification(private val fileAsset: FileAsset) {
                 }
             }
 
-        private val downloadServiceNotificationBuilder = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID)
-                .setContentTitle("下载服务运行中").setSmallIcon(android.R.drawable.stat_sys_download_done)
-                .apply { priority = NotificationCompat.PRIORITY_LOW }
+        private val downloadServiceNotificationBuilder
+            get() = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID)
+                    .setContentTitle("下载服务运行中").setSmallIcon(android.R.drawable.stat_sys_download_done)
+                    .apply { priority = NotificationCompat.PRIORITY_LOW }
 
         val downloadServiceNotificationMaker = fun(): Pair<Int, Notification> {
             return getDownloadServiceNotification()

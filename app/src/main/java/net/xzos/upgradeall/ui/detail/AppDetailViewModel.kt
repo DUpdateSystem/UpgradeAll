@@ -6,14 +6,17 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.databinding.BaseObservable
 import androidx.databinding.ObservableField
+import com.tonyodev.fetch2.Download
+import com.tonyodev.fetch2.Status
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
+import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Version
 import net.xzos.upgradeall.core.utils.getPackageId
 import net.xzos.upgradeall.ui.base.list.ListItemTextView
-import net.xzos.upgradeall.ui.base.list.ListItemView
+import net.xzos.upgradeall.ui.detail.download.DownloadStatusData
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.MiscellaneousUtils.hasHTMLTags
 import net.xzos.upgradeall.utils.UxUtils
@@ -49,6 +52,18 @@ class AppDetailViewModel(val app: App) : ListItemTextView, BaseObservable() {
 
     // 下载状态信息
     val downloadData = DownloadStatusData()
+    private val obFun = fun(d: Download) { downloadData.setDownload(d) }
+    val waitDownload = {
+        downloadData.setDownloadProgress(0)
+        downloadData.setDownloadStatus(Status.NONE)
+    }
+
+    val failDownload = {
+        downloadData.setDownloadProgress(-1)
+        downloadData.setDownloadStatus(Status.FAILED)
+    }
+
+    fun getDownloadDataOb() = DownloadOb(obFun, obFun, obFun, obFun, obFun, obFun)
 
     var currentVersion: Version? = null
     val changelogData = ObservableField<CharSequence>()
@@ -62,6 +77,21 @@ class AppDetailViewModel(val app: App) : ListItemTextView, BaseObservable() {
             }
             else -> changelog
         })
+    }
+
+    fun clickDownload(
+            taskStartedFun: (Int) -> Unit,
+            taskStartFailedFun: () -> Unit,
+            downloadOb: DownloadOb,
+    ) {
+        val version = currentVersion ?: return
+        if (version == versionList.firstOrNull()) {
+            runBlocking {
+                app.updater.upgradeApp(taskStartedFun, taskStartFailedFun, downloadOb)
+            }
+        } else {
+
+        }
     }
 
     fun setVersionInfo(position: Int) {

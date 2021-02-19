@@ -21,7 +21,7 @@ interface HubListPart<T, L : ListItemView, out RH : RecyclerViewHolder<in L, *, 
 
     fun initView(activity: ComponentActivity, lifecycleOwner: LifecycleOwner) {
         adapter.lifecycleScope = activity.lifecycleScope
-        binding.rvList.apply {
+        binding.listLayout.rvList.apply {
             adapter = this@HubListPart.adapter
             addPaddingBottom(UiUtils.getNavBarHeight(activity.windowManager))
         }

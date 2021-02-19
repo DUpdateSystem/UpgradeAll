@@ -165,6 +165,7 @@
             android:text="@={appItem.downloadData.downloadStatusData}"
             android:textColor="@color/white"
             app:buttonCornerRadius="3dp"
+            android:onClick="@{() -> handler.clickDownload()}"
             app:progressBgColor="#75A6FF"
             app:progressColor="#4586F3"
             app:showProgressNum="true"

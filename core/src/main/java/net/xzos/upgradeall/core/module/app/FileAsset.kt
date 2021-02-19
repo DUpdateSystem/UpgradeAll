@@ -8,6 +8,7 @@ import net.xzos.upgradeall.core.installer.isApkFile
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.network.GrpcApi
 import net.xzos.upgradeall.core.module.network.toMap
+import net.xzos.upgradeall.core.route.GetDownloadResponse
 
 
 /**
@@ -18,23 +19,31 @@ class FileAsset(
         /* 文件数据名称，用来给用户看的 */
         val name: String,
         /* 默认下载链接 */
-        internal val downloadUrl: String,
+        private val downloadUrl: String,
         internal val fileType: String,
-        internal val assetIndex: Pair<Int, Int>,
+        private val assetIndex: Pair<Int, Int>,
         private val app: App,
         private val hub: Hub,
 ) {
     /* 下载管理器 */
     var downloader: Downloader? = null
 
+    suspend fun getDownloadUrl(): String? {
+        return getDownloadInfo()?.listList?.firstOrNull()?.url
+    }
+
+    private suspend fun getDownloadInfo(): GetDownloadResponse? {
+        val appId = app.appId
+        val hubUuid = hub.uuid
+        return GrpcApi.getDownloadInfo(hubUuid, appId, mapOf(), assetIndex)
+    }
+
     suspend fun download(
             taskStartedFun: (Int) -> Unit,
             taskStartFailedFun: () -> Unit,
-            downloadOb: DownloadOb,
+            vararg downloadOb: DownloadOb,
     ) {
-        val appId = app.appId
-        val hubUuid = hub.uuid
-        val downloadResponse = GrpcApi.getDownloadInfo(hubUuid, appId, mapOf(), assetIndex)
+        val downloadResponse = getDownloadInfo()
         var list = downloadResponse?.listList?.map { downloadPackage ->
             val fileName = if (downloadPackage.name.isNotBlank())
                 downloadPackage.name
@@ -58,7 +67,7 @@ class FileAsset(
                 )
             }
         }.also {
-            it.start(taskStartedFun, taskStartFailedFun, downloadOb)
+            it.start(taskStartedFun, taskStartFailedFun, *downloadOb)
         }
     }
 

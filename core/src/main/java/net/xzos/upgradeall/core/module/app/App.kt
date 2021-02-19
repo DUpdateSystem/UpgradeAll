@@ -16,7 +16,7 @@ class App(
         val appDatabase: AppEntity,
         statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
 ) {
-    private val updater = Updater(this, statusRenewedFun)
+    val updater = Updater(this, statusRenewedFun)
     private val renewMutex = Mutex()
 
     /* App 对象的属性字典*/

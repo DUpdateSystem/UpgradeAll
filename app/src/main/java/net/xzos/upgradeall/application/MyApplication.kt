@@ -19,7 +19,7 @@ class MyApplication : Application() {
 
     override fun attachBaseContext(base: Context) {
         Reflection.unseal(this) // bypass hidden api restriction, https://github.com/tiann/FreeReflection
-        PreferencesMap.setContext(base)
+        PreferencesMap.setContext(fun() = base)
         val local = PreferencesMap.custom_language_locale ?: return super.attachBaseContext(base)
         localizationDelegate.setDefaultLanguage(base, local)
         super.attachBaseContext(localizationDelegate.attachBaseContext(base))

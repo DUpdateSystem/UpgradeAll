@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.absinthe.libraries.view.AlwaysMarqueeTextView
-        android:id="@+id/nameTextView"
+        android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -43,8 +43,8 @@
         android:textColor="@color/text_lowest_priority_color"
         android:textSize="12sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/nameTextView"
-        app:layout_constraintStart_toEndOf="@+id/nameTextView" />
+        app:layout_constraintBottom_toBottomOf="@+id/tv_name"
+        app:layout_constraintStart_toEndOf="@+id/tv_name" />
 
     <TextView
         android:id="@+id/typeTextView"
@@ -57,8 +57,8 @@
         android:text="@string/app"
         android:textColor="@color/text_low_priority_color"
         app:layout_constraintBottom_toBottomOf="@+id/appIconImageView"
-        app:layout_constraintStart_toStartOf="@+id/nameTextView"
-        app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
+        app:layout_constraintStart_toStartOf="@+id/tv_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_name" />
 
     <TextView
         android:id="@+id/hubNameTextView"
