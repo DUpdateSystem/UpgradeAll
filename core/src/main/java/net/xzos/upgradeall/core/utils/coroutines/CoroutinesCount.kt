@@ -14,24 +14,26 @@ class CoroutinesCount(count: Int) {
 
     private val funList = coroutinesMutableListOf<() -> Unit>(true)
 
-    fun plusAssign(a: Int) {
-        mutex.runWithLock {
+    fun plusAssign(a: Int): Int {
+        return mutex.runWithLock {
             count += a
+            count
         }
     }
 
-    fun minusAssign(a: Int) {
-        mutex.runWithLock {
+    fun minusAssign(a: Int): Int {
+        return mutex.runWithLock {
             count -= a
+            count
         }
     }
 
-    fun up() {
-        plusAssign(1)
+    fun up(): Int {
+        return plusAssign(1)
     }
 
-    fun down() {
-        minusAssign(1)
+    fun down(): Int {
+        return minusAssign(1)
     }
 
     suspend fun waitNum(num: Int) {

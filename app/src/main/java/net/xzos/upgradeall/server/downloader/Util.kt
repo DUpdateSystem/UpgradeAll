@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.server.downloader
 
 import net.xzos.upgradeall.core.downloader.DownloadOb
+import net.xzos.upgradeall.core.filetasker.FileTasker.Companion.getFileTasker
 import net.xzos.upgradeall.core.module.app.FileAsset
 
 suspend fun download(
@@ -9,10 +10,11 @@ suspend fun download(
         taskStartFailedFun: () -> Unit,
         downloadOb: DownloadOb,
 ) {
-    val notification = DownloadNotification(fileAsset).apply {
+    val fileTasker = fileAsset.getFileTasker()
+    val notification = DownloadNotification(fileTasker).apply {
         waitDownloadTaskNotification(fileAsset.name)
     }
-    fileAsset.download(taskStartedFun, {
+    fileTasker.startDownload(taskStartedFun, {
         taskStartFailedFun()
         notification.cancelNotification()
     }, downloadOb, notification.getDownloadOb())

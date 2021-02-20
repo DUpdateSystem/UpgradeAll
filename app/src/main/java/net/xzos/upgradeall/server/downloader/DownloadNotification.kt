@@ -10,18 +10,17 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.tonyodev.fetch2.Download
-import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.downloader.DownloadOb
-import net.xzos.upgradeall.core.module.app.FileAsset
-import net.xzos.upgradeall.core.utils.runWithLock
+import net.xzos.upgradeall.core.filetasker.FileTasker
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import java.io.File
 
-class DownloadNotification(private val fileAsset: FileAsset) {
+class DownloadNotification(private val fileTasker: FileTasker) {
 
     lateinit var taskName: String
-    private val notificationIndex: Int = NOTIFICATION_INDEX
+    private val notificationIndex: Int = getNotificationIndex()
 
     private val builder = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID).apply {
         priority = NotificationCompat.PRIORITY_LOW
@@ -131,7 +130,7 @@ class DownloadNotification(private val fileAsset: FileAsset) {
                     .bigText(contentText))
             setSmallIcon(android.R.drawable.stat_sys_download_done)
             setProgress(0, 0, false)
-            if (fileAsset.installable) {
+            if (fileTasker.installable) {
                 addAction(R.drawable.ic_check_mark_circle, "安装 APK 文件",
                         getSnoozePendingIntent(DownloadBroadcastReceiver.INSTALL_APK))
             }
@@ -156,8 +155,9 @@ class DownloadNotification(private val fileAsset: FileAsset) {
     private fun getSnoozeIntent(extraIdentifierDownloadControlId: Int): Intent {
         return Intent(context, DownloadBroadcastReceiver::class.java).apply {
             action = DownloadBroadcastReceiver.ACTION_SNOOZE
-            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_DOWNLOADER_ID, fileAsset.downloader?.downloadId?.getKeyString())
-            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_DOWNLOAD_CONTROL, extraIdentifierDownloadControlId)
+            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_ID, fileTasker.id)
+            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_CONTROL, extraIdentifierDownloadControlId)
+            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_NOTIFICATION_ID, notificationIndex)
         }
     }
 
@@ -169,7 +169,7 @@ class DownloadNotification(private val fileAsset: FileAsset) {
                 // 保存文件/安装按钮可多次点击
                     0
                 else PendingIntent.FLAG_ONE_SHOT
-        return PendingIntent.getBroadcast(context, PENDING_INTENT_INDEX, snoozeIntent, flags)
+        return PendingIntent.getBroadcast(context, getPendingIntentIndex(), snoozeIntent, flags)
     }
 
     private fun getSpeedText(task: Download): String {
@@ -188,22 +188,13 @@ class DownloadNotification(private val fileAsset: FileAsset) {
         private const val PROGRESS_MAX = 100
         private val context get() = MyApplication.context
         private var initNotificationChannel = false
-        private val mutex = Mutex()
 
         private const val DOWNLOAD_SERVICE_NOTIFICATION_INDEX = 200
-        private var NOTIFICATION_INDEX = 201
-            get() = mutex.runWithLock {
-                field.also {
-                    field++
-                }
-            }
+        private val NOTIFICATION_INDEX = CoroutinesCount(201)
+        private fun getNotificationIndex(): Int = NOTIFICATION_INDEX.up()
 
-        private var PENDING_INTENT_INDEX = 0
-            get() = mutex.runWithLock {
-                field.also {
-                    field++
-                }
-            }
+        private val PENDING_INTENT_INDEX = CoroutinesCount(0)
+        private fun getPendingIntentIndex(): Int = PENDING_INTENT_INDEX.up()
 
         private val downloadServiceNotificationBuilder
             get() = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID)

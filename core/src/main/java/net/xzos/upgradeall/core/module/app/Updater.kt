@@ -2,7 +2,8 @@ package net.xzos.upgradeall.core.module.app
 
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.downloader.DownloadOb
-import net.xzos.upgradeall.core.downloader.Downloader
+import net.xzos.upgradeall.core.filetasker.FileTasker
+import net.xzos.upgradeall.core.filetasker.FileTasker.Companion.getFileTasker
 import net.xzos.upgradeall.core.utils.*
 
 class Updater internal constructor(
@@ -16,7 +17,7 @@ class Updater internal constructor(
             taskStartedFun: (Int) -> Unit,
             taskStartFailedFun: () -> Unit,
             downloadOb: DownloadOb,
-    ): Downloader? {
+    ): FileTasker? {
         app.update()
         val fileAsset = app.versionList.firstOrNull()
                 ?.assetList?.firstOrNull()
@@ -30,9 +31,10 @@ class Updater internal constructor(
             taskStartedFun: (Int) -> Unit,
             taskStartFailedFun: () -> Unit,
             downloadOb: DownloadOb,
-    ): Downloader? {
+    ): FileTasker {
         val mutex = Mutex(true)
-        fileAsset.download({
+        val fileTasker = fileAsset.getFileTasker()
+        fileTasker.startDownload({
             taskStartedFun(it)
             mutex.unlock()
         }, {
@@ -40,7 +42,7 @@ class Updater internal constructor(
             mutex.unlock()
         }, downloadOb)
         mutex.wait()
-        return fileAsset.downloader
+        return fileTasker
     }
 
     internal fun getUpdateStatus(): Int {

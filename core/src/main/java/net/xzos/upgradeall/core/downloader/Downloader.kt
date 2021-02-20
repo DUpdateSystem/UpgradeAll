@@ -9,7 +9,6 @@ import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
-import net.xzos.upgradeall.core.module.app.FileAsset
 import net.xzos.upgradeall.core.utils.*
 import net.xzos.upgradeall.core.utils.file.FileUtil
 import net.xzos.upgradeall.core.utils.file.getFileByAutoRename
@@ -18,7 +17,7 @@ import java.io.File
 
 
 /* 下载管理 */
-class Downloader internal constructor(val name: String, val fileAsset: FileAsset) {
+class Downloader internal constructor() {
 
     var downloadId: DownloadId = DownloadId(false, -1)
     val downloadDir = FileUtil.getNewRandomNameFile(FileUtil.DOWNLOAD_CACHE_DIR)
@@ -76,7 +75,7 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
         delTask()
     }
 
-    fun addTask(
+    internal fun addTask(
             fileName: String, url: String,
             headers: Map<String, String> = mapOf(), cookies: Map<String, String> = mapOf()
     ) {
@@ -86,7 +85,7 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
         }
     }
 
-    fun start(taskStartedFun: (Int) -> Unit, taskStartFailedFun: () -> Unit, vararg downloadOb: DownloadOb) {
+    internal fun start(taskStartedFun: (Int) -> Unit, taskStartFailedFun: () -> Unit, vararg downloadOb: DownloadOb) {
         if (!downloadDir.exists())
             downloadDir.mkdirs()
         if (requestList.isEmpty()) {
@@ -115,14 +114,14 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
         }
     }
 
-    fun resume() {
+    internal fun resume() {
         if (downloadId.isGroup)
             fetch.resumeGroup(downloadId.id)
         else
             fetch.resume(downloadId.id)
     }
 
-    fun pause() {
+    internal fun pause() {
         if (downloadId.isGroup)
             fetch.pauseGroup(downloadId.id)
         else
@@ -146,7 +145,7 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
         return emptyList()
     }
 
-    fun retry() {
+    internal fun retry() {
         if (downloadId.isGroup) {
             fetch.getDownloadsInGroup(downloadId.id) {
                 for (download in it) {
@@ -157,7 +156,7 @@ class Downloader internal constructor(val name: String, val fileAsset: FileAsset
             fetch.retry(downloadId.id)
     }
 
-    fun cancel() {
+    internal fun cancel() {
         if (downloadId.isGroup)
             fetch.cancelGroup(downloadId.id)
         else

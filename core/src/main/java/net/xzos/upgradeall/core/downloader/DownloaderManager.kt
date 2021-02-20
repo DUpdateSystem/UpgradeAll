@@ -3,7 +3,7 @@ package net.xzos.upgradeall.core.downloader
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import java.io.IOException
 
-object DownloaderManager {
+internal object DownloaderManager {
     private val downloaderList = coroutinesMutableListOf<Downloader>(true)
 
     fun getDownloaderList(): List<Downloader> = downloaderList
