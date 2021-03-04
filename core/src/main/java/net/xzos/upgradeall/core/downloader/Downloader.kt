@@ -10,6 +10,7 @@ import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.*
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.file.FileUtil
 import net.xzos.upgradeall.core.utils.file.getFileByAutoRename
 import net.xzos.upgradeall.core.utils.oberver.ObserverFun
@@ -19,31 +20,17 @@ import java.io.File
 /* 下载管理 */
 class Downloader internal constructor() {
 
-    var downloadId: DownloadId = DownloadId(false, -1)
-    val downloadDir = FileUtil.getNewRandomNameFile(FileUtil.DOWNLOAD_CACHE_DIR)
+    lateinit var downloadId: DownloadId
+    val downloadDir = FileUtil.getNewRandomNameFile(FileUtil.DOWNLOAD_CACHE_DIR, true)
 
-    private var _downloadOb: DownloadOb? = null
-    fun setStatusChangedFun(func: () -> Unit) {
-        val downloadOb = DownloadOb(
-                { func() }, { func() }, { func() }, { func() }, { func() }, { func() }
-        ).apply {
-            _downloadOb = this
-        }
-        DownloadRegister.registerOb(downloadId, downloadOb)
-    }
-
-    fun cleanStatusChangedFun() {
-        _downloadOb?.run {
-            DownloadRegister.unRegisterByOb(this)
-            _downloadOb = null
-        }
-    }
+    internal val downloadOb = DownloadOb({}, {}, {},
+            completeFunc = { completeObserverFun(it) },
+            cancelFunc = { cancelObserverFun(it) }, {})
 
     private val fetch = runBlocking { DownloadService.getFetch() }
 
     private val requestList: MutableList<Request> = mutableListOf()
     private val completeObserverFun: ObserverFun<Download> = fun(_) {
-        unregister()
         cancel()
     }
 
@@ -51,11 +38,7 @@ class Downloader internal constructor() {
         delTask()
     }
 
-    fun finalize() {
-        delTask()
-    }
-
-    fun register(downloadOb: DownloadOb) {
+    private fun register(downloadOb: DownloadOb) {
         DownloadRegister.registerOb(downloadId, downloadOb)
     }
 
@@ -73,6 +56,7 @@ class Downloader internal constructor() {
 
     fun removeFile() {
         delTask()
+        downloadDir.delete()
     }
 
     internal fun addTask(
@@ -85,9 +69,7 @@ class Downloader internal constructor() {
         }
     }
 
-    internal fun start(taskStartedFun: (Int) -> Unit, taskStartFailedFun: () -> Unit, vararg downloadOb: DownloadOb) {
-        if (!downloadDir.exists())
-            downloadDir.mkdirs()
+    internal suspend fun start(taskStartedFun: (Int) -> Unit, taskStartFailedFun: () -> Unit, vararg downloadOb: DownloadOb) {
         if (requestList.isEmpty()) {
             taskStartFailedFun()
             return
@@ -97,6 +79,7 @@ class Downloader internal constructor() {
         else
             DownloadId(true, groupId)
         var start = false
+        val ended = CoroutinesCount(requestList.size)
         val mutex = Mutex()
         for (request in requestList) {
             request.groupId = downloadId.id
@@ -108,10 +91,13 @@ class Downloader internal constructor() {
                     register()
                     taskStartedFun(request.id)
                 }
-            }, fun(_) {
+                ended.down()
+            }, {
                 taskStartFailedFun()
+                ended.down()
             })
         }
+        ended.waitNum(0)
     }
 
     internal fun resume() {
@@ -164,27 +150,20 @@ class Downloader internal constructor() {
     }
 
     private fun delTask() {
-        unregister()
         if (downloadId.isGroup)
             fetch.deleteGroup(downloadId.id)
         else
             fetch.delete(downloadId.id)
         downloadDir.delete()
+        unregister()
     }
 
     private fun register() {
-        DownloaderManager.setDownloader(this)
-        // 下载状态监视功能注册
-        val downloadOb = DownloadOb({}, {}, {},
-                completeFunc = { completeObserverFun(it) },
-                cancelFunc = { cancelObserverFun(it) }, {})
-
-        DownloadRegister.registerOb(downloadId, downloadOb)
+        DownloaderManager.addDownloader(this)
     }
 
     private fun unregister() {
         DownloaderManager.removeDownloader(this)
-        DownloadRegister.unRegisterById(downloadId)
     }
 
     companion object {

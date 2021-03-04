@@ -19,7 +19,7 @@ import java.io.File
 
 class DownloadNotification(private val fileTasker: FileTasker) {
 
-    lateinit var taskName: String
+    private val taskName: String = fileTasker.name
     private val notificationIndex: Int = getNotificationIndex()
 
     private val builder = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID).apply {
@@ -32,7 +32,7 @@ class DownloadNotification(private val fileTasker: FileTasker) {
         createNotificationChannel()
     }
 
-    internal fun waitDownloadTaskNotification(taskName: String) {
+    internal fun waitDownloadTaskNotification() {
         builder.clearActions()
                 .setOngoing(true)
                 .setContentTitle("应用下载 $taskName")

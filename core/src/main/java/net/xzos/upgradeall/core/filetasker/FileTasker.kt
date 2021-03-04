@@ -50,7 +50,11 @@ class FileTasker internal constructor(internal val fileAsset: FileAsset) {
             vararg downloadOb: DownloadOb,
     ) {
         if (downloader == null) {
-            downloader = preDownload?.startDownload(taskStartedFun, taskStartFailedFun, *downloadOb)
+            val overrideFailFun = {
+                taskStartFailedFun()
+                FileTaskerManager.removeFileTasker(this)
+            }
+            downloader = preDownload?.startDownload(taskStartedFun, overrideFailFun, *downloadOb)
             preDownload = null
         }
     }
@@ -64,8 +68,8 @@ class FileTasker internal constructor(internal val fileAsset: FileAsset) {
         private val TASKER_INDEX = CoroutinesCount(0)
         private fun getTaskerIndex(): Int = TASKER_INDEX.up()
 
-        fun FileAsset.getFileTasker() = FileTasker(this).apply {
-            FileTaskerManager.addFileTasker(this)
+        fun FileAsset.getFileTasker() = FileTasker(this).also {
+            FileTaskerManager.addFileTasker(it)
         }
     }
 }

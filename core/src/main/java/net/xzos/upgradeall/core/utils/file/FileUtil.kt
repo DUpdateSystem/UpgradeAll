@@ -26,12 +26,12 @@ internal object FileUtil {
 
     private const val TAG = "FileUtil"
     private val logObjectTag = ObjectTag("Core", TAG)
-    private val context = coreConfig.androidContext
+    private val context get() = coreConfig.androidContext
 
     val PREFERENCES_FILE by lazy {
         File(
-            context.filesDir.parentFile,
-            "shared_prefs/${context.packageName}_preferences.xml"
+                context.filesDir.parentFile,
+                "shared_prefs/${context.packageName}_preferences.xml"
         )
     }
     internal val UI_CONFIG_FILE by lazy { File(context.filesDir, "ui.json") }
@@ -54,14 +54,17 @@ internal object FileUtil {
     }
 
     fun getUserGroupIcon(iconFileName: String?): File? =
-        if (iconFileName != null) File(GROUP_IMAGE_DIR, iconFileName) else null
+            if (iconFileName != null) File(GROUP_IMAGE_DIR, iconFileName) else null
 
-    fun getNewRandomNameFile(targetDir: File): File {
+    fun getNewRandomNameFile(targetDir: File, isDir: Boolean): File {
         if (!targetDir.exists())
             targetDir.mkdirs()
         val randomName = UUID.randomUUID().toString()
         return File(targetDir, randomName).also {
-            it.createNewFile()
+            if (isDir)
+                it.mkdir()
+            else
+                it.createNewFile()
         }
     }
 
@@ -109,10 +112,10 @@ internal object FileUtil {
      * 通过文件存储框架新建并获取文件
      */
     fun createFile(
-        activity: Activity,
-        WRITE_REQUEST_CODE: Int,
-        mimeType: String?,
-        fileName: String
+            activity: Activity,
+            WRITE_REQUEST_CODE: Int,
+            mimeType: String?,
+            fileName: String
     ) {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
 
@@ -154,12 +157,9 @@ internal object FileUtil {
             val cr: ContentResolver = context.contentResolver
             cr.getType(uri)
         } else {
-            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(
-                uri
-                    .toString()
-            )
+            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
             MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                fileExtension.toLowerCase(coreConfig.locale)
+                    fileExtension.toLowerCase(coreConfig.locale)
             )
         } ?: "*/*"
     }
@@ -209,9 +209,9 @@ internal object FileUtil {
                 if (outputStream != null) {
                     if (text != null) {
                         val writer = BufferedWriter(
-                            OutputStreamWriter(
-                                outputStream
-                            )
+                                OutputStreamWriter(
+                                        outputStream
+                                )
                         )
                         writer.write(text)
                         writer.close()
@@ -224,7 +224,7 @@ internal object FileUtil {
                 }
             } catch (e: IOException) {
                 Log.e(
-                    logObjectTag, TAG, """
+                        logObjectTag, TAG, """
                 writeTextFromUri: 写入文件异常: 
                 ERROR_MESSAGE: ${e.msg()}
                 URI_PATH: ${uri.path}
@@ -232,7 +232,7 @@ internal object FileUtil {
                 )
             } catch (e: SecurityException) {
                 Log.e(
-                    logObjectTag, TAG, """
+                        logObjectTag, TAG, """
                 writeTextFromUri: 写入文件异常（数据读写安全故障）: 
                 ERROR_MESSAGE: ${e.msg()}
                 URI_PATH: ${uri.path}
@@ -261,7 +261,7 @@ internal object FileUtil {
         //Later we will use this bitmap to create the File.
         val selectedBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             ImageDecoder.decodeBitmap(
-                ImageDecoder.createSource(activity.contentResolver, selectedImageUri)
+                    ImageDecoder.createSource(activity.contentResolver, selectedImageUri)
             )
         } else {
             @Suppress("DEPRECATION")
@@ -307,9 +307,9 @@ fun File.getProviderUri(): Uri {
         try {
             val androidContext = coreConfig.androidContext
             FileProvider.getUriForFile(
-                androidContext,
-                androidContext.packageName + ".fileprovider",
-                this
+                    androidContext,
+                    androidContext.packageName + ".fileprovider",
+                    this
             )
         } catch (e: IllegalArgumentException) {
             throw e

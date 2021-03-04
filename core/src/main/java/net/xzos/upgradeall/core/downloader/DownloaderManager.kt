@@ -8,21 +8,23 @@ internal object DownloaderManager {
 
     fun getDownloaderList(): List<Downloader> = downloaderList
 
-    fun getDownloader(downloadId: DownloadId): Downloader? {
+    private fun getDownloader(downloadId: DownloadId): Downloader? {
         val list = downloaderList.filter { it.downloadId == downloadId }
         return if (list.isNotEmpty())
             list[0]
         else null
     }
 
-    internal fun setDownloader(downloader: Downloader) {
+    internal fun addDownloader(downloader: Downloader) {
         getDownloader(downloader.downloadId)?.run {
             throw MultipleSameIdDownloaderException(downloadId)
         }
+        DownloadRegister.registerOb(downloader.downloadId, downloader.downloadOb)
         downloaderList.add(downloader)
     }
 
     internal fun removeDownloader(downloader: Downloader) {
+        DownloadRegister.unRegisterById(downloader.downloadId)
         downloaderList.remove(downloader)
         if (downloaderList.isEmpty())
             DownloadService.close()

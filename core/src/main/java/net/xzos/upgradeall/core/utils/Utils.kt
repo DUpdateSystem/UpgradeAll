@@ -37,9 +37,12 @@ fun parsePropertiesString(s: String): Properties {
 
 fun Mutex.unlockAfterComplete(action: () -> Unit) {
     action()
-    if (this.isLocked) {
+    unlockWithCheck()
+}
+
+fun Mutex.unlockWithCheck() {
+    if (this.isLocked)
         this.unlock()
-    }
 }
 
 suspend fun Mutex.wait() {

@@ -12,7 +12,7 @@ suspend fun startDownload(
 ) {
     val fileTasker = fileAsset.getFileTasker()
     val notification = DownloadNotification(fileTasker).apply {
-        waitDownloadTaskNotification(fileAsset.name)
+        waitDownloadTaskNotification()
     }
     fileTasker.startDownload(taskStartedFun, {
         taskStartFailedFun()
