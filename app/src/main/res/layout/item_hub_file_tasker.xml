@@ -6,6 +6,10 @@
         <variable
             name="fileItem"
             type="net.xzos.upgradeall.ui.filemanagement.FileItemView" />
+
+        <variable
+            name="hander"
+            type="net.xzos.upgradeall.ui.filemanagement.FileHubListItemHandler" />
     </data>
 
     <com.google.android.material.card.MaterialCardView xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -21,6 +25,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="@{() -> hander.showDialog(fileItem.downloader)}"
             android:orientation="vertical">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -39,7 +44,7 @@
                     android:background="@drawable/bg_circle"
                     android:contentDescription="App icon"
                     android:gravity="center"
-                    android:text="@{fileItem.name.charAt(0)}"
+                    android:text="@{String.valueOf(fileItem.name.charAt(0))}"
                     android:textSize="20sp"
                     android:transitionName="app_icon"
                     app:layout_constraintStart_toStartOf="parent"
@@ -96,14 +101,14 @@
                     android:textColor="@color/colorBlue"
                     app:drawableLeftCompat="@drawable/bg_circle"
                     app:drawableTint="@color/colorBlue"
-                    app:layout_constraintBottom_toBottomOf="@+id/tv_failed"
-                    app:layout_constraintEnd_toStartOf="@+id/tv_failed"
-                    app:layout_constraintTop_toTopOf="@+id/tv_failed"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_progress"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_progress"
+                    app:layout_constraintTop_toTopOf="@+id/tv_progress"
                     app:layout_constraintVertical_bias="1.0"
                     tools:text="@string/num_zero" />
 
                 <TextView
-                    android:id="@+id/tv_failed"
+                    android:id="@+id/tv_progress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawablePadding="4dp"
@@ -124,6 +129,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:progress="@{fileItem.downloadProgress}"
+                android:progressBackgroundTint="@android:color/transparent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

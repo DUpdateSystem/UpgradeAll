@@ -4,7 +4,7 @@ import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.filetasker.FileTasker.Companion.getFileTasker
 import net.xzos.upgradeall.core.module.app.FileAsset
 
-suspend fun download(
+suspend fun startDownload(
         fileAsset: FileAsset,
         taskStartedFun: (Int) -> Unit,
         taskStartFailedFun: () -> Unit,

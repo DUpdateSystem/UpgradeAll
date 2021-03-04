@@ -209,6 +209,7 @@
     <string name="clean_all_log_alert_message">It will drop all logs</string>
     <string name="clean_sort_log_alert_message">It will drop current sort logs</string>
     <string name="num_zero">0</string>
+    <string name="percent_temp">d %</string>
     <string name="version_number">Version Number</string>
     <string name="waiting">Waiting</string>
     <string name="queued">Queued</string>
@@ -233,4 +234,7 @@
     <string name="not_match_any_template">Cannot match any template.</string>
     <string name="helper_text_cant_be_empty">Not empty</string>
     <string name="helper_text_attr_cant_be_empty">Attributes List not empty</string>
+
+    <string name="save_as">Save As</string>
+    <string name="show_download_tasker">查看下载进度</string>
 </resources>

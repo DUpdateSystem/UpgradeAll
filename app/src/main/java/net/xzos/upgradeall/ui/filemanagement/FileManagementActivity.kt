@@ -5,5 +5,5 @@ import net.xzos.upgradeall.ui.base.list.HubListActivity
 
 class FileManagementActivity : HubListActivity<FileItemView, FileHubListViewHolder>() {
     override val viewModel by viewModels<FileHubViewModel>()
-    override val adapter = FileHubListAdapter()
+    override val adapter by lazy { FileHubListAdapter(supportFragmentManager) }
 }

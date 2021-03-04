@@ -15,7 +15,7 @@ class UpdateServiceBroadcastReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        private val context = MyApplication.context
+        private val context get() = MyApplication.context
         private val ACTION_SNOOZE = "${context.packageName}.UPDATE_SERVICE_BROADCAST"
         fun setAlarms(t_h: Int) {
             if (t_h <= 0) return

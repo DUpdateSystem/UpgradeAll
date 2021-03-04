@@ -8,7 +8,7 @@ import net.xzos.upgradeall.core.installer.isApkFile
 import net.xzos.upgradeall.core.module.app.FileAsset
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 
-class FileTasker(internal val fileAsset: FileAsset) {
+class FileTasker internal constructor(internal val fileAsset: FileAsset) {
     val id: Int = getTaskerIndex()
     val name = fileAsset.name
 

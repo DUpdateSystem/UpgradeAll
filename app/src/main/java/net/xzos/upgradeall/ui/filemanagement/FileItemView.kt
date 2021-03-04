@@ -9,13 +9,18 @@ class FileItemView(
         override val name: String,
         private val fileTasker: FileTasker,
 ) : ListItemTextView {
-    private val downloader get() = fileTasker.downloader
+    val downloader get() = fileTasker.downloader
     val downloadingNum get() = getDownloadNumByStatus(Status.DOWNLOADING)
     val completedNum get() = getDownloadNumByStatus(Status.COMPLETED)
     val failedNum get() = getDownloadNumByStatus(Status.FAILED)
     val downloadProgress get() = runBlocking { downloader?.getDownloadProgress() }
-    private fun getDownloadNumByStatus(status: Status): Int {
+
+    private fun doGetDownloadNumByStatus(status: Status): Int {
         val downloader = this.downloader ?: return 0
         return runBlocking { downloader.getDownloadList() }.filter { status == it.status }.size
+    }
+
+    private fun getDownloadNumByStatus(status: Status): String {
+        return doGetDownloadNumByStatus(status).toString()
     }
 }

@@ -13,8 +13,10 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.module.app.App
+import net.xzos.upgradeall.core.module.app.FileAsset
 import net.xzos.upgradeall.core.module.app.Version
 import net.xzos.upgradeall.core.utils.getPackageId
+import net.xzos.upgradeall.server.downloader.startDownload
 import net.xzos.upgradeall.ui.base.list.ListItemTextView
 import net.xzos.upgradeall.ui.detail.download.DownloadStatusData
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -77,6 +79,10 @@ class AppDetailViewModel(val app: App) : ListItemTextView, BaseObservable() {
             }
             else -> changelog
         })
+    }
+
+    suspend fun download(fileAsset: FileAsset) {
+        startDownload(fileAsset, fun(_) { waitDownload() }, failDownload, getDownloadDataOb())
     }
 
     fun clickDownload(

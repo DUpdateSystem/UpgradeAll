@@ -2,16 +2,18 @@ package net.xzos.upgradeall.ui.filemanagement
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import net.xzos.upgradeall.databinding.ItemHubFileBinding
+import androidx.fragment.app.FragmentManager
+import net.xzos.upgradeall.databinding.ItemHubFileTaskerBinding
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 
-class FileHubListAdapter : RecyclerViewAdapter<FileItemView, FileHubListItemHandler, FileHubListViewHolder>() {
+class FileHubListAdapter(
+        supportFragmentManager: FragmentManager,
+) : RecyclerViewAdapter<FileItemView, FileHubListItemHandler, FileHubListViewHolder>() {
 
-    override val handler: FileHubListItemHandler?
-        get() = TODO("Not yet implemented")
+    override val handler = FileHubListItemHandler(supportFragmentManager)
 
     override fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): FileHubListViewHolder {
-        val binding = ItemHubFileBinding.inflate(layoutInflater, viewGroup, false)
+        val binding = ItemHubFileTaskerBinding.inflate(layoutInflater, viewGroup, false)
         return FileHubListViewHolder(binding)
     }
 }

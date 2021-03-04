@@ -218,6 +218,7 @@
     <string name="hub_update_all">全部升级</string>
     <string name="hub_ignore_all">全部忽略</string>
     <string name="num_zero">0</string>
+    <string name="percent_temp">d %</string>
 
     <!-- APP Detail-->
     <string name="version_number">版本号</string>
@@ -244,4 +245,8 @@
     <string name="not_match_any_template">无法匹配任意一种模板</string>
     <string name="helper_text_cant_be_empty">不能为空</string>
     <string name="helper_text_attr_cant_be_empty">属性列表不能为空</string>
+    
+    <!-- File Manager -->
+    <string name="save_as">另存</string>
+    <string name="show_download_tasker">查看下载进度</string>
 </resources>

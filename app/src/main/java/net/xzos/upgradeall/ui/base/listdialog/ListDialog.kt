@@ -18,9 +18,12 @@ open class ListDialog(
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-
         val contentBinding = RecyclerlistContentBinding.inflate(layoutInflater)
+        initBinding(contentBinding)
+        return initDialog(contentBinding.root)
+    }
 
+    open fun initBinding(contentBinding: RecyclerlistContentBinding) {
         contentBinding.apply {
             if (adapter.itemCount > 0) {
                 rvList.adapter = adapter
@@ -29,9 +32,11 @@ open class ListDialog(
                 tvEmpty.visibility = View.VISIBLE
             }
         }
+    }
 
+    fun initDialog(view: View): Dialog {
         return AlertDialog.Builder(requireContext()).apply {
-            setView(contentBinding.root)
+            setView(view)
             title?.let {
                 if (title is CharSequence)
                     setTitle(title)
