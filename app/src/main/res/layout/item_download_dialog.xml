@@ -14,58 +14,55 @@
             type="net.xzos.upgradeall.ui.detail.download.DownloadItemHandler" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center">
+        android:padding="8dp">
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <View
+            android:id="@+id/decorator"
+            android:layout_width="2dp"
+            android:layout_height="0dp"
+            android:background="@android:color/black"
             android:backgroundTint="@{item.hubColor}"
-            app:srcCompat="@android:drawable/status_bar_item_background"
-            tools:ignore="ContentDescription" />
+            app:layout_constraintBottom_toBottomOf="@id/tv_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_name" />
 
         <TextView
             android:id="@+id/tv_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:text="@{item.name}"
-            tools:text="@string/app_name" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_hub"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:backgroundTint="@{item.hubColor}"
-            android:text="@{item.hubName}"
-            app:chipIconTint="@{item.hubColor}"
-            app:layout_constrainedWidth="true"
-            tools:text="@string/app_hub" />
-
-        <Space
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:singleLine="true"
+            android:text="@{item.name}"
+            app:layout_constraintStart_toEndOf="@id/decorator"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/app_name" />
+
+        <TextView
+            android:id="@+id/tv_hub"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:text="@{item.hubName}"
+            app:layout_constraintStart_toStartOf="@id/decorator"
+            app:layout_constraintTop_toBottomOf="@id/tv_name"
+            tools:text="@string/app_hub" />
 
         <Button
             android:id="@+id/button_download"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
-            android:layout_marginEnd="8dp"
             android:layout_height="wrap_content"
             android:onClick="@{() -> handler.clickDownload(item.fileAsset)}"
             android:text="@string/download"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/linearLayout2"
             app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
