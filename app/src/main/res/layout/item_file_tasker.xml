@@ -63,7 +63,7 @@
                     tools:text="@string/app_name" />
 
                 <TextView
-                    android:id="@+id/tv_progress"
+                    android:id="@+id/tv_failed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawablePadding="4dp"
@@ -76,7 +76,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <ProgressBar
-                android:id="@+id/determinateBar"
+                android:id="@+id/pbDownload"
                 style="@android:style/Widget.Material.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"

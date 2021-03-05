@@ -1,7 +1,6 @@
 package net.xzos.upgradeall.ui.filemanagement
 
 import com.tonyodev.fetch2.Status
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.filetasker.FileTasker
 import net.xzos.upgradeall.ui.base.list.ListItemTextView
 
@@ -10,17 +9,14 @@ class FileItemView(
         private val fileTasker: FileTasker,
 ) : ListItemTextView {
     val downloader get() = fileTasker.downloader
-    val downloadingNum get() = getDownloadNumByStatus(Status.DOWNLOADING)
-    val completedNum get() = getDownloadNumByStatus(Status.COMPLETED)
-    val failedNum get() = getDownloadNumByStatus(Status.FAILED)
-    val downloadProgress get() = runBlocking { downloader?.getDownloadProgress() }
+    suspend fun getDownloadingNum() = getDownloadNumByStatus(Status.DOWNLOADING)
+    suspend fun getCompletedNum() = getDownloadNumByStatus(Status.COMPLETED)
+    suspend fun getFailedNum() = getDownloadNumByStatus(Status.FAILED)
+    suspend fun getDownloadProgress() = downloader?.getDownloadProgress() ?: -1
 
-    private fun doGetDownloadNumByStatus(status: Status): Int {
-        val downloader = this.downloader ?: return 0
-        return runBlocking { downloader.getDownloadList() }.filter { status == it.status }.size
-    }
-
-    private fun getDownloadNumByStatus(status: Status): String {
-        return doGetDownloadNumByStatus(status).toString()
+    private suspend fun getDownloadNumByStatus(status: Status): String {
+        val downloader = this.downloader ?: return "0"
+        val num = downloader.getDownloadList().filter { status == it.status }.size
+        return num.toString()
     }
 }

@@ -27,7 +27,7 @@ class Downloader internal constructor() {
             completeFunc = { completeObserverFun(it) },
             cancelFunc = { cancelObserverFun(it) }, {})
 
-    private val fetch = runBlocking { DownloadService.getFetch() }
+    private val fetch by lazy { runBlocking { DownloadService.getFetch() } }
 
     private val requestList: MutableList<Request> = mutableListOf()
     private val completeObserverFun: ObserverFun<Download> = fun(_) {
@@ -127,8 +127,7 @@ class Downloader internal constructor() {
             return listOf(this)
         } ?: getFetchGroup(downloadId)?.run {
             return this.downloads
-        }
-        return emptyList()
+        } ?: return emptyList()
     }
 
     internal fun retry() {
@@ -207,23 +206,21 @@ class Downloader internal constructor() {
         return request
     }
 
-    @Suppress("RedundantSuspendModifier")
     private suspend fun getFetchDownload(downloadId: DownloadId): Download? {
         if (downloadId.isGroup) return null
         val valueLock = ValueLock<Download?>()
         fetch.getDownload(downloadId.id) {
-            valueLock.value = it
+            valueLock.setValue(it)
         }
-        return valueLock.value
+        return valueLock.getValue()
     }
 
-    @Suppress("RedundantSuspendModifier")
     private suspend fun getFetchGroup(downloadId: DownloadId): FetchGroup? {
         if (!downloadId.isGroup) return null
         val valueLock = ValueLock<FetchGroup>()
         fetch.getFetchGroup(downloadId.id) {
-            valueLock.value = it
+            valueLock.setValue(it)
         }
-        return valueLock.value
+        return valueLock.getValue()
     }
 }

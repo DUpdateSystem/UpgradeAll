@@ -81,7 +81,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:drawablePadding="4dp"
-                    android:text="@{fileItem.completedNum}"
                     android:textColor="@color/coolapk_green"
                     app:drawableLeftCompat="@drawable/bg_circle"
                     app:drawableTint="@color/coolapk_green"
@@ -97,22 +96,20 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:drawablePadding="4dp"
-                    android:text="@{fileItem.downloadingNum}"
                     android:textColor="@color/colorBlue"
                     app:drawableLeftCompat="@drawable/bg_circle"
                     app:drawableTint="@color/colorBlue"
-                    app:layout_constraintBottom_toBottomOf="@+id/tv_progress"
-                    app:layout_constraintEnd_toStartOf="@+id/tv_progress"
-                    app:layout_constraintTop_toTopOf="@+id/tv_progress"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_failed"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_failed"
+                    app:layout_constraintTop_toTopOf="@+id/tv_failed"
                     app:layout_constraintVertical_bias="1.0"
                     tools:text="@string/num_zero" />
 
                 <TextView
-                    android:id="@+id/tv_progress"
+                    android:id="@+id/tv_failed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawablePadding="4dp"
-                    android:text="@{fileItem.failedNum}"
                     android:textColor="@color/colorRed"
                     app:drawableLeftCompat="@drawable/bg_circle"
                     app:drawableTint="@color/colorRed"
@@ -124,11 +121,10 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <ProgressBar
-                android:id="@+id/determinateBar"
+                android:id="@+id/pbDownload"
                 style="@android:style/Widget.Material.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
-                android:progress="@{fileItem.downloadProgress}"
                 android:progressBackgroundTint="@android:color/transparent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

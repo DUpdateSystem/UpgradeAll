@@ -40,6 +40,11 @@ fun Mutex.unlockAfterComplete(action: () -> Unit) {
     unlockWithCheck()
 }
 
+fun Mutex.lockWithCheck(owner: Any? = null) {
+    if (!this.isLocked)
+        runBlocking { this@lockWithCheck.lock(owner) }
+}
+
 fun Mutex.unlockWithCheck() {
     if (this.isLocked)
         this.unlock()

@@ -7,7 +7,9 @@ import android.content.Intent
 import android.os.IBinder
 import com.tonyodev.fetch2.Fetch
 import com.tonyodev.fetch2.FetchConfiguration
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.coreConfig
+import net.xzos.upgradeall.core.utils.ValueLock
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 
 
@@ -24,7 +26,7 @@ internal class DownloadService : Service() {
     }
 
     override fun onDestroy() {
-        fetch = null
+        fetchValue.refresh()
         getService = fun() = null
         coroutinesCount.down()
         super.onDestroy()
@@ -35,10 +37,11 @@ internal class DownloadService : Service() {
                 .setDownloadConcurrentLimit(coreConfig.download_max_task_num)
                 .setHttpDownloader(getDownloader())
                 .build()
-        fetch = Fetch.Impl.getInstance(fetchConfiguration).apply {
+        val fetch = Fetch.Impl.getInstance(fetchConfiguration).apply {
             addListener(DownloadRegister)
             removeAll()
         }
+        fetchValue.setValue(fetch)
         coroutinesCount.up()
     }
 
@@ -48,7 +51,7 @@ internal class DownloadService : Service() {
 
     companion object {
         private var getService: () -> Service? = fun() = null
-        private var fetch: Fetch? = null
+        private val fetchValue: ValueLock<Fetch> = ValueLock()
         private val coroutinesCount = CoroutinesCount(0)
 
         private var notificationMaker: (() -> Pair<Int, Notification>)? = null
@@ -58,15 +61,14 @@ internal class DownloadService : Service() {
         }
 
         suspend fun getFetch(): Fetch {
-            if (fetch == null) {
+            if (fetchValue.isEmpty()) {
                 startService(coreConfig.androidContext)
             }
-            coroutinesCount.waitNum(1)
-            return fetch!!
+            return fetchValue.getValue()!!
         }
 
         fun close() {
-            fetch?.close()
+            runBlocking { fetchValue.getValue(false)?.close() }
             getService()?.stopSelf()
 
         }

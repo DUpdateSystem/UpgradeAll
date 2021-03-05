@@ -19,6 +19,7 @@ class PreDownload(private val fileAsset: FileAsset) {
         return doDownload(fileAsset.name).apply {
             if (cancelled) throw RuntimeException(DOWNLOAD_CANCELLED)
             start(taskStartedFun, taskStartFailedFun, *downloadOb)
+            pause()
         }
     }
 

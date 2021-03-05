@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.utils
 
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 
 class ValueLock<T> {
@@ -8,18 +7,21 @@ class ValueLock<T> {
 
     private var _value: T? = null
 
-    var value: T
-        get() {
-            return runBlocking {
-                mutex.wait()
-                _value!!
-            }
+    fun isEmpty() = mutex.isLocked
+
+    fun refresh() {
+        mutex.lockWithCheck()
+        _value = null
+    }
+
+    fun setValue(value: T?) {
+        mutex.unlockAfterComplete {
+            _value = value
         }
-        set(value) {
-            runBlocking {
-                mutex.unlockAfterComplete {
-                    _value = value
-                }
-            }
-        }
+    }
+
+    suspend fun getValue(block: Boolean = true): T? {
+        if (block) mutex.wait()
+        return _value
+    }
 }
