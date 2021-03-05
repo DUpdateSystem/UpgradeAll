@@ -8,9 +8,9 @@ import com.absinthe.libraries.utils.extensions.addPaddingTop
 import com.absinthe.libraries.utils.utils.UiUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
-import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater
 import net.xzos.upgradeall.core.utils.getAppName
+import net.xzos.upgradeall.core.utils.oberver.ObserverFun
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
 import net.xzos.upgradeall.server.update.UpdateService
@@ -31,6 +31,9 @@ import net.xzos.upgradeall.utils.runUiFun
 class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val observer: ObserverFun<Unit> = fun(_) {
+        renewUpdateStatus()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,14 +99,18 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onResume() {
+        AppManager.observeForever(observer)
         super.onResume()
-        renewUpdateStatus(AppManager.getAppMap())
-        AppManager.appMapStatusChangedFun = {
-            renewUpdateStatus(it)
-        }
+        renewUpdateStatus()
     }
 
-    private fun renewUpdateStatus(appMap: Map<Int, List<App>>) {
+    override fun onPause() {
+        AppManager.removeObserver(observer)
+        super.onPause()
+    }
+
+    private fun renewUpdateStatus() {
+        val appMap = AppManager.getAppMap()
         runUiFun {
             val needUpdateNum = appMap[Updater.APP_OUTDATED]?.size ?: 0
             binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), needUpdateNum)

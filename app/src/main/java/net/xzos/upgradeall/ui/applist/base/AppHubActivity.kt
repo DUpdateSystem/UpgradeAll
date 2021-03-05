@@ -4,7 +4,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -18,10 +17,9 @@ const val TAB_UPDATE = 0
 const val TAB_STAR = 1
 const val TAB_ALL = 2
 
-abstract class AppHubActivity(private val appType: String) : AppBarActivity() {
+abstract class AppHubActivity(private val mAppType: String) : AppBarActivity() {
 
     protected lateinit var binding: ActivityAppHubBinding
-    private val viewModel by viewModels<AppHubViewModel>()
 
     override fun initBinding(): View {
         binding = ActivityAppHubBinding.inflate(layoutInflater)
@@ -31,7 +29,6 @@ abstract class AppHubActivity(private val appType: String) : AppBarActivity() {
     override fun getAppBar(): Toolbar = binding.appbar.toolbar
 
     override fun initView() {
-        viewModel.setAppType(appType)
         val types = listOf(
                 TAB_UPDATE, TAB_STAR, TAB_ALL
         )
@@ -48,7 +45,7 @@ abstract class AppHubActivity(private val appType: String) : AppBarActivity() {
                 }
 
                 override fun createFragment(position: Int): Fragment {
-                    return getAppHubListFragment(position, viewModel)
+                    return getAppHubListFragment(mAppType, position)
                 }
             }
         }
@@ -57,11 +54,6 @@ abstract class AppHubActivity(private val appType: String) : AppBarActivity() {
             tab.text = tabTitles[position]
         }
         mediator.attach()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.setAutoRenewFun()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

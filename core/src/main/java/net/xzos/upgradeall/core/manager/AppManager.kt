@@ -12,11 +12,10 @@ import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_NO_LOCAL
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_OUTDATED
 import net.xzos.upgradeall.core.module.app.Updater.Companion.NETWORK_ERROR
 import net.xzos.upgradeall.core.utils.coroutines.*
+import net.xzos.upgradeall.core.utils.oberver.Informer
 
 
-object AppManager {
-
-    var appMapStatusChangedFun: ((Map<Int, List<App>>) -> Unit)? = null
+object AppManager : Informer {
 
     private val appMap = coroutinesMutableMapOf<Int, CoroutinesMutableList<App>>(true)
 
@@ -114,7 +113,7 @@ object AppManager {
             }
         }
         if (changed)
-            appMapStatusChangedFun?.run { this(getAppMap()) }
+            notifyChanged()
     }
 
     /**
@@ -129,7 +128,7 @@ object AppManager {
             appDao.update(appDatabase)
         }
         appList.add(App(appDatabase))
-        appMapStatusChangedFun?.apply { this(appMap) }
+        notifyChanged()
         return appDatabase
     }
 
@@ -142,6 +141,6 @@ object AppManager {
         appMap.forEach {
             it.value.remove(app)
         }
-        appMapStatusChangedFun?.apply { this(appMap) }
+        notifyChanged()
     }
 }
