@@ -9,9 +9,10 @@ class DiscoveryAdapter(
         override val handler: DiscoverListItemHandler
 ) : RecyclerViewAdapter<DiscoverListItemView, DiscoverListItemHandler, DiscoverListViewHolder>() {
 
-
     override fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): DiscoverListViewHolder {
         val binding = ItemDiscoverAppBinding.inflate(layoutInflater, viewGroup, false)
         return DiscoverListViewHolder(binding)
     }
+
+    override fun getItemId(position: Int) = dataSet[position].hashCode().toLong()
 }

@@ -1,5 +1,7 @@
 package net.xzos.upgradeall.ui.applist.base
 
+import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.Fragment
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.databinding.ItemHubAppBinding
@@ -21,8 +23,8 @@ fun getAppHubListFragment(index: Int, viewModel: AppHubViewModel): Fragment {
 abstract class AppHubListFragment<L : BaseAppListItemView, LV : RecyclerViewHolder<L, *, ItemHubAppBinding>>(
         override val viewModel: AppHubViewModel, private val tabIndex: Int
 ) : HubListFragment<App, L, LV>() {
-    override fun onResume() {
-        super.onResume()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         viewModel.setTabIndex(tabIndex)
     }
 }

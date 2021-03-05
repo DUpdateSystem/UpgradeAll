@@ -35,13 +35,11 @@
                 app:layout_constraintEnd_toStartOf="@+id/iv_status"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/iv_status"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:adjustViewBounds="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:importantForAccessibility="no"
                 android:scaleType="fitCenter"
                 android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="parent"

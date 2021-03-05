@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.log
 
-import android.R
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
@@ -42,7 +41,7 @@ class LogItemAdapter(mLogList: LiveData<List<String>>, owner: LifecycleOwner) : 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogRecyclerViewHolder {
         val holder = LogRecyclerViewHolder(
-                LayoutInflater.from(parent.context).inflate(R.layout.simple_expandable_list_item_1, parent, false))
+                LayoutInflater.from(parent.context).inflate(android.R.layout.simple_expandable_list_item_1, parent, false))
         val logTextView = holder.logTextView
         logTextView.setOnClickListener {
             val context = logTextView.context
