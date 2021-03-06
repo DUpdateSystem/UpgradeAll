@@ -36,3 +36,8 @@ suspend fun installFileTasker(fileTasker: FileTasker) {
         MiscellaneousUtils.showToast(R.string.install_success)
     })
 }
+
+fun deleteFileTasker(fileTasker: FileTasker) {
+    DownloadNotificationManager.getNotification(fileTasker)?.cancelNotification()
+    fileTasker.cancel()
+}

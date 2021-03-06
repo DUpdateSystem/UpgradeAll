@@ -14,6 +14,10 @@ class FileTasker internal constructor(internal val fileAsset: FileAsset) {
     val id: Int = getTaskerIndex()
     val name = fileAsset.name
 
+    init {
+        FileTaskerManager.addFileTasker(this)
+    }
+
     /* 预下载器 */
     private var preDownload: PreDownload? = PreDownload(fileAsset)
 
@@ -64,7 +68,10 @@ class FileTasker internal constructor(internal val fileAsset: FileAsset) {
     fun resume() = downloader?.resume()
     fun pause() = downloader?.pause()
     fun retry() = downloader?.retry()
-    fun cancel() = downloader?.cancel() ?: preDownload?.cancel()
+    fun cancel() {
+        downloader?.cancel() ?: preDownload?.cancel()
+        FileTaskerManager.removeFileTasker(this)
+    }
 
     fun openDownloadDir(context: Context) {
         downloader?.downloadDir?.path?.run {
@@ -76,8 +83,6 @@ class FileTasker internal constructor(internal val fileAsset: FileAsset) {
         private val TASKER_INDEX = CoroutinesCount(0)
         private fun getTaskerIndex(): Int = TASKER_INDEX.up()
 
-        fun FileAsset.getFileTasker() = FileTasker(this).also {
-            FileTaskerManager.addFileTasker(it)
-        }
+        fun FileAsset.getFileTasker() = FileTasker(this)
     }
 }

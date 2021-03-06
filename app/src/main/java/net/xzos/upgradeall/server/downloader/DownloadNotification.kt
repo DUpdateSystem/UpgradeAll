@@ -161,7 +161,6 @@ class DownloadNotification(private val fileTasker: FileTasker) {
             action = DownloadBroadcastReceiver.ACTION_SNOOZE
             putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_ID, fileTasker.id)
             putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_CONTROL, extraIdentifierDownloadControlId)
-            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_NOTIFICATION_ID, notificationIndex)
         }
     }
 

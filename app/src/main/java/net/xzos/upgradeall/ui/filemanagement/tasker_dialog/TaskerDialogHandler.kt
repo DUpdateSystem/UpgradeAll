@@ -4,6 +4,7 @@ import android.view.View
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.filetasker.FileTasker
+import net.xzos.upgradeall.server.downloader.deleteFileTasker
 import net.xzos.upgradeall.server.downloader.installFileTasker
 
 class TaskerDialogHandler(private val fileTasker: FileTasker, private val dialog: TaskerListDialog) {
@@ -26,7 +27,7 @@ class TaskerDialogHandler(private val fileTasker: FileTasker, private val dialog
     }
 
     fun delete() {
-        fileTasker.cancel()
+        deleteFileTasker(fileTasker)
         dialog.cancel()
     }
 
