@@ -29,21 +29,25 @@ internal object GrpcApi {
     suspend fun getChannel(): ManagedChannel? {
         return getterMutex.withLock {
             if (channelList.size >= 3) {
-                channelList.random()
+                channelList.random().apply { resetConnectBackoff() }
             } else {
-                val channel = try {
-                    ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
-                } catch (e: URISyntaxException) {
-                    Log.e(logObjectTag, TAG, "gRPC 接口地址格式有误，${e.msg()}")
-                    ManagedChannelBuilder.forTarget(DEF_UPDATE_SERVER_URL).usePlaintext().build()
-                } catch (e: Throwable) {
-                    Log.e(logObjectTag, TAG, "gRPC 初始化失败，${e.msg()}")
-                    null
-                }
-                channel?.apply {
-                    channelList.add(this)
-                }
+                newChannel()
             }
+        }
+    }
+
+    private fun newChannel(): ManagedChannel? {
+        val channel = try {
+            ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
+        } catch (e: URISyntaxException) {
+            Log.e(logObjectTag, TAG, "gRPC 接口地址格式有误，${e.msg()}")
+            ManagedChannelBuilder.forTarget(DEF_UPDATE_SERVER_URL).usePlaintext().build()
+        } catch (e: Throwable) {
+            Log.e(logObjectTag, TAG, "gRPC 初始化失败，${e.msg()}")
+            null
+        }
+        return channel?.apply {
+            channelList.add(this)
         }
     }
 
