@@ -18,9 +18,13 @@ abstract class HubListFragment<T, L : ListItemView, RH : RecyclerViewHolder<L, *
         }.root
     }
 
-    fun initView(binding: FragmentHubListBinding) {
-        this.binding = binding
+    override fun onResume() {
+        super.onResume()
         val activity = activity ?: throw RuntimeException("No Activity")
         initView(activity, viewLifecycleOwner)
+    }
+
+    fun initView(binding: FragmentHubListBinding) {
+        this.binding = binding
     }
 }
