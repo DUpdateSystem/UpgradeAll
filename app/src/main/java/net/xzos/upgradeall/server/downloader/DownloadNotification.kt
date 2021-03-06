@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.tonyodev.fetch2.Download
@@ -30,9 +31,10 @@ class DownloadNotification(private val fileTasker: FileTasker) {
 
     init {
         createNotificationChannel()
+        DownloadNotificationManager.addNotification(fileTasker, this)
     }
 
-    internal fun waitDownloadTaskNotification() {
+    fun waitDownloadTaskNotification() {
         builder.clearActions()
                 .setOngoing(true)
                 .setContentTitle("应用下载 $taskName")
@@ -44,8 +46,7 @@ class DownloadNotification(private val fileTasker: FileTasker) {
         notificationNotify()
     }
 
-
-    internal fun showInstallNotification(apkFileName: String) {
+    fun showInstallNotification(apkFileName: String) {
         builder.clearActions().run {
             setContentTitle(context.getString(R.string.installing) + " " + apkFileName)
             setSmallIcon(android.R.drawable.stat_sys_download_done)
@@ -110,7 +111,7 @@ class DownloadNotification(private val fileTasker: FileTasker) {
                 .setSmallIcon(android.R.drawable.stat_sys_download_done)
                 .setProgress(0, 0, false)
                 .setContentIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_RETRY))
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消", delTaskSnoozePendingIntent)
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.cancel), delTaskSnoozePendingIntent)
                 .setDeleteIntent(delTaskSnoozePendingIntent)
                 .setOngoing(false)
         notificationNotify()
@@ -131,18 +132,20 @@ class DownloadNotification(private val fileTasker: FileTasker) {
             setSmallIcon(android.R.drawable.stat_sys_download_done)
             setProgress(0, 0, false)
             if (fileTasker.installable) {
-                addAction(R.drawable.ic_check_mark_circle, "安装 APK 文件",
+                addAction(R.drawable.ic_check_mark_circle, getString(R.string.install),
                         getSnoozePendingIntent(DownloadBroadcastReceiver.INSTALL_APK))
             }
-            addAction(android.R.drawable.stat_sys_download_done, "另存文件",
-                    getSnoozePendingIntent(DownloadBroadcastReceiver.SAVE_FILE))
+            addAction(android.R.drawable.stat_sys_download_done, getString(R.string.open_file),
+                    getSnoozePendingIntent(DownloadBroadcastReceiver.OPEN_FILE))
             val delTaskSnoozePendingIntent = getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
-            addAction(android.R.drawable.ic_menu_delete, "删除", delTaskSnoozePendingIntent)
+            addAction(android.R.drawable.ic_menu_delete, getString(R.string.delete), delTaskSnoozePendingIntent)
             setDeleteIntent(delTaskSnoozePendingIntent)
             setOngoing(false)
         }
         notificationNotify()
     }
+
+    private fun getString(@StringRes resId: Int): CharSequence = context.getString(resId)
 
     private fun notificationNotify() {
         notificationNotify(notificationIndex, builder.build())
@@ -150,6 +153,7 @@ class DownloadNotification(private val fileTasker: FileTasker) {
 
     fun cancelNotification() {
         NotificationManagerCompat.from(context).cancel(notificationIndex)
+        DownloadNotificationManager.removeNotification(this)
     }
 
     private fun getSnoozeIntent(extraIdentifierDownloadControlId: Int): Intent {
@@ -165,7 +169,7 @@ class DownloadNotification(private val fileTasker: FileTasker) {
         val snoozeIntent = getSnoozeIntent(extraIdentifierDownloadControlId)
         val flags =
                 if (extraIdentifierDownloadControlId == DownloadBroadcastReceiver.INSTALL_APK ||
-                        extraIdentifierDownloadControlId == DownloadBroadcastReceiver.SAVE_FILE)
+                        extraIdentifierDownloadControlId == DownloadBroadcastReceiver.OPEN_FILE)
                 // 保存文件/安装按钮可多次点击
                     0
                 else PendingIntent.FLAG_ONE_SHOT

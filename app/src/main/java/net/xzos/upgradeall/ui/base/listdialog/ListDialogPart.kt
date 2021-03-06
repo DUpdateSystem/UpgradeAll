@@ -5,12 +5,12 @@ import androidx.recyclerview.widget.RecyclerView
 import net.xzos.upgradeall.databinding.RecyclerlistContentBinding
 
 interface ListDialogPart {
-    val adapter: DialogListAdapter<*, *, *>
+    val sAdapter: DialogListAdapter<*, *, *>
 
-    fun initBinding(contentBinding: RecyclerlistContentBinding) {
+    fun renewListView(contentBinding: RecyclerlistContentBinding) {
         contentBinding.apply {
-            if (adapter.itemCount > 0) {
-                rvList.adapter = adapter
+            if (sAdapter.itemCount > 0) {
+                rvList.adapter = sAdapter
                 rvList.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             } else {
                 vfContainer.displayedChild = 1

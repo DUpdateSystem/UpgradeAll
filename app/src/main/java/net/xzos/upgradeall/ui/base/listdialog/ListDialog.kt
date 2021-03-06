@@ -10,7 +10,7 @@ import net.xzos.upgradeall.databinding.RecyclerlistContentBinding
 
 open class ListDialog(
         private val title: Any?,
-        override val adapter: DialogListAdapter<*, *, *>
+        override val sAdapter: DialogListAdapter<*, *, *>
 ) : DialogFragment(), ListDialogPart {
 
     fun show(supportFragmentManager: FragmentManager) {
@@ -19,7 +19,7 @@ open class ListDialog(
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val contentBinding = RecyclerlistContentBinding.inflate(layoutInflater)
-        initBinding(contentBinding)
+        renewListView(contentBinding)
         return initDialog(contentBinding.root)
     }
 

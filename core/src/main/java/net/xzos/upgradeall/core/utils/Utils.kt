@@ -2,7 +2,9 @@ package net.xzos.upgradeall.core.utils
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.runBlocking
@@ -110,4 +112,11 @@ fun getAppName(packageName: String, context: Context): String? {
         null
     }
     return pm.getApplicationLabel(ai ?: return null).toString()
+}
+
+fun openInFileManager(path: String, context: Context) {
+    val selectedUri = Uri.parse(path)
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.setDataAndType(selectedUri, "resource/folder")
+    context.startActivity(intent)
 }

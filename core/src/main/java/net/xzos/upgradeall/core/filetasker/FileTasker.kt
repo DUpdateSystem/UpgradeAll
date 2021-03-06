@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.filetasker
 
+import android.content.Context
 import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.downloader.Downloader
 import net.xzos.upgradeall.core.downloader.PreDownload
@@ -7,6 +8,7 @@ import net.xzos.upgradeall.core.installer.ApkInstaller
 import net.xzos.upgradeall.core.installer.isApkFile
 import net.xzos.upgradeall.core.module.app.FileAsset
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
+import net.xzos.upgradeall.core.utils.openInFileManager
 
 class FileTasker internal constructor(internal val fileAsset: FileAsset) {
     val id: Int = getTaskerIndex()
@@ -63,6 +65,12 @@ class FileTasker internal constructor(internal val fileAsset: FileAsset) {
     fun pause() = downloader?.pause()
     fun retry() = downloader?.retry()
     fun cancel() = downloader?.cancel() ?: preDownload?.cancel()
+
+    fun openDownloadDir(context: Context) {
+        downloader?.downloadDir?.path?.run {
+            openInFileManager(this, context)
+        }
+    }
 
     companion object {
         private val TASKER_INDEX = CoroutinesCount(0)

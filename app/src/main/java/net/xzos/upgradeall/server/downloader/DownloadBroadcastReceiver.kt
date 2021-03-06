@@ -22,8 +22,8 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
             DOWNLOAD_RETRY -> fileTasker.retry()
             DOWNLOAD_PAUSE -> fileTasker.pause()
             DOWNLOAD_CONTINUE -> fileTasker.resume()
-            INSTALL_APK -> runBlocking { fileTasker.install({}, {}) }
-            SAVE_FILE -> TODO("Save file to external")
+            INSTALL_APK -> runBlocking { installFileTasker(fileTasker) }
+            OPEN_FILE -> fileTasker.openDownloadDir(context)
         }
     }
 
@@ -38,7 +38,7 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
         internal const val DOWNLOAD_RETRY = 2
         internal const val DOWNLOAD_PAUSE = 3
         internal const val DOWNLOAD_CONTINUE = 4
-        internal const val SAVE_FILE = 10
+        internal const val OPEN_FILE = 10
         internal const val INSTALL_APK = 11
     }
 }

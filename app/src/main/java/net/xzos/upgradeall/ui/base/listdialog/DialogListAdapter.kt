@@ -8,7 +8,7 @@ import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHandler
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
 open class DialogListAdapter<L : ListItemView, RHA : RecyclerViewHandler, RH : RecyclerViewHolder<L, RHA, *>>(
-        private val dataList: List<L>,
+        private var dataList: List<L>,
         private val handler: RHA? = null,
         private val getViewHolder: (LayoutInflater, ViewGroup) -> RH
 ) : RecyclerView.Adapter<RH>() {
@@ -23,5 +23,9 @@ open class DialogListAdapter<L : ListItemView, RHA : RecyclerViewHandler, RH : R
     override fun onBindViewHolder(holder: RH, position: Int) {
         val itemView = dataList[position]
         holder.bind(itemView)
+    }
+
+    fun setDataList(list: List<L>) {
+        dataList = list
     }
 }

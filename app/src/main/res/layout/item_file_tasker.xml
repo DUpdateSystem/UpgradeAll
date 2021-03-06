@@ -7,11 +7,11 @@
 
         <variable
             name="fileItem"
-            type="net.xzos.upgradeall.ui.filemanagement.tasker_dialog.TaskerItem" />
+            type="net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItem" />
 
         <variable
             name="handler"
-            type="net.xzos.upgradeall.ui.filemanagement.tasker_dialog.TaskerItemHandler" />
+            type="net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItemHandler" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -52,18 +52,19 @@
 
                 <TextView
                     android:id="@+id/tv_file_path"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:text="@{fileItem.path}"
                     android:textSize="12sp"
                     android:transitionName="app_name"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_progress"
                     app:layout_constraintStart_toStartOf="@+id/tv_app_name"
                     app:layout_constraintTop_toBottomOf="@+id/tv_app_name"
                     tools:text="@string/app_name" />
 
                 <TextView
-                    android:id="@+id/tv_failed"
+                    android:id="@+id/tv_progress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawablePadding="4dp"

@@ -36,6 +36,8 @@
 
     <string name="download">下载</string>
     <string name="install">安装</string>
+    <string name="install_success">安装成功</string>
+    <string name="install_failed">安装失败</string>
     <string name="auto_install">自动安装</string>
     <string name="installing">正在安装: </string>
     <string name="install_apk_api">APK 文件安装方式</string>
@@ -249,4 +251,8 @@
     <!-- File Manager -->
     <string name="save_as">另存</string>
     <string name="show_download_tasker">查看下载进度</string>
+    <string name="pause">暂停</string>
+    <string name="Continue">继续</string>
+    <string name="open">打开</string>
+    <string name="open_file">打开文件</string>
 </resources>

@@ -22,11 +22,13 @@ class FileHubListViewHolder(private val binding: ItemHubFileTaskerBinding)
         GlobalScope.launch {
             val completedNum = itemView.getCompletedNum()
             val downloadingNum = itemView.getDownloadingNum()
+            val pausedNum = itemView.getPauseNum()
             val failedNum = itemView.getFailedNum()
             val downloadProgress = itemView.getDownloadProgress()
             runUiFun {
                 binding.tvCompleted.text = completedNum
                 binding.tvDownloading.text = downloadingNum
+                binding.tvPaused.text = pausedNum
                 binding.tvFailed.text = failedNum
                 binding.pbDownload.progress = downloadProgress
             }
