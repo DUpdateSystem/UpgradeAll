@@ -7,6 +7,6 @@ import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.TaskerListDialog
 
 class FileHubListItemHandler(private val context: Context) : RecyclerViewHandler() {
     fun showDialog(fileTasker: FileTasker) {
-        TaskerListDialog(context, fileTasker).show()
+        TaskerListDialog.newInstance(context, fileTasker)
     }
 }

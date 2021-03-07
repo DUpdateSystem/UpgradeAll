@@ -49,7 +49,7 @@
                 android:layout_weight="1"
                 android:onClick="@{() -> handler.install()}"
                 android:text="@string/install"
-                android:visibility="@{item.installable ? View.GONE : View.VISIBLE}" />
+                android:visibility="@{item.installable ? View.VISIBLE : View.GONE}" />
 
             <Button
                 android:id="@+id/openDirButton"
@@ -70,7 +70,7 @@
                 android:layout_weight="1"
                 android:onClick="@{() -> handler.pause()}"
                 android:text="@string/pause"
-                android:visibility="@{item.suspendable? View.GONE : View.VISIBLE}" />
+                android:visibility="@{item.suspendable? View.VISIBLE: View.GONE}" />
 
             <Button
                 android:id="@+id/continueButton"
@@ -81,7 +81,7 @@
                 android:layout_weight="1"
                 android:onClick="@{() -> handler.resume()"
                 android:text="@string/Continue"
-                android:visibility="@{item.continuable? View.GONE : View.VISIBLE}" />
+                android:visibility="@{item.continuable? View.VISIBLE: View.GONE}" />
 
             <Button
                 android:id="@+id/retryButton"
@@ -92,7 +92,7 @@
                 android:layout_weight="1"
                 android:onClick="@{() -> handler.retry()}"
                 android:text="@string/retry"
-                android:visibility="@{item.retryable? View.GONE : View.VISIBLE}" />
+                android:visibility="@{item.retryable? View.VISIBLE: View.GONE}" />
 
             <Button
                 android:id="@+id/deleteButton"

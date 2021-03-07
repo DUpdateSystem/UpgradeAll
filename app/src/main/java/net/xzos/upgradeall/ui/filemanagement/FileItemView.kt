@@ -20,7 +20,7 @@ class FileItemView(
 class DownloadTaskerNumUtil(private val downloader: Downloader?) {
 
     suspend fun getDownloadingNum() = getDownloadNumByStatus(Status.DOWNLOADING)
-    suspend fun getPauseNum() = getDownloadNumByStatus(Status.DOWNLOADING)
+    suspend fun getPauseNum() = getDownloadNumByStatus(Status.PAUSED)
     suspend fun getCompletedNum() = getDownloadNumByStatus(Status.COMPLETED)
     suspend fun getFailedNum() = getDownloadNumByStatus(Status.FAILED)
     suspend fun getDownloadProgress() = downloader?.getDownloadProgress() ?: -1

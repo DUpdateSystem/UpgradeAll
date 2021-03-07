@@ -15,9 +15,11 @@ import net.xzos.upgradeall.utils.runUiFun
 import java.io.File
 
 
-class TaskerListDialog(
+class TaskerListDialog private constructor(
         context: Context,
-        private val fileTasker: FileTasker
+        private val fileTasker: FileTasker,
+        private val item: TaskerDialogItem = TaskerDialogItem(fileTasker),
+        private val downloadList: List<Download>
 ) : BottomSheetDialog(context), ListDialogPart {
 
     override val sAdapter = TaskerListAdapter(emptyList())
@@ -26,34 +28,37 @@ class TaskerListDialog(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = DialogFileTaskerBinding.inflate(layoutInflater)
+        initView(binding)
         setContentView(binding.root)
         super.onCreate(savedInstanceState)
-        initView(binding)
     }
 
-    private suspend fun renewList() {
-        val downloadList = fileTasker.downloader?.getDownloadList()?.map { getItemView(it) }
-                ?: emptyList()
-        sAdapter.setDataList(downloadList)
-        runUiFun {
-            renewListView(binding.listLayout)
-        }
+    private fun renewList() {
+        sAdapter.setDataList(downloadList.map { getItemView(it) })
+        renewListView(binding.listLayout)
     }
 
     private fun initView(binding: DialogFileTaskerBinding) {
-        GlobalScope.launch {
-            val item = TaskerDialogItem(fileTasker)
-            val handler = TaskerDialogHandler(fileTasker, this@TaskerListDialog)
-            binding.item = item
-            binding.handler = handler
-            renewList()
-        }
+        val handler = TaskerDialogHandler(fileTasker, this@TaskerListDialog)
+        binding.item = item
+        binding.handler = handler
+        renewList()
     }
 
     companion object {
         private fun getItemView(downloader: Download): TaskerItem {
             val file = File(downloader.file)
             return TaskerItem(file.name, file.path, downloader.progress)
+        }
+
+        fun newInstance(context: Context, fileTasker: FileTasker) {
+            GlobalScope.launch {
+                val item = TaskerDialogItem(fileTasker)
+                val downloadList = fileTasker.downloader?.getDownloadList() ?: emptyList()
+                runUiFun {
+                    TaskerListDialog(context, fileTasker, item, downloadList).show()
+                }
+            }
         }
     }
 }
