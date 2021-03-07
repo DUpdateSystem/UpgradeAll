@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.module.app
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 
 /**
  * 版本号数据
@@ -12,7 +13,7 @@ class Version(
         /* 版本号 */
         val name: String,
         /* 资源列表 */
-        val assetList: MutableList<Asset>
+        val assetList: CoroutinesMutableList<Asset>
 ) {
     val isIgnored: Boolean get() = name == appEntity.ignoreVersionNumber
 

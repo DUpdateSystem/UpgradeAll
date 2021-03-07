@@ -9,6 +9,7 @@ import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.utils.VersioningUtils.sortVersionNumberList
+import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.wait
 
@@ -117,7 +118,7 @@ class App(
             releaseList.forEachIndexed { versionIndex, release ->
                 val versionNumber = release.versionNumber
                 val version = versionMap[versionNumber]
-                        ?: Version(this.appDatabase, versionNumber, mutableListOf()).also {
+                        ?: Version(this.appDatabase, versionNumber, coroutinesMutableListOf(true)).also {
                             versionMap[versionNumber] = it
                         }
                 val asset = Asset(hub, release.changeLog,
@@ -129,7 +130,11 @@ class App(
                                     Pair(versionIndex, assetIndex)
                             )
                         }, this)
-                version.assetList.add(asset)
+                version.assetList.apply {
+                    val hubUuid = asset.hub.uuid
+                    forEach { if (it.hub.uuid == hubUuid) this.remove(it) }
+                    version.assetList.add(asset)
+                }
             }
         }
     }
