@@ -6,14 +6,15 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.get
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
@@ -22,11 +23,11 @@ import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.databinding.ActivityAppSettingBinding
-import net.xzos.upgradeall.databinding.ItemAppAttrSettingBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListAdapter
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListViewModel
 import net.xzos.upgradeall.utils.ToastUtil
+import net.xzos.upgradeall.utils.runUiFun
 
 
 class AppSettingActivity : AppBarActivity() {
@@ -40,8 +41,10 @@ class AppSettingActivity : AppBarActivity() {
             val attrList = binding.attrList
             val map = mutableMapOf<String, String>()
             for (i in 0 until attrList.size) {
-                val view = ItemAppAttrSettingBinding.bind(attrList[i])
-                map[view.keyEdit.text.toString()] = view.valueEdit.text.toString()
+                val view = attrList[i]
+                val keyEdit = view.findViewById<AutoCompleteTextView>(R.id.key_edit)
+                val valueEdit = view.findViewById<TextInputEditText>(R.id.value_edit)
+                map[keyEdit.text.toString()] = valueEdit.text.toString()
             }
             return map.filter { it.key.isNotBlank() }.mapValues {
                 if (it.value.isBlank())
@@ -72,7 +75,7 @@ class AppSettingActivity : AppBarActivity() {
         }).show(supportFragmentManager)
     }
 
-    private suspend fun addApp() {
+    private fun addApp() {
         val name = binding.nameEdit.text.toString()
         val appId = attrMap
         if (name.isBlank()) {
@@ -91,12 +94,19 @@ class AppSettingActivity : AppBarActivity() {
             binding.addButton.visibility = View.GONE
             binding.loadingBar.visibility = View.VISIBLE
 
-            if (AppManager.updateApp(appEntity) != null)
-                finish()
-            else
-                ToastUtil.makeText(R.string.failed_to_add, Toast.LENGTH_LONG)
-            binding.addButton.visibility = View.VISIBLE
-            binding.loadingBar.visibility = View.GONE
+            lifecycleScope.launch {
+                val appEntityR = withContext(Dispatchers.Default) {
+                    AppManager.updateApp(appEntity)
+                }
+                runUiFun {
+                    if (appEntityR != null)
+                        finish()
+                    else
+                        ToastUtil.makeText(R.string.failed_to_add, Toast.LENGTH_LONG)
+                    binding.addButton.visibility = View.VISIBLE
+                    binding.loadingBar.visibility = View.GONE
+                }
+            }
         }
     }
 
@@ -125,7 +135,7 @@ class AppSettingActivity : AppBarActivity() {
     override fun initView() {
         binding.addButton.let { fab ->
             fab.setOnClickListener {
-                GlobalScope.launch { addApp() }
+                addApp()
             }
             fab.visibility = View.VISIBLE
         }

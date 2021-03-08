@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.detail.setting.attrlist
 
-import android.R
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -24,7 +23,7 @@ class AttrListAdapter(
         val binding = ItemAppAttrSettingBinding.inflate(layoutInflater, viewGroup, false)
         binding.keyEdit.run {
             val array = getAllLocalKeyList()
-            val adapter = ArrayAdapter(context, R.layout.simple_list_item_1, array)
+            val adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, array)
 
             setAdapter(adapter)
         }
