@@ -16,7 +16,7 @@ class PreDownload(private val fileAsset: FileAsset) {
             taskStartFailedFun: () -> Unit,
             vararg downloadOb: DownloadOb,
     ): Downloader {
-        return doDownload(fileAsset.name).apply {
+        return doDownload().apply {
             if (cancelled) throw RuntimeException(DOWNLOAD_CANCELLED)
             start(taskStartedFun, taskStartFailedFun, *downloadOb)
         }
@@ -43,7 +43,7 @@ class PreDownload(private val fileAsset: FileAsset) {
         return list
     }
 
-    private suspend fun doDownload(name: String): Downloader {
+    private suspend fun doDownload(): Downloader {
         if (cancelled) throw RuntimeException(DOWNLOAD_CANCELLED)
         val list = preDownload()
         if (cancelled) throw RuntimeException(DOWNLOAD_CANCELLED)

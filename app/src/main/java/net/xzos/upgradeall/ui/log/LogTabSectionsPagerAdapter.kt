@@ -1,17 +1,14 @@
 package net.xzos.upgradeall.ui.log
 
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
-import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import net.xzos.upgradeall.core.log.ObjectTag
-import net.xzos.upgradeall.ui.log.LogLiveData
-import net.xzos.upgradeall.ui.log.LogPlaceholderFragment
 
 
-class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, logSort: String) :
-        FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fragmentActivity: FragmentActivity, logSort: String) :
+        FragmentStateAdapter(fragmentActivity) {
     private var mLogObjectList: List<ObjectTag> = listOf()
 
     init {
@@ -22,20 +19,16 @@ class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fm: FragmentManager, log
         })
     }
 
-    override fun getItem(position: Int): Fragment {
-        val logObjectTag = mLogObjectList[position]
-        return LogPlaceholderFragment.newInstance(logObjectTag)
-    }
-
-    override fun getPageTitle(position: Int): CharSequence? {
+    fun getPageTitle(position: Int): CharSequence {
         return mLogObjectList[position].name
     }
 
-    override fun getItemPosition(`object`: Any): Int {
-        return PagerAdapter.POSITION_NONE
+    override fun getItemCount(): Int {
+        return mLogObjectList.size
     }
 
-    override fun getCount(): Int {
-        return mLogObjectList.size
+    override fun createFragment(position: Int): Fragment {
+        val logObjectTag = mLogObjectList[position]
+        return LogPlaceholderFragment.newInstance(logObjectTag)
     }
 }

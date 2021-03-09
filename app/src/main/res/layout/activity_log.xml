@@ -21,7 +21,7 @@
             app:layout_constraintTop_toBottomOf="@id/appbar"
             app:tabMode="scrollable" />
 
-        <androidx.viewpager.widget.ViewPager
+        <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="0dp"

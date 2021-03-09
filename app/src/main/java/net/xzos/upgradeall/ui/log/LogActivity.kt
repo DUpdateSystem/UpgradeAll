@@ -7,6 +7,7 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
+import com.google.android.material.tabs.TabLayoutMediator
 import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -15,8 +16,8 @@ import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.LogDataProxy
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.databinding.ActivityLogBinding
-import net.xzos.upgradeall.ui.legacy.file_pref.SaveFileActivity
 import net.xzos.upgradeall.ui.base.AppBarActivity
+import net.xzos.upgradeall.ui.legacy.file_pref.SaveFileActivity
 
 class LogActivity : AppBarActivity() {
 
@@ -135,9 +136,12 @@ class LogActivity : AppBarActivity() {
     }
 
     private fun setViewPage(sort: String) {
-        val sectionsPagerAdapter = LogTabSectionsPagerAdapter(this, supportFragmentManager, sort)
+        val sectionsPagerAdapter = LogTabSectionsPagerAdapter(this, this, sort)
         binding.viewPager.adapter = sectionsPagerAdapter
-        binding.logTabs.setupWithViewPager(binding.viewPager)
+        val mediator = TabLayoutMediator(binding.logTabs, binding.viewPager) { tab, position ->
+            tab.text = sectionsPagerAdapter.getPageTitle(position)
+        }
+        mediator.attach()
     }
 
     companion object {
