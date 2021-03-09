@@ -15,25 +15,14 @@ const val EXTRA_APP_TYPE = "EXTRA_APP_TYPE"
 const val EXTRA_TAB_INDEX = "EXTRA_TAB_INDEX"
 
 fun getAppHubListFragment(appType: String, tabIndex: Int): Fragment {
+    val bundle = Bundle().apply {
+        putString(EXTRA_APP_TYPE, appType)
+        putInt(EXTRA_TAB_INDEX, tabIndex)
+    }
     return when (tabIndex) {
-        TAB_UPDATE -> UpdateAppHubListFragment().apply {
-            arguments = Bundle().apply {
-                putString(EXTRA_APP_TYPE, appType)
-                putInt(EXTRA_TAB_INDEX, tabIndex)
-            }
-        }
-        TAB_STAR -> StarAppHubListFragment().apply {
-            arguments = Bundle().apply {
-                putString(EXTRA_APP_TYPE, appType)
-                putInt(EXTRA_TAB_INDEX, tabIndex)
-            }
-        }
-        else -> NormalAppHubListFragment().apply {
-            arguments = Bundle().apply {
-                putString(EXTRA_APP_TYPE, appType)
-                putInt(EXTRA_TAB_INDEX, tabIndex)
-            }
-        }
+        TAB_UPDATE -> UpdateAppHubListFragment().apply { arguments = bundle }
+        TAB_STAR -> StarAppHubListFragment().apply { arguments = bundle }
+        else -> NormalAppHubListFragment().apply { arguments = bundle }
     }
 }
 
