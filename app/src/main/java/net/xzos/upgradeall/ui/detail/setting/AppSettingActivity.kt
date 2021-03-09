@@ -22,6 +22,7 @@ import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
+import net.xzos.upgradeall.core.utils.cleanBlankValue
 import net.xzos.upgradeall.databinding.ActivityAppSettingBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListAdapter
@@ -46,11 +47,7 @@ class AppSettingActivity : AppBarActivity() {
                 val valueEdit = view.findViewById<TextInputEditText>(R.id.value_edit)
                 map[keyEdit.text.toString()] = valueEdit.text.toString()
             }
-            return map.filter { it.key.isNotBlank() }.mapValues {
-                if (it.value.isBlank())
-                    null
-                else it.value
-            }
+            return map.cleanBlankValue()
         }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import net.xzos.upgradeall.core.data.json.AppConfigGson
+import net.xzos.upgradeall.core.utils.cleanBlankValue
 
 
 @Entity(tableName = "app")
@@ -20,9 +21,5 @@ class AppEntity(
 )
 
 fun AppEntity.renewData() {
-    appId = appId.mapNotNull {
-        if (it.value.isNullOrBlank()) {
-            it.key to it.value
-        } else null
-    }.toMap()
+    appId = appId.cleanBlankValue()
 }

@@ -121,9 +121,6 @@ fun openInFileManager(path: String, context: Context) {
     context.startActivity(intent)
 }
 
-fun <K> Map<K, String>.cleanBlankValue(): Map<K, String> {
-    return this.mapNotNull {
-        if (it.value.isNotBlank()) it.key to it.value
-        else null
-    }.toMap()
+fun <K> Map<K, String?>.cleanBlankValue(): Map<K, String?> {
+    return this.filter { !it.value.isNullOrBlank() }
 }
