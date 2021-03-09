@@ -25,10 +25,7 @@ abstract class AppHubListFragment<L : BaseAppListItemView, LV : RecyclerViewHold
 ) : HubListFragment<App, L, LV>() {
     override val viewModel by viewModels<AppHubViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
-        viewModel.apply {
-            mAppType = appType
-            mTabIndex = tabIndex
-        }
+        viewModel.initSetting(appType, tabIndex)
         super.onCreate(savedInstanceState)
     }
 }

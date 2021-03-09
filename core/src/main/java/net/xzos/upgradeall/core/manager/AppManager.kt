@@ -18,6 +18,9 @@ import net.xzos.upgradeall.core.utils.oberver.Informer
 
 object AppManager : Informer {
 
+    const val DATA_UPDATE_NOTIFY = "UPDATE_NOTIFY"
+    const val APP_CHANGED_NOTIFY = "APP_CHANGED_NOTIFY"
+
     private val appMap = coroutinesMutableMapOf<Int, CoroutinesMutableList<App>>(true)
 
     private val appList = runBlocking { metaDatabase.appDao().loadAll() }.map { App(it) }
@@ -114,7 +117,7 @@ object AppManager : Informer {
             }
         }
         if (changed)
-            notifyChanged()
+            notifyChanged(DATA_UPDATE_NOTIFY)
     }
 
     /**
@@ -130,7 +133,7 @@ object AppManager : Informer {
             appDao.update(appDatabase)
         }
         appList.add(App(appDatabase))
-        notifyChanged()
+        notifyChanged(APP_CHANGED_NOTIFY)
         return appDatabase
     }
 
@@ -143,6 +146,6 @@ object AppManager : Informer {
         appMap.forEach {
             it.value.remove(app)
         }
-        notifyChanged()
+        notifyChanged(APP_CHANGED_NOTIFY)
     }
 }
