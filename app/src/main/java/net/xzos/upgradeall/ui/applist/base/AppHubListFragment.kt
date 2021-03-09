@@ -11,18 +11,36 @@ import net.xzos.upgradeall.ui.applist.base.update.UpdateAppHubListFragment
 import net.xzos.upgradeall.ui.base.list.HubListFragment
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
+const val EXTRA_APP_TYPE = "EXTRA_APP_TYPE"
+const val EXTRA_TAB_INDEX = "EXTRA_TAB_INDEX"
 
 fun getAppHubListFragment(appType: String, tabIndex: Int): Fragment {
     return when (tabIndex) {
-        TAB_UPDATE -> UpdateAppHubListFragment(appType)
-        TAB_STAR -> StarAppHubListFragment(appType)
-        else -> NormalAppHubListFragment(appType, tabIndex)
+        TAB_UPDATE -> UpdateAppHubListFragment().apply {
+            arguments = Bundle().apply {
+                putString(EXTRA_APP_TYPE, appType)
+                putInt(EXTRA_TAB_INDEX, tabIndex)
+            }
+        }
+        TAB_STAR -> StarAppHubListFragment().apply {
+            arguments = Bundle().apply {
+                putString(EXTRA_APP_TYPE, appType)
+                putInt(EXTRA_TAB_INDEX, tabIndex)
+            }
+        }
+        else -> NormalAppHubListFragment().apply {
+            arguments = Bundle().apply {
+                putString(EXTRA_APP_TYPE, appType)
+                putInt(EXTRA_TAB_INDEX, tabIndex)
+            }
+        }
     }
 }
 
-abstract class AppHubListFragment<L : BaseAppListItemView, LV : RecyclerViewHolder<L, *, ItemHubAppBinding>>(
-        private val appType: String, private val tabIndex: Int
-) : HubListFragment<App, L, LV>() {
+abstract class AppHubListFragment<L : BaseAppListItemView, LV : RecyclerViewHolder<L, *, ItemHubAppBinding>> : HubListFragment<App, L, LV>() {
+    private val appType by lazy { arguments?.getString(EXTRA_APP_TYPE) ?: throw IllegalArgumentException("appType is null") }
+    private val tabIndex by lazy { arguments?.getInt(EXTRA_TAB_INDEX) ?: throw IllegalArgumentException("tabIndex is null") }
+
     override val viewModel by viewModels<AppHubViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         viewModel.initSetting(appType, tabIndex)

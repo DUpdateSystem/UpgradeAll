@@ -11,8 +11,8 @@ import net.xzos.upgradeall.ui.applist.base.AppHubListFragment
 import net.xzos.upgradeall.ui.applist.base.TAB_UPDATE
 
 
-class UpdateAppHubListFragment(appType: String)
-    : AppHubListFragment<UpdateAppListItemView, UpdateAppHubListViewHolder>(appType, TAB_UPDATE) {
+class UpdateAppHubListFragment()
+    : AppHubListFragment<UpdateAppListItemView, UpdateAppHubListViewHolder>() {
 
     lateinit var rootBinding: FragmentHubUpdateListBinding
     override val adapter = UpdateAppHubListAdapter()
