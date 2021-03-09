@@ -39,7 +39,7 @@ interface HubListPart<T, L : ListItemView, out RH : RecyclerViewHolder<in L, *, 
         refreshList()
     }
 
-    private fun refreshList() {
+    fun refreshList() {
         binding.srlContainer.isRefreshing = true
         viewModel.loadData()
     }

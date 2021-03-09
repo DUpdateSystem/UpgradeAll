@@ -20,11 +20,12 @@ abstract class HubListFragment<T, L : ListItemView, RH : RecyclerViewHolder<L, *
 
     override fun onResume() {
         super.onResume()
-        val activity = activity ?: throw RuntimeException("No Activity")
-        initView(activity, viewLifecycleOwner)
+        refreshList()
     }
 
     fun initView(binding: FragmentHubListBinding) {
         this.binding = binding
+        val activity = activity ?: throw RuntimeException("No Activity")
+        initView(activity, viewLifecycleOwner)
     }
 }
