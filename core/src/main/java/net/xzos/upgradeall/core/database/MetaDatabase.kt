@@ -7,13 +7,11 @@ import androidx.room.TypeConverters
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.database.dao.AppDao
 import net.xzos.upgradeall.core.database.dao.HubDao
-import net.xzos.upgradeall.core.database.migration.MIGRATION_6_7
-import net.xzos.upgradeall.core.database.migration.MIGRATION_7_8
-import net.xzos.upgradeall.core.database.migration.MIGRATION_8_9
+import net.xzos.upgradeall.core.database.migration.*
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.HubEntity
 
-@Database(entities = [AppEntity::class, HubEntity::class], version = 9)
+@Database(entities = [AppEntity::class, HubEntity::class], version = 10)
 @TypeConverters(Converters::class)
 abstract class MetaDatabase : RoomDatabase() {
     abstract fun appDao(): AppDao
@@ -29,4 +27,6 @@ val metaDatabase = Room
         .addMigrations(MIGRATION_6_7)
         .addMigrations(MIGRATION_7_8)
         .addMigrations(MIGRATION_8_9)
+        .addMigrations(MIGRATION_9_10)
+        .addMigrations(MIGRATION_8_10)
         .build()

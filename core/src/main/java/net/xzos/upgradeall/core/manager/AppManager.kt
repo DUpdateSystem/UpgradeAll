@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
+import net.xzos.upgradeall.core.database.table.renewData
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_LATEST
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_NO_LOCAL
@@ -120,6 +121,7 @@ object AppManager : Informer {
      * 用数据库数据修改数据库并更新 App 数据
      */
     suspend fun updateApp(appDatabase: AppEntity): AppEntity? {
+        appDatabase.renewData()
         val appDao = metaDatabase.appDao()
         try {
             appDao.insert(appDatabase)

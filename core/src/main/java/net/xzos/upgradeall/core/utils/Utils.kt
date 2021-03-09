@@ -120,3 +120,10 @@ fun openInFileManager(path: String, context: Context) {
     intent.setDataAndType(selectedUri, "resource/folder")
     context.startActivity(intent)
 }
+
+fun <K> Map<K, String>.cleanBlankValue(): Map<K, String> {
+    return this.mapNotNull {
+        if (it.value.isNotBlank()) it.key to it.value
+        else null
+    }.toMap()
+}

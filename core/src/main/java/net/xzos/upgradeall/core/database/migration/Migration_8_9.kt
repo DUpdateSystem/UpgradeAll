@@ -5,19 +5,21 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.xzos.upgradeall.core.data.backup.getOrNull
 import net.xzos.upgradeall.core.utils.AutoTemplate
+import net.xzos.upgradeall.core.utils.cleanBlankValue
 import net.xzos.upgradeall.core.utils.file.FileUtil
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
 
 
-val MIGRATION_8_9 = object : Migration(8, 9) {
-    val appDatabaseMap = mutableMapOf<Long, JSONObject>()
-    val applicationDatabaseMap = mutableMapOf<Long, JSONObject>()
-    val allHubDatabaseMap = mutableMapOf<String, JSONObject>()
-    val hubDatabaseMap = mutableMapOf<String, JSONObject>()
+@Suppress("ClassName")
+open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migration(startVersion, endVersion) {
+    private val appDatabaseMap = mutableMapOf<Long, JSONObject>()
+    private val applicationDatabaseMap = mutableMapOf<Long, JSONObject>()
+    private val allHubDatabaseMap = mutableMapOf<String, JSONObject>()
+    private val hubDatabaseMap = mutableMapOf<String, JSONObject>()
 
-    val ignoreVersionNumberMap = mutableMapOf<JSONObject, String>()
+    private val ignoreVersionNumberMap = mutableMapOf<JSONObject, String>()
 
     override fun migrate(database: SupportSQLiteDatabase) {
         getOldDatabase(database)
@@ -29,7 +31,7 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
         createNewDatabase(database)
     }
 
-    private fun deleteOldDatabase(database: SupportSQLiteDatabase) {
+    protected open fun deleteOldDatabase(database: SupportSQLiteDatabase) {
         database.execSQL("DROP INDEX app_key_value")
         database.execSQL("DROP INDEX applications_key_value")
         database.execSQL("DROP TABLE app")
@@ -57,7 +59,6 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
             );
         """
         )
-        database.execSQL("CREATE UNIQUE INDEX app_key_value on app (app_id)")
     }
 
     private fun renewDatabaseData() {
@@ -181,22 +182,19 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
     }
 
     private fun renewAppId() {
-        for ((id, json) in appDatabaseMap.toMap()) {
-            val appIdMap = urlToAppId(json)?.plus(packageIdToAppId(json) ?: mapOf())
-            if (appIdMap == null) {
-                appDatabaseMap.remove(id)
-                continue
-            }
+        for ((_, json) in appDatabaseMap.toMap()) {
+            val appIdMap = urlToAppId(json)?.plus(packageIdToAppId(json)?.cleanBlankValue()
+                    ?: mapOf()) ?: mapOf()
             val appIdJson = JSONObject().apply {
                 for ((k, v) in appIdMap) {
-                    put(k, v)
+                    if (!v.isNullOrBlank()) put(k, v)
                 }
             }
             json.put("app_id", appIdJson)
         }
     }
 
-    private fun packageIdToAppId(appJson: JSONObject): Map<String, String?>? {
+    private fun packageIdToAppId(appJson: JSONObject): Map<String, String>? {
         val packageId = JSONObject(appJson.getString("package_id"))
         val k = packageId.getString("api")
         val v = packageId.getString("extra_string")
@@ -215,16 +213,24 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
 
     private fun urlToAppId(appJson: JSONObject): Map<String, String?>? {
         // AutoTemplate urlToAppId 的拷贝，避免后续架构升级导致数据库升级逻辑错误
+        val url = appJson.getString("url") ?: return null
         val hubUuid = appJson.getString("hub_uuid")
-        val hubJson = allHubDatabaseMap[hubUuid] ?: return null
+        allHubDatabaseMap[hubUuid]?.let {
+            getAppIdFromUrl(url, it)?.run { return this }
+        }
+        allHubDatabaseMap.values.forEach {
+            getAppIdFromUrl(url, it)?.run { return this }
+        }
+        return null
+    }
+
+    private fun getAppIdFromUrl(url: String, hubJson: JSONObject): Map<String, String?>? {
         val urlTemplates = hubJson.getJSONObject("hub_config").getJSONArray("app_url_templates")
         for (i in 0 until urlTemplates.length()) {
             val urlTemp = urlTemplates.getString(i)
-            val keyList = AutoTemplate.getArgsKeywords(urlTemp).map { it.value }.toList()
-            val autoTemplate = AutoTemplate(appJson.getString("url"), urlTemp)
-            val args = autoTemplate.args
-            if (args.keys.toList() == keyList) {
-                return args.mapKeys { it.key.replaceFirst("%", "") }
+            val autoTemplate = AutoTemplate(url, urlTemp)
+            if (autoTemplate.checkFull()) {
+                return autoTemplate.args.mapKeys { it.key.replaceFirst("%", "") }
             }
         }
         return null
@@ -338,5 +344,12 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
                 allHubDatabaseMap[uuid] = JSONObject().apply { put("hub_config", hubConfig) }
             }
         }
+    }
+}
+
+val MIGRATION_8_9 = object : Migration_8_9_10_Share(8, 9) {
+    override fun deleteOldDatabase(database: SupportSQLiteDatabase) {
+        super.deleteOldDatabase(database)
+        database.execSQL("CREATE UNIQUE INDEX app_key_value on app (app_id)")
     }
 }
