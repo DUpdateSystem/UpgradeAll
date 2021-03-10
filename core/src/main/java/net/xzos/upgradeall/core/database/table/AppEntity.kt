@@ -20,6 +20,10 @@ class AppEntity(
         var cloudConfig: AppConfigGson? = null,
 )
 
+fun AppEntity.isInit(): Boolean {
+    return 0L != id
+}
+
 fun AppEntity.renewData() {
     appId = appId.cleanBlankValue()
 }

@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
+import net.xzos.upgradeall.core.database.table.isInit
 import net.xzos.upgradeall.core.database.table.renewData
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_LATEST
@@ -120,21 +121,38 @@ object AppManager : Informer {
             notifyChanged(DATA_UPDATE_NOTIFY)
     }
 
+    private fun getApp(appEntity: AppEntity): App? {
+        appList.forEach {
+            if (it.appDatabase == appEntity)
+                return it
+        }
+        return null
+    }
+
     /**
      * 用数据库数据修改数据库并更新 App 数据
      */
     suspend fun updateApp(appDatabase: AppEntity): AppEntity? {
         appDatabase.renewData()
+        addAppEntity(appDatabase)?.run {
+            getApp(appDatabase) ?: App(appDatabase).run { appList.add(this) }
+            notifyChanged(APP_CHANGED_NOTIFY)
+            return appDatabase
+        } ?: return null
+    }
+
+    private suspend fun addAppEntity(appEntity: AppEntity): AppEntity? {
         val appDao = metaDatabase.appDao()
-        try {
-            appDao.insert(appDatabase)
+        return try {
+            if (appEntity.isInit())
+                appDao.update(appEntity)
+            else
+                appDao.insert(appEntity)
+            appEntity
             // TODO: 错误类型判断，并给出 null 返回值
         } catch (ignore: SQLiteConstraintException) {
-            appDao.update(appDatabase)
+            null
         }
-        appList.add(App(appDatabase))
-        notifyChanged(APP_CHANGED_NOTIFY)
-        return appDatabase
     }
 
     /**
