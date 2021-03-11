@@ -7,21 +7,21 @@ import androidx.lifecycle.lifecycleScope
 import com.absinthe.libraries.utils.extensions.addPaddingBottom
 import com.absinthe.libraries.utils.utils.UiUtils
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.databinding.FragmentHubListBinding
+import net.xzos.upgradeall.databinding.RecyclerlistContentBinding
 import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
 interface HubListPart<T, L : ListItemView, out RH : RecyclerViewHolder<in L, *, *>> {
 
-    val binding: FragmentHubListBinding
+    val binding: RecyclerlistContentBinding
     val adapter: RecyclerViewAdapter<in L, *, out RH>
     val viewModel: ListContainerViewModel<T>
     val listContainerViewConvertFun: (T) -> L
 
     fun initView(activity: ComponentActivity, lifecycleOwner: LifecycleOwner) {
         adapter.lifecycleScope = activity.lifecycleScope
-        binding.listLayout.rvList.apply {
+        binding.rvList.apply {
             adapter = this@HubListPart.adapter
             addPaddingBottom(UiUtils.getNavBarHeight(activity.windowManager))
         }

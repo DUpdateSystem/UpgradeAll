@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.applist.base
+package net.xzos.upgradeall.ui.base.view
 
 import android.content.Context
 import android.util.AttributeSet

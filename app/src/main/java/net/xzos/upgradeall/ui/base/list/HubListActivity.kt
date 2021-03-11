@@ -8,14 +8,14 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.ActivityDiscoverBinding
-import net.xzos.upgradeall.databinding.FragmentHubListBinding
+import net.xzos.upgradeall.databinding.RecyclerlistContentBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
 abstract class HubListActivity<L : ListItemTextView, T : RecyclerViewHolder<L, *, *>>
     : HubListPart<L, L, T>, AppBarActivity(), SearchView.OnQueryTextListener {
     lateinit var activityBinding: ActivityDiscoverBinding
-    override lateinit var binding: FragmentHubListBinding
+    override lateinit var binding: RecyclerlistContentBinding
     private var isListReady = false
     private var menu: Menu? = null
     override val listContainerViewConvertFun: (L) -> L = fun(i) = i
@@ -32,7 +32,7 @@ abstract class HubListActivity<L : ListItemTextView, T : RecyclerViewHolder<L, *
 
     override fun initBinding(): View {
         activityBinding = ActivityDiscoverBinding.inflate(layoutInflater)
-        binding = activityBinding.fragmentHubList
+        binding = activityBinding.fragmentHubList.listLayout
         return activityBinding.root
     }
 

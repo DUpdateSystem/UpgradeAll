@@ -3,15 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/srl_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <include
-            android:id="@+id/list_layout"
-            layout="@layout/recyclerlist_content" />
-
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <include
+        android:id="@+id/list_layout"
+        layout="@layout/recyclerlist_content" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
