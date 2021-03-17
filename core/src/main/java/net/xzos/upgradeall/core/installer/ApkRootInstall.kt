@@ -4,9 +4,9 @@ import eu.darken.rxshell.cmd.Cmd
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.msg
-import net.xzos.upgradeall.core.utils.Shell
-import net.xzos.upgradeall.core.utils.getErrorsString
-import net.xzos.upgradeall.core.utils.getOutputString
+import net.xzos.upgradeall.core.utils.shell.Shell
+import net.xzos.upgradeall.core.utils.shell.getErrorsString
+import net.xzos.upgradeall.core.utils.shell.getOutputString
 import java.io.File
 
 
@@ -35,9 +35,9 @@ object ApkRootInstall {
         for (file in apkFileList) {
             runSuShellCommand("pm install-write -S ${file.length()} $sessionId ${file.name} ${file.absolutePath}")
             Log.d(
-                logObjectTag,
-                TAG,
-                "multipleInstall: write session: $sessionId file: ${file.name}"
+                    logObjectTag,
+                    TAG,
+                    "multipleInstall: write session: $sessionId file: ${file.name}"
             )
         }
         runSuShellCommand("pm install-commit $sessionId")
@@ -60,7 +60,7 @@ object ApkRootInstall {
                     break
             }
             val obbPackageName =
-                fileName.subSequence(delimiterIndexList[1] + 1, delimiterIndexList.last())
+                    fileName.subSequence(delimiterIndexList[1] + 1, delimiterIndexList.last())
             val command = "mv $obbFile /storage/emulated/0/Android/obb/$obbPackageName/."
             Log.d(logObjectTag, TAG, "multipleInstall: obb command: $command")
             runSuShellCommand(command)
@@ -77,7 +77,7 @@ object ApkRootInstall {
             Shell.runSuShellCommand(command)?.also {
                 if (it.exitCode != 0)
                     Log.e(
-                        logObjectTag, TAG, """
+                            logObjectTag, TAG, """
                     Error: out: ${it.getOutputString()}, err: ${it.getErrorsString()}
                 """.trimIndent()
                     )

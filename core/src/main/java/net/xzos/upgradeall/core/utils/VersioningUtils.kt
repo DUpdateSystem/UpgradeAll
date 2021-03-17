@@ -16,7 +16,7 @@ object VersioningUtils {
     fun matchVersioningString(versionString: CharSequence?): String? {
         return if (versionString != null) {
             (VERSION_NUMBER_STRICT_MATCH_REGEX.find(versionString)
-                ?: VERSION_NUMBER_MATCH_REGEX.find(versionString))?.value
+                    ?: VERSION_NUMBER_MATCH_REGEX.find(versionString))?.value
         } else null
     }
 
@@ -52,8 +52,8 @@ object VersioningUtils {
         return version0 >= version1
     }
 
-    fun sortVersionNumberList(versionNumberList: Collection<String>): Collection<String> {
-        val map = versionNumberList.associateBy({ DefaultArtifactVersion(it) }, { it })
+    fun Collection<String>.sortByVersionNumber(): Collection<String> {
+        val map = this.associateBy({ DefaultArtifactVersion(it) }, { it })
         return map.toSortedMap().values
     }
 }

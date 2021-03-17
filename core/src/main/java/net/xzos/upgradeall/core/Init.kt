@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Notification
 import net.xzos.upgradeall.core.data.CoreConfig
@@ -10,6 +11,7 @@ import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
 
 
+@SuppressLint("StaticFieldLeak")
 lateinit var coreConfig: CoreConfig
 lateinit var webDavConfig: WebDavConfig
 

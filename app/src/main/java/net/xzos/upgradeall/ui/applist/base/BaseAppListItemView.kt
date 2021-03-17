@@ -6,7 +6,7 @@ import androidx.core.content.ContextCompat
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.utils.getPackageId
+import net.xzos.upgradeall.core.utils.android_app.getPackageId
 import net.xzos.upgradeall.ui.base.list.ListItemTextView
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.UxUtils

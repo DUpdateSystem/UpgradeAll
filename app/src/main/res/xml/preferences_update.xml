@@ -35,5 +35,12 @@
             app:key="background_sync_time"
             app:showSeekBarValue="true"
             app:title="@string/background_sync_time" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:summary="@string/enable_applications_mode_desc"
+            android:title="@string/enable_applications_mode"
+            app:key="enable_applications_mode" />
+
     </PreferenceCategory>
 </androidx.preference.PreferenceScreen>

@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.utils
+package net.xzos.upgradeall.core.utils.shell
 
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell

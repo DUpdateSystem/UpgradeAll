@@ -101,6 +101,8 @@
     <string name="auto_update_app_config">自动更新跟踪项配置</string>
     <string name="auto_update_app_config_desc">当进入云端配置页面时，检查从云端仓库下载的跟踪项，并当有新版本时自动更新跟踪项配置</string>
     <string name="auto_update_setting">自动更新设置</string>
+    <string name="enable_applications_mode">启动应用市场模式</string>
+    <string name="enable_applications_mode_desc">应用将获取设备安装的所有应用信息，以从已启用的软件源中检测更新，其使用方式与一般的应用市场类似</string>
 
     <string name="detailed_help">\n详细帮助</string>
     <string name="readme_url">https://upgradeall.now.sh/</string>

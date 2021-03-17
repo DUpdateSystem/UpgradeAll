@@ -96,6 +96,8 @@
     <string name="auto_update_app_config">Auto Update App Config</string>
     <string name="auto_update_app_config_desc">When entering the Cloud Rules Hub page, check the app config downloaded from the cloud hub and automatically update it when a new version is available.</string>
     <string name="auto_update_setting">Auto Update Setting</string>
+    <string name="enable_applications_mode">Enable Applications Mode</string>
+    <string name="enable_applications_mode_desc">The app will get information of all APPs installed on the device to check updates from enabled software sources, such as the general application market</string>
     <string name="detailed_help">\nDetailed Help</string>
     <string name="readme_url">https://upgradeall.now.sh/</string>
     <string name="setting_app_hub_explain">App Hub \nWhere to get updates.</string>

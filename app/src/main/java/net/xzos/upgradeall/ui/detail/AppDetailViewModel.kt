@@ -15,7 +15,7 @@ import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.FileAsset
 import net.xzos.upgradeall.core.module.app.Version
-import net.xzos.upgradeall.core.utils.getPackageId
+import net.xzos.upgradeall.core.utils.android_app.getPackageId
 import net.xzos.upgradeall.server.downloader.startDownload
 import net.xzos.upgradeall.ui.base.list.ListItemTextView
 import net.xzos.upgradeall.ui.detail.download.DownloadStatusData

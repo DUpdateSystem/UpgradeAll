@@ -5,6 +5,7 @@ import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.filetasker.FileTasker
 import net.xzos.upgradeall.core.filetasker.FileTasker.Companion.getFileTasker
 import net.xzos.upgradeall.core.utils.*
+import net.xzos.upgradeall.core.utils.android_app.getAppVersion
 
 class Updater internal constructor(
         private val app: App,

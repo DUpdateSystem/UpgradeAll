@@ -9,7 +9,7 @@ import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.data.json.AppConfigGson
 import net.xzos.upgradeall.core.data.json.getAppId
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
-import net.xzos.upgradeall.core.utils.getPackageId
+import net.xzos.upgradeall.core.utils.android_app.getPackageId
 import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 
 class DiscoverViewModel(application: Application) : ListContainerViewModel<DiscoverListItemView>(application) {

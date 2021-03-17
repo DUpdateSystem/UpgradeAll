@@ -16,7 +16,7 @@ import kotlinx.coroutines.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.utils.getPackageId
+import net.xzos.upgradeall.core.utils.android_app.getPackageId
 import java.io.File
 import java.util.concurrent.Executors
 

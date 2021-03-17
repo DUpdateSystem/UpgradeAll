@@ -8,7 +8,7 @@ import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.route.ReleaseListItem
-import net.xzos.upgradeall.core.utils.VersioningUtils.sortVersionNumberList
+import net.xzos.upgradeall.core.utils.VersioningUtils.sortByVersionNumber
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.wait
@@ -48,7 +48,7 @@ class App(
     /* 版本号数据列表 */
     val versionList: List<Version>
         get() {
-            val versionNumberList = sortVersionNumberList(versionMap.keys)
+            val versionNumberList = versionMap.keys.sortByVersionNumber()
             val list = mutableListOf<Version>()
             for (versionNumber in versionNumberList) {
                 list.add(versionMap[versionNumber]!!)
