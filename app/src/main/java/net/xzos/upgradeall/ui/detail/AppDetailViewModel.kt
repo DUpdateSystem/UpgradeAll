@@ -1,59 +1,54 @@
 package net.xzos.upgradeall.ui.detail
 
-import android.content.res.ColorStateList
-import android.graphics.drawable.Drawable
-import androidx.core.content.ContextCompat
-import androidx.core.text.HtmlCompat
-import androidx.databinding.BaseObservable
-import androidx.databinding.ObservableField
+import android.annotation.SuppressLint
+import android.graphics.Color
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.widget.ArrayAdapter
+import androidx.lifecycle.MutableLiveData
 import com.tonyodev.fetch2.Download
 import com.tonyodev.fetch2.Status
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.FileAsset
 import net.xzos.upgradeall.core.module.app.Version
-import net.xzos.upgradeall.core.utils.android_app.getPackageId
+import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
 import net.xzos.upgradeall.server.downloader.startDownload
-import net.xzos.upgradeall.ui.base.list.ListItemTextView
-import net.xzos.upgradeall.ui.detail.download.DownloadStatusData
-import net.xzos.upgradeall.utils.MiscellaneousUtils
-import net.xzos.upgradeall.utils.MiscellaneousUtils.hasHTMLTags
-import net.xzos.upgradeall.utils.UxUtils
+import net.xzos.upgradeall.ui.data.livedata.AppViewModel
+import net.xzos.upgradeall.utils.setValueBackground
 
-class AppDetailViewModel(val app: App) : ListItemTextView, BaseObservable() {
-
-    override val name get() = app.name
-    val packageName get() = app.appId.getPackageId()?.second
-    override val nameFirst: String
-        get() {
-            return if (appIcon == null)
-                super.nameFirst
-            else ""
-        }
-
-    val iconBackgroundTint get() = if (appIcon == null) ColorStateList.valueOf(UxUtils.getRandomColor()) else null
-
-    private val appIcon: Drawable? by lazy {
-        app.appId.getPackageId()?.second?.run {
-            MiscellaneousUtils.getAppIcon(context, this)?.run {
-                return@lazy this
-            }
-        }
-        return@lazy null
+@SuppressLint("StaticFieldLeak")
+class AppDetailViewModel(
+        private val activity: AppDetailActivity, private val binding: ActivityAppDetailBinding,
+        private val app: App, private val item: AppDetailItem
+) : AppViewModel() {
+    init {
+        setApp(app)
+        appName.observe(activity, { item.appName.set(it) })
+        packageName.observe(activity, { item.appPackageId.set(it) })
     }
-    val icon: Drawable by lazy {
-        return@lazy appIcon ?: ContextCompat.getDrawable(context, R.drawable.bg_circle)!!
+
+    private val installedVersionNumber: MutableLiveData<String> by lazy {
+        MutableLiveData<String>().apply {
+            observe(activity, { item.showingVersionNumber.set(it) })
+        }
     }
 
     val version: String? get() = app.installedVersionNumber
 
-    val versionList: List<Version> by lazy { runBlocking { app.versionList }.asReversed() }
+    val downloadData = item.downloadData
+
+    override fun updateData() {
+        app.installedVersionNumber?.run {
+            installedVersionNumber.setValueBackground(this)
+        }
+        super.updateData()
+    }
 
     // 下载状态信息
-    val downloadData = DownloadStatusData()
     private val obFun = fun(d: Download) { downloadData.setDownload(d) }
     val waitDownload = {
         downloadData.setDownloadProgress(0)
@@ -68,18 +63,6 @@ class AppDetailViewModel(val app: App) : ListItemTextView, BaseObservable() {
     fun getDownloadDataOb() = DownloadOb(obFun, obFun, obFun, obFun, obFun, obFun)
 
     var currentVersion: Version? = null
-    val changelogData = ObservableField<CharSequence>()
-    private fun setChangelog(changelog: CharSequence?) {
-        changelogData.set(when {
-            changelog.isNullOrBlank() -> {
-                context.getString(R.string.null_english)
-            }
-            changelog.hasHTMLTags() -> {
-                HtmlCompat.fromHtml(changelog.toString(), HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS)
-            }
-            else -> changelog
-        })
-    }
 
     suspend fun download(fileAsset: FileAsset) {
         startDownload(fileAsset, fun(_) { waitDownload() }, failDownload, getDownloadDataOb())
@@ -91,7 +74,7 @@ class AppDetailViewModel(val app: App) : ListItemTextView, BaseObservable() {
             downloadOb: DownloadOb,
     ) {
         val version = currentVersion ?: return
-        if (version == versionList.firstOrNull()) {
+        if (version == versionList.value?.firstOrNull()) {
             runBlocking {
                 app.updater.upgradeApp(taskStartedFun, taskStartFailedFun, downloadOb)
             }
@@ -101,34 +84,44 @@ class AppDetailViewModel(val app: App) : ListItemTextView, BaseObservable() {
     }
 
     fun setVersionInfo(position: Int) {
+        val versionList = versionList.value ?: return
         if (position >= versionList.size) return
         val index = if (position < 0)
             versionList.size + position
         else position
         val versionItem = versionList[index]
         currentVersion = versionItem
-        var latestChangeLog = ""
-        for (asset in versionItem.assetList) {
-            val changelog = asset.changeLog
-            if (!changelog.isNullOrBlank()) {
-                latestChangeLog += "${asset.hub.name}\n${changelog}\n"
-            }
+        item.selectedVersion = currentVersion
+    }
+
+    fun renewMenu() {
+        updateData()
+        val versionList = versionList.value ?: return
+        val versionNumberList = versionList.map { getVersionName(it) }
+        val tvMoreVersion = binding.tvMoreVersion
+        val oldVersion = tvMoreVersion.text.toString()
+        var position = versionNumberList.map { it.toString() }.indexOf(oldVersion)
+        if (position == -1) position = 0
+        setVersionInfo(position)
+        if (position == 0)
+            tvMoreVersion.setText(versionNumberList[position], false)
+        setVersionAdapter(versionNumberList)
+    }
+
+    private fun getVersionName(version: Version): SpannableStringBuilder {
+        val versionName = version.name
+        val sb = SpannableStringBuilder()
+        sb.append(versionName)
+        if (version.isIgnored) {
+            val colorSpan = ForegroundColorSpan(Color.BLUE)
+            sb.setSpan(colorSpan, 0, versionName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-        setChangelog(latestChangeLog)
+        return sb
     }
 
-    override fun equals(other: Any?): Boolean {
-        return other is AppDetailViewModel
-                && other.app == app
-    }
+    private fun setVersionAdapter(versionNumberList: List<SpannableStringBuilder>) {
+        val adapter = ArrayAdapter(activity, R.layout.item_more_version, versionNumberList)
 
-    override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + app.hashCode()
-        return result
-    }
-
-    companion object {
-        private val context get() = MyApplication.context
+        binding.tvMoreVersion.setAdapter(adapter)
     }
 }

@@ -20,7 +20,7 @@ class App(
     val updater = Updater(this, statusRenewedFun)
     private val renewMutex = Mutex()
 
-    /* App 对象的属性字典*/
+    /* App 对象的属性字典 */
     val appId: Map<String, String?> get() = appDatabase.appId
 
     /* App 名称 */
@@ -30,7 +30,7 @@ class App(
     val hubListUuid get() = HubManager.getHubList().filter { it.isValidApp(this) }.map { it.uuid }
 
     /* App 在本地的版本号 */
-    val installedVersionNumber: String? = updater.getInstalledVersionNumber()
+    val installedVersionNumber: String? get() = updater.getInstalledVersionNumber()
 
     /* 获取相应软件源的网址 */
     fun getUrl(hub: Hub): String? = hub.getUrl(this)
@@ -86,7 +86,7 @@ class App(
         return updater.getUpdateStatus()
     }
 
-    /* 获取 App 的更新状态*/
+    /* 获取 App 的更新状态 */
     fun getReleaseStatus(): Int {
         return updater.getUpdateStatus()
     }
@@ -102,7 +102,7 @@ class App(
         }
     }
 
-    /* 获取 App 的更新状态*/
+    /* 获取 App 的更新状态 */
     fun isLatestVersion(): Boolean {
         return updater.getUpdateStatus() == Updater.APP_LATEST
     }

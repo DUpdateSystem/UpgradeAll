@@ -138,6 +138,7 @@ fun <T> MutableLiveData<T>.notifyObserver() {
  * 拓展 LiveData 设置值操作
  */
 fun <T> MutableLiveData<T>.setValueBackground(value: T) {
+    if (value == this.value) return
     runUiFun {
         this.value = value
     }

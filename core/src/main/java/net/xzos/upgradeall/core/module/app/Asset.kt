@@ -9,7 +9,7 @@ class Asset(
         /* 数据归属的软件源 */
         val hub: Hub,
         /* 更新日志 */
-        val changeLog: String?,
+        val changelog: String?,
         _fileAssetList: List<FileAsset.Companion.TmpFileAsset>,
         _app: App,
 ) {

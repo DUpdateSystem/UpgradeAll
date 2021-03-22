@@ -2,16 +2,11 @@ package net.xzos.upgradeall.ui.detail
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.ArrayAdapter
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.marginBottom
@@ -20,11 +15,11 @@ import com.absinthe.libraries.utils.extensions.addPaddingTop
 import com.absinthe.libraries.utils.utils.UiUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.Version
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.base.view.ProgressButton
 import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
+import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.actionBarSize
 
 
@@ -36,7 +31,9 @@ class AppDetailActivity : AppBarActivity() {
 
     override fun initBinding(): View {
         binding = ActivityAppDetailBinding.inflate(layoutInflater)
-        binding.appItem = AppDetailViewModel(app).also { viewModel = it }
+        val item = AppDetailItem(this)
+        viewModel = AppDetailViewModel(this, binding, app, item)
+        binding.appItem = item
         binding.handler = AppDetailHandler(viewModel, supportFragmentManager)
         return binding.root
     }
@@ -54,7 +51,8 @@ class AppDetailActivity : AppBarActivity() {
                 true
             }
             R.id.change_hub_priority -> {
-                TODO("修改软件源优先级")
+                MiscellaneousUtils.showToast("TODO(修改软件源优先级)")
+                return true
             }
             R.id.ignore_current_version -> {
                 viewModel.currentVersion?.switchIgnoreStatus()?.also { renewMenu() }
@@ -89,6 +87,11 @@ class AppDetailActivity : AppBarActivity() {
         binding.headerContentLayout.addPaddingTop(actionBarSize())
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.renewMenu()
+    }
+
     override fun initView() {
         binding.btnUpdate.apply {
             layoutParams = (layoutParams as CoordinatorLayout.LayoutParams).apply {
@@ -96,19 +99,8 @@ class AppDetailActivity : AppBarActivity() {
             }
         }
 
-        binding.tvMoreVersion.run {
-            setVersionAdapter()
-            setOnItemClickListener { _, _, position, _ ->
-                viewModel.setVersionInfo(position)
-            }
-
-            // 设置初始的版本信息
-            val versionList = viewModel.versionList
-            val items = versionList.map { getVersionName(it) }
-            if (!items.isNullOrEmpty()) {
-                setText(items[0], false)
-            }
-            viewModel.setVersionInfo(0)
+        binding.tvMoreVersion.setOnItemClickListener { _, _, position, _ ->
+            viewModel.setVersionInfo(position)
         }
         binding.btnUpdate.setOnStateListener(object : ProgressButton.OnStateListener {
             override fun onFinish() {
@@ -123,28 +115,9 @@ class AppDetailActivity : AppBarActivity() {
         })
     }
 
-    private fun getVersionName(version: Version): SpannableStringBuilder {
-        val versionName = version.name
-        val sb = SpannableStringBuilder()
-        sb.append(versionName)
-        if (version.isIgnored) {
-            val colorSpan = ForegroundColorSpan(Color.BLUE)
-            sb.setSpan(colorSpan, 0, versionName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-        return sb
-    }
-
-    private fun setVersionAdapter() {
-        val versionList = viewModel.versionList
-        val items = versionList.map { getVersionName(it) }
-        val adapter = ArrayAdapter(this, R.layout.item_more_version, items)
-
-        binding.tvMoreVersion.setAdapter(adapter)
-    }
-
     private fun renewMenu() {
         invalidateOptionsMenu()
-        setVersionAdapter()
+        viewModel.renewMenu()
     }
 
     companion object {
