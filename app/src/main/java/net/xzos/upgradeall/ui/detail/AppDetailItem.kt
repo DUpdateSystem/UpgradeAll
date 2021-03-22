@@ -17,6 +17,8 @@ import kotlin.properties.Delegates
 class AppDetailItem(private val activity: AppDetailActivity) : ListItemTextView {
     override val name: String get() = appName.get()!!
     val appName: ObservableField<String> = ObservableField()
+    val appPackageId: ObservableField<CharSequence> = ObservableField()
+    val showingVersionNumber: ObservableField<CharSequence> = ObservableField()
 
     private val appIcon: Drawable? by lazy {
         MiscellaneousUtils.getAppIcon(activity, appPackageId.get().toString())?.run {
@@ -37,9 +39,6 @@ class AppDetailItem(private val activity: AppDetailActivity) : ListItemTextView 
                 super.nameFirst
             else ""
         }
-
-    val appPackageId: ObservableField<CharSequence> = ObservableField()
-    val showingVersionNumber: ObservableField<CharSequence> = ObservableField()
 
     var selectedVersion: Version? by Delegates.observable(null) { prop, old, new ->
         if (new == null) return@observable

@@ -150,7 +150,11 @@ fun <T> MutableLiveData<T>.setValueBackground(value: T) {
 fun <T> mutableLiveDataOf(): MutableLiveData<T> = MutableLiveData()
 
 fun runUiFun(f: () -> Unit) {
-    Handler(Looper.getMainLooper()).post {
+    if (Looper.myLooper() == Looper.getMainLooper()) {
         f()
+    } else {
+        Handler(Looper.getMainLooper()).post {
+            f()
+        }
     }
 }

@@ -32,7 +32,9 @@ class AppDetailActivity : AppBarActivity() {
     override fun initBinding(): View {
         binding = ActivityAppDetailBinding.inflate(layoutInflater)
         val item = AppDetailItem(this)
-        viewModel = AppDetailViewModel(this, binding, app, item)
+        viewModel = AppDetailViewModel(this, binding, app, item).apply {
+            setApp(app)
+        }
         binding.appItem = item
         binding.handler = AppDetailHandler(viewModel, supportFragmentManager)
         return binding.root
@@ -83,7 +85,7 @@ class AppDetailActivity : AppBarActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        binding.toolbar.title = binding.appItem?.name ?: ""
+        binding.toolbar.title = binding.appItem?.name
         binding.headerContentLayout.addPaddingTop(actionBarSize())
     }
 

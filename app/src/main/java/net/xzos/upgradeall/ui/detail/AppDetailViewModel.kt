@@ -26,7 +26,6 @@ class AppDetailViewModel(
         private val app: App, private val item: AppDetailItem
 ) : AppViewModel() {
     init {
-        setApp(app)
         appName.observe(activity, { item.appName.set(it) })
         packageName.observe(activity, { item.appPackageId.set(it) })
     }
