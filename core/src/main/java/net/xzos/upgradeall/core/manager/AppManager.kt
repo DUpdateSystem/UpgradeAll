@@ -23,6 +23,14 @@ object AppManager : Informer {
     const val DATA_UPDATE_NOTIFY = "UPDATE_NOTIFY"
     const val APP_CHANGED_NOTIFY = "APP_CHANGED_NOTIFY"
 
+    fun getAppChangedNotifyTag(appDatabase: AppEntity): String {
+        return APP_CHANGED_NOTIFY + appDatabase.id
+    }
+
+    fun getAppUpdatedNotifyTag(appDatabase: AppEntity): String {
+        return DATA_UPDATE_NOTIFY + appDatabase.id
+    }
+
     private val appMap = coroutinesMutableMapOf<Int, CoroutinesMutableList<App>>(true)
 
     private val appList by lazy {
@@ -128,8 +136,10 @@ object AppManager : Informer {
                 changed = true
             }
         }
-        if (changed)
+        if (changed) {
             notifyChanged(DATA_UPDATE_NOTIFY)
+            notifyChanged(getAppUpdatedNotifyTag(app.appDatabase))
+        }
     }
 
     private fun getApp(appEntity: AppEntity): App? {
@@ -148,6 +158,7 @@ object AppManager : Informer {
         addAppEntity(appDatabase)?.run {
             getApp(appDatabase) ?: App(appDatabase).run { appList.add(this) }
             notifyChanged(APP_CHANGED_NOTIFY)
+            notifyChanged(getAppChangedNotifyTag(appDatabase))
             return appDatabase
         } ?: return null
     }

@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.detail
 
-import android.annotation.SuppressLint
 import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -20,14 +19,14 @@ import net.xzos.upgradeall.server.downloader.startDownload
 import net.xzos.upgradeall.ui.data.livedata.AppViewModel
 import net.xzos.upgradeall.utils.setValueBackground
 
-@SuppressLint("StaticFieldLeak")
 class AppDetailViewModel(
-        private val activity: AppDetailActivity, private val binding: ActivityAppDetailBinding,
+        activity: AppDetailActivity, private val binding: ActivityAppDetailBinding,
         private val app: App, private val item: AppDetailItem
 ) : AppViewModel() {
     init {
         appName.observe(activity, { item.appName.set(it) })
         packageName.observe(activity, { item.appPackageId.set(it) })
+        versionList.observe(activity, { renewVersionList() })
     }
 
     private val installedVersionNumber: MutableLiveData<String> by lazy {
@@ -93,8 +92,7 @@ class AppDetailViewModel(
         item.selectedVersion = currentVersion
     }
 
-    fun renewMenu() {
-        updateData()
+    fun renewVersionList() {
         val versionList = versionList.value ?: return
         val versionNumberList = versionList.map { getVersionName(it) }
         val tvMoreVersion = binding.tvMoreVersion
@@ -102,7 +100,7 @@ class AppDetailViewModel(
         var position = versionNumberList.map { it.toString() }.indexOf(oldVersion)
         if (position == -1) position = 0
         setVersionInfo(position)
-        if (position == 0)
+        if (position == 0 && versionNumberList.isNotEmpty())
             tvMoreVersion.setText(versionNumberList[position], false)
         setVersionAdapter(versionNumberList)
     }
@@ -119,8 +117,8 @@ class AppDetailViewModel(
     }
 
     private fun setVersionAdapter(versionNumberList: List<SpannableStringBuilder>) {
-        val adapter = ArrayAdapter(activity, R.layout.item_more_version, versionNumberList)
-
-        binding.tvMoreVersion.setAdapter(adapter)
+        val tvMoreVersion = binding.tvMoreVersion
+        val adapter = ArrayAdapter(tvMoreVersion.context, R.layout.item_more_version, versionNumberList)
+        tvMoreVersion.setAdapter(adapter)
     }
 }

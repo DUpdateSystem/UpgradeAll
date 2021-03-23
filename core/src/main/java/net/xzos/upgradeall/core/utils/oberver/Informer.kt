@@ -8,7 +8,7 @@ import kotlinx.coroutines.sync.withLock
 
 private const val DEFAULT_TAG = "NULL"
 
-internal interface Informer {
+interface Informer {
 
     fun notifyChanged() {
         notifyChanged(DEFAULT_TAG, Unit)
@@ -42,9 +42,18 @@ internal interface Informer {
     }
 
     fun <E> observeOneOff(tag: String, observerFun: ObserverFun<E>) {
+        observeWithChecker(tag, observerFun, { true }, { true })
+    }
+
+    fun <E> observeWithChecker(
+            tag: String, observerFun: ObserverFun<E>,
+            checkerStartFun: () -> Boolean, checkerRemoveFun: () -> Boolean
+    ) {
         val observeOneOffFun = fun(arg: E) {
-            observerFun(arg)
-            removeObserver(observerFun)
+            if (checkerStartFun())
+                observerFun(arg)
+            if (checkerRemoveFun())
+                removeObserver(observerFun)
         }
         observeForever(tag, observeOneOffFun)
     }

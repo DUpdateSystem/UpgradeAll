@@ -34,6 +34,7 @@ class AppDetailActivity : AppBarActivity() {
         val item = AppDetailItem(this)
         viewModel = AppDetailViewModel(this, binding, app, item).apply {
             setApp(app)
+            initObserve(this@AppDetailActivity)
         }
         binding.appItem = item
         binding.handler = AppDetailHandler(viewModel, supportFragmentManager)
@@ -89,11 +90,6 @@ class AppDetailActivity : AppBarActivity() {
         binding.headerContentLayout.addPaddingTop(actionBarSize())
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.renewMenu()
-    }
-
     override fun initView() {
         binding.btnUpdate.apply {
             layoutParams = (layoutParams as CoordinatorLayout.LayoutParams).apply {
@@ -119,7 +115,7 @@ class AppDetailActivity : AppBarActivity() {
 
     private fun renewMenu() {
         invalidateOptionsMenu()
-        viewModel.renewMenu()
+        viewModel.renewVersionList()
     }
 
     companion object {
