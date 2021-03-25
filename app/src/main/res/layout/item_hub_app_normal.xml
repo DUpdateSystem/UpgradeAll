@@ -8,6 +8,11 @@
         <variable
             name="item"
             type="net.xzos.upgradeall.ui.applist.base.normal.NormalAppListItemView" />
+
+        <variable
+            name="handler"
+            type="net.xzos.upgradeall.ui.applist.base.normal.NormalAppHubListItemHandler" />
+
     </data>
 
     <com.google.android.material.card.MaterialCardView

@@ -1,18 +1,23 @@
 package net.xzos.upgradeall.ui.data.livedata
 
-import androidx.lifecycle.LifecycleOwner
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Version
 import net.xzos.upgradeall.core.utils.android_app.getPackageId
-import net.xzos.upgradeall.core.utils.oberver.observeWithLifecycleOwner
 import net.xzos.upgradeall.utils.setValueBackground
 
-open class AppViewModel : ViewModel() {
-    private lateinit var app: App
+open class AppViewModel(application: Application) : AndroidViewModel(application) {
+    protected lateinit var app: App
+
+    fun initData(app: App) {
+        this.app = app
+        updateData()
+        initObserve()
+    }
 
     val appName: MutableLiveData<String> by lazy {
         MutableLiveData<String>()
@@ -22,37 +27,16 @@ open class AppViewModel : ViewModel() {
         MutableLiveData<String?>()
     }
 
-    val showingVersionNumber: MutableLiveData<String> by lazy {
-        MutableLiveData<String>()
-    }
-
     val versionList: MutableLiveData<List<Version>> by lazy {
         MutableLiveData<List<Version>>()
     }
 
-    private fun getShowingVersionNumber(): String {
-        val latestVersionNumber = app.getLatestVersionNumber()
-        val installedVersionNumber = app.installedVersionNumber
-        return when {
-            installedVersionNumber == null -> latestVersionNumber ?: ""
-            latestVersionNumber == installedVersionNumber -> installedVersionNumber
-            else -> "$installedVersionNumber > $latestVersionNumber"
-        }
-    }
-
-
-    fun setApp(app: App) {
-        this.app = app
-        updateData()
-    }
-
-    private fun updateDatabase() {
+    protected open fun updateDatabase() {
         appName.setValueBackground(app.name)
         packageName.setValueBackground(app.appId.getPackageId()?.second)
     }
 
     private fun updateVersionList() {
-        showingVersionNumber.setValueBackground(getShowingVersionNumber())
         versionList.setValueBackground(runBlocking { app.versionList }.asReversed())
     }
 
@@ -61,14 +45,26 @@ open class AppViewModel : ViewModel() {
         updateVersionList()
     }
 
-    fun initObserve(owner: LifecycleOwner) {
-        AppManager.observeWithLifecycleOwner<Unit>(
-                AppManager.getAppChangedNotifyTag(app.appDatabase), owner,
-                { updateDatabase() }
-        )
-        AppManager.observeWithLifecycleOwner<Unit>(
-                AppManager.getAppUpdatedNotifyTag(app.appDatabase), owner,
-                { updateVersionList() }
-        )
+    private val databaseObserver = fun(_: Unit) {
+        updateDatabase()
+    }
+
+    private val versionObserver = fun(_: Unit) {
+        updateVersionList()
+    }
+
+    open fun initObserve() {
+        AppManager.observeForever(AppManager.getAppChangedNotifyTag(app.appDatabase), databaseObserver)
+        AppManager.observeForever(AppManager.getAppUpdatedNotifyTag(app.appDatabase), versionObserver)
+    }
+
+    open fun removeObserve() {
+        AppManager.removeObserver(databaseObserver)
+        AppManager.removeObserver(versionObserver)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        removeObserve()
     }
 }

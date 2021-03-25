@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.marginBottom
@@ -27,15 +28,12 @@ class AppDetailActivity : AppBarActivity() {
 
     private lateinit var binding: ActivityAppDetailBinding
     private lateinit var app: App
-    private lateinit var viewModel: AppDetailViewModel
+    private val viewModel by viewModels<AppDetailViewModel>()
 
     override fun initBinding(): View {
         binding = ActivityAppDetailBinding.inflate(layoutInflater)
         val item = AppDetailItem(this)
-        viewModel = AppDetailViewModel(this, binding, app, item).apply {
-            setApp(app)
-            initObserve(this@AppDetailActivity)
-        }
+        viewModel.initData(binding, item, app)
         binding.appItem = item
         binding.handler = AppDetailHandler(viewModel, supportFragmentManager)
         return binding.root
@@ -86,7 +84,7 @@ class AppDetailActivity : AppBarActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        binding.toolbar.title = binding.appItem?.name
+        binding.toolbar.title = binding.appItem?.appName?.get()
         binding.headerContentLayout.addPaddingTop(actionBarSize())
     }
 

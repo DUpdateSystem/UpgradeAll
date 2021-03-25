@@ -6,7 +6,7 @@ import net.xzos.upgradeall.core.filetasker.FileTasker
 import net.xzos.upgradeall.ui.base.list.ListItemTextView
 
 class FileItemView(
-        override val name: String,
+        override val appName: String,
         val fileTasker: FileTasker,
 ) : ListItemTextView {
     private val numUtil = DownloadTaskerNumUtil(fileTasker.downloader)

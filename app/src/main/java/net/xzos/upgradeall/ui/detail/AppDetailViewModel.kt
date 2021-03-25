@@ -1,11 +1,13 @@
 package net.xzos.upgradeall.ui.detail
 
+import android.app.Application
 import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.widget.ArrayAdapter
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.tonyodev.fetch2.Download
 import com.tonyodev.fetch2.Status
 import kotlinx.coroutines.runBlocking
@@ -19,19 +21,43 @@ import net.xzos.upgradeall.server.downloader.startDownload
 import net.xzos.upgradeall.ui.data.livedata.AppViewModel
 import net.xzos.upgradeall.utils.setValueBackground
 
-class AppDetailViewModel(
-        activity: AppDetailActivity, private val binding: ActivityAppDetailBinding,
-        private val app: App, private val item: AppDetailItem
-) : AppViewModel() {
-    init {
-        appName.observe(activity, { item.appName.set(it) })
-        packageName.observe(activity, { item.appPackageId.set(it) })
-        versionList.observe(activity, { renewVersionList() })
+class AppDetailViewModel(private val _application: Application) : AppViewModel(_application) {
+    private lateinit var binding: ActivityAppDetailBinding
+    private lateinit var item: AppDetailItem
+    private val appNameObserver = Observer<String> {
+        item.appName.set(it)
+    }
+    private val packageNameObserver = Observer<String?> {
+        item.appPackageId.set(it)
+        item.renewAppIcon(it, _application)
+    }
+    private val versionListObserver = Observer<List<Version>> {
+        renewVersionList()
+    }
+
+    override fun initObserve() {
+        appName.observeForever(appNameObserver)
+        packageName.observeForever(packageNameObserver)
+        versionList.observeForever(versionListObserver)
+        super.initObserve()
+    }
+
+    override fun removeObserve() {
+        appName.removeObserver(appNameObserver)
+        packageName.removeObserver(packageNameObserver)
+        versionList.removeObserver(versionListObserver)
+        super.removeObserve()
+    }
+
+    fun initData(binding: ActivityAppDetailBinding, item: AppDetailItem, app: App) {
+        this.binding = binding
+        this.item = item
+        initData(app)
     }
 
     private val installedVersionNumber: MutableLiveData<String> by lazy {
         MutableLiveData<String>().apply {
-            observe(activity, { item.showingVersionNumber.set(it) })
+            observeForever { item.showingVersionNumber.set(it) }
         }
     }
 

@@ -68,7 +68,7 @@ abstract class HubListActivity<L : ListItemTextView, T : RecyclerViewHolder<L, *
     override fun onQueryTextChange(newText: String): Boolean {
         viewModel.getList().value?.let { list ->
             val filter = list.filter {
-                it.name.contains(newText, ignoreCase = true)
+                it.appName.contains(newText, ignoreCase = true)
             }
             adapter.dataSet = filter
         }

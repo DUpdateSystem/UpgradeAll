@@ -83,7 +83,7 @@ class App(
 
     suspend fun getReleaseStatusWaitRenew(): Int {
         renewMutex.wait()
-        return updater.getUpdateStatus()
+        return getReleaseStatus()
     }
 
     /* 获取 App 的更新状态 */

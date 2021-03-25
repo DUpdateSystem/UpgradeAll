@@ -6,7 +6,7 @@ import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.ui.base.list.ListItemTextView
 
 class HubManagerListItemView(
-        override val name: String,
+        override val appName: String,
         val uuid: String
 ) : ListItemTextView {
     val observable = HubEnableObservable(HubManager.getHub(uuid) != null, fun(enable) {

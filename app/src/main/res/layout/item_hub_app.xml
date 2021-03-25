@@ -12,6 +12,7 @@
         <variable
             name="handler"
             type="net.xzos.upgradeall.ui.applist.base.AppHubListItemHandler" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,7 +30,7 @@
             android:id="@+id/iv_icon"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@{appItem.icon}"
+            android:background="@{appItem.appIcon}"
             android:backgroundTint="@{appItem.iconBackgroundTint}"
             android:gravity="center"
             android:text="@{appItem.nameFirst}"
@@ -45,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:fontFamily="sans-serif-medium"
-            android:text="@{appItem.name}"
+            android:text="@{appItem.appName}"
             android:textSize="16sp"
             android:transitionName="app_name"
             app:layout_constraintEnd_toEndOf="parent"
@@ -59,13 +60,13 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:fontFamily="sans-serif-condensed"
-            android:text="@{appItem.version}"
+            android:text="@{appItem.showingVersionNumber}"
             android:textSize="14sp"
             android:transitionName="version_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/iv_icon"
             app:layout_constraintTop_toBottomOf="@id/tv_app_name"
-            tools:text="@string/app_name" />
+            tools:text="@string/example_version_number" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
