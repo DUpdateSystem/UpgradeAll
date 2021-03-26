@@ -9,7 +9,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.Updater
 import net.xzos.upgradeall.core.utils.getAppName
-import net.xzos.upgradeall.core.utils.oberver.ObserverFun
+import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
 import net.xzos.upgradeall.server.update.UpdateService
@@ -29,9 +29,7 @@ import net.xzos.upgradeall.utils.runUiFun
 class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val observer: ObserverFun<Unit> = fun(_) {
-        renewUpdateStatus()
-    }
+    private val observer: ObserverFunNoArg = { renewUpdateStatus() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

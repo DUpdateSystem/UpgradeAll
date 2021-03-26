@@ -9,7 +9,7 @@ import net.xzos.upgradeall.core.manager.AppManager.APP_CHANGED_NOTIFY
 import net.xzos.upgradeall.core.manager.AppManager.DATA_UPDATE_NOTIFY
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater
-import net.xzos.upgradeall.core.utils.oberver.ObserverFun
+import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
 import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 
 
@@ -19,9 +19,7 @@ class AppHubViewModel(application: Application)
     private lateinit var mAppType: String
     private var mTabIndex: Int = 0
 
-    private val observer: ObserverFun<Unit> = fun(_) {
-        loadData()
-    }
+    private val observer: ObserverFunNoArg = { loadData() }
 
     fun initSetting(appType: String, tabIndex: Int) {
         mAppType = appType

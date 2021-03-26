@@ -7,6 +7,7 @@ import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.oberver.Informer
+import net.xzos.upgradeall.core.utils.oberver.Informer.Companion.getInformerId
 import net.xzos.upgradeall.core.utils.oberver.ObserverFun
 
 
@@ -245,4 +246,5 @@ internal object DownloadRegister : Informer, FetchListener, FetchGroupListener {
     override fun onWaitingNetwork(download: Download) {}
     override fun onAdded(groupId: Int, download: Download, fetchGroup: FetchGroup) {}
     override fun onAdded(download: Download) {}
+    override val informerId: Int = getInformerId()
 }

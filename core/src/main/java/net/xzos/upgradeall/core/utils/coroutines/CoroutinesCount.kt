@@ -14,6 +14,13 @@ class CoroutinesCount(count: Int) {
 
     private val funList = coroutinesMutableListOf<() -> Unit>(true)
 
+    fun getNewValue(value: Int): Int {
+        return mutex.runWithLock {
+            count += value
+            count
+        }
+    }
+
     fun plusAssign(a: Int): Int {
         return mutex.runWithLock {
             count += a

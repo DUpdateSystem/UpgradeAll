@@ -20,4 +20,6 @@ object LogNotify: Informer {
     internal fun logChanged(logMap: CoroutinesMutableMap<ObjectTag, CoroutinesMutableList<LogItemData>>) {
         notifyChanged(LOG_CHANGED_TAG, logMap)
     }
+
+    override val informerId: Int = Informer.getInformerId()
 }

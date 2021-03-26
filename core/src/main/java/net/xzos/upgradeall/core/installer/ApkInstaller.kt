@@ -14,6 +14,7 @@ import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.utils.oberver.ObserverFun
+import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
 import java.io.File
 
 object ApkInstaller {
@@ -25,9 +26,9 @@ object ApkInstaller {
     }
 
     suspend fun install(
-        file: File,
-        failedInstallObserverFun: ObserverFun<Throwable>,
-        completeInstallObserverFun: ObserverFun<Unit>
+            file: File,
+            failedInstallObserverFun: ObserverFun<Throwable>,
+            completeInstallObserverFun: ObserverFunNoArg
     ) {
         installMutex.withLock {
             try {
@@ -41,7 +42,7 @@ object ApkInstaller {
     }
 
     private suspend fun doInstall(
-        file: File,
+            file: File,
     ) {
         when (coreConfig.install_apk_api) {
             "System" -> ApkSystemInstaller.install(file)
@@ -52,9 +53,9 @@ object ApkInstaller {
     }
 
     suspend fun multipleInstall(
-        dirFile: File,
-        failedInstallObserverFun: ObserverFun<Throwable>,
-        completeInstallObserverFun: ObserverFun<Unit>
+            dirFile: File,
+            failedInstallObserverFun: ObserverFun<Throwable>,
+            completeInstallObserverFun: ObserverFunNoArg
     ) {
         installMutex.withLock {
             try {
@@ -69,7 +70,7 @@ object ApkInstaller {
 
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     private suspend fun doMultipleInstall(
-        dirFile: File,
+            dirFile: File,
     ) {
         val apkFilePathList = dirFile.listFiles().filter {
             it.extension == "apk"
@@ -90,7 +91,7 @@ object ApkInstaller {
         }
     }
 
-    private fun observeInstall(apkFile: File, observerFun: ObserverFun<Unit>) {
+    private fun observeInstall(apkFile: File, observerFun: ObserverFunNoArg) {
         val packageInfo = apkFile.getPackageInfo() ?: return
         val key = Pair(packageInfo.packageName, packageInfo.versionName).getMapKey()
         ApkSystemInstaller.observeForever(key, observerFun)
@@ -148,8 +149,8 @@ fun File.isApkFile(): Boolean {
 fun File.getPackageInfo(): PackageInfo? {
     return try {
         coreConfig.androidContext.packageManager.getPackageArchiveInfo(
-            this.path,
-            PackageManager.GET_ACTIVITIES
+                this.path,
+                PackageManager.GET_ACTIVITIES
         )
     } catch (e: Exception) {
         null

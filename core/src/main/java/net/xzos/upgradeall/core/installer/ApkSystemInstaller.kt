@@ -11,6 +11,7 @@ import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.utils.oberver.Informer
+import net.xzos.upgradeall.core.utils.oberver.Informer.Companion.getInformerId
 import java.io.File
 import java.io.IOException
 
@@ -20,7 +21,7 @@ object ApkSystemInstaller : Informer {
     private const val TAG = "ApkSystemInstaller"
     private val logObjectTag = ObjectTag(core, TAG)
 
-    private val context = coreConfig.androidContext
+    private val context get() = coreConfig.androidContext
 
     suspend fun install(file: File) {
         try {
@@ -34,14 +35,14 @@ object ApkSystemInstaller : Informer {
 
     private fun rowInstall(fileUri: Uri) {
         val intent = Intent(Intent.ACTION_VIEW)
-            .setDataAndType(fileUri, "application/vnd.android.package-archive")
-            .putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
-            .apply {
-                this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    this.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .setDataAndType(fileUri, "application/vnd.android.package-archive")
+                .putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+                .apply {
+                    this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        this.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
                 }
-            }
         context.startActivity(intent)
     }
 
@@ -64,7 +65,7 @@ object ApkSystemInstaller : Informer {
         }
         val packageInstaller = context.packageManager.packageInstaller
         val installParams =
-            PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+                PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
         installParams.setSize(totalSize)
         try {
             val sessionId = packageInstaller.createSession(installParams)
@@ -139,8 +140,8 @@ object ApkSystemInstaller : Informer {
                     break
             }
             val obbPackageName = fileName.subSequence(
-                delimiterIndexList[1] + 1,
-                delimiterIndexList.last()
+                    delimiterIndexList[1] + 1,
+                    delimiterIndexList.last()
             )
             val command = "mv $obbFile /storage/emulated/0/Android/obb/$obbPackageName/."
             Log.d(logObjectTag, TAG, "multipleInstall: obb command: $command")
@@ -148,4 +149,6 @@ object ApkSystemInstaller : Informer {
             obbFile.renameTo(File("/storage/emulated/0/Android/obb/$obbPackageName/", obbFile.name))
         }
     }
+
+    override val informerId: Int = getInformerId()
 }

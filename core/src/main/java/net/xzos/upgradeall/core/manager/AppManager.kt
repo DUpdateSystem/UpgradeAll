@@ -138,7 +138,7 @@ object AppManager : Informer {
         }
         if (changed) {
             notifyChanged(DATA_UPDATE_NOTIFY)
-            notifyChanged(getAppUpdatedNotifyTag(app.appDatabase))
+            notifyChanged(getAppUpdatedNotifyTag(app.appDatabase), app)
         }
     }
 
@@ -158,7 +158,7 @@ object AppManager : Informer {
         addAppEntity(appDatabase)?.run {
             getApp(appDatabase) ?: App(appDatabase).run { appList.add(this) }
             notifyChanged(APP_CHANGED_NOTIFY)
-            notifyChanged(getAppChangedNotifyTag(appDatabase))
+            notifyChanged(getAppChangedNotifyTag(appDatabase), appDatabase)
             return appDatabase
         } ?: return null
     }
@@ -188,4 +188,6 @@ object AppManager : Informer {
         }
         notifyChanged(APP_CHANGED_NOTIFY)
     }
+
+    override val informerId: Int = Informer.getInformerId()
 }

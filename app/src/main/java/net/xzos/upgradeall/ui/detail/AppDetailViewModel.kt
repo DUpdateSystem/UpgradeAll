@@ -7,7 +7,6 @@ import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.widget.ArrayAdapter
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.tonyodev.fetch2.Download
 import com.tonyodev.fetch2.Status
 import kotlinx.coroutines.runBlocking
@@ -16,6 +15,7 @@ import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.FileAsset
 import net.xzos.upgradeall.core.module.app.Version
+import net.xzos.upgradeall.core.utils.android_app.getPackageId
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
 import net.xzos.upgradeall.server.downloader.startDownload
 import net.xzos.upgradeall.ui.data.livedata.AppViewModel
@@ -24,35 +24,23 @@ import net.xzos.upgradeall.utils.setValueBackground
 class AppDetailViewModel(private val _application: Application) : AppViewModel(_application) {
     private lateinit var binding: ActivityAppDetailBinding
     private lateinit var item: AppDetailItem
-    private val appNameObserver = Observer<String> {
-        item.appName.set(it)
-    }
-    private val packageNameObserver = Observer<String?> {
-        item.appPackageId.set(it)
-        item.renewAppIcon(it, _application)
-    }
-    private val versionListObserver = Observer<List<Version>> {
-        renewVersionList()
-    }
-
-    override fun initObserve() {
-        appName.observeForever(appNameObserver)
-        packageName.observeForever(packageNameObserver)
-        versionList.observeForever(versionListObserver)
-        super.initObserve()
-    }
-
-    override fun removeObserve() {
-        appName.removeObserver(appNameObserver)
-        packageName.removeObserver(packageNameObserver)
-        versionList.removeObserver(versionListObserver)
-        super.removeObserve()
-    }
+    private lateinit var app: App
 
     fun initData(binding: ActivityAppDetailBinding, item: AppDetailItem, app: App) {
         this.binding = binding
         this.item = item
-        initData(app)
+        this.app = app
+        addObserve(app, {
+            item.appName.set(it.name)
+            val packageId = it.appId.getPackageId()?.second
+            item.appPackageId.set(packageId)
+            item.renewAppIcon(packageId, _application)
+        }, {
+            val versionList = it.versionList
+            versionListLiveData.setValueBackground(versionList)
+            renewVersionList(versionList)
+        })
+        updateData()
     }
 
     private val installedVersionNumber: MutableLiveData<String> by lazy {
@@ -61,15 +49,16 @@ class AppDetailViewModel(private val _application: Application) : AppViewModel(_
         }
     }
 
-    val version: String? get() = app.installedVersionNumber
+    private val versionListLiveData: MutableLiveData<List<Version>> by lazy {
+        MutableLiveData<List<Version>>()
+    }
 
     val downloadData = item.downloadData
 
-    override fun updateData() {
+    override fun updateData(app: App) {
         app.installedVersionNumber?.run {
             installedVersionNumber.setValueBackground(this)
         }
-        super.updateData()
     }
 
     // 下载状态信息
@@ -98,7 +87,7 @@ class AppDetailViewModel(private val _application: Application) : AppViewModel(_
             downloadOb: DownloadOb,
     ) {
         val version = currentVersion ?: return
-        if (version == versionList.value?.firstOrNull()) {
+        if (version == versionListLiveData.value?.firstOrNull()) {
             runBlocking {
                 app.updater.upgradeApp(taskStartedFun, taskStartFailedFun, downloadOb)
             }
@@ -108,7 +97,7 @@ class AppDetailViewModel(private val _application: Application) : AppViewModel(_
     }
 
     fun setVersionInfo(position: Int) {
-        val versionList = versionList.value ?: return
+        val versionList = versionListLiveData.value ?: return
         if (position >= versionList.size) return
         val index = if (position < 0)
             versionList.size + position
@@ -118,8 +107,7 @@ class AppDetailViewModel(private val _application: Application) : AppViewModel(_
         item.selectedVersion = currentVersion
     }
 
-    fun renewVersionList() {
-        val versionList = versionList.value ?: return
+    fun renewVersionList(versionList: List<Version>) {
         val versionNumberList = versionList.map { getVersionName(it) }
         val tvMoreVersion = binding.tvMoreVersion
         val oldVersion = tvMoreVersion.text.toString()

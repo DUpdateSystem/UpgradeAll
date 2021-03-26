@@ -113,7 +113,7 @@ class AppDetailActivity : AppBarActivity() {
 
     private fun renewMenu() {
         invalidateOptionsMenu()
-        viewModel.renewVersionList()
+        viewModel.updateData()
     }
 
     companion object {

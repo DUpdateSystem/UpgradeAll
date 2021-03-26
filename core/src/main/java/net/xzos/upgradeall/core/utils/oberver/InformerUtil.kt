@@ -7,3 +7,8 @@ fun <T> Informer.observeWithLifecycleOwner(tag: String, owner: LifecycleOwner, o
     val checker = fun(): Boolean = owner.lifecycle.currentState != Lifecycle.State.DESTROYED
     observeWithChecker(tag, observerFun, checker, { !checker() })
 }
+
+fun Informer.observeWithLifecycleOwner(tag: String, owner: LifecycleOwner, observerFun: ObserverFunNoArg) {
+    val checker = fun(): Boolean = owner.lifecycle.currentState != Lifecycle.State.DESTROYED
+    observeWithChecker(tag, observerFun, checker, { !checker() })
+}
