@@ -8,11 +8,9 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.databinding.FragmentHubUpdateListBinding
 import net.xzos.upgradeall.ui.applist.base.AppHubListFragment
-import net.xzos.upgradeall.ui.applist.base.TAB_UPDATE
 
 
-class UpdateAppHubListFragment()
-    : AppHubListFragment<UpdateAppListItemView, UpdateAppHubListViewHolder>() {
+class UpdateAppHubListFragment : AppHubListFragment<UpdateAppListItemView, UpdateAppHubListViewHolder>() {
 
     lateinit var rootBinding: FragmentHubUpdateListBinding
     override val adapter = UpdateAppHubListAdapter()
@@ -21,8 +19,8 @@ class UpdateAppHubListFragment()
         rootBinding = FragmentHubUpdateListBinding.inflate(inflater)
         initView(rootBinding.fragmentHubList)
 
-        viewModel.getList().observe(viewLifecycleOwner, {
-            rootBinding.tvAppUpdateTip.text = String.format(getString(R.string.hub_format_app_update_tip), it.size)
+        viewModel.getLiveData().observe(viewLifecycleOwner, { triple ->
+            rootBinding.tvAppUpdateTip.text = String.format(getString(R.string.hub_format_app_update_tip), triple.first.size)
         })
         return binding.root
     }

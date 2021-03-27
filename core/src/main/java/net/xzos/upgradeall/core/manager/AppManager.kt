@@ -7,7 +7,7 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.isInit
-import net.xzos.upgradeall.core.database.table.renewData
+import net.xzos.upgradeall.core.database.table.recheck
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_LATEST
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_NO_LOCAL
@@ -21,15 +21,9 @@ import net.xzos.upgradeall.core.utils.oberver.Informer
 object AppManager : Informer {
 
     const val DATA_UPDATE_NOTIFY = "UPDATE_NOTIFY"
-    const val APP_CHANGED_NOTIFY = "APP_CHANGED_NOTIFY"
-
-    fun getAppChangedNotifyTag(appDatabase: AppEntity): String {
-        return APP_CHANGED_NOTIFY + appDatabase.id
-    }
-
-    fun getAppUpdatedNotifyTag(appDatabase: AppEntity): String {
-        return DATA_UPDATE_NOTIFY + appDatabase.id
-    }
+    const val APP_DATABASE_CHANGED_NOTIFY = "APP_DATABASE_CHANGED_NOTIFY"
+    const val APP_ADDED_NOTIFY = "APP_ADDED_NOTIFY"
+    const val APP_DELETED_NOTIFY = "APP_DELETED_NOTIFY"
 
     private val appMap = coroutinesMutableMapOf<Int, CoroutinesMutableList<App>>(true)
 
@@ -124,21 +118,27 @@ object AppManager : Informer {
     private fun setAppMap(app: App) {
         val releaseStatus = app.getReleaseStatus()
         var changed = false
+        // reset app map
+
+        // retry add
         getAppList(releaseStatus).run {
             if (!contains(app)) {
                 add(app)
                 changed = true
             }
         }
+
+        // retry delete
         appMap.forEach {
             if (it.key != releaseStatus) {
                 it.value.remove(app)
                 changed = true
             }
         }
+
+        // check changed
         if (changed) {
-            notifyChanged(DATA_UPDATE_NOTIFY)
-            notifyChanged(getAppUpdatedNotifyTag(app.appDatabase), app)
+            notifyChanged(DATA_UPDATE_NOTIFY, app)
         }
     }
 
@@ -154,11 +154,16 @@ object AppManager : Informer {
      * 用数据库数据修改数据库并更新 App 数据
      */
     suspend fun updateApp(appDatabase: AppEntity): AppEntity? {
-        appDatabase.renewData()
+        appDatabase.recheck()
         addAppEntity(appDatabase)?.run {
-            getApp(appDatabase) ?: App(appDatabase).run { appList.add(this) }
-            notifyChanged(APP_CHANGED_NOTIFY)
-            notifyChanged(getAppChangedNotifyTag(appDatabase), appDatabase)
+            var changedTag: String
+            val app = getApp(appDatabase).apply {
+                changedTag = APP_DATABASE_CHANGED_NOTIFY
+            } ?: App(appDatabase).apply {
+                appList.add(this)
+                changedTag = APP_ADDED_NOTIFY
+            }
+            notifyChanged(changedTag, app)
             return appDatabase
         } ?: return null
     }
@@ -186,7 +191,7 @@ object AppManager : Informer {
         appMap.forEach {
             it.value.remove(app)
         }
-        notifyChanged(APP_CHANGED_NOTIFY)
+        notifyChanged(APP_DELETED_NOTIFY, app)
     }
 
     override val informerId: Int = Informer.getInformerId()

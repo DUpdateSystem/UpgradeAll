@@ -21,7 +21,7 @@ abstract class HubListActivity<L : ListItemTextView, T : RecyclerViewHolder<L, *
     override val listContainerViewConvertFun: (L) -> L = fun(i) = i
 
     override fun initView() {
-        viewModel.getList().observe(this) {
+        viewModel.getLiveData().observe(this) {
             isListReady = true
             menu?.findItem(R.id.search)?.isVisible = true
         }
@@ -66,11 +66,11 @@ abstract class HubListActivity<L : ListItemTextView, T : RecyclerViewHolder<L, *
     override fun onQueryTextSubmit(query: String) = false
 
     override fun onQueryTextChange(newText: String): Boolean {
-        viewModel.getList().value?.let { list ->
-            val filter = list.filter {
-                it.appName.contains(newText, ignoreCase = true)
+        viewModel.getLiveData().value?.let { triple ->
+            val filter = triple.first.filter {
+                it.appName.get().toString().contains(newText, ignoreCase = true)
             }
-            adapter.dataSet = filter
+            viewModel.renewList(filter)
         }
         return false
     }

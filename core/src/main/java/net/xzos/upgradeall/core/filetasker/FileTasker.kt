@@ -34,15 +34,15 @@ class FileTasker internal constructor(internal val fileAsset: FileAsset) {
                     0 -> return
                     1 -> {
                         ApkInstaller.install(this[0],
-                                fun(e) { failedInstallObserverFun(e) },
-                                fun(_) { completeInstallFunc() }
+                                { e -> failedInstallObserverFun(e) },
+                                { completeInstallFunc() }
                         )
                     }
                     else -> {
                         ApkInstaller.multipleInstall(
                                 downloader!!.downloadDir,
-                                fun(e) { failedInstallObserverFun(e) },
-                                fun(_) { completeInstallFunc() }
+                                { e -> failedInstallObserverFun(e) },
+                                { completeInstallFunc() }
                         )
                     }
                 }

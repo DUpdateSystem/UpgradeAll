@@ -1,50 +1,78 @@
 package net.xzos.upgradeall.ui.data.livedata
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.oberver.ObserverFun
 
-open class AppViewModel(application: Application) : AndroidViewModel(application) {
-    private val appMap: MutableMap<App, Pair<ObserverFun<App>, ObserverFun<AppEntity>>> = coroutinesMutableMapOf(true)
+class AppViewModel {
+    private val appMap: MutableMap<App, List<ObserverFun<App>>> = coroutinesMutableMapOf(true)
 
-    fun updateData() {
-        appMap.forEach { entry ->
-            entry.value.run {
-                val app = entry.key
-                first(app)
-                second(app.appDatabase)
-            }
+    private val appAddedObserver: ObserverFun<App> = {
+        appAdded(it)
+        appMap[it]?.run {
+            this[0](it)
+        }
+    }
+    private val appDeletedObserver: ObserverFun<App> = {
+        appDeleted(it)
+        appMap[it]?.run {
+            this[1](it)
+        }
+    }
+    private val appChangedObserver: ObserverFun<App> = {
+        appChanged(it)
+        appMap[it]?.run {
+            this[2](it)
+        }
+    }
+    private val appUpdatedObserver: ObserverFun<App> = {
+        appUpdated(it)
+        appMap[it]?.run {
+            this[3](it)
         }
     }
 
-    protected open fun updateData(app: App) {}
+    fun appAdded(app: App) {}
 
-    fun addObserve(app: App, databaseObserver: ObserverFun<AppEntity>, versionDataObserver: ObserverFun<App>) {
+    fun appDeleted(app: App) {}
+
+    fun appChanged(app: App) {}
+
+    fun appUpdated(app: App) {}
+
+    fun initObserve() {
+        AppManager.observeForever(AppManager.DATA_UPDATE_NOTIFY, appUpdatedObserver)
+        AppManager.observeForever(AppManager.APP_ADDED_NOTIFY, appAddedObserver)
+        AppManager.observeForever(AppManager.APP_DATABASE_CHANGED_NOTIFY, appChangedObserver)
+        AppManager.observeForever(AppManager.APP_DELETED_NOTIFY, appDeletedObserver)
+    }
+
+    fun addObserve(
+            app: App,
+            appAddedObserver: ObserverFun<App>, appDeletedObserver: ObserverFun<App>,
+            appChangedObserver: ObserverFun<App>, appUpdatedObserver: ObserverFun<App>,
+    ) {
         removeObserve(app)
-        appMap[app] = Pair(versionDataObserver, databaseObserver)
-        val appEntity = app.appDatabase
-        AppManager.observeForever(AppManager.getAppChangedNotifyTag(appEntity), databaseObserver)
-        AppManager.observeForever(AppManager.getAppUpdatedNotifyTag(appEntity), versionDataObserver)
+        appMap[app] = listOf(appAddedObserver, appDeletedObserver, appChangedObserver, appUpdatedObserver)
     }
 
     fun removeObserve(app: App) {
         appMap.remove(app)
     }
 
-    private fun clearObserve() {
-        appMap.forEach {
-            val pair = it.value
-            AppManager.removeObserver(pair.first)
-            AppManager.removeObserver(pair.second)
-        }
+    fun clearObserve() {
+        AppManager.removeObserver(appAddedObserver)
+        AppManager.removeObserver(appDeletedObserver)
+        AppManager.removeObserver(appChangedObserver)
+        AppManager.removeObserver(appUpdatedObserver)
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        clearObserve()
+    fun updateData() {
+        appMap.forEach { entry ->
+            entry.value.forEach {
+                it(entry.key)
+            }
+        }
     }
 }

@@ -24,6 +24,6 @@ fun AppEntity.isInit(): Boolean {
     return 0L != id
 }
 
-fun AppEntity.renewData() {
+fun AppEntity.recheck() {
     appId = appId.cleanBlankValue()
 }

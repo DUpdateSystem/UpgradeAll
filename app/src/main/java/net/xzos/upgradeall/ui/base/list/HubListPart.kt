@@ -25,8 +25,8 @@ interface HubListPart<T, L : ListItemView, out RH : RecyclerViewHolder<in L, *, 
             adapter = this@HubListPart.adapter
             addPaddingBottom(UiUtils.getNavBarHeight(activity.windowManager))
         }
-        viewModel.getList().observe(lifecycleOwner) { list ->
-            adapter.dataSet = list.map { listContainerViewConvertFun(it) }
+        viewModel.getLiveData().observe(lifecycleOwner) { triple ->
+            adapter.setAdapterData(triple.first.map { listContainerViewConvertFun(it) }, triple.second, triple.third)
             binding.srlContainer.isRefreshing = false
         }
         binding.srlContainer.apply {

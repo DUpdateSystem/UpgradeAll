@@ -9,22 +9,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.runWithLock
+import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.RENEW
 import net.xzos.upgradeall.utils.mutableLiveDataOf
 import net.xzos.upgradeall.utils.setValueBackground
 
 abstract class ListContainerViewModel<T>(application: Application) : AndroidViewModel(application) {
     private var refresh = Mutex()
-    private val listLiveData: MutableLiveData<List<T>> by lazy {
-        mutableLiveDataOf<List<T>>().also {
-            loadData()
-        }
-    }
+    private val listLiveData: MutableLiveData<Triple<List<T>, Int, String>> by lazy { mutableLiveDataOf() }
 
     fun loadData() {
         if (!refresh.isLocked) {
             refresh.runWithLock {
                 viewModelScope.launch(Dispatchers.IO) {
-                    setList(doLoadData())
+                    renewList(doLoadData())
                 }
             }
         }
@@ -32,9 +29,13 @@ abstract class ListContainerViewModel<T>(application: Application) : AndroidView
 
     abstract suspend fun doLoadData(): List<T>
 
-    private fun setList(list: List<T>) {
-        listLiveData.setValueBackground(list)
+    fun renewList(list: List<T>) {
+        setList(list, -1, RENEW)
     }
 
-    fun getList(): LiveData<List<T>> = listLiveData
+    fun setList(list: List<T>, changedPosition: Int, changedTag: String) {
+        listLiveData.setValueBackground(Triple(list, changedPosition, changedTag))
+    }
+
+    fun getLiveData(): LiveData<Triple<List<T>, Int, String>> = listLiveData
 }

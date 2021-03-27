@@ -13,11 +13,23 @@ abstract class RecyclerViewAdapter<L : ListItemView, RHA : RecyclerViewHandler, 
     abstract val handler: RHA?
     lateinit var lifecycleScope: LifecycleCoroutineScope
 
-    var dataSet: List<L> = listOf<L>().also { setHasStableIds(true) }
-        set(value) {
-            field = value
-            runUiFun { notifyDataSetChanged() }
+    private var dataSet: List<L> = listOf<L>().also { setHasStableIds(true) }
+
+    fun setAdapterData(list: List<L>, changedPosition: Int, changedTag: String) {
+        dataSet = list
+        runUiFun {
+            when (changedTag) {
+                RENEW -> notifyDataSetChanged()
+                ADD -> notifyItemInserted(changedPosition)
+                DEL -> notifyItemRemoved(changedPosition)
+                CHANGE -> notifyItemChanged(changedPosition)
+                else -> notifyDataSetChanged()
+
+            }
         }
+    }
+
+    fun getAdapterData() = dataSet
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): T {
         val layoutInflater = LayoutInflater.from(viewGroup.context)
@@ -41,4 +53,11 @@ abstract class RecyclerViewAdapter<L : ListItemView, RHA : RecyclerViewHandler, 
     override fun getItemId(position: Int) = dataSet[position].hashCode().toLong()
 
     fun getItemData(position: Int) = dataSet[position]
+
+    companion object {
+        const val ADD = "ADD"
+        const val DEL = "DEL"
+        const val CHANGE = "CHANGE"
+        const val RENEW = "RENEW"
+    }
 }
