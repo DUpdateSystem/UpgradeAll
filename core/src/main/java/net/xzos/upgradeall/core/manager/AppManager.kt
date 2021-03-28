@@ -20,7 +20,10 @@ import net.xzos.upgradeall.core.utils.oberver.Informer
 
 object AppManager : Informer {
 
-    const val DATA_UPDATE_NOTIFY = "UPDATE_NOTIFY"
+    const val DATA_UPDATING_NOTIFY = "DATA_UPDATING_NOTIFY"
+    const val DATA_UPDATE_CHANGED_NOTIFY = "DATA_UPDATE_CHANGED_NOTIFY"
+    const val DATA_UPDATED_NOTIFY = "DATA_UPDATED_NOTIFY"
+
     const val APP_DATABASE_CHANGED_NOTIFY = "APP_DATABASE_CHANGED_NOTIFY"
     const val APP_ADDED_NOTIFY = "APP_ADDED_NOTIFY"
     const val APP_DELETED_NOTIFY = "APP_DELETED_NOTIFY"
@@ -107,10 +110,12 @@ object AppManager : Informer {
         coroutineScope {
             for (app in appList)
                 launch {
+                    notifyChanged(DATA_UPDATING_NOTIFY, app)
                     app.update()
                     setAppMap(app)
                     count.down()
                     renewStatusFun?.run { this(count.count) }
+                    notifyChanged(DATA_UPDATED_NOTIFY, app)
                 }
         }
     }
@@ -138,7 +143,7 @@ object AppManager : Informer {
 
         // check changed
         if (changed) {
-            notifyChanged(DATA_UPDATE_NOTIFY, app)
+            notifyChanged(DATA_UPDATE_CHANGED_NOTIFY, app)
         }
     }
 

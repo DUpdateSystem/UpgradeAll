@@ -20,23 +20,25 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
 
     private val appList: CoroutinesMutableList<App> = coroutinesMutableListOf()
 
-    private val appViewModel by lazy {
-        object : AppViewModel() {
-            override fun appAdded(app: App) {
-                adapterAdd(app)
-            }
+    private val appViewModel = object : AppViewModel() {
+        override fun appAdded(app: App) {
+            adapterAdd(app)
+        }
 
-            override fun appChanged(app: App) {
-                adapterChange(app)
-            }
+        override fun appChanged(app: App) {
+            adapterChange(app)
+        }
 
-            override fun appUpdated(app: App) {
-                adapterChange(app)
-            }
+        override fun appDeleted(app: App) {
+            adapterDelete(app)
+        }
 
-            override fun appDeleted(app: App) {
-                adapterDelete(app)
-            }
+        override fun appUpdating(app: App) {
+            adapterChange(app)
+        }
+
+        override fun appUpdated(app: App) {
+            adapterChange(app)
         }
     }
 

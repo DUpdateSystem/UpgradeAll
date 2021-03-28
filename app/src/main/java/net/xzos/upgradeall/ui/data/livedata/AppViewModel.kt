@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.data.livedata
 
+import android.util.Log
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
@@ -26,6 +27,20 @@ open class AppViewModel {
             this[2](it)
         }
     }
+    private val appUpdatingObserver: ObserverFun<App> = {
+        appUpdating(it)
+        appMap[it]?.run {
+            this[3](it)
+        }
+    }
+
+    private val appUpdateChangedObserver: ObserverFun<App> = {
+        appUpdateChanged(it)
+        appMap[it]?.run {
+            this[3](it)
+        }
+    }
+
     private val appUpdatedObserver: ObserverFun<App> = {
         appUpdated(it)
         appMap[it]?.run {
@@ -38,15 +53,17 @@ open class AppViewModel {
     }
 
     open fun appAdded(app: App) {}
-
     open fun appDeleted(app: App) {}
-
     open fun appChanged(app: App) {}
 
+    open fun appUpdating(app: App) {}
+    open fun appUpdateChanged(app: App) {}
     open fun appUpdated(app: App) {}
 
     private fun initObserve() {
-        AppManager.observeForever(AppManager.DATA_UPDATE_NOTIFY, appUpdatedObserver)
+        AppManager.observeForever(AppManager.DATA_UPDATING_NOTIFY, appUpdatingObserver)
+        AppManager.observeForever(AppManager.DATA_UPDATE_CHANGED_NOTIFY, appUpdateChangedObserver)
+        AppManager.observeForever(AppManager.DATA_UPDATED_NOTIFY, appUpdatedObserver)
         AppManager.observeForever(AppManager.APP_ADDED_NOTIFY, appAddedObserver)
         AppManager.observeForever(AppManager.APP_DATABASE_CHANGED_NOTIFY, appChangedObserver)
         AppManager.observeForever(AppManager.APP_DELETED_NOTIFY, appDeletedObserver)

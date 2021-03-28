@@ -48,7 +48,7 @@
                 android:layout_height="24dp"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
-                android:visibility="@{item.ivStatusVisibility ? View.VISIBLE : View.GONE}"
+                android:visibility="@{item.ivStatusVisibility ? View.VISIBLE : View.INVISIBLE}"
                 app:imageResource="@{item.statusIcon}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
