@@ -5,106 +5,111 @@ import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.data.json.uiConfig
 import net.xzos.upgradeall.core.manager.AppManager
-import net.xzos.upgradeall.core.manager.AppManager.DATA_UPDATE_NOTIFY
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater
-import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
-import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
-import net.xzos.upgradeall.core.utils.oberver.ObserverFun
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.ADD
+import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.CHANGE
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.DEL
 import net.xzos.upgradeall.ui.data.livedata.AppViewModel
 
 
-class AppHubViewModel(application: Application) : ListContainerViewModel<App>(application), AppViewModel {
+class AppHubViewModel(application: Application) : ListContainerViewModel<App>(application) {
 
-    override val appList: CoroutinesMutableMap<App, Pair<ObserverFun<App>, ObserverFun<App>>> = coroutinesMutableMapOf()
+    private val appList: CoroutinesMutableList<App> = coroutinesMutableListOf()
+
+    private val appViewModel by lazy {
+        object : AppViewModel() {
+            override fun appAdded(app: App) {
+                adapterAdd(app)
+            }
+
+            override fun appChanged(app: App) {
+                adapterChange(app)
+            }
+
+            override fun appUpdated(app: App) {
+                adapterChange(app)
+            }
+
+            override fun appDeleted(app: App) {
+                adapterDelete(app)
+            }
+        }
+    }
 
     private lateinit var mAppType: String
     private var mTabIndex: Int = 0
 
-    private val renewObserver: ObserverFun<App> = {
-        loadData()
-    }
-
-    private val delObserver: ObserverFun<App> = {
-        loadData()
-    }
-
-    private val addObserver: ObserverFun<App> = {
-        loadData()
-    }
-
-    fun initSetting(appType: String, tabIndex: Int) {
+    fun initData(appType: String, tabIndex: Int) {
         mAppType = appType
         mTabIndex = tabIndex
-        when (mTabIndex) {
-            TAB_UPDATE -> listOf(APP_CHANGED_NOTIFY, DATA_UPDATE_NOTIFY)
-            else -> listOf(APP_CHANGED_NOTIFY)
-        }.forEach {
-            AppManager.observeForever(it, observer)
-        }
     }
 
     private fun adapterAdd(app: App) {
-        addObserver()
-        val list = appList.keys.toList()
+        if (!checkAppInfo(app)) return
+        val list = appList
+        var position = list.indexOf(app)
+        if (position == -1) {
+            position = list.size
+            list.add(app)
+        }
         setList(list, position, ADD)
     }
 
-    private fun adapterDelete(position: Int) {
-        val list = appList.keys.toList()
-        setList(list, position, DEL)
-    }
-
-    private fun adapterChange(position: Int) {
-        val list = appList.keys.toList()
-        setList(list, position, DEL)
-    }
-
-    private fun checkAppChanged(app: App, changedTag: String) {
-        val list = appList.keys.toList()
+    private fun adapterDelete(app: App) {
+        val list = appList
         val position = list.indexOf(app)
-        setList(list, position)
+        if (position != -1) {
+            list.removeAt(position)
+            setList(list, position, DEL)
+        }
     }
 
-    private fun checkAppListChanged(appList: List<App>) {
-        val list = this.appList.keys.toList()
+    private fun adapterChange(app: App) {
+        val list = appList
         val position = list.indexOf(app)
-        setList(list, position)
+        if (position != -1)
+            setList(list, position, CHANGE)
     }
 
     override fun onCleared() {
-        AppManager.removeObserver(observer)
-        clearObserve()
+        appViewModel.clearObserve()
         super.onCleared()
     }
 
     private fun getAppList(): List<App> {
-        return if (mAppType == ANDROID_APP_TYPE)
-            AppManager.getAppListWithoutKey(ANDROID_MAGISK_MODULE_TYPE)
-        else
-            AppManager.getAppList(mAppType)
-    }
-
-    private fun addApp(app:App): Int {
-        if (appList.containsKey(app)) return -1
-        else{
-            addObserve(app, { checkAppChanged(it) }, { checkAppChanged(it) })
-        }
+        return AppManager.getAppList()
     }
 
     override suspend fun doLoadData(): List<App> {
         val allList = getAppList()
-        val list = when (mTabIndex) {
-            TAB_UPDATE -> allList.filter { it.getReleaseStatus() == Updater.APP_OUTDATED }
-            TAB_STAR -> allList.filter { uiConfig.userStarAppIdList.contains(it.appId) }
-            else -> allList
+        appList.clear()
+        appList.addAll(allList.filter { checkAppInfo(it) })
+        return appList
+    }
+
+    private fun checkAppInfo(app: App): Boolean {
+        return checkAppType(app) && checkAppStatus(app)
+    }
+
+    private fun checkAppType(app: App): Boolean {
+        val appId = app.appId
+        return when (mAppType) {
+            ANDROID_APP_TYPE -> !appId.containsKey(ANDROID_MAGISK_MODULE_TYPE)
+            ANDROID_MAGISK_MODULE_TYPE -> appId.containsKey(ANDROID_MAGISK_MODULE_TYPE)
+            else -> true
         }
-        list.forEach { app ->
-            addObserve(app, { checkAppChanged(it) }, { checkAppChanged(it) })
+    }
+
+    private fun checkAppStatus(app: App): Boolean {
+        return when (mTabIndex) {
+            TAB_UPDATE -> app.getReleaseStatus() == Updater.APP_OUTDATED
+            TAB_STAR -> uiConfig.userStarAppIdList.contains(app.appId)
+            TAB_ALL -> true
+            else -> false
         }
-        return list
     }
 }

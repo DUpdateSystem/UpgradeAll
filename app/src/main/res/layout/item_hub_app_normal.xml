@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="item"
             type="net.xzos.upgradeall.ui.applist.base.normal.NormalAppListItemView" />
@@ -46,7 +48,8 @@
                 android:layout_height="24dp"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
-                android:visibility="invisible"
+                android:visibility="@{item.ivStatusVisibility ? View.VISIBLE : View.GONE}"
+                app:imageResource="@{item.statusIcon}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -58,6 +61,7 @@
                 style="?android:attr/progressBarStyle"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:visibility="@{item.pbStatusVisibility ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@+id/iv_status"
                 app:layout_constraintEnd_toEndOf="@+id/iv_status"
                 app:layout_constraintStart_toEndOf="@+id/main_info"

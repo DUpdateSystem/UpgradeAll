@@ -14,5 +14,5 @@ class DiscoveryAdapter(
         return DiscoverListViewHolder(binding)
     }
 
-    override fun getItemId(position: Int) = dataSet[position].hashCode().toLong()
+    override fun getItemId(position: Int) = getAdapterData()[position].hashCode().toLong()
 }

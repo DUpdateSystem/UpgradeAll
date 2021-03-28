@@ -86,6 +86,10 @@ class App(
         return getReleaseStatus()
     }
 
+    fun isRenewing(): Boolean {
+        return renewMutex.isLocked
+    }
+
     /* 获取 App 的更新状态 */
     fun getReleaseStatus(): Int {
         return updater.getUpdateStatus()

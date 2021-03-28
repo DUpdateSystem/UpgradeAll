@@ -9,7 +9,9 @@ class FileHubViewModel(application: Application) : ListContainerViewModel<FileIt
 
     override suspend fun doLoadData(): List<FileItemView> {
         return FileTaskerManager.getFileTaskerList().map {
-            FileItemView(it.name, it)
+            FileItemView(it.name, it).apply {
+                renewAppIcon(null, getApplication())
+            }
         }
     }
 }

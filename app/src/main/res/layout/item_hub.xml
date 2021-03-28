@@ -39,7 +39,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="@drawable/bg_circle"
-                    android:backgroundTint="@{item.backgroundTint}"
+                    android:backgroundTint="@{item.iconBackgroundTint}"
                     android:contentDescription="App icon"
                     android:gravity="center"
                     android:text="@{item.nameFirst}"

@@ -38,8 +38,8 @@
                     android:id="@+id/iv_icon"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="@drawable/bg_circle"
-                    android:backgroundTint="@{item.backgroundTint}"
+                    android:background="@{item.appIcon}"
+                    android:backgroundTint="@{item.iconBackgroundTint}"
                     android:contentDescription="App icon"
                     android:gravity="center"
                     android:text="@{item.nameFirst}"
@@ -47,6 +47,7 @@
                     android:transitionName="app_icon"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
+                    tools:background="@mipmap/ic_launcher_round"
                     tools:ignore="HardcodedText"
                     tools:text="A" />
 

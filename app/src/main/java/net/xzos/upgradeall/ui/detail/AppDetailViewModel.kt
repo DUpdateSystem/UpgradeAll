@@ -22,8 +22,8 @@ import net.xzos.upgradeall.server.downloader.startDownload
 import net.xzos.upgradeall.ui.data.livedata.AppViewModel
 import net.xzos.upgradeall.utils.setValueBackground
 
-class AppDetailViewModel(private val _application: Application) : AndroidViewModel(_application) {
-    private val appViewModel = AppViewModel()
+class AppDetailViewModel(application: Application) : AndroidViewModel(application) {
+    private val appViewModel by lazy { AppViewModel() }
 
     private lateinit var binding: ActivityAppDetailBinding
     private lateinit var item: AppDetailItem
@@ -39,7 +39,7 @@ class AppDetailViewModel(private val _application: Application) : AndroidViewMod
         MutableLiveData<List<Version>>()
     }
 
-    val downloadData = item.downloadData
+    val downloadData get() = item.downloadData
 
     override fun onCleared() {
         super.onCleared()
@@ -55,7 +55,7 @@ class AppDetailViewModel(private val _application: Application) : AndroidViewMod
             item.appName.set(it.name)
             val packageId = it.appId.getPackageId()?.second
             item.appPackageId.set(packageId)
-            item.renewAppIcon(packageId, _application)
+            item.renewAppIcon(packageId, getApplication())
         }, {
             updateInstalledVersion(it)
             val versionList = it.versionList

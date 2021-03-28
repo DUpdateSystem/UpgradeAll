@@ -7,5 +7,7 @@ import net.xzos.upgradeall.ui.applist.base.AppHubListFragment
 open class NormalAppHubListFragment
     : AppHubListFragment<NormalAppListItemView, NormalAppHubListViewHolder>() {
     override val adapter = NormalAppHubListAdapter()
-    override val listContainerViewConvertFun = fun(app: App) = NormalAppListItemView(app)
+    override val listContainerViewConvertFun = fun(app: App) = NormalAppListItemView(app).apply {
+        renew(requireContext())
+    }
 }

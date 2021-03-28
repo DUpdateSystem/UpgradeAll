@@ -5,7 +5,7 @@ import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.oberver.ObserverFun
 
-class AppViewModel {
+open class AppViewModel {
     private val appMap: MutableMap<App, List<ObserverFun<App>>> = coroutinesMutableMapOf(true)
 
     private val appAddedObserver: ObserverFun<App> = {
@@ -33,15 +33,19 @@ class AppViewModel {
         }
     }
 
-    fun appAdded(app: App) {}
+    init {
+        initObserve()
+    }
 
-    fun appDeleted(app: App) {}
+    open fun appAdded(app: App) {}
 
-    fun appChanged(app: App) {}
+    open fun appDeleted(app: App) {}
 
-    fun appUpdated(app: App) {}
+    open fun appChanged(app: App) {}
 
-    fun initObserve() {
+    open fun appUpdated(app: App) {}
+
+    private fun initObserve() {
         AppManager.observeForever(AppManager.DATA_UPDATE_NOTIFY, appUpdatedObserver)
         AppManager.observeForever(AppManager.APP_ADDED_NOTIFY, appAddedObserver)
         AppManager.observeForever(AppManager.APP_DATABASE_CHANGED_NOTIFY, appChangedObserver)

@@ -25,5 +25,7 @@ class UpdateAppHubListFragment : AppHubListFragment<UpdateAppListItemView, Updat
         return binding.root
     }
 
-    override val listContainerViewConvertFun = fun(app: App) = UpdateAppListItemView(app)
+    override val listContainerViewConvertFun = fun(app: App) = UpdateAppListItemView(app).apply {
+        renew(requireContext())
+    }
 }
