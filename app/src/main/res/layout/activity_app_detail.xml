@@ -152,6 +152,7 @@
                     android:padding="20dp"
                     android:text="@={appItem.changelog}"
                     android:textColor="@color/normal_text"
+                    android:textIsSelectable="true"
                     tools:text="1. 优化系统流畅度\n2. 提高系统的安全性和稳定性" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
