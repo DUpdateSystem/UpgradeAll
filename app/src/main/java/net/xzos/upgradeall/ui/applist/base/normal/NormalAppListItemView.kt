@@ -5,7 +5,6 @@ import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater
-import net.xzos.upgradeall.core.utils.android_app.getPackageId
 import net.xzos.upgradeall.ui.applist.base.BaseAppListItemView
 
 class NormalAppListItemView(app: App) : BaseAppListItemView(app) {
@@ -15,7 +14,7 @@ class NormalAppListItemView(app: App) : BaseAppListItemView(app) {
     val pbStatusVisibility: ObservableField<Boolean> = ObservableField()
 
     fun renew(context: Context) {
-        renewAppIcon(app.appId.getPackageId()?.second, context)
+        renewData(context)
         if (app.isRenewing()) {
             ivStatusVisibility.set(false)
             pbStatusVisibility.set(true)

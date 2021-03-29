@@ -15,20 +15,25 @@ import net.xzos.upgradeall.core.data.json.getAppId
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.utils.android_app.getPackageId
-import net.xzos.upgradeall.ui.base.list.ListItemTextView
+import net.xzos.upgradeall.ui.base.list.ActivityListItemView
+import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 
 class DiscoverListItemView(
         name: String,
         val type: Int,
         val hubName: String,
         val uuid: String,
-) : ListItemTextView {
+) : BaseAppIconItem, ActivityListItemView {
     override val appName: ObservableField<String> = ObservableField(name)
     override val nameFirst: ObservableField<String> = ObservableField()
     val isSavedIvVisibility = if (AppManager.getAppByUuid(uuid) == null) View.GONE else View.VISIBLE
 
     override val appIcon: ObservableField<Drawable> = ObservableField()
     override val iconBackgroundTint: ObservableField<ColorStateList?> = ObservableField()
+
+    override fun getItemIdName(): String {
+        return appName.get().toString()
+    }
 
     companion object {
         fun getCloudAppItemCardView(appConfig: AppConfigGson, context: Context): DiscoverListItemView? {

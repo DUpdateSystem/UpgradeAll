@@ -9,7 +9,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.UxUtils
 
-interface ListItemTextView : ListItemView {
+interface BaseAppIconItem {
     val appName: ObservableField<String>
     val nameFirst: ObservableField<String>
     val appIcon: ObservableField<Drawable>

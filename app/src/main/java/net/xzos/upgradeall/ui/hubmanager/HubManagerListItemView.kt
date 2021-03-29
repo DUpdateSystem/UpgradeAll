@@ -8,12 +8,13 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.data.json.HubConfigGson
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.manager.HubManager
-import net.xzos.upgradeall.ui.base.list.ListItemTextView
+import net.xzos.upgradeall.ui.base.list.ActivityListItemView
+import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 
 class HubManagerListItemView(
         name: String,
-        val uuid: String
-) : ListItemTextView {
+        private val uuid: String
+) : BaseAppIconItem, ActivityListItemView {
     val observable = HubEnableObservable(HubManager.getHub(uuid) != null, fun(enable) {
         switchHubExistStatus(uuid, enable)
     })
@@ -32,6 +33,10 @@ class HubManagerListItemView(
     override val nameFirst: ObservableField<String> = ObservableField()
     override val appIcon: ObservableField<Drawable> = ObservableField()
     override val iconBackgroundTint: ObservableField<ColorStateList?> = ObservableField()
+
+    override fun getItemIdName(): String {
+        return appName.get().toString()
+    }
 
     companion object {
         fun getCloudHubItemCardView(hubConfig: HubConfigGson, context: Context): HubManagerListItemView {

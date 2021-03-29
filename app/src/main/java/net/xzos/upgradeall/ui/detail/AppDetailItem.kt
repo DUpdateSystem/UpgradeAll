@@ -6,12 +6,12 @@ import androidx.core.text.HtmlCompat
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.Version
-import net.xzos.upgradeall.ui.base.list.ListItemTextView
+import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 import net.xzos.upgradeall.ui.detail.download.DownloadStatusData
 import net.xzos.upgradeall.utils.MiscellaneousUtils.hasHTMLTags
 import kotlin.properties.Delegates
 
-class AppDetailItem(private val activity: AppDetailActivity) : ListItemTextView {
+class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
     override val appName: ObservableField<String> = ObservableField()
     val appPackageId: ObservableField<CharSequence> = ObservableField()
     val showingVersionNumber: ObservableField<String> = ObservableField()

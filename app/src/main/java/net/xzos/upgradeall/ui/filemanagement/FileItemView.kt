@@ -6,12 +6,13 @@ import androidx.databinding.ObservableField
 import com.tonyodev.fetch2.Status
 import net.xzos.upgradeall.core.downloader.Downloader
 import net.xzos.upgradeall.core.filetasker.FileTasker
-import net.xzos.upgradeall.ui.base.list.ListItemTextView
+import net.xzos.upgradeall.ui.base.list.ActivityListItemView
+import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 
 class FileItemView(
         name: String,
         val fileTasker: FileTasker,
-) : ListItemTextView {
+) : BaseAppIconItem, ActivityListItemView {
     private val numUtil = DownloadTaskerNumUtil(fileTasker.downloader)
     suspend fun getDownloadingNum() = numUtil.getDownloadingNum().toString()
     suspend fun getPauseNum() = numUtil.getPauseNum().toString()
@@ -22,6 +23,10 @@ class FileItemView(
     override val nameFirst: ObservableField<String> = ObservableField()
     override val appIcon: ObservableField<Drawable> = ObservableField()
     override val iconBackgroundTint: ObservableField<ColorStateList?> = ObservableField()
+
+    override fun getItemIdName(): String {
+        return appName.get().toString()
+    }
 }
 
 class DownloadTaskerNumUtil(private val downloader: Downloader?) {

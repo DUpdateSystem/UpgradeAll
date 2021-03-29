@@ -7,6 +7,6 @@ import net.xzos.upgradeall.ui.applist.base.BaseAppListItemView
 
 class UpdateAppListItemView(app: App) : BaseAppListItemView(app) {
     fun renew(context: Context) {
-        renewAppIcon(app.appId.getPackageId()?.second, context)
+        renewData(context)
     }
 }
