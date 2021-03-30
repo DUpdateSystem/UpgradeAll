@@ -39,7 +39,10 @@ class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
             }
         }
         val length = latestChangeLog.length
-        setChangelog(latestChangeLog.delete(length - 1, length))
+        val spannableStringBuilder = if (length != 0)
+            latestChangeLog.delete(length - 1, length)
+        else latestChangeLog
+        setChangelog(spannableStringBuilder)
     }
 
     private fun setChangelog(_changelog: SpannableStringBuilder?) {
