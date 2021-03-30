@@ -1,15 +1,18 @@
 package net.xzos.upgradeall.ui.detail
 
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import androidx.core.text.HtmlCompat
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.module.app.Version
+import net.xzos.upgradeall.core.module.app.Asset
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 import net.xzos.upgradeall.ui.detail.download.DownloadStatusData
 import net.xzos.upgradeall.utils.MiscellaneousUtils.hasHTMLTags
-import kotlin.properties.Delegates
 
 class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
     override val appName: ObservableField<String> = ObservableField()
@@ -21,19 +24,25 @@ class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
 
     override val nameFirst: ObservableField<String> = ObservableField()
 
-    var selectedVersion: Version? by Delegates.observable(null) { _, _, new ->
-        if (new == null) return@observable
-        var latestChangeLog = ""
-        for (asset in new.assetList) {
+    fun setAssetInfo(assetList: List<Asset>?) {
+        assetList ?: return
+        val latestChangeLog = SpannableStringBuilder()
+        assetList.forEach { asset ->
             val changelog = asset.changelog
             if (!changelog.isNullOrBlank()) {
-                latestChangeLog += "${asset.hub.name}\n${changelog}\n"
+                val colorSpan = ForegroundColorSpan(Color.BLUE)
+                val start = latestChangeLog.length
+                val hubName = asset.hub.name
+                latestChangeLog.append("$hubName\n${changelog}\n\n")
+                latestChangeLog.setSpan(colorSpan, start, start + hubName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                latestChangeLog.append()
             }
         }
-        setChangelog(latestChangeLog)
+        val length = latestChangeLog.length
+        setChangelog(latestChangeLog.delete(length - 1, length))
     }
 
-    private fun setChangelog(_changelog: CharSequence?) {
+    private fun setChangelog(_changelog: SpannableStringBuilder?) {
         changelog.set(when {
             _changelog.isNullOrBlank() -> {
                 activity.getString(R.string.null_english)

@@ -36,15 +36,4 @@ class FileAsset(
         result = 31 * result + hub.hashCode()
         return result
     }
-
-    companion object {
-        class TmpFileAsset(
-                /* 文件数据名称，用来给用户看的 */
-                val name: String,
-                /* 默认下载链接 */
-                internal val downloadUrl: String,
-                internal val fileType: String,
-                internal val assetIndex: Pair<Int, Int>,
-        )
-    }
 }

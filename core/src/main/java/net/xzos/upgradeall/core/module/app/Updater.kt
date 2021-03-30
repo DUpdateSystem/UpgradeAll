@@ -47,14 +47,14 @@ class Updater internal constructor(
     }
 
     internal fun getUpdateStatus(): Int {
-        val releaseList = app.versionList
-        val status = if (releaseList.isEmpty()) {
+        val versionNumberList = app.versionList.map { it.name }
+        val status = if (versionNumberList.isEmpty()) {
             NETWORK_ERROR
         } else {
             val versionNumber = getIgnoreVersionNumber() ?: getInstalledVersionNumber()
             when {
                 versionNumber == null -> APP_NO_LOCAL
-                !isLatestVersionNumber(versionNumber, releaseList.map { it.name }) -> APP_OUTDATED
+                !isLatestVersionNumber(versionNumber, versionNumberList) -> APP_OUTDATED
                 else -> APP_LATEST
             }
         }
@@ -71,17 +71,20 @@ class Updater internal constructor(
     private fun isLatestVersionNumber(localVersionNumber: String, versionNumberList: List<String>): Boolean {
         if (versionNumberList.isEmpty()) return true
         val latestVersion = versionNumberList[0]
-        return VersioningUtils.compareVersionNumber(
-                localVersionNumber, latestVersion
-        ) ?: run {
-            val searchUtils = SearchUtils(versionNumberList.map {
-                SearchInfo(MatchInfo(it, it, listOf(MatchString(it))), null)
-            })
-            val searchList = searchUtils.search(localVersionNumber)
-            if (searchList.isNotEmpty()) {
-                val version = searchList[0].matchInfo.matchList[0].matchString
-                versionNumberList.indexOf(version) == 0
-            } else false
+        return when (VersioningUtils.compareVersionNumber(localVersionNumber, latestVersion)) {
+            1 -> true
+            0 -> true
+            -1 -> false
+            else -> {
+                val searchUtils = SearchUtils(versionNumberList.map {
+                    SearchInfo(MatchInfo(it, it, listOf(MatchString(it))), null)
+                })
+                val searchList = searchUtils.search(localVersionNumber)
+                if (searchList.isNotEmpty()) {
+                    val version = searchList[0].matchInfo.matchList[0].matchString
+                    versionNumberList.indexOf(version) == 0
+                } else false
+            }
         }
     }
 

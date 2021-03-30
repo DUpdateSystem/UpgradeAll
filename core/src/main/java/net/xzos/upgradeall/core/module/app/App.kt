@@ -8,9 +8,6 @@ import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.route.ReleaseListItem
-import net.xzos.upgradeall.core.utils.VersioningUtils.sortByVersionNumber
-import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
-import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.wait
 
 class App(
@@ -18,6 +15,7 @@ class App(
         statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
 ) {
     val updater = Updater(this, statusRenewedFun)
+    private val versionUtils = VersionUtils(this.appDatabase)
     private val renewMutex = Mutex()
 
     /* App 对象的属性字典 */
@@ -46,18 +44,7 @@ class App(
     }
 
     /* 版本号数据列表 */
-    val versionList: List<Version>
-        get() {
-            val versionNumberList = versionMap.keys.sortByVersionNumber()
-            val list = mutableListOf<Version>()
-            for (versionNumber in versionNumberList) {
-                list.add(versionMap[versionNumber]!!)
-            }
-            return list
-        }
-
-    private val versionMap = coroutinesMutableMapOf<String, Version>(true)
-    private val versionMapLock: Mutex = Mutex()
+    val versionList: List<Version> get() = versionUtils.getVersionList()
 
     /* 刷新版本号数据 */
     suspend fun update() {
@@ -98,12 +85,8 @@ class App(
     fun getLatestVersionNumber(): String? {
         return if (isLatestVersion())
             installedVersionNumber
-        else {
-            val versionList = this.versionList
-            return if (versionList.isNotEmpty())
-                versionList[0].name
-            else null
-        }
+        else
+            versionList.firstOrNull()?.name
     }
 
     /* 获取 App 的更新状态 */
@@ -118,29 +101,21 @@ class App(
     }
 
     private suspend fun setVersionMap(hub: Hub, releaseList: List<ReleaseListItem>) {
-        versionMapLock.withLock {
-            releaseList.forEachIndexed { versionIndex, release ->
-                val versionNumber = release.versionNumber
-                val version = versionMap[versionNumber]
-                        ?: Version(this.appDatabase, versionNumber, coroutinesMutableListOf(true)).also {
-                            versionMap[versionNumber] = it
-                        }
-                val asset = Asset(hub, release.changeLog,
-                        release.assetsList.mapIndexed { assetIndex, assetItem ->
-                            FileAsset.Companion.TmpFileAsset(
-                                    assetItem.fileName,
-                                    assetItem.downloadUrl,
-                                    assetItem.fileType,
-                                    Pair(versionIndex, assetIndex)
-                            )
-                        }, this)
-                version.assetList.apply {
-                    val hubUuid = asset.hub.uuid
-                    forEach { if (it.hub.uuid == hubUuid) this.remove(it) }
-                    version.assetList.add(asset)
-                }
-            }
+        val assetsList = mutableListOf<Asset>()
+        releaseList.forEachIndexed { versionIndex, release ->
+            val versionNumber = release.versionNumber
+            val asset = Asset.newInstance(versionNumber, hub, release.changeLog,
+                    release.assetsList.mapIndexed { assetIndex, assetItem ->
+                        Asset.Companion.TmpFileAsset(
+                                assetItem.fileName,
+                                assetItem.downloadUrl,
+                                assetItem.fileType,
+                                Pair(versionIndex, assetIndex)
+                        )
+                    }, this)
+            assetsList.add(asset)
         }
+        versionUtils.addAsset(assetsList, hub.uuid)
     }
 
     override fun equals(other: Any?): Boolean {

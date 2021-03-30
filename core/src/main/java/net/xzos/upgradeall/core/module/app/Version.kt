@@ -1,37 +1,29 @@
 package net.xzos.upgradeall.core.module.app
 
-import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.database.metaDatabase
-import net.xzos.upgradeall.core.database.table.AppEntity
+import net.xzos.upgradeall.core.utils.VersioningUtils
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 
 /**
  * 版本号数据
  */
 class Version(
-        private val appEntity: AppEntity,
         /* 版本号 */
         val name: String,
         /* 资源列表 */
-        val assetList: CoroutinesMutableList<Asset>
-) {
-    val isIgnored: Boolean get() = name == appEntity.ignoreVersionNumber
+        val assetList: CoroutinesMutableList<Asset>,
+        private val versionUtils: VersionUtils,
+) : Comparable<Version> {
+    val isIgnored: Boolean get() = versionUtils.isIgnored(name)
 
     fun switchIgnoreStatus() {
-        if (isIgnored)
-            unignore()
-        else ignore()
+        versionUtils.switchIgnoreStatus(name)
     }
 
-    /* 忽略这个版本 */
-    fun ignore() {
-        appEntity.ignoreVersionNumber = name
-        runBlocking { metaDatabase.appDao().update(appEntity) }
+    override fun compareTo(other: Version): Int {
+        return VersioningUtils.compareVersionNumber(other.name, name) ?: -1
     }
+}
 
-    /* 取消忽略这个版本 */
-    fun unignore() {
-        appEntity.ignoreVersionNumber = null
-        runBlocking { metaDatabase.appDao().update(appEntity) }
-    }
+val versionComparator = Comparator { v1: Version, v2: Version ->
+    v1.compareTo(v2)
 }

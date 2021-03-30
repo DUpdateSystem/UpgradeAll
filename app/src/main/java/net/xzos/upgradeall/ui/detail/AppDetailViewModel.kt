@@ -118,22 +118,22 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         else position
         val versionItem = versionList[index]
         currentVersion = versionItem
-        item.selectedVersion = currentVersion
+        item.setAssetInfo(currentVersion?.assetList)
     }
 
     private fun renewVersionList(versionList: List<Version>) {
-        val versionNumberList = versionList.map { getVersionName(it) }
+        val versionNumberSpannableStringList = versionList.map { getVersionNameSpannableString(it) }
         val tvMoreVersion = binding.tvMoreVersion
         val oldVersion = tvMoreVersion.text.toString()
-        var position = versionNumberList.map { it.toString() }.indexOf(oldVersion)
+        var position = versionNumberSpannableStringList.map { it.toString() }.indexOf(oldVersion)
         if (position == -1) position = 0
         setVersionInfo(position)
-        if (position == 0 && versionNumberList.isNotEmpty())
-            tvMoreVersion.setText(versionNumberList[position], false)
-        setVersionAdapter(versionNumberList)
+        if (position == 0 && versionNumberSpannableStringList.isNotEmpty())
+            tvMoreVersion.setText(versionNumberSpannableStringList[position], false)
+        setVersionAdapter(versionNumberSpannableStringList)
     }
 
-    private fun getVersionName(version: Version): SpannableStringBuilder {
+    private fun getVersionNameSpannableString(version: Version): SpannableStringBuilder {
         val versionName = version.name
         val sb = SpannableStringBuilder()
         sb.append(versionName)
