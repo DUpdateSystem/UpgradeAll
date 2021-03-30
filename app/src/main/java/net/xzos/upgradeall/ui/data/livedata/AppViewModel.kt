@@ -1,50 +1,62 @@
 package net.xzos.upgradeall.ui.data.livedata
 
-import android.util.Log
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.oberver.ObserverFun
+import net.xzos.upgradeall.utils.runUiFun
 
 open class AppViewModel {
     private val appMap: MutableMap<App, List<ObserverFun<App>>> = coroutinesMutableMapOf(true)
 
     private val appAddedObserver: ObserverFun<App> = {
-        appAdded(it)
-        appMap[it]?.run {
-            this[0](it)
+        runUiFun {
+            appAdded(it)
+            appMap[it]?.run {
+                this[0](it)
+            }
         }
     }
     private val appDeletedObserver: ObserverFun<App> = {
-        appDeleted(it)
-        appMap[it]?.run {
-            this[1](it)
+        runUiFun {
+            appDeleted(it)
+            appMap[it]?.run {
+                this[1](it)
+            }
         }
     }
     private val appChangedObserver: ObserverFun<App> = {
-        appChanged(it)
-        appMap[it]?.run {
-            this[2](it)
+        runUiFun {
+            appChanged(it)
+            appMap[it]?.run {
+                this[2](it)
+            }
         }
     }
     private val appUpdatingObserver: ObserverFun<App> = {
-        appUpdating(it)
-        appMap[it]?.run {
-            this[3](it)
+        runUiFun {
+            appUpdating(it)
+            appMap[it]?.run {
+                this[3](it)
+            }
         }
     }
 
     private val appUpdateChangedObserver: ObserverFun<App> = {
-        appUpdateChanged(it)
-        appMap[it]?.run {
-            this[3](it)
+        runUiFun {
+            appUpdateChanged(it)
+            appMap[it]?.run {
+                this[3](it)
+            }
         }
     }
 
     private val appUpdatedObserver: ObserverFun<App> = {
-        appUpdated(it)
-        appMap[it]?.run {
-            this[3](it)
+        runUiFun {
+            appUpdated(it)
+            appMap[it]?.run {
+                this[3](it)
+            }
         }
     }
 
