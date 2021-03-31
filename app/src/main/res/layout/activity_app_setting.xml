@@ -77,7 +77,7 @@
                 android:id="@+id/imageView2"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:contentDescription="@string/versioning_check_setting"
+                android:contentDescription="@string/updating_setting"
                 android:src="@drawable/ic_load"
                 app:layout_constraintBottom_toBottomOf="@+id/textView2"
                 app:layout_constraintStart_toStartOf="parent"
@@ -90,10 +90,49 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="24dp"
-                android:text="@string/attr_list"
+                android:text="@string/updating_setting"
                 android:textSize="24sp"
                 app:layout_constraintStart_toEndOf="@+id/imageView2"
                 app:layout_constraintTop_toBottomOf="@+id/name_input_layout" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/updating_setting_input_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/custom_invalid_version_number_field"
+                app:layout_constraintTop_toBottomOf="@+id/imageView2">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/updating_setting_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/versioning_check_setting"
+                android:src="@drawable/ic_load"
+                app:layout_constraintBottom_toBottomOf="@+id/textView3"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textView3"
+                app:tint="@color/taupe" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/attr_list"
+                android:textSize="24sp"
+                app:layout_constraintStart_toEndOf="@+id/imageView3"
+                app:layout_constraintTop_toBottomOf="@+id/updating_setting_input_layout" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/attr_list"
@@ -101,21 +140,20 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+                app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
-            <ImageButton
+            <Button
                 android:id="@+id/ib_addAttr"
+                style="@style/Widget.MaterialComponents.Button.Icon"
                 android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:adjustViewBounds="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/add_attr"
-                android:padding="24dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:text="@string/add_attr"
+                app:icon="@drawable/ic_add_2"
                 app:layout_constraintEnd_toEndOf="@+id/attr_list"
                 app:layout_constraintStart_toStartOf="@+id/attr_list"
-                app:layout_constraintTop_toBottomOf="@+id/attr_list"
-                app:srcCompat="@drawable/ic_add_2"
-                app:tint="@color/text_color" />
+                app:layout_constraintTop_toBottomOf="@+id/attr_list" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
