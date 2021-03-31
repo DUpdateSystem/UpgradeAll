@@ -238,6 +238,8 @@
     <string name="not_match_any_template">Cannot match any template.</string>
     <string name="helper_text_cant_be_empty">Not empty</string>
     <string name="helper_text_attr_cant_be_empty">Attributes List not empty</string>
+    <string name="updating_setting">Updating Setting</string>
+    <string name="custom_invalid_version_number_field_regex">Custom the regex of invalid version number field</string>
 
     <string name="save_as">Save As</string>
     <string name="show_download_tasker">查看下载进度</string>

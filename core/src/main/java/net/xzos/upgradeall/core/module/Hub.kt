@@ -11,11 +11,6 @@ class Hub(private val hubDatabase: HubEntity) {
     val uuid get() = hubDatabase.uuid
     val hubConfig get() = hubDatabase.hubConfig
 
-    private fun getIgnoreAppIdList(): HashSet<Map<String, String?>> {
-        val list = hubDatabase.ignoreAppIdList + hubDatabase.userIgnoreAppIdList
-        return list.toHashSet()
-    }
-
     fun isValidApp(app: App): Boolean = getValidKey(app) != null
 
     private fun getValidKey(app: App): Map<String, String>? {
@@ -26,6 +21,12 @@ class Hub(private val hubDatabase: HubEntity) {
             keyMap[key] = appId[key] ?: return null
         }
         return keyMap
+    }
+
+    fun isIgnoreApp(app: App): Boolean {
+        val appId = getValidKey(app) ?: return true
+        val ignoreAppIdList = hubDatabase.userIgnoreAppIdList
+        return ignoreAppIdList.contains(appId)
     }
 
     fun ignoreApp(app: App) {
@@ -42,22 +43,22 @@ class Hub(private val hubDatabase: HubEntity) {
 
     private fun getAppPriority(app: App): Int {
         val appId = getValidKey(app) ?: return LOW_PRIORITY_APP
-        val ignoreAppIdList = getIgnoreAppIdList()
-        return if (ignoreAppIdList.contains(appId))
+        val lowPriorityAppIdList = hubDatabase.ignoreAppIdList
+        return if (lowPriorityAppIdList.contains(appId))
             LOW_PRIORITY_APP
         else NORMAL_PRIORITY_APP
     }
 
     private fun setLowPriorityApp(app: App) {
         val appId = getValidKey(app) ?: return
-        val ignoreAppIdList = hubDatabase.ignoreAppIdList
-        ignoreAppIdList.add(appId)
+        val lowPriorityAppIdList = hubDatabase.ignoreAppIdList
+        lowPriorityAppIdList.add(appId)
     }
 
     private fun unsetLowPriorityApp(app: App) {
         val appId = getValidKey(app) ?: return
-        val ignoreAppIdList = hubDatabase.ignoreAppIdList
-        ignoreAppIdList.remove(appId)
+        val lowPriorityAppIdList = hubDatabase.ignoreAppIdList
+        lowPriorityAppIdList.remove(appId)
     }
 
     internal fun getUrl(app: App): String? {

@@ -5,8 +5,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
+import net.xzos.upgradeall.core.database.table.getInvalidVersionNumberFieldRegex
 import net.xzos.upgradeall.core.utils.VersioningUtils
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
+import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
 
 /**
  * 版本号数据
@@ -43,18 +45,28 @@ class VersionUtils(
         return versionMap.values.toList()
     }
 
-    private fun cleanAsset(hubUuid: String, versionList: List<Version>): MutableList<Version> {
+    private fun cleanAsset(hubUuid: String, _versionList: List<Version>): MutableList<Version> {
+        val versionList = _versionList.toCoroutinesMutableList(true)
         versionList.forEach { version ->
             version.assetList.forEach {
                 if (it.hub.uuid == hubUuid)
                     version.assetList.remove(it)
             }
+            if (version.assetList.isEmpty())
+                versionList.remove(version)
         }
         return versionList.toMutableList()
     }
 
     private fun getKeyVersionNumber(asset: Asset): String {
-        return VersioningUtils.matchVersioningString(asset.versionNumber) ?: asset.versionNumber
+        val rowVersionNumber = asset.versionNumber
+        var versionNumber = ""
+        appEntity.getInvalidVersionNumberFieldRegex()?.run {
+            versionNumber = rowVersionNumber.replace(this, "")
+        } ?: kotlin.run {
+            versionNumber = rowVersionNumber
+        }
+        return VersioningUtils.matchVersioningString(versionNumber) ?: versionNumber
     }
 
     fun isIgnored(versionNumber: String): Boolean = versionNumber == appEntity.ignoreVersionNumber
@@ -74,6 +86,7 @@ class VersionUtils(
 
     /* 取消忽略这个版本 */
     private fun unignore(versionNumber: String) {
+        if (appEntity.ignoreVersionNumber != versionNumber) return
         appEntity.ignoreVersionNumber = null
         runBlocking { metaDatabase.appDao().update(appEntity) }
     }

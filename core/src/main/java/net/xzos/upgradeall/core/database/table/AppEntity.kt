@@ -14,11 +14,15 @@ class AppEntity(
         var name: String,
         @ColumnInfo(name = "app_id")
         var appId: Map<String, String?>,
+        @ColumnInfo(name = "invalid_version_number_field_regex")
+        var invalidVersionNumberFieldRegexString: String? = null,
         @ColumnInfo(name = "ignore_version_number")
         var ignoreVersionNumber: String? = null,
         @ColumnInfo(name = "cloud_config")
         var cloudConfig: AppConfigGson? = null,
 )
+
+fun AppEntity.getInvalidVersionNumberFieldRegex(): Regex? = invalidVersionNumberFieldRegexString?.toRegex()
 
 fun AppEntity.isInit(): Boolean {
     return 0L != id
@@ -26,4 +30,6 @@ fun AppEntity.isInit(): Boolean {
 
 fun AppEntity.recheck() {
     appId = appId.cleanBlankValue()
+    invalidVersionNumberFieldRegexString = if (invalidVersionNumberFieldRegexString.isNullOrBlank()) null
+    else invalidVersionNumberFieldRegexString
 }

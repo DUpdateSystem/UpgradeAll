@@ -96,16 +96,16 @@
                 app:layout_constraintTop_toBottomOf="@+id/name_input_layout" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/updating_setting_input_layout"
+                android:id="@+id/invalid_version_number_field_regex_input_layout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="@string/custom_invalid_version_number_field"
+                android:hint="@string/custom_invalid_version_number_field_regex"
                 app:layout_constraintTop_toBottomOf="@+id/imageView2">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/updating_setting_edit"
+                    android:id="@+id/invalid_version_number_field_regex_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text" />
@@ -132,7 +132,7 @@
                 android:text="@string/attr_list"
                 android:textSize="24sp"
                 app:layout_constraintStart_toEndOf="@+id/imageView3"
-                app:layout_constraintTop_toBottomOf="@+id/updating_setting_input_layout" />
+                app:layout_constraintTop_toBottomOf="@+id/invalid_version_number_field_regex_input_layout" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/attr_list"

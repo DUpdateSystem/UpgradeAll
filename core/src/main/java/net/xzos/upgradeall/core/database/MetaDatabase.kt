@@ -11,7 +11,7 @@ import net.xzos.upgradeall.core.database.migration.*
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.HubEntity
 
-@Database(entities = [AppEntity::class, HubEntity::class], version = 10)
+@Database(entities = [AppEntity::class, HubEntity::class], version = 11)
 @TypeConverters(Converters::class)
 abstract class MetaDatabase : RoomDatabase() {
     abstract fun appDao(): AppDao
@@ -29,4 +29,5 @@ val metaDatabase = Room
         .addMigrations(MIGRATION_8_9)
         .addMigrations(MIGRATION_9_10)
         .addMigrations(MIGRATION_8_10)
+        .addMigrations(MIGRATION_10_11)
         .build()

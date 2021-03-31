@@ -74,6 +74,7 @@ class AppSettingActivity : AppBarActivity() {
 
     private fun addApp() {
         val name = binding.nameEdit.text.toString()
+        val invalidVersionNumberFieldRegex = binding.invalidVersionNumberFieldRegexEdit.text.toString()
         val appId = attrMap
         if (name.isBlank()) {
             binding.nameEdit.error = getString(R.string.helper_text_cant_be_empty)
@@ -85,8 +86,10 @@ class AppSettingActivity : AppBarActivity() {
         }
         val appEntity = database?.apply {
             this.name = name
+            this.invalidVersionNumberFieldRegexString = invalidVersionNumberFieldRegex
             this.appId = appId
-        } ?: AppEntity(0, name, appId)
+        } ?: AppEntity(0, name, appId,
+                invalidVersionNumberFieldRegexString = invalidVersionNumberFieldRegex)
         window?.let {
             binding.addButton.visibility = View.GONE
             binding.loadingBar.visibility = View.VISIBLE

@@ -249,7 +249,9 @@
     <string name="not_match_any_template">无法匹配任意一种模板</string>
     <string name="helper_text_cant_be_empty">不能为空</string>
     <string name="helper_text_attr_cant_be_empty">属性列表不能为空</string>
-    
+    <string name="updating_setting">更新设置</string>
+    <string name="custom_invalid_version_number_field_regex">自定义无效版本号字段的正则表达式</string>
+
     <!-- File Manager -->
     <string name="save_as">另存</string>
     <string name="show_download_tasker">查看下载进度</string>

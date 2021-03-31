@@ -55,5 +55,5 @@ suspend fun AppConfigGson.toAppEntity(): AppEntity? {
             return appDatabase
         }
     }
-    return AppEntity(0, info.name, appId, null, this)
+    return AppEntity(0, info.name, appId, cloudConfig = this)
 }
