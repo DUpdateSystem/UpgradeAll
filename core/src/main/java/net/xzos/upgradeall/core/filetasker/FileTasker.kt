@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.filetasker
 
 import android.content.Context
+import net.xzos.upgradeall.core.downloader.DownloadInfoItem
 import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.downloader.Downloader
 import net.xzos.upgradeall.core.downloader.PreDownload
@@ -10,7 +11,10 @@ import net.xzos.upgradeall.core.module.app.FileAsset
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.openInFileManager
 
-class FileTasker internal constructor(internal val fileAsset: FileAsset) {
+class FileTasker internal constructor(
+        internal val fileAsset: FileAsset,
+        downloadInfoList: List<DownloadInfoItem>? = null
+) {
     val id: Int = getTaskerIndex()
     val name = fileAsset.name
 
@@ -19,7 +23,7 @@ class FileTasker internal constructor(internal val fileAsset: FileAsset) {
     }
 
     /* 预下载器 */
-    private var preDownload: PreDownload? = PreDownload(fileAsset)
+    private var preDownload: PreDownload? = PreDownload(fileAsset, downloadInfoList)
 
     /* 下载管理器 */
     var downloader: Downloader? = null
@@ -83,6 +87,6 @@ class FileTasker internal constructor(internal val fileAsset: FileAsset) {
         private val TASKER_INDEX = CoroutinesCount(0)
         private fun getTaskerIndex(): Int = TASKER_INDEX.up()
 
-        fun FileAsset.getFileTasker() = FileTasker(this)
+        fun FileAsset.getFileTasker(downloadInfoList: List<DownloadInfoItem>? = null) = FileTasker(this, downloadInfoList)
     }
 }

@@ -235,6 +235,7 @@
     <string name="retry">重试</string>
     <string name="change_hub_priority">软件源优先级</string>
     <string name="more_url">更多网址</string>
+    <string name="download_loading">开始准备下载</string>
 
     <!-- APP Setting -->
     <string name="edit_app">编辑跟踪项</string>

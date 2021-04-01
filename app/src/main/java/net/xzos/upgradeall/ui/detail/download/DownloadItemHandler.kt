@@ -9,7 +9,14 @@ import net.xzos.upgradeall.ui.detail.AppDetailViewModel
 class DownloadItemHandler(private val appDetailViewModel: AppDetailViewModel) : RecyclerViewHandler() {
     fun clickDownload(fileAsset: FileAsset) {
         GlobalScope.launch {
-            appDetailViewModel.download(fileAsset)
+            appDetailViewModel.download(fileAsset, false)
         }
+    }
+
+    fun longClickDownload(fileAsset: FileAsset): Boolean {
+        GlobalScope.launch {
+            appDetailViewModel.download(fileAsset, true)
+        }
+        return true
     }
 }

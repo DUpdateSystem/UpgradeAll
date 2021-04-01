@@ -1,12 +1,15 @@
 package net.xzos.upgradeall.server.downloader
 
+import android.content.Context
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.downloader.DownloadOb
+import net.xzos.upgradeall.core.downloader.PreDownload
 import net.xzos.upgradeall.core.filetasker.FileTasker
 import net.xzos.upgradeall.core.filetasker.FileTasker.Companion.getFileTasker
 import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.module.app.FileAsset
+import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 suspend fun startDownload(
@@ -14,15 +17,25 @@ suspend fun startDownload(
         taskStartedFun: (Int) -> Unit,
         taskStartFailedFun: () -> Unit,
         downloadOb: DownloadOb,
+        context: Context,
+        externalDownload: Boolean,
 ) {
-    val fileTasker = fileAsset.getFileTasker()
-    val notification = DownloadNotification(fileTasker).apply {
-        waitDownloadTaskNotification()
+    MiscellaneousUtils.showToast(R.string.download_loading)
+    val downloadInfoList = PreDownload.getDownloadInfoList(fileAsset)
+    if (PreferencesMap.enforce_use_external_downloader || externalDownload) {
+        downloadInfoList.forEach {
+            MiscellaneousUtils.accessByBrowser(it.url, context)
+        }
+    } else {
+        val fileTasker = fileAsset.getFileTasker(downloadInfoList)
+        val notification = DownloadNotification(fileTasker).apply {
+            waitDownloadTaskNotification()
+        }
+        fileTasker.startDownload(taskStartedFun, {
+            taskStartFailedFun()
+            notification.cancelNotification()
+        }, downloadOb, notification.getDownloadOb())
     }
-    fileTasker.startDownload(taskStartedFun, {
-        taskStartFailedFun()
-        notification.cancelNotification()
-    }, downloadOb, notification.getDownloadOb())
 }
 
 suspend fun installFileTasker(fileTasker: FileTasker) {

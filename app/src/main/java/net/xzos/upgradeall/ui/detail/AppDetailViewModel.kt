@@ -10,7 +10,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.tonyodev.fetch2.Download
 import com.tonyodev.fetch2.Status
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.module.app.App
@@ -94,23 +93,8 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     var currentVersion: Version? = null
 
-    suspend fun download(fileAsset: FileAsset) {
-        startDownload(fileAsset, fun(_) { waitDownload() }, failDownload, getDownloadDataOb())
-    }
-
-    fun clickDownload(
-            taskStartedFun: (Int) -> Unit,
-            taskStartFailedFun: () -> Unit,
-            downloadOb: DownloadOb,
-    ) {
-        val version = currentVersion ?: return
-        if (version == versionListLiveData.value?.firstOrNull()) {
-            runBlocking {
-                app.updater.upgradeApp(taskStartedFun, taskStartFailedFun, downloadOb)
-            }
-        } else {
-
-        }
+    suspend fun download(fileAsset: FileAsset, externalDownload: Boolean) {
+        startDownload(fileAsset, fun(_) { waitDownload() }, failDownload, getDownloadDataOb(), getApplication(), externalDownload)
     }
 
     private var versionNumberSpannableStringList: List<SpannableStringBuilder> = listOf()

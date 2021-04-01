@@ -224,6 +224,7 @@
     <string name="retry">Retry</string>
     <string name="change_hub_priority">Change Hub Priority</string>
     <string name="more_url">More URL</string>
+    <string name="download_loading">Loading Download</string>
 
     <!-- APP Setting -->
     <string name="edit_app">Edit App</string>
