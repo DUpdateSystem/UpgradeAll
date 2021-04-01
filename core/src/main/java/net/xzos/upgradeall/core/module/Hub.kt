@@ -62,13 +62,15 @@ class Hub(private val hubDatabase: HubEntity) {
     }
 
     internal fun getUrl(app: App): String? {
-        val appId = app.appId
+        val appId = app.appId.map {
+            "%${it.key}" to it.value
+        }.toMap()
         val argsKey = appId.keys
         val appUrlTemplates = hubDatabase.hubConfig.appUrlTemplates
         for (temp in appUrlTemplates) {
             val keywordMatchResultList = AutoTemplate.getArgsKeywords(temp)
-            val keywords = keywordMatchResultList.map { it.value }
-            if (keywords == argsKey)
+            val keywords = keywordMatchResultList.map { it.value }.toList()
+            if (argsKey.containsAll(keywords))
                 return AutoTemplate.fillArgs(temp, appId)
         }
         return null

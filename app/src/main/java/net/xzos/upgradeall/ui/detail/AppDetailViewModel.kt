@@ -31,7 +31,9 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val installedVersionNumber: MutableLiveData<String> by lazy {
         MutableLiveData<String>().apply {
-            observeForever { item.showingVersionNumber.set(it) }
+            observeForever {
+                item.setInstallViewNumber(it)
+            }
         }
     }
 
@@ -61,6 +63,7 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
             val versionList = it.versionList
             versionListLiveData.setValueBackground(versionList)
             renewVersionList(versionList)
+            item.setAppUrl(app)
         })
         appViewModel.updateData()
     }
@@ -172,8 +175,8 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     companion object {
         fun Version.getShowName(): Triple<String, String, String> {
-            val prefixList = mutableListOf<String>()
-            val suffixList = mutableListOf<String>()
+            val prefixList = mutableSetOf<String>()
+            val suffixList = mutableSetOf<String>()
             assetList.forEach {
                 val list = it.versionNumber.split(name, limit = 2)
                 list.firstOrNull()?.run {

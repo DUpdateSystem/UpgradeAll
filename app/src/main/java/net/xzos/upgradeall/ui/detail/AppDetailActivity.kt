@@ -34,7 +34,7 @@ class AppDetailActivity : AppBarActivity() {
         binding = ActivityAppDetailBinding.inflate(layoutInflater)
         val item = AppDetailItem(this)
         viewModel.initData(binding, item, app)
-        binding.appItem = item
+        binding.item = item
         binding.handler = AppDetailHandler(viewModel, supportFragmentManager)
         return binding.root
     }
@@ -59,9 +59,6 @@ class AppDetailActivity : AppBarActivity() {
                 viewModel.currentVersion?.switchIgnoreStatus()?.also { renewMenu() }
                 true
             }
-            R.id.ignore_app -> {
-                TODO("忽略该跟踪项")
-            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -84,7 +81,7 @@ class AppDetailActivity : AppBarActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        binding.toolbar.title = binding.appItem?.appName?.get()
+        binding.toolbar.title = binding.item?.appName?.get()
         binding.headerContentLayout.addPaddingTop(actionBarSize())
     }
 

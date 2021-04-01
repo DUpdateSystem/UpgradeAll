@@ -9,6 +9,7 @@ import android.text.style.ForegroundColorSpan
 import androidx.core.text.HtmlCompat
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Asset
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 import net.xzos.upgradeall.ui.detail.download.DownloadStatusData
@@ -18,11 +19,36 @@ class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
     override val appName: ObservableField<String> = ObservableField()
     val appPackageId: ObservableField<CharSequence> = ObservableField()
     val showingVersionNumber: ObservableField<String> = ObservableField()
+    val versionNumberVisibility: ObservableField<Boolean> = ObservableField()
+    val urlLayoutVisibility: ObservableField<Boolean> = ObservableField()
+    val showingURL: ObservableField<String> = ObservableField()
+    val ivMoreURLVisibility: ObservableField<Boolean> = ObservableField()
+    var appUrlList: List<String> = listOf()
 
     override val appIcon: ObservableField<Drawable> = ObservableField()
     override val iconBackgroundTint: ObservableField<ColorStateList?> = ObservableField()
 
     override val nameFirst: ObservableField<String> = ObservableField()
+
+    fun setInstallViewNumber(installedVersionName: String) {
+        showingVersionNumber.set(installedVersionName)
+        versionNumberVisibility.set(installedVersionName.isNotBlank())
+    }
+
+    fun setAppUrl(app: App) {
+        val urlList = app.hubListUuid.mapNotNull {
+            app.getUrl(it)
+        }
+        val mainUrl = urlList.firstOrNull()
+        if (mainUrl == null) {
+            urlLayoutVisibility.set(false)
+        } else {
+            urlLayoutVisibility.set(true)
+            showingURL.set(mainUrl)
+        }
+        ivMoreURLVisibility.set(urlList.size > 1)
+        appUrlList = urlList
+    }
 
     fun setAssetInfo(assetList: List<Asset>?) {
         assetList ?: return

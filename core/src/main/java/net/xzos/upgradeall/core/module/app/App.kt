@@ -31,7 +31,7 @@ class App(
     val installedVersionNumber: String? get() = updater.getInstalledVersionNumber()
 
     /* 获取相应软件源的网址 */
-    fun getUrl(hub: Hub): String? = hub.getUrl(this)
+    fun getUrl(hubUuid: String): String? = HubManager.getHub(hubUuid)?.getUrl(this)
 
     /* 设置 App 版本号数据刷新时的回调函数 */
     fun setStatusRenewedFun(statusRenewedFun: (appStatus: Int) -> Unit) {

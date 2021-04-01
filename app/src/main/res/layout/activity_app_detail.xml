@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
-            name="appItem"
+            name="item"
             type="net.xzos.upgradeall.ui.detail.AppDetailItem" />
 
         <variable
@@ -12,8 +16,7 @@
             type="net.xzos.upgradeall.ui.detail.AppDetailHandler" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?android:colorBackground">
@@ -32,7 +35,7 @@
                 app:expandedTitleTextAppearance="@style/AppTheme.ToolbarTitleExpanded"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:id="@+id/header_content_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -44,63 +47,91 @@
                         android:id="@+id/iv_app_icon"
                         android:layout_width="72dp"
                         android:layout_height="72dp"
-                        android:background="@{appItem.appIcon}"
-                        android:backgroundTint="@{appItem.iconBackgroundTint}"
+                        android:layout_gravity="center"
+                        android:background="@{item.appIcon}"
+                        android:backgroundTint="@{item.iconBackgroundTint}"
                         android:contentDescription="App icon"
                         android:gravity="center"
                         android:src="@mipmap/ic_launcher_round"
-                        android:text="@{appItem.nameFirst}"
+                        android:text="@{item.nameFirst}"
                         android:textSize="20sp"
                         android:transitionName="app_icon"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
                         tools:background="@drawable/ic_launcher_foreground"
                         tools:ignore="HardcodedText" />
 
-                    <com.absinthe.libraries.view.AlwaysMarqueeTextView
-                        android:id="@+id/tv_app_name"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:layout_marginHorizontal="24dp"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="@{appItem.appName}"
-                        android:textColor="@color/normal_text"
-                        android:textSize="16sp"
-                        android:transitionName="app_name"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/iv_app_icon"
-                        app:layout_constraintTop_toTopOf="@id/iv_app_icon"
-                        tools:text="@string/app_name" />
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tv_package_name"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif"
-                        android:text="@{appItem.appPackageId}"
-                        android:textColor="@color/normal_text"
-                        android:textSize="14sp"
-                        android:transitionName="package_name"
-                        app:layout_constraintEnd_toEndOf="@id/tv_app_name"
-                        app:layout_constraintStart_toStartOf="@id/tv_app_name"
-                        app:layout_constraintTop_toBottomOf="@id/tv_app_name"
-                        tools:text="net.xzos.upgradeall" />
+                        <com.absinthe.libraries.view.AlwaysMarqueeTextView
+                            android:id="@+id/tv_app_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="@{item.appName}"
+                            android:textColor="@color/normal_text"
+                            android:textSize="16sp"
+                            android:transitionName="app_name"
+                            tools:text="@string/app_name" />
 
-                    <TextView
-                        android:id="@+id/tv_version"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-condensed"
-                        android:text="@{appItem.showingVersionNumber}"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="12sp"
-                        android:transitionName="version_name"
-                        app:layout_constraintEnd_toEndOf="@id/tv_app_name"
-                        app:layout_constraintStart_toStartOf="@id/tv_package_name"
-                        app:layout_constraintTop_toBottomOf="@id/tv_package_name"
-                        tools:text="1.0.0(100)" />
+                        <TextView
+                            android:id="@+id/tv_package_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif"
+                            android:text="@{item.appPackageId}"
+                            android:textColor="@color/normal_text"
+                            android:textSize="14sp"
+                            android:transitionName="package_name"
+                            tools:text="net.xzos.upgradeall" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        <TextView
+                            android:id="@+id/tv_version"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-condensed"
+                            android:text="@{item.showingVersionNumber}"
+                            android:textColor="@color/text_low_priority_color"
+                            android:textSize="12sp"
+                            android:transitionName="version_name"
+                            android:visibility="@{item.versionNumberVisibility ? View.VISIBLE : View.GONE}"
+                            tools:text="1.0.0(100)" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:visibility="@{item.urlLayoutVisibility ? View.VISIBLE : View.GONE}"
+                            tools:ignore="UseCompoundDrawables">
+
+                            <TextView
+                                android:id="@+id/tv_url"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-condensed"
+                                android:onClick="@{(view) -> handler.openUrl(item.showingURL, view)}"
+                                android:text="@{item.showingURL}"
+                                android:textColor="@color/text_color"
+                                android:textSize="12sp"
+                                android:transitionName="version_name"
+                                tools:text="www.example.com" />
+
+                            <ImageView
+                                android:id="@+id/iv_more_url"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:contentDescription="@string/more_url"
+                                android:onClick="@{(view) -> handler.showMoreURL(item.appUrlList, view)}"
+                                android:src="@drawable/ic_more"
+                                android:visibility="@{item.ivMoreURLVisibility ? View.VISIBLE : View.GONE}" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
 
                 <androidx.appcompat.widget.Toolbar
                     android:id="@+id/toolbar"
@@ -147,10 +178,10 @@
                     android:id="@+id/changelog"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
+                    android:layout_marginTop="16dp"
                     android:background="@drawable/bg_app_detail_changelog"
-                    android:padding="20dp"
-                    android:text="@={appItem.changelog}"
+                    android:padding="8dp"
+                    android:text="@={item.changelog}"
                     android:textColor="@color/normal_text"
                     android:textIsSelectable="true"
                     tools:text="1. 优化系统流畅度\n2. 提高系统的安全性和稳定性" />
@@ -164,7 +195,7 @@
             android:layout_gravity="bottom"
             android:layout_margin="40dp"
             android:onClick="@{() -> handler.clickDownload()}"
-            android:text="@={appItem.downloadData.downloadStatusData}"
+            android:text="@={item.downloadData.downloadStatusData}"
             android:textColor="@color/white"
             app:buttonCornerRadius="3dp"
             app:progressBgColor="#75A6FF"
