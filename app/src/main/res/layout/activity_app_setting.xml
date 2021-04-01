@@ -17,10 +17,10 @@
         android:layout_height="56dp"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:backgroundTint="@color/taupe"
         android:contentDescription="@string/ok"
         android:src="@drawable/ic_check_mark"
-        tools:tint="@color/light_gray" />
+        app:backgroundTint="@color/taupe"
+        app:tint="@color/light_gray" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
