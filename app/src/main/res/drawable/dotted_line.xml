@@ -5,7 +5,8 @@
         android:width="1dp"
         android:color="#FFD8D8D8"
         android:dashWidth="8dp"
-        android:dashGap="3dp" />
+        android:dashGap="3dp"
+        android:tint="?attr/colorControlNormal" />
     <size android:height="1.0dp" />
     <corners android:radius="5.0dp" />
 </shape>

@@ -15,9 +15,8 @@ class AppDetailHandler(
                 ?: return, viewModel).show(supportFragmentManager)
     }
 
-    fun showMoreURL(urlList: List<String>, view: View) {
+    fun showMoreURL(urlList: Set<String>, view: View) {
         PopupMenu(view.context, view).apply {
-            // MainActivity implements OnMenuItemClickListener
             urlList.forEach {
                 menu.add(it)
             }

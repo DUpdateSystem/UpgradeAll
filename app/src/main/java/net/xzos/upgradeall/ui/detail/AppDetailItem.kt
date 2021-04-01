@@ -23,7 +23,7 @@ class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
     val urlLayoutVisibility: ObservableField<Boolean> = ObservableField()
     val showingURL: ObservableField<String> = ObservableField()
     val ivMoreURLVisibility: ObservableField<Boolean> = ObservableField()
-    var appUrlList: List<String> = listOf()
+    var appUrlList: Set<String> = setOf()
 
     override val appIcon: ObservableField<Drawable> = ObservableField()
     override val iconBackgroundTint: ObservableField<ColorStateList?> = ObservableField()
@@ -38,7 +38,7 @@ class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
     fun setAppUrl(app: App) {
         val urlList = app.hubListUuid.mapNotNull {
             app.getUrl(it)
-        }
+        }.toSet()
         val mainUrl = urlList.firstOrNull()
         if (mainUrl == null) {
             urlLayoutVisibility.set(false)

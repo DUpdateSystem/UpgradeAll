@@ -111,18 +111,19 @@
                                 android:id="@+id/tv_url"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_gravity="center"
                                 android:fontFamily="sans-serif-condensed"
                                 android:onClick="@{(view) -> handler.openUrl(item.showingURL, view)}"
                                 android:text="@{item.showingURL}"
                                 android:textColor="@color/text_color"
                                 android:textSize="12sp"
-                                android:transitionName="version_name"
                                 tools:text="www.example.com" />
 
                             <ImageView
                                 android:id="@+id/iv_more_url"
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
+                                android:layout_gravity="center"
                                 android:contentDescription="@string/more_url"
                                 android:onClick="@{(view) -> handler.showMoreURL(item.appUrlList, view)}"
                                 android:src="@drawable/ic_baseline_more_vert"
