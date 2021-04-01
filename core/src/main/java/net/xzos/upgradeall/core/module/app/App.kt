@@ -84,7 +84,7 @@ class App(
 
     fun getLatestVersionNumber(): String? {
         return if (isLatestVersion())
-            installedVersionNumber
+            installedVersionNumber ?: appDatabase.ignoreVersionNumber
         else
             versionList.firstOrNull()?.name
     }

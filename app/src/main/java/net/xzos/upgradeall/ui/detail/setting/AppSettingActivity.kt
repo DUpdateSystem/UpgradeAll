@@ -114,6 +114,7 @@ class AppSettingActivity : AppBarActivity() {
         // 如果是设置修改请求，设置预置设置项
         database?.run {
             binding.nameEdit.setText(name)
+            binding.invalidVersionNumberFieldRegexEdit.setText(invalidVersionNumberFieldRegexString)
             appId.forEach {
                 viewModel.addItem(it.key, it.value)
             }

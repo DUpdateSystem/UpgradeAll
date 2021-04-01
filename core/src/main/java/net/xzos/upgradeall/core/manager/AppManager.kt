@@ -110,14 +110,18 @@ object AppManager : Informer {
         coroutineScope {
             for (app in appList)
                 launch {
-                    notifyChanged(DATA_UPDATING_NOTIFY, app)
-                    app.update()
-                    setAppMap(app)
+                    renewApp(app)
                     count.down()
                     renewStatusFun?.run { this(count.count) }
-                    notifyChanged(DATA_UPDATED_NOTIFY, app)
                 }
         }
+    }
+
+    suspend fun renewApp(app: App) {
+        notifyChanged(DATA_UPDATING_NOTIFY, app)
+        app.update()
+        setAppMap(app)
+        notifyChanged(DATA_UPDATED_NOTIFY, app)
     }
 
     private fun setAppMap(app: App) {
@@ -168,6 +172,7 @@ object AppManager : Informer {
                 appList.add(this)
                 changedTag = APP_ADDED_NOTIFY
             }
+            renewApp(app)
             notifyChanged(changedTag, app)
             return appDatabase
         } ?: return null

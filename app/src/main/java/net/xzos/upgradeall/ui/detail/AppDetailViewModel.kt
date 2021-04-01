@@ -134,13 +134,25 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private fun getVersionNameSpannableString(version: Version): SpannableStringBuilder {
-        val versionName = version.name
-        val sb = SpannableStringBuilder()
-        sb.append(versionName)
+        val (prefixString, versionName, suffixString) = version.getShowName()
+        var sb = SpannableStringBuilder()
+        val prefixColorSpan = ForegroundColorSpan(Color.GREEN)
+        sb = setSpannableStringBuilder(prefixColorSpan, prefixString, sb)
         if (version.isIgnored) {
             val colorSpan = ForegroundColorSpan(Color.BLUE)
-            sb.setSpan(colorSpan, 0, versionName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            sb = setSpannableStringBuilder(colorSpan, versionName, sb)
+        } else {
+            sb.append(versionName)
         }
+        val suffixColorSpan = ForegroundColorSpan(Color.GREEN)
+        sb = setSpannableStringBuilder(suffixColorSpan, suffixString, sb)
+        return sb
+    }
+
+    private fun setSpannableStringBuilder(cs: ForegroundColorSpan, s: String, sb: SpannableStringBuilder): SpannableStringBuilder {
+        val oldLength = sb.length
+        sb.append(s)
+        sb.setSpan(cs, oldLength, oldLength + s.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         return sb
     }
 
