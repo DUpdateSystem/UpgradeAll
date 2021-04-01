@@ -1,11 +1,11 @@
 package net.xzos.upgradeall.ui.detail
 
 import android.app.Application
-import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.widget.ArrayAdapter
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.tonyodev.fetch2.Download
@@ -110,6 +110,8 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    private var versionNumberSpannableStringList: List<SpannableStringBuilder> = listOf()
+
     fun setVersionInfo(position: Int) {
         val versionList = versionListLiveData.value ?: return
         if (position >= versionList.size) return
@@ -118,33 +120,39 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         else position
         val versionItem = versionList[index]
         currentVersion = versionItem
+        setTvMoreVersion(position)
         item.setAssetInfo(currentVersion?.assetList)
     }
 
+    private fun setTvMoreVersion(position: Int) {
+        val tvMoreVersion = binding.tvMoreVersion
+        tvMoreVersion.setText(versionNumberSpannableStringList[position], false)
+    }
+
     private fun renewVersionList(versionList: List<Version>) {
-        val versionNumberSpannableStringList = versionList.map { getVersionNameSpannableString(it) }
+        versionNumberSpannableStringList = versionList.map { getVersionNameSpannableString(it) }
         val tvMoreVersion = binding.tvMoreVersion
         val oldVersion = tvMoreVersion.text.toString()
         var position = versionNumberSpannableStringList.map { it.toString() }.indexOf(oldVersion)
         if (position == -1) position = 0
         setVersionInfo(position)
-        if (position == 0 && versionNumberSpannableStringList.isNotEmpty())
-            tvMoreVersion.setText(versionNumberSpannableStringList[position], false)
         setVersionAdapter(versionNumberSpannableStringList)
     }
 
     private fun getVersionNameSpannableString(version: Version): SpannableStringBuilder {
         val (prefixString, versionName, suffixString) = version.getShowName()
         var sb = SpannableStringBuilder()
-        val prefixColorSpan = ForegroundColorSpan(Color.GREEN)
+        val fixColor = ContextCompat.getColor(getApplication(), R.color.text_low_priority_color)
+        val prefixColorSpan = ForegroundColorSpan(fixColor)
         sb = setSpannableStringBuilder(prefixColorSpan, prefixString, sb)
         if (version.isIgnored) {
-            val colorSpan = ForegroundColorSpan(Color.BLUE)
+            val versionColor = ContextCompat.getColor(getApplication(), R.color.colorPrimary)
+            val colorSpan = ForegroundColorSpan(versionColor)
             sb = setSpannableStringBuilder(colorSpan, versionName, sb)
         } else {
             sb.append(versionName)
         }
-        val suffixColorSpan = ForegroundColorSpan(Color.GREEN)
+        val suffixColorSpan = ForegroundColorSpan(fixColor)
         sb = setSpannableStringBuilder(suffixColorSpan, suffixString, sb)
         return sb
     }
@@ -160,5 +168,28 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         val tvMoreVersion = binding.tvMoreVersion
         val adapter = ArrayAdapter(tvMoreVersion.context, R.layout.item_more_version, versionNumberList)
         tvMoreVersion.setAdapter(adapter)
+    }
+
+    companion object {
+        fun Version.getShowName(): Triple<String, String, String> {
+            val prefixList = mutableListOf<String>()
+            val suffixList = mutableListOf<String>()
+            assetList.forEach {
+                val list = it.versionNumber.split(name, limit = 2)
+                list.firstOrNull()?.run {
+                    if (isNotBlank()) prefixList.add(this)
+                }
+                list.lastOrNull()?.run {
+                    if (this.isNotBlank()) suffixList.add(this)
+                }
+            }
+            val prefixString = if (prefixList.isNotEmpty())
+                prefixList.joinToString(separator = "/")
+            else ""
+            val suffixString = if (suffixList.isNotEmpty())
+                suffixList.joinToString(separator = "/")
+            else ""
+            return Triple(prefixString, name, suffixString)
+        }
     }
 }
