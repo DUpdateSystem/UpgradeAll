@@ -125,7 +125,7 @@
                                 android:layout_height="16dp"
                                 android:contentDescription="@string/more_url"
                                 android:onClick="@{(view) -> handler.showMoreURL(item.appUrlList, view)}"
-                                android:src="@drawable/ic_more"
+                                android:src="@drawable/ic_baseline_more_vert"
                                 android:visibility="@{item.ivMoreURLVisibility ? View.VISIBLE : View.GONE}" />
                         </LinearLayout>
 

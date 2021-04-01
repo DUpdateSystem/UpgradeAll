@@ -11,6 +11,6 @@ class UpdateAppHubListAdapter : RecyclerViewAdapter<UpdateAppListItemView, Updat
 
     override fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): UpdateAppHubListViewHolder {
         val binding = ItemHubAppUpdateBinding.inflate(layoutInflater, viewGroup, false)
-        return UpdateAppHubListViewHolder(binding)
+        return UpdateAppHubListViewHolder(binding, handler)
     }
 }

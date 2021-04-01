@@ -21,10 +21,10 @@
         android:layout_height="wrap_content"
         android:background="@null"
         android:clipToPadding="false"
-        android:onClick="@{(view) -> handler.onClickApp(view, appItem.app)}"
+        android:onClick="@{(view) -> handler.onClickApp(appItem.app, view)}"
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
-        app:onLongClickListener="@{(view) -> handler.showPopup(view, appItem.app)}">
+        app:onLongClickListener="@{(view) -> handler.showPopup(appItem.app, view)}">
 
         <TextView
             android:id="@+id/iv_icon"

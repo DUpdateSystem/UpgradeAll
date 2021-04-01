@@ -11,11 +11,11 @@ import net.xzos.upgradeall.ui.detail.AppDetailActivity
 import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
 
 abstract class AppHubListItemHandler : RecyclerViewHandler() {
-    fun onClickApp(view: View, app: App) {
+    fun onClickApp(app: App, view: View) {
         AppDetailActivity.startActivity(view.context, app)
     }
 
-    fun showPopup(v: View, app: App): Boolean {
+    fun showPopup(app: App, v: View): Boolean {
         PopupMenu(v.context, v).apply {
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {

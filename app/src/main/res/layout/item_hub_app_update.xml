@@ -48,17 +48,19 @@
                 android:adjustViewBounds="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:importantForAccessibility="no"
+                android:onClick="@{(view) -> handler.showPopup(item.app, view)}"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_baseline_more_vert_24"
+                android:src="@drawable/ic_baseline_more_vert"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/btn_update"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/btn_update"
                 android:layout_width="80dp"
                 android:layout_height="36dp"
                 android:background="@drawable/bg_update_btn"
+                android:onClick="@{(view) -> handler.clickDownload(item.app, view)}"
                 android:text="@string/update"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

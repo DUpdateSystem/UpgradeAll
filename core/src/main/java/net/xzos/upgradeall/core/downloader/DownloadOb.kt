@@ -9,4 +9,8 @@ class DownloadOb(
         internal val completeFunc: (Download) -> Unit,
         internal val cancelFunc: (Download) -> Unit,
         internal val failFunc: (Download) -> Unit,
-)
+) {
+    companion object {
+        fun getEmptyDownloadOb() = DownloadOb({}, {}, {}, {}, {}, {})
+    }
+}
