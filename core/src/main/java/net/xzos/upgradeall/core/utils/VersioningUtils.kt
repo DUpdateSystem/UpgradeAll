@@ -3,7 +3,6 @@ package net.xzos.upgradeall.core.utils
 import net.xzos.upgradeall.core.data.VERSION_NUMBER_MATCH_REGEX
 import net.xzos.upgradeall.core.data.VERSION_NUMBER_STRICT_MATCH_REGEX
 import net.xzos.upgradeall.core.log.ObjectTag
-import net.xzos.upgradeall.core.module.app.Version
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion
 
 
@@ -14,10 +13,10 @@ object VersioningUtils {
 
     const val FOREVER_IGNORE = "FOREVER_IGNORE"
 
-    fun matchVersioningString(versionString: CharSequence?): String? {
+    fun matchVersioningString(versionString: CharSequence?): MatchResult? {
         return if (versionString != null) {
             (VERSION_NUMBER_STRICT_MATCH_REGEX.find(versionString)
-                    ?: VERSION_NUMBER_MATCH_REGEX.find(versionString))?.value
+                    ?: VERSION_NUMBER_MATCH_REGEX.find(versionString))
         } else null
     }
 
@@ -34,8 +33,8 @@ object VersioningUtils {
         if (versionNumber0 == versionNumber1) return 1
         if (versionNumber0 != null && versionNumber1 == null) return 1
         // 正常处理版本号
-        val matchVersioning0 = matchVersioningString(versionNumber0)
-        val matchVersioning1 = matchVersioningString(versionNumber1)
+        val matchVersioning0 = matchVersioningString(versionNumber0)?.value
+        val matchVersioning1 = matchVersioningString(versionNumber1)?.value
         if (matchVersioning0.isNullOrBlank() || matchVersioning1.isNullOrBlank()) {
             return null
         }

@@ -22,8 +22,6 @@ class AppEntity(
         var cloudConfig: AppConfigGson? = null,
 )
 
-fun AppEntity.getInvalidVersionNumberFieldRegex(): Regex? = invalidVersionNumberFieldRegexString?.toRegex()
-
 fun AppEntity.isInit(): Boolean {
     return 0L != id
 }

@@ -5,7 +5,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
-import net.xzos.upgradeall.core.database.table.getInvalidVersionNumberFieldRegex
 import net.xzos.upgradeall.core.utils.VersioningUtils
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
@@ -38,9 +37,11 @@ class VersionUtils(
     private fun doAddAsset(assetList: List<Asset>, versionMap: MutableMap<String, Version>): List<Version> {
         assetList.forEach { asset ->
             val key = getKeyVersionNumber(asset)
-            val list = versionMap[key] ?: Version(key, coroutinesMutableListOf(true), this)
+            val mapKey = Version.getKey(key)
+            val list = versionMap[mapKey]
+                    ?: Version(key, coroutinesMutableListOf(true), this)
             list.assetList.add(asset)
-            versionMap[key] = list
+            versionMap[mapKey] = list
         }
         return versionMap.values.toList()
     }
@@ -58,16 +59,55 @@ class VersionUtils(
         return versionList.toMutableList()
     }
 
-    private fun getKeyVersionNumber(asset: Asset): String {
-        val rowVersionNumber = asset.versionNumber
-        var versionNumber = ""
-        appEntity.getInvalidVersionNumberFieldRegex()?.run {
-            versionNumber = rowVersionNumber.replace(this, "")
-        } ?: kotlin.run {
-            versionNumber = rowVersionNumber
+    private fun getKeyVersionNumber(asset: Asset): List<Pair<Char, Boolean>> {
+        val rawVersionNumber = asset.versionNumber
+        val preVersionNumberInfoList = rawVersionNumber.map { Pair(it, true) }.toMutableList()
+        appEntity.invalidVersionNumberFieldRegexString?.run {
+            val invalidVersionNumberIndexList = getInvalidVersionNumberIndex(rawVersionNumber, this)
+            setVersionNumberInfoList(preVersionNumberInfoList, invalidVersionNumberIndexList)
         }
-        return VersioningUtils.matchVersioningString(versionNumber) ?: versionNumber
+
+        val indexMap = mutableMapOf<Int, Int>()
+        val preVersionNumber = StringBuilder()
+        preVersionNumberInfoList.forEachIndexed { index, pair ->
+            if (pair.second) {
+                preVersionNumber.append(pair.first)
+                indexMap[preVersionNumber.length - 1] = index
+            }
+        }
+
+        val finishVersionNumberInfoList = rawVersionNumber.map { Pair(it, false) }.toMutableList()
+        VersioningUtils.matchVersioningString(preVersionNumber)?.range?.run {
+            val versionNumberIndexList = mutableListOf<Int>()
+            for (index in this.first..this.last) {
+                versionNumberIndexList.add(indexMap[index]!!)
+            }
+            setVersionNumberInfoList(finishVersionNumberInfoList, versionNumberIndexList, true)
+        }
+        return finishVersionNumberInfoList
     }
+
+    private fun getInvalidVersionNumberIndex(rawVersionNumber: String, invalidVersionNumberFieldRegexString: String): List<Int> {
+        val invalidVersionNumberFieldRegex = invalidVersionNumberFieldRegexString.toRegex()
+        val list = invalidVersionNumberFieldRegex.findAll(rawVersionNumber)
+        val indexList = mutableListOf<Int>()
+        list.forEach {
+            indexList.addAll(it.range.first..it.range.last)
+        }
+        return indexList
+    }
+
+    private fun setVersionNumberInfoList(
+            versionNumberInfoList: MutableList<Pair<Char, Boolean>>,
+            versionNumberIndexList: List<Int>, enable: Boolean = false
+    ) {
+        versionNumberIndexList.forEach {
+            val newValue = versionNumberInfoList[it].copy(second = enable)
+            versionNumberInfoList.removeAt(it)
+            versionNumberInfoList.add(it, newValue)
+        }
+    }
+
 
     fun isIgnored(versionNumber: String): Boolean = versionNumber == appEntity.ignoreVersionNumber
 

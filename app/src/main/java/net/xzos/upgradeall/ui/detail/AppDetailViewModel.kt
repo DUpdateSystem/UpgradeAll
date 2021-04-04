@@ -127,56 +127,33 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private fun getVersionNameSpannableString(version: Version): SpannableStringBuilder {
-        val (prefixString, versionName, suffixString) = version.getShowName()
-        var sb = SpannableStringBuilder()
-        val fixColor = ContextCompat.getColor(getApplication(), R.color.text_low_priority_color)
-        val prefixColorSpan = ForegroundColorSpan(fixColor)
-        sb = setSpannableStringBuilder(prefixColorSpan, prefixString, sb)
-        if (version.isIgnored) {
-            val versionColor = ContextCompat.getColor(getApplication(), R.color.colorPrimary)
-            val colorSpan = ForegroundColorSpan(versionColor)
-            sb = setSpannableStringBuilder(colorSpan, versionName, sb)
-        } else {
-            sb.append(versionName)
+        val rawVersionStringList = version.rawVersionStringList
+        val focusColor = if (version.isIgnored)
+            ContextCompat.getColor(getApplication(), R.color.colorPrimary)
+        else null
+        val sb = SpannableStringBuilder()
+        rawVersionStringList.forEach {
+            setVersionNumberSpannableStringBuilder(it.first.toString(), sb, it.second, focusColor)
         }
-        val suffixColorSpan = ForegroundColorSpan(fixColor)
-        sb = setSpannableStringBuilder(suffixColorSpan, suffixString, sb)
         return sb
     }
 
-    private fun setSpannableStringBuilder(cs: ForegroundColorSpan, s: String, sb: SpannableStringBuilder): SpannableStringBuilder {
-        val oldLength = sb.length
+    private fun setVersionNumberSpannableStringBuilder(s: String, sb: SpannableStringBuilder, focus: Boolean, focusColor: Int? = null) {
         sb.append(s)
-        sb.setSpan(cs, oldLength, oldLength + s.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        return sb
+        val color = if (focus && focusColor != null) focusColor
+        else if (!focus)
+            ContextCompat.getColor(getApplication(), R.color.text_low_priority_color)
+        else null
+        color?.run {
+            val newLength = sb.length
+            sb.setSpan(ForegroundColorSpan(this), newLength - s.length, newLength, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        }
     }
 
     private fun setVersionAdapter(versionNumberList: List<SpannableStringBuilder>) {
         val tvMoreVersion = binding.tvMoreVersion
         val adapter = ArrayAdapter(tvMoreVersion.context, R.layout.item_more_version, versionNumberList)
         tvMoreVersion.setAdapter(adapter)
-    }
-
-    companion object {
-        fun Version.getShowName(): Triple<String, String, String> {
-            val prefixList = mutableSetOf<String>()
-            val suffixList = mutableSetOf<String>()
-            assetList.forEach {
-                val list = it.versionNumber.split(name, limit = 2)
-                list.firstOrNull()?.run {
-                    if (isNotBlank()) prefixList.add(this)
-                }
-                list.lastOrNull()?.run {
-                    if (this.isNotBlank()) suffixList.add(this)
-                }
-            }
-            val prefixString = if (prefixList.isNotEmpty())
-                prefixList.joinToString(separator = "/")
-            else ""
-            val suffixString = if (suffixList.isNotEmpty())
-                suffixList.joinToString(separator = "/")
-            else ""
-            return Triple(prefixString, name, suffixString)
-        }
     }
 }
