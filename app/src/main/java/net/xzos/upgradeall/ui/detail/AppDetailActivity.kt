@@ -14,13 +14,17 @@ import androidx.core.view.marginBottom
 import androidx.core.view.marginTop
 import com.absinthe.libraries.utils.extensions.addPaddingTop
 import com.absinthe.libraries.utils.utils.UiUtils
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
+import net.xzos.upgradeall.ui.base.selectlistdialog.SelectItem
+import net.xzos.upgradeall.ui.base.selectlistdialog.SelectListDialog
 import net.xzos.upgradeall.ui.base.view.ProgressButton
 import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.actionBarSize
 
 
@@ -52,7 +56,12 @@ class AppDetailActivity : AppBarActivity() {
                 true
             }
             R.id.change_hub_priority -> {
-                MiscellaneousUtils.showToast("TODO(修改软件源优先级)")
+                val hubList = app.hubListUuid.mapNotNull {
+                    HubManager.getHub(it)
+                }
+                GlobalScope.launch {
+                    SelectListDialog.showDialog(hubList.map { SelectItem(it.name, it.uuid, true) }, supportFragmentManager)
+                }
                 return true
             }
             R.id.ignore_current_version -> {

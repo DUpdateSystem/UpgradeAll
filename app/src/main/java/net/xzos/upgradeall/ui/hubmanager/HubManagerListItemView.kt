@@ -8,6 +8,7 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.data.json.HubConfigGson
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.manager.HubManager
+import net.xzos.upgradeall.ui.base.databinding.EnableObservable
 import net.xzos.upgradeall.ui.base.list.ActivityListItemView
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 
@@ -15,7 +16,7 @@ class HubManagerListItemView(
         name: String,
         private val uuid: String
 ) : BaseAppIconItem, ActivityListItemView {
-    val observable = HubEnableObservable(HubManager.getHub(uuid) != null, fun(enable) {
+    val observable = EnableObservable(HubManager.getHub(uuid) != null, fun(enable) {
         switchHubExistStatus(uuid, enable)
     })
 

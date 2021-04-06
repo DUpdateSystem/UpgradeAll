@@ -13,14 +13,20 @@ open class ListDialog(
         override val sAdapter: DialogListAdapter<*, *, *>
 ) : DialogFragment(), ListDialogPart {
 
+    protected lateinit var binding: RecyclerlistContentBinding
+
     fun show(supportFragmentManager: FragmentManager) {
         super.show(supportFragmentManager, TAG)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val contentBinding = RecyclerlistContentBinding.inflate(layoutInflater)
-        renewListView(contentBinding)
-        return initDialog(contentBinding.root)
+        binding = RecyclerlistContentBinding.inflate(layoutInflater)
+        binding.srlContainer.apply {
+            isRefreshing = false
+            isEnabled = false
+        }
+        renewListView(binding)
+        return initDialog(binding.root)
     }
 
     fun initDialog(view: View): Dialog {

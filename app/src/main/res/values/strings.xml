@@ -261,4 +261,6 @@
     <string name="Continue">继续</string>
     <string name="open">打开</string>
     <string name="open_file">打开文件</string>
+
+    <string name="drag">拖动</string>
 </resources>

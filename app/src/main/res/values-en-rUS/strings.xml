@@ -249,4 +249,6 @@
     <string name="Continue">Continue</string>
     <string name="open">Open</string>
     <string name="open_file">Open file</string>
+
+    <string name="drag">Drag</string>
 </resources>
