@@ -3,7 +3,6 @@ package net.xzos.upgradeall.ui.base.selectlistdialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.view.View
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import kotlinx.coroutines.Dispatchers
@@ -22,14 +21,11 @@ class SelectListDialog private constructor(
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
             val itemTouchHelperCallback = SelectListTouchHelperCallBack(adapter)
-            val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+            val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback).apply {
+                adapter.itemTouchHelper = this
+            }
             itemTouchHelper.attachToRecyclerView(binding.rvList)
-            itemTouchHelper.startDrag()
         }
-    }
-
-    fun setDragTouchListener(view: View, : View.OnTouchListener) {
-        view.setOnTouchListener(touchListener)
     }
 
     override fun onDismiss(dialog: DialogInterface) {
