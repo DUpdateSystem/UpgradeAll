@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.module
 
 import net.xzos.upgradeall.core.database.table.HubEntity
+import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.network.GrpcApi
 import net.xzos.upgradeall.core.route.ReleaseListItem
@@ -29,16 +30,18 @@ class Hub(private val hubDatabase: HubEntity) {
         return ignoreAppIdList.contains(appId)
     }
 
-    fun ignoreApp(app: App) {
+    suspend fun ignoreApp(app: App) {
         val appId = getValidKey(app) ?: return
         val ignoreAppIdList = hubDatabase.userIgnoreAppIdList
         ignoreAppIdList.add(appId)
+        saveDatabase()
     }
 
-    fun unignoreApp(app: App) {
+    suspend fun unignoreApp(app: App) {
         val appId = getValidKey(app) ?: return
         val ignoreAppIdList = hubDatabase.userIgnoreAppIdList
         ignoreAppIdList.remove(appId)
+        saveDatabase()
     }
 
     private fun getAppPriority(app: App): Int {
@@ -49,17 +52,26 @@ class Hub(private val hubDatabase: HubEntity) {
         else NORMAL_PRIORITY_APP
     }
 
-    private fun setLowPriorityApp(app: App) {
+    private suspend fun setLowPriorityApp(app: App) {
         val appId = getValidKey(app) ?: return
         val lowPriorityAppIdList = hubDatabase.ignoreAppIdList
         lowPriorityAppIdList.add(appId)
+        saveDatabase()
     }
 
-    private fun unsetLowPriorityApp(app: App) {
+    private suspend fun unsetLowPriorityApp(app: App) {
         val appId = getValidKey(app) ?: return
         val lowPriorityAppIdList = hubDatabase.ignoreAppIdList
         lowPriorityAppIdList.remove(appId)
+        saveDatabase()
     }
+
+    suspend fun setApplicationsMode(enable: Boolean) {
+        hubDatabase.setApplicationsMode(enable)
+        saveDatabase()
+    }
+
+    fun isEnableApplicationsMode(): Boolean = hubDatabase.getApplicationsMode()
 
     internal fun getUrl(app: App): String? {
         val appId = app.appId.map {
@@ -84,6 +96,10 @@ class Hub(private val hubDatabase: HubEntity) {
             else
                 unsetLowPriorityApp(app)
         }
+    }
+
+    private suspend fun saveDatabase() {
+        HubManager.updateHub(hubDatabase)
     }
 
     override fun equals(other: Any?): Boolean {

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import androidx.databinding.ObservableField
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.data.json.HubConfigGson
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
@@ -16,8 +17,12 @@ class HubManagerListItemView(
         name: String,
         private val uuid: String
 ) : BaseAppIconItem, ActivityListItemView {
-    val observable = EnableObservable(HubManager.getHub(uuid) != null, fun(enable) {
+    val enableObservable = EnableObservable(HubManager.getHub(uuid) != null, fun(enable) {
         switchHubExistStatus(uuid, enable)
+    })
+
+    val applicationsEnableObservable = EnableObservable(HubManager.getHub(uuid)?.isEnableApplicationsMode() == true, fun(enable) {
+        runBlocking(Dispatchers.Default) { HubManager.getHub(uuid)?.setApplicationsMode(enable) }
     })
 
     private fun switchHubExistStatus(uuid: String, enable: Boolean) {

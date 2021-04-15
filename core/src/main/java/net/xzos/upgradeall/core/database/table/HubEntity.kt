@@ -14,5 +14,11 @@ data class HubEntity(
         @ColumnInfo(name = "hub_config") var hubConfig: HubConfigGson,
         @ColumnInfo(name = "auth") var auth: MutableMap<String, String?>,
         @ColumnInfo(name = "ignore_app_id_list") var ignoreAppIdList: CoroutinesMutableList<Map<String, String?>> = coroutinesMutableListOf(true),
+        @ColumnInfo(name = "applications_mode") var _applicationsMode: Int = 0,
         @ColumnInfo(name = "user_ignore_app_id_list") var userIgnoreAppIdList: CoroutinesMutableList<Map<String, String?>> = coroutinesMutableListOf(true),
-)
+) {
+    fun getApplicationsMode(): Boolean = _applicationsMode == 1
+    fun setApplicationsMode(enable: Boolean) {
+        _applicationsMode = if (enable) 1 else 0
+    }
+}

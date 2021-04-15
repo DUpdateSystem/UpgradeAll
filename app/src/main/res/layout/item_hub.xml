@@ -66,10 +66,23 @@
                     tools:text="@string/app_name" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/enable_applications_mode_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:checked="@={item.applicationsEnableObservable.enable}"
+                    android:enabled="@{item.enableObservable.enable}"
+                    android:text="@string/applications"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/enable_switch"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:enabled="false" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/enable_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="@={item.observable.enable}"
+                    android:checked="@={item.enableObservable.enable}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

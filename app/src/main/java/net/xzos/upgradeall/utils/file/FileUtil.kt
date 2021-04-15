@@ -32,7 +32,7 @@ object FileUtil {
 
     private const val TAG = "FileUtil"
     private val logObjectTag = ObjectTag("Core", TAG)
-    private val context = MyApplication.context
+    private val context get() = MyApplication.context
 
     val PREFERENCES_FILE by lazy { File(context.filesDir.parentFile, "shared_prefs/${context.packageName}_preferences.xml") }
     internal val UI_CONFIG_FILE by lazy { File(context.filesDir, "ui.json") }
