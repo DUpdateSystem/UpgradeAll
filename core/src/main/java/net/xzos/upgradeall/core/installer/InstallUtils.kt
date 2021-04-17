@@ -1,8 +1,11 @@
 package net.xzos.upgradeall.core.installer
 
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.StrictMode
+import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.utils.file.getProviderUri
 import java.io.File
 
@@ -36,4 +39,19 @@ fun File.autoAddApkExtension(): File {
         }
     }
     return this
+}
+
+fun File.isApkFile(): Boolean {
+    return this.getPackageInfo() != null
+}
+
+fun File.getPackageInfo(): PackageInfo? {
+    return try {
+        coreConfig.androidContext.packageManager.getPackageArchiveInfo(
+                this.path,
+                PackageManager.GET_ACTIVITIES
+        )
+    } catch (e: Exception) {
+        null
+    }
 }
