@@ -7,7 +7,6 @@ import java.util.*
 
 data class CoreConfig(
         @JvmField internal val androidContext: Context,
-        internal val enableApplicationsMode: Boolean,
         internal val data_expiration_time: Int,
         internal val update_server_url: String,
         internal val cloud_rules_hub_url: String?,

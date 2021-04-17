@@ -49,9 +49,6 @@ object PreferencesMap {
     private val background_sync_time
         get() = prefs.getInt("background_sync_time", 18)
 
-    private val enable_applications_mode: Boolean
-        get() = prefs.getBoolean("enable_applications_mode", false)
-
     // 安装首选项
     private val install_apk_api: String
         get() = prefs.getString("install_apk_api", "System")!!
@@ -142,7 +139,6 @@ object PreferencesMap {
     private fun syncCoreConfig() {
         val coreConfig = CoreConfig(
                 androidContext = MyApplication.context,
-                enableApplicationsMode = enable_applications_mode,
                 data_expiration_time = 10,
                 update_server_url = update_server_url,
                 cloud_rules_hub_url = cloud_rules_hub_url,

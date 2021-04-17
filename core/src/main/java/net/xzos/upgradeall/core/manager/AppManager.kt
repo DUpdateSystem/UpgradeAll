@@ -151,9 +151,17 @@ object AppManager : Informer {
         }
     }
 
-    private fun getApp(appEntity: AppEntity): App? {
+    private fun getAppByDatabase(appEntity: AppEntity): App? {
         appList.forEach {
             if (it.appDatabase == appEntity)
+                return it
+        }
+        return null
+    }
+
+    fun getAppById(appId: Map<String, String?>): App? {
+        appList.forEach {
+            if (appId == it.appDatabase.appId)
                 return it
         }
         return null
@@ -162,20 +170,9 @@ object AppManager : Informer {
     /**
      * 用数据库数据修改数据库并更新 App 数据
      */
-    suspend fun updateApp(appDatabase: AppEntity): AppEntity? {
+    suspend fun updateApp(appDatabase: AppEntity): App? {
         appDatabase.recheck()
-        addAppEntity(appDatabase)?.run {
-            var changedTag: String
-            val app = getApp(appDatabase).apply {
-                changedTag = APP_DATABASE_CHANGED_NOTIFY
-            } ?: App(appDatabase).apply {
-                appList.add(this)
-                changedTag = APP_ADDED_NOTIFY
-            }
-            renewApp(app)
-            notifyChanged(changedTag, app)
-            return appDatabase
-        } ?: return null
+        return addAppMap(addAppEntity(appDatabase) ?: return null)
     }
 
     private suspend fun addAppEntity(appEntity: AppEntity): AppEntity? {
@@ -190,6 +187,24 @@ object AppManager : Informer {
         } catch (ignore: SQLiteConstraintException) {
             null
         }
+    }
+
+    private suspend fun addAppMap(appDatabase: AppEntity): App {
+        val oldApp = if (appDatabase.isInit()) getAppByDatabase(appDatabase).apply {
+        } else {
+            getAppById(appDatabase.appId)?.apply {
+                this.appDatabase.name = appDatabase.name
+            }
+        }
+        val changedTag = if (oldApp != null)
+            APP_DATABASE_CHANGED_NOTIFY
+        else APP_ADDED_NOTIFY
+        val app = oldApp ?: App(appDatabase).apply {
+            appList.add(this)
+        }
+        renewApp(app)
+        notifyChanged(changedTag, app)
+        return app
     }
 
     /**
