@@ -3,9 +3,11 @@ package net.xzos.upgradeall.core.utils.android_app
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
@@ -22,6 +24,15 @@ class AppReceiver : BroadcastReceiver() {
                 Intent.ACTION_PACKAGE_REMOVED -> delApp(packageName)
             }
         }
+    }
+
+    fun register() {
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED)
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED)
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED)
+        intentFilter.addDataScheme("package")
+        coreConfig.androidContext.registerReceiver(this, intentFilter)
     }
 
     companion object {

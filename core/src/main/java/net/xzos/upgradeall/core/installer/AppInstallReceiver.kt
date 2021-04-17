@@ -24,7 +24,6 @@ class AppInstallReceiver : BroadcastReceiver() {
         }
     }
 
-
     fun register() {
         val intentFilter = IntentFilter()
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED)

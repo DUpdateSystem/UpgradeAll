@@ -13,6 +13,7 @@ import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_LATEST
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_NO_LOCAL
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_OUTDATED
 import net.xzos.upgradeall.core.module.app.Updater.Companion.NETWORK_ERROR
+import net.xzos.upgradeall.core.utils.android_app.AppReceiver
 import net.xzos.upgradeall.core.utils.android_app.getInstalledAppList
 import net.xzos.upgradeall.core.utils.coroutines.*
 import net.xzos.upgradeall.core.utils.oberver.Informer
@@ -30,10 +31,11 @@ object AppManager : Informer {
 
     private val appMap = coroutinesMutableMapOf<Int, CoroutinesMutableList<App>>(true)
 
+    // 存储所有 APP 实体
     private val appList by lazy {
         runBlocking { metaDatabase.appDao().loadAll() + getInstalledAppList() }.map { App(it) }
-                .toCoroutinesMutableList(true)
-    }  // 存储所有 APP 实体
+                .toCoroutinesMutableList(true).apply { AppReceiver().register() }
+    }
 
     private fun getAppList(key: Int): CoroutinesMutableList<App> {
         return appMap.get(key, coroutinesMutableListOf(true))
