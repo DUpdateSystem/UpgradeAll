@@ -8,11 +8,11 @@ import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.json.*
 import net.xzos.upgradeall.core.database.dao.HubDao
 import net.xzos.upgradeall.core.database.metaDatabase
-import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.log.msg
+import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.network.DataCache
 import net.xzos.upgradeall.core.module.network.GrpcApi
 import net.xzos.upgradeall.core.module.network.OkHttpApi
@@ -113,20 +113,20 @@ object CloudConfigGetter {
     }
 
     /**
-     * 添加数据库成功, NULL 添加数据库失败
-     * @return AppDatabase
+     * 返回 App 添加数据库成功, NULL 添加数据库失败
+     * @return App
      */
-    suspend fun downloadCloudAppConfig(appUuid: String?, notifyFun: (Int) -> Unit): AppEntity? {
+    suspend fun downloadCloudAppConfig(appUuid: String?, notifyFun: (Int) -> Unit): App? {
         getAppCloudConfig(appUuid)?.run {
             notifyFun(SUCCESS_GET_APP_DATA)
             if (solveHubDependency(this.baseHubUuid, notifyFun)) {
                 this.toAppEntity()?.run {
                     // 添加数据库
-                    val appDatabase = AppManager.updateApp(this)
-                    if (appDatabase != null) {
+                    val app = AppManager.updateApp(this)
+                    if (app != null) {
                         notifyFun(SUCCESS_SAVE_APP_DATA)
                         notifyFun(SUCCESS)
-                        return appDatabase
+                        return app
                     } else {
                         notifyFun(FAILED_SAVE_APP_DATA)
                         notifyFun(FAILED)
