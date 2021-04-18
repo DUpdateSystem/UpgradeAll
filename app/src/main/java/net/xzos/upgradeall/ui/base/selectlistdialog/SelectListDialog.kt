@@ -8,15 +8,15 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
-import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.utils.wait
 import net.xzos.upgradeall.ui.base.listdialog.ListDialog
 
 class SelectListDialog private constructor(
+        title: Any?,
         list: List<SelectItem>,
         private val mutex: Mutex,
         val adapter: SelectListAdapter = SelectListAdapter(list.toMutableList())
-) : ListDialog(R.string.dialog_title_select_download_item, adapter) {
+) : ListDialog(title, adapter) {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
@@ -36,9 +36,9 @@ class SelectListDialog private constructor(
     fun getDataList() = adapter.dataList
 
     companion object {
-        suspend fun showDialog(list: List<SelectItem>, supportFragmentManager: FragmentManager): List<SelectItem> {
+        suspend fun showDialog(list: List<SelectItem>, supportFragmentManager: FragmentManager, title: Any?): List<SelectItem> {
             val mutex = Mutex(true)
-            val dialog = SelectListDialog(list, mutex).apply {
+            val dialog = SelectListDialog(title, list, mutex).apply {
                 show(supportFragmentManager)
             }
             withContext(Dispatchers.Default) {

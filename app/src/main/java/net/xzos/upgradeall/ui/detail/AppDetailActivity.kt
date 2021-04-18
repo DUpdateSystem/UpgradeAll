@@ -63,7 +63,10 @@ class AppDetailActivity : AppBarActivity() {
                         hubMap[it] = false
                 }
                 GlobalScope.launch {
-                    val selectDataList = SelectListDialog.showDialog(hubMap.map { SelectItem(it.key.name, it.key.uuid, it.value) }, supportFragmentManager)
+                    val selectDataList = SelectListDialog.showDialog(
+                            hubMap.map { SelectItem(it.key.name, it.key.uuid, it.value) },
+                            supportFragmentManager, R.string.change_hub_priority
+                    )
                     app.appDatabase.setSortHubUuidList(selectDataList.mapNotNull { if (it.enableObservable.enable) it.id else null })
                 }
                 return true
