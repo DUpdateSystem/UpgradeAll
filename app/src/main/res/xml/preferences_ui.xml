@@ -13,4 +13,8 @@
         app:key="enable_simple_bottom_main" />
     <!-- 主页的 日志、设置、关于 按钮横向摆放 -->
 
+    <Preference
+        android:title="@string/home_bottom_queue_setting"
+        app:key="CUSTOM_HOME_BOTTOM_LIST" />
+
 </androidx.preference.PreferenceScreen>

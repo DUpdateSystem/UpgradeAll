@@ -251,4 +251,7 @@
     <string name="open_file">Open file</string>
 
     <string name="drag">Drag</string>
+
+    <!-- UI Setting -->
+    <string name="home_bottom_queue_setting">Custom home button list</string>
 </resources>

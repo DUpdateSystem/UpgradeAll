@@ -53,23 +53,7 @@ class MainActivity : BaseActivity() {
             }
             layoutTitleBar.root.addPaddingTop(UxUtils.getStatusBarHeight(resources))
         }
-        val moduleList = mutableListOf<HomeModuleBean>(
-                HomeModuleCardBean(R.drawable.ic_home_discovery, R.string.home_module_discovery) {
-                    startActivity(Intent(this, DiscoverActivity::class.java))
-                },
-                HomeModuleCardBean(R.drawable.ic_home_hub, R.string.app_hub) {
-                    startActivity(Intent(this, HubManagerActivity::class.java))
-                },
-                HomeModuleCardBean(R.drawable.ic_home_file_management, R.string.home_module_file_management) {
-                    startActivity(Intent(this, FileManagementActivity::class.java))
-                },
-                HomeModuleCardBean(R.drawable.ic_home_apps, R.string.home_module_apps) {
-                    startActivity(Intent(this, AppsActivity::class.java))
-                },
-                HomeModuleCardBean(R.drawable.ic_home_magisk_module, R.string.home_module_magisk_module) {
-                    startActivity(Intent(this, MagiskModuleActivity::class.java))
-                },
-        )
+        val moduleList: MutableList<HomeModuleBean> = PreferencesMap.home_bottom_queue.mapNotNull { idToBean(it) }.toMutableList()
         if (!PreferencesMap.enable_simple_bottom_main) {
             moduleList.addAll(listOf(
                     HomeModuleNonCardBean(R.drawable.ic_home_log, R.string.home_log) {
@@ -90,6 +74,32 @@ class MainActivity : BaseActivity() {
             layoutCard.setOnClickListener {
                 checkUpdate()
             }
+        }
+    }
+
+    private fun idToBean(id: String): HomeModuleCardBean? {
+        return when (id) {
+            HOME_MODULE_DISCOVERY ->
+                HomeModuleCardBean(R.drawable.ic_home_discovery, R.string.home_module_discovery) {
+                    startActivity(Intent(this, DiscoverActivity::class.java))
+                }
+            HOME_MODULE_HUB_MANAGER ->
+                HomeModuleCardBean(R.drawable.ic_home_hub, R.string.app_hub) {
+                    startActivity(Intent(this, HubManagerActivity::class.java))
+                }
+            HOME_MODULE_FILE_MANAGER ->
+                HomeModuleCardBean(R.drawable.ic_home_file_management, R.string.home_module_file_management) {
+                    startActivity(Intent(this, FileManagementActivity::class.java))
+                }
+            HOME_MODULE_APPS_LIST ->
+                HomeModuleCardBean(R.drawable.ic_home_apps, R.string.home_module_apps) {
+                    startActivity(Intent(this, AppsActivity::class.java))
+                }
+            HOME_MODULE_MAGISK_LIST ->
+                HomeModuleCardBean(R.drawable.ic_home_magisk_module, R.string.home_module_magisk_module) {
+                    startActivity(Intent(this, MagiskModuleActivity::class.java))
+                }
+            else -> null
         }
     }
 
@@ -118,5 +128,24 @@ class MainActivity : BaseActivity() {
         binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_checking_updates))
         binding.layoutUpdatingCard.ivIcon.setImageResource(R.drawable.ic_loading)
         UpdateService.startService(this@MainActivity)
+    }
+
+    companion object {
+        const val HOME_MODULE_DISCOVERY = "HOME_MODULE_DISCOVERY"
+        const val HOME_MODULE_HUB_MANAGER = "HOME_MODULE_HUB_MANAGER"
+        const val HOME_MODULE_FILE_MANAGER = "HOME_MODULE_FILE_MANAGER"
+        const val HOME_MODULE_APPS_LIST = "HOME_MODULE_APPS_LIST"
+        const val HOME_MODULE_MAGISK_LIST = "HOME_MODULE_MAGISK_LIST"
+
+        fun getBeanName(id: String): Int? {
+            return when (id) {
+                HOME_MODULE_DISCOVERY -> R.string.home_module_discovery
+                HOME_MODULE_HUB_MANAGER -> R.string.app_hub
+                HOME_MODULE_FILE_MANAGER -> R.string.home_module_file_management
+                HOME_MODULE_APPS_LIST -> R.string.home_module_apps
+                HOME_MODULE_MAGISK_LIST -> R.string.home_module_magisk_module
+                else -> null
+            }
+        }
     }
 }

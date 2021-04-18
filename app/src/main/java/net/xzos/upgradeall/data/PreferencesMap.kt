@@ -12,6 +12,7 @@ import net.xzos.upgradeall.core.initCore
 import net.xzos.upgradeall.core.installer.ApkShizukuInstaller
 import net.xzos.upgradeall.server.downloader.DownloadNotification
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
+import net.xzos.upgradeall.ui.home.MainActivity
 import net.xzos.upgradeall.utils.file.FileUtil
 import java.util.*
 
@@ -116,6 +117,35 @@ object PreferencesMap {
     private const val ENABLE_SIMPLE_BOTTOM_MAIN = "enable_simple_bottom_main"
     val enable_simple_bottom_main
         get() = prefs.getBoolean(ENABLE_SIMPLE_BOTTOM_MAIN, false)
+
+    private const val HOME_BOTTOM_QUEUE_CUSTOM_KEY = "HOME_BOTTOM_LIST"
+    private var home_bottom_queue_string: String?
+        get() = prefs.getString(HOME_BOTTOM_QUEUE_CUSTOM_KEY, null)
+        set(value) = prefs.edit().putString(HOME_BOTTOM_QUEUE_CUSTOM_KEY, value).apply()
+
+    val home_bottom_queue: List<String>
+        get() = home_bottom_queue_string?.split(" ")?.toMutableList() ?: defHomeBottomIdList
+    var home_bottom_map: Map<String, Boolean>
+        get() {
+            val map = home_bottom_queue.map { it to true }.toMap().toMutableMap()
+            defHomeBottomIdList.forEach {
+                if (!map.containsKey(it)) {
+                    map[it] = false
+                }
+            }
+            return map
+        }
+        set(value) {
+            home_bottom_queue_string = value.filterValues { it }.keys.joinToString(" ")
+        }
+
+    private val defHomeBottomIdList = listOf(
+            MainActivity.HOME_MODULE_DISCOVERY,
+            MainActivity.HOME_MODULE_HUB_MANAGER,
+            MainActivity.HOME_MODULE_FILE_MANAGER,
+            MainActivity.HOME_MODULE_APPS_LIST,
+            MainActivity.HOME_MODULE_MAGISK_LIST,
+    )
 
     fun initByActivity(activity: Activity) {
         if (install_apk_api == "Shizuku") {
