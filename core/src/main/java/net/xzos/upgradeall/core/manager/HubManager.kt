@@ -33,7 +33,7 @@ object HubManager {
         metaDatabase.hubDao().deleteByUuid(hubUuid)
     }
 
-    fun isApplicationsMode(): Boolean {
+    fun isEnableApplicationsMode(): Boolean {
         return hubMap.values.any {
             it.isEnableApplicationsMode()
         }

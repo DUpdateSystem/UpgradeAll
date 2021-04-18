@@ -4,6 +4,7 @@ import android.app.Application
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.data.json.uiConfig
+import net.xzos.upgradeall.core.database.table.isInit
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater
@@ -38,7 +39,12 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
         }
 
         override fun appUpdated(app: App) {
-            adapterChange(app)
+            if (mTabIndex == TAB_APPLICATIONS_APP) {
+                if (app.getReleaseStatus() == Updater.NETWORK_ERROR)
+                    adapterDelete(app)
+            } else {
+                adapterChange(app)
+            }
         }
     }
 
@@ -110,7 +116,8 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
         return when (mTabIndex) {
             TAB_UPDATE -> app.getReleaseStatus() == Updater.APP_OUTDATED
             TAB_STAR -> uiConfig.userStarAppIdList.contains(app.appId)
-            TAB_ALL -> true
+            TAB_ALL -> app.appDatabase.isInit()
+            TAB_APPLICATIONS_APP -> !app.appDatabase.isInit()
             else -> false
         }
     }

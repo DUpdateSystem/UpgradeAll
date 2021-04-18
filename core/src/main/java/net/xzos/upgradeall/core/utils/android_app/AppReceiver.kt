@@ -15,7 +15,7 @@ import net.xzos.upgradeall.core.manager.HubManager
 
 class AppReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (!HubManager.isApplicationsMode()) return
+        if (!HubManager.isEnableApplicationsMode()) return
         val packageName = intent.data.toString()
         runBlocking(Dispatchers.IO) {
             when (intent.action) {

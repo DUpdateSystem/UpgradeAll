@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.databinding.ActivityAppHubBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
@@ -16,6 +17,7 @@ import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
 const val TAB_UPDATE = 0
 const val TAB_STAR = 1
 const val TAB_ALL = 2
+const val TAB_APPLICATIONS_APP = 3
 
 abstract class AppHubActivity(private val mAppType: String) : AppBarActivity() {
 
@@ -29,14 +31,19 @@ abstract class AppHubActivity(private val mAppType: String) : AppBarActivity() {
     override fun getAppBar(): Toolbar = binding.appbar.toolbar
 
     override fun initView() {
-        val types = listOf(
+        val types = mutableListOf(
                 TAB_UPDATE, TAB_STAR, TAB_ALL
         )
-        val tabTitles = listOf(
+        val tabTitles = mutableListOf(
                 getText(R.string.hub_tab_updates),
                 getText(R.string.user_star),
                 getText(R.string.hub_tab_all),
         )
+
+        if (HubManager.isEnableApplicationsMode()) {
+            types.add(TAB_APPLICATIONS_APP)
+            tabTitles.add(getText(R.string.applications))
+        }
 
         binding.viewpager.apply {
             adapter = object : FragmentStateAdapter(this@AppHubActivity) {
