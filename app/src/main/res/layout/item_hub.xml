@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="item"
             type="net.xzos.upgradeall.ui.hubmanager.HubManagerListItemView" />
@@ -73,6 +75,7 @@
                     android:checked="@={item.applicationsEnableObservable.enable}"
                     android:enabled="@{item.enableObservable.enable}"
                     android:text="@string/applications"
+                    android:visibility="@{item.enableObservable.enable ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/enable_switch"
                     app:layout_constraintTop_toTopOf="parent"
