@@ -17,6 +17,7 @@ import com.absinthe.libraries.utils.utils.UiUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.database.table.getEnableSortHubList
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
@@ -56,11 +57,14 @@ class AppDetailActivity : AppBarActivity() {
                 true
             }
             R.id.change_hub_priority -> {
-                val hubList = app.hubListUuid.mapNotNull {
-                    HubManager.getHub(it)
+                val hubMap = app.appDatabase.getEnableSortHubList().map { it to true }.toMap().toMutableMap()
+                HubManager.getHubList().forEach {
+                    if (!hubMap.containsKey(it))
+                        hubMap[it] = false
                 }
                 GlobalScope.launch {
-                    SelectListDialog.showDialog(hubList.map { SelectItem(it.name, it.uuid, true) }, supportFragmentManager)
+                    val selectDataList = SelectListDialog.showDialog(hubMap.map { SelectItem(it.key.name, it.key.uuid, it.value) }, supportFragmentManager)
+                    app.appDatabase.setSortHubUuidList(selectDataList.mapNotNull { if (it.enableObservable.enable) it.id else null })
                 }
                 return true
             }

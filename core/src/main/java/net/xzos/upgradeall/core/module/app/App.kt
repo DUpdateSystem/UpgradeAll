@@ -5,6 +5,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.database.table.AppEntity
+import net.xzos.upgradeall.core.database.table.getEnableSortHubList
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.route.ReleaseListItem
@@ -25,7 +26,7 @@ class App(
     val name get() = appDatabase.name
 
     /* 这个 App 可用的软件源 */
-    val hubListUuid get() = HubManager.getHubList().filter { it.isValidApp(this) }.map { it.uuid }
+    val hubList get() = appDatabase.getEnableSortHubList().filter { it.isValidApp(this) }
 
     /* App 在本地的版本号 */
     val installedVersionNumber: String? get() = updater.getInstalledVersionNumber()
@@ -58,7 +59,7 @@ class App(
     private suspend fun doUpdate() {
         renewMutex.withLock {
             coroutineScope {
-                hubListUuid.mapNotNull { HubManager.getHub(it) }.forEach {
+                hubList.forEach {
                     launch {
                         renewVersionList(it)
                     }

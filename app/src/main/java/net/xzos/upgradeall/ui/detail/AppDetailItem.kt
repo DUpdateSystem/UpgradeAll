@@ -36,8 +36,8 @@ class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
     }
 
     fun setAppUrl(app: App) {
-        val urlList = app.hubListUuid.mapNotNull {
-            app.getUrl(it)
+        val urlList = app.hubList.mapNotNull {
+            app.getUrl(it.uuid)
         }.toSet()
         val mainUrl = urlList.firstOrNull()
         if (mainUrl == null) {

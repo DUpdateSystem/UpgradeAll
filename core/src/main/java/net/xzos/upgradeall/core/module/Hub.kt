@@ -67,11 +67,11 @@ class Hub(private val hubDatabase: HubEntity) {
     }
 
     suspend fun setApplicationsMode(enable: Boolean) {
-        hubDatabase.setApplicationsMode(enable)
+        hubDatabase.applicationsMode = enable
         saveDatabase()
     }
 
-    fun isEnableApplicationsMode(): Boolean = hubDatabase.getApplicationsMode()
+    fun isEnableApplicationsMode(): Boolean = hubDatabase.applicationsMode
 
     internal fun getUrl(app: App): String? {
         val appId = app.appId.map {
