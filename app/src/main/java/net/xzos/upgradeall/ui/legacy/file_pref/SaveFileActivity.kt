@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.initCore
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.utils.ToastUtil
 import net.xzos.upgradeall.utils.file.FileUtil
@@ -17,7 +18,7 @@ class SaveFileActivity : FilePrefActivity() {
             val uri = resultData.data
             if (uri != null) {
                 val textResId =
-                        if (FileUtil.writeToUri(uri, byteArray = BYTE_ARRAY))
+                        if (FileUtil.writeToUri(uri, byteArray = bytes))
                             R.string.save_file_successfully
                         else
                             R.string.save_file_failed
@@ -27,8 +28,15 @@ class SaveFileActivity : FilePrefActivity() {
         finish()
     }
 
-    override fun selectFile() {
-        FileUtil.createFile(this, WRITE_REQUEST_CODE, MIME_TYPE, FILE_NAME)
+    override fun buildIntent(): Intent {
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+
+        if (mimeType != null)
+            intent.type = mimeType
+        intent.putExtra(Intent.EXTRA_TITLE, fileName)
+        return intent
     }
 
     companion object {
@@ -39,15 +47,15 @@ class SaveFileActivity : FilePrefActivity() {
 
         private var isSuccess = false
 
-        private var FILE_NAME: String = ""
-        private var MIME_TYPE: String? = null
-        private var BYTE_ARRAY: ByteArray? = null
+        private var fileName: String? = null
+        private var mimeType: String? = null
+        private var bytes: ByteArray? = null
 
         suspend fun newInstance(fileName: String, mimeType: String?, byteArray: ByteArray, context: Context): Boolean {
             isSuccess = false
-            FILE_NAME = fileName
-            MIME_TYPE = mimeType
-            BYTE_ARRAY = byteArray
+            this.fileName = fileName
+            this.mimeType = mimeType
+            bytes = byteArray
             startActivity(context, SaveFileActivity::class.java)
             return isSuccess
         }
