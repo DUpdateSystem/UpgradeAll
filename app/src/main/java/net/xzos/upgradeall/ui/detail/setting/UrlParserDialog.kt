@@ -22,7 +22,7 @@ class UrlParserDialog(
     }
 
     override fun onStart() {
-        super.onStart() //super.onStart() is where dialog.show() is actually called on the underlying dialog, so we have to do it after this point
+        super.onStart()
         val d = dialog as AlertDialog?
         if (d != null) {
             val positiveButton = d.getButton(Dialog.BUTTON_POSITIVE) as Button

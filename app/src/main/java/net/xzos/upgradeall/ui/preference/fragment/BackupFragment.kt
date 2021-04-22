@@ -14,9 +14,9 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.backup.BackupManager
 import net.xzos.upgradeall.core.data.backup.CloudBackupManager
 import net.xzos.upgradeall.core.data.backup.RestoreManager
+import net.xzos.upgradeall.ui.legacy.dialog.CloudBackupListDialog
 import net.xzos.upgradeall.ui.legacy.file_pref.SaveFileActivity
 import net.xzos.upgradeall.ui.legacy.file_pref.SelectFileActivity
-import net.xzos.upgradeall.ui.legacy.dialog.CloudBackupListDialog
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 
@@ -59,13 +59,9 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
         restorePreference.setOnPreferenceClickListener {
             this.context?.let { context ->
                 GlobalScope.launch {
-                    SelectFileActivity.newInstance(context, "application/zip")?.let { uri ->
+                    SelectFileActivity.newInstance(context, "application/zip")?.let { bytes ->
                         MiscellaneousUtils.showToast(R.string.restore_running)
-                        @Suppress("BlockingMethodInNonBlockingContext")
-                        context.contentResolver.openInputStream(uri)?.let { iStream ->
-                            val bytes = iStream.readBytes()
-                            RestoreManager.parseZip(bytes)
-                        }
+                        RestoreManager.parseZip(bytes)
                         MiscellaneousUtils.showToast(R.string.restore_stop)
                     }
                 }

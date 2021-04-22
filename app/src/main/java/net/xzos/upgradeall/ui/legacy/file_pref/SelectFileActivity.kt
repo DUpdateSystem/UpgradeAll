@@ -1,27 +1,23 @@
 package net.xzos.upgradeall.ui.legacy.file_pref
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
+import androidx.activity.result.ActivityResult
 import net.xzos.upgradeall.core.log.ObjectTag
 
 class SelectFileActivity : FilePrefActivity() {
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        super.onActivityResult(requestCode, resultCode, resultData)
-        if (resultCode == Activity.RESULT_OK && resultData != null)
-            uri = resultData.data
-        finish()
+    override fun onActivityResultOkCallback(resultData: ActivityResult) {
+        contentResolver.openInputStream(resultData.data!!.data!!)?.let { iStream ->
+            bytes = iStream.readBytes()
+        }
     }
 
-    override fun selectFile() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            type = mimeType
+    override fun buildIntent(): Intent {
+        return Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
+            type = mimeType
         }
-
-        startActivityForResult(intent, READ_REQUEST_CODE)
     }
 
     companion object {
@@ -29,14 +25,14 @@ class SelectFileActivity : FilePrefActivity() {
         private val logObjectTag = ObjectTag("UI", TAG)
 
         private const val READ_REQUEST_CODE = 2
-        private var uri: Uri? = null
+        private var bytes: ByteArray? = null
         private var mimeType: String? = null
 
-        suspend fun newInstance(context: Context, mimeType: String): Uri? {
-            uri = null
+        suspend fun newInstance(context: Context, mimeType: String): ByteArray? {
+            bytes = null
             this.mimeType = mimeType
             startActivity(context, SelectFileActivity::class.java)
-            return uri
+            return bytes
         }
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import com.yalantis.ucrop.UCrop
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.log.Log
@@ -16,29 +17,25 @@ import java.io.File
 
 class UCropActivity : FilePrefActivity() {
 
+    override fun onActivityResultOkCallback(resultData: ActivityResult) {
+        val uri = resultData.data?.data
+        if (uri != null) {
+            val parent = FILE.parentFile
+            if (parent != null && !parent.exists())
+                parent.mkdirs()
+            val destinationUri = Uri.fromFile(FILE)
+            UCrop.of(FileUtil.imageUriDump(uri, this), destinationUri)
+                    .withAspectRatio(x, y)
+                    .start(this, UCrop.REQUEST_CROP)
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         super.onActivityResult(requestCode, resultCode, resultData)
         when (resultCode) {
             Activity.RESULT_OK -> {
-                when (requestCode) {
-                    READ_PIC_REQUEST_CODE -> {
-                        val uri = resultData?.data
-                        if (uri != null) {
-                            val parent = FILE.parentFile
-                            if (parent != null && !parent.exists())
-                                parent.mkdirs()
-                            val destinationUri = Uri.fromFile(FILE)
-                            UCrop.of(FileUtil.imageUriDump(uri, this), destinationUri)
-                                    .withAspectRatio(x, y)
-                                    .start(this, UCrop.REQUEST_CROP)
-                        }
-                    }
-                    UCrop.REQUEST_CROP -> {
-                        isSuccess = true
-                        finish()
-                    }
-                    else -> finish()
-                }
+                isSuccess = true
+                finish()
             }
             UCrop.RESULT_ERROR -> {
                 val cropError = UCrop.getError(resultData!!)
@@ -58,8 +55,10 @@ class UCropActivity : FilePrefActivity() {
             cacheImageFile.delete()
     }
 
-    override fun selectFile() {
-        FileUtil.getPicFormGallery(this, READ_PIC_REQUEST_CODE)
+    override fun buildIntent(): Intent {
+        return Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "image/*"
+        }
     }
 
     companion object {
