@@ -14,9 +14,9 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.data.backup.BackupManager
 import net.xzos.upgradeall.core.data.backup.CloudBackupManager
 import net.xzos.upgradeall.core.data.backup.RestoreManager
-import net.xzos.upgradeall.ui.legacy.dialog.CloudBackupListDialog
-import net.xzos.upgradeall.ui.legacy.file_pref.SaveFileActivity
-import net.xzos.upgradeall.ui.legacy.file_pref.SelectFileActivity
+import net.xzos.upgradeall.ui.utils.dialog.CloudBackupListDialog
+import net.xzos.upgradeall.ui.utils.file_pref.SaveFileActivity
+import net.xzos.upgradeall.ui.utils.file_pref.SelectFileActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 

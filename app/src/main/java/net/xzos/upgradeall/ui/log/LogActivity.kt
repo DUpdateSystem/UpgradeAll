@@ -17,7 +17,7 @@ import net.xzos.upgradeall.core.log.LogDataProxy
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.databinding.ActivityLogBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
-import net.xzos.upgradeall.ui.legacy.file_pref.SaveFileActivity
+import net.xzos.upgradeall.ui.utils.file_pref.SaveFileActivity
 
 class LogActivity : AppBarActivity() {
 

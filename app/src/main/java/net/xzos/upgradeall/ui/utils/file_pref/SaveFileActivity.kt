@@ -1,11 +1,10 @@
-package net.xzos.upgradeall.ui.legacy.file_pref
+package net.xzos.upgradeall.ui.utils.file_pref
 
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.initCore
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.utils.ToastUtil
 import net.xzos.upgradeall.utils.file.FileUtil

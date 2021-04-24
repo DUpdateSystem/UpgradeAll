@@ -92,10 +92,10 @@
         <activity
             android:name=".ui.preference.SettingsActivity"
             android:label="@string/home_settings" />
-        <activity android:name="net.xzos.upgradeall.ui.legacy.file_pref.UCropActivity" />
-        <activity android:name="net.xzos.upgradeall.ui.legacy.file_pref.SelectFileActivity" />
-        <activity android:name="net.xzos.upgradeall.ui.legacy.file_pref.SelectDirActivity" />
-        <activity android:name="net.xzos.upgradeall.ui.legacy.file_pref.SaveFileActivity" />
+        <activity android:name="net.xzos.upgradeall.ui.utils.file_pref.UCropActivity" />
+        <activity android:name="net.xzos.upgradeall.ui.utils.file_pref.SelectFileActivity" />
+        <activity android:name="net.xzos.upgradeall.ui.utils.file_pref.SelectDirActivity" />
+        <activity android:name="net.xzos.upgradeall.ui.utils.file_pref.SaveFileActivity" />
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="fullSensor"

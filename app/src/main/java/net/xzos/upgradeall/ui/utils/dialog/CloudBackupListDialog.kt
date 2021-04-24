@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.legacy.dialog
+package net.xzos.upgradeall.ui.utils.dialog
 
 import android.content.Context
 import android.os.Bundle

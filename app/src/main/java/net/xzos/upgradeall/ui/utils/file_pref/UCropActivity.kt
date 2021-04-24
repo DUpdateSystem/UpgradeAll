@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.legacy.file_pref
+package net.xzos.upgradeall.ui.utils.file_pref
 
 import android.app.Activity
 import android.content.Context
