@@ -1,12 +1,8 @@
 package net.xzos.upgradeall.core.filetasker
 
 import android.content.Context
-import net.xzos.upgradeall.core.downloader.DownloadInfoItem
-import net.xzos.upgradeall.core.downloader.DownloadOb
-import net.xzos.upgradeall.core.downloader.Downloader
-import net.xzos.upgradeall.core.downloader.PreDownload
+import net.xzos.upgradeall.core.downloader.*
 import net.xzos.upgradeall.core.installer.ApkInstaller
-import net.xzos.upgradeall.core.installer.isApkFile
 import net.xzos.upgradeall.core.module.app.FileAsset
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.openInFileManager
@@ -56,15 +52,21 @@ class FileTasker internal constructor(
 
     suspend fun startDownload(
             taskStartedFun: (Int) -> Unit,
-            taskStartFailedFun: () -> Unit,
+            taskStartFailedFun: (Throwable) -> Unit,
             vararg downloadOb: DownloadOb,
     ) {
         if (downloader == null) {
-            val overrideFailFun = {
-                taskStartFailedFun()
+            val overrideFailFun = fun(e: Throwable) {
+                taskStartFailedFun(e)
                 FileTaskerManager.removeFileTasker(this)
             }
-            downloader = preDownload?.startDownload(taskStartedFun, overrideFailFun, *downloadOb)
+            try {
+                downloader = preDownload?.startDownload(taskStartedFun, overrideFailFun, *downloadOb)
+            } catch (e: DownloadFileError) {
+                taskStartFailedFun(e)
+            } catch (e: DownloadCanceledError) {
+                taskStartFailedFun(e)
+            }
             preDownload = null
         }
     }
@@ -78,7 +80,7 @@ class FileTasker internal constructor(
     }
 
     fun openDownloadDir(context: Context) {
-        downloader?.downloadDir?.path?.run {
+        downloader?.downloadDir?.uri?.path?.run {
             openInFileManager(this, context)
         }
     }

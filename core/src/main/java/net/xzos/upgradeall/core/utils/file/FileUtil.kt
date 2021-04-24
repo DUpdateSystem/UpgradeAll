@@ -45,7 +45,7 @@ internal object FileUtil {
     internal val IMAGE_CACHE_FILE by lazy { File(CACHE_DIR, "_cache_image.png").getExistsFile() }
     internal val DOWNLOAD_CACHE_DIR by lazy { File(CACHE_DIR, "Download").getExistsFile(true) }
     internal val SHELL_SCRIPT_CACHE_FILE by lazy { File(CACHE_DIR, "run.sh").getExistsFile() }
-    internal val DOWNLOAD_DOCUMENT_FILE = coreConfig.user_download_document_file
+    internal val DOWNLOAD_DOCUMENT_FILE = coreConfig.download_document_file
 
 
     init {

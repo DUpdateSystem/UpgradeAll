@@ -172,7 +172,7 @@ object PreferencesMap {
                 data_expiration_time = 10,
                 update_server_url = update_server_url,
                 cloud_rules_hub_url = cloud_rules_hub_url,
-                user_download_document_file = FileUtil.DOWNLOAD_DOCUMENT_FILE,
+                download_document_file = FileUtil.DOWNLOAD_DOCUMENT_FILE,
                 download_max_task_num = download_max_task_num,
                 download_thread_num = download_thread_num,
                 download_auto_retry_max_attempts = download_auto_retry_max_attempts,

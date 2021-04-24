@@ -3,6 +3,7 @@ package net.xzos.upgradeall.server.downloader
 import android.content.Context
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
+import net.xzos.upgradeall.core.downloader.DownloadFetchError
 import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.downloader.PreDownload
 import net.xzos.upgradeall.core.filetasker.FileTasker
@@ -15,7 +16,7 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
 suspend fun startDownload(
         fileAsset: FileAsset,
         taskStartedFun: (Int) -> Unit,
-        taskStartFailedFun: () -> Unit,
+        taskStartFailedFun: (Throwable) -> Unit,
         downloadOb: DownloadOb,
         context: Context,
         externalDownload: Boolean,
@@ -31,10 +32,14 @@ suspend fun startDownload(
         val notification = DownloadNotification(fileTasker).apply {
             waitDownloadTaskNotification()
         }
-        fileTasker.startDownload(taskStartedFun, {
-            taskStartFailedFun()
-            notification.cancelNotification()
-        }, downloadOb, notification.getDownloadOb())
+        try {
+            fileTasker.startDownload(taskStartedFun, {
+                taskStartFailedFun(it)
+                notification.cancelNotification()
+            }, downloadOb, notification.getDownloadOb())
+        } catch (e: DownloadFetchError) {
+            taskStartFailedFun(e)
+        }
     }
 }
 

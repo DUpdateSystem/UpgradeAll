@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name" translatable="false">UpgradeAll Core</string>
     <string name="shizuku_permission_request">请给予本软件 Shizuku 权限</string>
+    <string name="download_file_create_error">下载文件创建失败</string>
 </resources>

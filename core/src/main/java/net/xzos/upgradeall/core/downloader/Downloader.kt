@@ -11,17 +11,16 @@ import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.*
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
-import net.xzos.upgradeall.core.utils.file.FileUtil
-import net.xzos.upgradeall.core.utils.file.getFileByAutoRename
 import net.xzos.upgradeall.core.utils.oberver.ObserverFun
 import java.io.File
+import java.util.*
 
 
 /* 下载管理 */
 class Downloader internal constructor() {
 
     lateinit var downloadId: DownloadId
-    val downloadDir = FileUtil.getNewRandomNameFile(FileUtil.DOWNLOAD_CACHE_DIR, true)
+    val downloadDir = getDownloadDirDocumentFile(UUID.randomUUID().toString())
 
     internal val downloadOb = DownloadOb({}, {}, {},
             completeFunc = { completeObserverFun(it) },
@@ -69,9 +68,13 @@ class Downloader internal constructor() {
         }
     }
 
-    internal suspend fun start(taskStartedFun: (Int) -> Unit, taskStartFailedFun: () -> Unit, vararg downloadOb: DownloadOb) {
+    internal suspend fun start(
+            taskStartedFun: (Int) -> Unit,
+            taskStartFailedFun: (Throwable) -> Unit,
+            vararg downloadOb: DownloadOb
+    ) {
         if (requestList.isEmpty()) {
-            taskStartFailedFun()
+            taskStartFailedFun(DownloadCanceledError())
             return
         }
         downloadId = if (requestList.size == 1)
@@ -93,7 +96,7 @@ class Downloader internal constructor() {
                 }
                 ended.down()
             }, {
-                taskStartFailedFun()
+                taskStartFailedFun(DownloadFetchError(it))
                 ended.down()
             })
         }
@@ -186,9 +189,9 @@ class Downloader internal constructor() {
             headers: Map<String, String> = mapOf(), cookies: Map<String, String> = mapOf()
     ): Request {
         // 检查重复任务
-        val file = File(downloadDir, fileName).getFileByAutoRename()
-        val filePath = file.path
-        val request = Request(url, filePath)
+        val dirDocument = getDownloadDirDocumentFile(fileName)
+        val fileUrl = getDownloadUrl("*/*", fileName, dirDocument)
+        val request = Request(url, fileUrl)
         request.autoRetryMaxAttempts = coreConfig.download_auto_retry_max_attempts
         for ((key, value) in headers) {
             request.addHeader(key, value)

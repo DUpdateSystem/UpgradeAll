@@ -30,7 +30,7 @@ object ApkShizukuInstaller {
     private const val TAG = "ApkShizukuInstaller"
     private val logObjectTag = ObjectTag(core, TAG)
 
-    private val context = coreConfig.androidContext
+    private val context get() = coreConfig.androidContext
 
     @Suppress("ObjectPropertyName")
     private val _packageManager: IPackageManager by lazy {
