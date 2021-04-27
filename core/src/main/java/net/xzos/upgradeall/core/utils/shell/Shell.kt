@@ -3,9 +3,6 @@ package net.xzos.upgradeall.core.utils.shell
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
 import eu.darken.rxshell.root.Root
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import net.xzos.upgradeall.core.utils.wait
 
 object Shell {
 
@@ -27,15 +24,7 @@ object Shell {
     }
 
     private fun runShell(commands: String, session: RxCmdShell.Session): Cmd.Result? {
-        val mutex = Mutex(locked = true)
-        var result: Cmd.Result? = null
-        val disposable = Cmd.builder(commands).submit(session).subscribe { result1: Cmd.Result, _ ->
-            result = result1
-            mutex.unlock()
-        }
-        runBlocking { mutex.wait() }
-        disposable.dispose()
-        return result
+        return Cmd.builder(commands).execute(session)
     }
 }
 

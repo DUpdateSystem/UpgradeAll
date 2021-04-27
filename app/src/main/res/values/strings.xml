@@ -266,4 +266,7 @@
 
     <!-- UI Setting -->
     <string name="home_bottom_queue_setting">自定义主页按钮列表</string>
+
+    <!-- Other -->
+    <string name="download_dir_check_filed">下载文件夹检查失效</string>
 </resources>

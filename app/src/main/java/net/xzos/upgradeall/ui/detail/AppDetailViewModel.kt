@@ -84,7 +84,7 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         downloadData.setDownloadStatus(Status.NONE)
     }
 
-    val failDownload = {
+    val failDownload = fun(_: Throwable) {
         downloadData.setDownloadProgress(-1)
         downloadData.setDownloadStatus(Status.FAILED)
     }

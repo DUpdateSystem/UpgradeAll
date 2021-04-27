@@ -46,10 +46,17 @@ object FileUtil {
     internal val IMAGE_CACHE_FILE by lazy { File(CACHE_DIR, "_cache_image.png").getExistsFile() }
     internal val DOWNLOAD_CACHE_DIR by lazy { File(CACHE_DIR, "Download").getExistsFile(true) }
     internal val SHELL_SCRIPT_CACHE_FILE by lazy { File(CACHE_DIR, "run.sh").getExistsFile() }
-    internal val DOWNLOAD_DOCUMENT_FILE: DocumentFile?
-        get() = if (PreferencesMap.auto_dump_download_file)
+    internal val DOWNLOAD_DOCUMENT_FILE: DocumentFile
+        get() = if (PreferencesMap.auto_dump_download_file) {
             getDocumentFile(context, Uri.parse(PreferencesMap.user_download_path))
-        else null
+                    ?: getDefDownloadDocument().also {
+                        MiscellaneousUtils.showToast(R.string.download_dir_check_filed)
+                    }
+        } else getDefDownloadDocument()
+
+    private fun getDefDownloadDocument(): DocumentFile {
+        return DocumentFile.fromFile(DOWNLOAD_CACHE_DIR)
+    }
 
 
     init {

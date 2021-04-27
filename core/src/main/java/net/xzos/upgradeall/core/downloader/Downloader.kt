@@ -20,7 +20,7 @@ import java.util.*
 class Downloader internal constructor() {
 
     lateinit var downloadId: DownloadId
-    val downloadDir = getDownloadDirDocumentFile(UUID.randomUUID().toString())
+    val downloadFile = DownloadFile()
 
     internal val downloadOb = DownloadOb({}, {}, {},
             completeFunc = { completeObserverFun(it) },
@@ -45,17 +45,9 @@ class Downloader internal constructor() {
         DownloadRegister.unRegisterByOb(downloadOb)
     }
 
-    suspend fun getFileList(): List<File> {
-        getFetchDownload(downloadId)?.run {
-            return listOf(File(this.file))
-        } ?: getFetchGroup(downloadId)?.run {
-            return downloads.map { File(it.file) }
-        } ?: return listOf()
-    }
-
     fun removeFile() {
         delTask()
-        downloadDir.delete()
+        downloadFile.delete()
     }
 
     internal fun addTask(
@@ -156,7 +148,7 @@ class Downloader internal constructor() {
             fetch.deleteGroup(downloadId.id)
         else
             fetch.delete(downloadId.id)
-        downloadDir.delete()
+        downloadFile.delete()
         unregister()
     }
 

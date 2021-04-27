@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.filetasker
 import android.content.Context
 import net.xzos.upgradeall.core.downloader.*
 import net.xzos.upgradeall.core.installer.ApkInstaller
+import net.xzos.upgradeall.core.installer.isApkFile
 import net.xzos.upgradeall.core.module.app.FileAsset
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.openInFileManager
@@ -24,26 +25,32 @@ class FileTasker internal constructor(
     /* 下载管理器 */
     var downloader: Downloader? = null
 
-    val installable: Boolean
-        get() = downloader?.downloadDir?.isApkFile() ?: false
+    suspend fun isInstallable(context: Context): Boolean = downloader?.downloadFile?.isApkFile(context)
+            ?: false
 
-    suspend fun install(failedInstallObserverFun: (Throwable) -> Unit, completeInstallFunc: () -> Unit) {
-        if (installable) {
-            downloader?.getFileList()?.run {
-                when (this.size) {
-                    0 -> return
-                    1 -> {
-                        ApkInstaller.install(this[0],
-                                { e -> failedInstallObserverFun(e) },
-                                { completeInstallFunc() }
-                        )
-                    }
-                    else -> {
-                        ApkInstaller.multipleInstall(
-                                downloader!!.downloadDir,
-                                { e -> failedInstallObserverFun(e) },
-                                { completeInstallFunc() }
-                        )
+    suspend fun install(
+            failedInstallObserverFun: (Throwable) -> Unit,
+            completeInstallFunc: () -> Unit,
+            context: Context
+    ) {
+        if (isInstallable(context)) {
+            downloader?.downloadFile?.getTmpFile(context)?.run {
+                this.listFiles()?.filter { it.extension == "apk" }?.let {
+                    when (it.size) {
+                        0 -> return
+                        1 -> {
+                            ApkInstaller.install(it[0],
+                                    { e -> failedInstallObserverFun(e) },
+                                    { completeInstallFunc() }
+                            )
+                        }
+                        else -> {
+                            ApkInstaller.multipleInstall(
+                                    this,
+                                    { e -> failedInstallObserverFun(e) },
+                                    { completeInstallFunc() }
+                            )
+                        }
                     }
                 }
             }
@@ -80,7 +87,7 @@ class FileTasker internal constructor(
     }
 
     fun openDownloadDir(context: Context) {
-        downloader?.downloadDir?.uri?.path?.run {
+        downloader?.downloadFile?.documentFile?.uri?.path?.run {
             openInFileManager(this, context)
         }
     }

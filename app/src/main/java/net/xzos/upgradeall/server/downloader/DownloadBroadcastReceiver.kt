@@ -17,7 +17,7 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
             DOWNLOAD_RETRY -> fileTasker.retry()
             DOWNLOAD_PAUSE -> fileTasker.pause()
             DOWNLOAD_CONTINUE -> fileTasker.resume()
-            INSTALL_APK -> runBlocking { installFileTasker(fileTasker) }
+            INSTALL_APK -> runBlocking { installFileTasker(fileTasker, context) }
             OPEN_FILE -> fileTasker.openDownloadDir(context)
         }
     }

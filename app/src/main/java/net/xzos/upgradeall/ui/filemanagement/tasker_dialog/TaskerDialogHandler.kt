@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.filemanagement.tasker_dialog
 
+import android.content.Context
 import android.view.View
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -7,10 +8,13 @@ import net.xzos.upgradeall.core.filetasker.FileTasker
 import net.xzos.upgradeall.server.downloader.deleteFileTasker
 import net.xzos.upgradeall.server.downloader.installFileTasker
 
-class TaskerDialogHandler(private val fileTasker: FileTasker, private val dialog: TaskerListDialog) {
+class TaskerDialogHandler(
+        private val fileTasker: FileTasker, private val dialog: TaskerListDialog,
+        private val context: Context
+) {
     fun install() {
         GlobalScope.launch {
-            installFileTasker(fileTasker)
+            installFileTasker(fileTasker, context)
         }
     }
 

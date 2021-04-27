@@ -11,6 +11,8 @@ import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.tonyodev.fetch2.Download
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.downloader.DownloadOb
@@ -131,9 +133,11 @@ class DownloadNotification(private val fileTasker: FileTasker) {
                     .bigText(contentText))
             setSmallIcon(android.R.drawable.stat_sys_download_done)
             setProgress(0, 0, false)
-            if (fileTasker.installable) {
-                addAction(R.drawable.ic_check_mark_circle, getString(R.string.install),
-                        getSnoozePendingIntent(DownloadBroadcastReceiver.INSTALL_APK))
+            runBlocking(Dispatchers.IO) {
+                if (fileTasker.isInstallable(context)) {
+                    addAction(R.drawable.ic_check_mark_circle, getString(R.string.install),
+                            getSnoozePendingIntent(DownloadBroadcastReceiver.INSTALL_APK))
+                }
             }
             addAction(android.R.drawable.stat_sys_download_done, getString(R.string.open_file),
                     getSnoozePendingIntent(DownloadBroadcastReceiver.OPEN_FILE))

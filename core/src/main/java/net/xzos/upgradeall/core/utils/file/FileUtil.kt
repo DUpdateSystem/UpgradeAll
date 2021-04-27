@@ -317,3 +317,46 @@ fun File.getProviderUri(): Uri {
     else Uri.fromFile(this)
 }
 
+suspend fun DocumentFile.copyAllFile(dirFile: File, context: Context) {
+    dirFile.mkdirs()
+    for (f in listFiles()) {
+        val file = File(dirFile, f.name!!)
+        if (file.exists()) continue
+        f.copyToFile(file, context)
+    }
+}
+
+@Suppress("BlockingMethodInNonBlockingContext", "RedundantSuspendModifier")
+suspend fun DocumentFile.copyToFile(file: File, context: Context) {
+    if (!file.exists()) file.createNewFile()
+    val inputStream = context.contentResolver.openInputStream(this.uri) ?: return
+    copyInputStreamToFile(inputStream, file)
+}
+
+fun copyInputStreamToFile(inputStream: InputStream, file: File) {
+    var out: OutputStream? = null
+    try {
+        out = FileOutputStream(file)
+        val buf = ByteArray(1024)
+        var len: Int
+        while (inputStream.read(buf).also { len = it } > 0) {
+            out.write(buf, 0, len)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        // Ensure that the InputStreams are closed even if there's an exception.
+        try {
+            out?.close()
+
+            // If you want to close the "in" InputStream yourself then remove this
+            // from here but ensure that you close it yourself eventually.
+            inputStream.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+}
+
+val DocumentFile.extension: String
+    get() = name?.substringAfterLast('.', "") ?: ""

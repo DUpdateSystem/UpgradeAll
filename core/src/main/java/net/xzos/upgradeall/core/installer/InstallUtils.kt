@@ -1,11 +1,13 @@
 package net.xzos.upgradeall.core.installer
 
+import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.StrictMode
 import net.xzos.upgradeall.core.coreConfig
+import net.xzos.upgradeall.core.downloader.DownloadFile
 import net.xzos.upgradeall.core.utils.file.getProviderUri
 import java.io.File
 
@@ -39,6 +41,16 @@ fun File.autoAddApkExtension(): File {
         }
     }
     return this
+}
+
+suspend fun DownloadFile.isApkFile(context: Context): Boolean {
+    val list = documentFile.listFiles()
+    return when {
+        list.isEmpty() -> return false
+        // 减少磁盘 IO 负担，判断后缀
+        list.size == 1 && list[0].name?.substringAfterLast('.', "") == "apk" -> true
+        else -> getTmpFile(context).isApkFile()
+    }
 }
 
 fun File.isApkFile(): Boolean {

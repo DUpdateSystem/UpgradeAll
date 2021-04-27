@@ -43,7 +43,7 @@ suspend fun startDownload(
     }
 }
 
-suspend fun installFileTasker(fileTasker: FileTasker) {
+suspend fun installFileTasker(fileTasker: FileTasker, context: Context) {
     val notification = DownloadNotificationManager.getNotification(fileTasker)
     notification?.showInstallNotification(fileTasker.name)
     fileTasker.install({
@@ -52,7 +52,7 @@ suspend fun installFileTasker(fileTasker: FileTasker) {
     }, {
         notification?.cancelNotification()
         MiscellaneousUtils.showToast(R.string.install_success)
-    })
+    }, context)
 }
 
 fun deleteFileTasker(fileTasker: FileTasker) {

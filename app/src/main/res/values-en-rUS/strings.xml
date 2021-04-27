@@ -254,4 +254,7 @@
 
     <!-- UI Setting -->
     <string name="home_bottom_queue_setting">Custom home button list</string>
+
+    <!-- Other -->
+    <string name="download_dir_check_filed">Download folder check failed</string>
 </resources>
