@@ -192,7 +192,7 @@ object PreferencesMap {
             download_max_task_num = 1
         if (download_auto_retry_max_attempts <= 0)
             download_auto_retry_max_attempts = 1
-        if (FileUtil.DOWNLOAD_DOCUMENT_FILE?.canWrite() != true)
+        if (FileUtil.getUserDownloadDocumentFile()?.canWrite() != true)
             auto_dump_download_file = false
     }
 

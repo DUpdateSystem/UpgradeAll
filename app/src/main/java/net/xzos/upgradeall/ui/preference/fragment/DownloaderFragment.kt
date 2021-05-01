@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.preference.Preference
 import androidx.preference.SeekBarPreference
+import androidx.preference.SwitchPreferenceCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -37,6 +38,7 @@ class DownloaderFragment : PrefFragment(R.xml.preferences_downloader) {
                     PreferencesMap.user_download_path = treeUri.toString()
                     withContext(Dispatchers.Main) {
                         preference.summary = treeUri.toString()
+                        findPreference<SwitchPreferenceCompat>("auto_dump_download_file")!!.isEnabled = true
                     }
                 }
             }

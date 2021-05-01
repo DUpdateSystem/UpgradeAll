@@ -48,11 +48,12 @@ object FileUtil {
     internal val SHELL_SCRIPT_CACHE_FILE by lazy { File(CACHE_DIR, "run.sh").getExistsFile() }
     internal val DOWNLOAD_DOCUMENT_FILE: DocumentFile
         get() = if (PreferencesMap.auto_dump_download_file) {
-            getDocumentFile(context, Uri.parse(PreferencesMap.user_download_path))
-                    ?: getDefDownloadDocument().also {
-                        MiscellaneousUtils.showToast(R.string.download_dir_check_filed)
-                    }
+            getUserDownloadDocumentFile() ?: getDefDownloadDocument()
         } else getDefDownloadDocument()
+
+    fun getUserDownloadDocumentFile(): DocumentFile? {
+        return DocumentFile.fromTreeUri(context, Uri.parse(PreferencesMap.user_download_path))
+    }
 
     private fun getDefDownloadDocument(): DocumentFile {
         return DocumentFile.fromFile(DOWNLOAD_CACHE_DIR)
@@ -106,9 +107,8 @@ object FileUtil {
      * 申请文件树读写权限
      */
     fun takePersistableUriPermission(context: Context, treeUri: Uri) {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        val takeFlags: Int = intent.flags and
-                (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
         // Check for the freshest data.
         context.contentResolver.takePersistableUriPermission(treeUri, takeFlags)
     }
