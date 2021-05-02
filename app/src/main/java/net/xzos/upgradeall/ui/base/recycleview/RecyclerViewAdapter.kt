@@ -8,14 +8,19 @@ import kotlinx.coroutines.launch
 import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.utils.runUiFun
 
-abstract class RecyclerViewAdapter<L : ListItemView, RHA : RecyclerViewHandler, T : RecyclerViewHolder<in L, RHA, *>> : RecyclerView.Adapter<T>() {
+abstract class RecyclerViewAdapter<LT, L : ListItemView, RHA : RecyclerViewHandler, T : RecyclerViewHolder<in L, RHA, *>>(
+        val listContainerViewConvertFun: (LT) -> L = {
+            @Suppress("UNCHECKED_CAST")
+            it as L
+        }
+) : RecyclerView.Adapter<T>() {
 
     abstract val handler: RHA?
     lateinit var lifecycleScope: LifecycleCoroutineScope
 
-    private var dataSet: List<L> = listOf<L>().also { setHasStableIds(true) }
+    private var dataSet: List<LT> = listOf<LT>().also { setHasStableIds(true) }
 
-    fun setAdapterData(list: List<L>, changedPosition: Int, changedTag: String) {
+    fun setAdapterData(list: List<LT>, changedPosition: Int, changedTag: String) {
         dataSet = list
         runUiFun {
             when (changedTag) {
@@ -41,7 +46,7 @@ abstract class RecyclerViewAdapter<L : ListItemView, RHA : RecyclerViewHandler, 
     abstract fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): T
 
     override fun onBindViewHolder(viewHolder: T, position: Int) {
-        val itemView = dataSet[position]
+        val itemView = listContainerViewConvertFun(dataSet[position])
         viewHolder.bind(itemView)
         lifecycleScope.launch {
             viewHolder.loadExtraUi(itemView)

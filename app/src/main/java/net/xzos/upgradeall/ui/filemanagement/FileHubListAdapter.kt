@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import net.xzos.upgradeall.databinding.ItemHubFileTaskerBinding
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 
-class FileHubListAdapter(context: Context) : RecyclerViewAdapter<FileItemView, FileHubListItemHandler, FileHubListViewHolder>() {
+class FileHubListAdapter(context: Context) : RecyclerViewAdapter<FileItemView, FileItemView, FileHubListItemHandler, FileHubListViewHolder>() {
 
     override val handler = FileHubListItemHandler(context)
 

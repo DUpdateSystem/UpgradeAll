@@ -40,4 +40,4 @@ fun getDownloadUrl(mimeType: String, fileName: String, parent: DocumentFile): Ur
 
 class DownloadFileError internal constructor(val parent: DocumentFile, val fileName: String) : RuntimeException()
 class DownloadCanceledError internal constructor() : RuntimeException(DOWNLOAD_CANCELLED)
-class DownloadFetchError internal constructor(error: Error) : RuntimeException(DOWNLOAD_CANCELLED)
+class DownloadFetchError internal constructor(val error: Error) : RuntimeException(DOWNLOAD_CANCELLED)

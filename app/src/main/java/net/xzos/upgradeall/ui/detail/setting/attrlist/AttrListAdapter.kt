@@ -12,7 +12,7 @@ import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 class AttrListAdapter(
         lifecycleScope: LifecycleCoroutineScope,
         viewModel: AttrListViewModel,
-) : RecyclerViewAdapter<AttrListItemView, AttrListHandler, AttrListHolder>() {
+) : RecyclerViewAdapter<AttrListItemView, AttrListItemView, AttrListHandler, AttrListHolder>() {
     override val handler: AttrListHandler = AttrListHandler(viewModel)
 
     init {

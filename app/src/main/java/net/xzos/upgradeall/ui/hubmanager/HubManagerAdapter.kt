@@ -7,7 +7,7 @@ import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 
 class HubManagerAdapter(
         override val handler: HubManagerListItemHandler
-) : RecyclerViewAdapter<HubManagerListItemView, HubManagerListItemHandler, HubManagerListViewHolder>() {
+) : RecyclerViewAdapter<HubManagerListItemView, HubManagerListItemView, HubManagerListItemHandler, HubManagerListViewHolder>() {
 
 
     override fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): HubManagerListViewHolder {

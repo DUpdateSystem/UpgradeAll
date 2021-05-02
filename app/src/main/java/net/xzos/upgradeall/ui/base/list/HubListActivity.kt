@@ -18,7 +18,6 @@ abstract class HubListActivity<L : ActivityListItemView, T : RecyclerViewHolder<
     override lateinit var binding: RecyclerlistContentBinding
     private var isListReady = false
     private var menu: Menu? = null
-    override val listContainerViewConvertFun: (L) -> L = fun(i) = i
 
     override fun initView() {
         viewModel.getLiveData().observe(this) {

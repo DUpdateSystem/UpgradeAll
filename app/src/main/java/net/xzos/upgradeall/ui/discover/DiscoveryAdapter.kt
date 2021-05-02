@@ -7,7 +7,7 @@ import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 
 class DiscoveryAdapter(
         override val handler: DiscoverListItemHandler
-) : RecyclerViewAdapter<DiscoverListItemView, DiscoverListItemHandler, DiscoverListViewHolder>() {
+) : RecyclerViewAdapter<DiscoverListItemView, DiscoverListItemView, DiscoverListItemHandler, DiscoverListViewHolder>() {
 
     override fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): DiscoverListViewHolder {
         val binding = ItemDiscoverAppBinding.inflate(layoutInflater, viewGroup, false)

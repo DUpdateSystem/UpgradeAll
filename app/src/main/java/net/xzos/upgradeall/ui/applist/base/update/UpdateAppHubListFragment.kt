@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.databinding.FragmentHubUpdateListBinding
 import net.xzos.upgradeall.ui.applist.base.AppHubListFragment
 
@@ -13,7 +12,10 @@ import net.xzos.upgradeall.ui.applist.base.AppHubListFragment
 class UpdateAppHubListFragment : AppHubListFragment<UpdateAppListItemView, UpdateAppHubListViewHolder>() {
 
     lateinit var rootBinding: FragmentHubUpdateListBinding
-    override val adapter = UpdateAppHubListAdapter()
+    override val adapter = UpdateAppHubListAdapter(
+            listContainerViewConvertFun = {
+                UpdateAppListItemView(it).apply { renew(requireContext()) }
+            })
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         rootBinding = FragmentHubUpdateListBinding.inflate(inflater)
@@ -23,9 +25,5 @@ class UpdateAppHubListFragment : AppHubListFragment<UpdateAppListItemView, Updat
             rootBinding.tvAppUpdateTip.text = String.format(getString(R.string.hub_format_app_update_tip), triple.first.size)
         })
         return binding.root
-    }
-
-    override val listContainerViewConvertFun = fun(app: App) = UpdateAppListItemView(app).apply {
-        renew(requireContext())
     }
 }
