@@ -52,7 +52,7 @@ object FileUtil {
         } else getDefDownloadDocument()
 
     fun getUserDownloadDocumentFile(): DocumentFile? {
-        return DocumentFile.fromTreeUri(context, Uri.parse(PreferencesMap.user_download_path))
+        return getDocumentFile(context, Uri.parse(PreferencesMap.user_download_path))
     }
 
     private fun getDefDownloadDocument(): DocumentFile {

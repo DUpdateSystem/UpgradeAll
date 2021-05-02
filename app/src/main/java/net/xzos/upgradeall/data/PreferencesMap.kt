@@ -13,6 +13,7 @@ import net.xzos.upgradeall.core.installer.ApkShizukuInstaller
 import net.xzos.upgradeall.server.downloader.DownloadNotification
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.ui.home.MainActivity
+import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.file.FileUtil
 import java.util.*
 
@@ -192,8 +193,10 @@ object PreferencesMap {
             download_max_task_num = 1
         if (download_auto_retry_max_attempts <= 0)
             download_auto_retry_max_attempts = 1
-        if (FileUtil.getUserDownloadDocumentFile()?.canWrite() != true)
+        if (auto_dump_download_file && FileUtil.getUserDownloadDocumentFile()?.canWrite() != true) {
             auto_dump_download_file = false
+            MiscellaneousUtils.showToast(R.string.download_dir_check_filed)
+        }
     }
 
     // 检查设置数据
