@@ -58,7 +58,8 @@ fun AppEntity.recheck() {
 
 fun AppEntity.getEnableSortHubList(): List<Hub> {
     val sortHubUuidList = this.getSortHubUuidList()
-    return if (sortHubUuidList.isEmpty()) HubManager.getHubList()
+    return if (sortHubUuidList.isEmpty())
+        HubManager.getHubList().filter { it.isEnableApplicationsMode() }
     else sortHubUuidList.mapNotNull { HubManager.getHub(it) }
 }
 

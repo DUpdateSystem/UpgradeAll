@@ -118,6 +118,7 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
             TAB_STAR -> uiConfig.userStarAppIdList.contains(app.appId)
             TAB_ALL -> app.appDatabase.isInit()
             TAB_APPLICATIONS_APP -> !app.appDatabase.isInit()
+                    && (app.isRenewing() || (!app.isRenewing() && app.getReleaseStatus() != Updater.NETWORK_ERROR))
             else -> false
         }
     }
