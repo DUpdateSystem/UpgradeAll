@@ -22,13 +22,12 @@ class UpdateNotification {
         createNotificationChannel()
     }
 
-    val renewStatusFun = fun(renewingAppNum: Int) { updateStatusNotify(renewingAppNum) }
+    val renewStatusFun = fun(renewingAppNum: Int, totalAppNum: Int) { updateStatusNotify(renewingAppNum, totalAppNum) }
 
-    private fun updateStatusNotify(renewingAppNum: Int) {
-        val allAppsNum = AppManager.getAppList().size
-        val finishedAppNum = allAppsNum - renewingAppNum
-        updateStatusNotification(allAppsNum, finishedAppNum)
-        if (renewingAppNum == 0) {
+    private fun updateStatusNotify(renewingAppNum: Int, totalAppNum: Int) {
+        val finishedAppNum = totalAppNum - renewingAppNum
+        updateStatusNotification(totalAppNum, finishedAppNum)
+        if (renewingAppNum <= 0) {
             finishedNotify()
         }
     }
