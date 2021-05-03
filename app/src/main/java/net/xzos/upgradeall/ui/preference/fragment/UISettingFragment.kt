@@ -23,14 +23,12 @@ class UISettingFragment : PrefFragment(R.xml.preferences_ui), SharedPreferences.
 
     override fun onResume() {
         super.onResume()
-        preferenceScreen.sharedPreferences
-                .registerOnSharedPreferenceChangeListener(this)
+        preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        preferenceScreen.sharedPreferences
-                .unregisterOnSharedPreferenceChangeListener(this)
+        preferenceScreen.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
 
@@ -44,8 +42,8 @@ class UISettingFragment : PrefFragment(R.xml.preferences_ui), SharedPreferences.
             GlobalScope.launch {
                 val homeBottomMap = PreferencesMap.home_bottom_map
                 val dataList = SelectListDialog.showDialog(
-                        homeBottomMap.map { SelectItem(getString(MainActivity.getBeanName(it.key)!!), it.key, it.value) },
-                        activity?.supportFragmentManager!!, R.string.home_bottom_queue_setting
+                        homeBottomMap.map { SelectItem(requireContext().getString(MainActivity.getBeanName(it.key)!!), it.key, it.value) },
+                        requireActivity().supportFragmentManager, R.string.home_bottom_queue_setting
                 )
                 PreferencesMap.home_bottom_map = dataList.map { it.id to it.enableObservable.enable }.toMap()
             }
