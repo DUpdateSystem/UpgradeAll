@@ -16,6 +16,7 @@ data class CoreConfig(
         internal val download_auto_retry_max_attempts: Int,
 
         internal val install_apk_api: String,
+        internal val applications_ignore_system_app: Boolean,
 ) {
     internal val locale: Locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         androidContext.resources.configuration.locales.get(0)

@@ -267,6 +267,11 @@
     <!-- UI Setting -->
     <string name="home_bottom_queue_setting">自定义主页按钮列表</string>
 
+    <!-- UI Setting -->
+    <string name="applications_setting">应用市场设置</string>
+    <string name="ignore_system_app">忽略系统应用</string>
+    <string name="ignore_system_app_desc">不使用应用市场模式检查系统应用</string>
+
     <!-- Other -->
     <string name="download_dir_check_filed">下载文件夹检查失效</string>
 </resources>

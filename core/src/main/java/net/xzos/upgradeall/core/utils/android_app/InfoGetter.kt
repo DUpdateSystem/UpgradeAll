@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.utils.android_app
 
 import android.annotation.SuppressLint
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
@@ -9,12 +10,16 @@ import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.utils.shell.getFileNameList
 import net.xzos.upgradeall.core.utils.shell.getProp
 
+
 private const val MODULE_FOLDER_PATH = "/data/adb/modules/"
 
 @SuppressLint("QueryPermissionsNeeded")
 fun getAndroidAppInfoList(): List<AppInfo> {
     val pm = coreConfig.androidContext.packageManager
-    return pm.getInstalledApplications(PackageManager.GET_META_DATA).map {
+    return pm.getInstalledApplications(PackageManager.GET_META_DATA).mapNotNull {
+        if (coreConfig.applications_ignore_system_app)
+            if (it.flags and ApplicationInfo.FLAG_SYSTEM != 0)
+                return@mapNotNull null
         val name = pm.getApplicationLabel(it)
         AppInfo(name.toString(), mapOf(ANDROID_APP_TYPE to it.packageName))
     }

@@ -51,6 +51,9 @@ object PreferencesMap {
     private val background_sync_time
         get() = prefs.getInt("background_sync_time", 18)
 
+    val applications_ignore_system_app: Boolean
+        get() = prefs.getBoolean("applications_ignore_system_app", true)
+
     // 安装首选项
     private val install_apk_api: String
         get() = prefs.getString("install_apk_api", "System")!!
@@ -177,7 +180,8 @@ object PreferencesMap {
                 download_max_task_num = download_max_task_num,
                 download_thread_num = download_thread_num,
                 download_auto_retry_max_attempts = download_auto_retry_max_attempts,
-                install_apk_api = install_apk_api
+                install_apk_api = install_apk_api,
+                applications_ignore_system_app = applications_ignore_system_app,
         )
         initCore(coreConfig,
                 WebDavConfig(webdav_url, webdav_path, webdav_username, webdav_password),

@@ -255,6 +255,11 @@
     <!-- UI Setting -->
     <string name="home_bottom_queue_setting">Custom home button list</string>
 
+    <!-- UI Setting -->
+    <string name="applications_setting">Applications Mode Setting</string>
+    <string name="ignore_system_app">Ignore System Apps</string>
+    <string name="ignore_system_app_desc">Do not enable applications mode for system apps</string>
+
     <!-- Other -->
     <string name="download_dir_check_filed">Download folder check failed</string>
 </resources>

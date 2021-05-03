@@ -37,4 +37,14 @@
             app:title="@string/background_sync_time" />
 
     </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/applications_setting">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:summary="@string/ignore_system_app_desc"
+            android:title="@string/ignore_system_app"
+            app:key="applications_ignore_system_app" />
+
+    </PreferenceCategory>
 </androidx.preference.PreferenceScreen>
