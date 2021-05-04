@@ -48,6 +48,17 @@ object AppManager : Informer {
         return appMap.get(key, coroutinesMutableListOf(true))
     }
 
+    private fun removeAppList(app: App) {
+        if (appList.remove(app))
+            notifyChanged(DATA_UPDATE_CHANGED_NOTIFY, app)
+        notifyChanged(APP_DELETED_NOTIFY, app)
+    }
+
+    private fun addAppList(app: App) {
+        if (appList.add(app))
+            notifyChanged(DATA_UPDATE_CHANGED_NOTIFY, app)
+    }
+
     private suspend fun newAppListPair(): Pair<CoroutinesMutableList<App>, CoroutinesMutableList<App>> {
         val mainAppList = CoroutinesMutableList(true, metaDatabase.appDao().loadAll().map { App(it) })
         val inactiveAppList = CoroutinesMutableList<App>(true)
@@ -161,12 +172,12 @@ object AppManager : Informer {
         if (!app.appDatabase.isInit()) {
             return if (app.getReleaseStatus() == NETWORK_ERROR) {
                 appMap.forEach { it.value.remove(app) }
-                appList.remove(app)
                 inactiveAppList.add(app)
+                removeAppList(app)
                 false
             } else {
-                appList.add(app)
                 inactiveAppList.remove(app)
+                addAppList(app)
                 true
             }
         }
@@ -249,7 +260,7 @@ object AppManager : Informer {
             APP_DATABASE_CHANGED_NOTIFY
         else APP_ADDED_NOTIFY
         val app = oldApp ?: App(appDatabase).apply {
-            appList.add(this)
+            addAppList(this)
         }
         renewApp(app)
         notifyChanged(changedTag, app)
@@ -261,11 +272,10 @@ object AppManager : Informer {
      */
     suspend fun removeApp(app: App) {
         metaDatabase.appDao().delete(app.appDatabase)
-        appList.remove(app)
         appMap.forEach {
             it.value.remove(app)
         }
-        notifyChanged(APP_DELETED_NOTIFY, app)
+        removeAppList(app)
     }
 
     override val informerId: Int = Informer.getInformerId()

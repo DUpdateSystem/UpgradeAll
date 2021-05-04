@@ -32,9 +32,9 @@ class App(
             val appId = appId
             for (hub in hubList) {
                 if (hub.isInactiveApp(appId))
-                    return true
+                    return false
             }
-            return false
+            return true
         }
 
     /* App 在本地的版本号 */
