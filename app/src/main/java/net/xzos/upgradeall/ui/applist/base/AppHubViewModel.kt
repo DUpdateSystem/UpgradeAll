@@ -93,9 +93,8 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
     }
 
     override suspend fun doLoadData(): List<App> {
-        val allList = getAppList()
-        appList.clear()
-        appList.addAll(allList.filter { checkAppInfo(it) })
+        val list = getAppList().filter { checkAppInfo(it) }
+        appList.resetList(list)
         return appList
     }
 

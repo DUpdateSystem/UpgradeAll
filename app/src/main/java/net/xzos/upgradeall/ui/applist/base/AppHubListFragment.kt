@@ -40,5 +40,6 @@ abstract class AppHubListFragment<L : BaseAppListItemView, LV : RecyclerViewHold
     override fun onCreate(savedInstanceState: Bundle?) {
         viewModel.initData(appType, tabIndex)
         super.onCreate(savedInstanceState)
+        adapter.setHasStableIds(true)
     }
 }

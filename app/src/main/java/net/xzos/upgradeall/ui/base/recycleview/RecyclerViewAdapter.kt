@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.base.recycleview
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleCoroutineScope
@@ -29,7 +30,6 @@ abstract class RecyclerViewAdapter<LT, L : ListItemView, RHA : RecyclerViewHandl
                 DEL -> notifyItemRemoved(changedPosition)
                 CHANGE -> notifyItemChanged(changedPosition)
                 else -> notifyDataSetChanged()
-
             }
         }
     }

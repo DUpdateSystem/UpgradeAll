@@ -105,6 +105,13 @@ class CoroutinesMutableList<E>(hash: Boolean = false, collection: Collection<E>?
         }
     }
 
+    fun resetList(elements: Collection<E>) {
+        mutex.runWithLock {
+            list.clear()
+            list.addAll(elements)
+        }
+    }
+
     override fun listIterator(): MutableListIterator<E> = list.toMutableList().listIterator()
 
     override fun listIterator(index: Int): MutableListIterator<E> = list.toMutableList().listIterator(index)

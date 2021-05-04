@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.ui.base.recycleview
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
