@@ -153,3 +153,7 @@
 -keep class com.yalantis.ucrop** { *; }
 -keep interface com.yalantis.ucrop** { *; }
 ##---------------End: proguard configuration for uCrop ----------
+
+##---------------Begin: proguard configuration for okhttp ----------
+-dontwarn okhttp3.internal.http.UnrepeatableRequestBody
+##---------------End: proguard configuration for okhttp ----------

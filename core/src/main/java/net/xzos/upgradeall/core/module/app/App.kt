@@ -27,6 +27,15 @@ class App(
 
     /* 这个 App 可用的软件源 */
     val hubList get() = appDatabase.getEnableSortHubList().filter { it.isValidApp(this) }
+    val isActive: Boolean
+        get() {
+            val appId = appId
+            for (hub in hubList) {
+                if (hub.isInactiveApp(appId))
+                    return true
+            }
+            return false
+        }
 
     /* App 在本地的版本号 */
     val installedVersionNumber: String? get() = updater.getInstalledVersionNumber()

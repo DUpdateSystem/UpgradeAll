@@ -28,7 +28,7 @@ class AppEntity(
         return sortHubUuidListStringToList(_enableHubUuidListString)
     }
 
-    suspend fun setSortHubUuidList(sortHubUuidList: List<String>) {
+    internal suspend fun rowSetSortHubUuidList(sortHubUuidList: List<String>) {
         _enableHubUuidListString = sortHubUuidListToString(sortHubUuidList)
         withContext(Dispatchers.Default) {
             metaDatabase.appDao().update(this@AppEntity)
@@ -65,6 +65,12 @@ fun AppEntity.getEnableSortHubList(): List<Hub> {
     } else sortHubUuidList.mapNotNull { HubManager.getHub(it) }
 }
 
-suspend fun AppEntity.setEnableSortHubList(hubList: List<Hub>) {
-    this.setSortHubUuidList(hubList.map { it.uuid })
+suspend fun AppEntity.setSortHubUuidList(sortHubUuidList: List<String>) {
+    if (this.isInit())
+        this.rowSetSortHubUuidList(sortHubUuidList)
+    else {
+        sortHubUuidList.forEach {
+            HubManager.getHub(it)?.ignoreApp(appId)
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.manager
 
 import android.database.sqlite.SQLiteConstraintException
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -31,14 +32,33 @@ object AppManager : Informer {
 
     private val appMap = coroutinesMutableMapOf<Int, CoroutinesMutableList<App>>(true)
 
+    private val appList get() = appListPair.first
+    private val inactiveAppList get() = appListPair.second
+
     // 存储所有 APP 实体
-    private val appList by lazy {
-        runBlocking { metaDatabase.appDao().loadAll() + getInstalledAppList() }.map { App(it) }
-                .toCoroutinesMutableList(true).apply { AppReceiver().register() }
+    private val appListPair: Pair<CoroutinesMutableList<App>, CoroutinesMutableList<App>> by lazy {
+        runBlocking {
+            newAppListPair().apply {
+                AppReceiver().register()
+            }
+        }
     }
 
     private fun getAppList(key: Int): CoroutinesMutableList<App> {
         return appMap.get(key, coroutinesMutableListOf(true))
+    }
+
+    private suspend fun newAppListPair(): Pair<CoroutinesMutableList<App>, CoroutinesMutableList<App>> {
+        val mainAppList = CoroutinesMutableList(true, metaDatabase.appDao().loadAll().map { App(it) })
+        val inactiveAppList = CoroutinesMutableList<App>(true)
+        for (app in getInstalledAppList().map { App(it) }) {
+            if (app.hubList.isNotEmpty() && app.isActive) {
+                mainAppList.add(app)
+            } else {
+                inactiveAppList.add(app)
+            }
+        }
+        return Pair(mainAppList, inactiveAppList)
     }
 
     /**
@@ -108,15 +128,23 @@ object AppManager : Informer {
      * @param renewStatusFun 每刷新一个 App 数据，回调一次，以返回正在刷新中的 App 数量
      */
     suspend fun renewApp(renewStatusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null): Int {
+        GlobalScope.launch {
+            for (app in inactiveAppList) {
+                launch {
+                    renewApp(app)
+                }
+            }
+        }
         val count = CoroutinesCount(appList.size)
+        val totalAppNum = appList.size
         coroutineScope {
-            val totalAppNum = appList.size
-            for (app in appList)
+            for (app in appList) {
                 launch {
                     renewApp(app)
                     count.down()
                     renewStatusFun?.run { this(count.count, totalAppNum) }
                 }
+            }
         }
         return appList.size
     }
@@ -124,8 +152,25 @@ object AppManager : Informer {
     suspend fun renewApp(app: App) {
         notifyChanged(DATA_UPDATING_NOTIFY, app)
         app.update()
-        setAppMap(app)
+        if (checkActiveApp(app))
+            setAppMap(app)
         notifyChanged(DATA_UPDATED_NOTIFY, app)
+    }
+
+    private fun checkActiveApp(app: App): Boolean {
+        if (!app.appDatabase.isInit()) {
+            return if (app.getReleaseStatus() == NETWORK_ERROR) {
+                appMap.forEach { it.value.remove(app) }
+                appList.remove(app)
+                inactiveAppList.add(app)
+                false
+            } else {
+                appList.add(app)
+                inactiveAppList.remove(app)
+                true
+            }
+        }
+        return true
     }
 
     private fun setAppMap(app: App) {

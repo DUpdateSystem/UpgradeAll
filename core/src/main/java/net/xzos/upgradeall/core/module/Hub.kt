@@ -15,8 +15,11 @@ class Hub(private val hubDatabase: HubEntity) {
     fun isValidApp(app: App): Boolean = getValidKey(app) != null
 
     private fun getValidKey(app: App): Map<String, String>? {
+        return filterValidKey(app.appId)
+    }
+
+    private fun filterValidKey(appId: Map<String, String?>): Map<String, String>? {
         val apiKeywords = hubDatabase.hubConfig.apiKeywords
-        val appId = app.appId
         val keyMap = mutableMapOf<String, String>()
         for (key in apiKeywords) {
             keyMap[key] = appId[key] ?: return null
@@ -24,43 +27,49 @@ class Hub(private val hubDatabase: HubEntity) {
         return keyMap
     }
 
-    fun isIgnoreApp(app: App): Boolean {
-        val appId = getValidKey(app) ?: return true
+
+    fun isIgnoreApp(_appId: Map<String, String?>): Boolean {
+        val appId = filterValidKey(_appId) ?: return true
         val ignoreAppIdList = hubDatabase.userIgnoreAppIdList
         return ignoreAppIdList.contains(appId)
     }
 
-    suspend fun ignoreApp(app: App) {
-        val appId = getValidKey(app) ?: return
+    suspend fun ignoreApp(_appId: Map<String, String?>) {
+        val appId = filterValidKey(_appId) ?: return
         val ignoreAppIdList = hubDatabase.userIgnoreAppIdList
         ignoreAppIdList.add(appId)
         saveDatabase()
     }
 
-    suspend fun unignoreApp(app: App) {
-        val appId = getValidKey(app) ?: return
+    suspend fun unignoreApp(_appId: Map<String, String?>) {
+        val appId = filterValidKey(_appId) ?: return
         val ignoreAppIdList = hubDatabase.userIgnoreAppIdList
         ignoreAppIdList.remove(appId)
         saveDatabase()
     }
 
-    private fun getAppPriority(app: App): Int {
-        val appId = getValidKey(app) ?: return LOW_PRIORITY_APP
-        val lowPriorityAppIdList = hubDatabase.ignoreAppIdList
-        return if (lowPriorityAppIdList.contains(appId))
+    private fun getAppPriority(_appId: Map<String, String?>): Int {
+        val appId = filterValidKey(_appId) ?: return LOW_PRIORITY_APP
+        return if (isInactiveApp(appId))
             LOW_PRIORITY_APP
         else NORMAL_PRIORITY_APP
     }
 
-    private suspend fun setLowPriorityApp(app: App) {
-        val appId = getValidKey(app) ?: return
+    fun isInactiveApp(_appId: Map<String, String?>): Boolean {
+        val appId = filterValidKey(_appId) ?: return false
+        val inactiveAppIdList = hubDatabase.ignoreAppIdList
+        return inactiveAppIdList.contains(appId)
+    }
+
+    private suspend fun setInactiveApp(_appId: Map<String, String?>) {
+        val appId = filterValidKey(_appId) ?: return
         val lowPriorityAppIdList = hubDatabase.ignoreAppIdList
         lowPriorityAppIdList.add(appId)
         saveDatabase()
     }
 
-    private suspend fun unsetLowPriorityApp(app: App) {
-        val appId = getValidKey(app) ?: return
+    private suspend fun removeInactiveApp(_appId: Map<String, String?>) {
+        val appId = filterValidKey(_appId) ?: return
         val lowPriorityAppIdList = hubDatabase.ignoreAppIdList
         lowPriorityAppIdList.remove(appId)
         saveDatabase()
@@ -90,11 +99,11 @@ class Hub(private val hubDatabase: HubEntity) {
 
     internal suspend fun getAppReleaseList(app: App): List<ReleaseListItem>? {
         val appId = getValidKey(app) ?: return null
-        return GrpcApi.getAppRelease(uuid, hubDatabase.auth, appId, getAppPriority(app))?.also {
+        return GrpcApi.getAppRelease(uuid, hubDatabase.auth, appId, getAppPriority(app.appId))?.also {
             if (it.isEmpty())
-                setLowPriorityApp(app)
+                setInactiveApp(app.appId)
             else
-                unsetLowPriorityApp(app)
+                removeInactiveApp(app.appId)
         }
     }
 

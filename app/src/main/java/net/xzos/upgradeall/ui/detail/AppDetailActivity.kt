@@ -18,6 +18,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.database.table.getEnableSortHubList
+import net.xzos.upgradeall.core.database.table.setSortHubUuidList
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
