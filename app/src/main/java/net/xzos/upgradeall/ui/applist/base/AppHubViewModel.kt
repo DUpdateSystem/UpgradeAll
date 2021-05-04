@@ -94,8 +94,14 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
 
     override suspend fun doLoadData(): List<App> {
         val list = getAppList().filter { checkAppInfo(it) }
-        appList.resetList(list)
+        appList.resetList(sortList(list))
         return appList
+    }
+
+    private fun sortList(list: List<App>): List<App> {
+        return if (mTabIndex == TAB_UPDATE || mTabIndex == TAB_APPLICATIONS_APP)
+            list.sortedBy { it.name }
+        else list
     }
 
     private fun checkAppInfo(app: App): Boolean {
