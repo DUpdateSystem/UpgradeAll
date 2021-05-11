@@ -22,7 +22,7 @@ fun getDownloadDirDocumentFile(name: String): DocumentFile {
     return documentFile.createDirectory(name) ?: throw DownloadFileError(
             documentFile, name
     ).apply {
-        Log.e(Downloader.logTagObject, "getDownloadUrl",
+        Log.e(Downloader.logTagObject, "getDownloadDirDocumentFile",
                 "${coreConfig.androidContext.getString(R.string.download_file_create_error)} path: ${documentFile.uri.path} name: $name"
         )
     }

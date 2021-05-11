@@ -12,7 +12,6 @@ import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.*
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.oberver.ObserverFun
-import java.io.File
 import java.util.*
 
 
@@ -23,8 +22,8 @@ class Downloader internal constructor() {
     val downloadFile = DownloadFile()
 
     internal val downloadOb = DownloadOb({}, {}, {},
-            completeFunc = { completeObserverFun(it) },
-            cancelFunc = { cancelObserverFun(it) }, {})
+        completeFunc = { completeObserverFun(it) },
+        cancelFunc = { cancelObserverFun(it) }, {})
 
     private val fetch by lazy { runBlocking { DownloadService.getFetch() } }
 
@@ -51,8 +50,8 @@ class Downloader internal constructor() {
     }
 
     internal fun addTask(
-            fileName: String, url: String,
-            headers: Map<String, String> = mapOf(), cookies: Map<String, String> = mapOf()
+        fileName: String, url: String,
+        headers: Map<String, String> = mapOf(), cookies: Map<String, String> = mapOf()
     ) {
         if (url.isNotBlank()) {
             val request = makeRequest(fileName, url, headers, cookies)
@@ -61,9 +60,9 @@ class Downloader internal constructor() {
     }
 
     internal suspend fun start(
-            taskStartedFun: (Int) -> Unit,
-            taskStartFailedFun: (Throwable) -> Unit,
-            vararg downloadOb: DownloadOb
+        taskStartedFun: (Int) -> Unit,
+        taskStartFailedFun: (Throwable) -> Unit,
+        vararg downloadOb: DownloadOb
     ) {
         if (requestList.isEmpty()) {
             taskStartFailedFun(DownloadCanceledError())
@@ -177,11 +176,11 @@ class Downloader internal constructor() {
     }
 
     private fun makeRequest(
-            fileName: String, url: String,
-            headers: Map<String, String> = mapOf(), cookies: Map<String, String> = mapOf()
+        fileName: String, url: String,
+        headers: Map<String, String> = mapOf(), cookies: Map<String, String> = mapOf()
     ): Request {
         // 检查重复任务
-        val dirDocument = getDownloadDirDocumentFile(fileName)
+        val dirDocument = downloadFile.documentFile
         val fileUrl = getDownloadUrl("*/*", fileName, dirDocument)
         val request = Request(url, fileUrl)
         request.autoRetryMaxAttempts = coreConfig.download_auto_retry_max_attempts

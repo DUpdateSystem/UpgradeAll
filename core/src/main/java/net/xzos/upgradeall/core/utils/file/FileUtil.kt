@@ -44,14 +44,10 @@ internal object FileUtil {
     private val CACHE_DIR = context.externalCacheDir!!
     internal val IMAGE_CACHE_FILE by lazy { File(CACHE_DIR, "_cache_image.png").getExistsFile() }
     internal val DOWNLOAD_CACHE_DIR by lazy { File(CACHE_DIR, "Download").getExistsFile(true) }
+    internal val DOWNLOAD_EXTRA_CACHE_DIR by lazy { File(CACHE_DIR, "DownloadExTraCache").getExistsFile(true) }
     internal val SHELL_SCRIPT_CACHE_FILE by lazy { File(CACHE_DIR, "run.sh").getExistsFile() }
     internal val DOWNLOAD_DOCUMENT_FILE = coreConfig.download_document_file
 
-
-    init {
-        // clear cache
-        CACHE_DIR.deleteRecursively()
-    }
 
     fun getUserGroupIcon(iconFileName: String?): File? =
             if (iconFileName != null) File(GROUP_IMAGE_DIR, iconFileName) else null
