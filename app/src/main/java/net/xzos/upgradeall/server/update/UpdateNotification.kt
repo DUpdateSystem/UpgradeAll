@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.server.update
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -22,14 +23,15 @@ class UpdateNotification {
         createNotificationChannel()
     }
 
-    val renewStatusFun = fun(renewingAppNum: Int, totalAppNum: Int) { updateStatusNotify(renewingAppNum, totalAppNum) }
+    val renewStatusFun = fun(renewingAppNum: Int, totalAppNum: Int) {
+        updateStatusNotify(renewingAppNum, totalAppNum)
+    }
 
     private fun updateStatusNotify(renewingAppNum: Int, totalAppNum: Int) {
         val finishedAppNum = totalAppNum - renewingAppNum
-        updateStatusNotification(totalAppNum, finishedAppNum)
-        if (renewingAppNum <= 0) {
-            finishedNotify()
-        }
+        if (renewingAppNum > 0)
+            updateStatusNotification(totalAppNum, finishedAppNum)
+        else finishedNotify()
     }
 
     private fun finishedNotify() {
@@ -42,18 +44,18 @@ class UpdateNotification {
 
     fun startUpdateNotification(notificationId: Int): Notification {
         builder.setContentTitle("UpgradeAll 更新服务运行中")
-                .setContentText(null)
-                .setProgress(0, 0, false)
-                .setContentIntent(mainActivityPendingIntent)
+            .setContentText(null)
+            .setProgress(0, 0, false)
+            .setContentIntent(mainActivityPendingIntent)
         return notificationNotify(notificationId)
     }
 
     private fun updateStatusNotification(allAppsNum: Int, finishedAppNum: Int) {
         val progress = (finishedAppNum.toDouble() / allAppsNum * 100).toInt()
         builder.setContentTitle("检查更新中")
-                .setContentText("已完成: ${finishedAppNum}/${allAppsNum}")
-                .setProgress(100, progress, false)
-                .setOngoing(true)
+            .setContentText("已完成: ${finishedAppNum}/${allAppsNum}")
+            .setProgress(100, progress, false)
+            .setOngoing(true)
         notificationNotify(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
     }
 
@@ -73,10 +75,16 @@ class UpdateNotification {
 
     private fun createNotificationChannel() {
         val notificationManager = context.getSystemService(
-                Context.NOTIFICATION_SERVICE) as NotificationManager
+            Context.NOTIFICATION_SERVICE
+        ) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                && notificationManager.getNotificationChannel(UPDATE_SERVICE_CHANNEL_ID) == null) {
-            val channel = NotificationChannel(UPDATE_SERVICE_CHANNEL_ID, "更新服务", NotificationManager.IMPORTANCE_MIN)
+            && notificationManager.getNotificationChannel(UPDATE_SERVICE_CHANNEL_ID) == null
+        ) {
+            val channel = NotificationChannel(
+                UPDATE_SERVICE_CHANNEL_ID,
+                "更新服务",
+                NotificationManager.IMPORTANCE_MIN
+            )
             channel.description = "显示更新服务状态"
             channel.enableLights(false)
             channel.enableVibration(false)
@@ -100,16 +108,20 @@ class UpdateNotification {
     }
 
     companion object {
-        private val context = MyApplication.context
+        private val context get() = MyApplication.context
         private const val UPDATE_SERVICE_CHANNEL_ID = "UpdateServiceNotification"
-        private val UPDATE_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_notification_id)
-        val UPDATE_SERVER_RUNNING_NOTIFICATION_ID = context.resources.getInteger(R.integer.update_server_running_notification_id)
+        private val UPDATE_NOTIFICATION_ID =
+            context.resources.getInteger(R.integer.update_notification_id)
+        val UPDATE_SERVER_RUNNING_NOTIFICATION_ID =
+            context.resources.getInteger(R.integer.update_server_running_notification_id)
 
-        private val mainActivityPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
-            addNextIntentWithParentStack(Intent(context, MainActivity::class.java))
-            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-        }
+        private val mainActivityPendingIntent: PendingIntent? =
+            TaskStackBuilder.create(context).run {
+                addNextIntentWithParentStack(Intent(context, MainActivity::class.java))
+                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+            }
 
+        @SuppressLint("StaticFieldLeak")
         private val builder = NotificationCompat.Builder(context, UPDATE_SERVICE_CHANNEL_ID).apply {
             setContentTitle("UpgradeAll 更新服务运行中")
             setOngoing(true)
