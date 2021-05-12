@@ -13,11 +13,13 @@ import androidx.core.app.NotificationManagerCompat
 import com.tonyodev.fetch2.Download
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.filetasker.FileTasker
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
+import net.xzos.upgradeall.core.utils.runWithLock
 import java.io.File
 
 class DownloadNotification(private val fileTasker: FileTasker) {
@@ -29,7 +31,15 @@ class DownloadNotification(private val fileTasker: FileTasker) {
         priority = NotificationCompat.PRIORITY_LOW
     }
 
-    fun getDownloadOb() = DownloadOb({ taskStart(it) }, { taskRunning(it) }, { taskStop() }, { taskComplete(it) }, { taskCancel() }, { taskFail() })
+    private val renewMutex = Mutex()
+
+    fun getDownloadOb() = DownloadOb(
+        { renewMutex.runWithLock { taskRunning(it) } },
+        { renewMutex.runWithLock { taskRunning(it) } },
+        { renewMutex.runWithLock { taskStop() } },
+        { renewMutex.runWithLock { taskComplete(it) } },
+        { renewMutex.runWithLock { taskCancel() } },
+        { renewMutex.runWithLock { taskFail() } })
 
     init {
         createNotificationChannel()
@@ -38,13 +48,15 @@ class DownloadNotification(private val fileTasker: FileTasker) {
 
     fun waitDownloadTaskNotification() {
         builder.clearActions()
-                .setOngoing(true)
-                .setContentTitle("应用下载 $taskName")
-                .setContentText("正在准备")
-                .setSmallIcon(android.R.drawable.stat_sys_download)
-                .setProgress(0, PROGRESS_MAX, true)
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
-                        getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL))
+            .setOngoing(true)
+            .setContentTitle("应用下载 $taskName")
+            .setContentText("正在准备")
+            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setProgress(0, PROGRESS_MAX, true)
+            .addAction(
+                android.R.drawable.ic_menu_close_clear_cancel, "取消",
+                getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
+            )
         notificationNotify()
     }
 
@@ -60,45 +72,38 @@ class DownloadNotification(private val fileTasker: FileTasker) {
         notificationNotify()
     }
 
-    private fun taskStart(task: Download) {
-        val progressCurrent: Int = task.progress
-        val speed = getSpeedText(task)
-        builder.clearActions()
-                .setContentTitle("应用下载: $taskName")
-                .setContentText(speed)
-                .setProgress(PROGRESS_MAX, progressCurrent, false)
-                .setSmallIcon(android.R.drawable.stat_sys_download)
-                .addAction(android.R.drawable.ic_media_pause, "暂停",
-                        getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_PAUSE))
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
-                        getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL))
-        notificationNotify()
-    }
-
     private fun taskRunning(task: Download) {
         val progressCurrent: Int = task.progress
         val speed = getSpeedText(task)
         builder.clearActions()
-                .setContentTitle("应用下载: $taskName")
-                .setContentText(speed)
-                .setProgress(PROGRESS_MAX, progressCurrent, false)
-                .setSmallIcon(android.R.drawable.stat_sys_download)
-                .addAction(android.R.drawable.ic_media_pause, "暂停",
-                        getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_PAUSE))
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
-                        getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL))
+            .setContentTitle("应用下载: $taskName")
+            .setContentText(speed)
+            .setProgress(PROGRESS_MAX, progressCurrent, false)
+            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .addAction(
+                android.R.drawable.ic_media_pause, "暂停",
+                getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_PAUSE)
+            )
+            .addAction(
+                android.R.drawable.ic_menu_close_clear_cancel, "取消",
+                getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
+            )
         notificationNotify()
     }
 
     private fun taskStop() {
         builder.clearActions()
-                .setContentText("下载已暂停")
-                .setSmallIcon(android.R.drawable.stat_sys_download_done)
-                .addAction(android.R.drawable.ic_media_pause, "继续",
-                        getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CONTINUE))
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "取消",
-                        getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL))
-                .setProgress(0, 0, false)
+            .setContentText("下载已暂停")
+            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .addAction(
+                android.R.drawable.ic_media_pause, "继续",
+                getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CONTINUE)
+            )
+            .addAction(
+                android.R.drawable.ic_menu_close_clear_cancel, "取消",
+                getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
+            )
+            .setProgress(0, 0, false)
         notificationNotify()
     }
 
@@ -107,15 +112,20 @@ class DownloadNotification(private val fileTasker: FileTasker) {
     }
 
     private fun taskFail() {
-        val delTaskSnoozePendingIntent = getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
+        val delTaskSnoozePendingIntent =
+            getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
         builder.clearActions()
-                .setContentText("下载失败，点击重试")
-                .setSmallIcon(android.R.drawable.stat_sys_download_done)
-                .setProgress(0, 0, false)
-                .setContentIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_RETRY))
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.cancel), delTaskSnoozePendingIntent)
-                .setDeleteIntent(delTaskSnoozePendingIntent)
-                .setOngoing(false)
+            .setContentText("下载失败，点击重试")
+            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .setProgress(0, 0, false)
+            .setContentIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_RETRY))
+            .addAction(
+                android.R.drawable.ic_menu_close_clear_cancel,
+                getString(R.string.cancel),
+                delTaskSnoozePendingIntent
+            )
+            .setDeleteIntent(delTaskSnoozePendingIntent)
+            .setOngoing(false)
         notificationNotify()
     }
 
@@ -129,20 +139,31 @@ class DownloadNotification(private val fileTasker: FileTasker) {
             setContentTitle("下载完成: $taskName")
             val contentText = "文件路径: ${file.path}"
             setContentText(contentText)
-            setStyle(NotificationCompat.BigTextStyle()
-                    .bigText(contentText))
+            setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(contentText)
+            )
             setSmallIcon(android.R.drawable.stat_sys_download_done)
             setProgress(0, 0, false)
             runBlocking(Dispatchers.IO) {
                 if (fileTasker.isInstallable(context)) {
-                    addAction(R.drawable.ic_check_mark_circle, getString(R.string.install),
-                            getSnoozePendingIntent(DownloadBroadcastReceiver.INSTALL_APK))
+                    addAction(
+                        R.drawable.ic_check_mark_circle, getString(R.string.install),
+                        getSnoozePendingIntent(DownloadBroadcastReceiver.INSTALL_APK)
+                    )
                 }
             }
-            addAction(android.R.drawable.stat_sys_download_done, getString(R.string.open_file),
-                    getSnoozePendingIntent(DownloadBroadcastReceiver.OPEN_FILE))
-            val delTaskSnoozePendingIntent = getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
-            addAction(android.R.drawable.ic_menu_delete, getString(R.string.delete), delTaskSnoozePendingIntent)
+            addAction(
+                android.R.drawable.stat_sys_download_done, getString(R.string.open_file),
+                getSnoozePendingIntent(DownloadBroadcastReceiver.OPEN_FILE)
+            )
+            val delTaskSnoozePendingIntent =
+                getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
+            addAction(
+                android.R.drawable.ic_menu_delete,
+                getString(R.string.delete),
+                delTaskSnoozePendingIntent
+            )
             setDeleteIntent(delTaskSnoozePendingIntent)
             setOngoing(false)
         }
@@ -164,18 +185,22 @@ class DownloadNotification(private val fileTasker: FileTasker) {
         return Intent(context, DownloadBroadcastReceiver::class.java).apply {
             action = DownloadBroadcastReceiver.ACTION_SNOOZE
             putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_ID, fileTasker.id)
-            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_CONTROL, extraIdentifierDownloadControlId)
+            putExtra(
+                DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_CONTROL,
+                extraIdentifierDownloadControlId
+            )
         }
     }
 
     private fun getSnoozePendingIntent(extraIdentifierDownloadControlId: Int): PendingIntent {
         val snoozeIntent = getSnoozeIntent(extraIdentifierDownloadControlId)
         val flags =
-                if (extraIdentifierDownloadControlId == DownloadBroadcastReceiver.INSTALL_APK ||
-                        extraIdentifierDownloadControlId == DownloadBroadcastReceiver.OPEN_FILE)
-                // 保存文件/安装按钮可多次点击
-                    0
-                else PendingIntent.FLAG_ONE_SHOT
+            if (extraIdentifierDownloadControlId == DownloadBroadcastReceiver.INSTALL_APK ||
+                extraIdentifierDownloadControlId == DownloadBroadcastReceiver.OPEN_FILE
+            )
+            // 保存文件/安装按钮可多次点击
+                0
+            else PendingIntent.FLAG_ONE_SHOT
         return PendingIntent.getBroadcast(context, getPendingIntentIndex(), snoozeIntent, flags)
     }
 
@@ -205,19 +230,27 @@ class DownloadNotification(private val fileTasker: FileTasker) {
 
         private val downloadServiceNotificationBuilder
             get() = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID)
-                    .setContentTitle("下载服务运行中").setSmallIcon(android.R.drawable.stat_sys_download_done)
-                    .apply { priority = NotificationCompat.PRIORITY_LOW }
+                .setContentTitle("下载服务运行中").setSmallIcon(android.R.drawable.stat_sys_download_done)
+                .apply { priority = NotificationCompat.PRIORITY_LOW }
 
         val downloadServiceNotificationMaker = fun(): Pair<Int, Notification> {
             return getDownloadServiceNotification()
         }
 
         private fun getDownloadServiceNotification(): Pair<Int, Notification> {
-            return Pair(DOWNLOAD_SERVICE_NOTIFICATION_INDEX,
-                    notificationNotify(DOWNLOAD_SERVICE_NOTIFICATION_INDEX, downloadServiceNotificationBuilder.build()))
+            return Pair(
+                DOWNLOAD_SERVICE_NOTIFICATION_INDEX,
+                notificationNotify(
+                    DOWNLOAD_SERVICE_NOTIFICATION_INDEX,
+                    downloadServiceNotificationBuilder.build()
+                )
+            )
         }
 
-        private fun notificationNotify(notificationId: Int, notification: Notification): Notification {
+        private fun notificationNotify(
+            notificationId: Int,
+            notification: Notification
+        ): Notification {
             if (!initNotificationChannel) {
                 createNotificationChannel()
                 initNotificationChannel = true
@@ -228,10 +261,16 @@ class DownloadNotification(private val fileTasker: FileTasker) {
 
         fun createNotificationChannel() {
             val notificationManager = context.getSystemService(
-                    Context.NOTIFICATION_SERVICE) as NotificationManager
+                Context.NOTIFICATION_SERVICE
+            ) as NotificationManager
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                    && notificationManager.getNotificationChannel(DOWNLOAD_CHANNEL_ID) == null) {
-                val channel = NotificationChannel(DOWNLOAD_CHANNEL_ID, "应用下载", NotificationManager.IMPORTANCE_LOW)
+                && notificationManager.getNotificationChannel(DOWNLOAD_CHANNEL_ID) == null
+            ) {
+                val channel = NotificationChannel(
+                    DOWNLOAD_CHANNEL_ID,
+                    "应用下载",
+                    NotificationManager.IMPORTANCE_LOW
+                )
                 channel.description = "显示更新文件的下载状态"
                 channel.enableLights(true)
                 channel.enableVibration(false)
