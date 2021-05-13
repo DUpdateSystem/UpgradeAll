@@ -49,12 +49,12 @@ class DownloadNotification(private val fileTasker: FileTasker) {
     fun waitDownloadTaskNotification() {
         builder.clearActions()
             .setOngoing(true)
-            .setContentTitle("应用下载 $taskName")
-            .setContentText("正在准备")
+            .setContentTitle("${getString(R.string.file_download)}: $taskName")
+            .setContentText(getString(R.string.waiting_pre_process))
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .setProgress(0, PROGRESS_MAX, true)
             .addAction(
-                android.R.drawable.ic_menu_close_clear_cancel, "取消",
+                android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.cancel),
                 getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
             )
         notificationNotify()
@@ -62,7 +62,7 @@ class DownloadNotification(private val fileTasker: FileTasker) {
 
     fun showInstallNotification(apkFileName: String) {
         builder.clearActions().run {
-            setContentTitle(context.getString(R.string.installing) + " " + apkFileName)
+            setContentTitle("${getString(R.string.installing)}: $apkFileName")
             setSmallIcon(android.R.drawable.stat_sys_download_done)
             setProgress(0, 0, false)
             setOngoing(false)
@@ -76,16 +76,16 @@ class DownloadNotification(private val fileTasker: FileTasker) {
         val progressCurrent: Int = task.progress
         val speed = getSpeedText(task)
         builder.clearActions()
-            .setContentTitle("应用下载: $taskName")
+            .setContentTitle("${getString(R.string.file_download)}: $taskName")
             .setContentText(speed)
             .setProgress(PROGRESS_MAX, progressCurrent, false)
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .addAction(
-                android.R.drawable.ic_media_pause, "暂停",
+                android.R.drawable.ic_media_pause, getString(R.string.pause),
                 getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_PAUSE)
             )
             .addAction(
-                android.R.drawable.ic_menu_close_clear_cancel, "取消",
+                android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.cancel),
                 getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
             )
         notificationNotify()
@@ -93,14 +93,14 @@ class DownloadNotification(private val fileTasker: FileTasker) {
 
     private fun taskStop() {
         builder.clearActions()
-            .setContentText("下载已暂停")
+            .setContentText(getString(R.string.download_paused))
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
             .addAction(
-                android.R.drawable.ic_media_pause, "继续",
+                android.R.drawable.ic_media_pause, getString(R.string.Continue),
                 getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CONTINUE)
             )
             .addAction(
-                android.R.drawable.ic_menu_close_clear_cancel, "取消",
+                android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.cancel),
                 getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
             )
             .setProgress(0, 0, false)
@@ -115,7 +115,7 @@ class DownloadNotification(private val fileTasker: FileTasker) {
         val delTaskSnoozePendingIntent =
             getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
         builder.clearActions()
-            .setContentText("下载失败，点击重试")
+            .setContentText(getString(R.string.download_failed_click_to_retry))
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
             .setProgress(0, 0, false)
             .setContentIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_RETRY))
@@ -136,8 +136,8 @@ class DownloadNotification(private val fileTasker: FileTasker) {
 
     private fun showManualMenuNotification(file: File) {
         builder.clearActions().run {
-            setContentTitle("下载完成: $taskName")
-            val contentText = "文件路径: ${file.path}"
+            setContentTitle("${getString(R.string.download_complete)}: $taskName")
+            val contentText = "${getString(R.string.file_path)}: ${file.path}"
             setContentText(contentText)
             setStyle(
                 NotificationCompat.BigTextStyle()
@@ -230,7 +230,8 @@ class DownloadNotification(private val fileTasker: FileTasker) {
 
         private val downloadServiceNotificationBuilder
             get() = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID)
-                .setContentTitle("下载服务运行中").setSmallIcon(android.R.drawable.stat_sys_download_done)
+                .setContentTitle(getString(R.string.download_service_running))
+                .setSmallIcon(android.R.drawable.stat_sys_download_done)
                 .apply { priority = NotificationCompat.PRIORITY_LOW }
 
         val downloadServiceNotificationMaker = fun(): Pair<Int, Notification> {
@@ -268,15 +269,17 @@ class DownloadNotification(private val fileTasker: FileTasker) {
             ) {
                 val channel = NotificationChannel(
                     DOWNLOAD_CHANNEL_ID,
-                    "应用下载",
+                    getString(R.string.file_download),
                     NotificationManager.IMPORTANCE_LOW
                 )
-                channel.description = "显示更新文件的下载状态"
+                channel.description = getString(R.string.show_download_status)
                 channel.enableLights(true)
                 channel.enableVibration(false)
                 channel.setShowBadge(false)
                 notificationManager.createNotificationChannel(channel)
             }
         }
+
+        fun getString(@StringRes res: Int): String = context.getString(res)
     }
 }
