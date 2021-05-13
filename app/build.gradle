@@ -14,8 +14,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 71
-        versionName "0.9.9-beta.5"
+        versionCode 72
+        versionName "0.9.9"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
@@ -79,9 +79,9 @@ dependencies {
     implementation 'com.akexorcist:localization:1.2.9'
 
     // Firebase
-    implementation 'com.google.firebase:firebase-perf:19.1.1'
-    implementation 'com.google.firebase:firebase-analytics:18.0.3'
-    implementation 'com.google.firebase:firebase-crashlytics:17.4.1'
+    implementation 'com.google.firebase:firebase-perf:20.0.0'
+    implementation 'com.google.firebase:firebase-analytics:19.0.0'
+    implementation 'com.google.firebase:firebase-crashlytics:18.0.0'
     configurations.compile.exclude group: 'com.google.protobuf', module: 'protobuf-lite'
 
     // 数据处理

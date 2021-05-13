@@ -65,7 +65,8 @@ class DownloadNotification(private val fileTasker: FileTasker) {
             setContentTitle("${getString(R.string.installing)}: $apkFileName")
             setSmallIcon(android.R.drawable.stat_sys_download_done)
             setProgress(0, 0, false)
-            setOngoing(false)
+            setDeleteIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.NOTIFY_CANCEL))
+            setNotificationCanGoing()
         }
         // TODO: 更全面的安装过程检测
         // 安装失败后回退操作
@@ -125,7 +126,7 @@ class DownloadNotification(private val fileTasker: FileTasker) {
                 delTaskSnoozePendingIntent
             )
             .setDeleteIntent(delTaskSnoozePendingIntent)
-            .setOngoing(false)
+        setNotificationCanGoing()
         notificationNotify()
     }
 
@@ -157,16 +158,14 @@ class DownloadNotification(private val fileTasker: FileTasker) {
                 android.R.drawable.stat_sys_download_done, getString(R.string.open_file),
                 getSnoozePendingIntent(DownloadBroadcastReceiver.OPEN_FILE)
             )
-            val delTaskSnoozePendingIntent =
-                getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
             addAction(
                 android.R.drawable.ic_menu_delete,
                 getString(R.string.delete),
-                delTaskSnoozePendingIntent
+                getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
             )
-            setDeleteIntent(delTaskSnoozePendingIntent)
-            setOngoing(false)
+            setDeleteIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.NOTIFY_CANCEL))
         }
+        setNotificationCanGoing()
         notificationNotify()
     }
 
@@ -212,6 +211,13 @@ class DownloadNotification(private val fileTasker: FileTasker) {
             1024L <= speed && speed < 1024 * 1024L -> "${speed / 1024} kb/s"
             1024 * 1024L <= speed -> "${speed / (1024 * 1024)} mb/s"
             else -> ""
+        }
+    }
+
+    private fun setNotificationCanGoing() {
+        with(builder) {
+            setDeleteIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.NOTIFY_CANCEL))
+            setOngoing(false)
         }
     }
 

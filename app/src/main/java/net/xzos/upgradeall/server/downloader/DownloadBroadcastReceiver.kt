@@ -17,6 +17,8 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
             DOWNLOAD_RETRY -> fileTasker.retry()
             DOWNLOAD_PAUSE -> fileTasker.pause()
             DOWNLOAD_CONTINUE -> fileTasker.resume()
+            NOTIFY_CANCEL -> DownloadNotificationManager.getNotification(fileTasker)
+                ?.cancelNotification()
             INSTALL_APK -> runBlocking { installFileTasker(fileTasker, context) }
             OPEN_FILE -> fileTasker.openDownloadDir(context)
         }
@@ -34,5 +36,6 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
         internal const val DOWNLOAD_CONTINUE = 4
         internal const val OPEN_FILE = 10
         internal const val INSTALL_APK = 11
+        internal const val NOTIFY_CANCEL = 5
     }
 }
