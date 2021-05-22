@@ -12,6 +12,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.tonyodev.fetch2.Download
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
@@ -20,6 +22,7 @@ import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.filetasker.FileTasker
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.runWithLock
+import net.xzos.upgradeall.data.PreferencesMap
 import java.io.File
 
 class DownloadNotification(private val fileTasker: FileTasker) {
@@ -133,6 +136,9 @@ class DownloadNotification(private val fileTasker: FileTasker) {
     private fun taskComplete(task: Download) {
         val file = File(task.file)
         showManualMenuNotification(file)
+        if (PreferencesMap.auto_install) {
+            GlobalScope.launch { installFileTasker(fileTasker, context) }
+        }
     }
 
     private fun showManualMenuNotification(file: File) {
