@@ -7,6 +7,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        jcenter()
         maven { url "https://jitpack.io" }
         maven { url 'https://dl.bintray.com/rikkaw/Shizuku' }
         maven { url 'https://dl.bintray.com/absinthe/libraries' }
@@ -30,6 +31,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        jcenter()
         maven { url "https://jitpack.io" }
         maven { url 'https://dl.bintray.com/rikkaw/Shizuku' }
         maven { url 'https://dl.bintray.com/absinthe/libraries' }
@@ -39,6 +41,7 @@ allprojects {
 repositories {
     google()
     mavenCentral()
+    jcenter()
     maven { url "https://jitpack.io" }
     maven { url 'https://maven.aliyun.com/repository/central' }
     maven { url 'https://maven.aliyun.com/repository/public' }
