@@ -1,0 +1,51 @@
+<!--
+  ~ Aurora Store
+  ~ Copyright (C) 2019, Rahul Kumar Patel <whyorean@gmail.com>
+  ~
+  ~ Aurora Store is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 2 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Aurora Store is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Aurora Store.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~
+  -->
+
+<resources>
+
+    <style name="RatingBarReviews" parent="Theme.MaterialComponents">
+        <item name="colorControlNormal">@color/colorGold</item>
+        <item name="colorControlActivated">@color/colorGold</item>
+    </style>
+
+    <!-- Toolbar & AppBar -->
+    <style name="AppTheme.PopupTheme" parent="ThemeOverlay.MaterialComponents.Light" />
+
+    <style name="AppTheme.PopupTheme.Dark" parent="ThemeOverlay.MaterialComponents.Dark" />
+
+    <style name="Widget.Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">?android:attr/windowBackground</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Aurora.Toolbar.Title</item>
+        <item name="popupTheme">@style/AppTheme.PopupTheme</item>
+    </style>
+
+    <style name="Widget.Toolbar.Dark" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">?android:attr/windowBackground</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Aurora.Toolbar.Title</item>
+        <item name="popupTheme">@style/AppTheme.PopupTheme.Dark</item>
+    </style>
+
+    <style name="Widget.AppBar" parent="@style/Widget.Design.AppBarLayout">
+        <item name="popupTheme">@style/AppTheme.PopupTheme</item>
+        <item name="android:background">?android:attr/windowBackground</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+</resources>
