@@ -153,7 +153,7 @@ object PreferencesMap {
 
     fun initByActivity(activity: Activity) {
         if (install_apk_api == "Shizuku") {
-            ApkShizukuInstaller.initByActivity(activity, 0)
+            ApkShizukuInstaller.initByActivity(activity, 1)
         }
     }
 

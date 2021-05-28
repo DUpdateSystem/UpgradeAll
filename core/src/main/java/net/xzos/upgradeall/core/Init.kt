@@ -31,7 +31,7 @@ fun initCore(
     coreConfig = _coreConfig
     webDavConfig = _webDavConfig
     downloaderNotificationMaker?.run { DownloadService.setNotificationMaker(this) }
-    activity?.run { ApkShizukuInstaller.initByActivity(this, 0) }
+    activity?.run { ApkShizukuInstaller.initByActivity(this, 1) }
     initObject()
 }
 

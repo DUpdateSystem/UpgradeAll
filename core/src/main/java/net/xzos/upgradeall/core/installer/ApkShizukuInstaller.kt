@@ -8,19 +8,20 @@ import android.content.pm.IPackageInstallerSession
 import android.content.pm.IPackageManager
 import android.content.pm.PackageInstaller
 import android.os.Process
-import moe.shizuku.api.ShizukuApiConstants
-import moe.shizuku.api.ShizukuBinderWrapper
-import moe.shizuku.api.ShizukuService
-import moe.shizuku.api.SystemServiceHelper
 import net.xzos.upgradeall.core.R
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.installer.shizuku.IIntentSenderAdaptor
 import net.xzos.upgradeall.core.installer.shizuku.IntentSenderUtils
 import net.xzos.upgradeall.core.installer.shizuku.PackageInstallerUtils
+import net.xzos.upgradeall.core.installer.shizuku.ShizukuUtils
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.requestPermission
+import rikka.shizuku.Shizuku
+import rikka.shizuku.ShizukuBinderWrapper
+import rikka.shizuku.ShizukuProvider
+import rikka.shizuku.SystemServiceHelper
 import java.io.File
 import java.util.concurrent.CountDownLatch
 
@@ -31,6 +32,8 @@ object ApkShizukuInstaller {
     private val logObjectTag = ObjectTag(core, TAG)
 
     private val context get() = coreConfig.androidContext
+
+    private val shizukuUtils = ShizukuUtils()
 
     @Suppress("ObjectPropertyName")
     private val _packageManager: IPackageManager by lazy {
@@ -43,11 +46,15 @@ object ApkShizukuInstaller {
     }
 
     suspend fun install(file: File) {
+        shizukuUtils.bindUserServiceStandaloneProcess()
         doApkInstall(file)
+        shizukuUtils.unbindUserServiceStandaloneProcess()
     }
 
     suspend fun multipleInstall(apkFileList: List<File>) {
+        shizukuUtils.bindUserServiceStandaloneProcess()
         doMultipleInstall(apkFileList)
+        shizukuUtils.unbindUserServiceStandaloneProcess()
     }
 
     private fun doApkInstall(file: File) {
@@ -65,10 +72,10 @@ object ApkShizukuInstaller {
             res.append('\n').append("commit: ")
             val result = doCommitSession(session)
             val status =
-                    result!!.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)
+                result!!.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)
             val message = result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
             res.append('\n').append("status: ").append(status).append(" (").append(message)
-                    .append(")")
+                .append(")")
         } catch (e: Throwable) {
             res.append(e.stackTraceToString())
             tr = e
@@ -112,10 +119,10 @@ object ApkShizukuInstaller {
             res.append('\n').append("commit: ")
             val result = doCommitSession(session)
             val status =
-                    result!!.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)
+                result!!.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)
             val message = result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
             res.append('\n').append("status: ").append(status).append(" (").append(message)
-                    .append(")")
+                .append(")")
         } catch (e: Throwable) {
             res.append(e.stackTraceToString())
             tr = e
@@ -134,14 +141,14 @@ object ApkShizukuInstaller {
     }
 
     private fun getPackageInstaller(): PackageInstaller {
-        val isRoot = ShizukuService.getUid() == 0
+        val isRoot = Shizuku.getUid() == 0
         // the reason for use "com.android.shell" as installer package under adb is that getMySessions will check installer package's owner
         val installerPackageName = if (isRoot) context.packageName else "com.android.shell"
         val userId = if (isRoot) Process.myUserHandle().hashCode() else 0
         return PackageInstallerUtils.createPackageInstaller(
-                _packageInstaller,
-                installerPackageName,
-                userId
+            _packageInstaller,
+            installerPackageName,
+            userId
         )
     }
 
@@ -150,13 +157,13 @@ object ApkShizukuInstaller {
         res.append("createSession: ")
 
         val params: PackageInstaller.SessionParams =
-                PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+            PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
         totalSize?.let {
             params.setSize(totalSize)
         }
         var installFlags = PackageInstallerUtils.getInstallFlags(params)
         installFlags =
-                installFlags or (0x00000004 /*PackageManager.INSTALL_ALLOW_TEST*/ or 0x00000002) /*PackageManager.INSTALL_REPLACE_EXISTING*/
+            installFlags or (0x00000004 /*PackageManager.INSTALL_ALLOW_TEST*/ or 0x00000002) /*PackageManager.INSTALL_REPLACE_EXISTING*/
         PackageInstallerUtils.setInstallFlags(params, installFlags)
 
         val packageInstaller = getPackageInstaller()
@@ -164,9 +171,9 @@ object ApkShizukuInstaller {
         res.append(sessionId)
         @Suppress("LocalVariableName")
         val _session = IPackageInstallerSession.Stub.asInterface(
-                ShizukuBinderWrapper(
-                        _packageInstaller.openSession(sessionId).asBinder()
-                )
+            ShizukuBinderWrapper(
+                _packageInstaller.openSession(sessionId).asBinder()
+            )
         )
         Log.i(logObjectTag, TAG, res.toString())
         return PackageInstallerUtils.createSession(_session)
@@ -191,12 +198,12 @@ object ApkShizukuInstaller {
         val results = arrayOf<Intent?>(null)
         val countDownLatch = CountDownLatch(1)
         val intentSender: IntentSender =
-                IntentSenderUtils.newInstance(object : IIntentSenderAdaptor() {
-                    override fun send(intent: Intent?) {
-                        results[0] = intent
-                        countDownLatch.countDown()
-                    }
-                })
+            IntentSenderUtils.newInstance(object : IIntentSenderAdaptor() {
+                override fun send(intent: Intent?) {
+                    results[0] = intent
+                    countDownLatch.countDown()
+                }
+            })
         session.commit(intentSender)
 
         countDownLatch.await()
@@ -204,21 +211,25 @@ object ApkShizukuInstaller {
     }
 
     fun initByActivity(
-            activity: Activity,
-            PERMISSIONS_REQUEST_CONTACTS: Int,
+        activity: Activity,
+        PERMISSIONS_REQUEST_CONTACTS: Int,
     ) {
         if (coreConfig.install_apk_api == "Shizuku") {
-            requestShizukuPermission(activity, PERMISSIONS_REQUEST_CONTACTS)
+            Shizuku.addBinderReceivedListenerSticky(Shizuku.OnBinderReceivedListener { })
+            Shizuku.addBinderDeadListener(Shizuku.OnBinderDeadListener { })
+            Shizuku.addRequestPermissionResultListener(Shizuku.OnRequestPermissionResultListener { _: Int, _: Int ->
+            })
+            ShizukuUtils.checkPermission(activity, PERMISSIONS_REQUEST_CONTACTS)
         }
     }
 
     private fun requestShizukuPermission(
-            activity: Activity,
-            PERMISSIONS_REQUEST_CONTACTS: Int,
+        activity: Activity,
+        PERMISSIONS_REQUEST_CONTACTS: Int,
     ): Boolean {
         return requestPermission(
-                activity, ShizukuApiConstants.PERMISSION,
-                PERMISSIONS_REQUEST_CONTACTS, R.string.shizuku_permission_request
+            activity, ShizukuProvider.PERMISSION,
+            PERMISSIONS_REQUEST_CONTACTS, R.string.shizuku_permission_request
         )
     }
 }
