@@ -35,8 +35,9 @@ class Updater internal constructor(
 
     private fun isLatestVersionNumber(
         rowLocalVersionNumber: String,
-        versionNumberList: List<String>
+        rowVersionNumberList: List<String>
     ): Boolean {
+        val versionNumberList = rowVersionNumberList.filter { it.isNotBlank() }
         val key = versionUtils.getKeyVersionNumber(rowLocalVersionNumber)
         val localVersionNumber = Version.getKey(key)
         if (versionNumberList.isEmpty()) return true
