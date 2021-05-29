@@ -30,7 +30,7 @@ object VersioningUtils {
         if (versionNumber0 == FOREVER_IGNORE) return 1
         if (versionNumber1 == FOREVER_IGNORE) return -1
         // 检查版本号是否相同
-        if (versionNumber0 == versionNumber1) return 1
+        if (versionNumber0 == versionNumber1) return 0
         if (versionNumber0 != null && versionNumber1 == null) return 1
         // 正常处理版本号
         val matchVersioning0 = matchVersioningString(versionNumber0)?.value

@@ -12,11 +12,11 @@ import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.utils.wait
 
 class App(
-        val appDatabase: AppEntity,
-        statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
+    val appDatabase: AppEntity,
+    statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
 ) {
-    val updater = Updater(this, statusRenewedFun)
     private val versionUtils = VersionUtils(this.appDatabase)
+    val updater = Updater(this, versionUtils, statusRenewedFun)
     private val renewMutex = Mutex()
 
     /* App 对象的属性字典 */
@@ -115,14 +115,15 @@ class App(
         releaseList.forEachIndexed { versionIndex, release ->
             val versionNumber = release.versionNumber
             val asset = Asset.newInstance(versionNumber, hub, release.changeLog,
-                    release.assetsList.mapIndexed { assetIndex, assetItem ->
-                        Asset.Companion.TmpFileAsset(
-                                assetItem.fileName,
-                                assetItem.downloadUrl,
-                                assetItem.fileType,
-                                Pair(versionIndex, assetIndex)
-                        )
-                    }, this)
+                release.assetsList.mapIndexed { assetIndex, assetItem ->
+                    Asset.Companion.TmpFileAsset(
+                        assetItem.fileName,
+                        assetItem.downloadUrl,
+                        assetItem.fileType,
+                        Pair(versionIndex, assetIndex)
+                    )
+                }, this
+            )
             assetsList.add(asset)
         }
         versionUtils.addAsset(assetsList, hub.uuid)

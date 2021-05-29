@@ -4,8 +4,9 @@ import net.xzos.upgradeall.core.utils.*
 import net.xzos.upgradeall.core.utils.android_app.getAppVersion
 
 class Updater internal constructor(
-        private val app: App,
-        internal var statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
+    private val app: App,
+    private val versionUtils: VersionUtils,
+    internal var statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
 ) {
 
     private var tmpUpdateStatus: Int = NETWORK_ERROR - 1
@@ -32,7 +33,12 @@ class Updater internal constructor(
     private fun getIgnoreVersionNumber(): String? = app.appDatabase.ignoreVersionNumber
     internal fun getInstalledVersionNumber(): String? = getAppVersion(app.appId)
 
-    private fun isLatestVersionNumber(localVersionNumber: String, versionNumberList: List<String>): Boolean {
+    private fun isLatestVersionNumber(
+        rowLocalVersionNumber: String,
+        versionNumberList: List<String>
+    ): Boolean {
+        val key = versionUtils.getKeyVersionNumber(rowLocalVersionNumber)
+        val localVersionNumber = Version.getKey(key)
         if (versionNumberList.isEmpty()) return true
         val latestVersion = versionNumberList[0]
         return when (VersioningUtils.compareVersionNumber(localVersionNumber, latestVersion)) {

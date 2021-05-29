@@ -36,7 +36,7 @@ class VersionUtils(
 
     private fun doAddAsset(assetList: List<Asset>, versionMap: MutableMap<String, Version>): List<Version> {
         assetList.forEach { asset ->
-            val key = getKeyVersionNumber(asset)
+            val key = getKeyVersionNumber(asset.versionNumber)
             val mapKey = Version.getKey(key)
             val list = versionMap[mapKey]
                     ?: Version(key, coroutinesMutableListOf(true), this)
@@ -59,8 +59,7 @@ class VersionUtils(
         return versionList.toMutableList()
     }
 
-    private fun getKeyVersionNumber(asset: Asset): List<Pair<Char, Boolean>> {
-        val rawVersionNumber = asset.versionNumber
+    fun getKeyVersionNumber(rawVersionNumber : String): List<Pair<Char, Boolean>> {
         val preVersionNumberInfoList = rawVersionNumber.map { Pair(it, true) }.toMutableList()
         appEntity.invalidVersionNumberFieldRegexString?.run {
             val invalidVersionNumberIndexList = getInvalidVersionNumberIndex(rawVersionNumber, this)

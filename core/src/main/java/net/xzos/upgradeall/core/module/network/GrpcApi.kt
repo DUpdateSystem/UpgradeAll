@@ -51,7 +51,7 @@ internal object GrpcApi {
         }
     }
 
-    const val deadlineMs = 20 * 1000L
+    const val deadlineMs = 15 * 1000L
     fun logDeadlineError(tag: String, hubUuid: String, appIdString: String) {
         Log.w(logObjectTag, TAG, """$tag: 请求超时，取消
 hub_uuid: $hubUuid
