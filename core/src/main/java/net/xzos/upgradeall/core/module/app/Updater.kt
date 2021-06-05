@@ -4,7 +4,7 @@ import net.xzos.upgradeall.core.utils.*
 import net.xzos.upgradeall.core.utils.android_app.getAppVersion
 
 class Updater internal constructor(
-    private val app: App,
+    private val app: App, private val versionUtils: VersionUtils,
     internal var statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
 ) {
 
@@ -30,7 +30,17 @@ class Updater internal constructor(
     }
 
     private fun getIgnoreVersionNumber(): String? = app.appDatabase.ignoreVersionNumber
-    internal fun getInstalledVersionNumber(): String? = getAppVersion(app.appId)
+
+    /* App 在本地的版本号 */
+    internal fun getRawInstalledVersionStringList(): List<Pair<Char, Boolean>>? {
+        return versionUtils.getKeyVersionNumber(
+            getAppVersion(app.appId) ?: return null
+        )
+    }
+
+    internal fun getInstalledVersionNumber(): String? {
+        return VersionUtils.getKey(getRawInstalledVersionStringList() ?: return null)
+    }
 
     private fun isLatestVersionNumber(
         localVersionNumber: String,

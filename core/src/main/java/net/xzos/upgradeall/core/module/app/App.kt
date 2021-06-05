@@ -16,7 +16,7 @@ class App(
     statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
 ) {
     private val versionUtils = VersionUtils(this.appDatabase)
-    val updater = Updater(this, statusRenewedFun)
+    val updater = Updater(this, versionUtils, statusRenewedFun)
     private val renewMutex = Mutex()
 
     /* App 对象的属性字典 */
@@ -38,17 +38,10 @@ class App(
         }
 
     /* App 在本地的版本号 */
-    val rawInstalledVersionStringList: List<Pair<Char, Boolean>>?
-        get() {
-            return versionUtils.getKeyVersionNumber(
-                updater.getInstalledVersionNumber() ?: return null
-            )
-        }
+    val rawInstalledVersionStringList: List<Pair<Char, Boolean>>? =
+        updater.getRawInstalledVersionStringList()
 
-    val installedVersionNumber: String?
-        get() {
-            return VersionUtils.getKey(rawInstalledVersionStringList ?: return null)
-        }
+    val installedVersionNumber: String? = updater.getInstalledVersionNumber()
 
 
     /* 获取相应软件源的网址 */

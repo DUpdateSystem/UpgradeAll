@@ -35,7 +35,7 @@ abstract class BaseAppListItemView(val app: App) : BaseAppIconItem, ListItemView
                 VersionUtils.getKey(rawInstalledVersionStringList)
             else null
             if (installedVersionNumber != latestVersionNumber && latestVersionNumber != null)
-                sb.append(latestVersionNumber)
+                sb.append("$latestVersionNumber -> ")
             rawInstalledVersionStringList?.run {
                 AppDetailViewModel.getVersionNameSpannableString(
                     this, null,
