@@ -14,7 +14,7 @@ class Version(
 ) : Comparable<Version> {
 
     /* 版本号 */
-    val name: String = getKey(rawVersionStringList)
+    val name: String = VersionUtils.getKey(rawVersionStringList)
 
     val isIgnored: Boolean get() = versionUtils.isIgnored(name)
 
@@ -24,10 +24,6 @@ class Version(
 
     override fun compareTo(other: Version): Int {
         return VersioningUtils.compareVersionNumber(other.name, name) ?: -1
-    }
-
-    companion object {
-        fun getKey(raw: List<Pair<Char, Boolean>>): String = raw.filter { it.second }.map { it.first }.joinToString(separator = "")
     }
 }
 

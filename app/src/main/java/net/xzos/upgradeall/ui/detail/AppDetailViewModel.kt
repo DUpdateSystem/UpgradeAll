@@ -94,7 +94,10 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
     var currentVersion: Version? = null
 
     suspend fun download(fileAsset: FileAsset, externalDownload: Boolean) {
-        startDownload(fileAsset, fun(_) { waitDownload() }, failDownload, getDownloadDataOb(), getApplication(), externalDownload)
+        startDownload(
+            fileAsset, fun(_) { waitDownload() }, failDownload, getDownloadDataOb(),
+            getApplication(), externalDownload
+        )
     }
 
     private var versionNumberSpannableStringList: List<SpannableStringBuilder> = listOf()
@@ -138,22 +141,31 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         return sb
     }
 
-    private fun setVersionNumberSpannableStringBuilder(s: String, sb: SpannableStringBuilder, focus: Boolean, focusColor: Int? = null) {
+    private fun setVersionNumberSpannableStringBuilder(
+        s: String, sb: SpannableStringBuilder,
+        focus: Boolean = false, focusColor: Int? = null
+    ) {
         sb.append(s)
-        val color = if (focus && focusColor != null) focusColor
+        val color = if (focus || focusColor != null) focusColor
         else if (!focus)
             ContextCompat.getColor(getApplication(), R.color.text_low_priority_color)
         else null
         color?.run {
             val newLength = sb.length
-            sb.setSpan(ForegroundColorSpan(this), newLength - s.length, newLength, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            sb.setSpan(
+                ForegroundColorSpan(this), newLength - s.length, newLength,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
 
         }
     }
 
     private fun setVersionAdapter(versionNumberList: List<SpannableStringBuilder>) {
         val tvMoreVersion = binding.tvMoreVersion
-        val adapter = ArrayAdapter(tvMoreVersion.context, R.layout.item_more_version, versionNumberList)
+        val adapter = ArrayAdapter(
+            tvMoreVersion.context, R.layout.item_more_version,
+            versionNumberList
+        )
         tvMoreVersion.setAdapter(adapter)
     }
 }

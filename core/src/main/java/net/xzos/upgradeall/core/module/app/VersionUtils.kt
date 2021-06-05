@@ -12,17 +12,34 @@ import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
 /**
  * 版本号数据
  */
-class VersionUtils(
-        private val appEntity: AppEntity
-) {
+class VersionUtils(private val appEntity: AppEntity) {
 
     /* 版本号数据列表 */
     private var versionList: List<Version> = emptyList()
     private var versionListMutex = Mutex()
 
-    fun getVersionList(): List<Version> {
-        return versionList
+    fun isIgnored(versionNumber: String): Boolean = versionNumber == appEntity.ignoreVersionNumber
+
+    fun switchIgnoreStatus(versionNumber: String) {
+        if (isIgnored(versionNumber))
+            unignore(versionNumber)
+        else ignore(versionNumber)
     }
+
+    /* 忽略这个版本 */
+    private fun ignore(versionNumber: String) {
+        appEntity.ignoreVersionNumber = versionNumber
+        runBlocking { metaDatabase.appDao().update(appEntity) }
+    }
+
+    /* 取消忽略这个版本 */
+    private fun unignore(versionNumber: String) {
+        if (appEntity.ignoreVersionNumber != versionNumber) return
+        appEntity.ignoreVersionNumber = null
+        runBlocking { metaDatabase.appDao().update(appEntity) }
+    }
+
+    fun getVersionList(): List<Version> = versionList
 
     suspend fun addAsset(assetList: List<Asset>, cleanHubUuid: String) {
         versionListMutex.withLock {
@@ -34,32 +51,22 @@ class VersionUtils(
         }
     }
 
-    private fun doAddAsset(assetList: List<Asset>, versionMap: MutableMap<String, Version>): List<Version> {
+    private fun doAddAsset(
+        assetList: List<Asset>,
+        versionMap: MutableMap<String, Version>
+    ): List<Version> {
         assetList.forEach { asset ->
             val key = getKeyVersionNumber(asset.versionNumber)
-            val mapKey = Version.getKey(key)
+            val mapKey = getKey(key)
             val list = versionMap[mapKey]
-                    ?: Version(key, coroutinesMutableListOf(true), this)
+                ?: Version(key, coroutinesMutableListOf(true), this)
             list.assetList.add(asset)
             versionMap[mapKey] = list
         }
         return versionMap.values.toList()
     }
 
-    private fun cleanAsset(hubUuid: String, _versionList: List<Version>): MutableList<Version> {
-        val versionList = _versionList.toCoroutinesMutableList(true)
-        versionList.forEach { version ->
-            version.assetList.forEach {
-                if (it.hub.uuid == hubUuid)
-                    version.assetList.remove(it)
-            }
-            if (version.assetList.isEmpty())
-                versionList.remove(version)
-        }
-        return versionList.toMutableList()
-    }
-
-    fun getKeyVersionNumber(rawVersionNumber : String): List<Pair<Char, Boolean>> {
+    fun getKeyVersionNumber(rawVersionNumber: String): List<Pair<Char, Boolean>> {
         val preVersionNumberInfoList = rawVersionNumber.map { Pair(it, true) }.toMutableList()
         appEntity.invalidVersionNumberFieldRegexString?.run {
             val invalidVersionNumberIndexList = getInvalidVersionNumberIndex(rawVersionNumber, this)
@@ -86,7 +93,10 @@ class VersionUtils(
         return finishVersionNumberInfoList
     }
 
-    private fun getInvalidVersionNumberIndex(rawVersionNumber: String, invalidVersionNumberFieldRegexString: String): List<Int> {
+    private fun getInvalidVersionNumberIndex(
+        rawVersionNumber: String,
+        invalidVersionNumberFieldRegexString: String
+    ): List<Int> {
         val invalidVersionNumberFieldRegex = invalidVersionNumberFieldRegexString.toRegex()
         val list = invalidVersionNumberFieldRegex.findAll(rawVersionNumber)
         val indexList = mutableListOf<Int>()
@@ -96,37 +106,32 @@ class VersionUtils(
         return indexList
     }
 
-    private fun setVersionNumberInfoList(
+    companion object {
+        fun getKey(raw: List<Pair<Char, Boolean>>): String =
+            raw.filter { it.second }.map { it.first }.joinToString(separator = "")
+
+        private fun cleanAsset(hubUuid: String, _versionList: List<Version>): MutableList<Version> {
+            val versionList = _versionList.toCoroutinesMutableList(true)
+            versionList.forEach { version ->
+                version.assetList.forEach {
+                    if (it.hub.uuid == hubUuid)
+                        version.assetList.remove(it)
+                }
+                if (version.assetList.isEmpty())
+                    versionList.remove(version)
+            }
+            return versionList.toMutableList()
+        }
+
+        private fun setVersionNumberInfoList(
             versionNumberInfoList: MutableList<Pair<Char, Boolean>>,
             versionNumberIndexList: List<Int>, enable: Boolean = false
-    ) {
-        versionNumberIndexList.forEach {
-            val newValue = versionNumberInfoList[it].copy(second = enable)
-            versionNumberInfoList.removeAt(it)
-            versionNumberInfoList.add(it, newValue)
+        ) {
+            versionNumberIndexList.forEach {
+                val newValue = versionNumberInfoList[it].copy(second = enable)
+                versionNumberInfoList.removeAt(it)
+                versionNumberInfoList.add(it, newValue)
+            }
         }
-    }
-
-
-    fun isIgnored(versionNumber: String): Boolean = versionNumber == appEntity.ignoreVersionNumber
-
-
-    fun switchIgnoreStatus(versionNumber: String) {
-        if (isIgnored(versionNumber))
-            unignore(versionNumber)
-        else ignore(versionNumber)
-    }
-
-    /* 忽略这个版本 */
-    private fun ignore(versionNumber: String) {
-        appEntity.ignoreVersionNumber = versionNumber
-        runBlocking { metaDatabase.appDao().update(appEntity) }
-    }
-
-    /* 取消忽略这个版本 */
-    private fun unignore(versionNumber: String) {
-        if (appEntity.ignoreVersionNumber != versionNumber) return
-        appEntity.ignoreVersionNumber = null
-        runBlocking { metaDatabase.appDao().update(appEntity) }
     }
 }
