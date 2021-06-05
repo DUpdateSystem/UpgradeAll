@@ -1,10 +1,13 @@
 package net.xzos.upgradeall.ui.detail
 
 import android.app.Application
+import android.content.Context
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.widget.ArrayAdapter
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -27,14 +30,6 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
     private lateinit var binding: ActivityAppDetailBinding
     private lateinit var item: AppDetailItem
     private lateinit var app: App
-
-    private val installedVersionNumber: MutableLiveData<String> by lazy {
-        MutableLiveData<String>().apply {
-            observeForever {
-                item.setInstallViewNumber(it)
-            }
-        }
-    }
 
     private val versionListLiveData: MutableLiveData<List<Version>> by lazy {
         MutableLiveData<List<Version>>()
@@ -68,9 +63,18 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private fun updateInstalledVersion(app: App) {
-        app.installedVersionNumber?.run {
-            installedVersionNumber.setValueBackground(this)
+        app.rawInstalledVersionStringList?.run {
+            getShowInstalledVersion(this)?.run {
+                item.setInstallViewNumber(this)
+            }
         }
+    }
+
+    private fun getShowInstalledVersion(rawInstalledVersionStringList: List<Pair<Char, Boolean>>?): SpannableStringBuilder? {
+        rawInstalledVersionStringList ?: return null
+        return getVersionNameSpannableString(
+            rawInstalledVersionStringList, null, getApplication()
+        )
     }
 
     fun updateData() {
@@ -120,44 +124,19 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private fun renewVersionList(versionList: List<Version>) {
-        versionNumberSpannableStringList = versionList.map { getVersionNameSpannableString(it) }
+        versionNumberSpannableStringList =
+            versionList.map {
+                getVersionNameSpannableStringWithRes(
+                    it.rawVersionStringList, if (it.isIgnored) R.color.colorPrimary else null,
+                    getApplication()
+                )
+            }
         val tvMoreVersion = binding.tvMoreVersion
         val oldVersion = tvMoreVersion.text.toString()
         var position = versionNumberSpannableStringList.map { it.toString() }.indexOf(oldVersion)
         if (position == -1) position = 0
         setVersionInfo(position)
         setVersionAdapter(versionNumberSpannableStringList)
-    }
-
-    private fun getVersionNameSpannableString(version: Version): SpannableStringBuilder {
-        val rawVersionStringList = version.rawVersionStringList
-        val focusColor = if (version.isIgnored)
-            ContextCompat.getColor(getApplication(), R.color.colorPrimary)
-        else null
-        val sb = SpannableStringBuilder()
-        rawVersionStringList.forEach {
-            setVersionNumberSpannableStringBuilder(it.first.toString(), sb, it.second, focusColor)
-        }
-        return sb
-    }
-
-    private fun setVersionNumberSpannableStringBuilder(
-        s: String, sb: SpannableStringBuilder,
-        focus: Boolean = false, focusColor: Int? = null
-    ) {
-        sb.append(s)
-        val color = if (focus || focusColor != null) focusColor
-        else if (!focus)
-            ContextCompat.getColor(getApplication(), R.color.text_low_priority_color)
-        else null
-        color?.run {
-            val newLength = sb.length
-            sb.setSpan(
-                ForegroundColorSpan(this), newLength - s.length, newLength,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-
-        }
     }
 
     private fun setVersionAdapter(versionNumberList: List<SpannableStringBuilder>) {
@@ -167,5 +146,56 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
             versionNumberList
         )
         tvMoreVersion.setAdapter(adapter)
+    }
+
+    companion object {
+        fun getVersionNameSpannableStringWithRes(
+            rawVersionStringList: List<Pair<Char, Boolean>>,
+            @ColorRes highlightResColor: Int?,
+            context: Context,
+            sb: SpannableStringBuilder = SpannableStringBuilder()
+        ): SpannableStringBuilder {
+            return getVersionNameSpannableString(
+                rawVersionStringList, if (highlightResColor != null)
+                    ContextCompat.getColor(context, highlightResColor) else null,
+                context, sb
+            )
+        }
+
+        fun getVersionNameSpannableString(
+            rawVersionStringList: List<Pair<Char, Boolean>>,
+            @ColorInt highlightColor: Int?,
+            context: Context,
+            sb: SpannableStringBuilder = SpannableStringBuilder()
+        ): SpannableStringBuilder {
+            rawVersionStringList.forEach {
+                setVersionNumberSpannableStringBuilder(
+                    it.first.toString(), sb, it.second, highlightColor,
+                    context
+                )
+            }
+            return sb
+        }
+
+        private fun setVersionNumberSpannableStringBuilder(
+            s: String, sb: SpannableStringBuilder,
+            focus: Boolean = false, focusColor: Int? = null,
+            context: Context
+        ) {
+            sb.append(s)
+            val color = when {
+                !focus -> ContextCompat.getColor(context, R.color.text_low_priority_color)
+                focus && focusColor != null -> focusColor
+                else -> null
+            }
+            color?.run {
+                val newLength = sb.length
+                sb.setSpan(
+                    ForegroundColorSpan(this), newLength - s.length, newLength,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+
+            }
+        }
     }
 }

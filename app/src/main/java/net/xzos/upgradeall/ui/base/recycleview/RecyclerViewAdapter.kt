@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.base.recycleview
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleCoroutineScope
@@ -10,10 +9,8 @@ import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.utils.runUiFun
 
 abstract class RecyclerViewAdapter<LT, L : ListItemView, RHA : RecyclerViewHandler, T : RecyclerViewHolder<in L, RHA, *>>(
-        val listContainerViewConvertFun: (LT) -> L = {
-            @Suppress("UNCHECKED_CAST")
-            it as L
-        }
+    @Suppress("UNCHECKED_CAST")
+    val listContainerViewConvertFun: (LT) -> L = { it as L }
 ) : RecyclerView.Adapter<T>() {
 
     abstract val handler: RHA?

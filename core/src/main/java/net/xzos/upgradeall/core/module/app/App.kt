@@ -16,7 +16,7 @@ class App(
     statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
 ) {
     private val versionUtils = VersionUtils(this.appDatabase)
-    val updater = Updater(this, versionUtils, statusRenewedFun)
+    val updater = Updater(this, statusRenewedFun)
     private val renewMutex = Mutex()
 
     /* App 对象的属性字典 */
@@ -38,7 +38,18 @@ class App(
         }
 
     /* App 在本地的版本号 */
-    val installedVersionNumber: String? get() = updater.getInstalledVersionNumber()
+    val rawInstalledVersionStringList: List<Pair<Char, Boolean>>?
+        get() {
+            return versionUtils.getKeyVersionNumber(
+                updater.getInstalledVersionNumber() ?: return null
+            )
+        }
+
+    val installedVersionNumber: String?
+        get() {
+            return VersionUtils.getKey(rawInstalledVersionStringList ?: return null)
+        }
+
 
     /* 获取相应软件源的网址 */
     fun getUrl(hubUuid: String): String? = HubManager.getHub(hubUuid)?.getUrl(this)
@@ -114,7 +125,8 @@ class App(
         val assetsList = mutableListOf<Asset>()
         releaseList.forEachIndexed { versionIndex, release ->
             val versionNumber = release.versionNumber
-            val asset = Asset.newInstance(versionNumber, hub, release.changeLog,
+            val asset = Asset.newInstance(
+                versionNumber, hub, release.changeLog,
                 release.assetsList.mapIndexed { assetIndex, assetItem ->
                     Asset.Companion.TmpFileAsset(
                         assetItem.fileName,

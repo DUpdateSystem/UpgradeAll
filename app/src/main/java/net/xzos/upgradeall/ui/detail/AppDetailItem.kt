@@ -18,7 +18,7 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils.hasHTMLTags
 class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
     override val appName: ObservableField<String> = ObservableField()
     val appPackageId: ObservableField<CharSequence> = ObservableField()
-    val showingVersionNumber: ObservableField<String> = ObservableField()
+    val showingVersionNumber: ObservableField<SpannableStringBuilder> = ObservableField()
     val versionNumberVisibility: ObservableField<Boolean> = ObservableField()
     val urlLayoutVisibility: ObservableField<Boolean> = ObservableField()
     val showingURL: ObservableField<String> = ObservableField()
@@ -30,7 +30,7 @@ class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
 
     override val nameFirst: ObservableField<String> = ObservableField()
 
-    fun setInstallViewNumber(installedVersionName: String) {
+    fun setInstallViewNumber(installedVersionName: SpannableStringBuilder) {
         showingVersionNumber.set(installedVersionName)
         versionNumberVisibility.set(installedVersionName.isNotBlank())
     }
@@ -60,7 +60,12 @@ class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
                 val start = latestChangeLog.length
                 val hubName = asset.hub.name
                 latestChangeLog.append("$hubName\n${changelog}\n\n")
-                latestChangeLog.setSpan(colorSpan, start, start + hubName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                latestChangeLog.setSpan(
+                    colorSpan,
+                    start,
+                    start + hubName.length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
                 latestChangeLog.append()
             }
         }
@@ -72,15 +77,20 @@ class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
     }
 
     private fun setChangelog(_changelog: SpannableStringBuilder?) {
-        changelog.set(when {
-            _changelog.isNullOrBlank() -> {
-                activity.getString(R.string.null_english)
+        changelog.set(
+            when {
+                _changelog.isNullOrBlank() -> {
+                    activity.getString(R.string.null_english)
+                }
+                _changelog.hasHTMLTags() -> {
+                    HtmlCompat.fromHtml(
+                        _changelog.toString(),
+                        HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS
+                    )
+                }
+                else -> _changelog
             }
-            _changelog.hasHTMLTags() -> {
-                HtmlCompat.fromHtml(_changelog.toString(), HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS)
-            }
-            else -> _changelog
-        })
+        )
     }
 
     val changelog: ObservableField<CharSequence> = ObservableField()

@@ -94,7 +94,6 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-condensed"
                             android:text="@{item.showingVersionNumber}"
-                            android:textColor="@color/text_low_priority_color"
                             android:textSize="12sp"
                             android:transitionName="version_name"
                             android:visibility="@{item.versionNumberVisibility ? View.VISIBLE : View.GONE}"
