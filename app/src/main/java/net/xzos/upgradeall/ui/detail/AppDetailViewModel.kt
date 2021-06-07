@@ -3,12 +3,7 @@ package net.xzos.upgradeall.ui.detail
 import android.app.Application
 import android.content.Context
 import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
 import android.widget.ArrayAdapter
-import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.tonyodev.fetch2.Download
@@ -65,7 +60,7 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
     private fun updateInstalledVersion(app: App) {
         app.rawInstalledVersionStringList?.run {
             getShowInstalledVersion(this)?.run {
-                item.setInstallViewNumber(this)
+                item.renewVersionItem(this, app, getApplication())
             }
         }
     }
@@ -104,9 +99,9 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         )
     }
 
-    private var versionNumberSpannableStringList: List<SpannableStringBuilder> = listOf()
+    private lateinit var versionNumberSpannableStringList: List<SpannableStringBuilder>
 
-    fun setVersionInfo(position: Int) {
+    fun setVersionInfo(position: Int, context: Context) {
         val versionList = versionListLiveData.value ?: return
         if (position >= versionList.size) return
         val index = if (position < 0)
@@ -115,7 +110,7 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         val versionItem = versionList[index]
         currentVersion = versionItem
         setTvMoreVersion(position)
-        item.setAssetInfo(currentVersion?.assetList)
+        item.setAssetInfo(currentVersion?.assetList, context)
     }
 
     private fun setTvMoreVersion(position: Int) {
@@ -135,7 +130,7 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         val oldVersion = tvMoreVersion.text.toString()
         var position = versionNumberSpannableStringList.map { it.toString() }.indexOf(oldVersion)
         if (position == -1) position = 0
-        setVersionInfo(position)
+        setVersionInfo(position, getApplication())
         setVersionAdapter(versionNumberSpannableStringList)
     }
 
@@ -146,56 +141,5 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
             versionNumberList
         )
         tvMoreVersion.setAdapter(adapter)
-    }
-
-    companion object {
-        fun getVersionNameSpannableStringWithRes(
-            rawVersionStringList: List<Pair<Char, Boolean>>,
-            @ColorRes highlightResColor: Int?,
-            context: Context,
-            sb: SpannableStringBuilder = SpannableStringBuilder()
-        ): SpannableStringBuilder {
-            return getVersionNameSpannableString(
-                rawVersionStringList, if (highlightResColor != null)
-                    ContextCompat.getColor(context, highlightResColor) else null,
-                context, sb
-            )
-        }
-
-        fun getVersionNameSpannableString(
-            rawVersionStringList: List<Pair<Char, Boolean>>,
-            @ColorInt highlightColor: Int?,
-            context: Context,
-            sb: SpannableStringBuilder = SpannableStringBuilder()
-        ): SpannableStringBuilder {
-            rawVersionStringList.forEach {
-                setVersionNumberSpannableStringBuilder(
-                    it.first.toString(), sb, it.second, highlightColor,
-                    context
-                )
-            }
-            return sb
-        }
-
-        private fun setVersionNumberSpannableStringBuilder(
-            s: String, sb: SpannableStringBuilder,
-            focus: Boolean = false, focusColor: Int? = null,
-            context: Context
-        ) {
-            sb.append(s)
-            val color = when {
-                !focus -> ContextCompat.getColor(context, R.color.text_low_priority_color)
-                focus && focusColor != null -> focusColor
-                else -> null
-            }
-            color?.run {
-                val newLength = sb.length
-                sb.setSpan(
-                    ForegroundColorSpan(this), newLength - s.length, newLength,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-
-            }
-        }
     }
 }

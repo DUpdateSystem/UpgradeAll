@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.detail
 
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -15,24 +16,23 @@ import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 import net.xzos.upgradeall.ui.detail.download.DownloadStatusData
 import net.xzos.upgradeall.utils.MiscellaneousUtils.hasHTMLTags
 
-class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
+class AppDetailItem : BaseAppIconItem {
     override val appName: ObservableField<String> = ObservableField()
     val appPackageId: ObservableField<CharSequence> = ObservableField()
-    val showingVersionNumber: ObservableField<SpannableStringBuilder> = ObservableField()
-    val versionNumberVisibility: ObservableField<Boolean> = ObservableField()
     val urlLayoutVisibility: ObservableField<Boolean> = ObservableField()
     val showingURL: ObservableField<String> = ObservableField()
     val ivMoreURLVisibility: ObservableField<Boolean> = ObservableField()
     var appUrlList: Set<String> = setOf()
+
+    val versionItem = AppVersionItem()
 
     override val appIcon: ObservableField<Drawable> = ObservableField()
     override val iconBackgroundTint: ObservableField<ColorStateList?> = ObservableField()
 
     override val nameFirst: ObservableField<String> = ObservableField()
 
-    fun setInstallViewNumber(installedVersionName: SpannableStringBuilder) {
-        showingVersionNumber.set(installedVersionName)
-        versionNumberVisibility.set(installedVersionName.isNotBlank())
+    fun renewVersionItem(showingVersion: SpannableStringBuilder?, app: App, context: Context) {
+        versionItem.renew(showingVersion, app, context)
     }
 
     fun setAppUrl(app: App) {
@@ -50,7 +50,7 @@ class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
         appUrlList = urlList
     }
 
-    fun setAssetInfo(assetList: List<Asset>?) {
+    fun setAssetInfo(assetList: List<Asset>?, context: Context) {
         assetList ?: return
         val latestChangeLog = SpannableStringBuilder()
         assetList.forEach { asset ->
@@ -73,14 +73,14 @@ class AppDetailItem(private val activity: AppDetailActivity) : BaseAppIconItem {
         val spannableStringBuilder = if (length != 0)
             latestChangeLog.delete(length - 1, length)
         else latestChangeLog
-        setChangelog(spannableStringBuilder)
+        setChangelog(spannableStringBuilder, context)
     }
 
-    private fun setChangelog(_changelog: SpannableStringBuilder?) {
+    private fun setChangelog(_changelog: SpannableStringBuilder?, context: Context) {
         changelog.set(
             when {
                 _changelog.isNullOrBlank() -> {
-                    activity.getString(R.string.null_english)
+                    context.getString(R.string.null_english)
                 }
                 _changelog.hasHTMLTags() -> {
                     HtmlCompat.fromHtml(

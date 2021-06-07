@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="item"
+            type="net.xzos.upgradeall.ui.detail.AppVersionItem" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@{item.showingVersionNumber}"
+            android:textSize="12sp"
+            android:transitionName="version_name"
+            android:visibility="@{item.versionNumberVisibility ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="1.0.0(100)" />
+
+        <TextView
+            android:id="@+id/tv_mark_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@{item.markVersionNumber}"
+            android:textSize="12sp"
+            android:transitionName="version_name"
+            android:visibility="@{item.markVersionNumberVisibility? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toEndOf="@+id/tv_version"
+            app:layout_constraintTop_toTopOf="@+id/tv_version"
+            tools:text="1.0.0(100)" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:contentDescription="@string/mark_version_number"
+            android:visibility="@{item.markVersionNumberVisibility? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@id/tv_mark_version"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/tv_mark_version"
+            app:layout_constraintTop_toTopOf="@+id/tv_mark_version"
+            app:srcCompat="@drawable/dotted_line" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -88,21 +88,12 @@
                             android:transitionName="package_name"
                             tools:text="net.xzos.upgradeall" />
 
-                        <LinearLayout
+                        <include
+                            android:id="@+id/version_number_layout"
+                            layout="@layout/content_version_number"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:id="@+id/tv_version"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-condensed"
-                                android:text="@{item.showingVersionNumber}"
-                                android:textSize="12sp"
-                                android:transitionName="version_name"
-                                android:visibility="@{item.versionNumberVisibility ? View.VISIBLE : View.GONE}"
-                                tools:text="1.0.0(100)" />
-                        </LinearLayout>
+                            android:layout_height="wrap_content"
+                            app:item="@{item.versionItem}" />
 
                         <LinearLayout
                             android:layout_width="wrap_content"

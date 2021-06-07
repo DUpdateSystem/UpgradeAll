@@ -38,7 +38,7 @@ class AppDetailActivity : AppBarActivity() {
 
     override fun initBinding(): View {
         binding = ActivityAppDetailBinding.inflate(layoutInflater)
-        val item = AppDetailItem(this)
+        val item = AppDetailItem()
         viewModel.initData(binding, item, app)
         binding.item = item
         binding.handler = AppDetailHandler(viewModel, supportFragmentManager)
@@ -58,15 +58,16 @@ class AppDetailActivity : AppBarActivity() {
                 true
             }
             R.id.change_hub_priority -> {
-                val hubMap = app.appDatabase.getEnableSortHubList().map { it to true }.toMap().toMutableMap()
+                val hubMap =
+                    app.appDatabase.getEnableSortHubList().map { it to true }.toMap().toMutableMap()
                 HubManager.getHubList().forEach {
                     if (!hubMap.containsKey(it))
                         hubMap[it] = false
                 }
                 GlobalScope.launch {
                     val selectDataList = SelectListDialog.showDialog(
-                            hubMap.map { SelectItem(it.key.name, it.key.uuid, it.value) },
-                            supportFragmentManager, R.string.change_hub_priority
+                        hubMap.map { SelectItem(it.key.name, it.key.uuid, it.value) },
+                        supportFragmentManager, R.string.change_hub_priority
                     )
                     app.appDatabase.setSortHubUuidList(selectDataList.mapNotNull { if (it.enableObservable.enable) it.id else null })
                 }
@@ -83,8 +84,10 @@ class AppDetailActivity : AppBarActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val item = menu.findItem(R.id.ignore_current_version)
         val currentVersion = viewModel.currentVersion ?: return true
-        item.setTitle(if (currentVersion.isIgnored) R.string.remove_ignore_version
-        else R.string.ignore_version)
+        item.setTitle(
+            if (currentVersion.isIgnored) R.string.remove_ignore_version
+            else R.string.ignore_version
+        )
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -105,12 +108,17 @@ class AppDetailActivity : AppBarActivity() {
     override fun initView() {
         binding.btnUpdate.apply {
             layoutParams = (layoutParams as CoordinatorLayout.LayoutParams).apply {
-                setMargins(marginStart, marginTop, marginEnd, marginBottom + UiUtils.getNavBarHeight(windowManager))
+                setMargins(
+                    marginStart,
+                    marginTop,
+                    marginEnd,
+                    marginBottom + UiUtils.getNavBarHeight(windowManager)
+                )
             }
         }
 
         binding.tvMoreVersion.setOnItemClickListener { _, _, position, _ ->
-            viewModel.setVersionInfo(position)
+            viewModel.setVersionInfo(position, this)
         }
         binding.btnUpdate.setOnStateListener(object : ProgressButton.OnStateListener {
             override fun onFinish() {

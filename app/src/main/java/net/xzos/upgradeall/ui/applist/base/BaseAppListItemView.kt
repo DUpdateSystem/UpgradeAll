@@ -10,7 +10,8 @@ import net.xzos.upgradeall.core.module.app.VersionUtils
 import net.xzos.upgradeall.core.utils.android_app.getPackageId
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 import net.xzos.upgradeall.ui.base.list.ListItemView
-import net.xzos.upgradeall.ui.detail.AppDetailViewModel
+import net.xzos.upgradeall.ui.detail.AppVersionItem
+import net.xzos.upgradeall.ui.detail.getVersionNameSpannableString
 
 abstract class BaseAppListItemView(val app: App) : BaseAppIconItem, ListItemView {
 
@@ -19,11 +20,11 @@ abstract class BaseAppListItemView(val app: App) : BaseAppIconItem, ListItemView
     override val appIcon: ObservableField<Drawable> = ObservableField()
     override val iconBackgroundTint: ObservableField<ColorStateList?> = ObservableField()
 
-    val showingVersionNumber: ObservableField<SpannableStringBuilder> = ObservableField()
+    val versionItem = AppVersionItem()
 
     fun renewData(context: Context) {
         renewAppIcon(app.appId.getPackageId()?.second, context)
-        showingVersionNumber.set(getShowingVersionNumber(app, context))
+        versionItem.renew(getShowingVersionNumber(app, context), app, context)
     }
 
     companion object {
@@ -37,7 +38,7 @@ abstract class BaseAppListItemView(val app: App) : BaseAppIconItem, ListItemView
             if (installedVersionNumber != latestVersionNumber && latestVersionNumber != null)
                 sb.append("$latestVersionNumber -> ")
             rawInstalledVersionStringList?.run {
-                AppDetailViewModel.getVersionNameSpannableString(
+                getVersionNameSpannableString(
                     this, null,
                     context, sb
                 )
