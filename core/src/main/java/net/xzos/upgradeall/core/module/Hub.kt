@@ -1,5 +1,7 @@
 package net.xzos.upgradeall.core.module
 
+import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
@@ -82,6 +84,13 @@ class Hub(private val hubDatabase: HubEntity) {
 
     fun isEnableApplicationsMode(): Boolean = hubDatabase.applicationsMode
 
+    fun applicationsModeAvailable(): Boolean {
+        val apiKeywords = hubDatabase.hubConfig.apiKeywords
+        return apiKeywords.contains(ANDROID_APP_TYPE) || apiKeywords.contains(
+            ANDROID_MAGISK_MODULE_TYPE
+        )
+    }
+
     internal fun getUrl(app: App): String? {
         val appId = app.appId.map {
             "%${it.key}" to it.value
@@ -99,12 +108,13 @@ class Hub(private val hubDatabase: HubEntity) {
 
     internal suspend fun getAppReleaseList(app: App): List<ReleaseListItem>? {
         val appId = getValidKey(app) ?: return null
-        return GrpcApi.getAppRelease(uuid, hubDatabase.auth, appId, getAppPriority(app.appId))?.also {
-            if (it.isEmpty())
-                setInactiveApp(app.appId)
-            else
-                removeInactiveApp(app.appId)
-        }
+        return GrpcApi.getAppRelease(uuid, hubDatabase.auth, appId, getAppPriority(app.appId))
+            ?.also {
+                if (it.isEmpty())
+                    setInactiveApp(app.appId)
+                else
+                    removeInactiveApp(app.appId)
+            }
     }
 
     private suspend fun saveDatabase() {

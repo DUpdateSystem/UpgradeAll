@@ -3,6 +3,7 @@ package net.xzos.upgradeall.ui.hubmanager
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
+import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -14,25 +15,35 @@ import net.xzos.upgradeall.ui.base.list.ActivityListItemView
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 
 class HubManagerListItemView(
-        name: String,
-        private val uuid: String
+    name: String, private val uuid: String
 ) : BaseAppIconItem, ActivityListItemView {
-    val enableObservable = EnableObservable(HubManager.getHub(uuid) != null, fun(enable) {
+    private val hub get() = HubManager.getHub(uuid)
+    val enableObservable = EnableObservable(hub != null) { enable ->
         switchHubExistStatus(uuid, enable)
-    })
+    }
 
-    val applicationsEnableObservable = EnableObservable(HubManager.getHub(uuid)?.isEnableApplicationsMode() == true, fun(enable) {
-        runBlocking(Dispatchers.Default) { HubManager.getHub(uuid)?.setApplicationsMode(enable) }
-    })
+    val applicationsAvailableObservable = ObservableBoolean(
+        enableObservable.enable && hub?.applicationsModeAvailable() == true
+    )
+
+    val applicationsEnableObservable =
+        EnableObservable(hub?.isEnableApplicationsMode() == true) { enable ->
+            runBlocking(Dispatchers.Default) {
+                hub?.setApplicationsMode(enable)
+            }
+        }
 
     private fun switchHubExistStatus(uuid: String, enable: Boolean) {
         runBlocking {
             if (enable)
                 CloudConfigGetter.downloadCloudHubConfig(uuid) {}
-            else HubManager.getHub(uuid)?.run {
+            else hub?.run {
                 HubManager.removeHub(this@run)
             }
         }
+        applicationsAvailableObservable.set(
+            enableObservable.enable && hub?.applicationsModeAvailable() == true
+        )
     }
 
     override val appName: ObservableField<String> = ObservableField(name)
@@ -45,7 +56,10 @@ class HubManagerListItemView(
     }
 
     companion object {
-        fun getCloudHubItemCardView(hubConfig: HubConfigGson, context: Context): HubManagerListItemView {
+        fun getCloudHubItemCardView(
+            hubConfig: HubConfigGson,
+            context: Context
+        ): HubManagerListItemView {
             val name = hubConfig.info.hubName
             val uuid = hubConfig.uuid
             return HubManagerListItemView(name, uuid).apply {

@@ -8,8 +8,8 @@ import net.xzos.upgradeall.core.module.Hub
 
 object HubManager {
     private val hubMap: MutableMap<String, Hub> = runBlocking { metaDatabase.hubDao().loadAll() }
-            .associateBy({ it.uuid }, { Hub(it) })
-            .toMutableMap()
+        .associateBy({ it.uuid }, { Hub(it) })
+        .toMutableMap()
 
     fun getHubList(): List<Hub> = hubMap.values.toList()
 
@@ -31,6 +31,15 @@ object HubManager {
         val hubUuid = hub.uuid
         hubMap.remove(hubUuid)
         metaDatabase.hubDao().deleteByUuid(hubUuid)
+    }
+
+    suspend fun checkInvalidApplications() {
+        hubMap.values.forEach { hub ->
+            val available = hub.applicationsModeAvailable()
+            if (hub.isEnableApplicationsMode() && !available) {
+                hub.setApplicationsMode(available)
+            }
+        }
     }
 
     fun isEnableApplicationsMode(): Boolean {

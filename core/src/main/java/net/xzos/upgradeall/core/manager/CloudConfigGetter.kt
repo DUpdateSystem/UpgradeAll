@@ -41,14 +41,14 @@ object CloudConfigGetter {
 
     suspend fun renew() {
         cloudConfig = DataCache.getAnyCache(CLOUD_CONFIG_CACHE_KEY)
-                ?: if (renewMutex.isLocked) {
-                    renewMutex.wait()
-                    DataCache.getAnyCache(CLOUD_CONFIG_CACHE_KEY)
-                } else renewMutex.withLock {
-                    getCloudConfigFromWeb(appCloudRulesHubUrl)?.also {
-                        DataCache.cacheAny(CLOUD_CONFIG_CACHE_KEY, it)
-                    }
+            ?: if (renewMutex.isLocked) {
+                renewMutex.wait()
+                DataCache.getAnyCache(CLOUD_CONFIG_CACHE_KEY)
+            } else renewMutex.withLock {
+                getCloudConfigFromWeb(appCloudRulesHubUrl)?.also {
+                    DataCache.cacheAny(CLOUD_CONFIG_CACHE_KEY, it)
                 }
+            }
     }
 
     val appConfigList: List<AppConfigGson>?
@@ -109,6 +109,7 @@ object CloudConfigGetter {
                 notifyFun(FAILED)
             }
         } ?: notifyFun(FAILED_GET_HUB_DATA)
+        HubManager.checkInvalidApplications()
         return false
     }
 
@@ -148,8 +149,8 @@ object CloudConfigGetter {
         renew()
         val appConfigList = appConfigList ?: return
         val appDatabaseMap = metaDatabase.appDao().loadAll()
-                .filter { it.cloudConfig != null }
-                .associateBy({ it.cloudConfig!!.uuid }, { it })
+            .filter { it.cloudConfig != null }
+            .associateBy({ it.cloudConfig!!.uuid }, { it })
         for (appConfig in appConfigList) {
             val appUuid = appConfig.uuid
             val appDatabase = appDatabaseMap[appUuid] ?: return
@@ -168,7 +169,10 @@ object CloudConfigGetter {
         }
     }
 
-    private suspend fun renewHubConfig(hubUuid: String, hubDao: HubDao = metaDatabase.hubDao()): Boolean {
+    private suspend fun renewHubConfig(
+        hubUuid: String,
+        hubDao: HubDao = metaDatabase.hubDao()
+    ): Boolean {
         val hubDatabase = hubDao.loadByUuid(hubUuid) ?: return false
         val cloudHubVersion = getHubCloudConfig(hubUuid)?.configVersion ?: return false
         val localHubVersion = hubDatabase.hubConfig.configVersion
