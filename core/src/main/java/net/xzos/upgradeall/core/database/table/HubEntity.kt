@@ -11,14 +11,16 @@ import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 
 @Entity(tableName = "hub")
 data class HubEntity(
-        @PrimaryKey val uuid: String,
-        @ColumnInfo(name = "hub_config") var hubConfig: HubConfigGson,
-        @ColumnInfo(name = "auth") var auth: MutableMap<String, String?>,
-        @ColumnInfo(name = "ignore_app_id_list") var ignoreAppIdList: CoroutinesMutableList<Map<String, String?>> = coroutinesMutableListOf(true),
-        @ColumnInfo(name = "applications_mode") var _applicationsMode: Int = 0,
-        @ColumnInfo(name = "user_ignore_app_id_list") var userIgnoreAppIdList: CoroutinesMutableList<Map<String, String?>> = coroutinesMutableListOf(true),
-        // 积分越低优先级越高
-        @ColumnInfo(name = "sort_point") var __sortPoint: Int = getDefSortPoint(),
+    @PrimaryKey val uuid: String,
+    @ColumnInfo(name = "hub_config") var hubConfig: HubConfigGson,
+    @ColumnInfo(name = "auth") var auth: MutableMap<String, String?>,
+    @ColumnInfo(name = "ignore_app_id_list")
+    var ignoreAppIdList: CoroutinesMutableList<Map<String, String?>> = coroutinesMutableListOf(true),
+    @ColumnInfo(name = "applications_mode") var _applicationsMode: Int = 0,
+    @ColumnInfo(name = "user_ignore_app_id_list")
+    var userIgnoreAppIdList: CoroutinesMutableList<Map<String, String?>> = coroutinesMutableListOf(true),
+    // 积分越低优先级越高
+    @ColumnInfo(name = "sort_point") var __sortPoint: Int = getDefSortPoint(),
 ) {
     var applicationsMode: Boolean
         get() = _applicationsMode == 1
@@ -31,8 +33,6 @@ data class HubEntity(
         set(value) {
             __sortPoint = value
         }
-
-    companion object {
-        private fun getDefSortPoint(): Int = 0 - HubManager.getHubList().size
-    }
 }
+
+private fun getDefSortPoint(): Int = 0 - HubManager.getHubList().size
