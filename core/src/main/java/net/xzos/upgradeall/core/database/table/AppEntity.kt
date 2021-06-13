@@ -14,14 +14,13 @@ import net.xzos.upgradeall.core.utils.cleanBlankValue
 
 @Entity(tableName = "app")
 class AppEntity(
-        @PrimaryKey(autoGenerate = true)
-        val id: Long,
-        var name: String,
-        @ColumnInfo(name = "app_id") var appId: Map<String, String?>,
-        @ColumnInfo(name = "invalid_version_number_field_regex") var invalidVersionNumberFieldRegexString: String? = null,
-        @ColumnInfo(name = "ignore_version_number") var ignoreVersionNumber: String? = null,
-        @ColumnInfo(name = "cloud_config") var cloudConfig: AppConfigGson? = null,
-        @ColumnInfo(name = "enable_hub_list") var _enableHubUuidListString: String? = null,
+    @PrimaryKey(autoGenerate = true) val id: Long,
+    var name: String,
+    @ColumnInfo(name = "app_id") var appId: Map<String, String?>,
+    @ColumnInfo(name = "invalid_version_number_field_regex") var invalidVersionNumberFieldRegexString: String? = null,
+    @ColumnInfo(name = "ignore_version_number") var ignoreVersionNumber: String? = null,
+    @ColumnInfo(name = "cloud_config") var cloudConfig: AppConfigGson? = null,
+    @ColumnInfo(name = "enable_hub_list") var _enableHubUuidListString: String? = null,
 ) {
     /** @return 软件源的排序列表 与 其是否被使用 */
     fun getSortHubUuidList(): List<String> {
@@ -52,8 +51,9 @@ fun AppEntity.isInit(): Boolean {
 
 fun AppEntity.recheck() {
     appId = appId.cleanBlankValue()
-    invalidVersionNumberFieldRegexString = if (invalidVersionNumberFieldRegexString.isNullOrBlank()) null
-    else invalidVersionNumberFieldRegexString
+    invalidVersionNumberFieldRegexString =
+        if (invalidVersionNumberFieldRegexString.isNullOrBlank()) null
+        else invalidVersionNumberFieldRegexString
 }
 
 fun AppEntity.getEnableSortHubList(): List<Hub> {

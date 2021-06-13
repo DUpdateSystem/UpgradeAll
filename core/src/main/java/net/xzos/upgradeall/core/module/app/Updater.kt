@@ -11,14 +11,18 @@ class Updater internal constructor(
     private var tmpUpdateStatus: Int = NETWORK_ERROR - 1
 
     internal fun getUpdateStatus(): Int {
-        val versionNumberList = app.versionList.map { it.name }
+        val versionNumberList = app.versionList
         val status = if (versionNumberList.isEmpty()) {
             NETWORK_ERROR
         } else {
-            val versionNumber = getIgnoreVersionNumber() ?: getInstalledVersionNumber()
+            val installedVersionNumber = getInstalledVersionNumber()
             when {
-                versionNumber == null -> APP_NO_LOCAL
-                !isLatestVersionNumber(versionNumber, versionNumberList) -> APP_OUTDATED
+                versionNumberList.first().isIgnored -> APP_LATEST
+                installedVersionNumber == null -> APP_NO_LOCAL
+                !isLatestVersionNumber(
+                    installedVersionNumber,
+                    versionNumberList.filter { !it.isIgnored }.map { it.name }
+                ) -> APP_OUTDATED
                 else -> APP_LATEST
             }
         }

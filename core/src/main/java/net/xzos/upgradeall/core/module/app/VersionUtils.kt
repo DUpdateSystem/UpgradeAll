@@ -1,10 +1,11 @@
 package net.xzos.upgradeall.core.module.app
 
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
+import net.xzos.upgradeall.core.database.table.extra_app.ExtraAppEntityManager
+import net.xzos.upgradeall.core.database.table.isInit
 import net.xzos.upgradeall.core.utils.VersioningUtils
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
@@ -18,25 +19,34 @@ class VersionUtils(private val appEntity: AppEntity) {
     private var versionList: List<Version> = emptyList()
     private var versionListMutex = Mutex()
 
-    fun isIgnored(versionNumber: String): Boolean = versionNumber == appEntity.ignoreVersionNumber
+    suspend fun isIgnored(versionNumber: String): Boolean {
+        val markedVersionNumber = if (appEntity.isInit())
+            appEntity.ignoreVersionNumber
+        else ExtraAppEntityManager.getMarkVersionNumber(appEntity.appId)
+        return VersioningUtils.compareVersionNumber(versionNumber, markedVersionNumber) == 0
+    }
 
-    fun switchIgnoreStatus(versionNumber: String) {
-        if (isIgnored(versionNumber))
-            unignore(versionNumber)
+    suspend fun switchIgnoreStatus(versionNumber: String) {
+        if (isIgnored(versionNumber)) unignore()
         else ignore(versionNumber)
     }
 
     /* 忽略这个版本 */
-    private fun ignore(versionNumber: String) {
+    private suspend fun ignore(versionNumber: String) {
         appEntity.ignoreVersionNumber = versionNumber
-        runBlocking { metaDatabase.appDao().update(appEntity) }
+        if (appEntity.isInit())
+            metaDatabase.appDao().update(appEntity)
+        else
+            ExtraAppEntityManager.addMarkVersionNumber(appEntity.appId, versionNumber)
     }
 
     /* 取消忽略这个版本 */
-    private fun unignore(versionNumber: String) {
-        if (appEntity.ignoreVersionNumber != versionNumber) return
-        appEntity.ignoreVersionNumber = null
-        runBlocking { metaDatabase.appDao().update(appEntity) }
+    private suspend fun unignore() {
+        if (appEntity.isInit()) {
+            appEntity.ignoreVersionNumber = null
+            metaDatabase.appDao().update(appEntity)
+        } else
+            ExtraAppEntityManager.removeMarkVersionNumber(appEntity.appId)
     }
 
     fun getVersionList(): List<Version> = versionList

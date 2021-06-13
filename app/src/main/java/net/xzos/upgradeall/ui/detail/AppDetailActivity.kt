@@ -16,6 +16,7 @@ import com.absinthe.libraries.utils.extensions.addPaddingTop
 import com.absinthe.libraries.utils.utils.UiUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.database.table.getEnableSortHubList
 import net.xzos.upgradeall.core.database.table.setSortHubUuidList
@@ -74,7 +75,8 @@ class AppDetailActivity : AppBarActivity() {
                 return true
             }
             R.id.ignore_current_version -> {
-                viewModel.currentVersion?.switchIgnoreStatus()?.also { renewMenu() }
+                runBlocking { viewModel.currentVersion?.switchIgnoreStatus() }
+                renewMenu()
                 true
             }
             else -> super.onOptionsItemSelected(item)
