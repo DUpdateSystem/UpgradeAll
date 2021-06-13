@@ -41,10 +41,10 @@ abstract class BaseAppListItemView(val app: App) : BaseAppIconItem, ListItemView
                     context, sb
                 )
             }
-            if (latestVersionNumber != installedVersionNumber && latestVersionNumber != null)
-                if (sb.isNotEmpty())
-                    sb.append(" -> ")
-            sb.append(latestVersionNumber)
+            if (latestVersionNumber != installedVersionNumber && latestVersionNumber != null) {
+                if (sb.isNotEmpty()) sb.append(" -> ")
+                sb.append(latestVersionNumber)
+            }
             return sb
         }
     }
