@@ -67,26 +67,26 @@ fun <T> Mutex.runWithLock(context: CoroutineContext = EmptyCoroutineContext, act
 }
 
 fun requestPermission(
-        activity: Activity,
-        permission: String,
-        PERMISSIONS_REQUEST_CONTACTS: Int,
-        tipResId: Int
+    activity: Activity,
+    permission: String,
+    PERMISSIONS_REQUEST_CONTACTS: Int,
+    tipResId: Int
 ): Boolean {
     val tag = "RequestPermission"
     val logObjectTag = ObjectTag(core, tag)
     var havePermission = false
     if (ContextCompat.checkSelfPermission(
-                    activity,
-                    permission
-            ) != PackageManager.PERMISSION_GRANTED
+            activity,
+            permission
+        ) != PackageManager.PERMISSION_GRANTED
     ) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
             Log.i(logObjectTag, tag, tipResId.toString())
         }
         ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(permission),
-                PERMISSIONS_REQUEST_CONTACTS
+            activity,
+            arrayOf(permission),
+            PERMISSIONS_REQUEST_CONTACTS
         )
     } else
         havePermission = true
@@ -94,17 +94,24 @@ fun requestPermission(
 }
 
 fun getAllLocalKeyList(): List<String> {
-    return hashSetOf(ANDROID_APP_TYPE, ANDROID_MAGISK_MODULE_TYPE, ANDROID_CUSTOM_SHELL, ANDROID_CUSTOM_SHELL_ROOT).apply {
+    return hashSetOf(
+        ANDROID_APP_TYPE,
+        ANDROID_MAGISK_MODULE_TYPE,
+        ANDROID_CUSTOM_SHELL,
+        ANDROID_CUSTOM_SHELL_ROOT
+    ).apply {
         for (hub in HubManager.getHubList()) {
             for (urlTemp in hub.hubConfig.appUrlTemplates) {
-                val keys = AutoTemplate.getArgsKeywords(urlTemp).map { it.value.replaceFirst("%", "") }
+                val keys =
+                    AutoTemplate.getArgsKeywords(urlTemp).map { it.value.replaceFirst("%", "") }
                 addAll(keys)
             }
         }
     }.toList()
 }
 
-fun getAppName(packageName: String, context: Context): String? {
+fun getAppName(context: Context): String? {
+    val packageName = context.packageName
     val pm = context.applicationContext.packageManager
     val ai = try {
         pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA)

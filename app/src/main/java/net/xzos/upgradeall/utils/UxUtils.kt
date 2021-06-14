@@ -1,9 +1,14 @@
 package net.xzos.upgradeall.utils
 
+import android.content.Context
 import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Color
+import android.text.SpannableStringBuilder
+import android.view.View
 import com.absinthe.libraries.utils.utils.UiUtils
+import net.xzos.upgradeall.core.utils.getAppName
+import net.xzos.upgradeall.utils.egg.setAppEggTitleSuffix
 import java.util.regex.Pattern
 
 object UxUtils {
@@ -28,7 +33,7 @@ object UxUtils {
     fun getFirstChar(str: String, upperCase: Boolean): String {
         val s = str.toCharArray().find { !firstCharPattern.matcher(it.toString()).find() }
         return if (upperCase) {
-            s?.toUpperCase()
+            s?.uppercaseChar()
         } else {
             s
         }?.toString() ?: ""
@@ -36,5 +41,15 @@ object UxUtils {
 
     fun getRandomBackgroundTint() = ColorStateList.valueOf(getRandomColor())
 
-    private val firstCharPattern = Pattern.compile("[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]$")
+    private val firstCharPattern =
+        Pattern.compile("[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]$")
+
+    fun getAppTitle(context: Context, view: View): SpannableStringBuilder {
+        val sb = SpannableStringBuilder()
+        getAppName(context)?.run {
+            sb.append(this)
+            setAppEggTitleSuffix(sb, view)
+        }
+        return sb
+    }
 }

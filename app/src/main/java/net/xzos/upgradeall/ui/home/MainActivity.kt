@@ -2,13 +2,16 @@ package net.xzos.upgradeall.ui.home
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.ViewTreeObserver
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import com.absinthe.libraries.utils.extensions.addPaddingBottom
 import com.absinthe.libraries.utils.extensions.addPaddingTop
 import com.absinthe.libraries.utils.utils.UiUtils
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.Updater
-import net.xzos.upgradeall.core.utils.getAppName
 import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
@@ -26,6 +29,7 @@ import net.xzos.upgradeall.utils.ToastUtil
 import net.xzos.upgradeall.utils.UxUtils
 import net.xzos.upgradeall.utils.runUiFun
 
+
 class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -41,9 +45,20 @@ class MainActivity : BaseActivity() {
         PreferencesMap.initByActivity(this)
     }
 
-
     private fun initView() {
-        binding.layoutTitleBar.tabName.text = getAppName(packageName, this)
+        with(binding.layoutTitleBar.tabName) {
+            val observer: ViewTreeObserver = this.viewTreeObserver
+            observer.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    this@with.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    renewTitle()
+                }
+            })
+
+        }
+        with(binding.layoutTitleBar.tabName) {
+            text = UxUtils.getAppTitle(this@MainActivity, this)
+        }
         val homeAdapter = HomeModuleAdapter()
         binding.apply {
             rvModules.apply {
@@ -53,18 +68,19 @@ class MainActivity : BaseActivity() {
             }
             layoutTitleBar.root.addPaddingTop(UxUtils.getStatusBarHeight(resources))
         }
-        val moduleList: MutableList<HomeModuleBean> = PreferencesMap.home_bottom_queue.mapNotNull { idToBean(it) }.toMutableList()
+        val moduleList: MutableList<HomeModuleBean> =
+            PreferencesMap.home_bottom_queue.mapNotNull { idToBean(it) }.toMutableList()
         if (!PreferencesMap.enable_simple_bottom_main) {
             moduleList.addAll(listOf(
-                    HomeModuleNonCardBean(R.drawable.ic_home_log, R.string.home_log) {
-                        startActivity(Intent(this, LogActivity::class.java))
-                    },
-                    HomeModuleNonCardBean(R.drawable.ic_home_setting, R.string.home_settings) {
-                        startActivity(Intent(this, SettingsActivity::class.java))
-                    },
-                    HomeModuleNonCardBean(R.drawable.ic_home_about, R.string.home_about) {
-                        ToastUtil.makeText(R.string.home_about)
-                    }
+                HomeModuleNonCardBean(R.drawable.ic_home_log, R.string.home_log) {
+                    startActivity(Intent(this, LogActivity::class.java))
+                },
+                HomeModuleNonCardBean(R.drawable.ic_home_setting, R.string.home_settings) {
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                },
+                HomeModuleNonCardBean(R.drawable.ic_home_about, R.string.home_about) {
+                    ToastUtil.makeText(R.string.home_about)
+                }
             ))
         } else {
             moduleList.add(HomeSimpleCardBean())
@@ -73,6 +89,15 @@ class MainActivity : BaseActivity() {
         binding.layoutUpdatingCard.apply {
             layoutCard.setOnClickListener {
                 checkUpdate()
+            }
+        }
+    }
+
+    private fun renewTitle() {
+        GlobalScope.launch {
+            with(binding.layoutTitleBar.tabName) {
+                val appTitle = UxUtils.getAppTitle(this@MainActivity, this)
+                runUiFun { text = appTitle }
             }
         }
     }
@@ -88,7 +113,10 @@ class MainActivity : BaseActivity() {
                     startActivity(Intent(this, HubManagerActivity::class.java))
                 }
             HOME_MODULE_FILE_MANAGER ->
-                HomeModuleCardBean(R.drawable.ic_home_file_management, R.string.home_module_file_management) {
+                HomeModuleCardBean(
+                    R.drawable.ic_home_file_management,
+                    R.string.home_module_file_management
+                ) {
                     startActivity(Intent(this, FileManagementActivity::class.java))
                 }
             HOME_MODULE_APPS_LIST ->
@@ -96,7 +124,10 @@ class MainActivity : BaseActivity() {
                     startActivity(Intent(this, AppsActivity::class.java))
                 }
             HOME_MODULE_MAGISK_LIST ->
-                HomeModuleCardBean(R.drawable.ic_home_magisk_module, R.string.home_module_magisk_module) {
+                HomeModuleCardBean(
+                    R.drawable.ic_home_magisk_module,
+                    R.string.home_module_magisk_module
+                ) {
                     startActivity(Intent(this, MagiskModuleActivity::class.java))
                 }
             else -> null
@@ -118,7 +149,8 @@ class MainActivity : BaseActivity() {
         val appMap = AppManager.getAppMap()
         runUiFun {
             val needUpdateNum = appMap[Updater.APP_OUTDATED]?.size ?: 0
-            binding.layoutUpdatingCard.tvSubtitle.text = String.format(getString(R.string.home_format_items_need_update), needUpdateNum)
+            binding.layoutUpdatingCard.tvSubtitle.text =
+                String.format(getString(R.string.home_format_items_need_update), needUpdateNum)
             binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_check_updates))
             binding.layoutUpdatingCard.ivIcon.setImageResource(R.drawable.ic_done)
         }
