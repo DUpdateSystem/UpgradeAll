@@ -56,9 +56,6 @@ class MainActivity : BaseActivity() {
             })
 
         }
-        with(binding.layoutTitleBar.tabName) {
-            text = UxUtils.getAppTitle(this@MainActivity, this)
-        }
         val homeAdapter = HomeModuleAdapter()
         binding.apply {
             rvModules.apply {
