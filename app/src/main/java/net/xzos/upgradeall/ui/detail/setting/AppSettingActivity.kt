@@ -22,6 +22,7 @@ import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
+import net.xzos.upgradeall.core.module.app.getDatabase
 import net.xzos.upgradeall.core.utils.cleanBlankValue
 import net.xzos.upgradeall.databinding.ActivityAppSettingBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
@@ -74,7 +75,8 @@ class AppSettingActivity : AppBarActivity() {
 
     private fun addApp() {
         val name = binding.nameEdit.text.toString()
-        val invalidVersionNumberFieldRegex = binding.invalidVersionNumberFieldRegexEdit.text.toString()
+        val invalidVersionNumberFieldRegex =
+            binding.invalidVersionNumberFieldRegexEdit.text.toString()
         val appId = attrMap
         if (name.isBlank()) {
             binding.nameEdit.error = getString(R.string.helper_text_cant_be_empty)
@@ -88,8 +90,10 @@ class AppSettingActivity : AppBarActivity() {
             this.name = name
             this.invalidVersionNumberFieldRegexString = invalidVersionNumberFieldRegex
             this.appId = appId
-        } ?: AppEntity(0, name, appId,
-                invalidVersionNumberFieldRegexString = invalidVersionNumberFieldRegex)
+        } ?: AppEntity(
+            0, name, appId,
+            invalidVersionNumberFieldRegexString = invalidVersionNumberFieldRegex
+        )
         window?.let {
             binding.addButton.visibility = View.GONE
             binding.loadingBar.visibility = View.VISIBLE
@@ -165,7 +169,7 @@ class AppSettingActivity : AppBarActivity() {
         private var bundleDatabase: AppEntity? = null
 
         fun startActivity(context: Context, app: App? = null) {
-            bundleDatabase = app?.appDatabase
+            bundleDatabase = app?.getDatabase()
             context.startActivity(Intent(context, AppSettingActivity::class.java))
         }
     }

@@ -11,11 +11,15 @@ import net.xzos.upgradeall.ui.applist.base.AppHubListItemHandler
 class UpdateAppHubListItemHandler : AppHubListItemHandler() {
     fun clickDownload(app: App, view: View) {
         val fileAsset = app.versionList.firstOrNull()
-                ?.assetList?.firstOrNull()
-                ?.fileAssetList?.firstOrNull()
-                ?: return
+            ?.assetList?.firstOrNull()
+            ?.fileAssetList?.firstOrNull()
+            ?: return
         GlobalScope.launch {
-            startDownload(fileAsset, {}, {}, DownloadOb.getEmptyDownloadOb(), view.context, false)
+            startDownload(
+                app.appId, fileAsset,
+                {}, {}, DownloadOb.getEmptyDownloadOb(),
+                view.context, false
+            )
         }
     }
 }

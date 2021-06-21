@@ -11,8 +11,8 @@ import com.tonyodev.fetch2.Status
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.FileAsset
-import net.xzos.upgradeall.core.module.app.Version
+import net.xzos.upgradeall.core.module.app.version.Version
+import net.xzos.upgradeall.core.module.app.version_item.FileAsset
 import net.xzos.upgradeall.core.utils.android_app.getPackageId
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
 import net.xzos.upgradeall.server.downloader.startDownload
@@ -94,7 +94,8 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     suspend fun download(fileAsset: FileAsset, externalDownload: Boolean) {
         startDownload(
-            fileAsset, fun(_) { waitDownload() }, failDownload, getDownloadDataOb(),
+            app.appId, fileAsset,
+            fun(_) { waitDownload() }, failDownload, getDownloadDataOb(),
             getApplication(), externalDownload
         )
     }

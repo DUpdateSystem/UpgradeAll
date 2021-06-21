@@ -5,7 +5,7 @@ import android.text.SpannableStringBuilder
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.Version
+import net.xzos.upgradeall.core.module.app.version.Version
 
 class AppVersionItem {
     val versionNumberVisibility: ObservableField<Boolean> = ObservableField()

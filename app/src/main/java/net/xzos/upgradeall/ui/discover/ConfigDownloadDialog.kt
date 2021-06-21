@@ -14,12 +14,13 @@ import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
+import net.xzos.upgradeall.core.module.app.getConfigJson
 import net.xzos.upgradeall.core.utils.wait
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 class ConfigDownloadDialog(
-        private val uuid: String,
-        private val changedFun: () -> Unit
+    private val uuid: String,
+    private val changedFun: () -> Unit
 ) : DialogFragment() {
 
     fun show(manager: FragmentManager) {
@@ -34,24 +35,26 @@ class ConfigDownloadDialog(
             else
                 R.string.download
             val cloudConfig = CloudConfigGetter.getAppCloudConfig(uuid)
-                    ?: throw IllegalStateException("Config cannot be null")
+                ?: throw IllegalStateException("Config cannot be null")
             cloudConfig.info.desc?.run {
                 builder.setMessage(this)
             }
             builder.setTitle(cloudConfig.info.name)
-                    .setPositiveButton(positiveButtonText
-                    ) { _, _ ->
-                        val mutex = Mutex(true)
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            download()
-                            mutex.unlock()
-                        }
-                        runBlocking { mutex.wait() }
-                        changedFun()
-                    }.setNegativeButton(R.string.cancel
-                    ) { _, _ ->
-                        dismiss()
+                .setPositiveButton(
+                    positiveButtonText
+                ) { _, _ ->
+                    val mutex = Mutex(true)
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        download()
+                        mutex.unlock()
                     }
+                    runBlocking { mutex.wait() }
+                    changedFun()
+                }.setNegativeButton(
+                    R.string.cancel
+                ) { _, _ ->
+                    dismiss()
+                }
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }
@@ -76,9 +79,9 @@ class ConfigDownloadDialog(
 
     private fun needUpdate(): Boolean {
         val appConfigGson = CloudConfigGetter.getAppCloudConfig(uuid)
-                ?: throw IllegalStateException("Config cannot be null")
-        val localVersion = AppManager.getAppByUuid(uuid)?.appDatabase?.cloudConfig?.configVersion
-                ?: return false
+            ?: throw IllegalStateException("Config cannot be null")
+        val localVersion = AppManager.getAppByUuid(uuid)?.getConfigJson()?.configVersion
+            ?: return false
         return appConfigGson.configVersion > localVersion
     }
 

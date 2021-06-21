@@ -1,23 +1,21 @@
 package net.xzos.upgradeall.core.module.app
 
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import net.xzos.upgradeall.core.data.json.AppConfigGson
 import net.xzos.upgradeall.core.database.table.AppEntity
-import net.xzos.upgradeall.core.database.table.getEnableSortHubList
+import net.xzos.upgradeall.core.database.table.isInit
+import net.xzos.upgradeall.core.database.table.setSortHubUuidList
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
-import net.xzos.upgradeall.core.route.ReleaseListItem
-import net.xzos.upgradeall.core.utils.wait
+import net.xzos.upgradeall.core.module.app.data.DataStorage
+import net.xzos.upgradeall.core.module.app.version.Version
 
 class App(
-    val appDatabase: AppEntity,
+    appDatabase: AppEntity,
     statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
 ) {
-    private val versionUtils = VersionUtils(this.appDatabase)
-    val updater = Updater(this, versionUtils, statusRenewedFun)
-    private val renewMutex = Mutex()
+    private val dataStorage = DataStorage(appDatabase)
+    internal val appDatabase: AppEntity = dataStorage.appDatabase
+    private val updater = Updater(dataStorage, statusRenewedFun)
 
     /* App 对象的属性字典 */
     val appId: Map<String, String?> get() = appDatabase.appId
@@ -26,7 +24,13 @@ class App(
     val name get() = appDatabase.name
 
     /* 这个 App 可用的软件源 */
-    val hubList get() = appDatabase.getEnableSortHubList().filter { it.isValidApp(this) }
+    val hubList: List<Hub>
+        get() = dataStorage.hubList
+
+    suspend fun setHubList(hubUuidList: List<String>) {
+        dataStorage.appDatabase.setSortHubUuidList(hubUuidList)
+    }
+
     val isActive: Boolean
         get() {
             val appId = appId
@@ -36,6 +40,9 @@ class App(
             }
             return true
         }
+
+    val isVirtual: Boolean
+        get() = !appDatabase.isInit()
 
     /* App 在本地的版本号 */
     val rawInstalledVersionStringList: List<Pair<Char, Boolean>>? =
@@ -58,42 +65,24 @@ class App(
     }
 
     /* 版本号数据列表 */
-    val versionList: List<Version> get() = versionUtils.getVersionList()
+    val versionList: List<Version> get() = dataStorage.versionData.getVersionList()
 
     /* 刷新版本号数据 */
     suspend fun update() {
-        if (renewMutex.isLocked)
-            renewMutex.wait()
-        else {
-            doUpdate()
-        }
-    }
-
-    private suspend fun doUpdate() {
-        renewMutex.withLock {
-            coroutineScope {
-                hubList.forEach {
-                    launch {
-                        renewVersionList(it)
-                    }
-                }
-            }
-            getReleaseStatus()
-        }
+        updater.update()
     }
 
     suspend fun getReleaseStatusWaitRenew(): Int {
-        renewMutex.wait()
-        return getReleaseStatus()
+        return updater.getReleaseStatusWaitRenew()
     }
 
     fun isRenewing(): Boolean {
-        return renewMutex.isLocked
+        return dataStorage.versionData.isLocked()
     }
 
     /* 获取 App 的更新状态 */
     fun getReleaseStatus(): Int {
-        return updater.getUpdateStatus()
+        return updater.getReleaseStatus()
     }
 
     fun getLatestVersionNumber(): String? {
@@ -105,33 +94,7 @@ class App(
 
     /* 获取 App 的更新状态 */
     fun isLatestVersion(): Boolean {
-        return updater.getUpdateStatus() == Updater.APP_LATEST
-    }
-
-    private suspend fun renewVersionList(hub: Hub) {
-        hub.getAppReleaseList(this)?.let {
-            setVersionMap(hub, it)
-        }
-    }
-
-    private suspend fun setVersionMap(hub: Hub, releaseList: List<ReleaseListItem>) {
-        val assetsList = mutableListOf<Asset>()
-        releaseList.forEachIndexed { versionIndex, release ->
-            val versionNumber = release.versionNumber
-            val asset = Asset.newInstance(
-                versionNumber, hub, release.changeLog,
-                release.assetsList.mapIndexed { assetIndex, assetItem ->
-                    Asset.Companion.TmpFileAsset(
-                        assetItem.fileName,
-                        assetItem.downloadUrl,
-                        assetItem.fileType,
-                        Pair(versionIndex, assetIndex)
-                    )
-                }, this
-            )
-            assetsList.add(asset)
-        }
-        versionUtils.addAsset(assetsList, hub.uuid)
+        return updater.getReleaseStatus() == Updater.APP_LATEST
     }
 
     override fun equals(other: Any?): Boolean {
@@ -146,6 +109,9 @@ class App(
     }
 
     override fun hashCode(): Int {
-        return (appDatabase.cloudConfig?.uuid ?: appId).hashCode()
+        return dataStorage.hashCode()
     }
 }
+
+fun App.getDatabase(): AppEntity = appDatabase
+fun App.getConfigJson(): AppConfigGson? = appDatabase.cloudConfig

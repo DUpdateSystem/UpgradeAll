@@ -1,17 +1,21 @@
 package net.xzos.upgradeall.core.module.app
 
+import net.xzos.upgradeall.core.module.app.data.DataGetter
+import net.xzos.upgradeall.core.module.app.data.DataStorage
+import net.xzos.upgradeall.core.module.app.version.VersionUtils
 import net.xzos.upgradeall.core.utils.*
 import net.xzos.upgradeall.core.utils.android_app.getAppVersion
 
 class Updater internal constructor(
-    private val app: App, private val versionUtils: VersionUtils,
+    private val dataStorage: DataStorage,
     internal var statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
 ) {
 
+    private val dataGetter = DataGetter(dataStorage)
     private var tmpUpdateStatus: Int = NETWORK_ERROR - 1
 
-    internal fun getUpdateStatus(): Int {
-        val versionNumberList = app.versionList
+    internal fun getReleaseStatus(): Int {
+        val versionNumberList = dataStorage.versionData.getVersionList()
         val status = if (versionNumberList.isEmpty()) {
             NETWORK_ERROR
         } else {
@@ -33,13 +37,23 @@ class Updater internal constructor(
         return status
     }
 
-    private fun getIgnoreVersionNumber(): String? = app.appDatabase.ignoreVersionNumber
-
     /* App 在本地的版本号 */
     internal fun getRawInstalledVersionStringList(): List<Pair<Char, Boolean>>? {
-        return versionUtils.getKeyVersionNumber(
-            getAppVersion(app.appId) ?: return null
+        val appDatabase = dataStorage.appDatabase
+        return VersionUtils.getKeyVersionNumber(
+            getAppVersion(appDatabase.appId) ?: return null,
+            appDatabase.invalidVersionNumberFieldRegexString
         )
+    }
+
+    /* 刷新版本号数据 */
+    suspend fun update() {
+        dataGetter.update()
+    }
+
+    suspend fun getReleaseStatusWaitRenew(): Int {
+        dataStorage.renewMutex.wait()
+        return getReleaseStatus()
     }
 
     internal fun getInstalledVersionNumber(): String? {

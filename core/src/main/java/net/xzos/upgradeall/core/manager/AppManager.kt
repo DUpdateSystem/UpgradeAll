@@ -60,7 +60,8 @@ object AppManager : Informer {
     }
 
     private suspend fun newAppListPair(): Pair<CoroutinesMutableList<App>, CoroutinesMutableList<App>> {
-        val mainAppList = CoroutinesMutableList(true, metaDatabase.appDao().loadAll().map { App(it) })
+        val mainAppList =
+            CoroutinesMutableList(true, metaDatabase.appDao().loadAll().map { App(it) })
         val inactiveAppList = CoroutinesMutableList<App>(true)
         for (app in getInstalledAppList().map { App(it) }) {
             if (app.hubList.isNotEmpty() && app.isActive) {
@@ -108,11 +109,11 @@ object AppManager : Informer {
     }
 
     fun getUserAppList(): List<App> {
-        return appList.filter { it.appDatabase.isInit() }
+        return appList.filter { !it.isVirtual }
     }
 
     fun getAutoAppList(): List<App> {
-        return appList.filter { !it.appDatabase.isInit() }
+        return appList.filter { it.isVirtual }
     }
 
     fun getAppListWithoutKey(excludeAppType: String): List<App> {

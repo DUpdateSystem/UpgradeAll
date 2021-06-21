@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.core.filetasker
 
 import net.xzos.upgradeall.core.downloader.renewDownloadServiceStatus
-import net.xzos.upgradeall.core.module.app.FileAsset
+import net.xzos.upgradeall.core.module.app.version_item.FileAsset
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 
 object FileTaskerManager {

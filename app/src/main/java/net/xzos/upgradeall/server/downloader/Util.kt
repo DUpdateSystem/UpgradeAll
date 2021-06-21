@@ -9,26 +9,23 @@ import net.xzos.upgradeall.core.downloader.PreDownload
 import net.xzos.upgradeall.core.filetasker.FileTasker
 import net.xzos.upgradeall.core.filetasker.FileTasker.Companion.getFileTasker
 import net.xzos.upgradeall.core.log.msg
-import net.xzos.upgradeall.core.module.app.FileAsset
+import net.xzos.upgradeall.core.module.app.version_item.FileAsset
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 suspend fun startDownload(
-        fileAsset: FileAsset,
-        taskStartedFun: (Int) -> Unit,
-        taskStartFailedFun: (Throwable) -> Unit,
-        downloadOb: DownloadOb,
-        context: Context,
-        externalDownload: Boolean,
+    appId: Map<String, String?>, fileAsset: FileAsset,
+    taskStartedFun: (Int) -> Unit, taskStartFailedFun: (Throwable) -> Unit, downloadOb: DownloadOb,
+    context: Context, externalDownload: Boolean,
 ) {
     MiscellaneousUtils.showToast(R.string.download_loading)
-    val downloadInfoList = PreDownload.getDownloadInfoList(fileAsset)
+    val downloadInfoList = PreDownload.getDownloadInfoList(appId, fileAsset)
     if (PreferencesMap.enforce_use_external_downloader || externalDownload) {
         downloadInfoList.forEach {
             MiscellaneousUtils.accessByBrowser(it.url, context)
         }
     } else {
-        val fileTasker = fileAsset.getFileTasker(downloadInfoList)
+        val fileTasker = fileAsset.getFileTasker(appId, downloadInfoList)
         val notification = DownloadNotification(fileTasker).apply {
             waitDownloadTaskNotification()
         }

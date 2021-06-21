@@ -14,10 +14,10 @@ class Hub(private val hubDatabase: HubEntity) {
     val uuid get() = hubDatabase.uuid
     val hubConfig get() = hubDatabase.hubConfig
 
-    fun isValidApp(app: App): Boolean = getValidKey(app) != null
+    fun isValidApp(appId: Map<String, String?>): Boolean = getValidKey(appId) != null
 
-    private fun getValidKey(app: App): Map<String, String>? {
-        return filterValidKey(app.appId)
+    private fun getValidKey(appId: Map<String, String?>): Map<String, String>? {
+        return filterValidKey(appId)
     }
 
     private fun filterValidKey(appId: Map<String, String?>): Map<String, String>? {
@@ -106,14 +106,14 @@ class Hub(private val hubDatabase: HubEntity) {
         return null
     }
 
-    internal suspend fun getAppReleaseList(app: App): List<ReleaseListItem>? {
-        val appId = getValidKey(app) ?: return null
-        return GrpcApi.getAppRelease(uuid, hubDatabase.auth, appId, getAppPriority(app.appId))
+    internal suspend fun getAppReleaseList(_appId: Map<String, String?>): List<ReleaseListItem>? {
+        val appId = getValidKey(_appId) ?: return null
+        return GrpcApi.getAppRelease(uuid, hubDatabase.auth, appId, getAppPriority(appId))
             ?.also {
                 if (it.isEmpty())
-                    setInactiveApp(app.appId)
+                    setInactiveApp(appId)
                 else
-                    removeInactiveApp(app.appId)
+                    removeInactiveApp(appId)
             }
     }
 

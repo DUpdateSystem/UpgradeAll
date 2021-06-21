@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.module.app
+package net.xzos.upgradeall.core.module.app.version_item
 
 import net.xzos.upgradeall.core.module.Hub
 
@@ -14,7 +14,6 @@ class FileAsset(
         internal val downloadUrl: String,
         internal val fileType: String,
         internal val assetIndex: Pair<Int, Int>,
-        internal val app: App,
         internal val hub: Hub,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -23,7 +22,6 @@ class FileAsset(
                 && other.downloadUrl == downloadUrl
                 && other.fileType == fileType
                 && other.assetIndex == assetIndex
-                && other.app == app
                 && other.hub == hub
     }
 
@@ -32,7 +30,6 @@ class FileAsset(
         result = 31 * result + downloadUrl.hashCode()
         result = 31 * result + fileType.hashCode()
         result = 31 * result + assetIndex.hashCode()
-        result = 31 * result + app.hashCode()
         result = 31 * result + hub.hashCode()
         return result
     }

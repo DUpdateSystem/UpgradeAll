@@ -4,13 +4,13 @@ import android.content.Context
 import net.xzos.upgradeall.core.downloader.*
 import net.xzos.upgradeall.core.installer.ApkInstaller
 import net.xzos.upgradeall.core.installer.isApkFile
-import net.xzos.upgradeall.core.module.app.FileAsset
+import net.xzos.upgradeall.core.module.app.version_item.FileAsset
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.openInFileManager
 
 class FileTasker internal constructor(
-        internal val fileAsset: FileAsset,
-        downloadInfoList: List<DownloadInfoItem>? = null
+    appId: Map<String, String?>, internal val fileAsset: FileAsset,
+    downloadInfoList: List<DownloadInfoItem>? = null
 ) {
     val id: Int = getTaskerIndex()
     val name = fileAsset.name
@@ -20,18 +20,19 @@ class FileTasker internal constructor(
     }
 
     /* 预下载器 */
-    private var preDownload: PreDownload? = PreDownload(fileAsset, downloadInfoList)
+    private var preDownload: PreDownload? = PreDownload(appId, fileAsset, downloadInfoList)
 
     /* 下载管理器 */
     var downloader: Downloader? = null
 
-    suspend fun isInstallable(context: Context): Boolean = downloader?.downloadFile?.isApkFile(context)
+    suspend fun isInstallable(context: Context): Boolean =
+        downloader?.downloadFile?.isApkFile(context)
             ?: false
 
     suspend fun install(
-            failedInstallObserverFun: (Throwable) -> Unit,
-            completeInstallFunc: () -> Unit,
-            context: Context
+        failedInstallObserverFun: (Throwable) -> Unit,
+        completeInstallFunc: () -> Unit,
+        context: Context
     ) {
         if (isInstallable(context)) {
             downloader?.downloadFile?.getTmpFile(context)?.run {
@@ -40,15 +41,15 @@ class FileTasker internal constructor(
                         0 -> return
                         1 -> {
                             ApkInstaller.install(it[0],
-                                    { e -> failedInstallObserverFun(e) },
-                                    { completeInstallFunc() }
+                                { e -> failedInstallObserverFun(e) },
+                                { completeInstallFunc() }
                             )
                         }
                         else -> {
                             ApkInstaller.multipleInstall(
-                                    this,
-                                    { e -> failedInstallObserverFun(e) },
-                                    { completeInstallFunc() }
+                                this,
+                                { e -> failedInstallObserverFun(e) },
+                                { completeInstallFunc() }
                             )
                         }
                     }
@@ -58,9 +59,9 @@ class FileTasker internal constructor(
     }
 
     suspend fun startDownload(
-            taskStartedFun: (Int) -> Unit,
-            taskStartFailedFun: (Throwable) -> Unit,
-            vararg downloadOb: DownloadOb,
+        taskStartedFun: (Int) -> Unit,
+        taskStartFailedFun: (Throwable) -> Unit,
+        vararg downloadOb: DownloadOb,
     ) {
         if (downloader == null) {
             val overrideFailFun = fun(e: Throwable) {
@@ -68,7 +69,8 @@ class FileTasker internal constructor(
                 FileTaskerManager.removeFileTasker(this)
             }
             try {
-                downloader = preDownload?.startDownload(taskStartedFun, overrideFailFun, *downloadOb)
+                downloader =
+                    preDownload?.startDownload(taskStartedFun, overrideFailFun, *downloadOb)
             } catch (e: DownloadFileError) {
                 taskStartFailedFun(e)
             } catch (e: DownloadCanceledError) {
@@ -96,6 +98,8 @@ class FileTasker internal constructor(
         private val TASKER_INDEX = CoroutinesCount(0)
         private fun getTaskerIndex(): Int = TASKER_INDEX.up()
 
-        fun FileAsset.getFileTasker(downloadInfoList: List<DownloadInfoItem>? = null) = FileTasker(this, downloadInfoList)
+        fun FileAsset.getFileTasker(
+            appId: Map<String, String?>, downloadInfoList: List<DownloadInfoItem>? = null
+        ) = FileTasker(appId, this, downloadInfoList)
     }
 }

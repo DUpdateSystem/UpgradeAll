@@ -11,7 +11,7 @@ import androidx.core.text.HtmlCompat
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.Asset
+import net.xzos.upgradeall.core.module.app.version_item.Asset
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 import net.xzos.upgradeall.ui.detail.download.DownloadStatusData
 import net.xzos.upgradeall.utils.MiscellaneousUtils.hasHTMLTags

@@ -6,15 +6,15 @@ import android.os.Bundle
 import android.widget.Toast
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.Hub
-import net.xzos.upgradeall.core.module.app.Asset
+import net.xzos.upgradeall.core.module.app.version_item.Asset
 import net.xzos.upgradeall.ui.base.listdialog.ListDialog
 import net.xzos.upgradeall.ui.detail.AppDetailViewModel
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.UxUtils
 
 class DownloadListDialog(
-        fileAssetList: List<Asset>,
-        appDetailViewModel: AppDetailViewModel
+    fileAssetList: List<Asset>,
+    appDetailViewModel: AppDetailViewModel
 ) : ListDialog(
         R.string.dialog_title_select_download_item,
         DownloadListAdapter(getItemViewList(fileAssetList), appDetailViewModel)

@@ -18,8 +18,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.database.table.getEnableSortHubList
-import net.xzos.upgradeall.core.database.table.setSortHubUuidList
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
@@ -60,7 +58,7 @@ class AppDetailActivity : AppBarActivity() {
             }
             R.id.change_hub_priority -> {
                 val hubMap =
-                    app.appDatabase.getEnableSortHubList().map { it to true }.toMap().toMutableMap()
+                    app.hubList.map { it to true }.toMap().toMutableMap()
                 HubManager.getHubList().forEach {
                     if (!hubMap.containsKey(it))
                         hubMap[it] = false
@@ -70,7 +68,7 @@ class AppDetailActivity : AppBarActivity() {
                         hubMap.map { SelectItem(it.key.name, it.key.uuid, it.value) },
                         supportFragmentManager, R.string.change_hub_priority
                     )
-                    app.appDatabase.setSortHubUuidList(selectDataList.mapNotNull { if (it.enableObservable.enable) it.id else null })
+                    app.setHubList(selectDataList.mapNotNull { if (it.enableObservable.enable) it.id else null })
                 }
                 return true
             }
