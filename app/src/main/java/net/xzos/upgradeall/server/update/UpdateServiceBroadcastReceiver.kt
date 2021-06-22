@@ -11,7 +11,7 @@ import net.xzos.upgradeall.application.MyApplication
 class UpdateServiceBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        UpdateService.startService(context)
+        startUpdateWorker(context)
     }
 
     companion object {
@@ -21,15 +21,17 @@ class UpdateServiceBroadcastReceiver : BroadcastReceiver() {
             if (t_h <= 0) return
             val alarmTime: Long = t_h.toLong() * 60 * 60 * 1000
             val alarmIntent = PendingIntent.getBroadcast(
-                    context, 0,
-                    Intent(context, UpdateServiceBroadcastReceiver::class.java).apply { action = ACTION_SNOOZE },
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                context, 0,
+                Intent(context, UpdateServiceBroadcastReceiver::class.java).apply {
+                    action = ACTION_SNOOZE
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT
             )
             val alarmManager = (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
             alarmManager.setInexactRepeating(
-                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + alarmTime,
-                    alarmTime, alarmIntent
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + alarmTime,
+                alarmTime, alarmIntent
             )
         }
     }

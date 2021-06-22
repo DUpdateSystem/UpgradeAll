@@ -25,11 +25,6 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
 
-        <service
-            android:name=".server.update.UpdateService"
-            android:enabled="true"
-            android:exported="false" />
-
         <receiver
             android:name=".server.update.UpdateServiceBroadcastReceiver"
             android:enabled="true"

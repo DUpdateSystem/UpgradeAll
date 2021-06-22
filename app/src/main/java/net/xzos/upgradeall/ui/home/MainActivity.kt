@@ -15,7 +15,7 @@ import net.xzos.upgradeall.core.module.app.Updater
 import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
-import net.xzos.upgradeall.server.update.UpdateService
+import net.xzos.upgradeall.server.update.startUpdateWorker
 import net.xzos.upgradeall.ui.applist.apps.AppsActivity
 import net.xzos.upgradeall.ui.applist.magisk.MagiskModuleActivity
 import net.xzos.upgradeall.ui.base.BaseActivity
@@ -156,7 +156,7 @@ class MainActivity : BaseActivity() {
     private fun checkUpdate() {
         binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_checking_updates))
         binding.layoutUpdatingCard.ivIcon.setImageResource(R.drawable.ic_loading)
-        UpdateService.startService(this@MainActivity)
+        startUpdateWorker(this)
     }
 
     companion object {

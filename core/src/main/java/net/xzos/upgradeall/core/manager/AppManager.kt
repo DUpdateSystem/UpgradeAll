@@ -1,10 +1,7 @@
 package net.xzos.upgradeall.core.manager
 
 import android.database.sqlite.SQLiteConstraintException
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.isInit
@@ -140,21 +137,21 @@ object AppManager : Informer {
      * @param renewStatusFun 每刷新一个 App 数据，回调一次，以返回正在刷新中的 App 数量
      */
     suspend fun renewApp(renewStatusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null): Int {
-        GlobalScope.launch {
-            for (app in inactiveAppList) {
-                launch {
-                    renewApp(app)
-                }
-            }
-        }
         val count = CoroutinesCount(appList.size)
         val totalAppNum = appList.size
         coroutineScope {
             for (app in appList) {
-                launch {
+                launch(Dispatchers.IO) {
                     renewApp(app)
                     count.down()
                     renewStatusFun?.run { this(count.count, totalAppNum) }
+                }
+            }
+        }
+        GlobalScope.launch(Dispatchers.IO) {
+            for (app in inactiveAppList) {
+                launch {
+                    renewApp(app)
                 }
             }
         }

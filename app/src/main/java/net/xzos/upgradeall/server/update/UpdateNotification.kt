@@ -104,7 +104,11 @@ class UpdateNotification {
     }
 
     private fun cancelNotification() {
-        NotificationManagerCompat.from(context).cancel(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
+        cancelNotification(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
+    }
+
+    fun cancelNotification(notificationId: Int) {
+        NotificationManagerCompat.from(context).cancel(notificationId)
     }
 
     companion object {
