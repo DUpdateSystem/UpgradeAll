@@ -19,14 +19,13 @@ class Updater internal constructor(
         val status = if (versionNumberList.isEmpty()) {
             NETWORK_ERROR
         } else {
-            val installedVersionNumber = getInstalledVersionNumber()
+            val localVersionNumber = getInstalledVersionNumber()
                 ?: dataStorage.appDatabase.ignoreVersionNumber
             when {
                 versionNumberList.first().isIgnored -> APP_LATEST
-                installedVersionNumber == null -> APP_NO_LOCAL
+                localVersionNumber == null -> APP_NO_LOCAL
                 !isLatestVersionNumber(
-                    installedVersionNumber,
-                    versionNumberList.filter { !it.isIgnored }.map { it.name }
+                    localVersionNumber, versionNumberList.map { it.name }
                 ) -> APP_OUTDATED
                 else -> APP_LATEST
             }
@@ -63,9 +62,8 @@ class Updater internal constructor(
 
     private fun isLatestVersionNumber(
         localVersionNumber: String,
-        rowVersionNumberList: List<String>
+        versionNumberList: List<String>
     ): Boolean {
-        val versionNumberList = rowVersionNumberList.filter { it.isNotBlank() }
         if (versionNumberList.isEmpty()) return true
         val latestVersion = versionNumberList[0]
         return when (VersioningUtils.compareVersionNumber(localVersionNumber, latestVersion)) {

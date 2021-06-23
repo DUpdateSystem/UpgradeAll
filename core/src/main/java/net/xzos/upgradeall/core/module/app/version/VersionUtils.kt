@@ -52,6 +52,7 @@ class VersionUtils internal constructor(private val appEntity: AppEntity) {
                 asset.versionNumber, appEntity.invalidVersionNumberFieldRegexString
             )
             val mapKey = getKey(key)
+            if (mapKey.isBlank()) return@forEach
             val list = versionMap[mapKey]
                 ?: Version(key, coroutinesMutableListOf(true), this)
             list.assetList.add(asset)
