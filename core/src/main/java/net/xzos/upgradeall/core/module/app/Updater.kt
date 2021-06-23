@@ -20,6 +20,7 @@ class Updater internal constructor(
             NETWORK_ERROR
         } else {
             val installedVersionNumber = getInstalledVersionNumber()
+                ?: dataStorage.appDatabase.ignoreVersionNumber
             when {
                 versionNumberList.first().isIgnored -> APP_LATEST
                 installedVersionNumber == null -> APP_NO_LOCAL
