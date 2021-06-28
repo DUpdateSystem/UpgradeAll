@@ -1,16 +1,13 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.5.10'
+    ext.kotlin_version = '1.5.20'
     ext.protobuf_version = '0.8.12'
     ext.protoc_version = '3.15.6'
     repositories {
         google()
         mavenCentral()
-        jcenter()
         maven { url "https://jitpack.io" }
-        maven { url 'https://dl.bintray.com/rikkaw/Shizuku' }
-        maven { url 'https://dl.bintray.com/absinthe/libraries' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.2.1'
@@ -18,7 +15,7 @@ buildscript {
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobuf_version"
 
         classpath 'com.google.gms:google-services:4.3.8'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.7.0'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.7.1'
         classpath 'com.google.firebase:perf-plugin:1.4.0'
     }
 }
@@ -33,26 +30,13 @@ allprojects {
         mavenCentral()
         jcenter()
         maven { url "https://jitpack.io" }
-        maven { url 'https://dl.bintray.com/rikkaw/Shizuku' }
-        maven { url 'https://dl.bintray.com/absinthe/libraries' }
     }
-}
-
-repositories {
-    google()
-    mavenCentral()
-    jcenter()
-    maven { url "https://jitpack.io" }
-    maven { url 'https://maven.aliyun.com/repository/central' }
-    maven { url 'https://maven.aliyun.com/repository/public' }
-    maven { url 'https://maven.aliyun.com/repository/google' }
 }
 
 compileKotlin {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
     }
-    kotlinOptions.useIR = true
 }
 
 compileTestKotlin {

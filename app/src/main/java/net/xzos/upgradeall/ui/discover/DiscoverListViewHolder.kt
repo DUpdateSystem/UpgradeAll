@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.ui.discover
 
+import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.absinthe.libraries.utils.extensions.layoutInflater
 import com.google.android.material.chip.Chip
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.ItemDiscoverAppBinding
@@ -17,7 +17,7 @@ class DiscoverListViewHolder(private val binding: ItemDiscoverAppBinding)
     override fun doBind(itemView: DiscoverListItemView) {
         binding.item = itemView
         val context = binding.root.context
-        val layoutInflater = context.layoutInflater
+        val layoutInflater = LayoutInflater.from(context)
         val chipGroup = binding.chipGroup
         chipGroup.removeAllViewsInLayout()
         itemView.type.let {

@@ -4,10 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import com.absinthe.libraries.utils.extensions.addPaddingBottom
-import com.absinthe.libraries.utils.extensions.addPaddingTop
-import com.absinthe.libraries.utils.utils.UiUtils
-import kotlinx.coroutines.GlobalScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
@@ -61,9 +58,7 @@ class MainActivity : BaseActivity() {
             rvModules.apply {
                 adapter = homeAdapter
                 setHasFixedSize(true)
-                addPaddingBottom(UiUtils.getNavBarHeight(windowManager))
             }
-            layoutTitleBar.root.addPaddingTop(UxUtils.getStatusBarHeight(resources))
         }
         val moduleList: MutableList<HomeModuleBean> =
             PreferencesMap.home_bottom_queue.mapNotNull { idToBean(it) }.toMutableList()
@@ -91,7 +86,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun renewTitle() {
-        GlobalScope.launch {
+        lifecycleScope.launch {
             with(binding.layoutTitleBar.tabName) {
                 val appTitle = UxUtils.getAppTitle(this@MainActivity, this)
                 runUiFun { text = appTitle }

@@ -9,11 +9,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.marginBottom
-import androidx.core.view.marginTop
-import com.absinthe.libraries.utils.extensions.addPaddingTop
-import com.absinthe.libraries.utils.utils.UiUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -26,7 +21,6 @@ import net.xzos.upgradeall.ui.base.selectlistdialog.SelectItem
 import net.xzos.upgradeall.ui.base.selectlistdialog.SelectListDialog
 import net.xzos.upgradeall.ui.base.view.ProgressButton
 import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
-import net.xzos.upgradeall.utils.actionBarSize
 
 
 class AppDetailActivity : AppBarActivity() {
@@ -102,21 +96,9 @@ class AppDetailActivity : AppBarActivity() {
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         binding.toolbar.title = binding.item?.appName?.get()
-        binding.headerContentLayout.addPaddingTop(actionBarSize())
     }
 
     override fun initView() {
-        binding.btnUpdate.apply {
-            layoutParams = (layoutParams as CoordinatorLayout.LayoutParams).apply {
-                setMargins(
-                    marginStart,
-                    marginTop,
-                    marginEnd,
-                    marginBottom + UiUtils.getNavBarHeight(windowManager)
-                )
-            }
-        }
-
         binding.tvMoreVersion.setOnItemClickListener { _, _, position, _ ->
             viewModel.setVersionInfo(position, this)
         }

@@ -4,8 +4,6 @@ import android.graphics.Color
 import androidx.core.app.ComponentActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import com.absinthe.libraries.utils.extensions.addPaddingBottom
-import com.absinthe.libraries.utils.utils.UiUtils
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.RecyclerlistContentBinding
 import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
@@ -22,7 +20,6 @@ interface HubListPart<T, L : ListItemView, out RH : RecyclerViewHolder<in L, *, 
         adapter.lifecycleScope = activity.lifecycleScope
         binding.rvList.apply {
             adapter = this@HubListPart.adapter
-            addPaddingBottom(UiUtils.getNavBarHeight(activity.windowManager))
         }
         viewModel.getLiveData().observe(lifecycleOwner) { triple ->
             adapter.setAdapterData(triple.first, triple.second, triple.third)

@@ -59,9 +59,6 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test:runner:1.3.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation "androidx.drawerlayout:drawerlayout:1.1.1"
     implementation 'androidx.viewpager2:viewpager2:1.1.0-alpha01'
@@ -86,11 +83,11 @@ dependencies {
     // Firebase
     implementation 'com.google.firebase:firebase-perf:20.0.1'
     implementation 'com.google.firebase:firebase-analytics:19.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics:18.0.1'
+    implementation 'com.google.firebase:firebase-crashlytics:18.1.0'
     configurations.compile.exclude group: 'com.google.protobuf', module: 'protobuf-lite'
 
     // 数据处理
-    implementation 'com.jonathanfinerty.once:once:1.3.0'
+    implementation 'com.jonathanfinerty.once:once:1.3.1'
 
     // 图片加载
     implementation 'com.github.bumptech.glide:glide:4.12.0'
@@ -104,13 +101,18 @@ dependencies {
     implementation 'com.github.kobakei:MaterialFabSpeedDial:master-SNAPSHOT'
     // svg 单个 path 颜色切换
     implementation 'com.github.devsideal:VectorChildFinder:1.0.0'
+    implementation 'dev.rikka.rikkax.insets:insets:1.1.0'
+    implementation 'dev.rikka.rikkax.layoutinflater:layoutinflater:1.0.1'
 
     //Toast BadTokenException on 7.1.1
     implementation 'me.drakeet.support:toastcompat:1.1.0'
 
     //RecyclerView
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.6'
-    implementation 'com.absinthe.libraries.utils:utils:1.1.5'
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     implementation project(path: ':core')
 }

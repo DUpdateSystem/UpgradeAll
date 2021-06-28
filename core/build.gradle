@@ -48,10 +48,10 @@ android {
     }
 
     protobuf {
-        protoc { artifact = "com.google.protobuf:protoc:$protoc_version" }
+        protoc { artifact = "com.google.protobuf:protoc:$protoc_version:osx-x86_64" }
         plugins {
             grpc {
-                artifact = "io.grpc:protoc-gen-grpc-java:$grpc_version"
+                artifact = "io.grpc:protoc-gen-grpc-java:$grpc_version:osx-x86_64"
             }
         }
         generateProtoTasks {
@@ -92,7 +92,7 @@ dependencies {
     implementation "dev.rikka.shizuku:api:$shizuku_version"
     // add this if you want to support Shizuku
     implementation "dev.rikka.shizuku:provider:$shizuku_version"
-    api 'me.weishu:free_reflection:3.0.1'
+    api 'org.lsposed.hiddenapibypass:hiddenapibypass:2.0'
 
     // DocumentFile
     implementation "androidx.documentfile:documentfile:1.0.1"
@@ -103,6 +103,7 @@ dependencies {
     // database
     def room_version = '2.3.0'
     implementation "androidx.room:room-runtime:$room_version"
+    kapt "org.xerial:sqlite-jdbc:3.34.0" //Work around on Apple Silicon
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     // Test helpers
@@ -129,7 +130,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.2'
 
     // WebDav
-    implementation 'com.thegrizzlylabs.sardine-android:sardine-android:0.7'
+    implementation 'com.thegrizzlylabs.sardine-android:sardine-android:0.8'
 
     // Fetch
     api "androidx.tonyodev.fetch2:xfetch2:3.1.6"
