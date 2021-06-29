@@ -263,7 +263,17 @@
     <!-- Other -->
     <string name="download_dir_check_filed">Download folder check failed</string>
 
-    <!-- Notification -->
+    <!-- Update Notification -->
+    <string name="update_service">Update Service</string>
+    <string name="update_service_desc">Show update service status</string>
+    <string name="update_service_running">UpgradeAll Update Service Running</string>
+    <string name="update_running">Update Running</string>
+    <string name="update_recheck_running">Recheck Inactive App</string>
+    <string name="update_format_app_update_tip">%d app(s) updates</string>
+    <string name="update_progress">Update Progress</string>
+    <string name="click_open_homepage">Tap to open the app homepage</string>
+
+    <!-- Download Notification -->
     <string name="file_download">File Download</string>
     <string name="download_paused">Download Paused</string>
     <string name="download_failed_click_to_retry">Download task failed, click me to retry</string>

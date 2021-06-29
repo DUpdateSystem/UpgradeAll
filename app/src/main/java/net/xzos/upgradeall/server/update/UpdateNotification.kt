@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
@@ -54,7 +55,7 @@ class UpdateNotification {
     }
 
     fun startUpdateNotification(notificationId: Int): Notification {
-        builder.setContentTitle("UpgradeAll 更新服务运行中")
+        builder.setContentTitle(getString(R.string.update_service_running))
             .setContentText(null)
             .setProgress(0, 0, false)
             .setContentIntent(mainActivityPendingIntent)
@@ -62,33 +63,35 @@ class UpdateNotification {
     }
 
     private fun updateStatusNotification(allAppsNum: Int, finishedAppNum: Int) {
-        setProgressNotification(builder, finishedAppNum, allAppsNum, "检查更新中")
+        setProgressNotification(builder, finishedAppNum, allAppsNum, R.string.update_running)
     }
 
     private fun recheckStatusNotification(allAppsNum: Int, finishedAppNum: Int) {
-        setProgressNotification(builder, finishedAppNum, allAppsNum, "检查无效应用项")
+        setProgressNotification(
+            builder, finishedAppNum, allAppsNum, R.string.update_recheck_running
+        )
     }
 
     private fun setProgressNotification(
         @Suppress("SameParameterValue") builder: NotificationCompat.Builder,
-        doneNum: Int, allNum: Int, title: String
+        doneNum: Int, allNum: Int, @StringRes titleId: Int
     ) {
         val progress = (doneNum.toDouble() / allNum * 100).toInt()
-        builder.setContentTitle(title)
-            .setContentText("已完成: ${doneNum}/${allNum}")
+        builder.setContentTitle(getString(titleId))
+            .setContentText("${getString(R.string.update_progress)}: ${doneNum}/${allNum}")
             .setProgress(100, progress, false)
             .setOngoing(true)
         notificationNotify(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)
     }
 
     private fun updateNotification(needUpdateAppNum: Int) {
-        val text = "$needUpdateAppNum 个应用需要更新"
+        val text = String.format(getString(R.string.update_format_app_update_tip), needUpdateAppNum)
         if (!MiscellaneousUtils.isBackground()) {
             builder.run {
                 setContentTitle(text)
                 setProgress(0, 0, false)
                 setOngoing(false)
-                setContentText("点按打开应用主页")
+                setContentText(getString(R.string.click_open_homepage))
                 setContentIntent(mainActivityPendingIntent)
             }
             notificationNotify(UPDATE_NOTIFICATION_ID, builder.setAutoCancel(true).build())
@@ -104,10 +107,10 @@ class UpdateNotification {
         ) {
             val channel = NotificationChannel(
                 UPDATE_SERVICE_CHANNEL_ID,
-                "更新服务",
+                getString(R.string.update_service),
                 NotificationManager.IMPORTANCE_MIN
             )
-            channel.description = "显示更新服务状态"
+            channel.description = getString(R.string.update_service_desc)
             channel.enableLights(false)
             channel.enableVibration(false)
             channel.setShowBadge(true)
@@ -149,10 +152,13 @@ class UpdateNotification {
 
         @SuppressLint("StaticFieldLeak")
         private val builder = NotificationCompat.Builder(context, UPDATE_SERVICE_CHANNEL_ID).apply {
-            setContentTitle("UpgradeAll 更新服务运行中")
+            setContentTitle(getString(R.string.update_service_running))
             setOngoing(true)
             setSmallIcon(R.drawable.ic_launcher_foreground)
             priority = NotificationCompat.PRIORITY_LOW
         }
+
+        private fun getString(@StringRes stringRes: Int): String =
+            context.getString(stringRes)
     }
 }
