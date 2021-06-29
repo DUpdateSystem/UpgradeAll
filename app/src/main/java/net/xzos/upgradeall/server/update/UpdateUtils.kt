@@ -12,7 +12,11 @@ suspend fun doUpdateWork() {
     updateNotification.startUpdateNotification(
         UPDATE_SERVER_RUNNING_NOTIFICATION_ID
     )
-    AppManager.renewApp(updateNotification.renewStatusFun)
+    AppManager.renewApp(
+        updateNotification.renewStatusFun,
+        updateNotification.recheckStatusFun
+    )
+    updateNotification.updateDone()
     updateNotification.cancelNotification(
         UPDATE_SERVER_RUNNING_NOTIFICATION_ID
     )

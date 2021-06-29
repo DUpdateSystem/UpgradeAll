@@ -27,11 +27,22 @@ class UpdateNotification {
         updateStatusNotify(renewingAppNum, totalAppNum)
     }
 
+    val recheckStatusFun = fun(renewingAppNum: Int, totalAppNum: Int) {
+        recheckStatusNotify(renewingAppNum, totalAppNum)
+    }
+
+    val updateDone = {
+        finishedNotify()
+    }
+
     private fun updateStatusNotify(renewingAppNum: Int, totalAppNum: Int) {
         val finishedAppNum = totalAppNum - renewingAppNum
-        if (renewingAppNum > 0)
-            updateStatusNotification(totalAppNum, finishedAppNum)
-        else finishedNotify()
+        updateStatusNotification(totalAppNum, finishedAppNum)
+    }
+
+    private fun recheckStatusNotify(renewingAppNum: Int, totalAppNum: Int) {
+        val finishedAppNum = totalAppNum - renewingAppNum
+        recheckStatusNotification(totalAppNum, finishedAppNum)
     }
 
     private fun finishedNotify() {
@@ -51,9 +62,20 @@ class UpdateNotification {
     }
 
     private fun updateStatusNotification(allAppsNum: Int, finishedAppNum: Int) {
-        val progress = (finishedAppNum.toDouble() / allAppsNum * 100).toInt()
-        builder.setContentTitle("检查更新中")
-            .setContentText("已完成: ${finishedAppNum}/${allAppsNum}")
+        setProgressNotification(builder, finishedAppNum, allAppsNum, "检查更新中")
+    }
+
+    private fun recheckStatusNotification(allAppsNum: Int, finishedAppNum: Int) {
+        setProgressNotification(builder, finishedAppNum, allAppsNum, "检查无效应用项")
+    }
+
+    private fun setProgressNotification(
+        @Suppress("SameParameterValue") builder: NotificationCompat.Builder,
+        doneNum: Int, allNum: Int, title: String
+    ) {
+        val progress = (doneNum.toDouble() / allNum * 100).toInt()
+        builder.setContentTitle(title)
+            .setContentText("已完成: ${doneNum}/${allNum}")
             .setProgress(100, progress, false)
             .setOngoing(true)
         notificationNotify(UPDATE_SERVER_RUNNING_NOTIFICATION_ID)

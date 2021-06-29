@@ -136,7 +136,19 @@ object AppManager : Informer {
      * 刷新 App 的版本数据
      * @param renewStatusFun 每刷新一个 App 数据，回调一次，以返回正在刷新中的 App 数量
      */
-    suspend fun renewApp(renewStatusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null): Int {
+    suspend fun renewApp(
+        renewStatusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null,
+        renewInactiveStatusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null,
+    ): Int {
+        renewAppList(appList, renewStatusFun)
+        renewAppList(inactiveAppList, renewInactiveStatusFun)
+        return appList.size
+    }
+
+    private suspend fun renewAppList(
+        appList: List<App>,
+        statusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null,
+    ): Int {
         val count = CoroutinesCount(appList.size)
         val totalAppNum = appList.size
         coroutineScope {
@@ -144,14 +156,7 @@ object AppManager : Informer {
                 launch(Dispatchers.IO) {
                     renewApp(app)
                     count.down()
-                    renewStatusFun?.run { this(count.count, totalAppNum) }
-                }
-            }
-        }
-        GlobalScope.launch(Dispatchers.IO) {
-            for (app in inactiveAppList) {
-                launch {
-                    renewApp(app)
+                    statusFun?.run { this(count.count, totalAppNum) }
                 }
             }
         }
