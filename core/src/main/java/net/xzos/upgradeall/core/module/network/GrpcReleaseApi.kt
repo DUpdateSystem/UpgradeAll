@@ -12,6 +12,7 @@ import net.xzos.upgradeall.core.route.*
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
+import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
 import net.xzos.upgradeall.core.utils.md5
 import net.xzos.upgradeall.core.utils.watchdog.WatchdogItem
 
@@ -83,7 +84,7 @@ internal object GrpcReleaseApi {
         appIdList0: Collection<Map<String, String?>>, autoRetryNum: Int,
         channel: ManagedChannel?,
     ) {
-        val appIdList = appIdList0.toMutableList()
+        val appIdList = appIdList0.toCoroutinesMutableList(true)
         val request = mkReleaseRequestBuilder(hubUuid, appIdList, auth)
         val clearMutex = fun() {
             val size = appIdList.size
@@ -97,6 +98,15 @@ internal object GrpcReleaseApi {
                 }
             }
         }
+        var pingNum = 5
+        val pingWatchdog = fun() {
+            pingNum = (pingNum + 1) % 5
+            if (pingNum == 0)
+                appIdList.forEach {
+                    val itemId = mkAppId(hubUuid, auth, it)
+                    grpcRequestLockMap[itemId]?.ping()
+                }
+        }
         if (hubUuid in GrpcApi.invalidHubUuidList || channel == null) {
             clearMutex()
             return
@@ -109,6 +119,7 @@ internal object GrpcReleaseApi {
                     releaseResponseIterator.hasNext()
                 }
             ) {
+                pingWatchdog()
                 val response = releaseResponseIterator.next()
                 if (firstIndex) {
                     if (!response.validHub) {

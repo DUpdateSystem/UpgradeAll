@@ -7,7 +7,7 @@ import net.xzos.upgradeall.core.utils.unlockWithCheck
 import net.xzos.upgradeall.core.utils.wait
 import java.util.*
 
-class WatchdogItem(private var timeoutMs: Long, private var pingMun: Int = 3) {
+class WatchdogItem(private var timeoutMs: Long, private var pingMun: Int = -1) {
     private var pingTimeMs: Long = 0
     private val mutex = Mutex()
 
@@ -29,10 +29,9 @@ class WatchdogItem(private var timeoutMs: Long, private var pingMun: Int = 3) {
     }
 
     fun ping() {
-        if (pingMun > 0) {
-            pingMun -= 1
-            pingTimeMs = Date().time
-        }
+        if (pingMun == 0) return
+        if (pingMun > 0) pingMun -= 1
+        pingTimeMs = Date().time
     }
 
     internal fun renewStatus() {
