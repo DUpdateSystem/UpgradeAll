@@ -48,10 +48,10 @@ android {
     }
 
     protobuf {
-        protoc { artifact = "com.google.protobuf:protoc:$protoc_version:osx-x86_64" }
+        protoc { artifact = "com.google.protobuf:protoc:$protoc_version" }
         plugins {
             grpc {
-                artifact = "io.grpc:protoc-gen-grpc-java:$grpc_version:osx-x86_64"
+                artifact = "io.grpc:protoc-gen-grpc-java:$grpc_version"
             }
         }
         generateProtoTasks {

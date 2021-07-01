@@ -48,13 +48,18 @@ fun Mutex.lockWithCheck(owner: Any? = null) {
 }
 
 fun Mutex.unlockWithCheck() {
-    if (this.isLocked)
+    try {
         this.unlock()
+    } catch (ignore: IllegalStateException) {
+    }
 }
 
 suspend fun Mutex.wait() {
     if (this.isLocked) {
-        withLock { }
+        try {
+            withLock { }
+        } catch (ignore: IllegalStateException) {
+        }
     }
 }
 
