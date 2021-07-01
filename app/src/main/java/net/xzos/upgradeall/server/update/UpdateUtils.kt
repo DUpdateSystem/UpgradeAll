@@ -7,20 +7,6 @@ import androidx.work.WorkManager
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.server.update.UpdateNotification.Companion.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
 
-suspend fun doUpdateWork() {
-    val updateNotification = UpdateNotification()
-    updateNotification.startUpdateNotification(
-        UPDATE_SERVER_RUNNING_NOTIFICATION_ID
-    )
-    AppManager.renewApp(
-        updateNotification.renewStatusFun,
-        updateNotification.recheckStatusFun
-    )
-    updateNotification.updateDone()
-    updateNotification.cancelNotification(
-        UPDATE_SERVER_RUNNING_NOTIFICATION_ID
-    )
-}
 
 fun startUpdateWorker(context: Context) {
     val tag = "update_service"
