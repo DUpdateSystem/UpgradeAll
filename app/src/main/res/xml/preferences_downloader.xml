@@ -5,9 +5,10 @@
     android:layout_height="match_parent">
 
     <SwitchPreferenceCompat
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:title="@string/use_external_downloader"
-        app:key="enforce_use_external_downloader" />
+        app:key="enforce_use_external_downloader"
+        app:summary="@string/use_external_downloader_desc" />
 
     <PreferenceCategory app:title="@string/built_in_downloader_setting">
 
