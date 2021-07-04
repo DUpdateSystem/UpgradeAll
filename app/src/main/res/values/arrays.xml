@@ -61,6 +61,9 @@
             zh_CN
         </item>
         <item>
+            zh_TW
+        </item>
+        <item>
             en_US
         </item>
     </string-array>

@@ -33,8 +33,9 @@ object PreferencesMap {
     private const val CLOUD_RULES_HUB_URL_KEY = "cloud_rules_hub_url"
     val custom_cloud_rules_hub_url: Boolean
         get() {
-            val customCloudRulesHubUrl = prefs.getString(CUSTOM_CLOUD_RULES_HUB_URL_KEY, "FromUpdateServer")!!
-            return customCloudRulesHubUrl.toLowerCase(Locale.ENGLISH) == "Custom"
+            val customCloudRulesHubUrl =
+                prefs.getString(CUSTOM_CLOUD_RULES_HUB_URL_KEY, "FromUpdateServer")!!
+            return customCloudRulesHubUrl.lowercase(Locale.ENGLISH) == "Custom"
         }
 
     var cloud_rules_hub_url: String?
@@ -66,7 +67,7 @@ object PreferencesMap {
     private const val DOWNLOAD_PATH_KEY = "user_download_path"
     var user_download_path: String
         get() = prefs.getString(DOWNLOAD_PATH_KEY, null)
-                ?: context.getString(R.string.please_grant_storage_perm)
+            ?: context.getString(R.string.please_grant_storage_perm)
         set(value) {
             prefs.edit().putString(DOWNLOAD_PATH_KEY, value).apply()
             auto_dump_download_file = true
@@ -109,13 +110,16 @@ object PreferencesMap {
 
     private const val LANGUAGE_LOCALE_CODE_KEY = "language_locale_code"
     val custom_language_locale: Locale?
-        get() = if (locale_custom) {
-            when (prefs.getString(LANGUAGE_LOCALE_CODE_KEY, null)) {
-                "zh_CN" -> Locale("zh", "CN")
-                "en_US" -> Locale("en", "US")
-                else -> null
+        get() {
+            return if (locale_custom) {
+                val (language, country) = prefs.getString(LANGUAGE_LOCALE_CODE_KEY, null)
+                    ?.split("_")
+                    ?: return null
+                Locale(language, country)
+            } else {
+                null
             }
-        } else null
+        }
 
     //UI
     private const val ENABLE_SIMPLE_BOTTOM_MAIN = "enable_simple_bottom_main"
@@ -144,11 +148,11 @@ object PreferencesMap {
         }
 
     private val defHomeBottomIdList = listOf(
-            MainActivity.HOME_MODULE_DISCOVERY,
-            MainActivity.HOME_MODULE_HUB_MANAGER,
-            MainActivity.HOME_MODULE_FILE_MANAGER,
-            MainActivity.HOME_MODULE_APPS_LIST,
-            MainActivity.HOME_MODULE_MAGISK_LIST,
+        MainActivity.HOME_MODULE_DISCOVERY,
+        MainActivity.HOME_MODULE_HUB_MANAGER,
+        MainActivity.HOME_MODULE_FILE_MANAGER,
+        MainActivity.HOME_MODULE_APPS_LIST,
+        MainActivity.HOME_MODULE_MAGISK_LIST,
     )
 
     fun initByActivity(activity: Activity) {
@@ -172,20 +176,21 @@ object PreferencesMap {
     // 同步 Core 模块的配置
     private fun syncCoreConfig() {
         val coreConfig = CoreConfig(
-                androidContext = MyApplication.context,
-                data_expiration_time = 10,
-                update_server_url = update_server_url,
-                cloud_rules_hub_url = cloud_rules_hub_url,
-                download_document_file = FileUtil.DOWNLOAD_DOCUMENT_FILE,
-                download_max_task_num = download_max_task_num,
-                download_thread_num = download_thread_num,
-                download_auto_retry_max_attempts = download_auto_retry_max_attempts,
-                install_apk_api = install_apk_api,
-                applications_ignore_system_app = applications_ignore_system_app,
+            androidContext = MyApplication.context,
+            data_expiration_time = 10,
+            update_server_url = update_server_url,
+            cloud_rules_hub_url = cloud_rules_hub_url,
+            download_document_file = FileUtil.DOWNLOAD_DOCUMENT_FILE,
+            download_max_task_num = download_max_task_num,
+            download_thread_num = download_thread_num,
+            download_auto_retry_max_attempts = download_auto_retry_max_attempts,
+            install_apk_api = install_apk_api,
+            applications_ignore_system_app = applications_ignore_system_app,
         )
-        initCore(coreConfig,
-                WebDavConfig(webdav_url, webdav_path, webdav_username, webdav_password),
-                DownloadNotification.downloadServiceNotificationMaker
+        initCore(
+            coreConfig,
+            WebDavConfig(webdav_url, webdav_path, webdav_username, webdav_password),
+            DownloadNotification.downloadServiceNotificationMaker
         )
     }
 
