@@ -3,31 +3,31 @@
     <string name="help">幫助</string>
     <string name="update">更新</string>
     <string name="backup">備份</string>
-    <string name="restore">恢復</string>
+    <string name="restore">還原</string>
     <string name="app_list">軟體列表</string>
     <string name="user_star">星標</string>
-    <string name="all_app">全部應用</string>
+    <string name="all_app">全部應用程式</string>
     <string name="app">軟體</string>
     <string name="magisk_module">Magisk 模塊</string>
     <string name="app_hub">軟體來源</string>
     <string name="add">新增</string>
     <string name="desc">網址</string>
     <string name="name">名稱</string>
-    <string name="package_id">跟蹤目標</string>
+    <string name="package_id">追蹤目標</string>
     <string name="basic_info">基礎資訊</string>
     <string name="versioning_check_setting">版本控制設定</string>
     <string name="test">測試</string>
     <string name="delete">刪除</string>
     <string name="delete_from_group">從分組中刪除</string>
-    <string name="restore_default_icon">還原默認圖標</string>
-    <string name="export">導出</string>
+    <string name="restore_default_icon">還原預設圖標</string>
+    <string name="export">匯出</string>
     <string name="edit">編輯</string>
-    <string name="initiative_sync_time">數據過期時間(min)</string>
-    <string name="background_sync_time">後台數據刷新時間(h)</string>
+    <string name="initiative_sync_time">資料到期時間(min)</string>
+    <string name="background_sync_time">後台資料更新時間(h)</string>
     <string name="background_sync_time_desc">軟體在後台檢查更新的周期\n若周期為0，則禁用後台更新檢查</string>
     <string name="changelog">更新日誌</string>
-    <string name="latest_release_file">最新版本的雲端文件</string>
-    <string name="renewing">正在刷新</string>
+    <string name="latest_release_file">最新版本的雲端檔案</string>
+    <string name="renewing">正在更新</string>
     <string name="cloud_rules">雲規則</string>
     <string name="cloud_rules_repo_url">Git 倉庫地址</string>
     <string name="update_server_url">升級服務 URL</string>
@@ -40,30 +40,30 @@
     <string name="install_failed">安裝失敗</string>
     <string name="auto_install">自動安裝</string>
     <string name="installing">正在安裝</string>
-    <string name="install_apk_api">APK 文件安裝方式</string>
-    <string name="user_download_path">用戶下載位置</string>
+    <string name="install_apk_api">APK 檔案安裝方式</string>
+    <string name="user_download_path">使用者下載位置</string>
     <string name="download_thread_num">下載線程數</string>
     <string name="download_max_task_num">最大下載隊列數</string>
-    <string name="clean_download_dir">清除下載文件</string>
-    <string name="clean_download_dir_desc">刪除軟體的下載緩存目錄及該目錄下的文件</string>
-    <string name="auto_delete_file">安裝完成後自動刪除文件</string>
-    <string name="auto_deleted_file">已自動刪除安裝文件</string>
-    <string name="auto_dump_download_file">自動轉儲下載文件</string>
+    <string name="clean_download_dir">清除下載檔案</string>
+    <string name="clean_download_dir_desc">刪除軟體的下載緩存目錄及該目錄下的檔案</string>
+    <string name="auto_delete_file">安裝完成後自動刪除檔案</string>
+    <string name="auto_deleted_file">已自動刪除安裝檔</string>
+    <string name="auto_dump_download_file">自動轉儲已下載的檔案</string>
     <string name="enable">啟用</string>
-    <string name="save_successfully">保存成功</string>
-    <string name="save_failed">保存失敗</string>
-    <string name="save_as_app">保存為單個更新項</string>
+    <string name="save_successfully">儲存成功</string>
+    <string name="save_failed">儲存失敗</string>
+    <string name="save_as_app">儲存為單個更新項</string>
     <string name="main_program">主程式</string>
-    <string name="click_to_add_something">按下加號新增應用/源吧</string>
-    <string name="add_something">請先新增軟體來源或下載軟體配置</string>
-    <string name="navigation_drawer_open">開啟側滑菜單</string>
-    <string name="navigation_drawer_close">關閉側滑菜單</string>
-    <string name="navigation_head_image">側滑菜單背景圖</string>
-    <string name="clean_sort_log">清空當前分類的日誌</string>
+    <string name="click_to_add_something">按下加號新增應用程式或來源吧</string>
+    <string name="add_something">請先新增軟體來源或下載軟體設定</string>
+    <string name="navigation_drawer_open">開啟側滑選單</string>
+    <string name="navigation_drawer_close">關閉側滑選單</string>
+    <string name="navigation_head_image">側滑選單背景圖</string>
+    <string name="clean_sort_log">清空目前分類的日誌</string>
     <string name="clean_all_log">清空全部日誌</string>
-    <string name="clean_sort_log_alert_message">當前分類的日誌將丟失</string>
-    <string name="clean_all_log_alert_message">所有歷史日誌將丟失</string>
-    <string name="export_all">全部導出</string>
+    <string name="clean_sort_log_alert_message">目前分類的日誌將遺失</string>
+    <string name="clean_all_log_alert_message">所有歷史日誌將遺失</string>
+    <string name="export_all">全部匯出</string>
     <string name="clean_log">清空日誌</string>
     <string name="other">其他</string>
     <string name="background_image">背景圖片</string>
@@ -79,12 +79,12 @@
     <string name="add_group">新增分組</string>
     <string name="add_hub">新增源</string>
     <string name="example_number">0</string>
-    <string name="example_update_overview" formatted="false">%d 個應用中的 %d 個需要升級</string>
+    <string name="example_update_overview" formatted="false">%d 個應用程式中的 %d 個需要升級</string>
     <string name="update_status_prompt">升級提示符</string>
     <string name="waiting_check_update">檢查更新中…</string>
     <string name="local_version_number">本地版本</string>
     <string name="arrow">箭頭</string>
-    <string name="update_info">更新數據</string>
+    <string name="update_info">更新資料</string>
     <string name="app_main_url">軟體主頁網址</string>
     <string name="example_app_url">www.example.com/com.example.app</string>
     <string name="example_changelog">This is a example changelog for example app.</string>
@@ -94,23 +94,23 @@
     <string name="please_grant_storage_perm">請授予存儲讀寫權限</string>
     <string name="more_other_version_number">更多版本</string>
     <string name="loading">加載中…</string>
-    <string name="add_apps">新增應用</string>
+    <string name="add_apps">新增</string>
     <string name="group_name">分組名稱</string>
-    <string name="auto_update_hub_config">自動更新軟體來源配置</string>
-    <string name="auto_update_hub_config_desc">當進入雲端配置頁面時，檢查從雲端倉庫下載的軟體來源，並當有新版本時自動更新軟體來源配置</string>
-    <string name="auto_update_app_config">自動更新跟蹤項配置</string>
-    <string name="auto_update_app_config_desc">當進入雲端配置頁面時，檢查從雲端倉庫下載的跟蹤項，並當有新版本時自動更新跟蹤項配置</string>
+    <string name="auto_update_hub_config">自動更新軟體來源設定</string>
+    <string name="auto_update_hub_config_desc">當進入雲端設定頁面時，檢查從雲端倉庫下載的軟體來源，並當有新版本時自動更新軟體來源設定</string>
+    <string name="auto_update_app_config">自動更新追蹤項目設定</string>
+    <string name="auto_update_app_config_desc">當進入雲端設定頁面時，檢查從雲端倉庫下載的追蹤項目，並當有新版本時自動更新追蹤項目設定</string>
     <string name="auto_update_setting">自動更新設定</string>
-    <string name="enable_applications_mode">啟動應用市場模式</string>
-    <string name="enable_applications_mode_desc">應用將獲取設備安裝的所有應用資訊，以從已啟用的軟體來源中檢測更新，其使用方式與一般的應用市場類似</string>
+    <string name="enable_applications_mode">啟動應用程式市場模式</string>
+    <string name="enable_applications_mode_desc">應用程式將取得設備安裝的所有應用程式資訊，以從已啟用的軟體來源中檢測更新，其使用方式與一般的應用程式市場類似</string>
 
     <string name="detailed_help">\n詳細幫助</string>
     <string name="readme_url">https://upgradeall.now.sh/</string>
 
-    <string name="setting_app_hub_explain">軟體來源（必填）\n通過何種渠道獲取更新資訊</string>
-    <string name="setting_app_name_explain">應用名稱（選填）\n留空則調用軟體來源腳本，以獲取默認應用名稱</string>
-    <string name="setting_app_url_explain">應用項目主頁網址（必填）\n通過該網址獲取應用資訊</string>
-    <string name="setting_app_versioning_explain">應用目標指向字元（必填）\n通過該字元串確認本地應用資訊\n 例如：net.xzos.upgradeall\n 當選擇的版本控制模塊不為 Shell 時，\n 會開啟搜尋功能</string>
+    <string name="setting_app_hub_explain">軟體來源（必填）\n通過何種渠道取得更新資訊</string>
+    <string name="setting_app_name_explain">應用程式名稱（選填）\n留空則調用軟體來源腳本，以取得預設應用程式名稱</string>
+    <string name="setting_app_url_explain">應用程式項目主頁網址（必填）\n通過該網址取得應用程式資訊</string>
+    <string name="setting_app_versioning_explain">應用程式目標指向字元（必填）\n通過該字元串確認本地應用程式資訊\n 例如：net.xzos.upgradeall\n 當選擇的版本控制模塊不為 Shell 時，\n 會開啟搜尋功能</string>
     <string name="show">顯示</string>
     <string name="hide">隱藏</string>
     <string name="split_line">--------------------------------------------------</string>
@@ -123,11 +123,11 @@
     <string name="no_completion_results">無補全結果</string>
     <string name="no_root_and_restart_to_use_root">無 ROOT 權限 \n如果需使用，請給予本軟體權限並重啟本軟體</string>
     <string name="version_number_is_marked_as_processed">版本號標註為已處理</string>
-    <string name="mark_version_number">點擊右上角菜單以進行版本標記</string>
+    <string name="mark_version_number">點擊右上角選單以進行版本標記</string>
     <string name="marked_version_number_is_behind_latest">標註已處理的版本號已落後於最新版本</string>
-    <string name="auto_fixed_wrong_configuration">已自動修復錯誤配置</string>
-    <string name="reset_git_url_configuration">已復原 Git 默認地址配置</string>
-    <string name="reset_update_server_url_configuration">已復原升級服務默認地址配置</string>
+    <string name="auto_fixed_wrong_configuration">已自動修復錯誤設定</string>
+    <string name="reset_git_url_configuration">已復原 Git 預設地址設定</string>
+    <string name="reset_update_server_url_configuration">已復原升級服務預設地址設定</string>
     <string name="o_mark">⭕</string>
     <string name="processing">處理中</string>
     <string name="add_new_group">新增新分組</string>
@@ -135,12 +135,12 @@
     <string name="edit_group">修改分組</string>
     <string name="move_lift">向左移動</string>
     <string name="move_right">向右移動</string>
-    <string name="export_current_sort_log">導出當前分類的日誌</string>
-    <string name="export_all_log">導出全部日誌</string>
-    <string name="applications">應用市場</string>
-    <string name="add_applications">新增應用市場</string>
-    <string name="add_single_app">新增單個跟蹤項</string>
-    <string name="android_app">Android 應用</string>
+    <string name="export_current_sort_log">匯出目前分類的日誌</string>
+    <string name="export_all_log">匯出全部日誌</string>
+    <string name="applications">應用程式市場</string>
+    <string name="add_applications">新增應用程式市場</string>
+    <string name="add_single_app">新增單個追蹤項目</string>
+    <string name="android_app">Android 應用程式</string>
     <string name="shell">SHELL 命令</string>
     <string name="shell_root">ROOT 權限的 SHELL 命令</string>
 
@@ -149,8 +149,8 @@
     <string name="network_error">網路錯誤</string>
     <string name="failed_to_add">新增失敗</string>
     <string name="long_click_to_delete_image">長按側滑欄圖片可以刪除圖片</string>
-    <string name="save_file_successfully">文件保存成功</string>
-    <string name="save_file_failed">文件保存失敗</string>
+    <string name="save_file_successfully">檔案儲存成功</string>
+    <string name="save_file_failed">檔案儲存失敗</string>
     <string name="shizuku_permission_request">請給予本軟體 Shizuku 權限</string>
     <string name="ucrop_error">uCrop 運行錯誤</string>
     <string name="copied_to_pasteboard">已復制到粘貼板</string>
@@ -160,39 +160,39 @@
     <string name="system_browser_error">你可能遇到了一個系統錯誤，正在嘗試調用其他方法打開</string>
     <string name="function_unsupported_error">你的手機暫不支持該功能</string>
     <string name="please_input_custom_url">請輸入自定義網址</string>
-    <string name="same_as_server_config">跟隨服務器配置</string>
+    <string name="same_as_server_config">跟隨服務器設定</string>
     <string name="ignore_app">永久忽略更新</string>
-    <string name="remove_ignore_app">取消忽略該跟蹤項的更新</string>
-    <string name="ignore_version">標記當前版本號</string>
-    <string name="remove_ignore_version">取消標記該跟蹤項的當前版本號</string>
+    <string name="remove_ignore_app">取消忽略該追蹤項目的更新</string>
+    <string name="ignore_version">標記目前版本號</string>
+    <string name="remove_ignore_version">取消標記該追蹤項目的目前版本號</string>
     <string name="local_backup">本地備份</string>
-    <string name="backup_to_file">備份為本地文件</string>
-    <string name="restore_from_file">從本地文件恢復</string>
+    <string name="backup_to_file">備份為本地檔案</string>
+    <string name="restore_from_file">從本地檔案還原</string>
     <string name="cloud_backup">雲端備份</string>
     <string name="backup_to_webdav">備份到 WebDAV</string>
-    <string name="restore_from_webdav">從 WebDAV 恢復</string>
+    <string name="restore_from_webdav">從 WebDAV 還原</string>
     <string name="webdav_path">WebDAV 存儲目錄</string>
     <string name="webdav_path_desc">請確保 WebDAV 下存在目錄</string>
     <string name="webdav_url">WebDAV 網址</string>
     <string name="webdav_username">WebDAV 帳號</string>
     <string name="webdav_password">WebDAV 密碼</string>
     <string name="plz_set_webdav">請設定 WebDAV</string>
-    <string name="restore_running">正在恢復</string>
-    <string name="restore_stop">恢復完成</string>
+    <string name="restore_running">正在還原</string>
+    <string name="restore_stop">還原完成</string>
     <string name="backup_running">正在備份</string>
     <string name="backup_stop">備份完成</string>
     <string name="dialog_title_select_download_item">選擇下載項</string>
     <string name="btn_add_extra">新增附加項</string>
 
     <string name="ui">界面</string>
-    <string name="enable_bottom_sheet">平鋪菜單按鈕</string>
+    <string name="enable_bottom_sheet">平鋪選單按鈕</string>
     <string name="enable_simple_bottom_main">在主頁以簡略圖標顯示按鈕</string>
     <string name="language">語言</string>
     <string name="custom_language">自定義語言</string>
-    <string name="follow_server_config">跟隨服務器配置</string>
+    <string name="follow_server_config">跟隨服務器設定</string>
     <string name="custom">自定義</string>
-    <string name="system_installer">系統默認安裝器</string>
-    <string name="plz_restart">請重啟應用</string>
+    <string name="system_installer">系統預設安裝器</string>
+    <string name="plz_restart">請重啟應用程式</string>
 
     <string name="download_auto_retry_max_attempts">下載任務重試次數</string>
 
@@ -203,12 +203,12 @@
     <string name="home_checking_updates">正在檢查更新…</string>
     <string name="home_check_updates">檢查更新</string>
     <string name="home_module_discovery">探索</string>
-    <string name="home_module_file_management">文件管理</string>
-    <string name="home_module_apps">應用</string>
+    <string name="home_module_file_management">檔案管理</string>
+    <string name="home_module_apps">應用程式</string>
     <string name="home_module_magisk_module">Magisk 模塊</string>
     <string name="home_module_rss">RSS</string>
     <string name="home_module_others">其它</string>
-    <string name="home_format_items_need_update">共 %d 個跟蹤項需要更新</string>
+    <string name="home_format_items_need_update">共 %d 個追蹤項目需要更新</string>
     <string name="home_log">日誌</string>
     <string name="home_settings">設定</string>
     <string name="home_about">關於</string>
@@ -218,7 +218,7 @@
     <string name="hub_tab_all">全部</string>
     <string name="hub_tab_ignored">已忽略</string>
     <string name="hub_tooltip_priority">優先級</string>
-    <string name="hub_format_app_update_tip">共 %d 個應用更新</string>
+    <string name="hub_format_app_update_tip">共 %d 個應用程式更新</string>
     <string name="hub_update_all">全部升級</string>
     <string name="hub_ignore_all">全部忽略</string>
     <string name="num_zero">0</string>
@@ -238,7 +238,7 @@
     <string name="download_loading">準備開始下載</string>
 
     <!-- APP Setting -->
-    <string name="edit_app">編輯跟蹤項</string>
+    <string name="edit_app">編輯追蹤項目</string>
     <string name="ok">確認</string>
     <string name="cancel">取消</string>
     <string name="attr_list">屬性列表</string>
@@ -260,7 +260,7 @@
     <string name="pause">暫停</string>
     <string name="Continue">繼續</string>
     <string name="open">打開</string>
-    <string name="open_file">打開文件</string>
+    <string name="open_file">打開檔案</string>
 
     <string name="drag">拖動</string>
 
@@ -268,31 +268,31 @@
     <string name="home_bottom_queue_setting">自定義主頁按鈕列表</string>
 
     <!-- UI Setting -->
-    <string name="applications_setting">應用市場設定</string>
-    <string name="ignore_system_app">忽略系統應用</string>
-    <string name="ignore_system_app_desc">不使用應用市場模式檢查系統應用</string>
+    <string name="applications_setting">應用程式市場設定</string>
+    <string name="ignore_system_app">忽略系統應用程式</string>
+    <string name="ignore_system_app_desc">不使用應用程式市場模式檢查系統應用程式</string>
 
     <!-- Other -->
-    <string name="download_dir_check_filed">下載文件夾檢查失效</string>
+    <string name="download_dir_check_filed">下載檔案夾檢查失效</string>
 
     <!-- Update Notification -->
     <string name="update_service">更新服務</string>
     <string name="update_service_desc">顯示更新服務狀態</string>
     <string name="update_service_running">UpgradeAll 更新服務運行中</string>
     <string name="update_running">檢查更新中</string>
-    <string name="update_recheck_running">檢查無效應用項</string>
-    <string name="update_format_app_update_tip">%d 個應用更新</string>
+    <string name="update_recheck_running">檢查無效應用程式項</string>
+    <string name="update_format_app_update_tip">%d 個應用程式更新</string>
     <string name="update_progress">更新進度</string>
-    <string name="click_open_homepage">點按打開應用主頁</string>
+    <string name="click_open_homepage">點按打開應用程式主頁</string>
 
     <!-- Download Notification -->
-    <string name="file_download">文件下載</string>
+    <string name="file_download">檔案下載</string>
     <string name="download_paused">下載已暫停</string>
     <string name="download_failed_click_to_retry">下載失敗，點擊重試</string>
     <string name="download_complete">下載完成</string>
-    <string name="file_path">文件路徑</string>
-    <string name="show_download_status">顯示文件的下載狀態</string>
+    <string name="file_path">檔案路徑</string>
+    <string name="show_download_status">顯示檔案的下載狀態</string>
     <string name="waiting_pre_process">等待預處理完成</string>
     <string name="download_service_running">下載服務運行中</string>
-    <string name="use_external_downloader_desc">目前內建下載器未準備好，默認使用外部下載器</string>
+    <string name="use_external_downloader_desc">目前內建下載器未準備好，預設使用外部下載器</string>
 </resources>
