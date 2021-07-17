@@ -60,13 +60,11 @@ object AppManager : Informer {
         val mainAppList =
             CoroutinesMutableList(true, metaDatabase.appDao().loadAll().map { App(it) })
         val inactiveAppList = CoroutinesMutableList<App>(true)
-        for (app in getInstalledAppList().map { App(it) }) {
-            if (app.hubList.isNotEmpty() && app.isActive) {
+        for (app in getInstalledAppList().map { App(it) })
+            if (app.isActive)
                 mainAppList.add(app)
-            } else {
+            else
                 inactiveAppList.add(app)
-            }
-        }
         return Pair(mainAppList, inactiveAppList)
     }
 

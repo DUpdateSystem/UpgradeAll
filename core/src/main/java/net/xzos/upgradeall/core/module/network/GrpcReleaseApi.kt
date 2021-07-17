@@ -38,7 +38,7 @@ internal object GrpcReleaseApi {
             releaseList = list
         }, priority)
         watchdog.start()
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.IO) {
             callGetAppReleaseStream(mkHubId(hubUuid, auth))
         }
         watchdog.block()

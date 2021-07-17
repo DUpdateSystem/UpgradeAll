@@ -12,12 +12,10 @@ import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
-import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_OUTDATED
-import net.xzos.upgradeall.core.utils.runWithLock
 import net.xzos.upgradeall.ui.home.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
@@ -26,18 +24,12 @@ class UpdateNotification {
         createNotificationChannel()
     }
 
-    private val mutex = Mutex()
-
     val renewStatusFun = fun(renewingAppNum: Int, totalAppNum: Int) {
-        mutex.runWithLock {
-            updateStatusNotify(renewingAppNum, totalAppNum)
-        }
+        updateStatusNotify(renewingAppNum, totalAppNum)
     }
 
     val recheckStatusFun = fun(renewingAppNum: Int, totalAppNum: Int) {
-        mutex.runWithLock {
-            recheckStatusNotify(renewingAppNum, totalAppNum)
-        }
+        recheckStatusNotify(renewingAppNum, totalAppNum)
     }
 
     val updateDone = {

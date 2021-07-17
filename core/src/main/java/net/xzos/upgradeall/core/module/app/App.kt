@@ -33,12 +33,11 @@ class App(
 
     val isActive: Boolean
         get() {
-            val appId = appId
-            for (hub in hubList) {
-                if (hub.isInactiveApp(appId))
-                    return false
+            hubList.forEach {
+                if (it.isActiveApp(appId))
+                    return true
             }
-            return true
+            return false
         }
 
     val isVirtual: Boolean

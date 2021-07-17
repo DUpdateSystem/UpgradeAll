@@ -52,29 +52,30 @@ class Hub(private val hubDatabase: HubEntity) {
 
     private fun getAppPriority(_appId: Map<String, String?>): Int {
         val appId = filterValidKey(_appId) ?: return LOW_PRIORITY_APP
-        return if (isInactiveApp(appId))
+        return if (isActiveApp(appId))
+            NORMAL_PRIORITY_APP
+        else
             LOW_PRIORITY_APP
-        else NORMAL_PRIORITY_APP
     }
 
-    fun isInactiveApp(_appId: Map<String, String?>): Boolean {
+    fun isActiveApp(_appId: Map<String, String?>): Boolean {
         val appId = filterValidKey(_appId) ?: return false
         val inactiveAppIdList = hubDatabase.ignoreAppIdList
-        return inactiveAppIdList.contains(appId)
+        return !inactiveAppIdList.contains(appId)
     }
 
-    private suspend fun setInactiveApp(_appId: Map<String, String?>) {
+    private suspend fun setActiveApp(_appId: Map<String, String?>) {
         val appId = filterValidKey(_appId) ?: return
         val lowPriorityAppIdList = hubDatabase.ignoreAppIdList
-        lowPriorityAppIdList.add(appId)
-        saveDatabase()
+        if (lowPriorityAppIdList.remove(appId))
+            saveDatabase()
     }
 
-    private suspend fun removeInactiveApp(_appId: Map<String, String?>) {
+    private suspend fun unsetActiveApp(_appId: Map<String, String?>) {
         val appId = filterValidKey(_appId) ?: return
         val lowPriorityAppIdList = hubDatabase.ignoreAppIdList
-        lowPriorityAppIdList.remove(appId)
-        saveDatabase()
+        if (lowPriorityAppIdList.add(appId))
+            saveDatabase()
     }
 
     suspend fun setApplicationsMode(enable: Boolean) {
@@ -111,9 +112,9 @@ class Hub(private val hubDatabase: HubEntity) {
         return GrpcApi.getAppRelease(uuid, hubDatabase.auth, appId, getAppPriority(appId))
             ?.also {
                 if (it.isEmpty())
-                    setInactiveApp(appId)
+                    unsetActiveApp(appId)
                 else
-                    removeInactiveApp(appId)
+                    setActiveApp(appId)
             }
     }
 

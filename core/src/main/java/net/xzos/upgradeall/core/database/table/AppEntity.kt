@@ -69,8 +69,11 @@ suspend fun AppEntity.setSortHubUuidList(sortHubUuidList: List<String>) {
     if (this.isInit())
         this.rowSetSortHubUuidList(sortHubUuidList)
     else {
-        sortHubUuidList.forEach {
-            HubManager.getHub(it)?.ignoreApp(appId)
+        HubManager.getHubList().forEach {
+            if (sortHubUuidList.contains(it.uuid))
+                it.unignoreApp(appId)
+            else
+                it.ignoreApp(appId)
         }
     }
 }
