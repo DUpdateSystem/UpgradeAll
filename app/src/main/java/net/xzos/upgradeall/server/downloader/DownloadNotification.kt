@@ -20,6 +20,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.downloader.DownloadOb
 import net.xzos.upgradeall.core.filetasker.FileTasker
+import net.xzos.upgradeall.core.utils.FlagDelegate
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.runWithLock
 import net.xzos.upgradeall.data.PreferencesMap
@@ -206,7 +207,7 @@ class DownloadNotification(private val fileTasker: FileTasker) {
             // 保存文件/安装按钮可多次点击
                 0
             else PendingIntent.FLAG_ONE_SHOT
-        return PendingIntent.getBroadcast(context, getPendingIntentIndex(), snoozeIntent, flags)
+        return PendingIntent.getBroadcast(context, getPendingIntentIndex(), snoozeIntent, flags or FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE)
     }
 
     private fun getSpeedText(task: Download): String {

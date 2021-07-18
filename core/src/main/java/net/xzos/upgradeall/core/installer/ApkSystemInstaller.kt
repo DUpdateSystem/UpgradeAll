@@ -10,6 +10,7 @@ import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.log.msg
+import net.xzos.upgradeall.core.utils.FlagDelegate
 import net.xzos.upgradeall.core.utils.oberver.Informer
 import net.xzos.upgradeall.core.utils.oberver.Informer.Companion.getInformerId
 import java.io.File
@@ -113,7 +114,7 @@ object ApkSystemInstaller : Informer {
     private fun doCommitSession(session: PackageInstaller.Session) {
         try {
             val callbackIntent = Intent(context, ApkInstallerService::class.java)
-            val pendingIntent = PendingIntent.getService(context, 0, callbackIntent, 0)
+            val pendingIntent = PendingIntent.getService(context, 0, callbackIntent, FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE)
             session.commit(pendingIntent.intentSender)
             session.close()
             Log.d(logObjectTag, TAG, "doCommitSession: install request sent")

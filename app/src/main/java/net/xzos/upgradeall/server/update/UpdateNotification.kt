@@ -16,6 +16,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_OUTDATED
+import net.xzos.upgradeall.core.utils.FlagDelegate
 import net.xzos.upgradeall.ui.home.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
@@ -147,7 +148,7 @@ class UpdateNotification {
         private val mainActivityPendingIntent: PendingIntent? =
             TaskStackBuilder.create(context).run {
                 addNextIntentWithParentStack(Intent(context, MainActivity::class.java))
-                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE)
             }
 
         @SuppressLint("StaticFieldLeak")
