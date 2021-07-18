@@ -1,11 +1,14 @@
 package net.xzos.upgradeall.ui.log
 
-import android.view.LayoutInflater
+import android.content.Context
 import android.view.ViewGroup
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
+import net.xzos.upgradeall.utils.DimensionKtx.dp
 import net.xzos.upgradeall.utils.file.FileUtil
+import net.xzos.upgradeall.utils.getDrawableByAttr
 import java.util.*
 
 
@@ -40,8 +43,7 @@ class LogItemAdapter(mLogList: LiveData<List<String>>, owner: LifecycleOwner) : 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogRecyclerViewHolder {
-        val holder = LogRecyclerViewHolder(
-                LayoutInflater.from(parent.context).inflate(android.R.layout.simple_expandable_list_item_1, parent, false))
+        val holder = LogRecyclerViewHolder(LogItemView(parent.context))
         val logTextView = holder.logTextView
         logTextView.setOnClickListener {
             val context = logTextView.context
@@ -57,5 +59,17 @@ class LogItemAdapter(mLogList: LiveData<List<String>>, owner: LifecycleOwner) : 
 
     override fun getItemCount(): Int {
         return mLogMessages.size
+    }
+
+    class LogItemView(context: Context) : AppCompatTextView(context) {
+        init {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            setPadding(24.dp, 2.dp, 24.dp, 2.dp)
+            isClickable = true
+            background = context.getDrawableByAttr(android.R.attr.selectableItemBackground)
+        }
     }
 }

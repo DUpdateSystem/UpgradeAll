@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.databinding.FragmentLogBinding
@@ -39,10 +40,11 @@ class LogPlaceholderFragment(
     }
 
     private fun renewLogList() {
-        val layoutManager = GridLayoutManager(mContext, 1)
-        binding.logListRecyclerView.layoutManager = layoutManager
-        val adapter = LogItemAdapter(logPageViewModel.logList, this@LogPlaceholderFragment)
-        binding.logListRecyclerView.adapter = adapter
+        binding.logListRecyclerView.also {
+            it.layoutManager = GridLayoutManager(mContext, 1)
+            it.adapter = LogItemAdapter(logPageViewModel.logList, this@LogPlaceholderFragment)
+            it.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        }
     }
 
     companion object {

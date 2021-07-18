@@ -21,6 +21,7 @@ android {
         kapt {
             arguments {
                 arg("room.schemaLocation", "$projectDir/schemas")
+                arg("room.incremental", "true")
             }
         }
     }
@@ -43,6 +44,7 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
+        freeCompilerArgs = ["-Xopt-in=kotlin.RequiresOptIn", "-XXLanguage:+InlineClasses"]
     }
 
     buildFeatures {
@@ -50,6 +52,22 @@ android {
         dataBinding true
         viewBinding true
     }
+
+    lintOptions {
+        abortOnError true
+        checkReleaseBuilds false
+    }
+
+    packagingOptions {
+        exclude 'META-INF/**'
+        exclude 'kotlin/**'
+        exclude 'org/**'
+        exclude '**.properties'
+        exclude '**.bin'
+    }
+
+    dependenciesInfo.includeInApk false
+
 }
 
 dependencies {

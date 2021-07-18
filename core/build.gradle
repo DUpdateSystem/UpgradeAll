@@ -25,6 +25,7 @@ android {
         arguments {
             // ROOM export schema
             arg("room.schemaLocation", "$projectDir/schemas")
+            arg("room.incremental", "true")
         }
     }
 
