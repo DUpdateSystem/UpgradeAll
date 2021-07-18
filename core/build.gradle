@@ -9,11 +9,11 @@ def grpc_version = '1.39.0'
 def protoc_version = '3.17.2'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 30
         versionCode 1
         versionName "0.9"
 

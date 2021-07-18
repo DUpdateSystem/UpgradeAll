@@ -9,12 +9,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 30
 
     defaultConfig {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 30
         versionCode 81
         versionName "0.9.10-rc.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

@@ -303,11 +303,11 @@ open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migratio
     private fun getOldDatabase(database: SupportSQLiteDatabase) {
         with(database.query("SELECT * FROM app")) {
             while (moveToNext()) {
-                val id = getLong(getColumnIndex("id"))
-                val name = getString(getColumnIndex("name"))
-                val url = getString(getColumnIndex("url"))
-                val packageId = getString(getColumnIndex("package_id"))
-                val hubUuid = getString(getColumnIndex("hub_uuid"))
+                val id = getLong(getColumnIndexOrThrow("id"))
+                val name = getString(getColumnIndexOrThrow("name"))
+                val url = getString(getColumnIndexOrThrow("url"))
+                val packageId = getString(getColumnIndexOrThrow("package_id"))
+                val hubUuid = getString(getColumnIndexOrThrow("hub_uuid"))
                 val ignoreVersionNumber = getStringOrNull(getColumnIndex("ignore_version_number"))
                 val cloudConfig = getStringOrNull(getColumnIndex("cloud_config"))
                 val appJson = JSONObject().apply {
@@ -323,9 +323,9 @@ open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migratio
         }
         with(database.query("SELECT * FROM applications")) {
             while (moveToNext()) {
-                val id = getLong(getColumnIndex("id"))
-                val name = getString(getColumnIndex("name"))
-                val hubUuid = getString(getColumnIndex("hub_uuid"))
+                val id = getLong(getColumnIndexOrThrow("id"))
+                val name = getString(getColumnIndexOrThrow("name"))
+                val hubUuid = getString(getColumnIndexOrThrow("hub_uuid"))
                 val invalidPackageList = getStringOrNull(getColumnIndex("invalid_package_list"))
                 val ignoreApps = getStringOrNull(getColumnIndex("ignore_app_list"))
                 val json = JSONObject().apply {
@@ -339,8 +339,8 @@ open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migratio
         }
         with(database.query("SELECT * FROM hub")) {
             while (moveToNext()) {
-                val uuid = getString(getColumnIndex("uuid"))
-                val hubConfig = JSONObject(getString(getColumnIndex("hub_config")))
+                val uuid = getString(getColumnIndexOrThrow("uuid"))
+                val hubConfig = JSONObject(getString(getColumnIndexOrThrow("hub_config")))
                 allHubDatabaseMap[uuid] = JSONObject().apply { put("hub_config", hubConfig) }
             }
         }

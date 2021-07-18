@@ -62,8 +62,8 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
         )
         with(database.query("SELECT * FROM hubdatabase")) {
             while (moveToNext()) {
-                val uuid = getString(getColumnIndex("uuid"))
-                val hubConfig = getString(getColumnIndex("hub_config"))
+                val uuid = getString(getColumnIndexOrThrow("uuid"))
+                val hubConfig = getString(getColumnIndexOrThrow("hub_config"))
                 database.execSQL("""
                     INSERT INTO hub (uuid, hub_config)
                     VALUES ('$uuid', '$hubConfig');
@@ -76,12 +76,12 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
         val databaseIdMap = mutableMapOf<String, String>()
         with(database.query("SELECT * FROM repodatabase")) {
             while (moveToNext()) {
-                val id = getLong(getColumnIndex("id"))
-                val type = getString(getColumnIndex("type"))
-                val name = getString(getColumnIndex("name"))
-                val hubUuid = getString(getColumnIndex("api_uuid"))
+                val id = getLong(getColumnIndexOrThrow("id"))
+                val type = getString(getColumnIndexOrThrow("type"))
+                val name = getString(getColumnIndexOrThrow("name"))
+                val hubUuid = getString(getColumnIndexOrThrow("api_uuid"))
                 val extraData = try {
-                    JSONObject(getString(getColumnIndex("extra_data")))
+                    JSONObject(getString(getColumnIndexOrThrow("extra_data")))
                 } catch (e: Throwable) {
                     null
                 }
@@ -138,8 +138,8 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
                 } else {
                     appDatabaseIndex += 1
                     databaseIdMap[id.toString()] = "app-$appDatabaseIndex"
-                    val url = getString(getColumnIndex("url"))
-                    val packageId = getString(getColumnIndex("versionchecker"))
+                    val url = getString(getColumnIndexOrThrow("url"))
+                    val packageId = getString(getColumnIndexOrThrow("versionchecker"))
                     var ignoreVersionNumber: String? = null
                     var cloudConfig: String? = null
                     try {
