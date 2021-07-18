@@ -48,10 +48,20 @@ android {
     }
 
     protobuf {
-        protoc { artifact = "com.google.protobuf:protoc:$protoc_version" }
+        protoc {
+            if (osdetector.os == "osx") {
+                artifact = "com.google.protobuf:protoc:$protoc_version:osx-x86_64"
+            } else {
+                artifact = "com.google.protobuf:protoc:$protoc_version"
+            }
+        }
         plugins {
             grpc {
-                artifact = "io.grpc:protoc-gen-grpc-java:$grpc_version"
+                if (osdetector.os == "osx") {
+                    artifact = "io.grpc:protoc-gen-grpc-java:$grpc_version:osx-x86_64"
+                } else {
+                    artifact = "io.grpc:protoc-gen-grpc-java:$grpc_version"
+                }
             }
         }
         generateProtoTasks {
