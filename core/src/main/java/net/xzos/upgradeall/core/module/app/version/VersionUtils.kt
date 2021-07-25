@@ -4,6 +4,9 @@ import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.extra_app.ExtraAppEntityManager
 import net.xzos.upgradeall.core.database.table.isInit
+import net.xzos.upgradeall.core.log.Log
+import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.module.app.version_item.Asset
 import net.xzos.upgradeall.core.utils.VersioningUtils
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
@@ -62,6 +65,9 @@ class VersionUtils internal constructor(private val appEntity: AppEntity) {
     }
 
     companion object {
+        private const val TAG = "VersionUtils"
+        private val logObjectTag = ObjectTag(core, TAG)
+
         fun getKey(raw: List<Pair<Char, Boolean>>): String =
             raw.filter { it.second }.map { it.first }.joinToString(separator = "")
 
@@ -87,12 +93,13 @@ class VersionUtils internal constructor(private val appEntity: AppEntity) {
             val preVersionNumberInfoList =
                 rawVersionNumber.map { Pair(it, true) }.toMutableList()
             invalidStringFieldRegexString?.run {
-                val invalidVersionNumberIndexList =
-                    getInvalidVersionNumberIndex(rawVersionNumber, this)
-                setVersionNumberInfoList(
-                    preVersionNumberInfoList,
-                    invalidVersionNumberIndexList
-                )
+                try {
+                    getInvalidVersionNumberIndex(rawVersionNumber, this).let {
+                        setVersionNumberInfoList(preVersionNumberInfoList, it)
+                    }
+                } catch (e: Throwable) {
+                    Log.e(logObjectTag, TAG, " getKeyVersionNumber: ${e.stackTraceToString()}")
+                }
             }
 
             val indexMap = mutableMapOf<Int, Int>()
