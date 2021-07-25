@@ -15,8 +15,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 81
-        versionName "0.9.10-rc.4"
+        versionCode 82
+        versionName "0.9.10-rc.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
@@ -72,7 +72,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.preference:preference-ktx:1.1.1'
@@ -82,7 +82,7 @@ dependencies {
     implementation "androidx.drawerlayout:drawerlayout:1.1.1"
     implementation 'androidx.viewpager2:viewpager2:1.1.0-alpha01'
 
-    implementation 'androidx.fragment:fragment-ktx:1.3.5'
+    implementation 'androidx.fragment:fragment-ktx:1.3.6'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
 
@@ -92,7 +92,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1-native-mt'
 
     // WorkManager
-    def work_version = '2.7.0-alpha04'
+    def work_version = '2.7.0-alpha05'
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
     // Localization
@@ -101,7 +101,7 @@ dependencies {
     // Firebase
     implementation 'com.google.firebase:firebase-perf:20.0.2'
     implementation 'com.google.firebase:firebase-analytics:19.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics:18.1.0'
+    implementation 'com.google.firebase:firebase-crashlytics:18.2.0'
     configurations.compile.exclude group: 'com.google.protobuf', module: 'protobuf-lite'
 
     // 数据处理
