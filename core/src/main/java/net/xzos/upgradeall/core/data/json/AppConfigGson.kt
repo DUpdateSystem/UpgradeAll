@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
+import net.xzos.upgradeall.core.database.table.setSortHubUuidList
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.utils.AutoTemplate
 
@@ -15,11 +16,11 @@ import net.xzos.upgradeall.core.utils.AutoTemplate
  * info: {"name": "", "desc": "", "url": , "extra_map": ""}
  */
 class AppConfigGson(
-        @SerializedName("base_version") val baseVersion: Int,
-        @SerializedName("config_version") val configVersion: Int,
-        @SerializedName("uuid") val uuid: String,
-        @SerializedName("base_hub_uuid") val baseHubUuid: String,
-        @SerializedName("info") val info: InfoBean,
+    @SerializedName("base_version") val baseVersion: Int,
+    @SerializedName("config_version") val configVersion: Int,
+    @SerializedName("uuid") val uuid: String,
+    @SerializedName("base_hub_uuid") val baseHubUuid: String,
+    @SerializedName("info") val info: InfoBean,
 ) {
 
     /**
@@ -28,10 +29,10 @@ class AppConfigGson(
      * desc:
      */
     class InfoBean(
-            @SerializedName("name") val name: String,
-            @SerializedName("url") var url: String,
-            @SerializedName("desc") var desc: String?,
-            @SerializedName("extra_map") var extraMap: Map<String, String?>,
+        @SerializedName("name") val name: String,
+        @SerializedName("url") var url: String,
+        @SerializedName("desc") var desc: String?,
+        @SerializedName("extra_map") var extraMap: Map<String, String?>,
     )
 
     override fun toString(): String {
@@ -41,8 +42,9 @@ class AppConfigGson(
 
 fun AppConfigGson.getAppId(): Map<String, String?>? {
     val hubConfig = CloudConfigGetter.getHubCloudConfig(baseHubUuid) ?: return null
-    return info.extraMap.plus(AutoTemplate.urlToAppId(info.url, hubConfig.appUrlTemplates)
-            ?: mapOf())
+    return info.extraMap.plus(
+        AutoTemplate.urlToAppId(info.url, hubConfig.appUrlTemplates) ?: mapOf()
+    )
 }
 
 suspend fun AppConfigGson.toAppEntity(): AppEntity? {
@@ -52,8 +54,12 @@ suspend fun AppConfigGson.toAppEntity(): AppEntity? {
         if (appDatabase.appId == appId) {
             appDatabase.name = info.name
             appDatabase.cloudConfig = this
+            val baseHubUuid = (appDatabase.getSortHubUuidList() + baseHubUuid).toSet()
+            appDatabase.setSortHubUuidList(baseHubUuid)
             return appDatabase
         }
     }
-    return AppEntity(0, info.name, appId, cloudConfig = this)
+    return AppEntity(0, info.name, appId, cloudConfig = this).apply {
+        setSortHubUuidList(listOf(this@toAppEntity.baseHubUuid))
+    }
 }

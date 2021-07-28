@@ -27,14 +27,14 @@ class AppEntity(
         return sortHubUuidListStringToList(_enableHubUuidListString)
     }
 
-    internal suspend fun rowSetSortHubUuidList(sortHubUuidList: List<String>) {
+    internal suspend fun rowSetSortHubUuidList(sortHubUuidList: Collection<String>) {
         _enableHubUuidListString = sortHubUuidListToString(sortHubUuidList)
         withContext(Dispatchers.Default) {
             metaDatabase.appDao().update(this@AppEntity)
         }
     }
 
-    private fun sortHubUuidListToString(sortHubUuidList: List<String>): String? {
+    private fun sortHubUuidListToString(sortHubUuidList: Collection<String>): String? {
         val s = sortHubUuidList.joinToString(separator = " ")
         return if (s.isNotBlank()) s
         else null
@@ -57,7 +57,17 @@ fun AppEntity.recheck() {
 }
 
 fun AppEntity.getEnableSortHubList(): List<Hub> {
-    val sortHubUuidList = this.getSortHubUuidList()
+    val sortHubUuidList = this.getSortHubUuidList().toMutableList()
+    if (cloudConfig != null) {
+        val hubUuid = cloudConfig!!.baseHubUuid
+        if (sortHubUuidList.isNotEmpty()) {
+            if (sortHubUuidList[0] != hubUuid)
+                sortHubUuidList.remove(hubUuid)
+            sortHubUuidList.add(0, hubUuid)
+        } else {
+            sortHubUuidList.add(hubUuid)
+        }
+    }
     return if (sortHubUuidList.isEmpty()) {
         val allHubList = HubManager.getHubList()
         if (isInit()) allHubList
@@ -65,7 +75,7 @@ fun AppEntity.getEnableSortHubList(): List<Hub> {
     } else sortHubUuidList.mapNotNull { HubManager.getHub(it) }
 }
 
-suspend fun AppEntity.setSortHubUuidList(sortHubUuidList: List<String>) {
+suspend fun AppEntity.setSortHubUuidList(sortHubUuidList: Collection<String>) {
     if (this.isInit())
         this.rowSetSortHubUuidList(sortHubUuidList)
     else {
