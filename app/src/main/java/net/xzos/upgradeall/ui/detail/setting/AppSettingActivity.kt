@@ -145,7 +145,7 @@ class AppSettingActivity : AppBarActivity() {
             fab.visibility = View.VISIBLE
         }
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             // 刷新第三方源列表，获取支持的第三方源列表
             withContext(Dispatchers.Main) {
                 if (HubManager.getHubList().isEmpty()) {
