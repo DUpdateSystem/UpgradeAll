@@ -57,15 +57,11 @@ fun AppEntity.recheck() {
 }
 
 fun AppEntity.getEnableSortHubList(): List<Hub> {
-    val sortHubUuidList = this.getSortHubUuidList().toMutableList()
-    if (cloudConfig != null) {
-        val hubUuid = cloudConfig!!.baseHubUuid
-        if (sortHubUuidList.isNotEmpty()) {
-            if (sortHubUuidList[0] != hubUuid)
-                sortHubUuidList.remove(hubUuid)
-            sortHubUuidList.add(0, hubUuid)
-        } else {
-            sortHubUuidList.add(hubUuid)
+    val sortHubUuidList = this.getSortHubUuidList().toMutableList().also {
+        if (cloudConfig != null) {
+            val hubUuid = cloudConfig!!.baseHubUuid
+            it.remove(hubUuid)
+            it.add(0, hubUuid)
         }
     }
     return if (sortHubUuidList.isEmpty()) {
