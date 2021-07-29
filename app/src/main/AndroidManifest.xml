@@ -48,6 +48,11 @@
             </intent-filter>
         </receiver>
 
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+
         <activity
             android:name=".ui.home.MainActivity"
             android:label="@string/app_name"

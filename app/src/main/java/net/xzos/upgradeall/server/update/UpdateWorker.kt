@@ -1,33 +1,39 @@
 package net.xzos.upgradeall.server.update
 
 import android.content.Context
-import androidx.work.Worker
+import android.content.pm.ServiceInfo
+import android.os.Build
+import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.manager.AppManager
 
 class UpdateWorker(context: Context, workerParameters: WorkerParameters) :
-    Worker(context, workerParameters) {
+    CoroutineWorker(context, workerParameters) {
 
     private val updateNotification = UpdateNotification()
 
-    override fun doWork(): Result {
-        updateNotification.startUpdateNotification(
-            UpdateNotification.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
-        )
-        runBlocking {
-            doUpdateWork(updateNotification)
-        }
+    override suspend fun doWork(): Result {
+        setForeground(createForegroundInfo(updateNotification))
+        doUpdateWork(updateNotification)
         finishNotify(updateNotification)
         return Result.success()
     }
 
-    override fun onStopped() {
-        finishNotify(updateNotification)
-        super.onStopped()
-    }
-
     companion object {
+        private fun createForegroundInfo(updateNotification: UpdateNotification): ForegroundInfo {
+            val notificationId = UpdateNotification.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
+            val notification = updateNotification.startUpdateNotification(notificationId)
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ForegroundInfo(
+                    notificationId, notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                )
+            } else {
+                ForegroundInfo(notificationId, notification)
+            }
+        }
+
         private suspend fun doUpdateWork(updateNotification: UpdateNotification) {
             AppManager.renewApp(
                 updateNotification.renewStatusFun,
