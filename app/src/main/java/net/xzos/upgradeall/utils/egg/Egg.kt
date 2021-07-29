@@ -22,7 +22,7 @@ import java.util.*
 private const val TAG = "Egg"
 private val logObjectTag = ObjectTag("UI", TAG)
 
-private val eggDay by lazy { runBlocking(Dispatchers.IO) { getEggDayOrNull() } }
+private val eggDay by lazy { runBlocking(Dispatchers.Default) { getEggDayOrNull() } }
 
 fun getEggDayOrNull(): Day? {
     val cal = Calendar.getInstance()

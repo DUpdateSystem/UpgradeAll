@@ -1,12 +1,10 @@
 package net.xzos.upgradeall.ui.base.recycleview
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.runWithLock
@@ -21,7 +19,7 @@ abstract class ListContainerViewModel<T>(application: Application) : AndroidView
     fun loadData() {
         if (!refresh.isLocked) {
             refresh.runWithLock {
-                viewModelScope.launch(Dispatchers.IO) {
+                viewModelScope.launch {
                     renewList(doLoadData())
                 }
             }

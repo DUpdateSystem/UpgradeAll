@@ -17,7 +17,7 @@ import net.xzos.upgradeall.core.utils.md5
 import net.xzos.upgradeall.core.utils.watchdog.WatchdogItem
 
 internal object GrpcReleaseApi {
-    private const val grpcWaitTime = 200L
+    private const val grpcWaitTime = 50L
     private var chunkedSize = 200
 
     private val callbackFunMap: CoroutinesMutableMap<String, (_: List<ReleaseListItem>?) -> Unit> =

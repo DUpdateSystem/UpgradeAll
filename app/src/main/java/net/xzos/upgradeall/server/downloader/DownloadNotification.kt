@@ -11,7 +11,6 @@ import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.tonyodev.fetch2.Download
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -153,7 +152,7 @@ class DownloadNotification(private val fileTasker: FileTasker) {
             )
             setSmallIcon(android.R.drawable.stat_sys_download_done)
             setProgress(0, 0, false)
-            runBlocking(Dispatchers.IO) {
+            runBlocking {
                 if (fileTasker.isInstallable(context)) {
                     addAction(
                         R.drawable.ic_check_mark_circle, getString(R.string.install),
@@ -207,7 +206,12 @@ class DownloadNotification(private val fileTasker: FileTasker) {
             // 保存文件/安装按钮可多次点击
                 0
             else PendingIntent.FLAG_ONE_SHOT
-        return PendingIntent.getBroadcast(context, getPendingIntentIndex(), snoozeIntent, flags or FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE)
+        return PendingIntent.getBroadcast(
+            context,
+            getPendingIntentIndex(),
+            snoozeIntent,
+            flags or FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE
+        )
     }
 
     private fun getSpeedText(task: Download): String {

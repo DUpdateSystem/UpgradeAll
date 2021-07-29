@@ -4,9 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.manager.AppManager
@@ -17,7 +15,7 @@ class AppReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (!HubManager.isEnableApplicationsMode()) return
         val packageName = intent.data.toString()
-        runBlocking(Dispatchers.IO) {
+        runBlocking {
             when (intent.action) {
                 Intent.ACTION_PACKAGE_ADDED -> addApp(context, packageName)
                 Intent.ACTION_PACKAGE_REPLACED -> addApp(context, packageName)
@@ -45,7 +43,7 @@ class AppReceiver : BroadcastReceiver() {
             } catch (e: Throwable) {
                 return
             }
-            withContext(Dispatchers.IO) { AppManager.updateApp(appInfo.toAppEntity()) }
+            AppManager.updateApp(appInfo.toAppEntity())
         }
 
         private suspend fun delApp(packageName: String) {
@@ -55,6 +53,7 @@ class AppReceiver : BroadcastReceiver() {
             }
         }
 
-        private fun getAppId(packageName: String): Map<String, String> = mapOf(ANDROID_APP_TYPE to packageName)
+        private fun getAppId(packageName: String): Map<String, String> =
+            mapOf(ANDROID_APP_TYPE to packageName)
     }
 }

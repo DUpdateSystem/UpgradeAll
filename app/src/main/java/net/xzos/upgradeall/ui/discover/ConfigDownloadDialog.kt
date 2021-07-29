@@ -7,7 +7,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -44,7 +43,7 @@ class ConfigDownloadDialog(
                     positiveButtonText
                 ) { _, _ ->
                     val mutex = Mutex(true)
-                    lifecycleScope.launch(Dispatchers.IO) {
+                    lifecycleScope.launch {
                         download()
                         mutex.unlock()
                     }
