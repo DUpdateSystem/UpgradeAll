@@ -7,53 +7,43 @@ import android.text.style.ForegroundColorSpan
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
-import net.xzos.upgradeall.R
 
 fun getVersionNameSpannableStringWithRes(
     rawVersionStringList: List<Pair<Char, Boolean>>,
-    @ColorRes highlightResColor: Int?,
-    context: Context,
+    @ColorRes normalColorRes: Int?, @ColorRes lowLevelColorRes: Int?, context: Context,
     sb: SpannableStringBuilder = SpannableStringBuilder()
 ): SpannableStringBuilder {
-    return getVersionNameSpannableString(
-        rawVersionStringList, if (highlightResColor != null)
-            ContextCompat.getColor(context, highlightResColor) else null,
-        context, sb
-    )
+    val highlightColor = if (normalColorRes != null)
+        ContextCompat.getColor(context, normalColorRes)
+    else null
+    val normalColor = if (lowLevelColorRes != null)
+        ContextCompat.getColor(context, lowLevelColorRes)
+    else null
+    return getVersionNameSpannableString(rawVersionStringList, highlightColor, normalColor, sb)
 }
 
 fun getVersionNameSpannableString(
     rawVersionStringList: List<Pair<Char, Boolean>>,
-    @ColorInt highlightColor: Int?,
-    context: Context,
+    @ColorInt normalColor: Int?, @ColorInt lowLevelColor: Int?,
     sb: SpannableStringBuilder = SpannableStringBuilder()
 ): SpannableStringBuilder {
     rawVersionStringList.forEach {
-        setVersionNumberSpannableStringBuilder(
-            it.first.toString(), sb, it.second, highlightColor,
-            context
+        setSpannableStringBuilderColor(
+            it.first.toString(), sb, if (it.second) normalColor else lowLevelColor
         )
     }
     return sb
 }
 
-private fun setVersionNumberSpannableStringBuilder(
-    s: String, sb: SpannableStringBuilder,
-    focus: Boolean = false, focusColor: Int? = null,
-    context: Context
+private fun setSpannableStringBuilderColor(
+    s: String, sb: SpannableStringBuilder, @ColorInt color: Int?
 ) {
     sb.append(s)
-    val color = when {
-        !focus -> ContextCompat.getColor(context, R.color.text_low_priority_color)
-        focus && focusColor != null -> focusColor
-        else -> null
-    }
-    color?.run {
+    if (color != null) {
         val newLength = sb.length
         sb.setSpan(
-            ForegroundColorSpan(this), newLength - s.length, newLength,
+            ForegroundColorSpan(color), newLength - s.length, newLength,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
-
     }
 }

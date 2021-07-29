@@ -60,7 +60,7 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
     private fun updateInstalledVersion(app: App) {
         app.rawInstalledVersionStringList?.run {
             getShowInstalledVersion(this)?.run {
-                item.renewVersionItem(this, app, getApplication())
+                item.renewVersionItem(app, getApplication())
             }
         }
     }
@@ -68,7 +68,7 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
     private fun getShowInstalledVersion(rawInstalledVersionStringList: List<Pair<Char, Boolean>>?): SpannableStringBuilder? {
         rawInstalledVersionStringList ?: return null
         return getVersionNameSpannableString(
-            rawInstalledVersionStringList, null, getApplication()
+            rawInstalledVersionStringList, null, null
         )
     }
 
@@ -123,7 +123,8 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         versionNumberSpannableStringList =
             versionList.map {
                 getVersionNameSpannableStringWithRes(
-                    it.rawVersionStringList, if (it.isIgnored) R.color.colorPrimary else null,
+                    it.rawVersionStringList,
+                    if (it.isIgnored) R.color.colorPrimary else null, null,
                     getApplication()
                 )
             }

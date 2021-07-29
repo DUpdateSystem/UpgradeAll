@@ -31,8 +31,8 @@ class AppDetailItem : BaseAppIconItem {
 
     override val nameFirst: ObservableField<String> = ObservableField()
 
-    fun renewVersionItem(showingVersion: SpannableStringBuilder?, app: App, context: Context) {
-        versionItem.renew(showingVersion, app, context)
+    fun renewVersionItem(app: App, context: Context) {
+        versionItem.renew(app, context)
     }
 
     fun setAppUrl(app: App) {
