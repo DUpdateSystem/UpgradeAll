@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.core.data.backup.getOrNull
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.module.network.OkHttpApi
@@ -43,6 +44,7 @@ fun getEggDayOnline(): Day? {
     val holidayName: String
     try {
         val json = JSONObject(OkHttpApi.get(logObjectTag, url)?.body?.string() ?: return null)
+        json.getOrNull("holiday") ?: return null
         val holidayJson = json.getJSONObject("holiday")
         holidayName = holidayJson.getString("name")
     } catch (e: JSONException) {
