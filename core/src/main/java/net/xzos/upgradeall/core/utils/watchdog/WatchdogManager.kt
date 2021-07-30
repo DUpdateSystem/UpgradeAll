@@ -1,8 +1,6 @@
 package net.xzos.upgradeall.core.utils.watchdog
 
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
@@ -14,11 +12,9 @@ internal object WatchdogManager {
     var delay: Long = 5000
     private val watchdogItemList = coroutinesMutableListOf<WatchdogItem>(true)
 
-    fun addWatchdog(watchdog: WatchdogItem) {
-        watchdogItemList.add(watchdog)
-        GlobalScope.launch {
+    suspend fun addWatchdog(watchdog: WatchdogItem) {
+        if (watchdogItemList.add(watchdog))
             runRenew()
-        }
     }
 
     fun removeWatchdog(watchdog: WatchdogItem) {
