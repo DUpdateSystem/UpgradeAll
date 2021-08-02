@@ -34,11 +34,11 @@ class CoroutinesMutableMap<K, V>(hash: Boolean = false, map: Map<K, V>? = null) 
     override fun isEmpty(): Boolean = mutableMap.isEmpty()
 
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
-        get() = mutableMap.entries.toMutableSet()
+        get() = mutex.runWithLock { mutableMap.entries.toMutableSet() }
     override val keys: MutableSet<K>
-        get() = mutableMap.keys.toMutableSet()
+        get() = mutex.runWithLock { mutableMap.keys.toMutableSet() }
     override val values: MutableCollection<V>
-        get() = mutableMap.values.toMutableSet()
+        get() = mutex.runWithLock { mutableMap.values.toMutableSet() }
 
     override fun clear() {
         mutex.runWithLock {
@@ -67,4 +67,4 @@ class CoroutinesMutableMap<K, V>(hash: Boolean = false, map: Map<K, V>? = null) 
 
 fun <K, V> coroutinesMutableMapOf(hash: Boolean = false) = CoroutinesMutableMap<K, V>(hash)
 fun <E, V> Map<E, V>.toCoroutinesMutableMap(hash: Boolean = false) =
-        CoroutinesMutableMap(hash, this)
+    CoroutinesMutableMap(hash, this)
