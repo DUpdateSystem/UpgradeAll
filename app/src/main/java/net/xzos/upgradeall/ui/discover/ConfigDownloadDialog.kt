@@ -6,15 +6,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.module.app.getConfigJson
-import net.xzos.upgradeall.core.utils.wait
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 class ConfigDownloadDialog(
@@ -42,12 +39,7 @@ class ConfigDownloadDialog(
                 .setPositiveButton(
                     positiveButtonText
                 ) { _, _ ->
-                    val mutex = Mutex(true)
-                    lifecycleScope.launch {
-                        download()
-                        mutex.unlock()
-                    }
-                    runBlocking { mutex.wait() }
+                    download()
                     changedFun()
                 }.setNegativeButton(
                     R.string.cancel
@@ -58,12 +50,14 @@ class ConfigDownloadDialog(
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
-    private suspend fun download() {
-        downloadApplicationData(uuid)
+    private fun download() {
+        MiscellaneousUtils.showToast(R.string.download_start, Toast.LENGTH_LONG)
+        runBlocking(Dispatchers.Default) {
+            downloadApplicationData(uuid)
+        }
     }
 
     private suspend fun downloadApplicationData(uuid: String) {
-        MiscellaneousUtils.showToast(R.string.download_start, Toast.LENGTH_LONG)
         // 下载数据
         CloudConfigGetter.downloadCloudAppConfig(uuid) {
             MiscellaneousUtils.showToast(getStatusMessage(it), Toast.LENGTH_LONG)
