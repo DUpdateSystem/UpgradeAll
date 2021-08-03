@@ -9,13 +9,11 @@ def grpc_version = '1.39.0'
 def protoc_version = '3.17.2'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 30
-        versionCode 1
-        versionName "0.9"
+        targetSdkVersion 31
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -95,6 +93,7 @@ dependencies {
 
     // Kotlin
     implementation 'androidx.core:core-ktx:1.6.0'
+    //noinspection DifferentStdlibGradleVersion
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     // Shizuku
