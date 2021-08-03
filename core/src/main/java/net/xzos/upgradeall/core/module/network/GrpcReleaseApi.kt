@@ -9,6 +9,7 @@ import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.log.Log
 import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.route.*
+import net.xzos.upgradeall.core.utils.chunked
 import net.xzos.upgradeall.core.utils.coroutines.*
 import net.xzos.upgradeall.core.utils.md5
 import net.xzos.upgradeall.core.utils.watchdog.WatchdogItem
@@ -49,7 +50,10 @@ object GrpcReleaseApi {
         val hubUuid = hubData.hubUuid
         val auth = hubData.auth
         val appItemMap = hubData.getAppItemMap()
-        android.util.Log.e("update record", "initSend: hub_uuid: $hubUuid, size: ${appItemMap.size}")
+        android.util.Log.e(
+            "update record",
+            "initSend: hub_uuid: $hubUuid, size: ${appItemMap.size}"
+        )
         chunkedCallGetAppRelease(hubUuid, auth, appItemMap, appItemMap.size)
     }
 
@@ -60,28 +64,27 @@ object GrpcReleaseApi {
         autoRetryNum: Int = 3,
     ) {
         if (appItemMap.isNotEmpty())
-            appItemMap.map { it.key }.chunked(chunkedSize).forEach { chunkedList ->
+            appItemMap.chunked(chunkedSize).forEach { chunkedMap ->
                 GlobalScope.launch(Dispatchers.IO) {
-                    callGetAppRelease(hubUuid, auth, chunkedList, appItemMap, autoRetryNum)
+                    callGetAppRelease(hubUuid, auth, chunkedMap, autoRetryNum)
                 }
             }
     }
 
     private fun callGetAppRelease(
         hubUuid: String, auth: Map<String, String?>,
-        appIdList: Collection<Map<String, String?>>,
         appItemMap: MutableMap<Map<String, String?>, CoroutinesMutableList<(List<ReleaseListItem>?) -> Unit>>,
         autoRetryNum: Int,
     ) {
         val stub = GrpcApi.getStub()
-            ?.withDeadlineAfter(GrpcApi.getDeadlineMs(appIdList.size), TimeUnit.MILLISECONDS)
+            ?.withDeadlineAfter(GrpcApi.getDeadlineMs(appItemMap.size), TimeUnit.MILLISECONDS)
             ?: return
-        val request = mkReleaseRequestBuilder(hubUuid, appIdList, auth)
-        val finishFun = { callFinishCheck(hubUuid, auth, appIdList, appItemMap, autoRetryNum) }
+        val request = mkReleaseRequestBuilder(hubUuid, appItemMap.keys, auth)
+        val finishFun = { callFinishCheck(hubUuid, auth, appItemMap, autoRetryNum) }
         getNextResponse(stub, request.build(), { i, response ->
             if (i == 0 && !response.validHub) {
                 GrpcApi.invalidHubUuidList.add(hubUuid)
-                callFailCheck(hubUuid, appIdList, appItemMap)
+                callFailCheck(hubUuid, appItemMap)
                 appItemMap.clear()
             } else {
                 val releasePackage = response.release
@@ -89,10 +92,7 @@ object GrpcReleaseApi {
                 val releaseList = if (releasePackage.validData)
                     releasePackage.releaseListList
                 else null
-                appIdList.forEach {
-                    appItemMap[it]?.forEach { it(releaseList) }
-                }
-                appItemMap.remove(appId)
+                appItemMap.remove(appId)?.forEach { it(releaseList) }
             }
         }, { e ->
             Log.w(
@@ -104,7 +104,7 @@ object GrpcReleaseApi {
             ) {
                 GrpcApi.logDeadlineError(
                     "CallGetAppRelease", request.hubUuid,
-                    "hub_uuid: ${hubUuid}, num: ${request.appIdListCount}, cancel: ${appIdList.size}, error:$e"
+                    "hub_uuid: ${hubUuid}, num: ${request.appIdListCount}, cancel: ${appItemMap.size}, error:$e"
                 )
                 GrpcApi.removeStub(stub)
             } else {
@@ -155,7 +155,6 @@ object GrpcReleaseApi {
 
     private fun callFinishCheck(
         hubUuid: String, auth: Map<String, String?>,
-        appIdList: Collection<Map<String, String?>>,
         appItemMap: MutableMap<Map<String, String?>, CoroutinesMutableList<(List<ReleaseListItem>?) -> Unit>>,
         autoRetryNum: Int
     ) {
@@ -170,22 +169,22 @@ object GrpcReleaseApi {
                     hubUuid, auth, appItemMap, autoRetryNum = autoRetryNum - 1
                 )
             } else {
-                callFailCheck(hubUuid, appIdList, appItemMap)
+                callFailCheck(hubUuid, appItemMap)
             }
         }
     }
 
     private fun callFailCheck(
-        hubUuid: String, appIdList: Collection<Map<String, String?>>,
+        hubUuid: String,
         appItemMap: Map<Map<String, String?>, MutableList<(List<ReleaseListItem>?) -> Unit>>,
     ) {
-        val size = appIdList.size
+        val size = appItemMap.size
         if (size > 0) {
             Log.w(
                 GrpcApi.logObjectTag, GrpcApi.TAG,
                 "callGetAppRelease: 放弃请求 hub_uuid: $hubUuid num: $size"
             )
-            appIdList.forEach { appItemMap[it]?.forEach { it(null) } }
+            appItemMap.forEach { it.value.forEach { it(null) } }  // call callback function with fail value
         }
     }
 

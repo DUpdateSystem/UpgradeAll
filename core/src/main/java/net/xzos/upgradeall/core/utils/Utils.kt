@@ -136,3 +136,17 @@ fun openInFileManager(path: String, context: Context) {
 fun <K> Map<K, String?>.cleanBlankValue(): Map<K, String?> {
     return this.filter { !it.value.isNullOrBlank() }
 }
+
+fun <K, V> MutableMap<K, V>.chunked(size: Int): List<MutableMap<K, V>> {
+    val list = mutableListOf<MutableMap<K, V>>()
+    var map = mutableMapOf<K, V>()
+    this.forEach {
+        map[it.key] = it.value
+        if (map.size == size) {
+            list.add(map)
+            map = mutableMapOf()
+        }
+    }
+    list.add(map)
+    return list
+}
