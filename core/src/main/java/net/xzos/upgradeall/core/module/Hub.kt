@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.module
 
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.database.table.HubEntity
@@ -107,15 +108,24 @@ class Hub(private val hubDatabase: HubEntity) {
         return null
     }
 
-    internal suspend fun getAppReleaseList(_appId: Map<String, String?>): List<ReleaseListItem>? {
-        val appId = getValidKey(_appId) ?: return null
-        return GrpcApi.getAppRelease(uuid, hubDatabase.auth, appId, getAppPriority(appId))
-            ?.also {
-                if (it.isEmpty())
-                    unsetActiveApp(appId)
-                else
-                    setActiveApp(appId)
+    internal fun getAppReleaseList(
+        _appId: Map<String, String?>, callback: (List<ReleaseListItem>?) -> Unit
+    ) {
+        val appId = getValidKey(_appId) ?: kotlin.run {
+            callback(null)
+            return
+        }
+        GrpcApi.getAppRelease(uuid, hubDatabase.auth, appId, getAppPriority(appId)) {
+            it?.let {
+                runBlocking {
+                    if (it.isEmpty())
+                        unsetActiveApp(appId)
+                    else
+                        setActiveApp(appId)
+                }
             }
+            callback(it)
+        }
     }
 
     private suspend fun saveDatabase() {

@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.server.update
 
+import android.app.Notification
 import android.content.Context
 import android.content.pm.ServiceInfo
 import android.os.Build
@@ -14,16 +15,18 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) :
     private val updateNotification = UpdateNotification()
 
     override suspend fun doWork(): Result {
-        setForeground(createForegroundInfo(updateNotification))
+        val notificationId = UpdateNotification.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
+        val notification = updateNotification.startUpdateNotification(notificationId)
+        setForeground(createForegroundInfo(notificationId, notification))
         doUpdateWork(updateNotification)
         finishNotify(updateNotification)
         return Result.success()
     }
 
     companion object {
-        private fun createForegroundInfo(updateNotification: UpdateNotification): ForegroundInfo {
-            val notificationId = UpdateNotification.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
-            val notification = updateNotification.startUpdateNotification(notificationId)
+        private fun createForegroundInfo(
+            notificationId: Int, notification: Notification
+        ): ForegroundInfo {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 ForegroundInfo(
                     notificationId, notification,
@@ -34,14 +37,14 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) :
             }
         }
 
-        private suspend fun doUpdateWork(updateNotification: UpdateNotification) {
+        suspend fun doUpdateWork(updateNotification: UpdateNotification) {
             AppManager.renewApp(
                 updateNotification.renewStatusFun,
                 updateNotification.recheckStatusFun
             )
         }
 
-        private fun finishNotify(updateNotification: UpdateNotification) {
+        fun finishNotify(updateNotification: UpdateNotification) {
             updateNotification.updateDone()
             updateNotification.cancelNotification(
                 UpdateNotification.UPDATE_SERVER_RUNNING_NOTIFICATION_ID

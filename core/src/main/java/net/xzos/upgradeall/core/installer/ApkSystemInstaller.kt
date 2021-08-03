@@ -12,7 +12,6 @@ import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.utils.FlagDelegate
 import net.xzos.upgradeall.core.utils.oberver.Informer
-import net.xzos.upgradeall.core.utils.oberver.Informer.Companion.getInformerId
 import java.io.File
 import java.io.IOException
 
@@ -151,5 +150,5 @@ object ApkSystemInstaller : Informer {
         }
     }
 
-    override val informerId: Int = getInformerId()
+    override val informerId: Int = Informer.getInformerId()
 }

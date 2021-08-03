@@ -36,11 +36,13 @@ class WatchdogItem(private var timeoutMs: Long, private var pingMun: Int? = null
         pingTimeMs = Date().time
     }
 
-    internal fun renewStatus() {
-        if (Date().time - pingTimeMs > timeoutMs) {
+    internal fun renewStatus():Boolean {
+        return if (Date().time - pingTimeMs > timeoutMs) {
             stop()
             finish()
-        }
+            false
+        } else
+            true
     }
 
     fun resetTimeout(timeoutMs: Long) {

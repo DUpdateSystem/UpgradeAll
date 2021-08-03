@@ -33,6 +33,10 @@ internal object DataCache {
         cache.anyCacheMap[key] = Pair(value, Calendar.getInstance())
     }
 
+    fun removeAnyCache(key: String) {
+        cache.anyCacheMap.remove(key)
+    }
+
     fun getAppRelease(
         hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>
     ): List<ReleaseListItem>? {

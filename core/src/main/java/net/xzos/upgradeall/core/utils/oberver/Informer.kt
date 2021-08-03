@@ -122,7 +122,7 @@ interface Informer {
 
         private fun getObserverMap(informerId: Int, createNew: Boolean = true): CoroutinesMutableMap<String, CoroutinesMutableList<Any>> {
             return if (createNew)
-                observerMap.get(informerId, coroutinesMutableMapOf(true))
+                observerMap.getOrDefault(informerId, coroutinesMutableMapOf(true))
             else
                 observerMap[informerId] ?: coroutinesMutableMapOf(true)
 
@@ -133,7 +133,7 @@ interface Informer {
         ): CoroutinesMutableList<E> {
             @Suppress("UNCHECKED_CAST")
             return if (createNew)
-                get(key, coroutinesMutableListOf<E>() as CoroutinesMutableList<Any>) as CoroutinesMutableList<E>
+                getOrDefault(key, coroutinesMutableListOf<E>() as CoroutinesMutableList<Any>) as CoroutinesMutableList<E>
             else (this[key] ?: coroutinesMutableListOf(true)) as CoroutinesMutableList<E>
         }
     }

@@ -4,8 +4,6 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.DEF_UPDATE_SERVER_URL
 import net.xzos.upgradeall.core.log.Log
@@ -25,21 +23,38 @@ internal object GrpcApi {
     val invalidHubUuidList = hashSetOf<String>()
 
     private val updateServerUrl get() = coreConfig.update_server_url
-    private val channelList = CoroutinesMutableList<ManagedChannel>(true)
-    private val getterMutex = Mutex()
+    private val stubList = CoroutinesMutableList<UpdateServerRouteGrpc.UpdateServerRouteStub>(true)
+    private var channel: ManagedChannel? = newChannel()
 
-    suspend fun getChannel(): ManagedChannel? {
-        return getterMutex.withLock {
-            if (channelList.size >= 3) {
-                channelList.random().apply { resetConnectBackoff() }
-            } else {
-                newChannel()
+    fun renewChannel() {
+        channel?.shutdown()
+        stubList.clear()
+        channel = newChannel()
+    }
+
+    fun getStub(): UpdateServerRouteGrpc.UpdateServerRouteStub? {
+        return if (stubList.size >= 3)
+            stubList.random()
+        else
+            UpdateServerRouteGrpc.newStub(channel ?: return null)?.apply {
+                stubList.add(this)
             }
+    }
+
+    fun getDeadlineMs(num: Int): Long {
+        return when {
+            num <= 3 -> deadlineMs
+            num <= 20 -> deadlineMs * num
+            else -> 600000L  // 10min
         }
     }
 
+    fun removeStub(stub: UpdateServerRouteGrpc.UpdateServerRouteStub) {
+        stubList.remove(stub)
+    }
+
     private fun newChannel(): ManagedChannel? {
-        val channel = try {
+        return try {
             ManagedChannelBuilder.forTarget(updateServerUrl).usePlaintext().build()
         } catch (e: URISyntaxException) {
             Log.e(logObjectTag, TAG, "gRPC 接口地址格式有误，${e.msg()}")
@@ -47,9 +62,6 @@ internal object GrpcApi {
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, "gRPC 初始化失败，${e.msg()}")
             null
-        }
-        return channel?.apply {
-            channelList.add(this)
         }
     }
 
@@ -63,8 +75,7 @@ $appIdString""".trimIndent()
 
     @Suppress("RedundantSuspendModifier")
     suspend fun getCloudConfig(): String? {
-        val channel = getChannel() ?: return null
-        val blockingStub = UpdateServerRouteGrpc.newBlockingStub(channel)
+        val blockingStub = UpdateServerRouteGrpc.newBlockingStub(channel ?: return null)
         return try {
             blockingStub.withDeadlineAfter(deadlineMs, TimeUnit.MILLISECONDS)
                 .getCloudConfig(Str.newBuilder().setS("dev").build()).s
@@ -74,16 +85,21 @@ $appIdString""".trimIndent()
         }
     }
 
-    suspend fun getAppRelease(
-        hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>, priority: Int
-    ): List<ReleaseListItem>? {
-        return if (hubUuid in invalidHubUuidList) {
-            null
+    fun getAppRelease(
+        hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>, priority: Int,
+        callback: (List<ReleaseListItem>?) -> Unit
+    ) {
+        if (hubUuid in invalidHubUuidList) {
+            callback(null)
         } else {
-            DataCache.getAppRelease(hubUuid, auth, appId)
-                ?: GrpcReleaseApi.getAppRelease(hubUuid, auth, appId, priority)?.also {
+            DataCache.getAppRelease(hubUuid, auth, appId)?.also {
+                callback(it)
+            } ?: GrpcReleaseApi.getAppRelease(hubUuid, auth, appId, priority) {
+                it?.let {
                     DataCache.cacheAppStatus(hubUuid, auth, appId, it)
                 }
+                callback(it)
+            }
         }
     }
 
@@ -95,8 +111,7 @@ $appIdString""".trimIndent()
         assetIndex: Pair<Int, Int>
     ): GetDownloadResponse? {
         if (hubUuid in invalidHubUuidList) return null
-        val channel = getChannel() ?: return null
-        val blockingStub = UpdateServerRouteGrpc.newBlockingStub(channel)
+        val blockingStub = UpdateServerRouteGrpc.newBlockingStub(channel ?: return null)
         val request = GetDownloadRequest.newBuilder()
             .setHubUuid(hubUuid)
             .addAllAppId(appId.togRPCDict()).addAllAssetIndex(assetIndex.toList())

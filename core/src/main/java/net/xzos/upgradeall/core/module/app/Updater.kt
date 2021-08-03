@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.module.app
 
+import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.module.app.data.DataGetter
 import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.module.app.version.VersionUtils
@@ -52,8 +53,9 @@ class Updater internal constructor(
     }
 
     suspend fun getReleaseStatusWaitRenew(): Int {
-        dataStorage.renewMutex.wait()
-        return getReleaseStatus()
+        return dataStorage.renewMutex.withLock {
+            getReleaseStatus()
+        }
     }
 
     internal fun getInstalledVersionNumber(): String? {

@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.manager
 
 import android.database.sqlite.SQLiteConstraintException
+import android.util.Log
 import kotlinx.coroutines.*
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
@@ -42,7 +43,7 @@ object AppManager : Informer {
     }
 
     private fun getAppList(key: Int): CoroutinesMutableList<App> {
-        return appMap.get(key, coroutinesMutableListOf(true))
+        return appMap.getOrDefault(key, coroutinesMutableListOf(true))
     }
 
     private fun removeAppList(app: App) {
@@ -146,19 +147,22 @@ object AppManager : Informer {
     private suspend fun renewAppList(
         appList: List<App>,
         statusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null,
-    ): Int {
+    ): List<App> {
         val count = CoroutinesCount(appList.size)
         val totalAppNum = appList.size
+        Log.e("update record", "renew size start: $totalAppNum")
         coroutineScope {
             for (app in appList) {
-                launch(Dispatchers.IO) {
+                launch {
                     renewApp(app)
                     count.down()
+                    Log.e("update record", "count: ${count.count}, app: ${app.appId}")
                     statusFun?.run { this(count.count, totalAppNum) }
                 }
             }
         }
-        return appList.size
+        Log.e("update record", "renew size finish: $totalAppNum")
+        return appList
     }
 
     suspend fun renewApp(app: App) {
