@@ -150,18 +150,18 @@ object AppManager : Informer {
     ): List<App> {
         val count = CoroutinesCount(appList.size)
         val totalAppNum = appList.size
-        Log.e("update record", "renew size start: $totalAppNum")
+        Log.w("update record", "renew size start: $totalAppNum")
         coroutineScope {
             for (app in appList) {
                 launch {
                     renewApp(app)
                     count.down()
-                    Log.e("update record", "count: ${count.count}, app: ${app.appId}")
+                    Log.w("update record", "count: ${count.count}, app: ${app.appId}")
                     statusFun?.run { this(count.count, totalAppNum) }
                 }
             }
         }
-        Log.e("update record", "renew size finish: $totalAppNum")
+        Log.w("update record", "renew size finish: $totalAppNum")
         return appList
     }
 

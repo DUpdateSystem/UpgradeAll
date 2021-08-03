@@ -50,7 +50,7 @@ object GrpcReleaseApi {
         val hubUuid = hubData.hubUuid
         val auth = hubData.auth
         val appItemMap = hubData.getAppItemMap()
-        android.util.Log.e(
+        android.util.Log.w(
             "update record",
             "initSend: hub_uuid: $hubUuid, size: ${appItemMap.size}"
         )
