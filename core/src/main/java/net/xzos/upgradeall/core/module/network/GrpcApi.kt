@@ -4,6 +4,7 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
+import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.DEF_UPDATE_SERVER_URL
 import net.xzos.upgradeall.core.log.Log
@@ -11,7 +12,7 @@ import net.xzos.upgradeall.core.log.ObjectTag
 import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.route.*
-import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.utils.runWithLock
 import java.net.URISyntaxException
 import java.util.concurrent.TimeUnit
 
@@ -23,22 +24,27 @@ internal object GrpcApi {
     val invalidHubUuidList = hashSetOf<String>()
 
     private val updateServerUrl get() = coreConfig.update_server_url
-    private val stubList = CoroutinesMutableList<UpdateServerRouteGrpc.UpdateServerRouteStub>(true)
     private var channel: ManagedChannel? = newChannel()
+    private val stubList = hashSetOf<UpdateServerRouteGrpc.UpdateServerRouteStub>()
+    private val stubListMutex = Mutex()
 
     fun renewChannel() {
-        channel?.shutdown()
-        stubList.clear()
-        channel = newChannel()
+        stubListMutex.runWithLock {
+            channel?.shutdown()
+            stubList.clear()
+            channel = newChannel()
+        }
     }
 
     fun getStub(): UpdateServerRouteGrpc.UpdateServerRouteStub? {
-        return if (stubList.size >= 3)
-            stubList.random()
-        else
-            UpdateServerRouteGrpc.newStub(channel ?: return null)?.apply {
-                stubList.add(this)
-            }
+        return stubListMutex.runWithLock {
+            if (stubList.size >= 3)
+                stubList.random()
+            else
+                UpdateServerRouteGrpc.newStub(channel ?: return@runWithLock null)?.apply {
+                    stubList.add(this)
+                }
+        }
     }
 
     fun getDeadlineMs(num: Int): Long {
@@ -50,7 +56,9 @@ internal object GrpcApi {
     }
 
     fun removeStub(stub: UpdateServerRouteGrpc.UpdateServerRouteStub) {
-        stubList.remove(stub)
+        stubListMutex.runWithLock {
+            stubList.remove(stub)
+        }
     }
 
     private fun newChannel(): ManagedChannel? {
