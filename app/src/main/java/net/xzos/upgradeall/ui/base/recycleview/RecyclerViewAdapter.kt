@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.base.recycleview
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleCoroutineScope
@@ -16,11 +17,13 @@ abstract class RecyclerViewAdapter<LT, L : ListItemView, RHA : RecyclerViewHandl
     abstract val handler: RHA?
     lateinit var lifecycleScope: LifecycleCoroutineScope
 
-    private var dataSet: List<LT> = listOf<LT>().also { setHasStableIds(true) }
+    private val dataSet: MutableList<LT> = mutableListOf<LT>().also { setHasStableIds(true) }
 
     fun setAdapterData(list: List<LT>, changedPosition: Int, changedTag: String) {
-        dataSet = list
+        dataSet.clear()
+        dataSet.addAll(list)
         runUiFun {
+            @SuppressLint("NotifyDataSetChanged")
             when (changedTag) {
                 RENEW -> notifyDataSetChanged()
                 ADD -> notifyItemInserted(changedPosition)
