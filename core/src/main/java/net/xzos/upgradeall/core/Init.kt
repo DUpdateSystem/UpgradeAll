@@ -10,6 +10,7 @@ import net.xzos.upgradeall.core.installer.ApkShizukuInstaller
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.network.GrpcApi
+import net.xzos.upgradeall.core.module.network.renewChannel
 
 
 @SuppressLint("StaticFieldLeak")
@@ -34,7 +35,7 @@ fun initCore(
     downloaderNotificationMaker?.run { DownloadService.setNotificationMaker(this) }
     activity?.run { ApkShizukuInstaller.initByActivity(this, 1) }
     initObject()
-    GrpcApi.renewChannel()
+    renewChannel(false)
 }
 
 // 提前初始化 Object，避免多线程时属性初始化错误

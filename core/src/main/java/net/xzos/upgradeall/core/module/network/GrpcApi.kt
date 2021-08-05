@@ -16,6 +16,10 @@ import net.xzos.upgradeall.core.utils.runWithLock
 import java.net.URISyntaxException
 import java.util.concurrent.TimeUnit
 
+fun renewChannel(shutdownNow: Boolean) {
+    GrpcApi.renewChannel(shutdownNow)
+}
+
 internal object GrpcApi {
     internal const val TAG = "GrpcApi"
     internal val logObjectTag = ObjectTag(core, TAG)
@@ -28,9 +32,11 @@ internal object GrpcApi {
     private val stubList = hashSetOf<UpdateServerRouteGrpc.UpdateServerRouteStub>()
     private val stubListMutex = Mutex()
 
-    fun renewChannel() {
+    fun renewChannel(shutdownNow: Boolean) {
         stubListMutex.runWithLock {
-            channel?.shutdown()
+            if (shutdownNow)
+                channel?.shutdownNow()
+            else channel?.shutdown()
             stubList.clear()
             channel = newChannel()
         }

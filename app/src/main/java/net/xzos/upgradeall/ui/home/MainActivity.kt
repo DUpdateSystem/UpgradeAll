@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.Updater
+import net.xzos.upgradeall.core.module.network.renewChannel
 import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
@@ -22,6 +23,7 @@ import net.xzos.upgradeall.ui.home.adapter.*
 import net.xzos.upgradeall.ui.hubmanager.HubManagerActivity
 import net.xzos.upgradeall.ui.log.LogActivity
 import net.xzos.upgradeall.ui.preference.SettingsActivity
+import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.ToastUtil
 import net.xzos.upgradeall.utils.UxUtils
 import net.xzos.upgradeall.utils.runUiFun
@@ -81,6 +83,12 @@ class MainActivity : BaseActivity() {
         binding.layoutUpdatingCard.apply {
             layoutCard.setOnClickListener {
                 checkUpdate()
+            }
+            layoutCard.setOnLongClickListener {
+                renewChannel(true)
+                MiscellaneousUtils.showToast(R.string.force_renew)
+                checkUpdate()
+                true
             }
         }
     }

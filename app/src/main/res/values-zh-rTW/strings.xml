@@ -212,6 +212,7 @@
     <string name="home_log">日誌</string>
     <string name="home_settings">設定</string>
     <string name="home_about">關於</string>
+    <string name="force_renew">強制更新</string>
 
     <!--  Hub  -->
     <string name="hub_tab_updates">更新</string>
