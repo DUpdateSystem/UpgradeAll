@@ -218,7 +218,7 @@ object AppManager : Informer {
 
     private fun getAppByDatabase(appEntity: AppEntity): App? {
         appList.forEach {
-            if (it.appDatabase == appEntity)
+            if (it.appDatabase.id == appEntity.id)
                 return it
         }
         return null
@@ -255,12 +255,7 @@ object AppManager : Informer {
     }
 
     private suspend fun addAppMap(appDatabase: AppEntity): App {
-        val oldApp = if (appDatabase.isInit()) getAppByDatabase(appDatabase).apply {
-        } else {
-            getAppById(appDatabase.appId)?.apply {
-                this.appDatabase.name = appDatabase.name
-            }
-        }
+        val oldApp = getAppByDatabase(appDatabase) ?: getAppById(appDatabase.appId)
         val changedTag = if (oldApp != null)
             APP_DATABASE_CHANGED_NOTIFY
         else APP_ADDED_NOTIFY

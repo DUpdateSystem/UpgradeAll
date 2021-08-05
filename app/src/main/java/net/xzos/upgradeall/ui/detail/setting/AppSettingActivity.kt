@@ -99,9 +99,7 @@ class AppSettingActivity : AppBarActivity() {
             binding.loadingBar.visibility = View.VISIBLE
 
             lifecycleScope.launch {
-                val appEntityR = withContext(Dispatchers.Default) {
-                    AppManager.updateApp(appEntity)
-                }
+                val appEntityR = AppManager.updateApp(appEntity)
                 runUiFun {
                     if (appEntityR != null)
                         finish()
