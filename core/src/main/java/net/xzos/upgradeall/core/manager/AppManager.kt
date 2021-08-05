@@ -165,6 +165,10 @@ object AppManager : Informer {
         return appList
     }
 
+    /**
+     * 刷新指定 App 项的版本数据
+     * @param app 需要重新刷新的 App 项
+     */
     suspend fun renewApp(app: App) {
         notifyChanged(DATA_UPDATING_NOTIFY, app)
         app.update()
@@ -268,7 +272,7 @@ object AppManager : Informer {
     }
 
     /**
-     * 删除这个 App，包括数据库
+     * 删除这个 App 项，包括存储其数据的数据库行
      */
     suspend fun removeApp(app: App) {
         metaDatabase.appDao().delete(app.appDatabase)

@@ -18,7 +18,7 @@ class AppReceiver : BroadcastReceiver() {
         runBlocking {
             when (intent.action) {
                 Intent.ACTION_PACKAGE_ADDED -> addApp(context, packageName)
-                Intent.ACTION_PACKAGE_REPLACED -> addApp(context, packageName)
+                Intent.ACTION_PACKAGE_REPLACED -> renewApp(packageName)
                 Intent.ACTION_PACKAGE_REMOVED -> delApp(packageName)
             }
         }
@@ -44,6 +44,13 @@ class AppReceiver : BroadcastReceiver() {
                 return
             }
             AppManager.updateApp(appInfo.toAppEntity())
+        }
+
+        private suspend fun renewApp(packageName: String) {
+            AppManager.getAppList(ANDROID_APP_TYPE)
+                .filter { it.appId.values.contains(packageName) }.forEach {
+                    AppManager.renewApp(it)
+                }
         }
 
         private suspend fun delApp(packageName: String) {
