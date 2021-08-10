@@ -80,7 +80,10 @@ object OkHttpApi {
         if (retryNum < 0)
             throw SocketTimeoutException("$TAG, callRequestWithRetry: no retry")
         else return try {
-            callRequest(request)
+            val response = callRequest(request)
+            if (response.code == 408)
+                callRequestWithRetry(request, retryNum - 1)
+            else response
         } catch (e: SocketTimeoutException) {
             callRequestWithRetry(request, retryNum - 1)
         }

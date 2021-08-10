@@ -12,16 +12,16 @@ object ServerApi {
         hubUuid: String,
         auth: Map<String, String>,
         appId: Map<String, String>,
-        callback: (ReleaseGson?) -> Unit
+        callback: (List<ReleaseGson>?) -> Unit
     ) {
         if (hubUuid in GrpcApi.invalidHubUuidList) {
             callback(null)
         } else {
             DataCache.getAppRelease(hubUuid, auth, appId)?.also {
-                callback(it.firstOrNull())
+                callback(it)
             } ?: WebApi.getAppRelease(hubUuid, auth, appId) {
                 it?.let {
-                    DataCache.cacheAppStatus(hubUuid, auth, appId, listOf(it))
+                    DataCache.cacheAppStatus(hubUuid, auth, appId, it)
                 }
                 callback(it)
             }
