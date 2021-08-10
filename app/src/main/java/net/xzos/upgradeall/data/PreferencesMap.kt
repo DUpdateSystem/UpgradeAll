@@ -177,7 +177,7 @@ object PreferencesMap {
     private fun syncCoreConfig() {
         val coreConfig = CoreConfig(
             androidContext = MyApplication.context,
-            data_expiration_time = 10,
+            data_expiration_time = 20,
             update_server_url = update_server_url,
             cloud_rules_hub_url = cloud_rules_hub_url,
             download_document_file = FileUtil.DOWNLOAD_DOCUMENT_FILE,
