@@ -10,14 +10,17 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
-import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 
 object OkHttpApi {
 
     private const val TAG = "OkHttpApi"
+    private val dispatcher = Dispatcher().apply {
+        maxRequests = 128
+    }
     private val okHttpClient = OkHttpClient().newBuilder()
+        .dispatcher(dispatcher)
         .callTimeout(15, TimeUnit.SECONDS)
         .connectTimeout(15, TimeUnit.SECONDS)
         .build()
@@ -38,9 +41,14 @@ object OkHttpApi {
         return callCore(objectTag, url) { post(url, headers, bodyType, bodyText) }
     }
 
-    fun get(url: String, headers: Map<String, String> = mapOf(), retryNum: Int = 0): Response {
+    fun get(url: String, headers: Map<String, String> = mapOf(), callback: Callback) {
         val request = makeRequest(url, headers)
-        return callRequestWithRetry(request.build(), retryNum)
+        okHttpClient.newCall(request.build()).enqueue(callback)
+    }
+
+    fun get(url: String, headers: Map<String, String> = mapOf()): Response {
+        val request = makeRequest(url, headers)
+        return callRequest(request.build())
     }
 
     fun post(
@@ -74,19 +82,6 @@ object OkHttpApi {
         }
         val request = makeRequest(url, headers)
         return callRequest(request.post(body).build())
-    }
-
-    private fun callRequestWithRetry(request: Request, retryNum: Int): Response {
-        if (retryNum < 0)
-            throw SocketTimeoutException("$TAG, callRequestWithRetry: no retry")
-        else return try {
-            val response = callRequest(request)
-            if (response.code == 408)
-                callRequestWithRetry(request, retryNum - 1)
-            else response
-        } catch (e: SocketTimeoutException) {
-            callRequestWithRetry(request, retryNum - 1)
-        }
     }
 
     private fun callRequest(request: Request): Response = okHttpClient.newCall(request).execute()

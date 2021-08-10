@@ -4,6 +4,8 @@ import net.xzos.upgradeall.core.data.json.DownloadItem
 import net.xzos.upgradeall.core.data.json.ReleaseGson
 
 object ServerApi {
+    internal val invalidHubUuidList = hashSetOf<String>()
+
     fun getCloudConfig(): String? {
         return WebApi.getCloudConfig()
     }
@@ -14,17 +16,17 @@ object ServerApi {
         appId: Map<String, String>,
         callback: (List<ReleaseGson>?) -> Unit
     ) {
-        if (hubUuid in GrpcApi.invalidHubUuidList) {
+        if (hubUuid in invalidHubUuidList) {
             callback(null)
         } else {
             DataCache.getAppRelease(hubUuid, auth, appId)?.also {
                 callback(it)
-            } ?: WebApi.getAppRelease(hubUuid, auth, appId) {
+            } ?: WebApi.getAppRelease(hubUuid, auth, appId, {
                 it?.let {
                     DataCache.cacheAppStatus(hubUuid, auth, appId, it)
                 }
                 callback(it)
-            }
+            })
         }
     }
 
@@ -32,17 +34,17 @@ object ServerApi {
         hubUuid: String, auth: Map<String, String>,
         appId: Map<String, String>, callback: (List<ReleaseGson>?) -> Unit
     ) {
-        if (hubUuid in GrpcApi.invalidHubUuidList) {
+        if (hubUuid in invalidHubUuidList) {
             callback(null)
         } else {
             DataCache.getAppRelease(hubUuid, auth, appId)?.also {
                 callback(it)
-            } ?: WebApi.getAppReleaseList(hubUuid, auth, appId) {
+            } ?: WebApi.getAppReleaseList(hubUuid, auth, appId, {
                 it?.let {
                     DataCache.cacheAppStatus(hubUuid, auth, appId, it)
                 }
                 callback(it)
-            }
+            })
         }
     }
 
