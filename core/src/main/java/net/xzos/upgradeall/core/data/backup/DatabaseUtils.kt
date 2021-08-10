@@ -45,7 +45,7 @@ fun parseAppEntityConfig(json: JSONObject): AppEntity {
     return AppEntity(
             0,
             json.getString("name"),
-            converters.stringToMap(json.getString("app_id")),
+            converters.stringToMap(json.getString("app_id")) as Map<String, String>,
             json.getOrNull("ignore_version_number"),
             cloudConfig = converters.stringToAppConfigGson(json.getString("cloud_config")),
     )
@@ -55,7 +55,7 @@ fun parseHubEntityConfig(json: JSONObject): HubEntity {
     return HubEntity(
             json.getString("uuid"),
             converters.stringToHubConfigGson(json.getString("hub_config")),
-            converters.stringToMap(json.getOrNull("auth")),
+            converters.stringToMap(json.getOrNull("auth")) as MutableMap<String, String>,
             converters.stringToCoroutinesMutableListMap(json.getOrNull("ignore_app_id_list")),
     )
 }

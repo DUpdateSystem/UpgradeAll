@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.module.app.data
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.xzos.upgradeall.core.data.json.ReleaseGson
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version_item.Asset
@@ -54,20 +55,20 @@ internal class DataGetter(private val dataStorage: DataStorage) {
         mutex.wait()
     }
 
-    private fun renewVersionList(hub: Hub, callback: (List<ReleaseListItem>?) -> Unit) {
+    private fun renewVersionList(hub: Hub, callback: (List<ReleaseGson>?) -> Unit) {
         hub.getAppReleaseList(dataStorage.appDatabase.appId) {
             it?.let { runBlocking { setVersionMap(hub, it) } }
             callback(it)
         }
     }
 
-    private suspend fun setVersionMap(hub: Hub, releaseList: List<ReleaseListItem>) {
+    private suspend fun setVersionMap(hub: Hub, releaseList: List<ReleaseGson>) {
         val assetsList = mutableListOf<Asset>()
         releaseList.forEachIndexed { versionIndex, release ->
             val versionNumber = release.versionNumber
             val asset = Asset.newInstance(
-                versionNumber, hub, release.changeLog,
-                release.assetsList.mapIndexed { assetIndex, assetItem ->
+                versionNumber, hub, release.changelog,
+                release.assetList.mapIndexed { assetIndex, assetItem ->
                     Asset.Companion.TmpFileAsset(
                         assetItem.fileName,
                         assetItem.downloadUrl,

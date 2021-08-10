@@ -77,7 +77,7 @@ class AppSettingActivity : AppBarActivity() {
         val name = binding.nameEdit.text.toString()
         val invalidVersionNumberFieldRegex =
             binding.invalidVersionNumberFieldRegexEdit.text.toString()
-        val appId = attrMap
+        val appId = attrMap.filterValues { it.isNullOrBlank() } as Map<String, String>
         if (name.isBlank()) {
             binding.nameEdit.error = getString(R.string.helper_text_cant_be_empty)
             return

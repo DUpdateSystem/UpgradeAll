@@ -9,7 +9,7 @@ import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.openInFileManager
 
 class FileTasker internal constructor(
-    appId: Map<String, String?>, internal val fileAsset: FileAsset,
+    appId: Map<String, String>, internal val fileAsset: FileAsset,
     downloadInfoList: List<DownloadInfoItem>? = null
 ) {
     val id: Int = getTaskerIndex()
@@ -99,7 +99,7 @@ class FileTasker internal constructor(
         private fun getTaskerIndex(): Int = TASKER_INDEX.up()
 
         fun FileAsset.getFileTasker(
-            appId: Map<String, String?>, downloadInfoList: List<DownloadInfoItem>? = null
+            appId: Map<String, String>, downloadInfoList: List<DownloadInfoItem>? = null
         ) = FileTasker(appId, this, downloadInfoList)
     }
 }

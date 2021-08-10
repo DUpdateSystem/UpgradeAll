@@ -32,7 +32,7 @@ class AppConfigGson(
         @SerializedName("name") val name: String,
         @SerializedName("url") var url: String,
         @SerializedName("desc") var desc: String?,
-        @SerializedName("extra_map") var extraMap: Map<String, String?>,
+        @SerializedName("extra_map") var extraMap: Map<String, String>,
     )
 
     override fun toString(): String {
@@ -40,7 +40,7 @@ class AppConfigGson(
     }
 }
 
-fun AppConfigGson.getAppId(): Map<String, String?>? {
+fun AppConfigGson.getAppId(): Map<String, String>? {
     val hubConfig = CloudConfigGetter.getHubCloudConfig(baseHubUuid) ?: return null
     return info.extraMap.plus(
         AutoTemplate.urlToAppId(info.url, hubConfig.appUrlTemplates) ?: mapOf()

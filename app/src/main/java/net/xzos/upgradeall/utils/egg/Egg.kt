@@ -43,7 +43,9 @@ fun getEggDayOnline(): Day? {
     val url = "http://timor.tech/api/holiday/info/$year-$month-$day"
     val holidayName: String
     try {
-        val json = JSONObject(OkHttpApi.get(logObjectTag, url)?.body?.string() ?: return null)
+        val json = JSONObject(
+            OkHttpApi.getWithoutError(logObjectTag, url)?.body?.string() ?: return null
+        )
         json.getOrNull("holiday") ?: return null
         val holidayJson = json.getJSONObject("holiday")
         holidayName = holidayJson.getString("name")

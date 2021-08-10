@@ -107,10 +107,10 @@ $appIdString""".trimIndent()
             callback(null)
         } else {
             DataCache.getAppRelease(hubUuid, auth, appId)?.also {
-                callback(it)
+                //callback(it)
             } ?: GrpcReleaseApi.getAppRelease(hubUuid, auth, appId, priority) {
                 it?.let {
-                    DataCache.cacheAppStatus(hubUuid, auth, appId, it)
+                    //DataCache.cacheAppStatus(hubUuid, auth, appId, it)
                 }
                 callback(it)
             }

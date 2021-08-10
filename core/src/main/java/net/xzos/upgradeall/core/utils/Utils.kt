@@ -7,6 +7,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -133,8 +135,8 @@ fun openInFileManager(path: String, context: Context) {
     context.startActivity(intent)
 }
 
-fun <K> Map<K, String?>.cleanBlankValue(): Map<K, String?> {
-    return this.filter { !it.value.isNullOrBlank() }
+fun <K> Map<K, String?>.cleanBlankValue(): Map<K, String> {
+    return this.filterNot { it.value.isNullOrBlank() } as Map<K, String>
 }
 
 fun <K, V> MutableMap<K, V>.chunked(size: Int): List<MutableMap<K, V>> {
@@ -149,4 +151,9 @@ fun <K, V> MutableMap<K, V>.chunked(size: Int): List<MutableMap<K, V>> {
     }
     list.add(map)
     return list
+}
+
+fun getJsonMap(json:String):Map<String,String>{
+    val type = object : TypeToken<Map<String, String>>() {}.type
+    return Gson().fromJson(json, type)
 }

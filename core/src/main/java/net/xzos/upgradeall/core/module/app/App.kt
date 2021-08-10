@@ -18,7 +18,7 @@ class App(
     private val updater = Updater(dataStorage, statusRenewedFun)
 
     /* App 对象的属性字典 */
-    val appId: Map<String, String?> get() = appDatabase.appId
+    val appId: Map<String, String> get() = appDatabase.appId
 
     /* App 名称 */
     val name get() = appDatabase.name

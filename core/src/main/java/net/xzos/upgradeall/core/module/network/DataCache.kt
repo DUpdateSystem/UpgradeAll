@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.core.module.network
 
 import net.xzos.upgradeall.core.coreConfig
-import net.xzos.upgradeall.core.route.ReleaseListItem
+import net.xzos.upgradeall.core.data.json.ReleaseGson
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import java.util.*
@@ -39,7 +39,7 @@ internal object DataCache {
 
     fun getAppRelease(
         hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>
-    ): List<ReleaseListItem>? {
+    ): List<ReleaseGson>? {
         val key = hubUuid + auth + appId
         cache.appReleaseMap[key]?.also {
             if (!it.isExpired()) {
@@ -51,16 +51,17 @@ internal object DataCache {
 
     fun cacheAppStatus(
         hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>,
-        releaseList: List<ReleaseListItem>?
+        releaseList: List<ReleaseGson>?
     ) {
         val key = hubUuid + auth + appId
-        cache.appReleaseMap[key] = Pair(releaseList, Calendar.getInstance())
+        if (cache.appReleaseMap[key]?.first != releaseList)
+            cache.appReleaseMap[key] = Pair(releaseList, Calendar.getInstance())
     }
 
     data class Cache(
         internal val anyCacheMap: CoroutinesMutableMap<String,
                 Pair<Any, Calendar>> = coroutinesMutableMapOf(true),
         internal val appReleaseMap: CoroutinesMutableMap<String,
-                Pair<List<ReleaseListItem>?, Calendar>> = coroutinesMutableMapOf(true)
+                Pair<List<ReleaseGson>?, Calendar>> = coroutinesMutableMapOf(true)
     )
 }

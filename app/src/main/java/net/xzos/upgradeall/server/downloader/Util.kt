@@ -14,7 +14,7 @@ import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 suspend fun startDownload(
-    appId: Map<String, String?>, fileAsset: FileAsset,
+    appId: Map<String, String>, fileAsset: FileAsset,
     taskStartedFun: (Int) -> Unit, taskStartFailedFun: (Throwable) -> Unit, downloadOb: DownloadOb,
     context: Context, externalDownload: Boolean,
 ) {

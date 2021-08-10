@@ -22,7 +22,7 @@ class Asset private constructor(
             val name: String,
             /* 默认下载链接 */
             internal val downloadUrl: String,
-            internal val fileType: String,
+            internal val fileType: String?,
             internal val assetIndex: Pair<Int, Int>,
         )
 

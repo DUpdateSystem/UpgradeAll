@@ -16,6 +16,7 @@ import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.network.DataCache
 import net.xzos.upgradeall.core.module.network.GrpcApi
 import net.xzos.upgradeall.core.module.network.OkHttpApi
+import net.xzos.upgradeall.core.module.network.ServerApi
 import net.xzos.upgradeall.core.utils.wait
 
 
@@ -60,8 +61,8 @@ object CloudConfigGetter {
     private suspend fun getCloudConfigFromWeb(url: String?): CloudConfigList? {
         val jsonText = if (url != null)
             @Suppress("BlockingMethodInNonBlockingContext")
-            OkHttpApi.get(objectTag, url)?.body?.string()
-        else GrpcApi.getCloudConfig()
+            OkHttpApi.getWithoutError(objectTag, url)?.body?.string()
+        else ServerApi.getCloudConfig()
         return if (!jsonText.isNullOrEmpty()) {
             try {
                 Gson().fromJson(jsonText, CloudConfigList::class.java)

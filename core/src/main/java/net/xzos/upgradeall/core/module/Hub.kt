@@ -3,10 +3,11 @@ package net.xzos.upgradeall.core.module
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
+import net.xzos.upgradeall.core.data.json.ReleaseGson
 import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.network.GrpcApi
+import net.xzos.upgradeall.core.module.network.ServerApi
 import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.utils.AutoTemplate
 
@@ -109,13 +110,13 @@ class Hub(private val hubDatabase: HubEntity) {
     }
 
     internal fun getAppReleaseList(
-        _appId: Map<String, String?>, callback: (List<ReleaseListItem>?) -> Unit
+        _appId: Map<String, String?>, callback: (List<ReleaseGson>?) -> Unit
     ) {
         val appId = getValidKey(_appId) ?: kotlin.run {
             callback(null)
             return
         }
-        GrpcApi.getAppRelease(uuid, hubDatabase.auth, appId, getAppPriority(appId)) {
+        ServerApi.getAppReleaseList(uuid, hubDatabase.auth, appId) {
             it?.let {
                 runBlocking {
                     if (it.isEmpty())
