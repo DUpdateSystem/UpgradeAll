@@ -46,7 +46,7 @@ internal object WebApi {
                         val release = Gson().fromJson(responseStr, ReleaseGson::class.java)
                         callback(listOf(release))
                     }
-                    410 -> callback(listOf())
+                    410 -> callback(emptyList())
                     else -> {
                         Log.e(objectTag, TAG, "getAppRelease: $it")
                         callback(null)
@@ -75,7 +75,7 @@ internal object WebApi {
                         val releaseList = Gson().fromJson<List<ReleaseGson>>(responseStr, listType)
                         callback(releaseList)
                     }
-                    410 -> callback(listOf())
+                    410 -> callback(emptyList())
                     else -> {
                         Log.e(objectTag, TAG, "getAppReleaseList: $it")
                         callback(null)
@@ -95,6 +95,7 @@ internal object WebApi {
         val url = "http://$host/v1/app/$hubUuid/${appIdPath}/extra_download/$assetIndexPath"
         val response = callApiCore { OkHttpApi.get(url, authHeader) }
         val responseStr = response?.body?.string()
+        if (responseStr.isNullOrBlank())return emptyList()
         val listType = object : TypeToken<ArrayList<DownloadItem>>() {}.type
         return Gson().fromJson(responseStr, listType)
     }
