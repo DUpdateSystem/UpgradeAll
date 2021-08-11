@@ -19,7 +19,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.route.ReleaseListItem
+import net.xzos.upgradeall.core.data.json.gson.ReleaseGson
 import net.xzos.upgradeall.core.server_manager.module.app.*
 import net.xzos.upgradeall.data.constants.OnceTag
 import net.xzos.upgradeall.ui.activity.BaseActivity
@@ -35,7 +35,7 @@ class AppDetailActivity : BaseActivity() {
     private lateinit var app: App
 
     private var versioningPosition: Int = 0
-    private val releaseInfoList: List<ReleaseListItem> by lazy {
+    private val releaseInfoList: List<ReleaseGson> by lazy {
         return@lazy try {
             runBlocking { app.getReleaseList() } ?: listOf()
         } catch (ignore: NetworkOnMainThreadException) {
@@ -138,9 +138,9 @@ class AppDetailActivity : BaseActivity() {
 
     private fun showDownloadDialog() {
         val fileNameList = if (versioningPosition < releaseInfoList.size)
-            releaseInfoList[versioningPosition].assetsList?.map { asset ->
+            releaseInfoList[versioningPosition].assetList.map { asset ->
                 asset.fileName
-            } ?: listOf()
+            }
         else listOf()
         DownloadListDialog.show(this, fileNameList,
                 fun(position: Int, externalDownloader: Boolean) {
@@ -175,7 +175,7 @@ class AppDetailActivity : BaseActivity() {
         versionMarkImageView.visibility = View.GONE
         val releaseInfoBean = releaseInfoList[versioningPosition]
         val versionNumber = releaseInfoBean.versionNumber
-        val latestChangeLog = releaseInfoBean.changeLog
+        val latestChangeLog = releaseInfoBean.changelog
 
         cloud_versioning_text_view.text = if (versioningPosition == 0) {
             getString(R.string.latest_version_number)

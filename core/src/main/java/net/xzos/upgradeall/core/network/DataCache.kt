@@ -1,17 +1,16 @@
-package net.xzos.upgradeall.core.data_manager.utils
+package net.xzos.upgradeall.core.network
 
-import net.xzos.upgradeall.core.data.config.AppValue
 import net.xzos.upgradeall.core.data.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.data.coroutines.coroutinesMutableMapOf
-import net.xzos.upgradeall.core.route.ReleaseListItem
+import net.xzos.upgradeall.core.data.json.gson.ReleaseGson
 import java.util.*
 
 
-object DataCache {
+internal object DataCache {
 
     private val cache = Cache()
 
-    private var dataExpirationTime = AppValue.data_expiration_time
+    private val dataExpirationTime get() = 20
 
     private fun Pair<Any?, Calendar>.isExpired(): Boolean {
         val time = this.second
@@ -33,9 +32,13 @@ object DataCache {
         cache.anyCacheMap[key] = Pair(value, Calendar.getInstance())
     }
 
+    fun removeAnyCache(key: String) {
+        cache.anyCacheMap.remove(key)
+    }
+
     fun getAppRelease(
-            hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>
-    ): List<ReleaseListItem>? {
+        hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>
+    ): List<ReleaseGson>? {
         val key = hubUuid + auth + appId
         cache.appReleaseMap[key]?.also {
             if (!it.isExpired()) {
@@ -46,17 +49,18 @@ object DataCache {
     }
 
     fun cacheAppStatus(
-            hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>,
-            releaseList: List<ReleaseListItem>?
+        hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>,
+        releaseList: List<ReleaseGson>?
     ) {
         val key = hubUuid + auth + appId
-        cache.appReleaseMap[key] = Pair(releaseList, Calendar.getInstance())
+        if (cache.appReleaseMap[key]?.first != releaseList)
+            cache.appReleaseMap[key] = Pair(releaseList, Calendar.getInstance())
     }
 
     data class Cache(
-            internal val anyCacheMap: CoroutinesMutableMap<String,
-                    Pair<Any, Calendar>> = coroutinesMutableMapOf(true),
-            internal val appReleaseMap: CoroutinesMutableMap<String,
-                    Pair<List<ReleaseListItem>?, Calendar>> = coroutinesMutableMapOf(true)
+        internal val anyCacheMap: CoroutinesMutableMap<String,
+                Pair<Any, Calendar>> = coroutinesMutableMapOf(true),
+        internal val appReleaseMap: CoroutinesMutableMap<String,
+                Pair<List<ReleaseGson>?, Calendar>> = coroutinesMutableMapOf(true)
     )
 }

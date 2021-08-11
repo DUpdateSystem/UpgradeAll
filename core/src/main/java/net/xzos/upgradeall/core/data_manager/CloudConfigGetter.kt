@@ -9,10 +9,10 @@ import net.xzos.upgradeall.core.data.json.gson.CloudConfigList
 import net.xzos.upgradeall.core.data.json.gson.HubConfigGson
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag
 import net.xzos.upgradeall.core.data.json.nongson.ObjectTag.Companion.core
-import net.xzos.upgradeall.core.data_manager.utils.DataCache
 import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.core.network_api.GrpcApi
-import net.xzos.upgradeall.core.network_api.OkHttpApi
+import net.xzos.upgradeall.core.network.OkHttpApi
+import net.xzos.upgradeall.core.network.DataCache
+import net.xzos.upgradeall.core.network.ServerApi
 
 
 object CloudConfigGetter {
@@ -44,8 +44,8 @@ object CloudConfigGetter {
     private suspend fun getCloudConfigFromWeb(url: String?): CloudConfigList? {
         val jsonText = if (url != null)
             @Suppress("BlockingMethodInNonBlockingContext")
-            OkHttpApi.get(objectTag, url)?.body?.string()
-        else GrpcApi.getCloudConfig()
+            OkHttpApi.getWithoutError(objectTag, url)?.body?.string()
+        else ServerApi.getCloudConfig()
         return if (!jsonText.isNullOrEmpty()) {
             try {
                 Gson().fromJson(jsonText, CloudConfigList::class.java)

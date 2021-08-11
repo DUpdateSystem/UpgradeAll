@@ -5,15 +5,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.data.database.ApplicationsDatabase
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
-import net.xzos.upgradeall.core.network_api.GrpcReleaseApi
+import net.xzos.upgradeall.core.network.ServerApi
+import net.xzos.upgradeall.core.network.getNoNullMap
 import net.xzos.upgradeall.core.oberver.Informer
 import net.xzos.upgradeall.core.server_manager.UpdateControl
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.app.App
 import net.xzos.upgradeall.core.server_manager.module.app.Updater
 
-class Applications(override val appDatabase: ApplicationsDatabase,
-                   override var statusRenewedFun: (appStatus: Int) -> Unit = fun(_) {}
+class Applications(
+    override val appDatabase: ApplicationsDatabase,
+    override var statusRenewedFun: (appStatus: Int) -> Unit = fun(_) {}
 ) : BaseApp, Informer {
 
     val name = appDatabase.name
@@ -40,7 +42,11 @@ class Applications(override val appDatabase: ApplicationsDatabase,
     private var checkAppList = true
 
     val appList: List<App>
-        get() = updateControl.getAllApp(Updater.APP_OUTDATED, Updater.APP_LATEST, Updater.NETWORK_ERROR).filterIsInstance<App>()
+        get() = updateControl.getAllApp(
+            Updater.APP_OUTDATED,
+            Updater.APP_LATEST,
+            Updater.NETWORK_ERROR
+        ).filterIsInstance<App>()
 
     override suspend fun getUpdateStatus(): Int {
         updateControl.renewAll()
@@ -58,15 +64,16 @@ class Applications(override val appDatabase: ApplicationsDatabase,
         val auth = appDatabase.auth
         val excludeAppIdList = applicationsUtils.getExcludeAppIdList()
         for ((appId, appInfo) in excludeAppIdList)
-            GrpcReleaseApi.setRequest(hubUuid, auth, appId, fun(releaseList) {
-                if (releaseList != null) {
-                    if (releaseList.isNotEmpty()) {
-                        runBlocking { markValidApp(appId) }
-                        updateControl.addApp(applicationsUtils.mkApp(appInfo))
+            GlobalScope.launch {
+                ServerApi.getAppRelease(hubUuid, getNoNullMap(auth), getNoNullMap(appId)) {
+                    it?.run {
+                        if (it.isNotEmpty()) {
+                            runBlocking { markValidApp(appId) }
+                            updateControl.addApp(applicationsUtils.mkApp(appInfo))
+                        }
                     }
                 }
-            })
-        GrpcReleaseApi.chunkedCallGetAppRelease(hubUuid, auth, excludeAppIdList.keys, 2)
+            }
     }
 
     override fun refreshData() {

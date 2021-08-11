@@ -3,12 +3,13 @@ package net.xzos.upgradeall.core.server_manager.module.app
 import android.os.Looper
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.xzos.upgradeall.core.data.json.gson.Assets
+import net.xzos.upgradeall.core.data.json.gson.ReleaseGson
 import net.xzos.upgradeall.core.data.json.gson.DownloadInfoItem
 import net.xzos.upgradeall.core.data_manager.utils.*
-import net.xzos.upgradeall.core.network_api.GrpcApi
-import net.xzos.upgradeall.core.network_api.toMap
-import net.xzos.upgradeall.core.route.AssetItem
-import net.xzos.upgradeall.core.route.ReleaseListItem
+import net.xzos.upgradeall.core.network.DataCache
+import net.xzos.upgradeall.core.network.ServerApi
+import net.xzos.upgradeall.core.network.getNoNullMap
 import net.xzos.upgradeall.core.system_api.api.IoApi
 import net.xzos.upgradeall.core.utils.wait
 
@@ -51,7 +52,7 @@ class Updater internal constructor(private val app: App) {
         }
     }
 
-    suspend fun getReleaseList(): List<ReleaseListItem>? {
+    suspend fun getReleaseList(): List<ReleaseGson>? {
         val appId = app.appId ?: return null
         val hubUuid = app.hubDatabase?.hubConfig?.uuid ?: return null
         val auth = app.appDatabase.auth
@@ -62,9 +63,16 @@ class Updater internal constructor(private val app: App) {
                 dataRefreshMutex.wait()
                 DataCache.getAppRelease(hubUuid, auth, appId)
             } else {
+                val mutex = Mutex(true)
+                val list = mutableListOf<ReleaseGson>()
                 dataRefreshMutex.withLock {
-                    GrpcApi.getAppRelease(hubUuid, auth, appId)
+                    ServerApi.getAppReleaseList(hubUuid, getNoNullMap(auth), getNoNullMap(appId)) {
+                        it?.run { list.addAll(this) }
+                        mutex.unlock()
+                    }
                 }
+                mutex.wait()
+                return list
             }
         }
     }
@@ -87,16 +95,17 @@ class Updater internal constructor(private val app: App) {
             val hubUuid = app.hubDatabase?.uuid
             val appId = app.appId
             val downloadResponse = if (hubUuid != null && appId != null)
-                GrpcApi.getDownloadInfo(hubUuid, appId, app.appDatabase.auth, fileIndex.toList())
+                ServerApi.getDownloadInfo(hubUuid, getNoNullMap(appId), getNoNullMap(app.appDatabase.auth), fileIndex)
             else null
-            var list = downloadResponse?.listList?.map { downloadPackage ->
+            var list = downloadResponse?.map { downloadPackage ->
                 val fileName = if (downloadPackage.name.isNotBlank())
                     downloadPackage.name
                 else {
                     asset.fileName
                 }
-                DownloadInfoItem(fileName, downloadPackage.url, downloadPackage.headersList?.toMap()
-                        ?: mapOf(), downloadPackage.cookiesList?.toMap() ?: mapOf())
+                DownloadInfoItem(fileName, downloadPackage.url,
+                    downloadPackage.getHeaders(), downloadPackage.getCookies()
+                )
             }
             if (list.isNullOrEmpty())
                 list = listOf(DownloadInfoItem(asset.fileName, asset.downloadUrl, mapOf(), mapOf()))
@@ -114,9 +123,9 @@ class Updater internal constructor(private val app: App) {
     }
 }
 
-private fun List<ReleaseListItem?>.getAssetsByFileIndex(fileIndex: Pair<Int, Int>): AssetItem? {
+private fun List<ReleaseGson?>.getAssetsByFileIndex(fileIndex: Pair<Int, Int>): Assets? {
     return try {
-        this[fileIndex.first]?.getAssets(fileIndex.second)
+        this[fileIndex.first]?.assetList?.get(fileIndex.second)
     } catch (ignore: IndexOutOfBoundsException) {
         null
     }

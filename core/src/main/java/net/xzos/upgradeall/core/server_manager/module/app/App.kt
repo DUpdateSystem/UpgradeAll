@@ -2,11 +2,11 @@ package net.xzos.upgradeall.core.server_manager.module.app
 
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.data.database.AppDatabase
+import net.xzos.upgradeall.core.data.json.gson.ReleaseGson
 import net.xzos.upgradeall.core.data_manager.AppDatabaseManager
 import net.xzos.upgradeall.core.data_manager.HubDatabaseManager
 import net.xzos.upgradeall.core.data_manager.utils.AutoTemplate
 import net.xzos.upgradeall.core.data_manager.utils.VersioningUtils.FOREVER_IGNORE
-import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.server_manager.AppManager
 import net.xzos.upgradeall.core.server_manager.module.BaseApp
 import net.xzos.upgradeall.core.server_manager.module.applications.Applications
@@ -54,7 +54,7 @@ class App(override val appDatabase: AppDatabase, appId: Map<String, String>? = n
         return updater.getUpdateStatus()
     }
 
-    suspend fun getReleaseList(): List<ReleaseListItem>? {
+    suspend fun getReleaseList(): List<ReleaseGson>? {
         return updater.getReleaseList()
     }
 
