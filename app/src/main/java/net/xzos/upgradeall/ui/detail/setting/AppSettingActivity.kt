@@ -38,7 +38,7 @@ class AppSettingActivity : AppBarActivity() {
     private lateinit var binding: ActivityAppSettingBinding
     private val viewModel by viewModels<AttrListViewModel>()
 
-    private val attrMap: Map<String, String?>
+    private val attrMap: Map<String, String>
         get() {
             val attrList = binding.attrList
             val map = mutableMapOf<String, String>()
@@ -77,7 +77,7 @@ class AppSettingActivity : AppBarActivity() {
         val name = binding.nameEdit.text.toString()
         val invalidVersionNumberFieldRegex =
             binding.invalidVersionNumberFieldRegexEdit.text.toString()
-        val appId = attrMap.filterValues { it.isNullOrBlank() } as Map<String, String>
+        val appId = attrMap
         if (name.isBlank()) {
             binding.nameEdit.error = getString(R.string.helper_text_cant_be_empty)
             return
