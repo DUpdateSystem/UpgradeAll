@@ -22,7 +22,7 @@ internal object WebApi {
     private val invalidHubUuidList = ServerApi.invalidHubUuidList
 
     fun getCloudConfig(): String? {
-        val url = "http://$host/v1/rules/download/dev"
+        val url = "http://$host/v1/rules/download/master"
         return callApiCore {
             OkHttpApi.get(url)
         }?.body?.string()
