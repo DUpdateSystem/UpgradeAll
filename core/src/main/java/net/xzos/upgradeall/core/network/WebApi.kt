@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.core.network
 
-import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.json.gson.DownloadItem
 import net.xzos.upgradeall.core.data.json.gson.ReleaseGson
@@ -95,7 +95,7 @@ internal object WebApi {
         val url = "http://$host/v1/app/$hubUuid/${appIdPath}/extra_download/$assetIndexPath"
         val response = callApiCore { OkHttpApi.get(url, authHeader) }
         val responseStr = response?.body?.string()
-        if (responseStr.isNullOrBlank())return emptyList()
+        if (response?.code != 200 || responseStr.isNullOrBlank())return emptyList()
         val listType = object : TypeToken<ArrayList<DownloadItem>>() {}.type
         return Gson().fromJson(responseStr, listType)
     }

@@ -95,7 +95,7 @@ class Updater internal constructor(private val app: App) {
             val hubUuid = app.hubDatabase?.uuid
             val appId = app.appId
             val downloadResponse = if (hubUuid != null && appId != null)
-                ServerApi.getDownloadInfo(hubUuid, getNoNullMap(appId), getNoNullMap(app.appDatabase.auth), fileIndex)
+                ServerApi.getDownloadInfo(hubUuid, getNoNullMap(app.appDatabase.auth), getNoNullMap(appId), fileIndex)
             else null
             var list = downloadResponse?.map { downloadPackage ->
                 val fileName = if (downloadPackage.name.isNotBlank())
