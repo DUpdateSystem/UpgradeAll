@@ -48,7 +48,7 @@ class PreDownload(
                 hubUuid, mapOf(), appId, fileAsset.assetIndex
             )
             var list = downloadItemList.map { downloadPackage ->
-                val fileName = if (downloadPackage.name.isNotBlank())
+                val fileName = if (!downloadPackage.name.isNullOrBlank())
                     downloadPackage.name
                 else {
                     defName
@@ -59,7 +59,11 @@ class PreDownload(
                 )
             }
             if (list.isNullOrEmpty())
-                list = listOf(DownloadInfoItem(defName, fileAsset.downloadUrl, mapOf(), mapOf()))
+                list = listOf(
+                    DownloadInfoItem(
+                        defName, fileAsset.downloadUrl ?: return list, mapOf(), mapOf()
+                    )
+                )
             return list
         }
     }
