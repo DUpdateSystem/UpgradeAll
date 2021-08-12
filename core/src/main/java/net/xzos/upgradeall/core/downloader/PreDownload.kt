@@ -47,24 +47,21 @@ class PreDownload(
             val downloadItemList = ServerApi.getDownloadInfo(
                 hubUuid, mapOf(), appId, fileAsset.assetIndex
             )
-            var list = downloadItemList.map { downloadPackage ->
+            val list = downloadItemList.map { downloadPackage ->
                 val fileName = if (!downloadPackage.name.isNullOrBlank())
                     downloadPackage.name
-                else {
-                    defName
-                }
+                else defName
                 DownloadInfoItem(
                     fileName, downloadPackage.url,
                     downloadPackage.getHeaders().toMap(), downloadPackage.getCookies().toMap()
                 )
             }
-            if (list.isNullOrEmpty())
-                list = listOf(
-                    DownloadInfoItem(
-                        defName, fileAsset.downloadUrl ?: return list, mapOf(), mapOf()
-                    )
+            return if (list.isNullOrEmpty()) list
+            else listOf(
+                DownloadInfoItem(
+                    defName, fileAsset.downloadUrl ?: return list, mapOf(), mapOf()
                 )
-            return list
+            )
         }
     }
 }

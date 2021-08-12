@@ -6,8 +6,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
@@ -39,8 +39,10 @@ class ConfigDownloadDialog(
                 .setPositiveButton(
                     positiveButtonText
                 ) { _, _ ->
-                    download()
-                    changedFun()
+                    lifecycleScope.launch {
+                        download()
+                        changedFun()
+                    }
                 }.setNegativeButton(
                     R.string.cancel
                 ) { _, _ ->
@@ -50,11 +52,9 @@ class ConfigDownloadDialog(
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
-    private fun download() {
+    private suspend fun download() {
         MiscellaneousUtils.showToast(R.string.download_start, Toast.LENGTH_LONG)
-        runBlocking(Dispatchers.Default) {
-            downloadApplicationData(uuid)
-        }
+        downloadApplicationData(uuid)
     }
 
     private suspend fun downloadApplicationData(uuid: String) {

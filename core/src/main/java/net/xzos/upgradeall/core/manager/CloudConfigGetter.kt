@@ -14,7 +14,6 @@ import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.network.DataCache
-import net.xzos.upgradeall.core.module.network.GrpcApi
 import net.xzos.upgradeall.core.module.network.OkHttpApi
 import net.xzos.upgradeall.core.module.network.ServerApi
 import net.xzos.upgradeall.core.utils.wait
