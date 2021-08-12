@@ -57,6 +57,6 @@ object ServerApi {
 }
 
 fun <K, V> getNoNullMap(map: Map<K, V?>): Map<K, V> {
-    return map.filterNot { it.value != null } as Map<K, V>
+    return map.filter { it.value != null } as Map<K, V>
 }
 
