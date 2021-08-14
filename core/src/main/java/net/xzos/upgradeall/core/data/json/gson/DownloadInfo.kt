@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 
 data class DownloadItem(
-    @SerializedName("name") val name: String,
+    @SerializedName("name") val name: String?,
     @SerializedName("url") val url: String,
     @SerializedName("headers") val _headers: String?,
     @SerializedName("cookies") val _cookies: String?,

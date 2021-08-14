@@ -98,10 +98,10 @@ class Updater internal constructor(private val app: App) {
                 ServerApi.getDownloadInfo(hubUuid, getNoNullMap(app.appDatabase.auth), getNoNullMap(appId), fileIndex)
             else null
             var list = downloadResponse?.map { downloadPackage ->
-                val fileName = if (downloadPackage.name.isNotBlank())
-                    downloadPackage.name
-                else {
+                val fileName = if (downloadPackage.name.isNullOrBlank())
                     asset.fileName
+                else {
+                    downloadPackage.name
                 }
                 DownloadInfoItem(fileName, downloadPackage.url,
                     downloadPackage.getHeaders(), downloadPackage.getCookies()
