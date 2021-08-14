@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.network
 
 import com.google.gson.Gson
+import com.google.gson.JsonParseException
 import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.json.gson.DownloadItem
@@ -94,10 +95,15 @@ internal object WebApi {
         val assetIndexPath = getIntListPath(assetIndex.toList())
         val url = "http://$host/v1/app/$hubUuid/${appIdPath}/extra_download/$assetIndexPath"
         val response = callApiCore { OkHttpApi.get(url, authHeader) }
-        val responseStr = response?.body?.string()
-        if (response?.code != 200 || responseStr.isNullOrBlank())return emptyList()
+        val responseStr = response?.body?.string() ?: return emptyList()
+        if (response.code != 200) return emptyList()
         val listType = object : TypeToken<ArrayList<DownloadItem>>() {}.type
-        return Gson().fromJson(responseStr, listType)
+        return try {
+            Gson().fromJson(responseStr, listType)
+        } catch (e: JsonParseException) {
+            Log.w(objectTag, TAG, "getDownloadInfo: {$e.stackTraceToString()}")
+            emptyList()
+        }
     }
 
     private fun callApiCore(retryNum: Int = 3, core: () -> Response): Response? {
