@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.core.module.app
 
-import net.xzos.upgradeall.core.data.json.AppConfigGson
+import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.isInit
 import net.xzos.upgradeall.core.database.table.setSortHubUuidList
@@ -113,4 +113,4 @@ class App(
 }
 
 fun App.getDatabase(): AppEntity = appDatabase
-fun App.getConfigJson(): AppConfigGson? = appDatabase.cloudConfig
+fun App.getConfigJson(): net.xzos.upgradeall.core.websdk.json.AppConfigGson? = appDatabase.cloudConfig

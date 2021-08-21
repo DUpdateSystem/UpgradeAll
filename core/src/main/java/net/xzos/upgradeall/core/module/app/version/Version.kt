@@ -2,8 +2,8 @@ package net.xzos.upgradeall.core.module.app.version
 
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.module.app.version_item.Asset
-import net.xzos.upgradeall.core.utils.VersioningUtils
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
 
 /**
  * 版本号数据

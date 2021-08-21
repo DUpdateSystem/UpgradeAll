@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import kotlinx.coroutines.runBlocking
+import net.xzos.upgradeall.core.androidutils.androidContext
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.manager.AppManager
@@ -30,7 +31,7 @@ class AppReceiver : BroadcastReceiver() {
         intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED)
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED)
         intentFilter.addDataScheme("package")
-        coreConfig.androidContext.registerReceiver(this, intentFilter)
+        androidContext.registerReceiver(this, intentFilter)
     }
 
     companion object {

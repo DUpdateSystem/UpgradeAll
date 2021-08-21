@@ -44,7 +44,7 @@ class MyApplication : Application() {
             }
             Once.markDone(OnceTag.DB_NAME_MIGRATION)
         }
-        MiscellaneousUtils.initData()
+        initCore()
     }
 
     companion object {

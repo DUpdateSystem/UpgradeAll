@@ -3,14 +3,12 @@ package net.xzos.upgradeall.core.module.app.data
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.xzos.upgradeall.core.data.json.ReleaseGson
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version_item.Asset
-import net.xzos.upgradeall.core.route.ReleaseListItem
 import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
-import net.xzos.upgradeall.core.utils.unlockWithCheck
-import net.xzos.upgradeall.core.utils.wait
+import net.xzos.upgradeall.core.utils.coroutines.unlockWithCheck
+import net.xzos.upgradeall.core.utils.coroutines.wait
 
 internal class DataGetter(private val dataStorage: DataStorage) {
 
@@ -55,14 +53,14 @@ internal class DataGetter(private val dataStorage: DataStorage) {
         mutex.wait()
     }
 
-    private fun renewVersionList(hub: Hub, callback: (List<ReleaseGson>?) -> Unit) {
+    private fun renewVersionList(hub: Hub, callback: (List<net.xzos.upgradeall.core.websdk.json.ReleaseGson>?) -> Unit) {
         hub.getAppReleaseList(dataStorage.appDatabase.appId) {
             it?.let { runBlocking { setVersionMap(hub, it) } }
             callback(it)
         }
     }
 
-    private suspend fun setVersionMap(hub: Hub, releaseList: List<ReleaseGson>) {
+    private suspend fun setVersionMap(hub: Hub, releaseList: List<net.xzos.upgradeall.core.websdk.json.ReleaseGson>) {
         val assetsList = mutableListOf<Asset>()
         releaseList.forEachIndexed { versionIndex, release ->
             val versionNumber = release.versionNumber

@@ -3,15 +3,16 @@ package net.xzos.upgradeall.server.downloader
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.filetasker.FileTaskerManager
+import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerManager
 
 class DownloadBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val fileTaskerId = intent.getIntExtra(EXTRA_IDENTIFIER_FILE_TASKER_ID, -1)
-        val fileTasker = FileTaskerManager.getFileTasker(fileTaskerId) ?: return
+        val fileTaskerId = intent.getStringExtra(EXTRA_IDENTIFIER_FILE_TASKER_ID)
+        val fileTasker = FileTaskerManager.getFileTasker(idString = fileTaskerId) ?: return
         when (intent.getIntExtra(EXTRA_IDENTIFIER_FILE_TASKER_CONTROL, -1)) {
             DOWNLOAD_CANCEL -> deleteFileTasker(fileTasker)
             DOWNLOAD_RETRY -> fileTasker.retry()
@@ -20,7 +21,7 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
             NOTIFY_CANCEL -> DownloadNotificationManager.getNotification(fileTasker)
                 ?.cancelNotification()
             INSTALL_APK -> runBlocking { installFileTasker(fileTasker, context) }
-            OPEN_FILE -> fileTasker.openDownloadDir(context)
+            OPEN_FILE -> Log.i("Download", "open file: TODO")
         }
     }
 

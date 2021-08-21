@@ -3,8 +3,8 @@ package net.xzos.upgradeall.core.database
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import net.xzos.upgradeall.core.data.json.AppConfigGson
-import net.xzos.upgradeall.core.data.json.HubConfigGson
+import net.xzos.upgradeall.core.websdk.json.AppConfigGson
+import net.xzos.upgradeall.core.websdk.json.HubConfigGson
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
 import org.json.JSONArray
@@ -30,26 +30,26 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromAppConfigGson(appConfigGson: AppConfigGson?): String? {
+    fun fromAppConfigGson(appConfigGson: net.xzos.upgradeall.core.websdk.json.AppConfigGson?): String? {
         appConfigGson ?: return null
         return appConfigGson.toString()
     }
 
     @TypeConverter
-    fun stringToAppConfigGson(s: String?): AppConfigGson? {
+    fun stringToAppConfigGson(s: String?): net.xzos.upgradeall.core.websdk.json.AppConfigGson? {
         if (s.isNullOrEmpty()) return null
-        return Gson().fromJson(s, AppConfigGson::class.java)
+        return Gson().fromJson(s, net.xzos.upgradeall.core.websdk.json.AppConfigGson::class.java)
     }
 
     @TypeConverter
-    fun fromHubConfigGson(hubConfigGson: HubConfigGson): String {
+    fun fromHubConfigGson(hubConfigGson: net.xzos.upgradeall.core.websdk.json.HubConfigGson): String {
         return hubConfigGson.toString()
     }
 
     @TypeConverter
-    fun stringToHubConfigGson(s: String?): HubConfigGson {
-        if (s.isNullOrEmpty()) return HubConfigGson()
-        return Gson().fromJson(s, HubConfigGson::class.java)
+    fun stringToHubConfigGson(s: String?): net.xzos.upgradeall.core.websdk.json.HubConfigGson {
+        if (s.isNullOrEmpty()) return net.xzos.upgradeall.core.websdk.json.HubConfigGson()
+        return Gson().fromJson(s, net.xzos.upgradeall.core.websdk.json.HubConfigGson::class.java)
     }
 
     private fun stringToCollectionMap(s: String?): Collection<Map<String, String?>> {

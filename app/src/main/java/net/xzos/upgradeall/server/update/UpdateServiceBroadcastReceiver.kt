@@ -7,7 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.utils.FlagDelegate
+import net.xzos.upgradeall.core.androidutils.FlagDelegate
 
 class UpdateServiceBroadcastReceiver : BroadcastReceiver() {
 

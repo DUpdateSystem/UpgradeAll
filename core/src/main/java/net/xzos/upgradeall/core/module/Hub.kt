@@ -3,17 +3,17 @@ package net.xzos.upgradeall.core.module
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
-import net.xzos.upgradeall.core.data.json.ReleaseGson
+import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.network.ServerApi
-import net.xzos.upgradeall.core.route.ReleaseListItem
+import net.xzos.upgradeall.core.serverApi
 import net.xzos.upgradeall.core.utils.AutoTemplate
 
 class Hub(private val hubDatabase: HubEntity) {
     val name get() = hubDatabase.hubConfig.info.hubName
     val uuid get() = hubDatabase.uuid
+    val auth get() = hubDatabase.auth
     val hubConfig get() = hubDatabase.hubConfig
 
     fun isValidApp(appId: Map<String, String?>): Boolean = getValidKey(appId) != null
@@ -116,7 +116,7 @@ class Hub(private val hubDatabase: HubEntity) {
             callback(null)
             return
         }
-        ServerApi.getAppReleaseList(uuid, hubDatabase.auth, appId) {
+        serverApi.getAppReleaseList(uuid, auth, appId) {
             it?.let {
                 runBlocking {
                     if (it.isEmpty())

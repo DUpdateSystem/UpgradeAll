@@ -4,13 +4,13 @@ import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.extra_app.ExtraAppEntityManager
 import net.xzos.upgradeall.core.database.table.isInit
-import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.core.log.ObjectTag
-import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.module.app.version_item.Asset
-import net.xzos.upgradeall.core.utils.VersioningUtils
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
+import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
 
 /**
  * 版本号数据

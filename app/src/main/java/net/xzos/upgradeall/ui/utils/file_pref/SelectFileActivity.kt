@@ -3,7 +3,7 @@ package net.xzos.upgradeall.ui.utils.file_pref
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.ActivityResult
-import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.ObjectTag
 
 class SelectFileActivity : FilePrefActivity() {
 

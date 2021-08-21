@@ -12,9 +12,9 @@ import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.core.log.LogDataProxy
-import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.LogDataProxy
+import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.databinding.ActivityLogBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.utils.file_pref.SaveFileActivity

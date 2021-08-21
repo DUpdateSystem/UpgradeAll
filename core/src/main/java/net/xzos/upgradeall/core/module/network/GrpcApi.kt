@@ -7,12 +7,12 @@ import io.grpc.StatusRuntimeException
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.DEF_UPDATE_SERVER_URL
-import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.core.log.ObjectTag
-import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
-import net.xzos.upgradeall.core.log.msg
 import net.xzos.upgradeall.core.route.*
-import net.xzos.upgradeall.core.utils.runWithLock
+import net.xzos.upgradeall.core.utils.coroutines.runWithLock
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.utils.log.msg
 import java.net.URISyntaxException
 import java.util.concurrent.TimeUnit
 
@@ -106,13 +106,8 @@ $appIdString""".trimIndent()
         if (hubUuid in invalidHubUuidList) {
             callback(null)
         } else {
-            DataCache.getAppRelease(hubUuid, auth, appId)?.also {
-                //callback(it)
-            } ?: GrpcReleaseApi.getAppRelease(hubUuid, auth, appId, priority) {
-                it?.let {
-                    //DataCache.cacheAppStatus(hubUuid, auth, appId, it)
-                }
-                callback(it)
+            GrpcReleaseApi.getAppRelease(hubUuid, auth, appId, priority) {
+                // Do Nothing
             }
         }
     }

@@ -17,11 +17,11 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.downloader.DownloadOb
-import net.xzos.upgradeall.core.filetasker.FileTasker
-import net.xzos.upgradeall.core.utils.FlagDelegate
+import net.xzos.upgradeall.core.androidutils.FlagDelegate
+import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadOb
+import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
-import net.xzos.upgradeall.core.utils.runWithLock
+import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.data.PreferencesMap
 import java.io.File
 
@@ -153,7 +153,7 @@ class DownloadNotification(private val fileTasker: FileTasker) {
             setSmallIcon(android.R.drawable.stat_sys_download_done)
             setProgress(0, 0, false)
             runBlocking {
-                if (fileTasker.isInstallable(context)) {
+                if (fileTasker.installable()) {
                     addAction(
                         R.drawable.ic_check_mark_circle, getString(R.string.install),
                         getSnoozePendingIntent(DownloadBroadcastReceiver.INSTALL_APK)
@@ -189,7 +189,10 @@ class DownloadNotification(private val fileTasker: FileTasker) {
     private fun getSnoozeIntent(extraIdentifierDownloadControlId: Int): Intent {
         return Intent(context, DownloadBroadcastReceiver::class.java).apply {
             action = DownloadBroadcastReceiver.ACTION_SNOOZE
-            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_ID, fileTasker.id)
+            putExtra(
+                DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_ID,
+                fileTasker.id.toString()
+            )
             putExtra(
                 DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_CONTROL,
                 extraIdentifierDownloadControlId

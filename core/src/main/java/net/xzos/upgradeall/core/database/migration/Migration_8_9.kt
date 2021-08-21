@@ -3,10 +3,9 @@ package net.xzos.upgradeall.core.database.migration
 import androidx.core.database.getStringOrNull
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import net.xzos.upgradeall.core.data.backup.getOrNull
+import net.xzos.upgradeall.core.androidutils.UI_CONFIG_FILE
 import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.cleanBlankValue
-import net.xzos.upgradeall.core.utils.file.FileUtil
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -138,7 +137,7 @@ open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migratio
 
     private fun renewUiConfig() {
         val starJson = try {
-            val json = JSONObject(FileUtil.UI_CONFIG_FILE.readText())
+            val json = JSONObject(UI_CONFIG_FILE.readText())
             json.getJSONObject("user_star_tab")
         } catch (ignore: Throwable) {
             return
@@ -167,7 +166,7 @@ open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migratio
         val newJson = JSONObject().apply {
             put("user_star_app_id_list", newStarJson)
         }
-        FileUtil.UI_CONFIG_FILE.writeText(newJson.toString())
+        UI_CONFIG_FILE.writeText(newJson.toString())
     }
 
     private fun checkHubDatabase() {
@@ -345,6 +344,16 @@ open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migratio
             }
         }
     }
+}
+
+@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+private fun JSONObject.getOrNull(key: String): String? {
+    return if (this.has("key"))
+        with(this.getString(key)) {
+            if (this != "null")
+                this
+            else null
+        } else null
 }
 
 val MIGRATION_8_9 = object : Migration_8_9_10_Share(8, 9) {

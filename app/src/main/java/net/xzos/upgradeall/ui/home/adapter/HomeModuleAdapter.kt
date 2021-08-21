@@ -7,7 +7,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.ui.log.LogActivity
 import net.xzos.upgradeall.ui.preference.SettingsActivity
-import net.xzos.upgradeall.utils.ToastUtil
+import net.xzos.upgradeall.core.androidutils.ToastUtil
 
 class HomeModuleAdapter : BaseMultiItemQuickAdapter<HomeModuleBean, BaseViewHolder>() {
 

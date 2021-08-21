@@ -9,7 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import com.tonyodev.fetch2.Download
 import com.tonyodev.fetch2.Status
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.downloader.DownloadOb
+import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadOb
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version_item.FileAsset
@@ -88,13 +88,14 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         downloadData.setDownloadStatus(Status.FAILED)
     }
 
-    fun getDownloadDataOb() = DownloadOb(obFun, obFun, obFun, obFun, obFun, obFun)
+    fun getDownloadDataOb() =
+        DownloadOb(obFun, obFun, obFun, obFun, obFun, obFun)
 
     var currentVersion: Version? = null
 
     suspend fun download(fileAsset: FileAsset, externalDownload: Boolean) {
         startDownload(
-            app.appId, fileAsset,
+            app, fileAsset,
             fun(_) { waitDownload() }, failDownload, getDownloadDataOb(),
             getApplication(), externalDownload
         )

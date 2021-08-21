@@ -122,9 +122,6 @@ dependencies {
     implementation 'dev.rikka.rikkax.insets:insets:1.1.0'
     implementation 'dev.rikka.rikkax.layoutinflater:layoutinflater:1.0.1'
 
-    //Toast BadTokenException on 7.1.1
-    implementation 'me.drakeet.support:toastcompat:1.1.0'
-
     //RecyclerView
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.6'
 
@@ -132,7 +129,11 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
+    implementation project(path: ':core-android-utils')
     implementation project(path: ':core')
+    implementation project(path: ':core-downloader')
+    implementation project(path: ':core-installer')
+    implementation project(path: ':app-backup')
 }
 
 def optimizeReleaseRes = task('optimizeReleaseRes').doLast {

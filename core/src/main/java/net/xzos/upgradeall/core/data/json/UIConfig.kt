@@ -2,7 +2,7 @@ package net.xzos.upgradeall.core.data.json
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
-import net.xzos.upgradeall.core.utils.file.FileUtil
+import net.xzos.upgradeall.core.androidutils.UI_CONFIG_FILE
 import java.io.File
 
 
@@ -10,7 +10,7 @@ import java.io.File
  * user_star : [{}]
  */
 
-val uiConfig: UIConfig = parseUiConfig(FileUtil.UI_CONFIG_FILE)
+val uiConfig: UIConfig = parseUiConfig(UI_CONFIG_FILE)
 
 data class UIConfig(
         @SerializedName("user_star_app_id_list") val userStarAppIdList: HashSet<Map<String, String?>>
@@ -34,7 +34,7 @@ fun parseUiConfig(str: String): UIConfig {
 
 
 fun UIConfig.save() {
-    FileUtil.UI_CONFIG_FILE.writeText(
+    UI_CONFIG_FILE.writeText(
             Gson().toJson(this)
     )
 }

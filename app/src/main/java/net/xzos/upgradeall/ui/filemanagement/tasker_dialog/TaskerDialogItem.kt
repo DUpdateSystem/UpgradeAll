@@ -1,14 +1,14 @@
 package net.xzos.upgradeall.ui.filemanagement.tasker_dialog
 
-import android.content.Context
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.filetasker.FileTasker
+import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
+import net.xzos.upgradeall.server.downloader.installable
 import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.ui.filemanagement.DownloadTaskerNumUtil
 
-class TaskerDialogItem(val fileTasker: FileTasker, context: Context) : ListItemView {
+class TaskerDialogItem(val fileTasker: FileTasker) : ListItemView {
     private val numUtil = DownloadTaskerNumUtil(fileTasker.downloader)
-    val installable: Boolean = runBlocking { fileTasker.isInstallable(context) }
+    val installable: Boolean = runBlocking { fileTasker.installable() }
     val suspendable: Boolean = runBlocking { numUtil.getDownloadingNum() } > 0
     val continuable: Boolean = runBlocking { numUtil.getPauseNum() } > 0
     val retryable: Boolean = runBlocking { numUtil.getFailedNum() } > 0

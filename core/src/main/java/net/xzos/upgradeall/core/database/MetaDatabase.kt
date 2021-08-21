@@ -4,7 +4,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import net.xzos.upgradeall.core.coreConfig
+import net.xzos.upgradeall.core.androidutils.androidContext
 import net.xzos.upgradeall.core.database.dao.AppDao
 import net.xzos.upgradeall.core.database.dao.ExtraAppDao
 import net.xzos.upgradeall.core.database.dao.HubDao
@@ -23,7 +23,7 @@ abstract class MetaDatabase : RoomDatabase() {
 
 val metaDatabase = Room
     .databaseBuilder(
-        coreConfig.androidContext,
+        androidContext,
         MetaDatabase::class.java,
         "app_metadata_database.db"
     )

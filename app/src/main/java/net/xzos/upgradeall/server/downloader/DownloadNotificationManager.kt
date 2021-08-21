@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.server.downloader
 
-import net.xzos.upgradeall.core.filetasker.FileTasker
+import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 
 object DownloadNotificationManager {

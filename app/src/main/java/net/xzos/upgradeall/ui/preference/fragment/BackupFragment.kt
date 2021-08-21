@@ -11,9 +11,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.backup.BackupManager
-import net.xzos.upgradeall.core.data.backup.CloudBackupManager
-import net.xzos.upgradeall.core.data.backup.RestoreManager
+import net.xzos.upgradeall.app.backup.BackupManager
+import net.xzos.upgradeall.app.backup.CloudBackupManager
+import net.xzos.upgradeall.app.backup.RestoreManager
+import net.xzos.upgradeall.app.backup.WebDavConfig
+import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.ui.utils.dialog.CloudBackupListDialog
 import net.xzos.upgradeall.ui.utils.file_pref.SaveFileActivity
 import net.xzos.upgradeall.ui.utils.file_pref.SelectFileActivity
@@ -30,12 +32,14 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
 
     private fun hidePassword() {
         findPreference<EditTextPreference>("webdav_password")?.let { editTextPreference ->
-            editTextPreference.summaryProvider = Preference.SummaryProvider<EditTextPreference> { preference ->
-                "*".repeat(preference.text?.length ?: return@SummaryProvider "")
-            }
+            editTextPreference.summaryProvider =
+                Preference.SummaryProvider<EditTextPreference> { preference ->
+                    "*".repeat(preference.text?.length ?: return@SummaryProvider "")
+                }
 
             editTextPreference.setOnBindEditTextListener { editText ->
-                editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                editText.inputType =
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             }
         }
     }
@@ -48,7 +52,12 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
                 val backupFileBytes = BackupManager.mkZipFileBytes()
                 val context = this@BackupFragment.context
                 if (backupFileBytes != null && context != null) {
-                    SaveFileActivity.newInstance(BackupManager.newFileName(), "application/zip", backupFileBytes, context)
+                    SaveFileActivity.newInstance(
+                        BackupManager.newFileName(),
+                        "application/zip",
+                        backupFileBytes,
+                        context
+                    )
                 }
                 MiscellaneousUtils.showToast(R.string.backup_stop)
             }
@@ -70,30 +79,44 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
         }
     }
 
+    private fun getCloudBackupManager() = CloudBackupManager(
+        WebDavConfig(
+            PreferencesMap.webdav_url,
+            PreferencesMap.webdav_path,
+            PreferencesMap.webdav_username,
+            PreferencesMap.webdav_password
+        )
+    )
+
     private fun setCloudBackup() {
         val backupPreference: Preference = findPreference("WEBDAV_BACKUP")!!
         val restorePreference: Preference = findPreference("WEBDAV_RESTORE")!!
         backupPreference.setOnPreferenceClickListener {
-            CloudBackupManager().backup(
-                    { MiscellaneousUtils.showToast(R.string.backup_running) },
-                    { MiscellaneousUtils.showToast(R.string.backup_stop) },
-                    { MiscellaneousUtils.showToast(it.message.toString(), Toast.LENGTH_LONG) },
+            getCloudBackupManager().backup(
+                { MiscellaneousUtils.showToast(R.string.backup_running) },
+                { MiscellaneousUtils.showToast(R.string.backup_stop) },
+                { MiscellaneousUtils.showToast(it.message.toString(), Toast.LENGTH_LONG) },
             )
             false
         }
         restorePreference.setOnPreferenceClickListener {
             GlobalScope.launch {
-                val cloudBackupManager = CloudBackupManager()
+                val cloudBackupManager = getCloudBackupManager()
                 val fileNameList = cloudBackupManager.getBackupFileList() ?: return@launch
                 context?.let {
                     withContext(Dispatchers.Main) {
                         CloudBackupListDialog.show(it, fileNameList, fun(position) {
                             GlobalScope.launch {
                                 cloudBackupManager.restoreBackup(
-                                        fileNameList[position],
-                                        { MiscellaneousUtils.showToast(R.string.restore_running) },
-                                        { MiscellaneousUtils.showToast(R.string.restore_stop) },
-                                        { MiscellaneousUtils.showToast(it.message.toString(), Toast.LENGTH_LONG) },
+                                    fileNameList[position],
+                                    { MiscellaneousUtils.showToast(R.string.restore_running) },
+                                    { MiscellaneousUtils.showToast(R.string.restore_stop) },
+                                    {
+                                        MiscellaneousUtils.showToast(
+                                            it.message.toString(),
+                                            Toast.LENGTH_LONG
+                                        )
+                                    },
                                 )
                             }
                         })

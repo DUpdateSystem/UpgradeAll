@@ -11,10 +11,10 @@ class FileAsset(
         /* 文件数据名称，用来给用户看的 */
         val name: String,
         /* 默认下载链接 */
-        internal val downloadUrl: String?,
-        internal val fileType: String?,
-        internal val assetIndex: Pair<Int, Int>,
-        internal val hub: Hub,
+        val downloadUrl: String?,
+        val fileType: String?,
+        val assetIndex: Pair<Int, Int>,
+        val hub: Hub,
 ) {
     override fun equals(other: Any?): Boolean {
         return other is FileAsset

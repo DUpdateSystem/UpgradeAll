@@ -15,38 +15,15 @@ import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.manager.CloudConfigGetter
-import net.xzos.upgradeall.data.PreferencesMap
-import net.xzos.upgradeall.utils.egg.egg
+import net.xzos.upgradeall.core.androidutils.ToastUtil
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 
 object MiscellaneousUtils {
-
-    fun initData() {
-        initObject()
-        PreferencesMap.sync()
-        GlobalScope.launch { renewData() }
-        egg()
-    }
-
-    private fun initObject() {
-    }
-
-    private suspend fun renewData() {
-        if (PreferencesMap.auto_update_hub_config) {
-            CloudConfigGetter.renewAllHubConfigFromCloud()
-        }
-        if (PreferencesMap.auto_update_app_config) {
-            CloudConfigGetter.renewAllAppConfigFromCloud()
-        }
-    }
 
     private const val HTML_PATTERN = "<(\"[^\"]*\"|'[^']*'|[^'\">])*>"
     private val pattern: Pattern = Pattern.compile(HTML_PATTERN)
@@ -82,20 +59,6 @@ object MiscellaneousUtils {
             else
                 @Suppress("DEPRECATION")
                 context.resources.configuration.locale
-
-    fun requestPermission(activity: Activity, permission: String, PERMISSIONS_REQUEST_CONTACTS: Int, tipResId: Int): Boolean {
-        var havePermission = false
-        if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
-                showToast(tipResId)
-            }
-            ActivityCompat.requestPermissions(activity,
-                    arrayOf(permission),
-                    PERMISSIONS_REQUEST_CONTACTS)
-        } else
-            havePermission = true
-        return havePermission
-    }
 
     fun isBackground(): Boolean {
         val appProcessInfo = ActivityManager.RunningAppProcessInfo()

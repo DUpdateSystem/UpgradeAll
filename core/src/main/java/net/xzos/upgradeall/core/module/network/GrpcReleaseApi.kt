@@ -6,8 +6,8 @@ import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.core.log.msg
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.core.route.*
 import net.xzos.upgradeall.core.utils.chunked
 import net.xzos.upgradeall.core.utils.coroutines.*

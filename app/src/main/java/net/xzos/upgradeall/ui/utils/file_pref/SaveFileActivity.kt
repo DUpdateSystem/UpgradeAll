@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.log.ObjectTag
-import net.xzos.upgradeall.utils.ToastUtil
-import net.xzos.upgradeall.utils.file.FileUtil
+import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.androidutils.ToastUtil
+import net.xzos.upgradeall.core.androidutils.writeToUri
 
 class SaveFileActivity : FilePrefActivity() {
 
@@ -17,7 +17,7 @@ class SaveFileActivity : FilePrefActivity() {
             val uri = resultData.data
             if (uri != null) {
                 val textResId =
-                        if (FileUtil.writeToUri(uri, byteArray = bytes))
+                        if (writeToUri(uri, byteArray = bytes))
                             R.string.save_file_successfully
                         else
                             R.string.save_file_failed

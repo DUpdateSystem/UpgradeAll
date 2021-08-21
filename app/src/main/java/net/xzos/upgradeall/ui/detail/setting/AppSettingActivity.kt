@@ -28,7 +28,7 @@ import net.xzos.upgradeall.databinding.ActivityAppSettingBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListAdapter
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListViewModel
-import net.xzos.upgradeall.utils.ToastUtil
+import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.utils.runUiFun
 
 

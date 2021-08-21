@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.View
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.xzos.upgradeall.core.filetasker.FileTasker
+import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.server.downloader.deleteFileTasker
 import net.xzos.upgradeall.server.downloader.installFileTasker
 
@@ -36,6 +36,6 @@ class TaskerDialogHandler(
     }
 
     fun open(view: View) {
-        fileTasker.openDownloadDir(view.context)
+        // TODO: 打开文件
     }
 }

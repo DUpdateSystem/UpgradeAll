@@ -6,7 +6,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.tonyodev.fetch2.Download
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.xzos.upgradeall.core.filetasker.FileTasker
+import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.databinding.DialogFileTaskerBinding
 import net.xzos.upgradeall.ui.base.listdialog.ListDialogPart
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItem
@@ -53,7 +53,7 @@ class TaskerListDialog private constructor(
 
         fun newInstance(context: Context, fileTasker: FileTasker) {
             GlobalScope.launch {
-                val item = TaskerDialogItem(fileTasker, context)
+                val item = TaskerDialogItem(fileTasker)
                 val downloadList = fileTasker.downloader?.getDownloadList() ?: emptyList()
                 runUiFun {
                     TaskerListDialog(context, fileTasker, item, downloadList).show()

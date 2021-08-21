@@ -6,8 +6,8 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
+import net.xzos.upgradeall.core.androidutils.clipStringToClipboard
 import net.xzos.upgradeall.utils.DimensionKtx.dp
-import net.xzos.upgradeall.utils.file.FileUtil
 import net.xzos.upgradeall.utils.getDrawableByAttr
 import java.util.*
 
@@ -47,7 +47,7 @@ class LogItemAdapter(mLogList: LiveData<List<String>>, owner: LifecycleOwner) : 
         val logTextView = holder.logTextView
         logTextView.setOnClickListener {
             val context = logTextView.context
-            FileUtil.clipStringToClipboard(logTextView.text, context)
+            clipStringToClipboard(logTextView.text, context)
         }
         return holder
     }

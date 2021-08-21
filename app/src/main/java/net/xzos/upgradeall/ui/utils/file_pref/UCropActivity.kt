@@ -8,11 +8,12 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import com.yalantis.ucrop.UCrop
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.core.log.ObjectTag
-import net.xzos.upgradeall.core.log.msg
-import net.xzos.upgradeall.utils.ToastUtil
-import net.xzos.upgradeall.utils.file.FileUtil
+import net.xzos.upgradeall.core.androidutils.IMAGE_CACHE_FILE
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.msg
+import net.xzos.upgradeall.core.androidutils.ToastUtil
+import net.xzos.upgradeall.core.androidutils.imageUriDump
 import java.io.File
 
 class UCropActivity : FilePrefActivity() {
@@ -24,7 +25,7 @@ class UCropActivity : FilePrefActivity() {
             if (parent != null && !parent.exists())
                 parent.mkdirs()
             val destinationUri = Uri.fromFile(FILE)
-            UCrop.of(FileUtil.imageUriDump(uri, this), destinationUri)
+            UCrop.of(imageUriDump(uri, this), destinationUri)
                     .withAspectRatio(x, y)
                     .start(this, UCrop.REQUEST_CROP)
         }
@@ -66,7 +67,7 @@ class UCropActivity : FilePrefActivity() {
         private val logObjectTag = ObjectTag("UI", TAG)
 
         private const val READ_PIC_REQUEST_CODE = 2
-        private val cacheImageFile = FileUtil.IMAGE_CACHE_FILE.also {
+        private val cacheImageFile = IMAGE_CACHE_FILE.also {
             it.parentFile?.mkdirs()
             it.createNewFile()
         }

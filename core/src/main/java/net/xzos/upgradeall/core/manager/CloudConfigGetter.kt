@@ -8,15 +8,20 @@ import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.json.*
 import net.xzos.upgradeall.core.database.dao.HubDao
 import net.xzos.upgradeall.core.database.metaDatabase
-import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.core.log.ObjectTag
-import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
-import net.xzos.upgradeall.core.log.msg
+import net.xzos.upgradeall.core.database.table.AppEntity
+import net.xzos.upgradeall.core.database.table.HubEntity
+import net.xzos.upgradeall.core.database.table.setSortHubUuidList
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.network.DataCache
-import net.xzos.upgradeall.core.module.network.OkHttpApi
-import net.xzos.upgradeall.core.module.network.ServerApi
-import net.xzos.upgradeall.core.utils.wait
+import net.xzos.upgradeall.core.serverApi
+import net.xzos.upgradeall.core.utils.AutoTemplate
+import net.xzos.upgradeall.core.utils.DataCache
+import net.xzos.upgradeall.core.utils.coroutines.wait
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.utils.log.msg
+import net.xzos.upgradeall.core.websdk.json.*
+import net.xzos.upgradeall.core.websdk.openOkHttpApi
 
 
 object CloudConfigGetter {
@@ -39,14 +44,16 @@ object CloudConfigGetter {
     private var cloudConfig: CloudConfigList? = null
     private val renewMutex = Mutex()
 
+    private val dataCache = DataCache(coreConfig.data_expiration_time)
+
     suspend fun renew() {
-        cloudConfig = DataCache.getAnyCache(CLOUD_CONFIG_CACHE_KEY)
+        cloudConfig = dataCache.get(CLOUD_CONFIG_CACHE_KEY)
             ?: if (renewMutex.isLocked) {
                 renewMutex.wait()
-                DataCache.getAnyCache(CLOUD_CONFIG_CACHE_KEY)
+                dataCache.get(CLOUD_CONFIG_CACHE_KEY)
             } else renewMutex.withLock {
                 getCloudConfigFromWeb(appCloudRulesHubUrl)?.also {
-                    DataCache.cacheAny(CLOUD_CONFIG_CACHE_KEY, it)
+                    dataCache.cache(CLOUD_CONFIG_CACHE_KEY, it)
                 }
             }
     }
@@ -58,18 +65,21 @@ object CloudConfigGetter {
         get() = cloudConfig?.hubList
 
     private suspend fun getCloudConfigFromWeb(url: String?): CloudConfigList? {
-        val jsonText = if (url != null)
+        return if (url != null)
             @Suppress("BlockingMethodInNonBlockingContext")
-            OkHttpApi.getWithoutError(objectTag, url)?.body?.string()
-        else ServerApi.getCloudConfig()
-        return if (!jsonText.isNullOrEmpty()) {
-            try {
-                Gson().fromJson(jsonText, CloudConfigList::class.java)
-            } catch (e: JsonSyntaxException) {
-                Log.e(objectTag, TAG, "refreshData: ERROR_MESSAGE: ${e.msg()}")
-                null
-            }
-        } else null
+            conventCloudConfigList(
+                openOkHttpApi.getWithoutError(objectTag, url)?.body?.string() ?: return null
+            )
+        else serverApi.getCloudConfig()
+    }
+
+    private fun conventCloudConfigList(json: String): CloudConfigList? {
+        return try {
+            Gson().fromJson(json, CloudConfigList::class.java)
+        } catch (e: JsonSyntaxException) {
+            Log.e(objectTag, TAG, "conventCloudConfigList: e: ${e.msg()}")
+            null
+        }
     }
 
 
@@ -179,5 +189,36 @@ object CloudConfigGetter {
         return if (cloudHubVersion > localHubVersion)
             downloadCloudHubConfig(hubUuid) {}
         else true
+    }
+}
+
+suspend fun HubConfigGson.toHubEntity(): HubEntity {
+    return metaDatabase.hubDao().loadByUuid(this.uuid)?.also {
+        it.hubConfig = this
+    } ?: HubEntity(this.uuid, this, mutableMapOf())
+}
+
+
+fun AppConfigGson.getAppId(): Map<String, String>? {
+    val hubConfig = CloudConfigGetter.getHubCloudConfig(baseHubUuid) ?: return null
+    return info.extraMap.plus(
+        AutoTemplate.urlToAppId(info.url, hubConfig.appUrlTemplates) ?: mapOf()
+    )
+}
+
+suspend fun AppConfigGson.toAppEntity(): AppEntity? {
+    val appDatabaseList = metaDatabase.appDao().loadAll()
+    val appId = this.getAppId() ?: return null
+    for (appDatabase in appDatabaseList) {
+        if (appDatabase.appId == appId) {
+            appDatabase.name = info.name
+            appDatabase.cloudConfig = this
+            val baseHubUuid = (appDatabase.getSortHubUuidList() + baseHubUuid).toSet()
+            appDatabase.setSortHubUuidList(baseHubUuid)
+            return appDatabase
+        }
+    }
+    return AppEntity(0, info.name, appId, cloudConfig = this).apply {
+        setSortHubUuidList(listOf(this@toAppEntity.baseHubUuid))
     }
 }

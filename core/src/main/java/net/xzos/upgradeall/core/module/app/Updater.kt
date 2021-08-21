@@ -6,6 +6,7 @@ import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.module.app.version.VersionUtils
 import net.xzos.upgradeall.core.utils.*
 import net.xzos.upgradeall.core.utils.android_app.getAppVersion
+import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
 
 class Updater internal constructor(
     private val dataStorage: DataStorage,

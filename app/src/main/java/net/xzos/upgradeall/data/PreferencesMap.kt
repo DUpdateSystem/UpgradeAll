@@ -7,14 +7,12 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.CoreConfig
 import net.xzos.upgradeall.core.data.DEF_UPDATE_SERVER_URL
-import net.xzos.upgradeall.core.data.WebDavConfig
 import net.xzos.upgradeall.core.initCore
-import net.xzos.upgradeall.core.installer.ApkShizukuInstaller
+import net.xzos.upgradeall.core.installer.installerapi.ApkShizukuInstaller
 import net.xzos.upgradeall.server.downloader.DownloadNotification
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.ui.home.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
-import net.xzos.upgradeall.utils.file.FileUtil
 import java.util.*
 
 
@@ -176,22 +174,12 @@ object PreferencesMap {
     // 同步 Core 模块的配置
     private fun syncCoreConfig() {
         val coreConfig = CoreConfig(
-            androidContext = MyApplication.context,
             data_expiration_time = 20,
             update_server_url = update_server_url,
             cloud_rules_hub_url = cloud_rules_hub_url,
-            download_document_file = FileUtil.DOWNLOAD_DOCUMENT_FILE,
-            download_max_task_num = download_max_task_num,
-            download_thread_num = download_thread_num,
-            download_auto_retry_max_attempts = download_auto_retry_max_attempts,
-            install_apk_api = install_apk_api,
             applications_ignore_system_app = applications_ignore_system_app,
         )
-        initCore(
-            coreConfig,
-            WebDavConfig(webdav_url, webdav_path, webdav_username, webdav_password),
-            DownloadNotification.downloadServiceNotificationMaker
-        )
+        initCore( coreConfig )
     }
 
     // 检查设置
@@ -202,10 +190,7 @@ object PreferencesMap {
             download_max_task_num = 1
         if (download_auto_retry_max_attempts <= 0)
             download_auto_retry_max_attempts = 1
-        if (auto_dump_download_file && FileUtil.getUserDownloadDocumentFile()?.canWrite() != true) {
-            auto_dump_download_file = false
-            MiscellaneousUtils.showToast(R.string.download_dir_check_filed)
-        }
+        // TODO: 自定义下载目录支持
     }
 
     // 检查设置数据

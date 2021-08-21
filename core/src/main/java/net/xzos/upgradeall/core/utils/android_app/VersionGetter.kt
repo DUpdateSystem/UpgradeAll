@@ -1,13 +1,15 @@
 package net.xzos.upgradeall.core.utils.android_app
 
+import net.xzos.upgradeall.core.androidutils.androidContext
+import net.xzos.upgradeall.core.androidutils.locale
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL
 import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL_ROOT
 import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
-import net.xzos.upgradeall.core.utils.shell.Shell
-import net.xzos.upgradeall.core.utils.shell.getOutputString
-import net.xzos.upgradeall.core.utils.shell.getProp
+import net.xzos.upgradeall.core.shell.Shell
+import net.xzos.upgradeall.core.shell.getOutputString
+import net.xzos.upgradeall.core.utils.getProp
 
 
 fun Map<String, String?>.getPackageId(): Pair<String, String>? {
@@ -22,7 +24,7 @@ fun Map<String, String?>.getPackageId(): Pair<String, String>? {
 
 internal fun getAppVersion(appId: Map<String, String?>): String? {
     val (api, key) = appId.getPackageId() ?: return null
-    return when (api.toLowerCase(coreConfig.locale)) {
+    return when (api.toLowerCase(locale)) {
         ANDROID_APP_TYPE -> getAndroidAppVersion(key)
         ANDROID_MAGISK_MODULE_TYPE -> getMagiskModuleVersion(key)
         ANDROID_CUSTOM_SHELL -> Shell.runShellCommand(key)?.getOutputString()
@@ -35,7 +37,7 @@ internal fun getAppVersion(appId: Map<String, String?>): String? {
 private fun getAndroidAppVersion(packageName: String): String? {
     // 获取软件版本
     return try {
-        val packageInfo = coreConfig.androidContext.packageManager.getPackageInfo(packageName, 0)
+        val packageInfo = androidContext.packageManager.getPackageInfo(packageName, 0)
         packageInfo.versionName
     } catch (e: Throwable) {
         null

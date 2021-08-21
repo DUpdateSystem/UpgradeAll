@@ -7,24 +7,15 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL
 import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL_ROOT
 import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
-import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.core.log.ObjectTag
-import net.xzos.upgradeall.core.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.manager.HubManager
+import net.xzos.upgradeall.core.shell.getFileText
 import java.io.StringReader
 import java.security.MessageDigest
 import java.util.*
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 
 fun String.md5(): String {
@@ -33,71 +24,8 @@ fun String.md5(): String {
     return md.digest().toString(Charsets.UTF_8)
 }
 
-fun parsePropertiesString(s: String): Properties {
-    return Properties().apply {
-        this.load(StringReader(s))
-    }
-}
-
-fun Mutex.unlockAfterComplete(action: () -> Unit) {
-    action()
-    unlockWithCheck()
-}
-
-fun Mutex.lockWithCheck(owner: Any? = null) {
-    if (!this.isLocked)
-        runBlocking { this@lockWithCheck.lock(owner) }
-}
-
-fun Mutex.unlockWithCheck() {
-    try {
-        this.unlock()
-    } catch (ignore: IllegalStateException) {
-    }
-}
-
-suspend fun Mutex.wait() {
-    if (this.isLocked) {
-        try {
-            withLock { }
-        } catch (ignore: IllegalStateException) {
-        }
-    }
-}
-
-fun <T> Mutex.runWithLock(context: CoroutineContext = EmptyCoroutineContext, action: () -> T): T {
-    return runBlocking(context) {
-        this@runWithLock.withLock {
-            action()
-        }
-    }
-}
-
-fun requestPermission(
-    activity: Activity,
-    permission: String,
-    PERMISSIONS_REQUEST_CONTACTS: Int,
-    tipResId: Int
-): Boolean {
-    val tag = "RequestPermission"
-    val logObjectTag = ObjectTag(core, tag)
-    var havePermission = false
-    if (ContextCompat.checkSelfPermission(
-            activity,
-            permission
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
-            Log.i(logObjectTag, tag, tipResId.toString())
-        }
-        ActivityCompat.requestPermissions(
-            activity,
-            arrayOf(permission),
-            PERMISSIONS_REQUEST_CONTACTS
-        )
-    } else
-        havePermission = true
-    return havePermission
+fun getProp(path: String): Properties? {
+    return getFileText(path)?.parseProperties()
 }
 
 fun getAllLocalKeyList(): List<String> {
@@ -151,9 +79,4 @@ fun <K, V> MutableMap<K, V>.chunked(size: Int): List<MutableMap<K, V>> {
     }
     list.add(map)
     return list
-}
-
-fun getJsonMap(json:String):Map<String,String>{
-    val type = object : TypeToken<Map<String, String>>() {}.type
-    return Gson().fromJson(json, type)
 }
