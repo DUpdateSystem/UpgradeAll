@@ -7,12 +7,12 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.CoreConfig
 import net.xzos.upgradeall.core.data.DEF_UPDATE_SERVER_URL
+import net.xzos.upgradeall.core.downloader.DownloadConfig
+import net.xzos.upgradeall.core.downloader.initDownload
 import net.xzos.upgradeall.core.initCore
 import net.xzos.upgradeall.core.installer.installerapi.ApkShizukuInstaller
-import net.xzos.upgradeall.server.downloader.DownloadNotification
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.ui.home.MainActivity
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 import java.util.*
 
 
@@ -179,7 +179,13 @@ object PreferencesMap {
             cloud_rules_hub_url = cloud_rules_hub_url,
             applications_ignore_system_app = applications_ignore_system_app,
         )
-        initCore( coreConfig )
+        initCore(coreConfig)
+        initDownload(
+            DownloadConfig(
+                MyApplication.context,
+                download_max_task_num, download_thread_num, download_auto_retry_max_attempts
+            )
+        )
     }
 
     // 检查设置
