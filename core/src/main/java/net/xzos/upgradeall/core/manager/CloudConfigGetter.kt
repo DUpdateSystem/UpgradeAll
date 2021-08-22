@@ -5,7 +5,6 @@ import com.google.gson.JsonSyntaxException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.coreConfig
-import net.xzos.upgradeall.core.data.json.*
 import net.xzos.upgradeall.core.database.dao.HubDao
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity

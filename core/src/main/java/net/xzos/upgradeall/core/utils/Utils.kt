@@ -1,28 +1,17 @@
 package net.xzos.upgradeall.core.utils
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL
 import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL_ROOT
 import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.shell.getFileText
-import java.io.StringReader
-import java.security.MessageDigest
 import java.util.*
 
-
-fun String.md5(): String {
-    val md = MessageDigest.getInstance("MD5")
-    md.update(this.toByteArray())
-    return md.digest().toString(Charsets.UTF_8)
-}
 
 fun getProp(path: String): Properties? {
     return getFileText(path)?.parseProperties()
@@ -54,13 +43,6 @@ fun getAppName(context: Context): String? {
         null
     }
     return pm.getApplicationLabel(ai ?: return null).toString()
-}
-
-fun openInFileManager(path: String, context: Context) {
-    val selectedUri = Uri.parse(path)
-    val intent = Intent(Intent.ACTION_VIEW)
-    intent.setDataAndType(selectedUri, "resource/folder")
-    context.startActivity(intent)
 }
 
 fun <K> Map<K, String?>.cleanBlankValue(): Map<K, String> {

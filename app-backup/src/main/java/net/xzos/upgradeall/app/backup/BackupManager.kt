@@ -1,8 +1,6 @@
 package net.xzos.upgradeall.app.backup
 
 import android.os.Build
-import net.xzos.upgradeall.core.data.json.UIConfig
-import net.xzos.upgradeall.core.data.json.uiConfig
 import net.xzos.upgradeall.core.database.metaDatabase
 import org.json.JSONArray
 import org.json.JSONObject
@@ -65,9 +63,5 @@ object BackupManager {
             json.put(data)
         }
         return json
-    }
-
-    private fun backupUiConfig(): UIConfig {
-        return uiConfig.copy()
     }
 }

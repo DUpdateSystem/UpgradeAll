@@ -5,11 +5,11 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.utils.cleanBlankValue
+import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
 
 @Entity(tableName = "app")
@@ -19,9 +19,15 @@ class AppEntity(
     @ColumnInfo(name = "app_id") var appId: Map<String, String>,
     @ColumnInfo(name = "invalid_version_number_field_regex") var invalidVersionNumberFieldRegexString: String? = null,
     @ColumnInfo(name = "ignore_version_number") var ignoreVersionNumber: String? = null,
-    @ColumnInfo(name = "cloud_config") var cloudConfig: net.xzos.upgradeall.core.websdk.json.AppConfigGson? = null,
+    @ColumnInfo(name = "cloud_config") var cloudConfig: AppConfigGson? = null,
     @ColumnInfo(name = "enable_hub_list") var _enableHubUuidListString: String? = null,
+    @ColumnInfo(name = "star") var startRaw: Boolean? = null,
 ) {
+
+    var star: Boolean
+        get() = startRaw == true
+        set(value) = if (value) startRaw = value else startRaw = null
+
     /** @return 软件源的排序列表 与 其是否被使用 */
     fun getSortHubUuidList(): List<String> {
         return sortHubUuidListStringToList(_enableHubUuidListString)

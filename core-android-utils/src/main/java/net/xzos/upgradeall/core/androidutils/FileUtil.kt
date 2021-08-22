@@ -31,24 +31,11 @@ val PREFERENCES_FILE by lazy {
         "shared_prefs/${context.packageName}_preferences.xml"
     )
 }
-val UI_CONFIG_FILE by lazy { File(context.filesDir, "ui.json") }
-val IMAGE_DIR by lazy { File(context.filesDir, "images").getExistsFile(true) }
-const val UPDATE_TAB_IMAGE_NAME = "update_tab.png"
-const val USER_STAR_TAB_IMAGE_NAME = "user_star_tab.png"
-const val ALL_APP_TAB_IMAGE_NAME = "all_app_tab.png"
-val GROUP_IMAGE_DIR by lazy { File(IMAGE_DIR, "groups").getExistsFile(true) }
-val NAV_IMAGE_FILE by lazy { File(IMAGE_DIR, "nav_image.png").getExistsFile() }
 private val CACHE_DIR = context.externalCacheDir!!
-val IMAGE_CACHE_FILE by lazy { File(CACHE_DIR, "_cache_image.png").getExistsFile() }
 val DOWNLOAD_CACHE_DIR by lazy { File(CACHE_DIR, "Download").getExistsFile(true) }
 val DOWNLOAD_EXTRA_CACHE_DIR by lazy {
     File(DOWNLOAD_CACHE_DIR, "ExtraCache").getExistsFile(true)
 }
-val SHELL_SCRIPT_CACHE_FILE by lazy { File(CACHE_DIR, "run.sh").getExistsFile() }
-
-
-fun getUserGroupIcon(iconFileName: String?): File? =
-    if (iconFileName != null) File(GROUP_IMAGE_DIR, iconFileName) else null
 
 fun performFileSearch(activity: Activity, READ_REQUEST_CODE: Int, mimeType: String) {
     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
@@ -225,37 +212,6 @@ fun writeToUri(uri: Uri, text: String? = null, byteArray: ByteArray? = null): Bo
     return writeSuccess
 }
 
-private fun convertBitmapToFile(destinationFile: File, bitmap: Bitmap) {
-    //create a file to write bitmap data
-    destinationFile.createNewFile()
-    //Convert bitmap to byte array
-    val bos = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.PNG, 50, bos)
-    val bitmapData = bos.toByteArray()
-    //write the bytes in file
-    val fos = FileOutputStream(destinationFile)
-    fos.write(bitmapData)
-    fos.flush()
-    fos.close()
-}
-
-fun imageUriDump(selectedImageUri: Uri, activity: Activity): Uri {
-    //Later we will use this bitmap to create the File.
-    val selectedBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        ImageDecoder.decodeBitmap(
-            ImageDecoder.createSource(activity.contentResolver, selectedImageUri)
-        )
-    } else {
-        @Suppress("DEPRECATION")
-        MediaStore.Images.Media.getBitmap(activity.contentResolver, selectedImageUri)
-    }
-
-    /*We can access getExternalFileDir() without asking any storage permission.*/
-
-    convertBitmapToFile(IMAGE_CACHE_FILE, selectedBitmap)
-    return Uri.fromFile(IMAGE_CACHE_FILE)
-}
-
 fun requestFilePermission(
     activity: Activity,
     PERMISSIONS_REQUEST_READ_CONTACTS: Int,
@@ -265,6 +221,13 @@ fun requestFilePermission(
         activity, Manifest.permission.READ_EXTERNAL_STORAGE,
         PERMISSIONS_REQUEST_READ_CONTACTS, tipResId
     )
+}
+
+fun openInFileManager(path: String, context: Context) {
+    val selectedUri = Uri.parse(path)
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.setDataAndType(selectedUri, "resource/folder")
+    context.startActivity(intent)
 }
 
 fun File.getFileByAutoRename(): File {

@@ -3,7 +3,6 @@ package net.xzos.upgradeall.ui.applist.base
 import android.app.Application
 import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
-import net.xzos.upgradeall.core.data.json.uiConfig
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater
@@ -119,7 +118,7 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
     private fun checkAppStatus(app: App): Boolean {
         return when (mTabIndex) {
             TAB_UPDATE -> app.getReleaseStatus() == Updater.APP_OUTDATED
-            TAB_STAR -> uiConfig.userStarAppIdList.contains(app.appId)
+            TAB_STAR -> app.star
             TAB_ALL -> !app.isVirtual
             TAB_APPLICATIONS_APP -> app.isVirtual
                     && (app.isRenewing() || (!app.isRenewing() && app.getReleaseStatus() != Updater.NETWORK_ERROR))

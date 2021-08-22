@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import net.xzos.upgradeall.core.data.CoreConfig
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
-import net.xzos.upgradeall.core.module.network.renewChannel
 import net.xzos.upgradeall.core.websdk.ServerApi
 
 
@@ -24,7 +23,6 @@ fun initCore(
     if (::serverApi.isInitialized) serverApi.shutdown()
     serverApi = ServerApi(_coreConfig.update_server_url, _coreConfig.data_expiration_time)
     initObject()
-    renewChannel(false)
 }
 
 // 提前初始化 Object，避免多线程时属性初始化错误

@@ -27,6 +27,9 @@ class App(
     val hubList: List<Hub>
         get() = dataStorage.hubList
 
+    /* 是否星标 */
+    val star get() = appDatabase.star
+
     suspend fun setHubList(hubUuidList: List<String>) {
         dataStorage.appDatabase.setSortHubUuidList(hubUuidList)
     }

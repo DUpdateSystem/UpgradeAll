@@ -3,13 +3,16 @@ package net.xzos.upgradeall.core.database.migration
 import androidx.core.database.getStringOrNull
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import net.xzos.upgradeall.core.androidutils.UI_CONFIG_FILE
+import net.xzos.upgradeall.core.androidutils.androidContext
 import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.cleanBlankValue
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 import java.util.*
 
+// Deprecated
+internal val UI_CONFIG_FILE = File(androidContext.filesDir, "ui.json")
 
 @Suppress("ClassName")
 open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migration(startVersion, endVersion) {
