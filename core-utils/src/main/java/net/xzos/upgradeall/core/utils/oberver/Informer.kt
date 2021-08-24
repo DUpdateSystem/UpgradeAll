@@ -1,8 +1,9 @@
 package net.xzos.upgradeall.core.utils.oberver
 
 import net.xzos.upgradeall.core.utils.coroutines.*
+import net.xzos.upgradeall.core.utils.none
 
-private const val DEFAULT_TAG = "N_TAG"
+private val DEFAULT_TAG = object : Tag {}
 
 interface Informer {
 
@@ -12,21 +13,21 @@ interface Informer {
         notifyChanged(DEFAULT_TAG)
     }
 
-    fun notifyChanged(tag: String) {
-        val observerMap = getObserverMap(informerId, false)
-        for (observer in observerMap.getObserverMutableList<ObserverFunNoArg>(tag, false)) {
-            observer()
-        }
+    fun notifyChanged(tag: Tag) {
+        notifyChanged(tag, none)
     }
 
     fun <E> notifyChanged(arg: E) {
         notifyChanged(DEFAULT_TAG, arg)
     }
 
-    fun <E> notifyChanged(tag: String, arg: E) {
+    fun <E> notifyChanged(tag: Tag, arg: E) {
         val observerMap = getObserverMap(informerId, false)
-        for (observer in observerMap.getObserverMutableList<ObserverFun<E>>(tag, false)) {
-            observer(arg)
+        for (observer in getExistObserverList<E>(tag, observerMap)) {
+            if (observer.enableCheck())
+                observer.call(arg)
+            if (observer.removeCheck())
+                removeObserver(tag, observer)
         }
     }
 
@@ -38,7 +39,7 @@ interface Informer {
         observeOneOff(DEFAULT_TAG, observerFun)
     }
 
-    fun <E> observeOneOff(tag: String, observerFun: ObserverFun<E>) {
+    fun <E> observeOneOff(tag: Tag, observerFun: ObserverFun<E>) {
         observeWithChecker(tag, observerFun, { true }, { true })
     }
 
@@ -50,63 +51,74 @@ interface Informer {
         observeOneOff(DEFAULT_TAG, observerFun)
     }
 
-    fun observeOneOff(tag: String, observerFun: ObserverFunNoArg) {
+    fun observeOneOff(tag: Tag, observerFun: ObserverFunNoArg) {
         observeWithChecker(tag, observerFun, { true }, { true })
     }
 
     fun <E> observeWithChecker(
-            tag: String, observerFun: ObserverFun<E>,
-            checkerStartFun: () -> Boolean, checkerRemoveFun: () -> Boolean
+        tag: Tag, observerFun: ObserverFun<E>,
+        checkerStartFun: () -> Boolean, checkerRemoveFun: () -> Boolean
     ) {
-        val observeOneOffFun = fun(arg: E) {
-            if (checkerStartFun())
-                observerFun(arg)
-            if (checkerRemoveFun())
-                removeObserver(observerFun)
-        }
-        observeForever(tag, observeOneOffFun)
+        observeForever(tag, object : ObserverFunWithChecker<E>(observerFun) {
+            override fun enableCheck(): Boolean = checkerStartFun()
+            override fun removeCheck(): Boolean = checkerRemoveFun()
+            override fun disableCheck(): Boolean = !checkerStartFun()
+        })
     }
 
     fun observeWithChecker(
-            tag: String, observerFun: ObserverFunNoArg,
-            checkerStartFun: () -> Boolean, checkerRemoveFun: () -> Boolean
+        tag: Tag, observerFun: ObserverFunNoArg,
+        checkerStartFun: () -> Boolean, checkerRemoveFun: () -> Boolean
     ) {
-        val observeOneOffFun = fun() {
-            if (checkerStartFun())
-                observerFun()
-            if (checkerRemoveFun())
-                removeObserver(observerFun)
-        }
-        observeForever(tag, observeOneOffFun)
+        observeForever(tag, object : ObserverFunWithCheckerNoArg(observerFun) {
+            override fun enableCheck(): Boolean = checkerStartFun()
+            override fun removeCheck(): Boolean = checkerRemoveFun()
+            override fun disableCheck(): Boolean = !checkerStartFun()
+        })
     }
 
-    fun <E> observeForever(tag: String, observerFun: ObserverFun<E>) {
-        val observerMap = getObserverMap(informerId)
-        val observerList = observerMap.getObserverMutableList<ObserverFun<E>>(tag)
-        if (!observerList.contains(observerFun))
-            observerList.add(observerFun)
+    fun <E> observeForever(tag: Tag, function: ObserverFun<E>) {
+        observeForever(tag, Observer(function))
     }
 
-    fun observeForever(tag: String, observerFun: ObserverFunNoArg) {
+    fun observeForever(tag: Tag, function: ObserverFunNoArg) {
+        observeForever(tag, ObserverNoArg(function))
+    }
+
+    fun observeForever(tag: Tag, observer: BaseObserver<*>) {
         val observerMap = getObserverMap(informerId)
-        val observerList = observerMap.getObserverMutableList<ObserverFunNoArg>(tag)
-        if (!observerList.contains(observerFun))
-            observerList.add(observerFun)
+        val observerList = getObserverList(tag, observerMap)
+        if (!observerList.containsId(observer))
+            observerList.add(observer)
     }
 
     fun <E> removeObserver(observerFun: ObserverFun<E>) {
         getObserverMap(informerId, false).forEach {
-            it.value.remove(observerFun)
+            it.value.run {
+                forEach { observer ->
+                    if (observer.id == observerFun)
+                        remove(observer)
+                }
+            }
         }
     }
 
     fun removeObserver(observerFun: ObserverFunNoArg) {
         getObserverMap(informerId, false).forEach {
-            it.value.remove(observerFun)
+            it.value.run {
+                forEach { observer ->
+                    if (observer.id == observerFun)
+                        remove(observer)
+                }
+            }
         }
     }
 
-    fun removeObserver(tag: String) {
+    fun removeObserver(tag: Tag, observer: BaseObserver<*>) {
+        getObserverMap(informerId, false)[tag]?.remove(observer)
+    }
+
+    fun removeObserver(tag: Tag) {
         getObserverMap(informerId, false).remove(tag)
     }
 
@@ -115,26 +127,46 @@ interface Informer {
     }
 
     companion object {
-        private val observerMap: CoroutinesMutableMap<Int, CoroutinesMutableMap<String, CoroutinesMutableList<Any>>> = coroutinesMutableMapOf(true)
+        private fun List<BaseObserver<*>>.containsId(value: Any): Boolean {
+            val id = if (value is Observer<*>)
+                value.id
+            else value
+            forEach { observer ->
+                if (observer.id == id)
+                    return true
+            }
+            return false
+        }
+
+        private val observerMap: CoroutinesMutableMap<Int, CoroutinesMutableMap<Tag, CoroutinesMutableList<BaseObserver<*>>>> =
+            coroutinesMutableMapOf(true)
         private val informerIdGetter: CoroutinesCount = CoroutinesCount(0)
 
         fun getInformerId(): Int = informerIdGetter.getNewValue(1)
 
-        private fun getObserverMap(informerId: Int, createNew: Boolean = true): CoroutinesMutableMap<String, CoroutinesMutableList<Any>> {
-            return if (createNew)
-                observerMap.getOrDefault(informerId, coroutinesMutableMapOf(true))
+        private fun getObserverMap(
+            informerId: Int,
+            createNew: Boolean = true
+        ): CoroutinesMutableMap<Tag, CoroutinesMutableList<BaseObserver<*>>> {
+            return (if (createNew)
+                observerMap.getOrDefault(informerId) { coroutinesMutableMapOf(true) }
             else
-                observerMap[informerId] ?: coroutinesMutableMapOf(true)
+                observerMap[informerId] ?: coroutinesMutableMapOf(true))
 
         }
 
-        fun <E> CoroutinesMutableMap<String, CoroutinesMutableList<Any>>.getObserverMutableList(
-                key: String, createNew: Boolean = true
-        ): CoroutinesMutableList<E> {
-            @Suppress("UNCHECKED_CAST")
-            return if (createNew)
-                getOrDefault(key, coroutinesMutableListOf<E>() as CoroutinesMutableList<Any>) as CoroutinesMutableList<E>
-            else (this[key] ?: coroutinesMutableListOf(true)) as CoroutinesMutableList<E>
+        fun getObserverList(
+            tag: Tag,
+            observerMap: CoroutinesMutableMap<Tag, CoroutinesMutableList<BaseObserver<*>>>,
+        ): MutableList<BaseObserver<*>> {
+            return observerMap.getOrDefault(tag) { coroutinesMutableListOf(true) }
+        }
+
+        fun <E> getExistObserverList(
+            tag: Tag,
+            observerMap: CoroutinesMutableMap<Tag, CoroutinesMutableList<BaseObserver<*>>>,
+        ): List<BaseObserver<E>> {
+            return (observerMap[tag] ?: emptyList()) as List<BaseObserver<E>>
         }
     }
 }
