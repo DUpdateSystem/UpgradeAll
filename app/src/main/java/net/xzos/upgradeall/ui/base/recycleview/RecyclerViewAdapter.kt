@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
+import net.xzos.upgradeall.core.androidutils.runUiFun
 import net.xzos.upgradeall.ui.base.list.ListItemView
-import net.xzos.upgradeall.utils.runUiFun
 
 abstract class RecyclerViewAdapter<LT, L : ListItemView, RHA : RecyclerViewHandler, T : RecyclerViewHolder<in L, RHA, *>>(
     @Suppress("UNCHECKED_CAST")

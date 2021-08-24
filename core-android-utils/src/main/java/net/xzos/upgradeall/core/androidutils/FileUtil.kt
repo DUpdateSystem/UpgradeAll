@@ -6,35 +6,28 @@ import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract.EXTRA_INITIAL_URI
-import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import androidx.annotation.StringRes
 import androidx.documentfile.provider.DocumentFile
+import net.xzos.upgradeall.core.shell.getFileText
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.msg
 import java.io.*
+import java.util.*
 
 
 private const val TAG = "FileUtil"
 private val logObjectTag = ObjectTag("Core", TAG)
-private val context get() = androidContext
 
-val PREFERENCES_FILE by lazy {
-    File(
-        context.filesDir.parentFile,
-        "shared_prefs/${context.packageName}_preferences.xml"
-    )
-}
-private val CACHE_DIR = context.externalCacheDir!!
-val DOWNLOAD_CACHE_DIR by lazy { File(CACHE_DIR, "Download").getExistsFile(true) }
-val DOWNLOAD_EXTRA_CACHE_DIR by lazy {
-    File(DOWNLOAD_CACHE_DIR, "ExtraCache").getExistsFile(true)
+/**
+ * 获取指定文件的 Prop 格式数据
+ */
+fun getProp(path: String): Properties? {
+    return getFileText(path)?.parseProperties()
 }
 
 fun performFileSearch(activity: Activity, READ_REQUEST_CODE: Int, mimeType: String) {
@@ -71,9 +64,9 @@ fun takePersistableUriPermission(context: Context, treeUri: Uri) {
 /**
  * 转储文件内容到指定 TreeUri 下
  */
-fun dumpFile(file: File, treeFile: DocumentFile): DocumentFile? {
-    val newFile = treeFile.createFile(file.getMimeType(), file.name) ?: return null
-    writeToUri(newFile.uri, byteArray = file.readBytes())
+fun dumpFile(file: File, treeFile: DocumentFile, context: Context): DocumentFile? {
+    val newFile = treeFile.createFile(file.getMimeType(context), file.name) ?: return null
+    writeToUri(newFile.uri, context, byteArray = file.readBytes())
     return newFile
 }
 
@@ -147,7 +140,7 @@ fun fileIsExistsByPath(path: String): Boolean {
     return file.exists()
 }
 
-fun fileIsExistsByUri(uri: Uri): Boolean {
+fun fileIsExistsByUri(uri: Uri, context: Context): Boolean {
     return try {
         context.contentResolver.openInputStream(uri)
         true
@@ -156,7 +149,7 @@ fun fileIsExistsByUri(uri: Uri): Boolean {
     }
 }
 
-fun readTextFromUri(uri: Uri): String? {
+fun readTextFromUri(uri: Uri, context: Context): String? {
     try {
         val inputStream = context.contentResolver.openInputStream(uri)
         if (inputStream != null) {
@@ -170,7 +163,12 @@ fun readTextFromUri(uri: Uri): String? {
     return null
 }
 
-fun writeToUri(uri: Uri, text: String? = null, byteArray: ByteArray? = null): Boolean {
+fun writeToUri(
+    uri: Uri,
+    context: Context,
+    text: String? = null,
+    byteArray: ByteArray? = null
+): Boolean {
     var writeSuccess = false
     if (text != null || byteArray != null)
         try {
@@ -243,7 +241,7 @@ fun File.getFileByAutoRename(): File {
     return file
 }
 
-fun File.getMimeType(): String {
+fun File.getMimeType(context: Context): String {
     val mime = MimeTypeMap.getSingleton()
     val cR = context.contentResolver
     return mime.getExtensionFromMimeType(cR.getType(Uri.fromFile(this))) ?: "*/*"

@@ -1,8 +1,8 @@
 package net.xzos.upgradeall.ui.applist.base
 
 import android.app.Application
-import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
-import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
+import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater

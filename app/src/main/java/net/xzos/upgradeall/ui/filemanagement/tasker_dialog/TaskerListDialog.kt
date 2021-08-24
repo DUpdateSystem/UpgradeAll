@@ -6,12 +6,12 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.tonyodev.fetch2.Download
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.xzos.upgradeall.core.androidutils.runUiFun
 import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.databinding.DialogFileTaskerBinding
 import net.xzos.upgradeall.ui.base.listdialog.ListDialogPart
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItem
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerListAdapter
-import net.xzos.upgradeall.utils.runUiFun
 import java.io.File
 
 

@@ -9,7 +9,6 @@ import android.os.IBinder
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat.checkSelfPermission
-import net.xzos.upgradeall.core.androidutils.androidContext
 import net.xzos.upgradeall.core.installer.BuildConfig
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
@@ -20,7 +19,7 @@ import rikka.shizuku.ShizukuProvider
 import rikka.sui.Sui
 
 
-class ShizukuUtils {
+class ShizukuUtils(context: Context) {
     private val userServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, binder: IBinder?) {
             val res = java.lang.StringBuilder()
@@ -38,7 +37,7 @@ class ShizukuUtils {
     }
     private val userServiceStandaloneProcessArgs = UserServiceArgs(
         ComponentName(
-            androidContext.packageName,
+            context.packageName,
             this::class.java.name
         )
     ).processNameSuffix("shizuku_installer")

@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.module.app
 
-import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.isInit
 import net.xzos.upgradeall.core.database.table.setSortHubUuidList
@@ -100,14 +99,12 @@ class App(
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is App) {
-            return false
+        return when {
+            other !is App -> false
+            appDatabase == other.appDatabase -> return true
+            appDatabase.cloudConfig?.uuid == other.appDatabase.cloudConfig?.uuid -> return true
+            else -> super.equals(other)
         }
-        val appUuid = appDatabase.cloudConfig?.uuid
-        return if (appUuid != null && appUuid == other.appDatabase.cloudConfig?.uuid)
-            true
-        else
-            super.equals(other)
     }
 
     override fun hashCode(): Int {
@@ -116,4 +113,5 @@ class App(
 }
 
 fun App.getDatabase(): AppEntity = appDatabase
-fun App.getConfigJson(): net.xzos.upgradeall.core.websdk.json.AppConfigGson? = appDatabase.cloudConfig
+fun App.getConfigJson(): net.xzos.upgradeall.core.websdk.json.AppConfigGson? =
+    appDatabase.cloudConfig

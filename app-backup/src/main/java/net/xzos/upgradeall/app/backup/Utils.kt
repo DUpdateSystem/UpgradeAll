@@ -1,8 +1,11 @@
 package net.xzos.upgradeall.app.backup
 
-import net.xzos.upgradeall.core.androidutils.androidContext
+import android.annotation.SuppressLint
+import android.content.Context
 import java.io.File
 
+@SuppressLint("StaticFieldLeak")
+internal lateinit var androidContext: Context
 
 val preferencesFile = File(
     androidContext.filesDir.parentFile,

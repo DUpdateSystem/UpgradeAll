@@ -11,11 +11,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
+import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.utils.getOrNull
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.websdk.openOkHttpApi
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
@@ -68,7 +68,8 @@ fun egg() {
 }
 
 fun halloweenAndBirthday() {
-    MiscellaneousUtils.showToast(
+    ToastUtil.showText(
+        context,
         "\uD83C\uDF6C\uD83E\uDD70\uD83D\uDE0B\uD83D\uDE1D\uD83D\uDE09",
         Toast.LENGTH_LONG
     )

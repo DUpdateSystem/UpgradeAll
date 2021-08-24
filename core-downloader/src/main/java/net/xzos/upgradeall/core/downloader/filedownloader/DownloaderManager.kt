@@ -27,7 +27,7 @@ internal object DownloaderManager {
     }
 
     internal fun removeDownloader(downloader: Downloader) {
-        DownloadRegister.unRegisterById(downloader.downloadId)
+        DownloadRegister.unRegisterId(downloader.downloadId)
         downloaderList.remove(downloader)
         renewDownloadServiceStatus()
     }

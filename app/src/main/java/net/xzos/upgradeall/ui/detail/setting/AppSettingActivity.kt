@@ -29,7 +29,7 @@ import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListAdapter
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListViewModel
 import net.xzos.upgradeall.core.androidutils.ToastUtil
-import net.xzos.upgradeall.utils.runUiFun
+import net.xzos.upgradeall.core.androidutils.runUiFun
 
 
 class AppSettingActivity : AppBarActivity() {
@@ -83,7 +83,7 @@ class AppSettingActivity : AppBarActivity() {
             return
         }
         if (appId.isEmpty()) {
-            ToastUtil.makeText(R.string.helper_text_attr_cant_be_empty)
+            ToastUtil.showText(this, R.string.helper_text_attr_cant_be_empty)
             return
         }
         val appEntity = database?.apply {
@@ -104,7 +104,7 @@ class AppSettingActivity : AppBarActivity() {
                     if (appEntityR != null)
                         finish()
                     else
-                        ToastUtil.makeText(R.string.failed_to_add, Toast.LENGTH_LONG)
+                        ToastUtil.showText(this@AppSettingActivity, R.string.failed_to_add, Toast.LENGTH_LONG)
                     binding.addButton.visibility = View.VISIBLE
                     binding.loadingBar.visibility = View.GONE
                 }
@@ -147,7 +147,7 @@ class AppSettingActivity : AppBarActivity() {
             // 刷新第三方源列表，获取支持的第三方源列表
             withContext(Dispatchers.Main) {
                 if (HubManager.getHubList().isEmpty()) {
-                    ToastUtil.makeText(R.string.add_something, Toast.LENGTH_LONG)
+                    ToastUtil.showText(this@AppSettingActivity, R.string.add_something, Toast.LENGTH_LONG)
                     finish()
                 }
             }

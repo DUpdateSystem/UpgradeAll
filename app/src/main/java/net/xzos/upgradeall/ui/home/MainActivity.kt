@@ -22,10 +22,9 @@ import net.xzos.upgradeall.ui.home.adapter.*
 import net.xzos.upgradeall.ui.hubmanager.HubManagerActivity
 import net.xzos.upgradeall.ui.log.LogActivity
 import net.xzos.upgradeall.ui.preference.SettingsActivity
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.core.androidutils.ToastUtil
+import net.xzos.upgradeall.core.androidutils.runUiFun
 import net.xzos.upgradeall.utils.UxUtils
-import net.xzos.upgradeall.utils.runUiFun
 
 
 class MainActivity : BaseActivity() {
@@ -72,7 +71,7 @@ class MainActivity : BaseActivity() {
                     startActivity(Intent(this, SettingsActivity::class.java))
                 },
                 HomeModuleNonCardBean(R.drawable.ic_home_about, R.string.home_about) {
-                    ToastUtil.makeText(R.string.home_about)
+                    ToastUtil.showText(this, R.string.home_about)
                 }
             ))
         } else {
@@ -84,7 +83,7 @@ class MainActivity : BaseActivity() {
                 checkUpdate()
             }
             layoutCard.setOnLongClickListener {
-                MiscellaneousUtils.showToast(R.string.force_renew)
+                ToastUtil.showText(this@MainActivity, R.string.force_renew)
                 checkUpdate()
                 true
             }

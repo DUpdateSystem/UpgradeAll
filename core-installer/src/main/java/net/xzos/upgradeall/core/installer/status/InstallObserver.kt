@@ -7,8 +7,14 @@ import net.xzos.upgradeall.core.installer.installerapi.ApkSystemInstaller
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.oberver.Informer
 import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
+import net.xzos.upgradeall.core.utils.oberver.Tag
 import net.xzos.upgradeall.core.utils.watchdog.WatchdogItem
 import java.io.File
+
+private data class PackageInfoTag(
+    val packageName: String,
+    val versionName: String,
+) : Tag
 
 internal object InstallObserver : Informer {
     override val informerId = Informer.getInformerId()
@@ -41,7 +47,7 @@ internal object InstallObserver : Informer {
         ApkSystemInstaller.removeObserver(key)
     }
 
-    private fun getObserveKey(packageInfo: PackageInfo): String {
-        return "${packageInfo.packageName}:${packageInfo.versionName}"
+    private fun getObserveKey(packageInfo: PackageInfo): PackageInfoTag {
+        return PackageInfoTag(packageInfo.packageName, packageInfo.versionName)
     }
 }

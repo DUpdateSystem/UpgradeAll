@@ -9,11 +9,11 @@ import android.content.pm.IPackageInstallerSession
 import android.content.pm.IPackageManager
 import android.content.pm.PackageInstaller
 import android.os.Process
+import net.xzos.upgradeall.core.androidutils.requestPermission
 import net.xzos.upgradeall.core.installer.installerapi.shizuku.IIntentSenderAdaptor
 import net.xzos.upgradeall.core.installer.installerapi.shizuku.IntentSenderUtils
 import net.xzos.upgradeall.core.installer.installerapi.shizuku.PackageInstallerUtils
 import net.xzos.upgradeall.core.installer.installerapi.shizuku.ShizukuUtils
-import net.xzos.upgradeall.core.androidutils.requestPermission
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
@@ -30,7 +30,6 @@ object ApkShizukuInstaller {
     private const val TAG = "ApkShizukuInstaller"
     private val logObjectTag = ObjectTag(core, TAG)
 
-    private val shizukuUtils = ShizukuUtils()
 
     @Suppress("ObjectPropertyName")
     private val _packageManager: IPackageManager by lazy {
@@ -42,13 +41,17 @@ object ApkShizukuInstaller {
         IPackageInstaller.Stub.asInterface(ShizukuBinderWrapper(_packageManager.packageInstaller.asBinder()))
     }
 
+    @Suppress("RedundantSuspendModifier")
     suspend fun install(file: File, context: Context) {
+        val shizukuUtils = ShizukuUtils(context)
         shizukuUtils.bindUserServiceStandaloneProcess()
         doApkInstall(file, context)
         shizukuUtils.unbindUserServiceStandaloneProcess()
     }
 
+    @Suppress("RedundantSuspendModifier")
     suspend fun multipleInstall(apkFileList: List<File>, context: Context) {
+        val shizukuUtils = ShizukuUtils(context)
         shizukuUtils.bindUserServiceStandaloneProcess()
         doMultipleInstall(apkFileList, context)
         shizukuUtils.unbindUserServiceStandaloneProcess()
@@ -143,9 +146,7 @@ object ApkShizukuInstaller {
         val installerPackageName = if (isRoot) context.packageName else "com.android.shell"
         val userId = if (isRoot) Process.myUserHandle().hashCode() else 0
         return PackageInstallerUtils.createPackageInstaller(
-            _packageInstaller,
-            installerPackageName,
-            userId
+            context, _packageInstaller, installerPackageName, userId
         )
     }
 
@@ -214,10 +215,9 @@ object ApkShizukuInstaller {
         activity: Activity,
         PERMISSIONS_REQUEST_CONTACTS: Int,
     ) {
-        Shizuku.addBinderReceivedListenerSticky(Shizuku.OnBinderReceivedListener { })
-        Shizuku.addBinderDeadListener(Shizuku.OnBinderDeadListener { })
-        Shizuku.addRequestPermissionResultListener(Shizuku.OnRequestPermissionResultListener { _: Int, _: Int ->
-        })
+        Shizuku.addBinderReceivedListenerSticky { }
+        Shizuku.addBinderDeadListener { }
+        Shizuku.addRequestPermissionResultListener { _: Int, _: Int -> }
         ShizukuUtils.checkPermission(activity, PERMISSIONS_REQUEST_CONTACTS)
     }
 
@@ -225,7 +225,7 @@ object ApkShizukuInstaller {
         activity: Activity,
         PERMISSIONS_REQUEST_CONTACTS: Int,
     ): Boolean {
-        return net.xzos.upgradeall.core.androidutils.requestPermission(
+        return requestPermission(
             activity, ShizukuProvider.PERMISSION,
             PERMISSIONS_REQUEST_CONTACTS, "shizuku permission request"
         )

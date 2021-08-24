@@ -2,9 +2,9 @@ package net.xzos.upgradeall.ui.filemanagement
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.xzos.upgradeall.core.androidutils.runUiFun
 import net.xzos.upgradeall.databinding.ItemHubFileTaskerBinding
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
-import net.xzos.upgradeall.utils.runUiFun
 
 
 class FileHubListViewHolder(private val binding: ItemHubFileTaskerBinding)

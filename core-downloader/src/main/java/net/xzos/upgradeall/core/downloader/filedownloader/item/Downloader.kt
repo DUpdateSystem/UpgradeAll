@@ -48,7 +48,7 @@ class Downloader internal constructor(downloadDir: File) {
     }
 
     fun unregister(downloadOb: DownloadOb) {
-        DownloadRegister.unRegisterByOb(downloadOb)
+        DownloadRegister.unRegisterOb(downloadId, downloadOb)
     }
 
     fun removeFile() {

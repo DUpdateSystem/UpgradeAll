@@ -30,26 +30,26 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromAppConfigGson(appConfigGson: net.xzos.upgradeall.core.websdk.json.AppConfigGson?): String? {
+    fun fromAppConfigGson(appConfigGson: AppConfigGson?): String? {
         appConfigGson ?: return null
         return appConfigGson.toString()
     }
 
     @TypeConverter
-    fun stringToAppConfigGson(s: String?): net.xzos.upgradeall.core.websdk.json.AppConfigGson? {
+    fun stringToAppConfigGson(s: String?): AppConfigGson? {
         if (s.isNullOrEmpty()) return null
-        return Gson().fromJson(s, net.xzos.upgradeall.core.websdk.json.AppConfigGson::class.java)
+        return Gson().fromJson(s, AppConfigGson::class.java)
     }
 
     @TypeConverter
-    fun fromHubConfigGson(hubConfigGson: net.xzos.upgradeall.core.websdk.json.HubConfigGson): String {
+    fun fromHubConfigGson(hubConfigGson: HubConfigGson): String {
         return hubConfigGson.toString()
     }
 
     @TypeConverter
-    fun stringToHubConfigGson(s: String?): net.xzos.upgradeall.core.websdk.json.HubConfigGson {
-        if (s.isNullOrEmpty()) return net.xzos.upgradeall.core.websdk.json.HubConfigGson()
-        return Gson().fromJson(s, net.xzos.upgradeall.core.websdk.json.HubConfigGson::class.java)
+    fun stringToHubConfigGson(s: String?): HubConfigGson {
+        if (s.isNullOrEmpty()) return HubConfigGson()
+        return Gson().fromJson(s, HubConfigGson::class.java)
     }
 
     private fun stringToCollectionMap(s: String?): Collection<Map<String, String?>> {

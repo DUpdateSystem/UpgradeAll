@@ -6,14 +6,10 @@ import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
-import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL
-import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL_ROOT
-import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
+import net.xzos.upgradeall.core.androidutils.app_info.*
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.manager.getAppId
-import net.xzos.upgradeall.core.utils.android_app.getPackageId
 import net.xzos.upgradeall.ui.base.list.ActivityListItemView
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 

@@ -179,7 +179,7 @@ object PreferencesMap {
             cloud_rules_hub_url = cloud_rules_hub_url,
             applications_ignore_system_app = applications_ignore_system_app,
         )
-        initCore(coreConfig)
+        initCore(context, coreConfig)
         initDownload(
             DownloadConfig(
                 MyApplication.context,

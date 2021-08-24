@@ -7,14 +7,15 @@ import androidx.preference.Preference
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.ui.base.selectlistdialog.SelectItem
 import net.xzos.upgradeall.ui.base.selectlistdialog.SelectListDialog
 import net.xzos.upgradeall.ui.home.MainActivity
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 
-class UISettingFragment : PrefFragment(R.xml.preferences_ui), SharedPreferences.OnSharedPreferenceChangeListener {
+class UISettingFragment : PrefFragment(R.xml.preferences_ui),
+    SharedPreferences.OnSharedPreferenceChangeListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -33,7 +34,7 @@ class UISettingFragment : PrefFragment(R.xml.preferences_ui), SharedPreferences.
 
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        MiscellaneousUtils.showToast(R.string.plz_restart)
+        ToastUtil.showText(requireContext(), R.string.plz_restart)
     }
 
     private fun setHomeBottomList() {
@@ -42,10 +43,19 @@ class UISettingFragment : PrefFragment(R.xml.preferences_ui), SharedPreferences.
             GlobalScope.launch {
                 val homeBottomMap = PreferencesMap.home_bottom_map
                 val dataList = SelectListDialog.showDialog(
-                        homeBottomMap.map { SelectItem(requireContext().getString(MainActivity.getBeanName(it.key)!!), it.key, it.value) },
-                        requireActivity().supportFragmentManager, R.string.home_bottom_queue_setting
+                    homeBottomMap.map {
+                        SelectItem(
+                            requireContext().getString(
+                                MainActivity.getBeanName(
+                                    it.key
+                                )!!
+                            ), it.key, it.value
+                        )
+                    },
+                    requireActivity().supportFragmentManager, R.string.home_bottom_queue_setting
                 )
-                PreferencesMap.home_bottom_map = dataList.map { it.id to it.enableObservable.enable }.toMap()
+                PreferencesMap.home_bottom_map =
+                    dataList.map { it.id to it.enableObservable.enable }.toMap()
             }
             false
         }

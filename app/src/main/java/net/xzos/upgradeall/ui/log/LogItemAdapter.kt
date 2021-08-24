@@ -47,7 +47,7 @@ class LogItemAdapter(mLogList: LiveData<List<String>>, owner: LifecycleOwner) : 
         val logTextView = holder.logTextView
         logTextView.setOnClickListener {
             val context = logTextView.context
-            clipStringToClipboard(logTextView.text, context)
+            clipStringToClipboard(context, logTextView.text)
         }
         return holder
     }

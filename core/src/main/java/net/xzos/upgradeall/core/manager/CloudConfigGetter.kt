@@ -27,17 +27,6 @@ object CloudConfigGetter {
     private const val TAG = "CloudConfigGetter"
     private val objectTag = ObjectTag(core, TAG)
 
-    private const val SUCCESS = 1
-    private const val FAILED = -1
-    private const val SUCCESS_GET_APP_DATA = SUCCESS + 1
-    private const val SUCCESS_GET_HUB_DATA = SUCCESS + 2
-    private const val SUCCESS_SAVE_APP_DATA = SUCCESS + 3
-    private const val SUCCESS_SAVE_HUB_DATA = SUCCESS + 4
-    private const val FAILED_GET_APP_DATA = FAILED - 1
-    private const val FAILED_GET_HUB_DATA = FAILED - 2
-    private const val FAILED_SAVE_APP_DATA = FAILED - 3
-    private const val FAILED_SAVE_HUB_DATA = FAILED - 4
-
     private const val CLOUD_CONFIG_CACHE_KEY = "CLOUD_CONFIG"
     private val appCloudRulesHubUrl: String? get() = coreConfig.cloud_rules_hub_url
     private var cloudConfig: CloudConfigList? = null
@@ -101,23 +90,24 @@ object CloudConfigGetter {
     }
 
     /**
-     * @see SUCCESS_GET_HUB_DATA 获取 HubConfig 成功
-     * @see SUCCESS 添加数据库成功
-     * @see FAILED_GET_HUB_DATA 获取 HubConfig 失败
-     * @see FAILED 添加数据库失败
+     * 下载软件源云配置
+     * @see GetStatus.SUCCESS_GET_HUB_DATA 获取 HubConfig 成功
+     * @see GetStatus.SUCCESS 添加数据库成功
+     * @see GetStatus.FAILED_GET_HUB_DATA 获取 HubConfig 失败
+     * @see GetStatus.FAILED 添加数据库失败
      */
-    suspend fun downloadCloudHubConfig(hubUuid: String?, notifyFun: (Int) -> Unit): Boolean {
+    suspend fun downloadCloudHubConfig(hubUuid: String?, notifyFun: (GetStatus) -> Unit): Boolean {
         getHubCloudConfig(hubUuid)?.run {
-            notifyFun(SUCCESS_GET_HUB_DATA)
+            notifyFun(GetStatus.SUCCESS_GET_HUB_DATA)
             if (HubManager.updateHub(this.toHubEntity())) {
-                notifyFun(SUCCESS_SAVE_HUB_DATA)
-                notifyFun(SUCCESS)
+                notifyFun(GetStatus.SUCCESS_SAVE_HUB_DATA)
+                notifyFun(GetStatus.SUCCESS)
                 return true
             } else {
-                notifyFun(FAILED_SAVE_HUB_DATA)
-                notifyFun(FAILED)
+                notifyFun(GetStatus.FAILED_SAVE_HUB_DATA)
+                notifyFun(GetStatus.FAILED)
             }
-        } ?: notifyFun(FAILED_GET_HUB_DATA)
+        } ?: notifyFun(GetStatus.FAILED_GET_HUB_DATA)
         HubManager.checkInvalidApplications()
         return false
     }
@@ -126,28 +116,30 @@ object CloudConfigGetter {
      * 返回 App 添加数据库成功, NULL 添加数据库失败
      * @return App
      */
-    suspend fun downloadCloudAppConfig(appUuid: String?, notifyFun: (Int) -> Unit): App? {
+    suspend fun downloadCloudAppConfig(appUuid: String?, notifyFun: (GetStatus) -> Unit): App? {
         getAppCloudConfig(appUuid)?.run {
-            notifyFun(SUCCESS_GET_APP_DATA)
+            notifyFun(GetStatus.SUCCESS_GET_APP_DATA)
             if (solveHubDependency(this.baseHubUuid, notifyFun)) {
                 this.toAppEntity()?.run {
                     // 添加数据库
                     val app = AppManager.updateApp(this)
                     if (app != null) {
-                        notifyFun(SUCCESS_SAVE_APP_DATA)
-                        notifyFun(SUCCESS)
+                        notifyFun(GetStatus.SUCCESS_SAVE_APP_DATA)
+                        notifyFun(GetStatus.SUCCESS)
                         return app
                     } else {
-                        notifyFun(FAILED_SAVE_APP_DATA)
-                        notifyFun(FAILED)
+                        notifyFun(GetStatus.FAILED_SAVE_APP_DATA)
+                        notifyFun(GetStatus.FAILED)
                     }
-                } ?: notifyFun(FAILED_GET_APP_DATA)
+                } ?: notifyFun(GetStatus.FAILED_GET_APP_DATA)
             }
-        } ?: notifyFun(FAILED_GET_APP_DATA)
+        } ?: notifyFun(GetStatus.FAILED_GET_APP_DATA)
         return null
     }
 
-    private suspend fun solveHubDependency(hubUuid: String, notifyFun: (Int) -> Unit): Boolean {
+    private suspend fun solveHubDependency(
+        hubUuid: String, notifyFun: (GetStatus) -> Unit
+    ): Boolean {
         return if (HubManager.getHub(hubUuid) == null)
             downloadCloudHubConfig(hubUuid, notifyFun)
         else
@@ -189,6 +181,20 @@ object CloudConfigGetter {
             downloadCloudHubConfig(hubUuid) {}
         else true
     }
+}
+
+enum class GetStatus(val value: Int) {
+    SUCCESS(1),
+    SUCCESS_GET_APP_DATA(2),
+    SUCCESS_GET_HUB_DATA(3),
+    SUCCESS_SAVE_APP_DATA(4),
+    SUCCESS_SAVE_HUB_DATA(5),
+
+    FAILED(-1),
+    FAILED_GET_APP_DATA(-2),
+    FAILED_GET_HUB_DATA(-3),
+    FAILED_SAVE_APP_DATA(-4),
+    FAILED_SAVE_HUB_DATA(-5);
 }
 
 suspend fun HubConfigGson.toHubEntity(): HubEntity {

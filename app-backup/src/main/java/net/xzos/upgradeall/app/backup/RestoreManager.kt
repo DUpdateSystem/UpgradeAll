@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.app.backup
 
-import net.xzos.upgradeall.core.androidutils.androidContext
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.utils.log.Log
@@ -37,7 +36,7 @@ object RestoreManager {
         when (name) {
             "database/app_database.json" -> restoreAppDatabase(JSONArray(text))
             "database/hub_database.json" -> restoreHubDatabase(JSONArray(text))
-            "/${androidContext.packageName}_preferences.xml" -> preferencesFile.writeText(text)
+            "/${preferencesFile.name}" -> preferencesFile.writeText(text)
             else -> {
                 Log.e(logObjectTag, TAG, "ignore file: $name")
             }

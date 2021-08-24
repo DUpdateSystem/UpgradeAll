@@ -1,8 +1,12 @@
 package net.xzos.upgradeall.core.manager
 
+import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
-import kotlinx.coroutines.*
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.isInit
@@ -12,61 +16,70 @@ import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_LATEST
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_NO_LOCAL
 import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_OUTDATED
 import net.xzos.upgradeall.core.module.app.Updater.Companion.NETWORK_ERROR
-import net.xzos.upgradeall.core.utils.android_app.AppReceiver
-import net.xzos.upgradeall.core.utils.android_app.getInstalledAppList
-import net.xzos.upgradeall.core.utils.coroutines.*
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
+import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
+import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
+import net.xzos.upgradeall.core.utils.getInstalledAppList
 import net.xzos.upgradeall.core.utils.oberver.Informer
+import net.xzos.upgradeall.core.utils.oberver.Tag
+import net.xzos.upgradeall.core.utils.registerAppReceiver
 
+
+enum class UpdateStatus : Tag {
+    APP_START_UPDATE_NOTIFY,
+    APP_FINISH_UPDATE_NOTIFY,
+
+    APP_UPDATE_STATUS_CHANGED_NOTIFY,
+    APP_DATABASE_CHANGED_NOTIFY,
+
+    APP_ADDED_NOTIFY,
+    APP_DELETED_NOTIFY,
+}
 
 object AppManager : Informer {
 
-    const val DATA_UPDATING_NOTIFY = "DATA_UPDATING_NOTIFY"
-    const val DATA_UPDATE_CHANGED_NOTIFY = "DATA_UPDATE_CHANGED_NOTIFY"
-    const val DATA_UPDATED_NOTIFY = "DATA_UPDATED_NOTIFY"
-
-    const val APP_DATABASE_CHANGED_NOTIFY = "APP_DATABASE_CHANGED_NOTIFY"
-    const val APP_ADDED_NOTIFY = "APP_ADDED_NOTIFY"
-    const val APP_DELETED_NOTIFY = "APP_DELETED_NOTIFY"
-
     private val appMap = coroutinesMutableMapOf<Int, CoroutinesMutableList<App>>(true)
 
-    private val appList get() = appListPair.first
-    private val inactiveAppList get() = appListPair.second
 
     // 存储所有 APP 实体
-    private val appListPair: Pair<CoroutinesMutableList<App>, CoroutinesMutableList<App>> by lazy {
-        runBlocking {
-            newAppListPair().apply {
-                AppReceiver().register()
-            }
+    private val appList = coroutinesMutableListOf<App>(true)
+    private val inactiveAppList = coroutinesMutableListOf<App>(true)
+
+
+    fun initObject(context: Context) {
+        runBlocking { renewAppList(context) }
+        registerAppReceiver(context)
+    }
+
+    private suspend fun renewAppList(context: Context) {
+        metaDatabase.appDao().loadAll().forEach { database ->
+            addAppList(App(database), true)
+        }
+        getInstalledAppList(
+            context, coreConfig.applications_ignore_system_app
+        ).forEach { database ->
+            addAppList(App(database), false)
         }
     }
 
     private fun getAppList(key: Int): CoroutinesMutableList<App> {
-        return appMap.getOrDefault(key, coroutinesMutableListOf(true))
+        return appMap.getOrDefault(key) { coroutinesMutableListOf(true) }
     }
 
     private fun removeAppList(app: App) {
         if (appList.remove(app))
-            notifyChanged(DATA_UPDATE_CHANGED_NOTIFY, app)
-        notifyChanged(APP_DELETED_NOTIFY, app)
+            notifyChanged(UpdateStatus.APP_DELETED_NOTIFY, app)
     }
 
-    private fun addAppList(app: App) {
-        if (appList.add(app))
-            notifyChanged(DATA_UPDATE_CHANGED_NOTIFY, app)
-    }
-
-    private suspend fun newAppListPair(): Pair<CoroutinesMutableList<App>, CoroutinesMutableList<App>> {
-        val mainAppList =
-            CoroutinesMutableList(true, metaDatabase.appDao().loadAll().map { App(it) })
-        val inactiveAppList = CoroutinesMutableList<App>(true)
-        for (app in getInstalledAppList().map { App(it) })
-            if (app.isActive)
-                mainAppList.add(app)
-            else
-                inactiveAppList.add(app)
-        return Pair(mainAppList, inactiveAppList)
+    private fun addAppList(app: App, noCheck: Boolean = false) {
+        if (noCheck && appList.add(app)) {
+            notifyChanged(UpdateStatus.APP_ADDED_NOTIFY, app)
+        } else if (app.isActive && appList.add(app)) {
+            notifyChanged(UpdateStatus.APP_ADDED_NOTIFY, app)
+        } else {
+            inactiveAppList.add(app)
+        }
     }
 
     /**
@@ -75,13 +88,9 @@ object AppManager : Informer {
      */
     fun getAppMap(appType: String? = null): Map<Int, List<App>> {
         return if (appType != null) {
-            mutableMapOf<Int, List<App>>().apply {
-                this@AppManager.appMap.forEach {
-                    this[it.key] = it.value.filter { app ->
-                        app.appId.containsKey(appType)
-                    }
-                }
-            }
+            appMap.map {
+                it.key to it.value.filter { it.appId.containsKey(appType) }
+            }.toMap()
         } else appMap
     }
 
@@ -170,11 +179,11 @@ object AppManager : Informer {
      * @param app 需要重新刷新的 App 项
      */
     suspend fun renewApp(app: App) {
-        notifyChanged(DATA_UPDATING_NOTIFY, app)
+        notifyChanged(UpdateStatus.APP_START_UPDATE_NOTIFY, app)
         app.update()
         if (checkActiveApp(app))
             setAppMap(app)
-        notifyChanged(DATA_UPDATED_NOTIFY, app)
+        notifyChanged(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, app)
     }
 
     private fun checkActiveApp(app: App): Boolean {
@@ -186,7 +195,7 @@ object AppManager : Informer {
                 false
             } else {
                 inactiveAppList.remove(app)
-                addAppList(app)
+                addAppList(app, true)
                 true
             }
         }
@@ -216,7 +225,7 @@ object AppManager : Informer {
 
         // check changed
         if (changed) {
-            notifyChanged(DATA_UPDATE_CHANGED_NOTIFY, app)
+            notifyChanged(UpdateStatus.APP_UPDATE_STATUS_CHANGED_NOTIFY, app)
         }
     }
 
@@ -261,10 +270,10 @@ object AppManager : Informer {
     private suspend fun addAppMap(appDatabase: AppEntity): App {
         val oldApp = getAppByDatabase(appDatabase) ?: getAppById(appDatabase.appId)
         val changedTag = if (oldApp != null)
-            APP_DATABASE_CHANGED_NOTIFY
-        else APP_ADDED_NOTIFY
+            UpdateStatus.APP_DATABASE_CHANGED_NOTIFY
+        else UpdateStatus.APP_ADDED_NOTIFY
         val app = oldApp ?: App(appDatabase).apply {
-            addAppList(this)
+            addAppList(this, false)
         }
         renewApp(app)
         notifyChanged(changedTag, app)

@@ -1,15 +1,11 @@
-package net.xzos.upgradeall.core.utils.android_app
+package net.xzos.upgradeall.core.androidutils.app_info
 
+import android.content.Context
 import net.xzos.upgradeall.core.androidutils.androidContext
+import net.xzos.upgradeall.core.androidutils.getProp
 import net.xzos.upgradeall.core.androidutils.locale
-import net.xzos.upgradeall.core.coreConfig
-import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
-import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL
-import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL_ROOT
-import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.shell.Shell
 import net.xzos.upgradeall.core.shell.getOutputString
-import net.xzos.upgradeall.core.utils.getProp
 
 
 fun Map<String, String?>.getPackageId(): Pair<String, String>? {
@@ -22,10 +18,10 @@ fun Map<String, String?>.getPackageId(): Pair<String, String>? {
     return Pair(api!!, key)
 }
 
-internal fun getAppVersion(appId: Map<String, String?>): String? {
+fun getAppVersion(appId: Map<String, String?>, context: Context = androidContext): String? {
     val (api, key) = appId.getPackageId() ?: return null
-    return when (api.toLowerCase(locale)) {
-        ANDROID_APP_TYPE -> getAndroidAppVersion(key)
+    return when (api.lowercase(locale)) {
+        ANDROID_APP_TYPE -> getAndroidAppVersion(key, context)
         ANDROID_MAGISK_MODULE_TYPE -> getMagiskModuleVersion(key)
         ANDROID_CUSTOM_SHELL -> Shell.runShellCommand(key)?.getOutputString()
         ANDROID_CUSTOM_SHELL_ROOT -> Shell.runSuShellCommand(key)?.getOutputString()
@@ -34,10 +30,10 @@ internal fun getAppVersion(appId: Map<String, String?>): String? {
 }
 
 
-private fun getAndroidAppVersion(packageName: String): String? {
+private fun getAndroidAppVersion(packageName: String, context: Context): String? {
     // 获取软件版本
     return try {
-        val packageInfo = androidContext.packageManager.getPackageInfo(packageName, 0)
+        val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
         packageInfo.versionName
     } catch (e: Throwable) {
         null

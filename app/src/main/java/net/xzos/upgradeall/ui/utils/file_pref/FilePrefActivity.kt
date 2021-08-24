@@ -71,7 +71,7 @@ abstract class FilePrefActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSIONS_REQUEST_WRITE_CONTACTS) {
             if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                ToastUtil.makeText(R.string.please_grant_storage_perm, Toast.LENGTH_LONG)
+                ToastUtil.showText(this, R.string.please_grant_storage_perm, Toast.LENGTH_LONG)
                 finish()
             } else {
                 checkPermissionAndSelectFile()

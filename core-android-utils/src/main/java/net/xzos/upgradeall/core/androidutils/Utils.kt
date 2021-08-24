@@ -1,11 +1,14 @@
 package net.xzos.upgradeall.core.androidutils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
@@ -15,19 +18,36 @@ import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import java.util.*
 
-val locale: Locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-    androidContext.resources.configuration.locales.get(0)
-} else {
-    @Suppress("DEPRECATION")
-    androidContext.resources.configuration.locale
+@SuppressLint("StaticFieldLeak")
+internal lateinit var androidContext: Context
+
+val locale: Locale
+    get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        androidContext.resources.configuration.locales.get(0)
+    } else {
+        @Suppress("DEPRECATION")
+        androidContext.resources.configuration.locale
+    }
+
+/**
+ * 在主线程中运行，以 Looper 的方式尽量避免（协程调用主线程导致的）线程阻塞
+ */
+fun runUiFun(f: () -> Unit) {
+    if (Looper.myLooper() == Looper.getMainLooper()) {
+        f()
+    } else {
+        Handler(Looper.getMainLooper()).post {
+            f()
+        }
+    }
 }
 
 // 添加粘贴板
-fun clipStringToClipboard(s: CharSequence, context: Context = androidContext, @StringRes toastResId: Int? = null) {
+fun clipStringToClipboard(context: Context, s: CharSequence, @StringRes toastResId: Int? = null) {
     val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val mClipData = ClipData.newPlainText("Label", s)
     cm.setPrimaryClip(mClipData)
-    toastResId?.run { ToastUtil.makeText(this, Toast.LENGTH_SHORT) }
+    toastResId?.run { ToastUtil.showText(context, this, Toast.LENGTH_SHORT) }
 }
 
 fun requestPermission(
@@ -57,15 +77,25 @@ fun requestPermission(
     return havePermission
 }
 
-fun requestPermission(activity: Activity, permission: String, PERMISSIONS_REQUEST_CONTACTS: Int, @StringRes tipResId: Int): Boolean {
+fun requestPermission(
+    activity: Activity,
+    permission: String, PERMISSIONS_REQUEST_CONTACTS: Int,
+    @StringRes tipResId: Int
+): Boolean {
     var havePermission = false
-    if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
+    if (ContextCompat.checkSelfPermission(
+            activity,
+            permission
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
-            ToastUtil.makeText(tipResId, Toast.LENGTH_SHORT)
+            ToastUtil.showText(activity, tipResId, Toast.LENGTH_SHORT)
         }
-        ActivityCompat.requestPermissions(activity,
+        ActivityCompat.requestPermissions(
+            activity,
             arrayOf(permission),
-            PERMISSIONS_REQUEST_CONTACTS)
+            PERMISSIONS_REQUEST_CONTACTS
+        )
     } else
         havePermission = true
     return havePermission

@@ -1,10 +1,10 @@
 package net.xzos.upgradeall.core.database
 
+import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import net.xzos.upgradeall.core.androidutils.androidContext
 import net.xzos.upgradeall.core.database.dao.AppDao
 import net.xzos.upgradeall.core.database.dao.ExtraAppDao
 import net.xzos.upgradeall.core.database.dao.HubDao
@@ -21,20 +21,23 @@ abstract class MetaDatabase : RoomDatabase() {
     abstract fun extraAppDao(): ExtraAppDao
 }
 
-val metaDatabase = Room
-    .databaseBuilder(
-        androidContext,
-        MetaDatabase::class.java,
-        "app_metadata_database.db"
-    )
-    .addMigrations(MIGRATION_6_7)
-    .addMigrations(MIGRATION_7_8)
-    .addMigrations(MIGRATION_8_9)
-    .addMigrations(MIGRATION_9_10)
-    .addMigrations(MIGRATION_8_10)
-    .addMigrations(MIGRATION_10_11)
-    .addMigrations(MIGRATION_11_12)
-    .addMigrations(MIGRATION_12_13)
-    .addMigrations(MIGRATION_13_14)
-    .addMigrations(MIGRATION_14_15)
-    .build()
+lateinit var metaDatabase: MetaDatabase
+fun initDatabase(context: Context) {
+    metaDatabase = Room
+        .databaseBuilder(
+            context,
+            MetaDatabase::class.java,
+            "app_metadata_database.db"
+        )
+        .addMigrations(MIGRATION_6_7)
+        .addMigrations(MIGRATION_7_8)
+        .addMigrations(MIGRATION_8_9)
+        .addMigrations(MIGRATION_9_10)
+        .addMigrations(MIGRATION_8_10)
+        .addMigrations(MIGRATION_10_11)
+        .addMigrations(MIGRATION_11_12)
+        .addMigrations(MIGRATION_12_13)
+        .addMigrations(MIGRATION_13_14)
+        .addMigrations(MIGRATION_14_15)
+        .build()
+}

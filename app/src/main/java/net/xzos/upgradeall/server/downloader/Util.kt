@@ -2,8 +2,7 @@ package net.xzos.upgradeall.server.downloader
 
 import android.content.Context
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.androidutils.DOWNLOAD_EXTRA_CACHE_DIR
+import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.downloader.filedownloader.DownloadFetchError
 import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadInfoItem
 import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadOb
@@ -19,6 +18,7 @@ import net.xzos.upgradeall.core.utils.oberver.ObserverFun
 import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.utils.DOWNLOAD_EXTRA_CACHE_DIR
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 suspend fun startDownload(
@@ -26,7 +26,7 @@ suspend fun startDownload(
     taskStartedFun: (Int) -> Unit, taskStartFailedFun: (Throwable) -> Unit, downloadOb: DownloadOb,
     context: Context, externalDownload: Boolean,
 ) {
-    MiscellaneousUtils.showToast(R.string.download_loading)
+    ToastUtil.showText(context, R.string.download_loading)
     val hub = fileAsset.hub
     val downloadInfoList =
         serverApi.getDownloadInfo(hub.uuid, hub.auth, app.appId, fileAsset.assetIndex)
@@ -59,10 +59,10 @@ suspend fun installFileTasker(fileTasker: FileTasker, context: Context) {
     notification?.showInstallNotification(fileTasker.name)
     fileTasker.install(context, {
         notification?.cancelNotification()
-        MiscellaneousUtils.showToast("${MyApplication.context.getString(R.string.install_failed)}: ${it.msg()}")
+        ToastUtil.showText(context, "${context.getString(R.string.install_failed)}: ${it.msg()}")
     }, {
         notification?.cancelNotification()
-        MiscellaneousUtils.showToast(R.string.install_success)
+        ToastUtil.showText(context, R.string.install_success)
     })
 }
 

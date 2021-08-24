@@ -15,12 +15,11 @@ import java.lang.reflect.InvocationTargetException;
 @SuppressWarnings({"JavaReflectionMemberAccess", "ConstantConditions"})
 public class PackageInstallerUtils {
 
-    public static PackageInstaller createPackageInstaller(IPackageInstaller installer, String installerPackageName, int userId) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static PackageInstaller createPackageInstaller(Context context, IPackageInstaller installer, String installerPackageName, int userId) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (Build.VERSION.SDK_INT >= 26) {
             return PackageInstaller.class.getConstructor(IPackageInstaller.class, String.class, int.class)
                     .newInstance(installer, installerPackageName, userId);
         } else {
-            Context context = InitKt.androidContext;
             return PackageInstaller.class.getConstructor(Context.class, PackageManager.class, IPackageInstaller.class, String.class, int.class)
                     .newInstance(context, context.getPackageManager(), installer, installerPackageName, userId);
         }

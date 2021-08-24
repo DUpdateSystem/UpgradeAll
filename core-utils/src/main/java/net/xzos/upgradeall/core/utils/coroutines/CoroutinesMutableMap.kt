@@ -22,9 +22,9 @@ class CoroutinesMutableMap<K, V>(hash: Boolean = false, map: Map<K, V>? = null) 
         }
     }
 
-    fun getOrDefault(key: K, defValue: V): V {
+    fun getOrDefault(key: K, mkDefValue: () -> V): V {
         return mutex.runWithLock {
-            mutableMap[key] ?: defValue.apply {
+            mutableMap[key] ?: mkDefValue().apply {
                 mutableMap[key] = this
             }
         }

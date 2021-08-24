@@ -5,7 +5,7 @@ import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.utils.android_app.getPackageId
+import net.xzos.upgradeall.core.androidutils.app_info.getPackageId
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.ui.detail.AppVersionItem

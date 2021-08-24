@@ -1,21 +1,13 @@
 package net.xzos.upgradeall.core.utils
 
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
-import net.xzos.upgradeall.core.data.ANDROID_APP_TYPE
-import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL
-import net.xzos.upgradeall.core.data.ANDROID_CUSTOM_SHELL_ROOT
-import net.xzos.upgradeall.core.data.ANDROID_MAGISK_MODULE_TYPE
+import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_CUSTOM_SHELL
+import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_CUSTOM_SHELL_ROOT
+import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.manager.HubManager
-import net.xzos.upgradeall.core.shell.getFileText
-import java.util.*
 
-
-fun getProp(path: String): Properties? {
-    return getFileText(path)?.parseProperties()
-}
 
 fun getAllLocalKeyList(): List<String> {
     return hashSetOf(

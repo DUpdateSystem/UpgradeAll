@@ -15,11 +15,11 @@ import net.xzos.upgradeall.app.backup.BackupManager
 import net.xzos.upgradeall.app.backup.CloudBackupManager
 import net.xzos.upgradeall.app.backup.RestoreManager
 import net.xzos.upgradeall.app.backup.WebDavConfig
+import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.ui.utils.dialog.CloudBackupListDialog
 import net.xzos.upgradeall.ui.utils.file_pref.SaveFileActivity
 import net.xzos.upgradeall.ui.utils.file_pref.SelectFileActivity
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 
 class BackupFragment : PrefFragment(R.xml.preferences_backup) {
@@ -48,31 +48,28 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
         val backupPreference: Preference = findPreference("BACKUP")!!
         backupPreference.setOnPreferenceClickListener {
             GlobalScope.launch {
-                MiscellaneousUtils.showToast(R.string.backup_running)
+                ToastUtil.showText(requireContext(), R.string.backup_running)
                 val backupFileBytes = BackupManager.mkZipFileBytes()
-                val context = this@BackupFragment.context
-                if (backupFileBytes != null && context != null) {
+                if (backupFileBytes != null) {
                     SaveFileActivity.newInstance(
                         BackupManager.newFileName(),
                         "application/zip",
                         backupFileBytes,
-                        context
+                        requireContext()
                     )
                 }
-                MiscellaneousUtils.showToast(R.string.backup_stop)
+                ToastUtil.showText(requireContext(), R.string.backup_stop)
             }
             false
         }
 
         val restorePreference: Preference = findPreference("RESTORE")!!
         restorePreference.setOnPreferenceClickListener {
-            this.context?.let { context ->
-                GlobalScope.launch {
-                    SelectFileActivity.newInstance(context, "application/zip")?.let { bytes ->
-                        MiscellaneousUtils.showToast(R.string.restore_running)
-                        RestoreManager.parseZip(bytes)
-                        MiscellaneousUtils.showToast(R.string.restore_stop)
-                    }
+            GlobalScope.launch {
+                SelectFileActivity.newInstance(requireContext(), "application/zip")?.let { bytes ->
+                    ToastUtil.showText(requireContext(), R.string.restore_running)
+                    RestoreManager.parseZip(bytes)
+                    ToastUtil.showText(requireContext(), R.string.restore_stop)
                 }
             }
             false
@@ -93,9 +90,9 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
         val restorePreference: Preference = findPreference("WEBDAV_RESTORE")!!
         backupPreference.setOnPreferenceClickListener {
             getCloudBackupManager().backup(
-                { MiscellaneousUtils.showToast(R.string.backup_running) },
-                { MiscellaneousUtils.showToast(R.string.backup_stop) },
-                { MiscellaneousUtils.showToast(it.message.toString(), Toast.LENGTH_LONG) },
+                { ToastUtil.showText(requireContext(), R.string.backup_running) },
+                { ToastUtil.showText(requireContext(), R.string.backup_stop) },
+                { ToastUtil.showText(requireContext(), it.message.toString(), Toast.LENGTH_LONG) },
             )
             false
         }
@@ -103,24 +100,22 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
             GlobalScope.launch {
                 val cloudBackupManager = getCloudBackupManager()
                 val fileNameList = cloudBackupManager.getBackupFileList() ?: return@launch
-                context?.let {
-                    withContext(Dispatchers.Main) {
-                        CloudBackupListDialog.show(it, fileNameList, fun(position) {
-                            GlobalScope.launch {
-                                cloudBackupManager.restoreBackup(
-                                    fileNameList[position],
-                                    { MiscellaneousUtils.showToast(R.string.restore_running) },
-                                    { MiscellaneousUtils.showToast(R.string.restore_stop) },
-                                    {
-                                        MiscellaneousUtils.showToast(
-                                            it.message.toString(),
-                                            Toast.LENGTH_LONG
-                                        )
-                                    },
-                                )
-                            }
-                        })
-                    }
+                withContext(Dispatchers.Main) {
+                    CloudBackupListDialog.show(requireContext(), fileNameList, fun(position) {
+                        GlobalScope.launch {
+                            cloudBackupManager.restoreBackup(
+                                fileNameList[position],
+                                { ToastUtil.showText(requireContext(), R.string.restore_running) },
+                                { ToastUtil.showText(requireContext(), R.string.restore_stop) },
+                                {
+                                    ToastUtil.showText(
+                                        requireContext(),
+                                        it.message.toString(), Toast.LENGTH_LONG
+                                    )
+                                },
+                            )
+                        }
+                    })
                 }
             }
             false

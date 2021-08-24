@@ -128,11 +128,12 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
+    implementation project(path: ':app-backup')
     implementation project(path: ':core-android-utils')
     implementation project(path: ':core')
+    implementation project(path: ':core-utils')
     implementation project(path: ':core-downloader')
     implementation project(path: ':core-installer')
-    implementation project(path: ':app-backup')
 }
 
 def optimizeReleaseRes = task('optimizeReleaseRes').doLast {

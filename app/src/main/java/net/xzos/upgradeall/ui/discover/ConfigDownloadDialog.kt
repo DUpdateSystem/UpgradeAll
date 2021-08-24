@@ -9,10 +9,11 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
+import net.xzos.upgradeall.core.manager.GetStatus
 import net.xzos.upgradeall.core.module.app.getConfigJson
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 class ConfigDownloadDialog(
     private val uuid: String,
@@ -53,19 +54,19 @@ class ConfigDownloadDialog(
     }
 
     private suspend fun download() {
-        MiscellaneousUtils.showToast(R.string.download_start, Toast.LENGTH_LONG)
+        ToastUtil.showText(requireContext(), R.string.download_start, Toast.LENGTH_LONG)
         downloadApplicationData(uuid)
     }
 
     private suspend fun downloadApplicationData(uuid: String) {
         // 下载数据
         CloudConfigGetter.downloadCloudAppConfig(uuid) {
-            MiscellaneousUtils.showToast(getStatusMessage(it), Toast.LENGTH_LONG)
+            ToastUtil.showText(requireContext(), getStatusMessage(it), Toast.LENGTH_LONG)
         }
     }
 
-    private fun getStatusMessage(status: Int): String {
-        return if (status > 0) getString(R.string.save_successfully)
+    private fun getStatusMessage(status: GetStatus): String {
+        return if (status.value > 0) getString(R.string.save_successfully)
         else "${getString(R.string.save_failed)}, status: $status"
     }
 

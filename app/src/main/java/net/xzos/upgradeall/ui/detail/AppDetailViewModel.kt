@@ -13,7 +13,7 @@ import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadOb
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version_item.FileAsset
-import net.xzos.upgradeall.core.utils.android_app.getPackageId
+import net.xzos.upgradeall.core.androidutils.app_info.getPackageId
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
 import net.xzos.upgradeall.server.downloader.startDownload
 import net.xzos.upgradeall.ui.data.livedata.AppViewModel
