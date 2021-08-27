@@ -15,8 +15,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 85
-        versionName "0.10.0-alpha.2"
+        versionCode 86
+        versionName "0.10.0-alpha.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
@@ -101,7 +101,7 @@ dependencies {
 
     // Firebase
     implementation 'com.google.firebase:firebase-perf:20.0.2'
-    implementation 'com.google.firebase:firebase-analytics:19.0.0'
+    implementation 'com.google.firebase:firebase-analytics:19.0.1'
     implementation 'com.google.firebase:firebase-crashlytics:18.2.1'
 
     // 数据处理

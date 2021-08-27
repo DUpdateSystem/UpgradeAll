@@ -40,7 +40,7 @@ dependencies {
     api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1-native-mt'
 
     // Versioning
-    implementation 'org.apache.maven:maven-artifact:3.8.1'
+    implementation 'org.apache.maven:maven-artifact:3.8.2'
 
     // 字符串匹配；日志打印去除转义字符
     implementation 'org.apache.commons:commons-text:1.9'
