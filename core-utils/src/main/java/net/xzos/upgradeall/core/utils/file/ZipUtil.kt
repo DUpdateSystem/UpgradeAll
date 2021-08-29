@@ -1,8 +1,9 @@
-package net.xzos.upgradeall.app.backup
+package net.xzos.upgradeall.core.utils.file
 
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 class ZipFile {
@@ -60,3 +61,21 @@ class ZipFile {
         zipOutputStream.closeEntry()
     }
 }
+
+fun parseZipBytes(zipFileByteArray: ByteArray, callback: (String,  ByteArray) -> Boolean) {
+    ZipInputStream(zipFileByteArray.inputStream()).use { zis ->
+        var ze: ZipEntry?
+        var count: Int
+        val buffer = ByteArray(8192)
+        while (zis.nextEntry.also { ze = it } != null) {
+            val name = ze!!.name
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            byteArrayOutputStream.use { it ->
+                while (zis.read(buffer).also { count = it } != -1) it.write(buffer, 0, count)
+            }
+            val bytes = byteArrayOutputStream.toByteArray()
+            if (callback(name, bytes)) break
+        }
+    }
+}
+

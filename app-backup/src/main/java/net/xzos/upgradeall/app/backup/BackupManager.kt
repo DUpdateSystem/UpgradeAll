@@ -2,6 +2,7 @@ package net.xzos.upgradeall.app.backup
 
 import android.os.Build
 import net.xzos.upgradeall.core.database.metaDatabase
+import net.xzos.upgradeall.core.utils.file.ZipFile
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException

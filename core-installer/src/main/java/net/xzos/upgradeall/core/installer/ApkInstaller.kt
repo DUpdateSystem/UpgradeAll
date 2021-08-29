@@ -12,7 +12,7 @@ import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
 import java.io.File
 
 
-object ApkInstaller {
+internal object ApkInstaller {
 
     private val installMutex = Mutex()
 

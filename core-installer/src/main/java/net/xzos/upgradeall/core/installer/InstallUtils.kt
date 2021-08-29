@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.StrictMode
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
+import net.xzos.upgradeall.core.utils.file.parseZipBytes
 import java.io.File
 
 @Throws(IllegalArgumentException::class)
@@ -57,6 +58,21 @@ fun File.autoAddApkExtension(context: Context): File {
 }
 
 fun File.installable(): Boolean {
+    return this.installableMagiskModule() || this.installableApk()
+}
+
+fun File.installableMagiskModule(): Boolean {
+    var installable = false
+    parseZipBytes(this.readBytes()) { name, bytes ->
+        return@parseZipBytes if (name == "module.prop"){
+            installable = true
+            true
+        }
+        else false
+    }
+    return installable
+}
+fun File.installableApk(): Boolean {
     return if (this.isDirectory) {
         for (file in this.listFiles() ?: return false) {
             if (file.extension == "apk")

@@ -8,7 +8,7 @@ import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadInfoItem
 import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadOb
 import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerId
-import net.xzos.upgradeall.core.installer.ApkInstaller
+import net.xzos.upgradeall.core.installer.Installer
 import net.xzos.upgradeall.core.installer.installable
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version_item.FileAsset
@@ -83,5 +83,5 @@ suspend fun FileTasker.install(
     failedInstallObserverFun: ObserverFun<Throwable>,
     completeInstallObserverFun: ObserverFunNoArg
 ) {
-    ApkInstaller.install(file, context, failedInstallObserverFun, completeInstallObserverFun)
+    Installer.install(file, context, failedInstallObserverFun, completeInstallObserverFun)
 }

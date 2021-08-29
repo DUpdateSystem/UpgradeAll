@@ -35,9 +35,9 @@ object ApkRootInstall {
         for (file in apkFileList) {
             runSuShellCommand("pm install-write -S ${file.length()} $sessionId ${file.name} ${file.absolutePath}")
             Log.d(
-                    logObjectTag,
-                    TAG,
-                    "multipleInstall: write session: $sessionId file: ${file.name}"
+                logObjectTag,
+                TAG,
+                "multipleInstall: write session: $sessionId file: ${file.name}"
             )
         }
         runSuShellCommand("pm install-commit $sessionId")
@@ -60,7 +60,7 @@ object ApkRootInstall {
                     break
             }
             val obbPackageName =
-                    fileName.subSequence(delimiterIndexList[1] + 1, delimiterIndexList.last())
+                fileName.subSequence(delimiterIndexList[1] + 1, delimiterIndexList.last())
             val command = "mv $obbFile /storage/emulated/0/Android/obb/$obbPackageName/."
             Log.d(logObjectTag, TAG, "multipleInstall: obb command: $command")
             runSuShellCommand(command)
