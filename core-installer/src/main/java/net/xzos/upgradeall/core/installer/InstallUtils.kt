@@ -62,15 +62,17 @@ fun File.installable(): Boolean {
 }
 
 fun File.installableMagiskModule(): Boolean {
-    var installable = false
-    parseZipBytes(this.readBytes()) { name, bytes ->
-        return@parseZipBytes if (name == "module.prop"){
-            installable = true
-            true
+    return if (this.extension == "apk"){
+        var installable = false
+        parseZipBytes(this.readBytes()) { name, _ ->
+            return@parseZipBytes if (name == "module.prop"){
+                installable = true
+                true
+            }
+            else false
         }
-        else false
-    }
-    return installable
+        installable
+    }else false
 }
 fun File.installableApk(): Boolean {
     return if (this.isDirectory) {
