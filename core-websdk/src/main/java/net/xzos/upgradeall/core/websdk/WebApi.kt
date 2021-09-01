@@ -2,6 +2,7 @@ package net.xzos.upgradeall.core.websdk
 
 import com.google.gson.Gson
 import com.google.gson.JsonParseException
+import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.utils.log.Log
@@ -44,7 +45,7 @@ internal class WebApi(
         if (response.code != 200) return null
         return try {
             return Gson().fromJson(response.body?.string(), CloudConfigList::class.java)
-        } catch (e: JsonParseException) {
+        } catch (e: Throwable) {
             Log.e(objectTag, TAG, "getCloudConfig: Gson Error: ${e.msg()}")
             null
         }
@@ -67,7 +68,7 @@ internal class WebApi(
                         val responseStr = it.body?.string()
                         val release = try {
                             Gson().fromJson(responseStr, ReleaseGson::class.java)
-                        } catch (e: JsonParseException) {
+                        } catch (e: Throwable) {
                             Log.e(objectTag, TAG, "getAppRelease: Gson Error: ${e.msg()}")
                             null
                         }
@@ -100,7 +101,7 @@ internal class WebApi(
                         val responseStr = it.body?.string()
                         val releaseList = try {
                             Gson().fromJson<List<ReleaseGson>>(responseStr, releaseListType)
-                        } catch (e: JsonParseException) {
+                        } catch (e: Throwable) {
                             Log.e(objectTag, TAG, "getAppReleaseList: Gson Error: ${e.msg()}")
                             emptyList()
                         }
@@ -130,7 +131,7 @@ internal class WebApi(
         if (response.code != 200) return emptyList()
         return try {
             return Gson().fromJson(responseStr, downloadListType)
-        } catch (e: JsonParseException) {
+        } catch (e: Throwable) {
             Log.e(objectTag, TAG, "getDownloadInfo: Gson Error: ${e.msg()}")
             emptyList()
         }
