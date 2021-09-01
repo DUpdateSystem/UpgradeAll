@@ -1,7 +1,6 @@
 package net.xzos.upgradeall.core.network
 
 import com.google.gson.Gson
-import com.google.gson.JsonParseException
 import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.core.data.config.AppConfig
 import net.xzos.upgradeall.core.data.json.gson.DownloadItem
@@ -44,8 +43,13 @@ internal object WebApi {
                 when (it.code) {
                     200 -> {
                         val responseStr = it.body?.string()
-                        val release = Gson().fromJson(responseStr, ReleaseGson::class.java)
-                        callback(listOf(release))
+                        try {
+                            val release = Gson().fromJson(responseStr, ReleaseGson::class.java)
+                            callback(listOf(release))
+                        } catch (e: Throwable) {
+                            Log.w(objectTag, TAG, "getAppRelease: {$e.stackTraceToString()}")
+                            callback(emptyList())
+                        }
                     }
                     410 -> callback(emptyList())
                     else -> {
@@ -73,7 +77,12 @@ internal object WebApi {
                     200 -> {
                         val responseStr = it.body?.string()
                         val listType = object : TypeToken<ArrayList<ReleaseGson>>() {}.type
-                        val releaseList = Gson().fromJson<List<ReleaseGson>>(responseStr, listType)
+                        val releaseList = try {
+                            Gson().fromJson<List<ReleaseGson>>(responseStr, listType)
+                        } catch (e: Throwable) {
+                            Log.w(objectTag, TAG, "getAppReleaseList: {$e.stackTraceToString()}")
+                            emptyList()
+                        }
                         callback(releaseList)
                     }
                     410 -> callback(emptyList())
@@ -100,7 +109,7 @@ internal object WebApi {
         val listType = object : TypeToken<ArrayList<DownloadItem>>() {}.type
         return try {
             Gson().fromJson(responseStr, listType)
-        } catch (e: JsonParseException) {
+        } catch (e: Throwable) {
             Log.w(objectTag, TAG, "getDownloadInfo: {$e.stackTraceToString()}")
             emptyList()
         }
