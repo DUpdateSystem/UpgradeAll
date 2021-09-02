@@ -4,8 +4,8 @@ import android.os.Looper
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.data.json.gson.Assets
-import net.xzos.upgradeall.core.data.json.gson.ReleaseGson
 import net.xzos.upgradeall.core.data.json.gson.DownloadInfoItem
+import net.xzos.upgradeall.core.data.json.gson.ReleaseGson
 import net.xzos.upgradeall.core.data_manager.utils.*
 import net.xzos.upgradeall.core.network.DataCache
 import net.xzos.upgradeall.core.network.ServerApi
@@ -38,7 +38,7 @@ class Updater internal constructor(private val app: App) {
     private suspend fun String.isLatest(): Boolean {
         val latestVersion = getLatestVersioning()
         return VersioningUtils.compareVersionNumber(
-                this, latestVersion
+            this, latestVersion
         ) ?: run {
             val versionNumberList = getReleaseList()?.map { it.versionNumber } ?: return false
             val searchUtils = SearchUtils(versionNumberList.map {
@@ -89,21 +89,27 @@ class Updater internal constructor(private val app: App) {
     }
 
     // 使用内置下载器下载文件
-    suspend fun downloadReleaseFile(fileIndex: Pair<Int, Int>, externalDownloader: Boolean = false) {
+    suspend fun downloadReleaseFile(
+        fileIndex: Pair<Int, Int>,
+        externalDownloader: Boolean = false
+    ) {
         getReleaseList()?.let { releaseList ->
             val asset = releaseList.getAssetsByFileIndex(fileIndex) ?: return
             val hubUuid = app.hubDatabase?.uuid
             val appId = app.appId
             val downloadResponse = if (hubUuid != null && appId != null)
-                ServerApi.getDownloadInfo(hubUuid, getNoNullMap(app.appDatabase.auth), getNoNullMap(appId), fileIndex)
+                ServerApi.getDownloadInfo(
+                    hubUuid, getNoNullMap(app.appDatabase.auth), getNoNullMap(appId), fileIndex
+                )
             else null
-            var list = downloadResponse?.map { downloadPackage ->
+            var list = downloadResponse?.mapNotNull { downloadPackage ->
                 val fileName = if (downloadPackage.name.isNullOrBlank())
                     asset.fileName
                 else {
                     downloadPackage.name
                 }
-                DownloadInfoItem(fileName, downloadPackage.url,
+                DownloadInfoItem(
+                    fileName, downloadPackage.url ?: return@mapNotNull null,
                     downloadPackage.getHeaders(), downloadPackage.getCookies()
                 )
             }
