@@ -23,9 +23,14 @@ internal object WebApi {
 
     fun getCloudConfig(): String? {
         val url = "http://$host/v1/rules/download/master"
-        return callApiCore {
-            OkHttpApi.get(url)
-        }?.body?.string()
+        return try {
+            callApiCore {
+                OkHttpApi.get(url)
+            }?.body?.string()
+        }catch (e:Throwable){
+            Log.w(objectTag, TAG, "getCloudConfig: {$e.stackTraceToString()}")
+            null
+        }
     }
 
     fun getAppRelease(
