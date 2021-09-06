@@ -15,7 +15,7 @@
         <LinearLayout
             android:id="@+id/groupTabs"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@drawable/ic_list_header_background"
             android:fitsSystemWindows="true"
@@ -28,7 +28,9 @@
                 android:layout_height="24dp"
                 android:layout_gravity="center"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="18dp"
                 android:layout_marginEnd="8dp"
+                android:layout_marginBottom="18dp"
                 android:contentDescription="@string/update_info"
                 android:src="@drawable/ic_load"
                 app:layout_constraintStart_toStartOf="parent"
