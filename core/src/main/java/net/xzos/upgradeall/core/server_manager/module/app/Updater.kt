@@ -114,7 +114,12 @@ class Updater internal constructor(private val app: App) {
                 )
             }
             if (list.isNullOrEmpty())
-                list = listOf(DownloadInfoItem(asset.fileName, asset.downloadUrl, mapOf(), mapOf()))
+                list = listOf(
+                    DownloadInfoItem(
+                        asset.fileName, asset.downloadUrl ?: return,  // 未获取到下载地址，放弃下载
+                        mapOf(), mapOf()
+                    )
+                )
             val taskName = app.appDatabase.name
             IoApi.downloadFile(taskName, list, externalDownloader)
         }
