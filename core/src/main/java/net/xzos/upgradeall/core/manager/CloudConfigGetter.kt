@@ -2,8 +2,10 @@ package net.xzos.upgradeall.core.manager
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.database.dao.HubDao
 import net.xzos.upgradeall.core.database.metaDatabase
@@ -14,11 +16,11 @@ import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.serverApi
 import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.DataCache
-import net.xzos.upgradeall.core.utils.coroutines.wait
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.log.msg
+import net.xzos.upgradeall.core.websdk.ServerApi.Companion.CLOUD_CONFIG_CACHE_KEY
 import net.xzos.upgradeall.core.websdk.json.*
 import net.xzos.upgradeall.core.websdk.openOkHttpApi
 
@@ -27,7 +29,6 @@ object CloudConfigGetter {
     private const val TAG = "CloudConfigGetter"
     private val objectTag = ObjectTag(core, TAG)
 
-    private const val CLOUD_CONFIG_CACHE_KEY = "CLOUD_CONFIG"
     private val appCloudRulesHubUrl: String? get() = coreConfig.cloud_rules_hub_url
     private var cloudConfig: CloudConfigList? = null
     private val renewMutex = Mutex()
@@ -35,15 +36,14 @@ object CloudConfigGetter {
     private val dataCache = DataCache(coreConfig.data_expiration_time)
 
     suspend fun renew() {
-        cloudConfig = dataCache.get(CLOUD_CONFIG_CACHE_KEY)
-            ?: if (renewMutex.isLocked) {
-                renewMutex.wait()
-                dataCache.get(CLOUD_CONFIG_CACHE_KEY)
-            } else renewMutex.withLock {
-                getCloudConfigFromWeb(appCloudRulesHubUrl)?.also {
-                    dataCache.cache(CLOUD_CONFIG_CACHE_KEY, it)
-                }
+        withContext(Dispatchers.IO) {
+            renewMutex.withLock {
+                cloudConfig = dataCache.get(CLOUD_CONFIG_CACHE_KEY)
+                    ?: getCloudConfigFromWeb(appCloudRulesHubUrl)?.also {
+                        dataCache.cache(CLOUD_CONFIG_CACHE_KEY, it)
+                    }
             }
+        }
     }
 
     val appConfigList: List<AppConfigGson>?

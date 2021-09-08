@@ -8,6 +8,10 @@ import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 class ServerApi(host: String, dataCacheTimeSec: Int) {
+    companion object {
+        const val CLOUD_CONFIG_CACHE_KEY = "CLOUD_CONFIG"
+    }
+
     private val invalidHubUuidList = coroutinesMutableListOf<String>(true)
     private var webApi = WebApi(host, invalidHubUuidList)
     private val dataCache = DataCache(dataCacheTimeSec)
@@ -16,8 +20,10 @@ class ServerApi(host: String, dataCacheTimeSec: Int) {
         webApi.shutdown()
     }
 
-    fun getCloudConfig(): CloudConfigList? {
-        return webApi.getCloudConfig()
+    suspend fun getCloudConfig(): CloudConfigList? {
+        return dataCache.get(CLOUD_CONFIG_CACHE_KEY) ?: webApi.getCloudConfig()?.also {
+            dataCache.cache(CLOUD_CONFIG_CACHE_KEY, it)
+        }
     }
 
     fun getAppRelease(
