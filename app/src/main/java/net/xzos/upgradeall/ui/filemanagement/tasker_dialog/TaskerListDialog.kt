@@ -54,7 +54,7 @@ class TaskerListDialog private constructor(
         fun newInstance(context: Context, fileTasker: FileTasker) {
             GlobalScope.launch {
                 val item = TaskerDialogItem(fileTasker)
-                val downloadList = fileTasker.downloader?.getDownloadList() ?: emptyList()
+                val downloadList = fileTasker.downloader.getDownloadList()
                 runUiFun {
                     TaskerListDialog(context, fileTasker, item, downloadList).show()
                 }

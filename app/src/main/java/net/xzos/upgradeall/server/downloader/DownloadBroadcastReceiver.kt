@@ -4,23 +4,30 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerManager
+import net.xzos.upgradeall.wrapper.download.installFileTasker
 
 class DownloadBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val fileTaskerId = intent.getStringExtra(EXTRA_IDENTIFIER_FILE_TASKER_ID)
+        val fileTaskerId = intent.getStringExtra(EXTRA_IDENTIFIER_FILE_TASKER_ID) ?: return
         val fileTasker = FileTaskerManager.getFileTasker(idString = fileTaskerId) ?: return
+        val notification = DownloadNotificationManager.getNotification(fileTaskerId) ?: return
         when (intent.getIntExtra(EXTRA_IDENTIFIER_FILE_TASKER_CONTROL, -1)) {
-            DOWNLOAD_CANCEL -> deleteFileTasker(fileTasker)
             DOWNLOAD_RETRY -> fileTasker.retry()
             DOWNLOAD_PAUSE -> fileTasker.pause()
             DOWNLOAD_CONTINUE -> fileTasker.resume()
-            NOTIFY_CANCEL -> DownloadNotificationManager.getNotification(fileTasker)
-                ?.cancelNotification()
-            INSTALL_APK -> runBlocking { installFileTasker(fileTasker, context) }
+            DOWNLOAD_CANCEL -> {
+                notification.cancelNotification()
+                fileTasker.cancel()
+            }
+            NOTIFY_CANCEL -> notification.cancelNotification()
+            INSTALL_APK -> runBlocking(Dispatchers.Default) {
+                installFileTasker(context, fileTasker, notification)
+            }
             OPEN_FILE -> Log.i("Download", "open file: TODO")
         }
     }

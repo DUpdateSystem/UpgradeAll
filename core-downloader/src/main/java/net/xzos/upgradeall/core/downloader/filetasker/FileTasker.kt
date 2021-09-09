@@ -8,8 +8,7 @@ import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadOb
 import java.io.File
 
 class FileTasker(
-    val id: FileTaskerId, downloadInfoList: List<DownloadInfoItem>,
-    val downloadFile: File
+    val id: FileTaskerId, downloadInfoList: List<DownloadInfoItem>, downloadFile: File
 ) {
 
     init {
@@ -20,7 +19,7 @@ class FileTasker(
 
     /* 下载管理器 */
     val downloader = PreDownload().setDownload(downloadFile, downloadInfoList)
-    val file = downloadFile
+    val file by lazy { downloader.downloadFile.file }
 
     suspend fun startDownload(
         taskStartedFun: (Int) -> Unit,

@@ -15,9 +15,9 @@ import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version_item.FileAsset
 import net.xzos.upgradeall.core.androidutils.app_info.getPackageId
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
-import net.xzos.upgradeall.server.downloader.startDownload
 import net.xzos.upgradeall.ui.data.livedata.AppViewModel
 import net.xzos.upgradeall.utils.setValueBackground
+import net.xzos.upgradeall.wrapper.download.startDownload
 
 class AppDetailViewModel(application: Application) : AndroidViewModel(application) {
     private val appViewModel by lazy { AppViewModel() }
@@ -95,9 +95,8 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     suspend fun download(fileAsset: FileAsset, externalDownload: Boolean) {
         startDownload(
+            getApplication(), externalDownload,
             app, fileAsset,
-            fun(_) { waitDownload() }, failDownload, getDownloadDataOb(),
-            getApplication(), externalDownload
         )
     }
 

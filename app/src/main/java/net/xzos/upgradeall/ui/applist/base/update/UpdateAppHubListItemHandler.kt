@@ -3,10 +3,9 @@ package net.xzos.upgradeall.ui.applist.base.update
 import android.view.View
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadOb
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.server.downloader.startDownload
 import net.xzos.upgradeall.ui.applist.base.AppHubListItemHandler
+import net.xzos.upgradeall.wrapper.download.startDownload
 
 class UpdateAppHubListItemHandler : AppHubListItemHandler() {
     fun clickDownload(app: App, view: View) {
@@ -16,9 +15,8 @@ class UpdateAppHubListItemHandler : AppHubListItemHandler() {
             ?: return
         GlobalScope.launch {
             startDownload(
+                view.context, false,
                 app, fileAsset,
-                {}, {}, DownloadOb.getEmptyDownloadOb(),
-                view.context, false
             )
         }
     }

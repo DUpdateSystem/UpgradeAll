@@ -2,9 +2,9 @@ package net.xzos.upgradeall.ui.filemanagement.tasker_dialog
 
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
-import net.xzos.upgradeall.server.downloader.installable
 import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.ui.filemanagement.DownloadTaskerNumUtil
+import net.xzos.upgradeall.wrapper.download.installable
 
 class TaskerDialogItem(val fileTasker: FileTasker) : ListItemView {
     private val numUtil = DownloadTaskerNumUtil(fileTasker.downloader)

@@ -1,8 +1,6 @@
 package net.xzos.upgradeall.core.websdk
 
 import com.google.gson.Gson
-import com.google.gson.JsonParseException
-import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.utils.log.Log
