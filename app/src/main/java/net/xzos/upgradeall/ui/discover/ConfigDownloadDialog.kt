@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.ui.discover
 
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -40,9 +41,11 @@ class ConfigDownloadDialog(
                 .setPositiveButton(
                     positiveButtonText
                 ) { _, _ ->
-                    lifecycleScope.launch {
-                        download()
-                        changedFun()
+                    with(requireActivity()) {
+                        lifecycleScope.launch {
+                            download(this@with)
+                            changedFun()
+                        }
                     }
                 }.setNegativeButton(
                     R.string.cancel
@@ -53,21 +56,24 @@ class ConfigDownloadDialog(
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
-    private suspend fun download() {
-        ToastUtil.showText(requireContext(), R.string.download_start, Toast.LENGTH_LONG)
-        downloadApplicationData(uuid)
+    private suspend fun download(context: Context) {
+        ToastUtil.showText(context, R.string.download_start, Toast.LENGTH_LONG)
+        downloadApplicationData(uuid, context)
     }
 
-    private suspend fun downloadApplicationData(uuid: String) {
+    private suspend fun downloadApplicationData(uuid: String, context: Context) {
         // 下载数据
         CloudConfigGetter.downloadCloudAppConfig(uuid) {
-            ToastUtil.showText(requireContext(), getStatusMessage(it), Toast.LENGTH_LONG)
+            ToastUtil.showText(context, getStatusMessage(context, it), Toast.LENGTH_LONG)
         }
     }
 
-    private fun getStatusMessage(status: GetStatus): String {
-        return if (status.value > 0) getString(R.string.save_successfully)
-        else "${getString(R.string.save_failed)}, status: $status"
+    private fun getStatusMessage(context: Context, status: GetStatus): String {
+        return with(context) {
+            if (status.value > 0)
+                "${getString(R.string.save_successfully)}\nstatus: ${status.value}"
+            else "${getString(R.string.save_failed)}\nstatus: ${status.value}"
+        }
     }
 
 

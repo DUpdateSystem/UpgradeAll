@@ -21,7 +21,9 @@ import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.core.websdk.ServerApi.Companion.CLOUD_CONFIG_CACHE_KEY
-import net.xzos.upgradeall.core.websdk.json.*
+import net.xzos.upgradeall.core.websdk.json.AppConfigGson
+import net.xzos.upgradeall.core.websdk.json.CloudConfigList
+import net.xzos.upgradeall.core.websdk.json.HubConfigGson
 import net.xzos.upgradeall.core.websdk.openOkHttpApi
 
 
@@ -117,10 +119,10 @@ object CloudConfigGetter {
      * @return App
      */
     suspend fun downloadCloudAppConfig(appUuid: String?, notifyFun: (GetStatus) -> Unit): App? {
-        getAppCloudConfig(appUuid)?.run {
+        getAppCloudConfig(appUuid)?.also {
             notifyFun(GetStatus.SUCCESS_GET_APP_DATA)
-            if (solveHubDependency(this.baseHubUuid, notifyFun)) {
-                this.toAppEntity()?.run {
+            if (solveHubDependency(it.baseHubUuid, notifyFun)) {
+                it.toAppEntity()?.apply {
                     // 添加数据库
                     val app = AppManager.updateApp(this)
                     if (app != null) {
@@ -132,7 +134,7 @@ object CloudConfigGetter {
                         notifyFun(GetStatus.FAILED)
                     }
                 } ?: notifyFun(GetStatus.FAILED_GET_APP_DATA)
-            }
+            } else notifyFun(GetStatus.FAILED_GET_HUB_DATA)
         } ?: notifyFun(GetStatus.FAILED_GET_APP_DATA)
         return null
     }
@@ -212,10 +214,11 @@ fun AppConfigGson.getAppId(): Map<String, String>? {
 }
 
 suspend fun AppConfigGson.toAppEntity(): AppEntity? {
-    val appDatabaseList = metaDatabase.appDao().loadAll()
     val appId = this.getAppId() ?: return null
+    val appDatabaseList = metaDatabase.appDao().loadAll()
+    val appUuid = uuid
     for (appDatabase in appDatabaseList) {
-        if (appDatabase.appId == appId) {
+        if (appDatabase.cloudConfig?.uuid == appUuid) {
             appDatabase.name = info.name
             appDatabase.cloudConfig = this
             val baseHubUuid = (appDatabase.getSortHubUuidList() + baseHubUuid).toSet()
@@ -224,6 +227,6 @@ suspend fun AppConfigGson.toAppEntity(): AppEntity? {
         }
     }
     return AppEntity(0, info.name, appId, cloudConfig = this).apply {
-        setSortHubUuidList(listOf(this@toAppEntity.baseHubUuid))
+        setSortHubUuidList(listOf(baseHubUuid))
     }
 }
