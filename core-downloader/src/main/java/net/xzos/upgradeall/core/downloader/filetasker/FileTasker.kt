@@ -19,7 +19,7 @@ class FileTasker(
 
     /* 下载管理器 */
     val downloader = PreDownload.setDownload(downloadFile, downloadInfoList)
-    val file by lazy { downloader.downloadFile.dirFile }
+    val fileList by lazy { downloader.downloadFile.getFileList() ?: emptyList() }
 
     suspend fun startDownload(
         taskStartedFun: (Int) -> Unit,

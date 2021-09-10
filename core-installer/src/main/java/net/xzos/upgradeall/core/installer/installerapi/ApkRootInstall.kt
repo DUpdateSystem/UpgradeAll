@@ -77,9 +77,8 @@ object ApkRootInstall {
             Shell.runSuShellCommand(command)?.also {
                 if (it.exitCode != 0)
                     Log.e(
-                            logObjectTag, TAG, """
-                    Error: out: ${it.getOutputString()}, err: ${it.getErrorsString()}
-                """.trimIndent()
+                        logObjectTag, TAG,
+                        "Error: out: ${it.getOutputString()}, err: ${it.getErrorsString()}"
                     )
             }
         } catch (e: Throwable) {

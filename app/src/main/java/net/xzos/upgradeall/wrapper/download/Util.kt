@@ -6,7 +6,7 @@ import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadInfoItem
 import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.core.installer.Installer
-import net.xzos.upgradeall.core.installer.installable
+import net.xzos.upgradeall.core.installer.checkInstallable
 import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.core.utils.oberver.ObserverFun
 import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
@@ -18,14 +18,14 @@ fun DownloadItem.getDownloadInfoItem(defName: String): DownloadInfoItem {
     return DownloadInfoItem(name ?: defName, url, headers ?: emptyMap(), cookies ?: emptyMap())
 }
 
-fun FileTasker.installable() = file.installable()
+fun FileTasker.installable(context: Context) = checkInstallable(fileList, context)
 
 suspend fun FileTasker.install(
     context: Context,
     failedInstallObserverFun: ObserverFun<Throwable>,
     completeInstallObserverFun: ObserverFunNoArg
 ) {
-    Installer.install(file, context, failedInstallObserverFun, completeInstallObserverFun)
+    Installer.install(fileList, context, failedInstallObserverFun, completeInstallObserverFun)
 }
 
 suspend fun installFileTasker(

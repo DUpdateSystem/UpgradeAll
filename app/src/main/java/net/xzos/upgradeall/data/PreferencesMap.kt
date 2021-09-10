@@ -10,6 +10,7 @@ import net.xzos.upgradeall.core.data.DEF_UPDATE_SERVER_URL
 import net.xzos.upgradeall.core.downloader.DownloadConfig
 import net.xzos.upgradeall.core.downloader.initDownload
 import net.xzos.upgradeall.core.initCore
+import net.xzos.upgradeall.core.installer.initConfig
 import net.xzos.upgradeall.core.installer.installerapi.ApkShizukuInstaller
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.ui.home.MainActivity
@@ -169,6 +170,7 @@ object PreferencesMap {
     // 设置 Android 平台设置
     private fun syncAndroidConfig() {
         UpdateServiceBroadcastReceiver.setAlarms(background_sync_time)
+        initConfig(context, install_apk_api)
     }
 
     // 同步 Core 模块的配置

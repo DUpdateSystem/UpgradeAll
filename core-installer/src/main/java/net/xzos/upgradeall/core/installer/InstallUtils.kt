@@ -57,45 +57,38 @@ fun File.autoAddApkExtension(context: Context): File {
     return this
 }
 
-fun File.installable(): Boolean {
-    return this.installableMagiskModule() || this.installableApk()
+fun checkInstallable(fileList: List<File>, context: Context): Boolean {
+    return if (fileList.size == 1) {
+        val file = fileList.first()
+        checkIsApk(file, context) || checkIsMagiskModule(file)
+    } else {
+        checkIsApk(fileList, context)
+    }
 }
 
-fun File.installableMagiskModule(): Boolean {
-    return if (this.extension == "apk"){
+fun checkIsApk(fileList: List<File>, context: Context): Boolean {
+    fileList.forEach {
+        if (it.extension == "apk")
+            return true
+    }
+    return fileList.first().parentFile?.getPackageInfo(context) != null
+}
+
+fun checkIsApk(file: File, context: Context): Boolean {
+    return file.extension == "apk" || file.getPackageInfo(context) != null
+}
+
+fun checkIsMagiskModule(file: File): Boolean {
+    return if (file.extension == "zip") {
         var installable = false
-        parseZipBytes(this.readBytes()) { name, _ ->
-            return@parseZipBytes if (name == "module.prop"){
+        parseZipBytes(file.readBytes()) { name, _ ->
+            return@parseZipBytes if (name == "module.prop") {
                 installable = true
                 true
-            }
-            else false
+            } else false
         }
         installable
-    }else false
-}
-fun File.installableApk(): Boolean {
-    return if (this.isDirectory) {
-        for (file in this.listFiles() ?: return false) {
-            if (file.extension == "apk")
-                return true
-        }
-        false
-    } else {
-        extension == "apk"
-    }
-}
-
-fun DocumentFile.installable(): Boolean {
-    return if (this.isDirectory) {
-        for (file in this.listFiles()) {
-            if (file.extension == "apk")
-                return true
-        }
-        false
-    } else {
-        extension == "apk"
-    }
+    } else false
 }
 
 val DocumentFile.extension: String

@@ -190,7 +190,7 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
 
     private fun taskComplete(download: Download) {
         val fileTasker = FileTaskerManager.getFileTasker(fileTaskerId)!!
-        val installable = fileTasker.installable()
+        val installable = fileTasker.installable(context)
         showManualMenuNotification(download, installable)
         if (installable && PreferencesMap.auto_install) {
             GlobalScope.launch {

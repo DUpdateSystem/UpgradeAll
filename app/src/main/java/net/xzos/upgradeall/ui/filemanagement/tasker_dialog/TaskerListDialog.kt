@@ -16,10 +16,10 @@ import java.io.File
 
 
 class TaskerListDialog private constructor(
-        context: Context,
-        private val fileTasker: FileTasker,
-        private val item: TaskerDialogItem,
-        private val downloadList: List<Download>
+    context: Context,
+    private val fileTasker: FileTasker,
+    private val item: TaskerDialogItem,
+    private val downloadList: List<Download>
 ) : BottomSheetDialog(context), ListDialogPart {
 
     override val sAdapter = TaskerListAdapter(emptyList())
@@ -53,7 +53,9 @@ class TaskerListDialog private constructor(
 
         fun newInstance(context: Context, fileTasker: FileTasker) {
             GlobalScope.launch {
-                val item = TaskerDialogItem(fileTasker)
+                val item = TaskerDialogItem(fileTasker).apply {
+                    init(context)
+                }
                 val downloadList = fileTasker.downloader.getDownloadList()
                 runUiFun {
                     TaskerListDialog(context, fileTasker, item, downloadList).show()

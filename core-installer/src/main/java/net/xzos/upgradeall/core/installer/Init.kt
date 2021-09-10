@@ -1,8 +1,9 @@
 package net.xzos.upgradeall.core.installer
 
-import android.app.Activity
+import android.content.Context
 import net.xzos.upgradeall.core.installer.status.appInstallReceiver
 
-fun initConfig(activity: Activity) {
-    appInstallReceiver.register(activity)
+fun initConfig(context: Context, installMode: String) {
+    ApkInstaller.installMode = installMode
+    appInstallReceiver.register(context)
 }

@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.installer.installerapi
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
