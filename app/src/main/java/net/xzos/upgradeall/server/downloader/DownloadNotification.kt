@@ -14,6 +14,7 @@ import com.tonyodev.fetch2.Download
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.androidutils.FlagDelegate
@@ -21,16 +22,17 @@ import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerId
 import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerManager
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
+import net.xzos.upgradeall.core.utils.coroutines.runWithLock
+import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.data.PreferencesMap
-import net.xzos.upgradeall.utils.file.extension
+import net.xzos.upgradeall.utils.file.fileName
 import net.xzos.upgradeall.wrapper.download.installFileTasker
 import net.xzos.upgradeall.wrapper.download.installable
 import net.xzos.upgradeall.wrapper.download.status.DownloadInformer
 import net.xzos.upgradeall.wrapper.download.status.DownloadStatus
 
-class DownloadNotification {
+class DownloadNotification(private val fileTaskerId: FileTaskerId) {
 
-    lateinit var fileTaskerId: FileTaskerId
     private val notificationIndex: Int = getNotificationIndex()
 
     private val builder = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID).apply {
@@ -41,50 +43,64 @@ class DownloadNotification {
         createNotificationChannel()
     }
 
+    private val mutex = Mutex()
+
     fun observeDownloadTasker(downloadInformer: DownloadInformer) {
-        DownloadNotificationManager.addNotification(downloadInformer, this)
+        DownloadNotificationManager.addNotification(downloadInformer.id.toString(), this)
         downloadInformer.observeForever(DownloadStatus.DOWNLOAD_WAIT_INFO) { name: String ->
-            waitDownloadTaskNotification(name)
+            mutex.runWithLock { preDownload(name, DownloadStatus.DOWNLOAD_WAIT_INFO) }
         }
         downloadInformer.observeForever(DownloadStatus.TASK_WAIT_START) { fileTasker: FileTasker ->
-            fileTaskerId = fileTasker.id
-            waitDownloadTaskNotification(fileTasker.name)
+            mutex.runWithLock { preDownload(fileTasker.name, DownloadStatus.TASK_WAIT_START) }
         }
-        downloadInformer.observeForever(DownloadStatus.TASK_START_FAIL) { _: Throwable ->
-            taskCancel()
+        downloadInformer.observeForever(DownloadStatus.TASK_START_FAIL) { e: Throwable ->
+            mutex.runWithLock { taskFailed(e) }
+        }
+        downloadInformer.observeForever(DownloadStatus.EXTERNAL_DOWNLOAD) {
+            mutex.runWithLock { taskCancel() }
         }
 
+        downloadInformer.observeForever(DownloadStatus.TASK_STARTED) { downloadId: Int ->
+            mutex.runWithLock { taskStart(downloadId) }
+        }
         downloadInformer.observeForever(DownloadStatus.DOWNLOAD_START) { download: Download ->
-            taskRunning(download)
+            mutex.runWithLock { taskRunning(download) }
         }
         downloadInformer.observeForever(DownloadStatus.DOWNLOADING) { download: Download ->
-            taskRunning(download)
+            mutex.runWithLock { taskRunning(download) }
         }
         downloadInformer.observeForever(DownloadStatus.DOWNLOAD_STOP) { _: Download ->
-            taskStop()
+            mutex.runWithLock { taskPause() }
         }
         downloadInformer.observeForever(DownloadStatus.DOWNLOAD_COMPLETE) { download: Download ->
-            taskComplete(download)
+            mutex.runWithLock { taskComplete(download) }
         }
         downloadInformer.observeForever(DownloadStatus.DOWNLOAD_CANCEL) { _: Download ->
-            taskCancel()
+            mutex.runWithLock { taskCancel() }
         }
         downloadInformer.observeForever(DownloadStatus.DOWNLOAD_FAIL) { _: Download ->
-            taskFail()
+            mutex.runWithLock { taskFail() }
         }
     }
 
-    fun waitDownloadTaskNotification(taskName: String) {
+    private fun preDownload(taskName: String, status: DownloadStatus) {
         builder.clearActions()
             .setOngoing(true)
             .setContentTitle("${getString(R.string.file_download)}: $taskName")
-            .setContentText(getString(R.string.waiting_pre_process))
+            .setContentText("${getString(R.string.waiting_pre_process)}: ${status.msg}")
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .setProgress(0, PROGRESS_MAX, true)
             .addAction(
                 android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.cancel),
                 getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
             )
+        notificationNotify()
+    }
+
+    private fun taskFailed(e: Throwable) {
+        builder.clearActions()
+            .setNotificationCanGoing()
+            .setContentText(e.msg())
         notificationNotify()
     }
 
@@ -101,11 +117,25 @@ class DownloadNotification {
         notificationNotify()
     }
 
+    private fun taskStart(downloadId: Int) {
+        builder.clearActions()
+            .setContentText("download id: $downloadId")
+            .addAction(
+                android.R.drawable.ic_media_pause, getString(R.string.pause),
+                getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_PAUSE)
+            )
+            .addAction(
+                android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.cancel),
+                getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
+            )
+        notificationNotify()
+    }
+
     private fun taskRunning(task: Download) {
         val progressCurrent: Int = task.progress
         val speed = getSpeedText(task)
         builder.clearActions()
-            .setContentTitle("${getString(R.string.file_download)}: ${task.file.extension}")
+            .setContentTitle("${getString(R.string.file_download)}: ${task.file.fileName}")
             .setContentText(speed)
             .setProgress(PROGRESS_MAX, progressCurrent, false)
             .setSmallIcon(android.R.drawable.stat_sys_download)
@@ -120,7 +150,7 @@ class DownloadNotification {
         notificationNotify()
     }
 
-    private fun taskStop() {
+    private fun taskPause() {
         builder.clearActions()
             .setContentText(getString(R.string.download_paused))
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
@@ -154,7 +184,7 @@ class DownloadNotification {
                 delTaskSnoozePendingIntent
             )
             .setDeleteIntent(delTaskSnoozePendingIntent)
-        setNotificationCanGoing()
+            .setNotificationCanGoing()
         notificationNotify()
     }
 
@@ -174,7 +204,7 @@ class DownloadNotification {
     private fun showManualMenuNotification(download: Download, installable: Boolean) {
         builder.clearActions().run {
             val filePath = download.file
-            setContentTitle("${getString(R.string.download_complete)}: ${filePath.extension}")
+            setContentTitle("${getString(R.string.download_complete)}: ${filePath.fileName}")
             val contentText =
                 "${getString(R.string.file_path)}: $filePath"
             setContentText(contentText)
@@ -184,6 +214,7 @@ class DownloadNotification {
             )
             setSmallIcon(android.R.drawable.stat_sys_download_done)
             setProgress(0, 0, false)
+            setNotificationCanGoing()
             runBlocking {
                 if (installable) {
                     addAction(
@@ -203,7 +234,6 @@ class DownloadNotification {
             )
             setDeleteIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.NOTIFY_CANCEL))
         }
-        setNotificationCanGoing()
         notificationNotify()
     }
 
@@ -260,11 +290,10 @@ class DownloadNotification {
         }
     }
 
-    private fun setNotificationCanGoing() {
-        with(builder) {
-            setDeleteIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.NOTIFY_CANCEL))
-            setOngoing(false)
-        }
+    private fun NotificationCompat.Builder.setNotificationCanGoing(): NotificationCompat.Builder {
+        setDeleteIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.NOTIFY_CANCEL))
+        setOngoing(false)
+        return this
     }
 
     companion object {

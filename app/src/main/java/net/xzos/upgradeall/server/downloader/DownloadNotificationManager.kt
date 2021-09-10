@@ -12,12 +12,12 @@ object DownloadNotificationManager {
         }
     }
 
-    fun addNotification(fileInformer: DownloadInformer, notification: DownloadNotification) {
-        notificationMap[fileInformer.id]?.apply {
+    fun addNotification(fileTaskerId: String, notification: DownloadNotification) {
+        notificationMap[fileTaskerId]?.apply {
             cancelNotification()
             removeNotification(this)
         }
-        notificationMap[fileInformer.id] = notification
+        notificationMap[fileTaskerId] = notification
     }
 
     fun getNotification(fileTaskerId: String): DownloadNotification? {

@@ -1,4 +1,4 @@
 package net.xzos.upgradeall.utils.file
 
-val String.extension: String
-    get() = this.substringAfterLast('.', "")
+val String.fileName: String
+    get() = this.substringAfterLast('/', "")

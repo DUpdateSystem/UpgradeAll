@@ -43,7 +43,7 @@ class Downloader internal constructor(downloadDir: File) {
         delTask()
     }
 
-    private fun register(downloadOb: DownloadOb) {
+    fun register(downloadOb: DownloadOb) {
         DownloadRegister.registerOb(downloadId, downloadOb)
     }
 
@@ -64,6 +64,22 @@ class Downloader internal constructor(downloadDir: File) {
             val request = makeRequest(fileName, url, headers, cookies)
             requestList.add(request)
         }
+    }
+
+    suspend fun getDownloadProgress(): Int {
+        getFetchDownload(downloadId)?.run {
+            return progress
+        } ?: getFetchGroup(downloadId)?.run {
+            return groupDownloadProgress
+        } ?: return -1
+    }
+
+    suspend fun getDownloadList(): List<Download> {
+        getFetchDownload(downloadId)?.run {
+            return listOf(this)
+        } ?: getFetchGroup(downloadId)?.run {
+            return this.downloads
+        } ?: return emptyList()
     }
 
     internal suspend fun start(
@@ -112,22 +128,6 @@ class Downloader internal constructor(downloadDir: File) {
             fetch.pauseGroup(downloadId.id)
         else
             fetch.pause(downloadId.id)
-    }
-
-    suspend fun getDownloadProgress(): Int {
-        getFetchDownload(downloadId)?.run {
-            return progress
-        } ?: getFetchGroup(downloadId)?.run {
-            return groupDownloadProgress
-        } ?: return -1
-    }
-
-    suspend fun getDownloadList(): List<Download> {
-        getFetchDownload(downloadId)?.run {
-            return listOf(this)
-        } ?: getFetchGroup(downloadId)?.run {
-            return this.downloads
-        } ?: return emptyList()
     }
 
     internal fun retry() {
