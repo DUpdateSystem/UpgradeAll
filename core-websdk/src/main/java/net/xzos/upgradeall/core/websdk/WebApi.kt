@@ -2,6 +2,8 @@ package net.xzos.upgradeall.core.websdk
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
@@ -159,6 +161,7 @@ internal class WebApi(
         if (retryNum < 0 || hubUuid in invalidHubUuidList) callback(null)
         okHttpApi.get(url, headers, object : Callback {
             override fun onFailure(call: Call, e: IOException) {
+                runBlocking { delay(5 * 1000L) }
                 Log.e(
                     objectTag, TAG,
                     "doOkhttpCall: url: ${call.request().url}, e: ${e.stackTraceToString()}"
