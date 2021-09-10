@@ -37,7 +37,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     // kotlin 协程
-    api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1-native-mt'
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2-native-mt'
 
     // Versioning
     implementation 'org.apache.maven:maven-artifact:3.8.2'

@@ -56,7 +56,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     // kotlin 协程
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1-native-mt'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2-native-mt'
 
     // database
     def room_version = '2.3.0'

@@ -15,8 +15,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 86
-        versionName "0.10.0-alpha.4"
+        versionCode 87
+        versionName "0.10.0-beta"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
@@ -90,10 +90,10 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.6.0'
     //noinspection DifferentStdlibGradleVersion
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1-native-mt'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2-native-mt'
 
     // WorkManager
-    def work_version = '2.7.0-alpha05'
+    def work_version = '2.7.0-beta01'
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
     // Localization
