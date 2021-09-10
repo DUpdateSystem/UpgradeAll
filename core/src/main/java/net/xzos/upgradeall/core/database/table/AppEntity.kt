@@ -12,16 +12,18 @@ import net.xzos.upgradeall.core.utils.cleanBlankValue
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
 
+// 使用 data 保持 hashcode 相同
+// 并在上层调用中使用 data 数据类标识，以保持 hashcode 为准的相等判断
 @Entity(tableName = "app")
-class AppEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long,
-    var name: String,
+data class AppEntity(
+    @ColumnInfo(name = "name") var name: String,
     @ColumnInfo(name = "app_id") var appId: Map<String, String>,
     @ColumnInfo(name = "invalid_version_number_field_regex") var invalidVersionNumberFieldRegexString: String? = null,
     @ColumnInfo(name = "ignore_version_number") var ignoreVersionNumber: String? = null,
     @ColumnInfo(name = "cloud_config") var cloudConfig: AppConfigGson? = null,
     @ColumnInfo(name = "enable_hub_list") var _enableHubUuidListString: String? = null,
     @ColumnInfo(name = "star") var startRaw: Boolean? = null,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0L,
 ) {
 
     var star: Boolean

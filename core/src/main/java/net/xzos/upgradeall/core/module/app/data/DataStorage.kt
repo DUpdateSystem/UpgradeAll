@@ -5,7 +5,7 @@ import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.getEnableSortHubList
 import net.xzos.upgradeall.core.module.Hub
 
-internal class DataStorage(
+internal data class DataStorage(
     val appDatabase: AppEntity,
 ) {
     // 刷新状态锁
