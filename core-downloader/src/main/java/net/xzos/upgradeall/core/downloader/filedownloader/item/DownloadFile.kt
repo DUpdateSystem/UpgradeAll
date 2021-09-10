@@ -4,11 +4,13 @@ import net.xzos.upgradeall.core.downloader.filedownloader.getNewRandomNameFile
 import java.io.File
 
 class DownloadFile(private val parent: File) {
-    val file: File by lazy {
+    val dirFile: File by lazy {
         getNewRandomNameFile(parent, true)
     }
 
+    fun getFile(name:String) = File(dirFile, name)
+
     fun delete() {
-        file.delete()
+        dirFile.delete()
     }
 }

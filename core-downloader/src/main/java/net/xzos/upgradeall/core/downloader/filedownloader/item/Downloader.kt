@@ -186,7 +186,7 @@ class Downloader internal constructor(downloadDir: File) {
         headers: Map<String, String> = mapOf(), cookies: Map<String, String> = mapOf()
     ): Request {
         // 检查重复任务
-        val file = downloadFile.file
+        val file = downloadFile.getFile(fileName)
         val request = Request(url, file.path)
         request.autoRetryMaxAttempts = downloadConfig.DOWNLOAD_AUTO_RETRY_MAX_ATTEMPTS
         for ((key, value) in headers) {

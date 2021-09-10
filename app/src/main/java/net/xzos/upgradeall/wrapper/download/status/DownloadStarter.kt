@@ -9,7 +9,7 @@ import net.xzos.upgradeall.core.module.app.version_item.FileAsset
 import net.xzos.upgradeall.core.serverApi
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.data.PreferencesMap
-import net.xzos.upgradeall.utils.DOWNLOAD_EXTRA_CACHE_DIR
+import net.xzos.upgradeall.utils.file.DOWNLOAD_EXTRA_CACHE_DIR
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.wrapper.download.getDownloadInfoItem
 

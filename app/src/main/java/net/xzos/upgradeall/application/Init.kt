@@ -7,9 +7,12 @@ import net.xzos.upgradeall.core.downloader.setDownloadServer
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.downloader.DownloadNotification
+import net.xzos.upgradeall.utils.file.DOWNLOAD_EXTRA_CACHE_DIR
 import net.xzos.upgradeall.utils.egg.egg
+import net.xzos.upgradeall.utils.file.refreshStorage
 
 fun initCore() {
+    refreshStorage()
     initObject()
     PreferencesMap.sync()
     GlobalScope.launch { renewData() }
