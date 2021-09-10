@@ -10,7 +10,7 @@ import com.google.gson.annotations.SerializedName
  * base_hub_uuid:
  * info: {"name": "", "desc": "", "url": , "extra_map": ""}
  */
-class AppConfigGson(
+data class AppConfigGson(
     @SerializedName("base_version") val baseVersion: Int,
     @SerializedName("config_version") val configVersion: Int,
     @SerializedName("uuid") val uuid: String,
@@ -23,7 +23,7 @@ class AppConfigGson(
      * url:
      * desc:
      */
-    class InfoBean(
+    data class InfoBean(
         @SerializedName("name") val name: String,
         @SerializedName("url") var url: String,
         @SerializedName("desc") var desc: String?,

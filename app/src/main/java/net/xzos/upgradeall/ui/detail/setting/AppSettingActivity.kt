@@ -91,7 +91,7 @@ class AppSettingActivity : AppBarActivity() {
             this.invalidVersionNumberFieldRegexString = invalidVersionNumberFieldRegex
             this.appId = appId
         } ?: AppEntity(
-            0, name, appId,
+            name, appId,
             invalidVersionNumberFieldRegexString = invalidVersionNumberFieldRegex
         )
         window?.let {

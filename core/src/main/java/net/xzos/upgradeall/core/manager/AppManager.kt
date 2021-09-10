@@ -231,7 +231,7 @@ object AppManager : Informer {
 
     private fun getAppByDatabase(appEntity: AppEntity): App? {
         appList.forEach {
-            if (it.appDatabase.id == appEntity.id)
+            if (it.appDatabase == appEntity)
                 return it
         }
         return null

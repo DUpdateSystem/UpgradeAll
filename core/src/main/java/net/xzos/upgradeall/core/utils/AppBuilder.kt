@@ -15,5 +15,5 @@ fun getInstalledAppList(context: Context, ignoreSystemApp:Boolean): List<AppEnti
 }
 
 fun AppInfo.toAppEntity(): AppEntity {
-    return AppEntity(0, name, idMap)
+    return AppEntity(name, idMap)
 }

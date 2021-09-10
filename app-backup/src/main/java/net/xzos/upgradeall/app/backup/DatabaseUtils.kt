@@ -44,7 +44,6 @@ fun HubEntity.md5(): String {
 
 fun parseAppEntityConfig(json: JSONObject): AppEntity {
     return AppEntity(
-            0,
             json.getString("name"),
             converters.stringToMap(json.getString("app_id")) as Map<String, String>,
             json.getOrNull("ignore_version_number"),

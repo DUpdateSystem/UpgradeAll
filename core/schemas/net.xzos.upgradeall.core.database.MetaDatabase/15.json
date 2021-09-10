@@ -51,7 +51,7 @@
             "notNull": false
           },
           {
-            "fieldPath": "_star",
+            "fieldPath": "startRaw",
             "columnName": "star",
             "affinity": "INTEGER",
             "notNull": false

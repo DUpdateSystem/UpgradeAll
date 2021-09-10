@@ -12,7 +12,7 @@ import com.google.gson.annotations.SerializedName
  * api_keywords: []
  * app_url_templates": []
  */
-class HubConfigGson(
+data class HubConfigGson(
     @SerializedName("base_version") val baseVersion: Int = 0,
     @SerializedName("config_version") val configVersion: Int = 0,
     @SerializedName("uuid") val uuid: String = "",
@@ -26,7 +26,7 @@ class HubConfigGson(
      * hub_name:
      * hub_icon_url: ""
      */
-    class InfoBean(
+    data class InfoBean(
         @SerializedName("hub_name") var hubName: String = "null",
         @SerializedName("hub_icon_url ") var hubIconUrl: String? = null
     )

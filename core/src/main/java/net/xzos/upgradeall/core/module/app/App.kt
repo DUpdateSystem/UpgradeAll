@@ -7,6 +7,7 @@ import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.module.app.version.Version
+import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
 class App(
     appDatabase: AppEntity,
@@ -99,11 +100,9 @@ class App(
     }
 
     override fun equals(other: Any?): Boolean {
-        return when {
-            other !is App -> false
-            appDatabase == other.appDatabase -> return true
-            appDatabase.cloudConfig?.uuid == other.appDatabase.cloudConfig?.uuid -> return true
-            else -> super.equals(other)
+        return when (other) {
+            !is App -> false
+            else -> hashCode() == other.hashCode()
         }
     }
 
@@ -113,5 +112,4 @@ class App(
 }
 
 fun App.getDatabase(): AppEntity = appDatabase
-fun App.getConfigJson(): net.xzos.upgradeall.core.websdk.json.AppConfigGson? =
-    appDatabase.cloudConfig
+fun App.getConfigJson(): AppConfigGson? = appDatabase.cloudConfig

@@ -226,7 +226,7 @@ suspend fun AppConfigGson.toAppEntity(): AppEntity? {
             return appDatabase
         }
     }
-    return AppEntity(0, info.name, appId, cloudConfig = this).apply {
+    return AppEntity(info.name, appId, cloudConfig = this).apply {
         setSortHubUuidList(listOf(baseHubUuid))
     }
 }
