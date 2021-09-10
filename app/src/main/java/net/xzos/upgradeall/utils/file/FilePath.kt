@@ -1,7 +1,6 @@
 package net.xzos.upgradeall.utils.file
 
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.core.androidutils.deleteChildRecursive
 import net.xzos.upgradeall.core.androidutils.getExistsFile
 import java.io.File
 
