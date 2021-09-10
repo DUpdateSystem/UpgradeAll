@@ -156,6 +156,7 @@ object PreferencesMap {
 
     fun initByActivity(activity: Activity) {
         if (install_apk_api == "Shizuku") {
+            ApkShizukuInstaller.requestShizukuPermission(activity, 1)
             ApkShizukuInstaller.initByActivity(activity, 1)
         }
     }

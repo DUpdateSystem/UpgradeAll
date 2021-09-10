@@ -95,8 +95,7 @@ class ShizukuUtils(context: Context) {
                         true
                     } else if (Shizuku.shouldShowRequestPermissionRationale()) {
                         Log.i(
-                            logObjectTag,
-                            TAG,
+                            logObjectTag, TAG,
                             "checkPermission: User denied permission (shouldShowRequestPermissionRationale=true)"
                         )
                         false
@@ -118,8 +117,7 @@ class ShizukuUtils(context: Context) {
                         )
                     ) {
                         Log.i(
-                            logObjectTag,
-                            TAG,
+                            logObjectTag, TAG,
                             "checkPermission: User denied permission (shouldShowRequestPermissionRationale=true)"
                         )
                         false

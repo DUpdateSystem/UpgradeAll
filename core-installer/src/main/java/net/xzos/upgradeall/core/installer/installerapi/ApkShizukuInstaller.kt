@@ -221,7 +221,7 @@ object ApkShizukuInstaller {
         ShizukuUtils.checkPermission(activity, PERMISSIONS_REQUEST_CONTACTS)
     }
 
-    private fun requestShizukuPermission(
+    fun requestShizukuPermission(
         activity: Activity,
         PERMISSIONS_REQUEST_CONTACTS: Int,
     ): Boolean {
