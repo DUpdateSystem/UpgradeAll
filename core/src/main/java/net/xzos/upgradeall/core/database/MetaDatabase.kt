@@ -23,12 +23,12 @@ abstract class MetaDatabase : RoomDatabase() {
 
 lateinit var metaDatabase: MetaDatabase
 fun initDatabase(context: Context) {
-    metaDatabase = Room
-        .databaseBuilder(
-            context,
-            MetaDatabase::class.java,
-            "app_metadata_database.db"
-        )
+    metaDatabase = getDatabase(context, MetaDatabase::class.java, "app_metadata_database.db")
+}
+
+fun <E : RoomDatabase> getDatabase(context: Context, less: Class<E>, name: String): E {
+    return Room
+        .databaseBuilder(context, less, name)
         .addMigrations(MIGRATION_6_7)
         .addMigrations(MIGRATION_7_8)
         .addMigrations(MIGRATION_8_9)

@@ -1,15 +1,12 @@
 package net.xzos.upgradeall.app.backup
 
 import kotlinx.coroutines.runBlocking
+import net.xzos.upgradeall.core.database.table.extra_app.ExtraAppEntityManager
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.utils.file.parseZipBytes
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
-import org.json.JSONArray
-import java.io.ByteArrayOutputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 
 
 object RestoreManager {
@@ -24,30 +21,28 @@ object RestoreManager {
     }
 
     private suspend fun parseData(name: String, bytes: ByteArray) {
-        val text = bytes.toString(Charsets.UTF_8)
         when (name) {
-            "database/app_database.json" -> restoreAppDatabase(JSONArray(text))
-            "database/hub_database.json" -> restoreHubDatabase(JSONArray(text))
-            "/${preferencesFile.name}" -> preferencesFile.writeText(text)
-            else -> {
-                Log.e(logObjectTag, TAG, "ignore file: $name")
+            "database/${dbFile.name}" -> restoreDatabase(bytes)
+            "prefs/${prefsFile.name}" -> {
+                val text = bytes.toString(Charsets.UTF_8)
+                prefsFile.writeText(text)
             }
+            else -> Log.e(logObjectTag, TAG, "ignore file: $name")
         }
     }
 
-    private suspend fun restoreAppDatabase(jsonArray: JSONArray) {
-        for (i in 0 until jsonArray.length()) {
-            val s = jsonArray.getJSONObject(i)
-            val entity = parseAppEntityConfig(s)
-            AppManager.updateApp(entity)
+    private suspend fun restoreDatabase(dbFileBytes: ByteArray) {
+        val metaDatabase = getBackupMetaDatabase(dbFileBytes)
+        metaDatabase.hubDao().loadAll().forEach {
+            HubManager.updateHub(it)
         }
-    }
-
-    private suspend fun restoreHubDatabase(jsonArray: JSONArray) {
-        for (i in 0 until jsonArray.length()) {
-            val s = jsonArray.getJSONObject(i)
-            val entity = parseHubEntityConfig(s)
-            HubManager.updateHub(entity)
+        metaDatabase.appDao().loadAll().forEach {
+            AppManager.updateApp(it)
+        }
+        metaDatabase.extraAppDao().loadAll().forEach {
+            it.__mark_version_number?.apply {
+                ExtraAppEntityManager.addMarkVersionNumber(it.appId, this)
+            }
         }
     }
 }

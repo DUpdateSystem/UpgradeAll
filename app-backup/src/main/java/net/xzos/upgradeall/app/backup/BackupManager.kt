@@ -1,10 +1,7 @@
 package net.xzos.upgradeall.app.backup
 
 import android.os.Build
-import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.utils.file.ZipFile
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -30,39 +27,14 @@ object BackupManager {
         return try {
             val zipFile = ZipFile()
             // backup database
-            val allAppDatabase = backupAllAppDatabase()
-            zipFile.zipByteFile(allAppDatabase.toString().toByteArray(), "app_database.json", "database")
-            val allHubDatabase = backupAllHubDatabase()
-            zipFile.zipByteFile(allHubDatabase.toString().toByteArray(), "hub_database.json", "database")
-            // backup ui
-            zipFile.zipFile(preferencesFile)
+            zipFile.zipFile(dbFile)
+            // backup
+            zipFile.zipFile(prefsFile)
 
             zipFile.getByteArray()
         } catch (ioe: IOException) {
             ioe.printStackTrace()
             null
         }
-    }
-
-    private suspend fun backupAllAppDatabase(): JSONArray {
-        val databaseList = metaDatabase.appDao().loadAll()
-        val json = JSONArray()
-        var data: JSONObject
-        for (database in databaseList) {
-            data = database.toJson()
-            json.put(data)
-        }
-        return json
-    }
-
-    private suspend fun backupAllHubDatabase(): JSONArray {
-        val databaseList = metaDatabase.hubDao().loadAll()
-        val json = JSONArray()
-        var data: JSONObject
-        for (database in databaseList) {
-            data = database.toJson()
-            json.put(data)
-        }
-        return json
     }
 }
