@@ -1,6 +1,8 @@
 package net.xzos.upgradeall.app.backup
 
 import android.os.Build
+import net.xzos.upgradeall.app.backup.utils.dbFile
+import net.xzos.upgradeall.app.backup.utils.prefsFile
 import net.xzos.upgradeall.core.utils.file.ZipFile
 import java.io.IOException
 import java.text.SimpleDateFormat

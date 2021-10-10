@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.app.backup
+package net.xzos.upgradeall.app.backup.utils
 
 import net.xzos.upgradeall.core.database.MetaDatabase
 import net.xzos.upgradeall.core.database.getDatabase

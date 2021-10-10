@@ -1,6 +1,10 @@
 package net.xzos.upgradeall.app.backup
 
 import kotlinx.coroutines.runBlocking
+import net.xzos.upgradeall.app.backup.utils.dbFile
+import net.xzos.upgradeall.app.backup.utils.delBackupTmp
+import net.xzos.upgradeall.app.backup.utils.getBackupMetaDatabase
+import net.xzos.upgradeall.app.backup.utils.prefsFile
 import net.xzos.upgradeall.core.database.table.extra_app.ExtraAppEntityManager
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
@@ -29,6 +33,7 @@ object RestoreManager {
             }
             else -> Log.e(logObjectTag, TAG, "ignore file: $name")
         }
+        delBackupTmp()
     }
 
     private suspend fun restoreDatabase(dbFileBytes: ByteArray) {
