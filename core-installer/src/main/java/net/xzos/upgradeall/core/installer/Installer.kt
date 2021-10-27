@@ -7,26 +7,27 @@ import java.io.File
 
 object Installer {
     suspend fun install(
-        fileList: List<File>, context: Context,
+        fileList: List<File>,
+        fileType: FileType, context: Context,
         failedInstallObserverFun: ObserverFun<Throwable>,
         completeInstallObserverFun: ObserverFunNoArg
     ) {
         if (fileList.size == 1) {
             val file = fileList.first()
-            when {
-                checkIsApk(file, context) -> ApkInstaller.install(
+            when (fileType) {
+                FileType.APK -> ApkInstaller.install(
                     file, context, failedInstallObserverFun, completeInstallObserverFun
                 )
-                checkIsMagiskModule(file) -> MagiskModuleInstaller.install(
+                FileType.MAGISK_MODULE -> MagiskModuleInstaller.install(
                     file, failedInstallObserverFun, completeInstallObserverFun
                 )
-                else -> return
             }
         } else {
-            ApkInstaller.multipleInstall(
-                fileList.first().parentFile!!, context,
-                failedInstallObserverFun, completeInstallObserverFun
-            )
+            if (fileType == FileType.APK)
+                ApkInstaller.multipleInstall(
+                    fileList.first().parentFile!!, context,
+                    failedInstallObserverFun, completeInstallObserverFun
+                )
         }
     }
 }

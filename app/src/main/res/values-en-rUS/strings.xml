@@ -284,4 +284,7 @@
     <string name="waiting_pre_process">Wait for pre-processing to complete</string>
     <string name="download_service_running">Download Service is running</string>
     <string name="use_external_downloader_desc">Currently the built-in downloader is not ready, the default is to use an external downloader</string>
+
+    <!-- Installable File Type -->
+    <string name="apk">APK</string>
 </resources>

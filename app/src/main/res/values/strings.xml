@@ -296,4 +296,7 @@
     <string name="waiting_pre_process">等待预处理完成</string>
     <string name="download_service_running">下载服务运行中</string>
     <string name="use_external_downloader_desc">目前内建下载器未准备好，默认使用外部下载器</string>
+
+    <!-- Installable File Type -->
+    <string name="apk">APK 文件</string>
 </resources>

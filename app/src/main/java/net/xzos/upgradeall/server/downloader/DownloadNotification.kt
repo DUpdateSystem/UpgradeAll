@@ -21,13 +21,14 @@ import net.xzos.upgradeall.core.androidutils.FlagDelegate
 import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerId
 import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerManager
+import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.file.fileName
 import net.xzos.upgradeall.wrapper.download.installFileTasker
-import net.xzos.upgradeall.wrapper.download.installable
+import net.xzos.upgradeall.wrapper.download.fileType
 import net.xzos.upgradeall.wrapper.download.status.DownloadInformer
 import net.xzos.upgradeall.wrapper.download.status.DownloadStatus
 
@@ -190,18 +191,18 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
 
     private fun taskComplete(download: Download) {
         val fileTasker = FileTaskerManager.getFileTasker(fileTaskerId)!!
-        val installable = fileTasker.installable(context)
-        showManualMenuNotification(download, installable)
-        if (installable && PreferencesMap.auto_install) {
+        val fileType = fileTasker.fileType(context)
+        showManualMenuNotification(download, fileType)
+        if (fileType != null && PreferencesMap.auto_install) {
             GlobalScope.launch {
                 installFileTasker(
-                    context, fileTasker, this@DownloadNotification
+                    context, fileTasker, fileType, this@DownloadNotification
                 )
             }
         }
     }
 
-    private fun showManualMenuNotification(download: Download, installable: Boolean) {
+    private fun showManualMenuNotification(download: Download, fileType: FileType?) {
         builder.clearActions().run {
             val filePath = download.file
             setContentTitle("${getString(R.string.download_complete)}: ${filePath.fileName}")
@@ -216,9 +217,15 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
             setProgress(0, 0, false)
             setNotificationCanGoing()
             runBlocking {
-                if (installable) {
+                if (fileType != null) {
+                    val extraText = when (fileType) {
+                        FileType.APK -> getString(R.string.apk)
+                        FileType.MAGISK_MODULE -> getString(R.string.magisk_module)
+                        else -> ""
+                    }
                     addAction(
-                        R.drawable.ic_check_mark_circle, getString(R.string.install),
+                        R.drawable.ic_check_mark_circle,
+                        "${getString(R.string.install)} $extraText",
                         getSnoozePendingIntent(DownloadBroadcastReceiver.INSTALL_APK)
                     )
                 }

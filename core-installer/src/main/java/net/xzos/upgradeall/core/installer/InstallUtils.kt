@@ -57,13 +57,18 @@ fun File.autoAddApkExtension(context: Context): File {
     return this
 }
 
-fun checkInstallable(fileList: List<File>, context: Context): Boolean {
-    return if (fileList.size == 1) {
+fun getFileType(fileList: List<File>, context: Context): FileType? {
+    if (fileList.size == 1) {
         val file = fileList.first()
-        checkIsApk(file, context) || checkIsMagiskModule(file)
+        if (checkIsApk(file, context))
+            return FileType.APK
+        else if (checkIsMagiskModule(file))
+            return FileType.MAGISK_MODULE
     } else {
-        checkIsApk(fileList, context)
+        if (checkIsApk(fileList, context))
+            return FileType.APK
     }
+    return null
 }
 
 fun checkIsApk(fileList: List<File>, context: Context): Boolean {

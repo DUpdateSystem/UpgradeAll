@@ -1,6 +1,9 @@
 package net.xzos.upgradeall.ui.filemanagement
 
 import android.app.Application
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerManager
 import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 

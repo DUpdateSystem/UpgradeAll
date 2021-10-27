@@ -5,8 +5,9 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadInfoItem
 import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
+import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.installer.Installer
-import net.xzos.upgradeall.core.installer.checkInstallable
+import net.xzos.upgradeall.core.installer.getFileType
 import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.core.utils.oberver.ObserverFun
 import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
@@ -18,21 +19,24 @@ fun DownloadItem.getDownloadInfoItem(defName: String): DownloadInfoItem {
     return DownloadInfoItem(name ?: defName, url, headers ?: emptyMap(), cookies ?: emptyMap())
 }
 
-fun FileTasker.installable(context: Context) = checkInstallable(fileList, context)
+fun FileTasker.fileType(context: Context) =
+    getFileType(fileList, context)
 
 suspend fun FileTasker.install(
-    context: Context,
+    context: Context, fileType: FileType,
     failedInstallObserverFun: ObserverFun<Throwable>,
     completeInstallObserverFun: ObserverFunNoArg
 ) {
-    Installer.install(fileList, context, failedInstallObserverFun, completeInstallObserverFun)
+    Installer.install(
+        fileList, fileType, context, failedInstallObserverFun, completeInstallObserverFun
+    )
 }
 
 suspend fun installFileTasker(
-    context: Context, fileTasker: FileTasker,
+    context: Context, fileTasker: FileTasker, fileType: FileType,
     notification: DownloadNotification? = DownloadNotificationManager.getNotification(fileTasker.id.toString())
 ) {
-    fileTasker.install(context, {
+    fileTasker.install(context, fileType, {
         ToastUtil.showText(
             context, "${context.getString(R.string.install_failed)}: ${it.msg()}"
         )

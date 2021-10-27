@@ -1,12 +1,12 @@
 package net.xzos.upgradeall.ui.filemanagement
 
-import android.content.Context
+import androidx.appcompat.app.AppCompatActivity
 import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHandler
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.TaskerListDialog
 
-class FileHubListItemHandler(private val context: Context) : RecyclerViewHandler() {
+class FileHubListItemHandler(private val activity: AppCompatActivity) : RecyclerViewHandler() {
     fun showDialog(fileTasker: FileTasker) {
-        TaskerListDialog.newInstance(context, fileTasker)
+        TaskerListDialog.newInstance(activity, fileTasker)
     }
 }
