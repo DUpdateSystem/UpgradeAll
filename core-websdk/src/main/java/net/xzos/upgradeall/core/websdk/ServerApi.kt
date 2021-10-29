@@ -10,7 +10,7 @@ import net.xzos.upgradeall.core.websdk.json.isEmpty
 
 class ServerApi(host: String, dataCacheTimeSec: Int) {
     companion object {
-        const val CLOUD_CONFIG_CACHE_KEY = "CLOUD_CONFIG"
+        private const val CLOUD_CONFIG_CACHE_KEY = "CLOUD_CONFIG"
     }
 
     private val invalidHubUuidList = coroutinesMutableListOf<String>(true)
@@ -22,11 +22,8 @@ class ServerApi(host: String, dataCacheTimeSec: Int) {
     }
 
     suspend fun getCloudConfig(): CloudConfigList? {
-        val cache: CloudConfigList? = dataCache.get(CLOUD_CONFIG_CACHE_KEY)
-        return if (cache?.isEmpty() == false)
-            cache
-        else webApi.getCloudConfig()?.also {
-            dataCache.cache(CLOUD_CONFIG_CACHE_KEY, it)
+        return dataCache.get(CLOUD_CONFIG_CACHE_KEY) ?: webApi.getCloudConfig()?.also {
+            if (!it.isEmpty()) dataCache.cache(CLOUD_CONFIG_CACHE_KEY, it)
         }
     }
 

@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.manager
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -20,10 +21,10 @@ import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.log.msg
-import net.xzos.upgradeall.core.websdk.ServerApi.Companion.CLOUD_CONFIG_CACHE_KEY
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
 import net.xzos.upgradeall.core.websdk.json.HubConfigGson
+import net.xzos.upgradeall.core.websdk.json.isEmpty
 import net.xzos.upgradeall.core.websdk.openOkHttpApi
 
 
@@ -31,20 +32,24 @@ object CloudConfigGetter {
     private const val TAG = "CloudConfigGetter"
     private val objectTag = ObjectTag(core, TAG)
 
+    private const val CUSTOM_CLOUD_CONFIG_CACHE_KEY = "CUSTOM_CLOUD_CONFIG"
+
     private val appCloudRulesHubUrl: String? get() = coreConfig.cloud_rules_hub_url
-    private var cloudConfig: CloudConfigList? = null
+    private val cloudConfig
+        get() = runBlocking {
+            renewMutex.withLock {
+                getCloudConfigFromWeb(
+                    appCloudRulesHubUrl
+                )
+            }
+        }
     private val renewMutex = Mutex()
 
     private val dataCache = DataCache(coreConfig.data_expiration_time)
 
     suspend fun renew() {
         withContext(Dispatchers.IO) {
-            renewMutex.withLock {
-                cloudConfig = dataCache.get(CLOUD_CONFIG_CACHE_KEY)
-                    ?: getCloudConfigFromWeb(appCloudRulesHubUrl)?.also {
-                        dataCache.cache(CLOUD_CONFIG_CACHE_KEY, it)
-                    }
-            }
+            cloudConfig
         }
     }
 
@@ -55,12 +60,18 @@ object CloudConfigGetter {
         get() = cloudConfig?.hubList
 
     private suspend fun getCloudConfigFromWeb(url: String?): CloudConfigList? {
-        return if (url != null)
-            @Suppress("BlockingMethodInNonBlockingContext")
-            conventCloudConfigList(
-                openOkHttpApi.getWithoutError(objectTag, url)?.body?.string() ?: return null
-            )
-        else serverApi.getCloudConfig()
+        return if (url.isNullOrBlank())
+            serverApi.getCloudConfig()
+        else
+            getCloudConfigByURL(url)
+    }
+
+    private fun getCloudConfigByURL(url: String): CloudConfigList? {
+        return dataCache.get(CUSTOM_CLOUD_CONFIG_CACHE_KEY) ?: conventCloudConfigList(
+            openOkHttpApi.getWithoutError(objectTag, url)?.body?.string() ?: return null
+        )?.also {
+            if (!it.isEmpty()) dataCache.cache(CUSTOM_CLOUD_CONFIG_CACHE_KEY, it)
+        }
     }
 
     private fun conventCloudConfigList(json: String): CloudConfigList? {
