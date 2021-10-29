@@ -1,7 +1,6 @@
 package net.xzos.upgradeall.server.downloader
 
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
-import net.xzos.upgradeall.wrapper.download.status.DownloadInformer
 
 object DownloadNotificationManager {
     private val notificationMap = coroutinesMutableMapOf<String, DownloadNotification>(true)

@@ -25,7 +25,7 @@ object FileTaskerManager {
     }
 
     internal fun removeFileTasker(fileTasker: FileTasker) {
-        fileTasker.downloader.removeFile()
+        fileTasker.downloader?.removeFile()
         fileTaskerList.remove(fileTasker)
         renewDownloadServiceStatus()
     }

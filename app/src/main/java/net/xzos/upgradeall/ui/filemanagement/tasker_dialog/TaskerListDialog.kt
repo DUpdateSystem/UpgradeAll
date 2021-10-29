@@ -8,14 +8,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
-import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
+import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.DialogFileTaskerBinding
 import net.xzos.upgradeall.ui.base.listdialog.ListDialogPart
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerListAdapter
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.getTaskerItem
+import net.xzos.upgradeall.wrapper.download.FileTaskerWrapper
 
 
-class TaskerListDialog private constructor(private val fileTasker: FileTasker) :
+class TaskerListDialog private constructor(private val fileTasker: FileTaskerWrapper) :
     BottomSheetDialogFragment(), ListDialogPart {
 
     override val sAdapter = TaskerListAdapter(emptyList())
@@ -31,6 +32,7 @@ class TaskerListDialog private constructor(private val fileTasker: FileTasker) :
     ): View {
         binding = DialogFileTaskerBinding.inflate(inflater)
         viewModel.setFileTasker(fileTasker)
+        viewModel.renew()
         initView(binding)
         return binding.root
     }
@@ -49,7 +51,7 @@ class TaskerListDialog private constructor(private val fileTasker: FileTasker) :
             chipGroup.removeAllViewsInLayout()
             list.forEach {
                 val typeChip = (layoutInflater.inflate(
-                    android.R.layout.simple_list_item_1,
+                    R.layout.single_chip_layout,
                     chipGroup,
                     false
                 ) as Chip).apply {
@@ -72,7 +74,7 @@ class TaskerListDialog private constructor(private val fileTasker: FileTasker) :
 
     companion object {
         private const val TAG = "TaskerListDialog"
-        fun newInstance(activity: AppCompatActivity, fileTasker: FileTasker) {
+        fun newInstance(activity: AppCompatActivity, fileTasker: FileTaskerWrapper) {
             val taskerListDialog = TaskerListDialog(fileTasker)
             taskerListDialog.show(activity.supportFragmentManager, TAG)
         }

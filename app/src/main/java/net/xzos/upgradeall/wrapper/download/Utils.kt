@@ -2,6 +2,7 @@ package net.xzos.upgradeall.wrapper.download
 
 import android.content.Context
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadInfoItem
 import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
@@ -19,7 +20,7 @@ fun DownloadItem.getDownloadInfoItem(defName: String): DownloadInfoItem {
     return DownloadInfoItem(name ?: defName, url, headers ?: emptyMap(), cookies ?: emptyMap())
 }
 
-fun FileTasker.fileType(context: Context) =
+fun FileTasker.getFileType() =
     getFileType(fileList, context)
 
 suspend fun FileTasker.install(
@@ -33,10 +34,10 @@ suspend fun FileTasker.install(
 }
 
 suspend fun installFileTasker(
-    context: Context, fileTasker: FileTasker, fileType: FileType,
+    context: Context, fileTasker: FileTaskerWrapper,
     notification: DownloadNotification? = DownloadNotificationManager.getNotification(fileTasker.id.toString())
 ) {
-    fileTasker.install(context, fileType, {
+    fileTasker.install(context, fileTasker.fileType, {
         ToastUtil.showText(
             context, "${context.getString(R.string.install_failed)}: ${it.msg()}"
         )

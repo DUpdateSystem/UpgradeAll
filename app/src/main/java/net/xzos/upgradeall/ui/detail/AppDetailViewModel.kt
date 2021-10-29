@@ -88,9 +88,6 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         downloadData.setDownloadStatus(Status.FAILED)
     }
 
-    fun getDownloadDataOb() =
-        DownloadOb(obFun, obFun, obFun, obFun, obFun, obFun)
-
     var currentVersion: Version? = null
 
     suspend fun download(fileAsset: FileAsset, externalDownload: Boolean) {

@@ -57,7 +57,7 @@ fun File.autoAddApkExtension(context: Context): File {
     return this
 }
 
-fun getFileType(fileList: List<File>, context: Context): FileType? {
+fun getFileType(fileList: List<File>, context: Context): FileType {
     if (fileList.size == 1) {
         val file = fileList.first()
         if (checkIsApk(file, context))
@@ -68,7 +68,7 @@ fun getFileType(fileList: List<File>, context: Context): FileType? {
         if (checkIsApk(fileList, context))
             return FileType.APK
     }
-    return null
+    return FileType.UNKNOWN
 }
 
 fun checkIsApk(fileList: List<File>, context: Context): Boolean {

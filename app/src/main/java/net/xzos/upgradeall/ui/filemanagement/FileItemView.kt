@@ -8,9 +8,10 @@ import net.xzos.upgradeall.core.downloader.filedownloader.item.Downloader
 import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.ui.base.list.ActivityListItemView
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
+import net.xzos.upgradeall.wrapper.download.FileTaskerWrapper
 
 class FileItemView(
-    name: String, val fileTasker: FileTasker,
+    name: String, val fileTasker: FileTaskerWrapper,
 ) : BaseAppIconItem, ActivityListItemView {
     private val numUtil = DownloadTaskerNumUtil(fileTasker.downloader)
     suspend fun getDownloadingNum() = numUtil.getDownloadingNum().toString()

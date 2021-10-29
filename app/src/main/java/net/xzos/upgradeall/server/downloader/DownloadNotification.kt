@@ -18,19 +18,14 @@ import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.androidutils.FlagDelegate
-import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
-import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerId
-import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerManager
+import net.xzos.upgradeall.core.downloader.filetasker.*
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.file.fileName
-import net.xzos.upgradeall.wrapper.download.installFileTasker
-import net.xzos.upgradeall.wrapper.download.fileType
-import net.xzos.upgradeall.wrapper.download.status.DownloadInformer
-import net.xzos.upgradeall.wrapper.download.status.DownloadStatus
+import net.xzos.upgradeall.wrapper.download.*
 
 class DownloadNotification(private val fileTaskerId: FileTaskerId) {
 
@@ -44,44 +39,46 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
         createNotificationChannel()
     }
 
+    private var closed = false
+
     private val mutex = Mutex()
 
-    fun observeDownloadTasker(downloadInformer: DownloadInformer) {
-        DownloadNotificationManager.addNotification(downloadInformer.id.toString(), this)
-        downloadInformer.observeForever(DownloadStatus.DOWNLOAD_WAIT_INFO) { name: String ->
-            mutex.runWithLock { preDownload(name, DownloadStatus.DOWNLOAD_WAIT_INFO) }
-        }
-        downloadInformer.observeForever(DownloadStatus.TASK_WAIT_START) { fileTasker: FileTasker ->
-            mutex.runWithLock { preDownload(fileTasker.name, DownloadStatus.TASK_WAIT_START) }
-        }
-        downloadInformer.observeForever(DownloadStatus.TASK_START_FAIL) { e: Throwable ->
-            mutex.runWithLock { taskFailed(e) }
-        }
-        downloadInformer.observeForever(DownloadStatus.EXTERNAL_DOWNLOAD) {
+    fun registerNotify(wrapper: FileTaskerWrapper) {
+        DownloadNotificationManager.addNotification(wrapper.id.toString(), this)
+        wrapper.observeWithChecker(DownloadStatus.DOWNLOAD_INFO_RENEW, { snap: FileTaskerSnap ->
+            mutex.runWithLock { preDownload(snap.statusMsg, DownloadStatus.DOWNLOAD_INFO_RENEW) }
+        }, { !closed }, { closed })
+        wrapper.observeWithChecker(DownloadStatus.TASK_WAIT_START, {
+            mutex.runWithLock { preDownload(wrapper.name, DownloadStatus.TASK_WAIT_START) }
+        }, { !closed }, { closed })
+        wrapper.observeWithChecker(DownloadStatus.TASK_START_FAIL, { snap: FileTaskerSnap ->
+            mutex.runWithLock { taskFailed(snap.error) }
+        }, { !closed }, { closed })
+        wrapper.observeWithChecker(DownloadStatus.EXTERNAL_DOWNLOAD, {
             mutex.runWithLock { taskCancel() }
-        }
+        }, { !closed }, { closed })
 
-        downloadInformer.observeForever(DownloadStatus.TASK_STARTED) { downloadId: Int ->
-            mutex.runWithLock { taskStart(downloadId) }
-        }
-        downloadInformer.observeForever(DownloadStatus.DOWNLOAD_START) { download: Download ->
-            mutex.runWithLock { taskRunning(download) }
-        }
-        downloadInformer.observeForever(DownloadStatus.DOWNLOADING) { download: Download ->
-            mutex.runWithLock { taskRunning(download) }
-        }
-        downloadInformer.observeForever(DownloadStatus.DOWNLOAD_STOP) { _: Download ->
+        wrapper.observeWithChecker(DownloadStatus.TASK_STARTED, { snap: FileTaskerSnap ->
+            mutex.runWithLock { taskStart(snap.statusMsg.toInt()) }
+        }, { !closed }, { closed })
+        wrapper.observeWithChecker(FileTaskerStatus.DOWNLOAD_START, { snap: FileTaskerSnap ->
+            mutex.runWithLock { taskRunning(snap.download ?: return@runWithLock) }
+        }, { !closed }, { closed })
+        wrapper.observeWithChecker(FileTaskerStatus.DOWNLOAD_RUNNING, { snap: FileTaskerSnap ->
+            mutex.runWithLock { taskRunning(snap.download ?: return@runWithLock) }
+        }, { !closed }, { closed })
+        wrapper.observeWithChecker(FileTaskerStatus.DOWNLOAD_STOP, { snap: FileTaskerSnap ->
             mutex.runWithLock { taskPause() }
-        }
-        downloadInformer.observeForever(DownloadStatus.DOWNLOAD_COMPLETE) { download: Download ->
-            mutex.runWithLock { taskComplete(download) }
-        }
-        downloadInformer.observeForever(DownloadStatus.DOWNLOAD_CANCEL) { _: Download ->
+        }, { !closed }, { closed })
+        wrapper.observeWithChecker(FileTaskerStatus.DOWNLOAD_COMPLETE, { snap: FileTaskerSnap ->
+            mutex.runWithLock { taskComplete(snap.download ?: return@runWithLock) }
+        }, { !closed }, { closed })
+        wrapper.observeWithChecker(FileTaskerStatus.DOWNLOAD_CANCEL, {
             mutex.runWithLock { taskCancel() }
-        }
-        downloadInformer.observeForever(DownloadStatus.DOWNLOAD_FAIL) { _: Download ->
+        }, { !closed }, { closed })
+        wrapper.observeWithChecker(FileTaskerStatus.DOWNLOAD_FAIL, {
             mutex.runWithLock { taskFail() }
-        }
+        }, { !closed }, { closed })
     }
 
     private fun preDownload(taskName: String, status: DownloadStatus) {
@@ -98,10 +95,10 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
         notificationNotify()
     }
 
-    private fun taskFailed(e: Throwable) {
+    private fun taskFailed(e: Throwable?) {
         builder.clearActions()
             .setNotificationCanGoing()
-            .setContentText(e.msg())
+            .setContentText(e?.msg() ?: "unknown error")
         notificationNotify()
     }
 
@@ -190,13 +187,13 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
     }
 
     private fun taskComplete(download: Download) {
-        val fileTasker = FileTaskerManager.getFileTasker(fileTaskerId)!!
-        val fileType = fileTasker.fileType(context)
+        val fileTasker = fileTaskerManagerWrapper.getFileTasker(fileTaskerId)!!
+        val fileType = fileTasker.fileType
         showManualMenuNotification(download, fileType)
-        if (fileType != null && PreferencesMap.auto_install) {
+        if (fileType != FileType.UNKNOWN && PreferencesMap.auto_install) {
             GlobalScope.launch {
                 installFileTasker(
-                    context, fileTasker, fileType, this@DownloadNotification
+                    context, fileTasker, this@DownloadNotification
                 )
             }
         }
@@ -251,6 +248,7 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
     }
 
     fun cancelNotification() {
+        closed = true
         NotificationManagerCompat.from(context).cancel(notificationIndex)
         DownloadNotificationManager.removeNotification(this)
     }

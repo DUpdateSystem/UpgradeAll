@@ -88,7 +88,8 @@ class Downloader internal constructor(downloadDir: File) {
         vararg downloadOb: DownloadOb
     ) {
         if (requestList.isEmpty()) {
-            throw DownloadCanceledError("no request list")
+            taskStartFailedFun(DownloadCanceledError("no request list"))
+            return
         }
         downloadId = if (requestList.size == 1)
             DownloadId(false, requestList[0].id)

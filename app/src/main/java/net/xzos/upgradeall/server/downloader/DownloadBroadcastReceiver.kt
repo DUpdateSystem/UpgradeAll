@@ -7,15 +7,14 @@ import android.util.Log
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerManager
-import net.xzos.upgradeall.wrapper.download.fileType
+import net.xzos.upgradeall.wrapper.download.fileTaskerManagerWrapper
 import net.xzos.upgradeall.wrapper.download.installFileTasker
 
 class DownloadBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val fileTaskerId = intent.getStringExtra(EXTRA_IDENTIFIER_FILE_TASKER_ID) ?: return
-        val fileTasker = FileTaskerManager.getFileTasker(idString = fileTaskerId) ?: return
+        val fileTasker = fileTaskerManagerWrapper.getFileTasker(idString = fileTaskerId) ?: return
         val notification = DownloadNotificationManager.getNotification(fileTaskerId) ?: return
         when (intent.getIntExtra(EXTRA_IDENTIFIER_FILE_TASKER_CONTROL, -1)) {
             DOWNLOAD_RETRY -> fileTasker.retry()
@@ -29,7 +28,6 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
             INSTALL_APK -> GlobalScope.launch {
                 installFileTasker(
                     context, fileTasker,
-                    fileTasker.fileType(context) ?: return@launch,
                     notification
                 )
             }
