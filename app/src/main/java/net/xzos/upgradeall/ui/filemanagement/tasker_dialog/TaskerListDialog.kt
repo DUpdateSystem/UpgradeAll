@@ -11,6 +11,7 @@ import com.google.android.material.chip.Chip
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.DialogFileTaskerBinding
 import net.xzos.upgradeall.ui.base.listdialog.ListDialogPart
+import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItem
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerListAdapter
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.getTaskerItem
 import net.xzos.upgradeall.wrapper.download.FileTaskerWrapper
@@ -37,13 +38,14 @@ class TaskerListDialog private constructor(private val fileTasker: FileTaskerWra
         return binding.root
     }
 
-    private fun renewList() {
+    private fun renewList(list: List<TaskerItem>) {
+        sAdapter.setDataList(list)
         renewListView(binding.listLayout)
     }
 
     private fun initView(binding: DialogFileTaskerBinding) {
         viewModel.downloadList.observe(this) { list ->
-            sAdapter.setDataList(list.map { it.getTaskerItem() })
+            renewList(list.map { it.getTaskerItem() })
         }
 
         viewModel.tagList.observe(this) { list ->
@@ -69,7 +71,6 @@ class TaskerListDialog private constructor(private val fileTasker: FileTaskerWra
         }
 
         binding.viewmodel = viewModel
-        renewList()
     }
 
     companion object {

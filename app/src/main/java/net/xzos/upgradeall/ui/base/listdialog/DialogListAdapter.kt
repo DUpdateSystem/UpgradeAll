@@ -6,9 +6,10 @@ import androidx.recyclerview.widget.RecyclerView
 import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHandler
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
+import okhttp3.internal.assertThreadDoesntHoldLock
 
 open class DialogListAdapter<L : ListItemView, RHA : RecyclerViewHandler, RH : RecyclerViewHolder<L, RHA, *>>(
-        private var dataList: List<L>,
+        private val dataList: MutableList<L>,
         private val handler: RHA? = null,
         private val getViewHolder: (LayoutInflater, ViewGroup) -> RH
 ) : RecyclerView.Adapter<RH>() {
@@ -26,6 +27,8 @@ open class DialogListAdapter<L : ListItemView, RHA : RecyclerViewHandler, RH : R
     }
 
     fun setDataList(list: List<L>) {
-        dataList = list
+        dataList.clear()
+        dataList.addAll(list)
+        notifyDataSetChanged()
     }
 }
