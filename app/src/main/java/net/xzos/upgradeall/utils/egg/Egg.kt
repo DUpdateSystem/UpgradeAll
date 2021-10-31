@@ -87,8 +87,8 @@ fun setAppEggTitleSuffix(sb: SpannableStringBuilder, view: View) {
             0
         )
         Day.HALLOWEEN -> {
-            sb.insert(0, "\uD83C\uDF83")
-            sb.append("\uD83D\uDC7B")
+            sb.insert(0, "\uD83C\uDF83 ")
+            sb.append(" \uD83D\uDC7B")
         }
     }
 }
