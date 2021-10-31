@@ -26,8 +26,8 @@ object RestoreManager {
 
     private suspend fun parseData(name: String, bytes: ByteArray) {
         when (name) {
-            "database/${dbFile.name}" -> restoreDatabase(bytes)
-            "prefs/${prefsFile.name}" -> {
+            "/${dbFile.name}" -> restoreDatabase(bytes)
+            "/${prefsFile.name}" -> {
                 val text = bytes.toString(Charsets.UTF_8)
                 prefsFile.writeText(text)
             }
