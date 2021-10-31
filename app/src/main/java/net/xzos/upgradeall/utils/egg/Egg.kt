@@ -86,6 +86,10 @@ fun setAppEggTitleSuffix(sb: SpannableStringBuilder, view: View) {
             getImageSpan(context, R.drawable.ic_rice_dumpling, width, height),
             0
         )
+        Day.HALLOWEEN -> {
+            sb.insert(0, "\uD83C\uDF83")
+            sb.append("\uD83D\uDC7B")
+        }
     }
 }
 
