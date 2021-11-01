@@ -69,7 +69,11 @@ class ServerApi(host: String, dataCacheTimeSec: Int) {
         hubUuid: String, auth: Map<String, String>,
         appId: Map<String, String>, assetIndex: Pair<Int, Int>
     ): List<DownloadItem> {
-        val downloadItemList = webApi.getDownloadInfo(hubUuid, auth, appId, assetIndex)
+        val downloadItemList = try {
+            webApi.getDownloadInfo(hubUuid, auth, appId, assetIndex)
+        } catch (e: Throwable) {
+            return emptyList()
+        }
         return if (downloadItemList.isNotEmpty())
             downloadItemList
         else {
@@ -80,7 +84,12 @@ class ServerApi(host: String, dataCacheTimeSec: Int) {
             val releaseList = releaseListLock.getValue()
             val asset = releaseList?.getOrNull(assetIndex.first)
                 ?.assetList?.getOrNull(assetIndex.second) ?: return emptyList()
-            listOf(DownloadItem(asset.fileName, asset.downloadUrl, emptyMap(), emptyMap()))
+            listOf(
+                DownloadItem(
+                    asset.fileName, asset.downloadUrl ?: return emptyList(),
+                    emptyMap(), emptyMap()
+                )
+            )
         }
     }
 }

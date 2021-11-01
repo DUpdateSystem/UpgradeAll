@@ -129,11 +129,11 @@ internal class WebApi(
         val responseStr = response?.body?.string()
         if (responseStr.isNullOrBlank()) return emptyList()
         if (response.code != 200) return emptyList()
-        return try {
+        try {
             return Gson().fromJson(responseStr, downloadListType)
         } catch (e: Throwable) {
             Log.e(objectTag, TAG, "getDownloadInfo: Gson Error: ${e.msg()}")
-            emptyList()
+            throw e
         }
     }
 

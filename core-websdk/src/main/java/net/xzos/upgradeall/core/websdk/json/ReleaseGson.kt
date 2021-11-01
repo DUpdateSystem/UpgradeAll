@@ -11,5 +11,5 @@ data class ReleaseGson(
 data class Assets(
     @SerializedName("file_name") val fileName: String,
     @SerializedName("file_type") val fileType: String?,
-    @SerializedName("download_url") val downloadUrl: String,
+    @SerializedName("download_url") val downloadUrl: String?,
 )
