@@ -16,14 +16,14 @@
     <LinearLayout
         android:id="@+id/standard_bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="4dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp">
 
             <net.xzos.upgradeall.ui.base.view.AppListRecyclerView
                 android:id="@+id/rv_list"
@@ -39,6 +39,7 @@
             android:id="@+id/cg_tag"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="4dp"
             android:layout_marginTop="4dp"
             app:singleLine="true" />
 
@@ -46,6 +47,7 @@
             android:id="@+id/ll_btns"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="4dp"
             android:layout_marginTop="4dp">
 
             <Button
