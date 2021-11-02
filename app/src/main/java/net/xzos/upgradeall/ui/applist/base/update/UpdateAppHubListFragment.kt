@@ -12,7 +12,7 @@ import net.xzos.upgradeall.ui.applist.base.AppHubListFragment
 class UpdateAppHubListFragment :
     AppHubListFragment<UpdateAppListItemView, UpdateAppHubListViewHolder>() {
 
-    lateinit var rootBinding: FragmentHubUpdateListBinding
+    private lateinit var rootBinding: FragmentHubUpdateListBinding
     override val adapter = UpdateAppHubListAdapter(
         listContainerViewConvertFun = {
             UpdateAppListItemView(it).apply { renew(requireContext()) }
@@ -29,6 +29,9 @@ class UpdateAppHubListFragment :
             rootBinding.tvAppUpdateTip.text =
                 String.format(getString(R.string.hub_format_app_update_tip), triple.first.size)
         })
+        rootBinding.fragmentHubList.listLayout.run {
+            initView(rvList, srlContainer)
+        }
         return rootBinding.root
     }
 }
