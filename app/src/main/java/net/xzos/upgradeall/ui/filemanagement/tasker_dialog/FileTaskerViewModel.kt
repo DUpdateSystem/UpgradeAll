@@ -1,13 +1,16 @@
 package net.xzos.upgradeall.ui.filemanagement.tasker_dialog
 
+import android.app.Application
 import android.content.Context
 import androidx.databinding.ObservableBoolean
 import com.tonyodev.fetch2.Download
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.xzos.upgradeall.core.androidutils.runUiFun
 import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerSnap
 import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerStatus
 import net.xzos.upgradeall.core.installer.FileType
+import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 import net.xzos.upgradeall.utils.ObservableViewModel
 import net.xzos.upgradeall.utils.mutableLiveDataOf
 import net.xzos.upgradeall.utils.setList
@@ -81,10 +84,13 @@ class FileTaskerViewModel : ObservableViewModel() {
 
     private fun flashActive() {
         resetView()
-        GlobalScope.launch {
-            downloadList.setList(fileTasker.getDownloadList())
-        }
-        // Fetch 获取 Download 列表会导致 UI 阻塞
+        fileTasker.getDownload(
+            {
+                runUiFun {
+                    downloadList.setList(it)
+                }
+            }
+        )
     }
 
     private fun resetView() {
@@ -137,4 +143,11 @@ class FileTaskerViewModel : ObservableViewModel() {
     fun onDelete() {
         fileTasker.cancel()
     }
+}
+
+class FileTaskerListViewModel(
+    application: Application
+) : ListContainerViewModel<Download>(application) {
+    lateinit var getDownload: () -> List<Download>
+    override suspend fun doLoadData(): List<Download> = getDownload()
 }

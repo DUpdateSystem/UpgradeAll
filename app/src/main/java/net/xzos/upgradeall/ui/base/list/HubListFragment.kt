@@ -5,17 +5,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import net.xzos.upgradeall.databinding.FragmentHubListBinding
-import net.xzos.upgradeall.databinding.RecyclerlistContentBinding
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
-abstract class HubListFragment<T, L : ListItemView, RH : RecyclerViewHolder<L, *, *>> : HubListPart<T, L, RH>, Fragment() {
+abstract class HubListFragment<T, L : ListItemView, RH : RecyclerViewHolder<L, *, *>> :
+    HubListPart<T, L, RH>, Fragment() {
+    override lateinit var rvList: RecyclerView
+    override var srlContainer: SwipeRefreshLayout? = null
 
-    override lateinit var binding: RecyclerlistContentBinding
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         return FragmentHubListBinding.inflate(inflater).also {
-            initView(it)
+            initView(it.listLayout.rvList, it.listLayout.srlContainer)
         }.root
     }
 
@@ -24,9 +30,9 @@ abstract class HubListFragment<T, L : ListItemView, RH : RecyclerViewHolder<L, *
         refreshList()
     }
 
-    fun initView(binding: FragmentHubListBinding) {
-        this.binding = binding.listLayout
-        val activity = activity ?: throw RuntimeException("No Activity")
-        initView(activity, viewLifecycleOwner)
+    private fun initView(rvList: RecyclerView, srlContainer: SwipeRefreshLayout? = null) {
+        this.rvList = rvList
+        this.srlContainer = srlContainer
+        initViewData(viewLifecycleOwner)
     }
 }

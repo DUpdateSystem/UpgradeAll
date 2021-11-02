@@ -6,49 +6,60 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
+import com.tonyodev.fetch2.Download
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.DialogFileTaskerBinding
-import net.xzos.upgradeall.ui.base.listdialog.ListDialogPart
+import net.xzos.upgradeall.ui.base.list.HubListPart
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItem
+import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItemHolder
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerListAdapter
-import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.getTaskerItem
 import net.xzos.upgradeall.wrapper.download.FileTaskerWrapper
 
 
 class TaskerListDialog private constructor(private val fileTasker: FileTaskerWrapper) :
-    BottomSheetDialogFragment(), ListDialogPart {
+    BottomSheetDialogFragment(), HubListPart<Download, TaskerItem, TaskerItemHolder> {
 
-    override val sAdapter = TaskerListAdapter(emptyList())
+    override val adapter = TaskerListAdapter()
 
-    private lateinit var binding: DialogFileTaskerBinding
+    private lateinit var rootBinding: DialogFileTaskerBinding
 
-    private val viewModel: FileTaskerViewModel by viewModels()
+    override lateinit var rvList: RecyclerView
+    override var srlContainer: SwipeRefreshLayout? = null
+
+    private val rootViewModel: FileTaskerViewModel by viewModels()
+    override val viewModel: FileTaskerListViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DialogFileTaskerBinding.inflate(inflater)
-        viewModel.setFileTasker(fileTasker)
-        viewModel.renew()
-        initView(binding)
-        return binding.root
+        rootBinding = DialogFileTaskerBinding.inflate(inflater)
+        rootViewModel.setFileTasker(fileTasker)
+        rootViewModel.renew()
+        initView(rootBinding)
+        initListView(rootBinding.rvList)
+        return rootBinding.root
     }
 
-    private fun renewList(list: List<TaskerItem>) {
-        sAdapter.setDataList(list)
-        renewListView(binding.listLayout)
+    private fun initListView(rvList: RecyclerView, srlContainer: SwipeRefreshLayout? = null) {
+        this.rvList = rvList
+        this.srlContainer = srlContainer
+        initViewData(this)
     }
 
     private fun initView(binding: DialogFileTaskerBinding) {
-        viewModel.downloadList.observe(this) { list ->
-            renewList(list.map { it.getTaskerItem() })
+        viewModel.getDownload = { rootViewModel.downloadList.value ?: emptyList() }
+        viewModel.loadData(rootViewModel.downloadList.value ?: emptyList())
+        rootViewModel.downloadList.observe(this) { list ->
+            viewModel.loadData(list)
         }
 
-        viewModel.tagList.observe(this) { list ->
+        rootViewModel.tagList.observe(this) { list ->
             val chipGroup = binding.cgTag
             chipGroup.removeAllViewsInLayout()
             list.forEach {
@@ -70,7 +81,7 @@ class TaskerListDialog private constructor(private val fileTasker: FileTaskerWra
             }
         }
 
-        binding.viewmodel = viewModel
+        binding.viewmodel = rootViewModel
     }
 
     companion object {

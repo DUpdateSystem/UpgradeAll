@@ -1,8 +1,10 @@
 package net.xzos.upgradeall.wrapper.download
 
 import android.content.Context
+import com.tonyodev.fetch2.Download
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerId
 import net.xzos.upgradeall.core.installer.FileType
@@ -14,6 +16,7 @@ import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.file.DOWNLOAD_EXTRA_CACHE_DIR
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 class FileTaskerWrapper(
     private val app: App, private val fileAsset: FileAsset
@@ -98,7 +101,14 @@ class FileTaskerWrapper(
         )
     }
 
-    suspend fun getDownloadList(
-        context: CoroutineContext = Dispatchers.Default,
-    ) = withContext(context) { downloader?.getDownloadList() ?: emptyList() }
+    /** Fetch 获取 Download 列表会导致 UI 阻塞 */
+    fun getDownload(
+        callback: (downloads: List<Download>) -> Unit,
+        context: CoroutineContext = EmptyCoroutineContext,
+    ) {
+        GlobalScope.launch(context) {
+            val list = downloader?.getDownloadList() ?: emptyList()
+            callback(list)
+        }
+    }
 }

@@ -1,5 +1,8 @@
 package net.xzos.upgradeall.core.downloader.filetasker
 
+import com.tonyodev.fetch2.Download
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.downloader.filedownloader.DownloadCanceledError
 import net.xzos.upgradeall.core.downloader.filedownloader.DownloadFileError
 import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadInfoItem

@@ -25,7 +25,7 @@ open class ListDialog(
             isRefreshing = false
             isEnabled = false
         }
-        renewListView(binding)
+        initListView(binding)
         return initDialog(binding.root)
     }
 

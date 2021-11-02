@@ -13,14 +13,16 @@ import net.xzos.upgradeall.utils.mutableLiveDataOf
 import net.xzos.upgradeall.utils.setValueBackground
 
 abstract class ListContainerViewModel<T>(application: Application) : AndroidViewModel(application) {
-    private var refresh = Mutex()
+    private val refresh = Mutex()
     private val listLiveData: MutableLiveData<Triple<List<T>, Int, String>> by lazy { mutableLiveDataOf() }
 
-    fun loadData() {
+    fun loadData(list: List<T>? = null) {
         viewModelScope.launch {
             if (!refresh.isLocked) {
                 refresh.withLock {
-                    renewList(doLoadData())
+                    list?.apply {
+                        renewList(list)
+                    } ?: renewList(doLoadData())
                 }
             }
         }
