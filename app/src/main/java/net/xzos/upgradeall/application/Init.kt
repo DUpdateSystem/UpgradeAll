@@ -9,10 +9,10 @@ import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.downloader.DownloadNotification
 import net.xzos.upgradeall.utils.egg.egg
-import net.xzos.upgradeall.utils.file.refreshStorage
+import net.xzos.upgradeall.utils.file.refreshDataAndStatus
 
 fun initCore() {
-    refreshStorage()
+    refreshDataAndStatus()
     initObject()
     PreferencesMap.sync()
     GlobalScope.launch { renewData() }

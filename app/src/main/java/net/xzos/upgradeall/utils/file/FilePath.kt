@@ -2,6 +2,7 @@ package net.xzos.upgradeall.utils.file
 
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.androidutils.getExistsFile
+import net.xzos.upgradeall.utils.cleaNotification
 import java.io.File
 
 val PREFERENCES_FILE by lazy {
@@ -18,5 +19,6 @@ val DOWNLOAD_EXTRA_CACHE_DIR by lazy {
     }
 }
 
-fun refreshStorage() {
+fun refreshDataAndStatus() {
+    cleaNotification(context)
 }

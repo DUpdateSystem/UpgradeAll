@@ -4,7 +4,6 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.StringRes
@@ -25,6 +24,7 @@ import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.file.fileName
+import net.xzos.upgradeall.utils.getNotificationManager
 import net.xzos.upgradeall.wrapper.download.*
 
 class DownloadNotification(private val fileTaskerId: FileTaskerId) {
@@ -347,9 +347,7 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
         }
 
         fun createNotificationChannel() {
-            val notificationManager = context.getSystemService(
-                Context.NOTIFICATION_SERVICE
-            ) as NotificationManager
+            val notificationManager = getNotificationManager(context)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 && notificationManager.getNotificationChannel(DOWNLOAD_CHANNEL_ID) == null
             ) {
