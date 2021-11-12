@@ -190,7 +190,9 @@
     <string name="download_auto_retry_max_attempts">Auto Retry Max Attempts</string>
 
     <string name="built_in_downloader_setting">Built-in Downloader Setting</string>
+    <string name="external_downloader_setting">External Downloader Setting</string>
     <string name="use_external_downloader">Forcing the use of external downloader</string>
+    <string name="external_downloader_package_name">External Downloader Package Name</string>
     <string name="home_checking_updates">Checking updates…</string>
     <string name="home_check_updates">Check updates</string>
     <string name="home_format_items_need_update">%d tracking item(s) need to be updated</string>

@@ -197,6 +197,8 @@
     <string name="download_auto_retry_max_attempts">下载任务重试次数</string>
 
     <string name="built_in_downloader_setting">内置下载器设置</string>
+    <string name="external_downloader_setting">外置下载器设置</string>
+    <string name="external_downloader_package_name">外置下载器包名</string>
     <string name="use_external_downloader">强制使用外置下载器</string>
 
     <!--  Home  -->

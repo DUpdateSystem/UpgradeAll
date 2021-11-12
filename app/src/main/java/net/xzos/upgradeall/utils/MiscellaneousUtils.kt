@@ -13,6 +13,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.androidutils.runUiFun
+import net.xzos.upgradeall.data.PreferencesMap
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -31,17 +32,28 @@ object MiscellaneousUtils {
     fun accessByBrowser(url: String?, context: Context?) {
         if (url != null && context != null)
             try {
+                val rawIntent = Intent(Intent.ACTION_VIEW).apply {
+                    this.data = Uri.parse(url)
+                }
+                val intent = PreferencesMap.external_downloader_package_name?.let {
+                    rawIntent.apply {
+                        this.setPackage(it)
+                    }
+                } ?: Intent.createChooser(
+                    rawIntent, context.getString(R.string.select_browser)
+                )
                 context.startActivity(
-                        Intent.createChooser(
-                                Intent(Intent.ACTION_VIEW).apply {
-                                    this.data = Uri.parse(url)
-                                }, context.getString(R.string.select_browser)).apply {
-                            if (context == MyApplication.context)
-                                this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        }
+                    intent.apply {
+                        if (context == MyApplication.context)
+                            this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
                 )
             } catch (e: Exception) {
-                ToastUtil.showText(context, R.string.system_browser_error, duration = Toast.LENGTH_LONG)
+                ToastUtil.showText(
+                    context,
+                    R.string.system_browser_error,
+                    duration = Toast.LENGTH_LONG
+                )
                 Intent(Intent.ACTION_VIEW).apply {
                     this.data = Uri.parse(url)
                 }
@@ -49,11 +61,11 @@ object MiscellaneousUtils {
     }
 
     fun getCurrentLocale(context: Context): Locale? =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                context.resources.configuration.locales[0]
-            else
-                @Suppress("DEPRECATION")
-                context.resources.configuration.locale
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            context.resources.configuration.locales[0]
+        else
+            @Suppress("DEPRECATION")
+            context.resources.configuration.locale
 
     fun isBackground(): Boolean {
         val appProcessInfo = ActivityManager.RunningAppProcessInfo()
