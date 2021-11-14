@@ -1,5 +1,7 @@
 package net.xzos.upgradeall.core.utils
 
+import java.net.URL
+
 data class URLReplace(
     val search: String?,
     val replace: String?,
@@ -7,13 +9,23 @@ data class URLReplace(
 
 class URLReplaceUtil(private val urlReplace: URLReplace) {
     fun replaceURL(url: String): String {
-        val replaced = urlReplace.search?.toRegex()?.let {
-            url.replace(it, urlReplace.replace ?: "")
-        } ?: urlReplace.replace ?: url
-        return handleReplaceString(url, replaced)
+        val replaceString = urlReplace.replace?.let { handleReplaceString(it, url) }
+        val replaceURL = replaceString?.let { URL(it) }
+        val search = urlReplace.search
+        return when {
+            search == null && replaceString == null -> return url
+            search != null -> url.replace(search.toRegex(), replaceString ?: "")
+            replaceURL != null && replaceURL.path?.isEmpty() == true -> changeURLHost(
+                url, replaceURL.host
+            )
+            else -> replaceString ?: url
+        }
     }
 
-    private fun handleReplaceString(url: String, replaceString: String): String {
+    private fun changeURLHost(url: String, host: String) =
+        url.replace("://\\S*?/", "://$host/")
+
+    private fun handleReplaceString(replaceString: String, url: String): String {
         return replaceString.replace(DOWNLOAD_URL, url)
     }
 
