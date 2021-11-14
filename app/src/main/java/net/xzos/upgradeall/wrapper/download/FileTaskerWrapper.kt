@@ -2,15 +2,16 @@ package net.xzos.upgradeall.wrapper.download
 
 import android.content.Context
 import com.tonyodev.fetch2.Download
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.xzos.upgradeall.core.database.table.extra_hub.ExtraHubEntityManager
 import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerId
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version_item.FileAsset
 import net.xzos.upgradeall.core.serverApi
+import net.xzos.upgradeall.core.utils.URLReplaceUtil
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -47,14 +48,16 @@ class FileTaskerWrapper(
                 statusMsg = fileAsset.name
             )
         )
+        val urlReplaceUtil = URLReplaceUtil(ExtraHubEntityManager.getUrlReplace(hub.uuid))
         downloadInfoList = serverApi.getDownloadInfo(
             hub.uuid, hub.auth, app.appId, fileAsset.assetIndex
-        )
+        ).map {
+            it.copy(url = urlReplaceUtil.replaceURL(it.url))
+        }
         if (downloadInfoList.isEmpty())
             notifyChanged(DownloadStatus.DOWNLOAD_INFO_FAILED, DownloadInfoEmpty)
         else
             notifyChanged(DownloadStatus.DOWNLOAD_INFO_COMPLETE)
-
     }
 
     suspend fun start(

@@ -2,18 +2,12 @@
   "formatVersion": 1,
   "database": {
     "version": 15,
-    "identityHash": "2db481ede684bd9be89b4c1722b0f8b3",
+    "identityHash": "3474c3532cd5cd1eca033e77d66637d6",
     "entities": [
       {
         "tableName": "app",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `app_id` TEXT NOT NULL, `invalid_version_number_field_regex` TEXT, `ignore_version_number` TEXT, `cloud_config` TEXT, `enable_hub_list` TEXT, `star` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `app_id` TEXT NOT NULL, `invalid_version_number_field_regex` TEXT, `ignore_version_number` TEXT, `cloud_config` TEXT, `enable_hub_list` TEXT, `star` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
         "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
           {
             "fieldPath": "name",
             "columnName": "name",
@@ -55,6 +49,12 @@
             "columnName": "star",
             "affinity": "INTEGER",
             "notNull": false
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -153,12 +153,50 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "extra_app",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT PRIMARY KEY AUTOINCREMENT NOT NULL, `enable_global` INTEGER NOT NULL, `url_replace_search` TEXT, `url_replace_string` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "global",
+            "columnName": "enable_global",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "urlReplaceSearch",
+            "columnName": "url_replace_search",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "urlReplaceString",
+            "columnName": "url_replace_string",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2db481ede684bd9be89b4c1722b0f8b3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3474c3532cd5cd1eca033e77d66637d6')"
     ]
   }
 }

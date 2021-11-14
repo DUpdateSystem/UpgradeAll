@@ -7,18 +7,24 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import net.xzos.upgradeall.core.database.dao.AppDao
 import net.xzos.upgradeall.core.database.dao.ExtraAppDao
+import net.xzos.upgradeall.core.database.dao.ExtraHubDao
 import net.xzos.upgradeall.core.database.dao.HubDao
 import net.xzos.upgradeall.core.database.migration.*
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.database.table.extra_app.ExtraAppEntity
+import net.xzos.upgradeall.core.database.table.extra_hub.ExtraHubEntity
 
-@Database(entities = [AppEntity::class, HubEntity::class, ExtraAppEntity::class], version = 15)
+@Database(
+    entities = [AppEntity::class, HubEntity::class, ExtraAppEntity::class, ExtraHubEntity::class],
+    version = 16
+)
 @TypeConverters(Converters::class)
 abstract class MetaDatabase : RoomDatabase() {
     abstract fun appDao(): AppDao
     abstract fun hubDao(): HubDao
     abstract fun extraAppDao(): ExtraAppDao
+    abstract fun extraHubDao(): ExtraHubDao
 }
 
 lateinit var metaDatabase: MetaDatabase
@@ -39,5 +45,6 @@ fun <E : RoomDatabase> getDatabase(context: Context, less: Class<E>, name: Strin
         .addMigrations(MIGRATION_12_13)
         .addMigrations(MIGRATION_13_14)
         .addMigrations(MIGRATION_14_15)
+        .addMigrations(MIGRATION_15_16)
         .build()
 }
