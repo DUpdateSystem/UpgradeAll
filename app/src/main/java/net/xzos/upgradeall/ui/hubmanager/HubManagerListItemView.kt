@@ -15,7 +15,7 @@ import net.xzos.upgradeall.ui.base.list.ActivityListItemView
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 
 class HubManagerListItemView(
-    name: String, private val uuid: String
+    name: String, val uuid: String
 ) : BaseAppIconItem, ActivityListItemView {
     private val hub get() = HubManager.getHub(uuid)
     val enableObservable = EnableObservable(hub != null) { enable ->

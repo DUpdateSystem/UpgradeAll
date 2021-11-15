@@ -25,6 +25,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
+            android:onClick="@{(view) -> handler.onCardViewClick(view.context, item.uuid)}"
             app:cardCornerRadius="0dp"
             app:cardElevation="0dp">
 

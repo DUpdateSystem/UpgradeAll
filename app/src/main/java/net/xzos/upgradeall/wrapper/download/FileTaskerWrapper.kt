@@ -11,7 +11,7 @@ import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version_item.FileAsset
 import net.xzos.upgradeall.core.serverApi
-import net.xzos.upgradeall.core.utils.URLReplaceUtil
+import net.xzos.upgradeall.core.utils.URLReplace
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -48,7 +48,7 @@ class FileTaskerWrapper(
                 statusMsg = fileAsset.name
             )
         )
-        val urlReplaceUtil = URLReplaceUtil(ExtraHubEntityManager.getUrlReplace(hub.uuid))
+        val urlReplaceUtil = URLReplace(ExtraHubEntityManager.getUrlReplace(hub.uuid))
         downloadInfoList = serverApi.getDownloadInfo(
             hub.uuid, hub.auth, app.appId, fileAsset.assetIndex
         ).map {

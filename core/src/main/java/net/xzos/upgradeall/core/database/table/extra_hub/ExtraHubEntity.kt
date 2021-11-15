@@ -12,4 +12,4 @@ data class ExtraHubEntity(
     @ColumnInfo(name = "url_replace_string") var urlReplaceString: String? = null,
 )
 
-const val GLOBAL = "GLOBAL"
+internal const val GLOBAL = "GLOBAL"

@@ -2,16 +2,16 @@ package net.xzos.upgradeall.core.utils
 
 import java.net.URL
 
-data class URLReplace(
+data class URLReplaceData(
     val search: String?,
     val replace: String?,
 )
 
-class URLReplaceUtil(private val urlReplace: URLReplace) {
+class URLReplace(private val urlReplaceData: URLReplaceData) {
     fun replaceURL(url: String): String {
-        val replaceString = urlReplace.replace?.let { handleReplaceString(it, url) }
+        val replaceString = urlReplaceData.replace?.let { handleReplaceString(it, url) }
         val replaceURL = replaceString?.let { URL(it) }
-        val search = urlReplace.search
+        val search = urlReplaceData.search
         return when {
             search == null && replaceString == null -> return url
             search != null -> url.replace(search.toRegex(), replaceString ?: "")

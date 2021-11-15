@@ -289,4 +289,11 @@
 
     <!-- Installable File Type -->
     <string name="apk">APK</string>
+
+    <!-- Hub Setting -->
+    <string name="global_setting">Global Setting</string>
+    <string name="use_global_setting">Use Global Setting</string>
+    <string name="download_url_replace_rule">Download URL Replace Rule</string>
+    <string name="match_rule">Match Rule</string>
+    <string name="replace_string">Replace String</string>
 </resources>

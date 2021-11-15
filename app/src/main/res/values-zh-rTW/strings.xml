@@ -301,4 +301,11 @@
 
     <!-- Installable File Type -->
     <string name="apk">APK</string>
+
+    <!-- Hub Setting -->
+    <string name="global_setting">全局设置</string>
+    <string name="use_global_setting">使用全局设置</string>
+    <string name="download_url_replace_rule">下载地址替换规则</string>
+    <string name="match_rule">匹配规则</string>
+    <string name="replace_string">替换字符串</string>
 </resources>

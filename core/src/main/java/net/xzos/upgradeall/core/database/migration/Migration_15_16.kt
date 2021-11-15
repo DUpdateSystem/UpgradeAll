@@ -10,8 +10,8 @@ val MIGRATION_15_16 = object : Migration(15, 16) {
             """
             CREATE TABLE extra_hub
             (
-            id TEXT PRIMARY KEY AUTOINCREMENT NOT NULL,
-            enable_global BOOLEAN NOT NULL,
+            id TEXT PRIMARY KEY NOT NULL,
+            enable_global INTEGER NOT NULL,
             url_replace_search TEXT DEFAULT null,
             url_replace_string TEXT DEFAULT null
             );
