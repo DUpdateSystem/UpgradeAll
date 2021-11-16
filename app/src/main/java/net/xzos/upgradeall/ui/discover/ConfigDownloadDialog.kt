@@ -15,9 +15,10 @@ import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.manager.GetStatus
 import net.xzos.upgradeall.core.module.app.getConfigJson
+import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
 class ConfigDownloadDialog(
-    private val uuid: String,
+    private val appConfig: AppConfigGson,
     private val changedFun: () -> Unit
 ) : DialogFragment() {
 
@@ -32,12 +33,10 @@ class ConfigDownloadDialog(
                 R.string.update
             else
                 R.string.download
-            val cloudConfig = CloudConfigGetter.getAppCloudConfig(uuid)
-                ?: throw IllegalStateException("Config cannot be null")
-            cloudConfig.info.desc?.run {
+            appConfig.info.desc?.run {
                 builder.setMessage(this)
             }
-            builder.setTitle(cloudConfig.info.name)
+            builder.setTitle(appConfig.info.name)
                 .setPositiveButton(
                     positiveButtonText
                 ) { _, _ ->
@@ -58,7 +57,7 @@ class ConfigDownloadDialog(
 
     private suspend fun download(context: Context) {
         ToastUtil.showText(context, R.string.download_start, Toast.LENGTH_LONG)
-        downloadApplicationData(uuid, context)
+        downloadApplicationData(appConfig.uuid, context)
     }
 
     private suspend fun downloadApplicationData(uuid: String, context: Context) {
@@ -78,11 +77,9 @@ class ConfigDownloadDialog(
 
 
     private fun needUpdate(): Boolean {
-        val appConfigGson = CloudConfigGetter.getAppCloudConfig(uuid)
-            ?: throw IllegalStateException("Config cannot be null")
-        val localVersion = AppManager.getAppByUuid(uuid)?.getConfigJson()?.configVersion
+        val localVersion = AppManager.getAppByUuid(appConfig.uuid)?.getConfigJson()?.configVersion
             ?: return false
-        return appConfigGson.configVersion > localVersion
+        return appConfig.configVersion > localVersion
     }
 
     companion object {

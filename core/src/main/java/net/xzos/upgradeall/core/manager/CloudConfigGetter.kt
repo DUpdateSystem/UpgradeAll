@@ -36,13 +36,7 @@ object CloudConfigGetter {
 
     private val appCloudRulesHubUrl: String? get() = coreConfig.cloud_rules_hub_url
     private val cloudConfig
-        get() = runBlocking {
-            renewMutex.withLock {
-                getCloudConfigFromWeb(
-                    appCloudRulesHubUrl
-                )
-            }
-        }
+        get() = runBlocking { getCloudConfigFromWeb(appCloudRulesHubUrl) }
     private val renewMutex = Mutex()
 
     private val dataCache = DataCache(coreConfig.data_expiration_time)
@@ -60,10 +54,12 @@ object CloudConfigGetter {
         get() = cloudConfig?.hubList
 
     private suspend fun getCloudConfigFromWeb(url: String?): CloudConfigList? {
-        return if (url.isNullOrBlank())
-            serverApi.getCloudConfig()
-        else
-            getCloudConfigByURL(url)
+        return renewMutex.withLock {
+            if (url.isNullOrBlank())
+                serverApi.getCloudConfig()
+            else
+                getCloudConfigByURL(url)
+        }
     }
 
     private fun getCloudConfigByURL(url: String): CloudConfigList? {
@@ -82,7 +78,6 @@ object CloudConfigGetter {
             null
         }
     }
-
 
     fun getAppCloudConfig(appUuid: String?): AppConfigGson? {
         val appConfigList = this.appConfigList ?: return null
