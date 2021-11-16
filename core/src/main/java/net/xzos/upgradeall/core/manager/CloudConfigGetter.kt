@@ -2,11 +2,9 @@ package net.xzos.upgradeall.core.manager
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.database.dao.HubDao
 import net.xzos.upgradeall.core.database.metaDatabase
@@ -16,7 +14,8 @@ import net.xzos.upgradeall.core.database.table.setSortHubUuidList
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.serverApi
 import net.xzos.upgradeall.core.utils.AutoTemplate
-import net.xzos.upgradeall.core.utils.DataCache
+import net.xzos.upgradeall.core.utils.data_cache.DataCache
+import net.xzos.upgradeall.core.utils.data_cache.getValueIfNocache
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
@@ -24,7 +23,6 @@ import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
 import net.xzos.upgradeall.core.websdk.json.HubConfigGson
-import net.xzos.upgradeall.core.websdk.json.isEmpty
 import net.xzos.upgradeall.core.websdk.openOkHttpApi
 
 
@@ -32,18 +30,15 @@ object CloudConfigGetter {
     private const val TAG = "CloudConfigGetter"
     private val objectTag = ObjectTag(core, TAG)
 
-    private const val CUSTOM_CLOUD_CONFIG_CACHE_KEY = "CUSTOM_CLOUD_CONFIG"
-
     private val appCloudRulesHubUrl: String? get() = coreConfig.cloud_rules_hub_url
-    private val cloudConfig
-        get() = runBlocking { getCloudConfigFromWeb(appCloudRulesHubUrl) }
+    private var cloudConfig: CloudConfigList? = null
     private val renewMutex = Mutex()
 
     private val dataCache = DataCache(coreConfig.data_expiration_time)
 
     suspend fun renew() {
-        withContext(Dispatchers.IO) {
-            cloudConfig
+        renewMutex.withLock {
+            cloudConfig = getCloudConfigFromWeb(appCloudRulesHubUrl) ?: cloudConfig
         }
     }
 
@@ -53,21 +48,23 @@ object CloudConfigGetter {
     val hubConfigList: List<HubConfigGson>?
         get() = cloudConfig?.hubList
 
-    private suspend fun getCloudConfigFromWeb(url: String?): CloudConfigList? {
-        return renewMutex.withLock {
-            if (url.isNullOrBlank())
-                serverApi.getCloudConfig()
-            else
-                getCloudConfigByURL(url)
+    private fun getCloudConfigFromWeb(url: String?): CloudConfigList? {
+        val key: String
+        val func: () -> CloudConfigList?
+        if (url.isNullOrBlank()) {
+            key = coreConfig.update_server_url
+            func = { runBlocking { serverApi.getCloudConfig() } }
+        } else {
+            key = url
+            func = { getCloudConfigByURL(url) }
         }
+        return dataCache.getValueIfNocache(key, func)
     }
 
     private fun getCloudConfigByURL(url: String): CloudConfigList? {
-        return dataCache.get(CUSTOM_CLOUD_CONFIG_CACHE_KEY) ?: conventCloudConfigList(
+        return conventCloudConfigList(
             openOkHttpApi.getWithoutError(objectTag, url)?.body?.string() ?: return null
-        )?.also {
-            if (!it.isEmpty()) dataCache.cache(CUSTOM_CLOUD_CONFIG_CACHE_KEY, it)
-        }
+        )
     }
 
     private fun conventCloudConfigList(json: String): CloudConfigList? {

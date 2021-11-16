@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.utils
+package net.xzos.upgradeall.core.utils.data_cache
 
 import android.os.Build
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
@@ -6,7 +6,7 @@ import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import java.time.Instant
 
 
-class DataCache(private val defExpires: Int) {
+class DataCache(private val defExpires: Int, private val autoRemove: Boolean = true) {
 
     private val time
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -19,11 +19,11 @@ class DataCache(private val defExpires: Int) {
         return time > this.second
     }
 
-    fun getAll():Map<String, Any?>{
+    fun getAll(): Map<String, Any?> {
         val map = mutableMapOf<String, Any?>()
         cache.anyCacheMap.forEach {
             if (it.value.expired()) {
-                remove(it.key)
+                if (autoRemove) remove(it.key)
             } else {
                 map[it.key] = it.value.first
             }
@@ -32,15 +32,22 @@ class DataCache(private val defExpires: Int) {
     }
 
     fun <E> get(key: String): E? {
-        cache.anyCacheMap[key]?.also {
+        return cache.anyCacheMap[key]?.let {
             if (it.expired()) {
-                remove(key)
+                if (autoRemove) remove(key)
+                null
             } else {
                 @Suppress("UNCHECKED_CAST")
-                return it.first as E
+                it.first as E
             }
         }
-        return null
+    }
+
+    fun <E> getWithExpireCheck(key: String): Pair<E?, Boolean>? {
+        return cache.anyCacheMap[key]?.let {
+            @Suppress("UNCHECKED_CAST")
+            Pair(it.first as E, it.expired())
+        }
     }
 
     fun cache(key: String, value: Any?, expiresSec: Int = defExpires) {

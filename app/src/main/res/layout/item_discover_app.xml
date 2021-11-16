@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
-            android:onClick="@{() -> handler.onClickDiscover(item.uuid)}"
+            android:onClick="@{(view) -> handler.onClickDiscover(view, item.uuid)}"
             app:cardCornerRadius="0dp"
             app:cardElevation="0dp">
 

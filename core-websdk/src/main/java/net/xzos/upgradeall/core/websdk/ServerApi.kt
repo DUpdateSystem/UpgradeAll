@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.core.websdk
 
-import net.xzos.upgradeall.core.utils.DataCache
+import net.xzos.upgradeall.core.utils.data_cache.DataCache
 import net.xzos.upgradeall.core.utils.coroutines.ValueLock
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList

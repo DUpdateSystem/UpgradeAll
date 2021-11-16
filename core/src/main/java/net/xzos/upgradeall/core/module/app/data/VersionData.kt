@@ -9,7 +9,7 @@ import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version.VersionUtils
 import net.xzos.upgradeall.core.module.app.version.versionComparator
 import net.xzos.upgradeall.core.module.app.version_item.Asset
-import net.xzos.upgradeall.core.utils.DataCache
+import net.xzos.upgradeall.core.utils.data_cache.DataCache
 
 class VersionData internal constructor(appEntity: AppEntity) {
     private val versionUtils = VersionUtils(appEntity)

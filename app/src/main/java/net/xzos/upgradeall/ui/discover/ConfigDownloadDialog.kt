@@ -15,12 +15,14 @@ import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.manager.GetStatus
 import net.xzos.upgradeall.core.module.app.getConfigJson
-import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
 class ConfigDownloadDialog(
-    private val appConfig: AppConfigGson,
+    private val uuid: String,
     private val changedFun: () -> Unit
 ) : DialogFragment() {
+
+    private val appConfig = CloudConfigGetter.getAppCloudConfig(uuid)
+        ?: throw IllegalStateException("Config cannot be null")
 
     fun show(manager: FragmentManager) {
         super.show(manager, TAG)
@@ -57,7 +59,7 @@ class ConfigDownloadDialog(
 
     private suspend fun download(context: Context) {
         ToastUtil.showText(context, R.string.download_start, Toast.LENGTH_LONG)
-        downloadApplicationData(appConfig.uuid, context)
+        downloadApplicationData(uuid, context)
     }
 
     private suspend fun downloadApplicationData(uuid: String, context: Context) {
@@ -77,7 +79,7 @@ class ConfigDownloadDialog(
 
 
     private fun needUpdate(): Boolean {
-        val localVersion = AppManager.getAppByUuid(appConfig.uuid)?.getConfigJson()?.configVersion
+        val localVersion = AppManager.getAppByUuid(uuid)?.getConfigJson()?.configVersion
             ?: return false
         return appConfig.configVersion > localVersion
     }
