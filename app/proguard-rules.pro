@@ -157,3 +157,9 @@
 ##---------------Begin: proguard configuration for okhttp ----------
 -dontwarn okhttp3.internal.http.UnrepeatableRequestBody
 ##---------------End: proguard configuration for okhttp ----------
+
+##---------------Begin: proguard configuration for ROOM ----------
+-keep class * extends androidx.room.RoomDatabase
+-keep @androidx.room.Entity class *
+-dontwarn androidx.room.paging.**
+##---------------End: proguard configuration for ROOM ----------
