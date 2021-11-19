@@ -1,9 +1,9 @@
 package net.xzos.upgradeall.core.websdk.web.proxy
 
+import net.xzos.upgradeall.core.websdk.web.HttpError
 import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.web.http.HttpResponse
 import net.xzos.upgradeall.core.websdk.web.http.OkHttpApi
-import okhttp3.Call
 import okhttp3.Response
 
 internal open class OkhttpTrackerProxy : OkhttpTimeoutProxy {
@@ -36,7 +36,7 @@ internal open class OkhttpTrackerProxy : OkhttpTimeoutProxy {
     fun okhttpAsyncWithTracker(
         requestData: HttpRequestData,
         callback: (HttpResponse?) -> Unit,
-        errorCallback: (Call, Throwable) -> Unit,
+        errorCallback: (HttpError) -> Unit,
         checkRunnable: () -> Boolean = { true },
     ) {
         val call = okHttpApi.getCall(requestData).apply {

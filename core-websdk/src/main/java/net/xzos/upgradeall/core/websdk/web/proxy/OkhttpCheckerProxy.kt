@@ -2,6 +2,7 @@ package net.xzos.upgradeall.core.websdk.web.proxy
 
 import android.util.Log
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
+import net.xzos.upgradeall.core.websdk.web.HttpError
 import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.web.http.HttpResponse
 import okhttp3.Call
@@ -23,7 +24,7 @@ internal open class OkhttpCheckerProxy : OkhttpRetryProxy() {
     protected fun okhttpAsyncWithChecker(
         requestData: HttpRequestData,
         callback: (HttpResponse?) -> Unit,
-        errorCallback: (Call, Throwable) -> Unit,
+        errorCallback: (HttpError) -> Unit,
         retryNum: Int = 3
     ) {
         okhttpAsyncWithRetry(

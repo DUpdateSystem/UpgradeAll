@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.websdk.web.proxy
 
+import net.xzos.upgradeall.core.websdk.web.HttpError
 import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.web.http.HttpResponse
 import okhttp3.Call
@@ -13,7 +14,7 @@ internal open class OkhttpProxy : OkhttpProxyCallNoErrorApi() {
     fun okhttpAsync(
         requestData: HttpRequestData,
         callback: (HttpResponse?) -> Unit,
-        errorCallback: (Call, Throwable) -> Unit = fun(_, _) { callback(null) },
+        errorCallback: (HttpError) -> Unit = { callback(null) },
         retryNum: Int = 3
     ) = okhttpAsyncNoError(requestData, callback, errorCallback, retryNum)
 }

@@ -15,8 +15,8 @@ class ServerApi internal constructor(host: String, dataCacheTimeSec: Int) {
     companion object;
 
     private val webApi = WebApi()
-    private val webApiProxy = WebApiProxy(host, webApi)
     private val dataCache = DataCache(dataCacheTimeSec)
+    private val webApiProxy = WebApiProxy(host, webApi, dataCache)
 
     fun shutdown() {
         webApi.shutdown()

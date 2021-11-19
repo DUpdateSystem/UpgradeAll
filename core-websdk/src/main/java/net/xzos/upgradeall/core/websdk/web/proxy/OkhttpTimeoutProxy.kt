@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.websdk.web.proxy
 
 import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.websdk.web.HttpError
 import net.xzos.upgradeall.core.websdk.web.http.HttpResponse
 import okhttp3.Call
 import okhttp3.Callback
@@ -35,7 +36,7 @@ internal interface OkhttpTimeoutProxy {
     fun okhttpAsyncWithTimeout(
         call: Call,
         callback: (HttpResponse?) -> Unit,
-        errorCallback: (Call, Throwable) -> Unit,
+        errorCallback: (HttpError) -> Unit,
         checkRunnable: () -> Boolean = { true },
     ) {
         if (!checkRunnable()) callback(null)
@@ -43,17 +44,24 @@ internal interface OkhttpTimeoutProxy {
             override fun onFailure(call: Call, e: IOException) {
                 if (e is SocketTimeoutException) {
                     errorCallback(
-                        call,
-                        WebTimeoutError("doOkhttpCall: Client timeout: ${e.message}")
+                        HttpError(
+                            WebTimeoutError("doOkhttpCall: Client timeout: ${e.message}"),
+                            call,
+                        )
                     )
                 } else {
-                    errorCallback(call, e)
+                    errorCallback(HttpError(e, call))
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.code == 408) {
-                    errorCallback(call, WebTimeoutError("doOkhttpCall: Server timeout: $response"))
+                    errorCallback(
+                        HttpError(
+                            WebTimeoutError("doOkhttpCall: Server timeout: $response"),
+                            call
+                        )
+                    )
                 } else {
                     callback(HttpResponse(response.code, response.body?.string()))
                 }

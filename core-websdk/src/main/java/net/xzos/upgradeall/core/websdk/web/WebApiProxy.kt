@@ -2,18 +2,32 @@ package net.xzos.upgradeall.core.websdk.web
 
 import com.google.gson.Gson
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
+import net.xzos.upgradeall.core.utils.data_cache.DataCache
+import net.xzos.upgradeall.core.utils.data_cache.getValueIfNocache
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
+import net.xzos.upgradeall.core.websdk.web.http.DnsApi
 import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
 
 internal class WebApiProxy(
-    private val host: String,
+    private val _host: String,
     private val webApi: WebApi,
+    private val dataCache: DataCache,
 ) {
+    private val host: String
+        get() = dataCache.getValueIfNocache(_host) {
+            try {
+                DnsApi.resolve(_host)
+            } catch (e: Throwable) {
+                Log.e(objectTag, TAG, "resolveHost: Error: ${e.msg()}")
+                null
+            }
+        } ?: _host
+
     private val requestDataMap = coroutinesMutableMapOf<ApiRequestData, HttpRequestData>()
 
     fun getAppRelease(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {

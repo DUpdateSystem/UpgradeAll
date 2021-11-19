@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.websdk.web.proxy
 
+import net.xzos.upgradeall.core.websdk.web.HttpError
 import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.web.http.HttpResponse
 import okhttp3.Call
@@ -22,17 +23,17 @@ internal open class OkhttpRetryProxy : OkhttpTrackerProxy() {
     protected fun okhttpAsyncWithRetry(
         requestData: HttpRequestData,
         callback: (HttpResponse?) -> Unit,
-        errorCallback: (Call, Throwable) -> Unit,
+        errorCallback: (HttpError) -> Unit,
         checkRunnable: () -> Boolean = { true },
         retryNum: Int = 3
     ) {
-        okhttpAsyncWithTracker(requestData, callback, { call, e ->
-            if (e is WebTimeoutError)
+        okhttpAsyncWithTracker(requestData, callback, {
+            if (it.error is WebTimeoutError)
                 okhttpAsyncWithRetry(
                     requestData, callback, errorCallback,
                     checkRunnable, retryNum - 1
                 )
-            else errorCallback(call, e)
+            else errorCallback(it)
         }, checkRunnable)
     }
 }

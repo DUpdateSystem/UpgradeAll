@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.websdk.web.proxy
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.msg
+import net.xzos.upgradeall.core.websdk.web.HttpError
 import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.web.http.HttpResponse
 import okhttp3.Call
@@ -26,19 +27,22 @@ internal open class OkhttpProxyCallNoErrorApi : OkhttpCheckerProxy() {
     protected fun okhttpAsyncNoError(
         requestData: HttpRequestData,
         callback: (HttpResponse?) -> Unit,
-        errorCallback: (Call, Throwable) -> Unit,
+        errorCallback: (HttpError) -> Unit,
         retryNum: Int = 3
     ) {
-        okhttpAsyncWithChecker(
-            requestData, callback,
-            { call, e ->
-                Log.e(
-                    objectTag, TAG,
-                    "doOkhttpCall: url: ${call.request().url}, e: ${e.stackTraceToString()}"
-                )
-                errorCallback(call, e)
-            }, retryNum
-        )
+        try {
+            okhttpAsyncWithChecker(
+                requestData, callback,
+                {
+                    Log.e(
+                        objectTag, TAG,
+                        "doOkhttpCall: url: ${it.call?.request()?.url}, e: ${it.error.stackTraceToString()}"
+                    )
+                    errorCallback(it)
+                }, retryNum
+            )
+        }catch (e:Throwable){
+            errorCallback(HttpError(e))
+        }
     }
-
 }
