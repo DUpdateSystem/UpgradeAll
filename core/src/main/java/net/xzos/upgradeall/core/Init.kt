@@ -6,13 +6,11 @@ import net.xzos.upgradeall.core.data.CoreConfig
 import net.xzos.upgradeall.core.database.initDatabase
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
-import net.xzos.upgradeall.core.websdk.ServerApi
+import net.xzos.upgradeall.core.websdk.renewServerApi
 
 
 @SuppressLint("StaticFieldLeak")
 lateinit var coreConfig: CoreConfig
-
-lateinit var serverApi: ServerApi
 
 /**
  * 初始化 Core 的配置，也用作用户修改设置后传入新的设置
@@ -24,8 +22,7 @@ fun initCore(
     _coreConfig: CoreConfig,
 ) {
     coreConfig = _coreConfig
-    if (::serverApi.isInitialized) serverApi.shutdown()
-    serverApi = ServerApi(_coreConfig.update_server_url, _coreConfig.data_expiration_time)
+    renewServerApi(_coreConfig.update_server_url, _coreConfig.data_expiration_time)
     initObject(context)
 }
 

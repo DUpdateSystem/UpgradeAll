@@ -3,12 +3,13 @@ package net.xzos.upgradeall.core.module
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_MAGISK_MODULE_TYPE
-import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.serverApi
+import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.utils.AutoTemplate
+import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
+import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 class Hub(private val hubDatabase: HubEntity) {
     val name get() = hubDatabase.hubConfig.info.hubName
@@ -110,13 +111,13 @@ class Hub(private val hubDatabase: HubEntity) {
     }
 
     internal fun getAppReleaseList(
-        _appId: Map<String, String?>, callback: (List<ReleaseGson>?) -> Unit
+        appDataStorage: DataStorage, callback: (List<ReleaseGson>?) -> Unit
     ) {
-        val appId = getValidKey(_appId) ?: kotlin.run {
+        val appId = getValidKey(appDataStorage.appDatabase.appId) ?: kotlin.run {
             callback(null)
             return
         }
-        serverApi.getAppReleaseList(uuid, auth, appId) {
+        appDataStorage.serverApi.getAppReleaseList(ApiRequestData(uuid, auth, appId)) {
             it?.let {
                 runBlocking {
                     if (it.isEmpty())

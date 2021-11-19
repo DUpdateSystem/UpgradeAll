@@ -1,76 +1,64 @@
 package net.xzos.upgradeall.core.websdk
 
-import net.xzos.upgradeall.core.utils.data_cache.DataCache
+import android.util.Log
 import net.xzos.upgradeall.core.utils.coroutines.ValueLock
-import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
+import net.xzos.upgradeall.core.utils.data_cache.DataCache
+import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import net.xzos.upgradeall.core.websdk.json.isEmpty
+import net.xzos.upgradeall.core.websdk.web.WebApi
+import net.xzos.upgradeall.core.websdk.web.WebApiProxy
 
-class ServerApi(host: String, dataCacheTimeSec: Int) {
-    companion object {
-        private const val CLOUD_CONFIG_CACHE_KEY = "CLOUD_CONFIG"
-    }
+class ServerApi internal constructor(host: String, dataCacheTimeSec: Int) {
+    companion object;
 
-    private val invalidHubUuidList = coroutinesMutableListOf<String>(true)
-    private var webApi = WebApi(host, invalidHubUuidList)
+    private val webApi = WebApi()
+    private val webApiProxy = WebApiProxy(host, webApi)
     private val dataCache = DataCache(dataCacheTimeSec)
 
     fun shutdown() {
         webApi.shutdown()
     }
 
-    suspend fun getCloudConfig(): CloudConfigList? {
-        return dataCache.get(CLOUD_CONFIG_CACHE_KEY) ?: webApi.getCloudConfig()?.also {
-            if (!it.isEmpty()) dataCache.cache(CLOUD_CONFIG_CACHE_KEY, it)
+    fun cancelRequest(requestData: ApiRequestData) {
+        webApiProxy.cancelRequest(requestData)
+    }
+
+    suspend fun getCloudConfig(url: String): CloudConfigList? {
+        return dataCache.get(url) ?: webApi.getCloudConfig(url)?.also {
+            if (!it.isEmpty()) dataCache.cache(url, it)
         }
     }
 
-    fun getAppRelease(
-        hubUuid: String,
-        auth: Map<String, String>,
-        appId: Map<String, String>,
-        callback: (List<ReleaseGson>?) -> Unit
-    ) {
-        if (hubUuid in invalidHubUuidList) {
-            callback(null)
-        } else {
-            dataCache.getAppRelease(hubUuid, auth, appId)?.also {
-                callback(it)
-            } ?: webApi.getAppRelease(hubUuid, auth, appId, {
-                it?.let {
-                    dataCache.cacheAppStatus(hubUuid, auth, appId, it)
-                }
-                callback(it)
-            })
+    fun getAppRelease(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
+        dataCache.getAppRelease(data)?.also {
+            callback(it)
+        } ?: webApiProxy.getAppRelease(data) {
+            it?.let {
+                dataCache.cacheAppStatus(data, it)
+            }
+            callback(it)
         }
     }
 
-    fun getAppReleaseList(
-        hubUuid: String, auth: Map<String, String>,
-        appId: Map<String, String>, callback: (List<ReleaseGson>?) -> Unit
-    ) {
-        if (hubUuid in invalidHubUuidList) {
-            callback(null)
-        } else {
-            dataCache.getAppRelease(hubUuid, auth, appId)?.also {
-                callback(it)
-            } ?: webApi.getAppReleaseList(hubUuid, auth, appId, {
-                it?.let {
-                    dataCache.cacheAppStatus(hubUuid, auth, appId, it)
-                }
-                callback(it)
-            })
+    fun getAppReleaseList(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
+        dataCache.getAppRelease(data)?.also {
+            callback(it)
+        } ?: webApiProxy.getAppReleaseList(data) {
+            it?.let {
+                dataCache.cacheAppStatus(data, it)
+            }
+            callback(it)
         }
     }
 
     suspend fun getDownloadInfo(
-        hubUuid: String, auth: Map<String, String>,
-        appId: Map<String, String>, assetIndex: Pair<Int, Int>
+        data: ApiRequestData, assetIndex: Pair<Int, Int>
     ): List<DownloadItem> {
         val downloadItemList = try {
-            webApi.getDownloadInfo(hubUuid, auth, appId, assetIndex)
+            webApiProxy.getDownloadInfo(data, assetIndex)
         } catch (e: Throwable) {
             return emptyList()
         }
@@ -79,8 +67,8 @@ class ServerApi(host: String, dataCacheTimeSec: Int) {
         else {
             val releaseListLock = ValueLock<List<ReleaseGson>>()
             if (assetIndex.first == 0)
-                webApi.getAppRelease(hubUuid, auth, appId, { releaseListLock.setValue(it) })
-            else webApi.getAppReleaseList(hubUuid, auth, appId, { releaseListLock.setValue(it) })
+                getAppRelease(data) { releaseListLock.setValue(it) }
+            else getAppReleaseList(data) { releaseListLock.setValue(it) }
             val releaseList = releaseListLock.getValue()
             val asset = releaseList?.getOrNull(assetIndex.first)
                 ?.assetList?.getOrNull(assetIndex.second) ?: return emptyList()
@@ -95,18 +83,20 @@ class ServerApi(host: String, dataCacheTimeSec: Int) {
 }
 
 fun DataCache.getAppRelease(
-    hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>
+    data: ApiRequestData,
 ): List<ReleaseGson>? {
-    val key = hubUuid + auth + appId
+    val key = data.getKey()
     return get(key)
 }
 
 fun DataCache.cacheAppStatus(
-    hubUuid: String, auth: Map<String, String?>, appId: Map<String, String?>,
+    data: ApiRequestData,
     releaseList: List<ReleaseGson>?
 ) {
-    val key = hubUuid + auth + appId
-    if (this.getAppRelease(hubUuid, auth, appId) != releaseList) {
+    if (this.getAppRelease(data) != releaseList) {
+        val key = data.getKey()
         cache(key, releaseList)
     }
 }
+
+fun ApiRequestData.getKey() = hubUuid + auth + appId

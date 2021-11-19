@@ -4,6 +4,7 @@ import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.getEnableSortHubList
 import net.xzos.upgradeall.core.module.Hub
+import net.xzos.upgradeall.core.websdk.getServerApi
 
 internal data class DataStorage(
     val appDatabase: AppEntity,
@@ -17,4 +18,6 @@ internal data class DataStorage(
 
     // Version 信息
     val versionData: VersionData = VersionData(appDatabase)
+
+    val serverApi = getServerApi()
 }

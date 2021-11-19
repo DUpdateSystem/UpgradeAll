@@ -15,7 +15,9 @@ import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.utils.getOrNull
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
-import net.xzos.upgradeall.core.websdk.openOkHttpApi
+import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
+import net.xzos.upgradeall.core.websdk.web.http.OkHttpApi.Companion.callHttpFunc
+import net.xzos.upgradeall.core.websdk.web.http.openOkHttpApi
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
@@ -44,7 +46,10 @@ fun getEggDayOnline(): Day? {
     val holidayName: String
     try {
         val json = JSONObject(
-            openOkHttpApi.getWithoutError(logObjectTag, url)?.body?.string() ?: return null
+            callHttpFunc(
+                logObjectTag,
+                url
+            ) { openOkHttpApi.getExecute(HttpRequestData(url)) }?.body?.string() ?: return null
         )
         json.getOrNull("holiday") ?: return null
         val holidayJson = json.getJSONObject("holiday")

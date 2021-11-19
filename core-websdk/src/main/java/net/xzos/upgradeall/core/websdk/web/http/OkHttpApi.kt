@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.websdk
+package net.xzos.upgradeall.core.websdk.web.http
 
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
@@ -14,10 +14,6 @@ import java.util.concurrent.TimeUnit
 
 
 class OkHttpApi internal constructor() {
-
-    companion object {
-        private const val TAG = "OkHttpApi"
-    }
 
     private val dispatcher = Dispatcher().apply {
         maxRequests = 128
@@ -37,34 +33,27 @@ class OkHttpApi internal constructor() {
         client.cache?.close()
     }
 
-    fun getWithoutError(
-        objectTag: ObjectTag,
-        url: String, headers: Map<String, String> = mapOf()
-    ): Response? {
-        return callCore(objectTag, url) { get(url, headers) }
+    fun getCall(data: HttpRequestData): Call {
+        val request = makeRequest(data)
+        return client.newCall(request.build())
     }
 
-    fun postWithoutError(
-        objectTag: ObjectTag, url: String, headers: Map<String, String> = mapOf(),
+    fun getExecute(data: HttpRequestData): Response {
+        return getCall(data).execute()
+    }
+
+    private fun makeRequest(
+        data: HttpRequestData
+    ): Request.Builder = Request.Builder().cacheControl(cacheControl)
+        .url(data.url).apply {
+            for ((key, value) in data.headers)
+                addHeader(key, value)
+        }
+
+    fun postRequest(
+        data: HttpRequestData,
         bodyType: String, bodyText: String
-    ): Response? {
-        return callCore(objectTag, url) { post(url, headers, bodyType, bodyText) }
-    }
-
-    fun get(url: String, headers: Map<String, String> = mapOf(), callback: Callback) {
-        val request = makeRequest(url, headers)
-        client.newCall(request.build()).enqueue(callback)
-    }
-
-    fun get(url: String, headers: Map<String, String> = mapOf()): Response {
-        val request = makeRequest(url, headers)
-        return callRequest(request.build())
-    }
-
-    fun post(
-        url: String, headers: Map<String, String> = mapOf(),
-        bodyType: String, bodyText: String
-    ): Response {
+    ): Request {
         val mediaType = "$bodyType; charset=utf-8".toMediaType()
         val body: RequestBody = when (mediaType.subtype) {
             "json" -> bodyText.toRequestBody(mediaType)
@@ -90,32 +79,26 @@ class OkHttpApi internal constructor() {
                     .build()
             }
         }
-        val request = makeRequest(url, headers)
-        return callRequest(request.post(body).build())
+        val request = makeRequest(data)
+        return request.post(body).build()
     }
 
-    private fun callRequest(request: Request): Response = client.newCall(request).execute()
+    companion object {
+        private const val TAG = "OkHttpApi"
 
-    private fun makeRequest(
-        url: String, headers: Map<String, String> = mapOf()
-    ): Request.Builder = Request.Builder().cacheControl(cacheControl)
-        .url(url).apply {
-            for (key in headers.keys)
-                addHeader(key, headers.getValue(key))
-        }
-
-    private fun callCore(objectTag: ObjectTag, url: String, core: () -> Response): Response? {
-        return try {
-            core()
-        } catch (e: IllegalArgumentException) {
-            Log.e(objectTag, TAG, "getHttpResponse: URL: $url ${e.msg()} ")
-            null
-        } catch (e: IOException) {
-            Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: ${e.msg()}")
-            null
-        } catch (e: Throwable) {
-            Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: ${e.msg()}")
-            null
+        fun callHttpFunc(objectTag: ObjectTag, url: String, core: () -> Response): Response? {
+            return try {
+                core()
+            } catch (e: IllegalArgumentException) {
+                Log.e(objectTag, TAG, "getHttpResponse: URL: $url ${e.msg()} ")
+                null
+            } catch (e: IOException) {
+                Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: ${e.msg()}")
+                null
+            } catch (e: Throwable) {
+                Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: ${e.msg()}")
+                null
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ import net.xzos.upgradeall.core.module.app.version_item.Asset
 import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
 import net.xzos.upgradeall.core.utils.coroutines.unlockWithCheck
 import net.xzos.upgradeall.core.utils.coroutines.wait
+import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 internal class DataGetter(private val dataStorage: DataStorage) {
 
@@ -53,14 +54,20 @@ internal class DataGetter(private val dataStorage: DataStorage) {
         mutex.wait()
     }
 
-    private fun renewVersionList(hub: Hub, callback: (List<net.xzos.upgradeall.core.websdk.json.ReleaseGson>?) -> Unit) {
-        hub.getAppReleaseList(dataStorage.appDatabase.appId) {
+    private fun renewVersionList(
+        hub: Hub,
+        callback: (List<ReleaseGson>?) -> Unit
+    ) {
+        hub.getAppReleaseList(dataStorage) {
             it?.let { runBlocking { setVersionMap(hub, it) } }
             callback(it)
         }
     }
 
-    private suspend fun setVersionMap(hub: Hub, releaseList: List<net.xzos.upgradeall.core.websdk.json.ReleaseGson>) {
+    private suspend fun setVersionMap(
+        hub: Hub,
+        releaseList: List<ReleaseGson>
+    ) {
         val assetsList = mutableListOf<Asset>()
         releaseList.forEachIndexed { versionIndex, release ->
             val versionNumber = release.versionNumber

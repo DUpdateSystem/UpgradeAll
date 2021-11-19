@@ -7,6 +7,7 @@ import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.module.app.version.Version
+import net.xzos.upgradeall.core.websdk.ServerApiProxy
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
 class App(
@@ -15,6 +16,7 @@ class App(
 ) {
     private val dataStorage = DataStorage(appDatabase)
     internal val appDatabase: AppEntity = dataStorage.appDatabase
+    val serverApi: ServerApiProxy = dataStorage.serverApi
     private val updater = Updater(dataStorage, statusRenewedFun)
 
     /* App 对象的属性字典 */
