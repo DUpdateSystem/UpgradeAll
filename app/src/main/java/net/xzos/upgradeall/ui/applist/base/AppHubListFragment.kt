@@ -15,25 +15,29 @@ import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 const val EXTRA_APP_TYPE = "EXTRA_APP_TYPE"
 const val EXTRA_TAB_INDEX = "EXTRA_TAB_INDEX"
 
-fun getAppHubListFragment(appType: String, tabIndex: Int): Fragment {
+fun getAppHubListFragment(appType: String, tabIndex: TabIndex): Fragment {
     val bundle = Bundle().apply {
         putString(EXTRA_APP_TYPE, appType)
-        putInt(EXTRA_TAB_INDEX, tabIndex)
+        putString(EXTRA_TAB_INDEX, tabIndex.tag)
     }
     return when (tabIndex) {
-        TAB_UPDATE -> UpdateAppHubListFragment()
-        TAB_STAR -> StarAppHubListFragment()
-        TAB_ALL -> NormalAppHubListFragment()
+        TabIndex.TAB_UPDATE -> UpdateAppHubListFragment()
+        TabIndex.TAB_STAR -> StarAppHubListFragment()
+        TabIndex.TAB_ALL -> NormalAppHubListFragment()
         else -> ApplicationsAppHubListFragment()
     }.apply { arguments = bundle }
 }
 
-abstract class AppHubListFragment<L : BaseAppListItemView, LV : RecyclerViewHolder<L, *, ItemHubAppBinding>> : HubListFragment<App, L, LV>() {
+abstract class AppHubListFragment<L : BaseAppListItemView, LV : RecyclerViewHolder<L, *, ItemHubAppBinding>> :
+    HubListFragment<App, L, LV>() {
     private val appType by lazy {
         arguments?.getString(EXTRA_APP_TYPE) ?: throw IllegalArgumentException("appType is null")
     }
     private val tabIndex by lazy {
-        arguments?.getInt(EXTRA_TAB_INDEX) ?: throw IllegalArgumentException("tabIndex is null")
+        TabIndex.valueOf(
+            arguments?.getString(EXTRA_TAB_INDEX)
+                ?: throw IllegalArgumentException("tabIndex is null")
+        )
     }
 
     override val viewModel by viewModels<AppHubViewModel>()

@@ -37,7 +37,7 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
         }
 
         override fun appUpdated(app: App) {
-            if (mTabIndex == TAB_APPLICATIONS_APP) {
+            if (mTabIndex == TabIndex.TAB_APPLICATIONS_APP) {
                 if (app.getReleaseStatus() == Updater.NETWORK_ERROR)
                     adapterDelete(app)
             } else {
@@ -47,9 +47,9 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
     }
 
     private lateinit var mAppType: String
-    private var mTabIndex: Int = 0
+    private lateinit var mTabIndex: TabIndex
 
-    fun initData(appType: String, tabIndex: Int) {
+    fun initData(appType: String, tabIndex: TabIndex) {
         mAppType = appType
         mTabIndex = tabIndex
     }
@@ -97,7 +97,7 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
     }
 
     private fun sortList(list: List<App>): List<App> {
-        return if (mTabIndex == TAB_UPDATE || mTabIndex == TAB_APPLICATIONS_APP)
+        return if (mTabIndex == TabIndex.TAB_UPDATE || mTabIndex == TabIndex.TAB_APPLICATIONS_APP)
             list.sortedBy { it.name }
         else list
     }
@@ -117,10 +117,10 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
 
     private fun checkAppStatus(app: App): Boolean {
         return when (mTabIndex) {
-            TAB_UPDATE -> app.getReleaseStatus() == Updater.APP_OUTDATED
-            TAB_STAR -> app.star
-            TAB_ALL -> !app.isVirtual
-            TAB_APPLICATIONS_APP -> app.isVirtual
+            TabIndex.TAB_UPDATE -> app.getReleaseStatus() == Updater.APP_OUTDATED
+            TabIndex.TAB_STAR -> app.star
+            TabIndex.TAB_ALL -> !app.isVirtual
+            TabIndex.TAB_APPLICATIONS_APP -> app.isVirtual
                     && (app.isRenewing() || (!app.isRenewing() && app.getReleaseStatus() != Updater.NETWORK_ERROR))
             else -> false
         }

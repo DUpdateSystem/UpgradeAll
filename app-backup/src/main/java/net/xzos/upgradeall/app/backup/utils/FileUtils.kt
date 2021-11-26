@@ -15,6 +15,12 @@ fun getBackupMetaDatabase(dbFileBytes: ByteArray): MetaDatabase {
     return getDatabase(androidContext, MetaDatabase::class.java, tmpDBFile.name)
 }
 
-fun delBackupTmp() {
+private fun deleteTmpDB() {
     tmpDBFile.delete()
+    File(tmpDBFile.name + "-shm").delete()
+    File(tmpDBFile.name + "-wal").delete()
+}
+
+fun delBackupTmp() {
+    deleteTmpDB()
 }

@@ -69,7 +69,7 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
                 SelectFileActivity.newInstance(requireContext(), "application/zip")?.let { bytes ->
                     ToastUtil.showText(requireContext(), R.string.restore_running)
                     RestoreManager.parseZip(bytes)
-                    ToastUtil.showText(requireContext(), R.string.restore_stop)
+                    ToastUtil.showText(requireContext(), R.string.restore_stop, Toast.LENGTH_LONG)
                 }
             }
             false
