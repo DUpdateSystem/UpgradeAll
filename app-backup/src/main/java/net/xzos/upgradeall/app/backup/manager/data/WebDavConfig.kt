@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.app.backup
+package net.xzos.upgradeall.app.backup.manager.data
 
 class WebDavConfig(
     val url: String?,

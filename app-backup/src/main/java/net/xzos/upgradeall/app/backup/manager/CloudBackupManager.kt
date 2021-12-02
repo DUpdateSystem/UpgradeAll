@@ -1,9 +1,10 @@
-package net.xzos.upgradeall.app.backup
+package net.xzos.upgradeall.app.backup.manager
 
 import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.xzos.upgradeall.app.backup.manager.data.WebDavConfig
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.msg

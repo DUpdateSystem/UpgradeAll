@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.preference.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -11,12 +12,13 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.app.backup.BackupManager
-import net.xzos.upgradeall.app.backup.CloudBackupManager
-import net.xzos.upgradeall.app.backup.RestoreManager
-import net.xzos.upgradeall.app.backup.WebDavConfig
+import net.xzos.upgradeall.app.backup.manager.BackupManager
+import net.xzos.upgradeall.app.backup.manager.CloudBackupManager
+import net.xzos.upgradeall.app.backup.manager.RestoreManager
+import net.xzos.upgradeall.app.backup.manager.data.WebDavConfig
 import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.ui.restore.RestoreActivity
 import net.xzos.upgradeall.ui.utils.dialog.CloudBackupListDialog
 import net.xzos.upgradeall.ui.utils.file_pref.SaveFileActivity
 import net.xzos.upgradeall.ui.utils.file_pref.SelectFileActivity
@@ -68,7 +70,8 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
             GlobalScope.launch {
                 SelectFileActivity.newInstance(requireContext(), "application/zip")?.let { bytes ->
                     ToastUtil.showText(requireContext(), R.string.restore_running)
-                    RestoreManager.parseZip(bytes)
+                    launch { RestoreManager.parseZip(bytes) }
+                    startActivity(Intent(it.context, RestoreActivity::class.java))
                     ToastUtil.showText(requireContext(), R.string.restore_stop, Toast.LENGTH_LONG)
                 }
             }
