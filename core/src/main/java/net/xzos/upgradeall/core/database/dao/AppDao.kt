@@ -3,7 +3,6 @@ package net.xzos.upgradeall.core.database.dao
 import androidx.room.Dao
 import androidx.room.Query
 import net.xzos.upgradeall.core.database.table.AppEntity
-import net.xzos.upgradeall.core.database.table.HubEntity
 
 @Dao
 interface AppDao : BaseDao<AppEntity> {

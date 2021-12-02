@@ -190,7 +190,9 @@
     <string name="download_auto_retry_max_attempts">Auto Retry Max Attempts</string>
 
     <string name="built_in_downloader_setting">Built-in Downloader Setting</string>
+    <string name="external_downloader_setting">External Downloader Setting</string>
     <string name="use_external_downloader">Forcing the use of external downloader</string>
+    <string name="external_downloader_package_name">External Downloader Package Name</string>
     <string name="home_checking_updates">Checking updates…</string>
     <string name="home_check_updates">Check updates</string>
     <string name="home_format_items_need_update">%d tracking item(s) need to be updated</string>
@@ -225,6 +227,7 @@
     <string name="change_hub_priority">Change Hub Priority</string>
     <string name="more_url">More URL</string>
     <string name="download_loading">Loading Download</string>
+    <string name="force_renew">Force Renew</string>
 
     <!-- APP Setting -->
     <string name="edit_app">Edit App</string>
@@ -283,4 +286,14 @@
     <string name="waiting_pre_process">Wait for pre-processing to complete</string>
     <string name="download_service_running">Download Service is running</string>
     <string name="use_external_downloader_desc">Currently the built-in downloader is not ready, the default is to use an external downloader</string>
+
+    <!-- Installable File Type -->
+    <string name="apk">APK</string>
+
+    <!-- Hub Setting -->
+    <string name="global_setting">Global Setting</string>
+    <string name="use_global_setting">Use Global Setting</string>
+    <string name="download_url_replace_rule">Download URL Replace Rule</string>
+    <string name="match_rule">Match Rule</string>
+    <string name="replace_string">Replace String</string>
 </resources>

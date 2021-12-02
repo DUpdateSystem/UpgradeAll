@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.preference.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -11,13 +12,16 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.data.backup.BackupManager
-import net.xzos.upgradeall.core.data.backup.CloudBackupManager
-import net.xzos.upgradeall.core.data.backup.RestoreManager
+import net.xzos.upgradeall.app.backup.manager.BackupManager
+import net.xzos.upgradeall.app.backup.manager.CloudBackupManager
+import net.xzos.upgradeall.app.backup.manager.RestoreManager
+import net.xzos.upgradeall.app.backup.manager.data.WebDavConfig
+import net.xzos.upgradeall.core.androidutils.ToastUtil
+import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.ui.restore.RestoreActivity
 import net.xzos.upgradeall.ui.utils.dialog.CloudBackupListDialog
 import net.xzos.upgradeall.ui.utils.file_pref.SaveFileActivity
 import net.xzos.upgradeall.ui.utils.file_pref.SelectFileActivity
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 
 class BackupFragment : PrefFragment(R.xml.preferences_backup) {
@@ -30,12 +34,14 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
 
     private fun hidePassword() {
         findPreference<EditTextPreference>("webdav_password")?.let { editTextPreference ->
-            editTextPreference.summaryProvider = Preference.SummaryProvider<EditTextPreference> { preference ->
-                "*".repeat(preference.text?.length ?: return@SummaryProvider "")
-            }
+            editTextPreference.summaryProvider =
+                Preference.SummaryProvider<EditTextPreference> { preference ->
+                    "*".repeat(preference.text?.length ?: return@SummaryProvider "")
+                }
 
             editTextPreference.setOnBindEditTextListener { editText ->
-                editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                editText.inputType =
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             }
         }
     }
@@ -44,60 +50,75 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
         val backupPreference: Preference = findPreference("BACKUP")!!
         backupPreference.setOnPreferenceClickListener {
             GlobalScope.launch {
-                MiscellaneousUtils.showToast(R.string.backup_running)
+                ToastUtil.showText(requireContext(), R.string.backup_running)
                 val backupFileBytes = BackupManager.mkZipFileBytes()
-                val context = this@BackupFragment.context
-                if (backupFileBytes != null && context != null) {
-                    SaveFileActivity.newInstance(BackupManager.newFileName(), "application/zip", backupFileBytes, context)
+                if (backupFileBytes != null) {
+                    SaveFileActivity.newInstance(
+                        BackupManager.newFileName(),
+                        "application/zip",
+                        backupFileBytes,
+                        requireContext()
+                    )
                 }
-                MiscellaneousUtils.showToast(R.string.backup_stop)
+                ToastUtil.showText(requireContext(), R.string.backup_stop)
             }
             false
         }
 
         val restorePreference: Preference = findPreference("RESTORE")!!
         restorePreference.setOnPreferenceClickListener {
-            this.context?.let { context ->
-                GlobalScope.launch {
-                    SelectFileActivity.newInstance(context, "application/zip")?.let { bytes ->
-                        MiscellaneousUtils.showToast(R.string.restore_running)
-                        RestoreManager.parseZip(bytes)
-                        MiscellaneousUtils.showToast(R.string.restore_stop)
-                    }
+            GlobalScope.launch {
+                SelectFileActivity.newInstance(requireContext(), "application/zip")?.let { bytes ->
+                    ToastUtil.showText(requireContext(), R.string.restore_running)
+                    launch { RestoreManager.parseZip(bytes) }
+                    startActivity(Intent(it.context, RestoreActivity::class.java))
+                    ToastUtil.showText(requireContext(), R.string.restore_stop, Toast.LENGTH_LONG)
                 }
             }
             false
         }
     }
 
+    private fun getCloudBackupManager() = CloudBackupManager(
+        WebDavConfig(
+            PreferencesMap.webdav_url,
+            PreferencesMap.webdav_path,
+            PreferencesMap.webdav_username,
+            PreferencesMap.webdav_password
+        )
+    )
+
     private fun setCloudBackup() {
         val backupPreference: Preference = findPreference("WEBDAV_BACKUP")!!
         val restorePreference: Preference = findPreference("WEBDAV_RESTORE")!!
         backupPreference.setOnPreferenceClickListener {
-            CloudBackupManager().backup(
-                    { MiscellaneousUtils.showToast(R.string.backup_running) },
-                    { MiscellaneousUtils.showToast(R.string.backup_stop) },
-                    { MiscellaneousUtils.showToast(it.message.toString(), Toast.LENGTH_LONG) },
+            getCloudBackupManager().backup(
+                { ToastUtil.showText(requireContext(), R.string.backup_running) },
+                { ToastUtil.showText(requireContext(), R.string.backup_stop) },
+                { ToastUtil.showText(requireContext(), it.message.toString(), Toast.LENGTH_LONG) },
             )
             false
         }
         restorePreference.setOnPreferenceClickListener {
             GlobalScope.launch {
-                val cloudBackupManager = CloudBackupManager()
+                val cloudBackupManager = getCloudBackupManager()
                 val fileNameList = cloudBackupManager.getBackupFileList() ?: return@launch
-                context?.let {
-                    withContext(Dispatchers.Main) {
-                        CloudBackupListDialog.show(it, fileNameList, fun(position) {
-                            GlobalScope.launch {
-                                cloudBackupManager.restoreBackup(
-                                        fileNameList[position],
-                                        { MiscellaneousUtils.showToast(R.string.restore_running) },
-                                        { MiscellaneousUtils.showToast(R.string.restore_stop) },
-                                        { MiscellaneousUtils.showToast(it.message.toString(), Toast.LENGTH_LONG) },
-                                )
-                            }
-                        })
-                    }
+                withContext(Dispatchers.Main) {
+                    CloudBackupListDialog.show(requireContext(), fileNameList, fun(position) {
+                        GlobalScope.launch {
+                            cloudBackupManager.restoreBackup(
+                                fileNameList[position],
+                                { ToastUtil.showText(requireContext(), R.string.restore_running) },
+                                { ToastUtil.showText(requireContext(), R.string.restore_stop) },
+                                {
+                                    ToastUtil.showText(
+                                        requireContext(),
+                                        it.message.toString(), Toast.LENGTH_LONG
+                                    )
+                                },
+                            )
+                        }
+                    })
                 }
             }
             false

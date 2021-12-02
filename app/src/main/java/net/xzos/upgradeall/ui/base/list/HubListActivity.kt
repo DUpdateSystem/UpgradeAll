@@ -6,32 +6,40 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.ActivityDiscoverBinding
-import net.xzos.upgradeall.databinding.RecyclerlistContentBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
 abstract class HubListActivity<L : ActivityListItemView, T : RecyclerViewHolder<L, *, *>>
     : HubListPart<L, L, T>, AppBarActivity(), SearchView.OnQueryTextListener {
     private lateinit var activityBinding: ActivityDiscoverBinding
-    override lateinit var binding: RecyclerlistContentBinding
     private var isListReady = false
     private var menu: Menu? = null
+    override lateinit var rvList: RecyclerView
+    override var srlContainer: SwipeRefreshLayout? = null
 
     override fun initView() {
         viewModel.getLiveData().observe(this) {
             isListReady = true
             menu?.findItem(R.id.search)?.isVisible = true
         }
-        super.initView(this, this)
+    }
+
+    private fun initListView(rvList: RecyclerView, srlContainer: SwipeRefreshLayout? = null) {
+        this.rvList = rvList
+        this.srlContainer = srlContainer
+        initViewData(this)
     }
 
     override fun getAppBar(): Toolbar = activityBinding.appbar.toolbar
 
     override fun initBinding(): View {
         activityBinding = ActivityDiscoverBinding.inflate(layoutInflater)
-        binding = activityBinding.fragmentHubList.listLayout
+        val binding = activityBinding.fragmentHubList.listLayout
+        initListView(binding.rvList, binding.srlContainer)
         return activityBinding.root
     }
 

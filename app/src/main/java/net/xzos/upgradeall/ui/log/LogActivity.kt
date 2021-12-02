@@ -12,9 +12,9 @@ import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.core.log.LogDataProxy
-import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.LogDataProxy
+import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.databinding.ActivityLogBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.utils.file_pref.SaveFileActivity
@@ -60,18 +60,22 @@ class LogActivity : AppBarActivity() {
                         // 清空当前分类的日志
                         R.id.log_del_sort -> {
                             AlertDialog.Builder(this)
-                                    .setTitle(R.string.clean_sort_log)
-                                    .setMessage(R.string.clean_sort_log_alert_message)
-                                    .setPositiveButton(android.R.string.ok) { _, _ -> LogDataProxy.clearLogBySort(logSort) }
-                                    .setNegativeButton(android.R.string.cancel, null)
+                                .setTitle(R.string.clean_sort_log)
+                                .setMessage(R.string.clean_sort_log_alert_message)
+                                .setPositiveButton(android.R.string.ok) { _, _ ->
+                                    LogDataProxy.clearLogBySort(logSort)
+                                }
+                                .setNegativeButton(android.R.string.cancel, null)
+                                .show()
                         }
                         // 清空全部日志
                         R.id.log_del_all -> {
                             AlertDialog.Builder(this)
-                                    .setTitle(R.string.clean_all_log)
-                                    .setMessage(R.string.clean_all_log_alert_message)
-                                    .setPositiveButton(android.R.string.ok) { _, _ -> LogDataProxy.clearLogAll() }
-                                    .setNegativeButton(android.R.string.cancel, null)
+                                .setTitle(R.string.clean_all_log)
+                                .setMessage(R.string.clean_all_log_alert_message)
+                                .setPositiveButton(android.R.string.ok) { _, _ -> LogDataProxy.clearLogAll() }
+                                .setNegativeButton(android.R.string.cancel, null)
+                                .show()
                         }
                     }
                     setViewPage(logSort)
@@ -99,8 +103,8 @@ class LogActivity : AppBarActivity() {
                         Log.d(objectTag, TAG, "已获取日志")
                         GlobalScope.launch {
                             SaveFileActivity.newInstance(
-                                    "Log.txt", "text/plain",
-                                    logString.toByteArray(), this@LogActivity
+                                "Log.txt", "text/plain",
+                                logString.toByteArray(), this@LogActivity
                             )
                         }
                     }

@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.widget.Toast
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.version_item.Asset
 import net.xzos.upgradeall.ui.base.listdialog.ListDialog
@@ -21,7 +22,7 @@ class DownloadListDialog(
 ) {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        MiscellaneousUtils.showToast(R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG)
+        ToastUtil.showText(requireContext(), R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG)
         return super.onCreateDialog(savedInstanceState)
     }
 

@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.module.app
 
-import net.xzos.upgradeall.core.data.json.AppConfigGson
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.isInit
 import net.xzos.upgradeall.core.database.table.setSortHubUuidList
@@ -8,6 +7,8 @@ import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.module.app.version.Version
+import net.xzos.upgradeall.core.websdk.ServerApiProxy
+import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
 class App(
     appDatabase: AppEntity,
@@ -15,10 +16,11 @@ class App(
 ) {
     private val dataStorage = DataStorage(appDatabase)
     internal val appDatabase: AppEntity = dataStorage.appDatabase
+    val serverApi: ServerApiProxy = dataStorage.serverApi
     private val updater = Updater(dataStorage, statusRenewedFun)
 
     /* App 对象的属性字典 */
-    val appId: Map<String, String?> get() = appDatabase.appId
+    val appId: Map<String, String> get() = appDatabase.appId
 
     /* App 名称 */
     val name get() = appDatabase.name
@@ -27,18 +29,20 @@ class App(
     val hubList: List<Hub>
         get() = dataStorage.hubList
 
+    /* 是否星标 */
+    val star get() = appDatabase.star
+
     suspend fun setHubList(hubUuidList: List<String>) {
         dataStorage.appDatabase.setSortHubUuidList(hubUuidList)
     }
 
     val isActive: Boolean
         get() {
-            val appId = appId
-            for (hub in hubList) {
-                if (hub.isInactiveApp(appId))
-                    return false
+            hubList.forEach {
+                if (it.isActiveApp(appId))
+                    return true
             }
-            return true
+            return false
         }
 
     val isVirtual: Boolean
@@ -98,14 +102,10 @@ class App(
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is App) {
-            return false
+        return when (other) {
+            !is App -> false
+            else -> hashCode() == other.hashCode()
         }
-        val appUuid = appDatabase.cloudConfig?.uuid
-        return if (appUuid != null && appUuid == other.appDatabase.cloudConfig?.uuid)
-            true
-        else
-            super.equals(other)
     }
 
     override fun hashCode(): Int {

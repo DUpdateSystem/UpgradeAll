@@ -1,12 +1,15 @@
 package net.xzos.upgradeall.core.module.app.data
 
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.module.Hub
+import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version_item.Asset
-import net.xzos.upgradeall.core.route.ReleaseListItem
-import net.xzos.upgradeall.core.utils.wait
+import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
+import net.xzos.upgradeall.core.utils.coroutines.unlockWithCheck
+import net.xzos.upgradeall.core.utils.coroutines.wait
+import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 internal class DataGetter(private val dataStorage: DataStorage) {
 
@@ -17,36 +20,60 @@ internal class DataGetter(private val dataStorage: DataStorage) {
     suspend fun update() {
         if (renewMutex.isLocked)
             renewMutex.wait()
-        else {
-            doUpdate()
-        }
+        else
+            renewMutex.withLock {
+                doUpdate()
+            }
+    }
+
+    fun getVersionList(callback: (List<Version>) -> Unit) {
+        doGetVersionList(callback)
+    }
+
+    private fun doGetVersionList(callback: (List<Version>) -> Unit) {
+        val cachedHubUuid = dataStorage.versionData.getCachedHubUuidList()
+        val nocacheHubList = hubList.filterNot { cachedHubUuid.contains(it.uuid) }
+            .toCoroutinesMutableList(true)
+        if (nocacheHubList.isEmpty())
+            callback(dataStorage.versionData.getVersionList())
+        else
+            nocacheHubList.forEach { hub ->
+                renewVersionList(hub) {
+                    nocacheHubList.remove(hub)
+                    if (nocacheHubList.isEmpty())
+                        callback(dataStorage.versionData.getVersionList())
+                }
+            }
     }
 
     private suspend fun doUpdate() {
-        renewMutex.withLock {
-            coroutineScope {
-                hubList.forEach {
-                    launch {
-                        renewVersionList(it)
-                    }
-                }
-            }
+        val mutex = Mutex(true)
+        getVersionList {
+            mutex.unlockWithCheck()
+        }
+        mutex.wait()
+    }
+
+    private fun renewVersionList(
+        hub: Hub,
+        callback: (List<ReleaseGson>?) -> Unit
+    ) {
+        hub.getAppReleaseList(dataStorage) {
+            it?.let { runBlocking { setVersionMap(hub, it) } }
+            callback(it)
         }
     }
 
-    private suspend fun renewVersionList(hub: Hub) {
-        hub.getAppReleaseList(dataStorage.appDatabase.appId)?.let {
-            setVersionMap(hub, it)
-        }
-    }
-
-    private suspend fun setVersionMap(hub: Hub, releaseList: List<ReleaseListItem>) {
+    private suspend fun setVersionMap(
+        hub: Hub,
+        releaseList: List<ReleaseGson>
+    ) {
         val assetsList = mutableListOf<Asset>()
         releaseList.forEachIndexed { versionIndex, release ->
             val versionNumber = release.versionNumber
             val asset = Asset.newInstance(
-                versionNumber, hub, release.changeLog,
-                release.assetsList.mapIndexed { assetIndex, assetItem ->
+                versionNumber, hub, release.changelog,
+                release.assetList.mapIndexed { assetIndex, assetItem ->
                     Asset.Companion.TmpFileAsset(
                         assetItem.fileName,
                         assetItem.downloadUrl,

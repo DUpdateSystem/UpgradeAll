@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteConstraintException
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.HubEntity
+import net.xzos.upgradeall.core.database.table.extra_hub.ExtraHubEntityManager
 import net.xzos.upgradeall.core.module.Hub
 
 object HubManager {
@@ -31,6 +32,7 @@ object HubManager {
         val hubUuid = hub.uuid
         hubMap.remove(hubUuid)
         metaDatabase.hubDao().deleteByUuid(hubUuid)
+        ExtraHubEntityManager.deleteExtraHub(hubUuid)
     }
 
     suspend fun checkInvalidApplications() {

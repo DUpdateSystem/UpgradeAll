@@ -4,7 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import net.xzos.upgradeall.core.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.ObjectTag
 
 
 class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fragmentActivity: FragmentActivity, logSort: String) :

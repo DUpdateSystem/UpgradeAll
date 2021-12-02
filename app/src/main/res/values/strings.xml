@@ -197,6 +197,8 @@
     <string name="download_auto_retry_max_attempts">下载任务重试次数</string>
 
     <string name="built_in_downloader_setting">内置下载器设置</string>
+    <string name="external_downloader_setting">外置下载器设置</string>
+    <string name="external_downloader_package_name">外置下载器包名</string>
     <string name="use_external_downloader">强制使用外置下载器</string>
 
     <!--  Home  -->
@@ -212,6 +214,7 @@
     <string name="home_log">日志</string>
     <string name="home_settings">设置</string>
     <string name="home_about">关于</string>
+    <string name="force_renew">强制刷新</string>
 
     <!--  Hub  -->
     <string name="hub_tab_updates">更新</string>
@@ -295,4 +298,14 @@
     <string name="waiting_pre_process">等待预处理完成</string>
     <string name="download_service_running">下载服务运行中</string>
     <string name="use_external_downloader_desc">目前内建下载器未准备好，默认使用外部下载器</string>
+
+    <!-- Installable File Type -->
+    <string name="apk">APK 文件</string>
+
+    <!-- Hub Setting -->
+    <string name="global_setting">全局设置</string>
+    <string name="use_global_setting">使用全局设置</string>
+    <string name="download_url_replace_rule">下载地址替换规则</string>
+    <string name="match_rule">匹配规则</string>
+    <string name="replace_string">替换字符串</string>
 </resources>

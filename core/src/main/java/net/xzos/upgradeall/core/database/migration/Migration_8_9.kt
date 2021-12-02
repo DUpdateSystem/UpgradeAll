@@ -1,16 +1,19 @@
 package net.xzos.upgradeall.core.database.migration
 
+import android.annotation.SuppressLint
 import androidx.core.database.getStringOrNull
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import net.xzos.upgradeall.core.data.backup.getOrNull
 import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.cleanBlankValue
-import net.xzos.upgradeall.core.utils.file.FileUtil
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 import java.util.*
 
+// Deprecated
+@SuppressLint("SdCardPath")
+internal val UI_CONFIG_FILE = File("/data/data/net.xzos.upgradeall/files", "ui.json")
 
 @Suppress("ClassName")
 open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migration(startVersion, endVersion) {
@@ -138,7 +141,7 @@ open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migratio
 
     private fun renewUiConfig() {
         val starJson = try {
-            val json = JSONObject(FileUtil.UI_CONFIG_FILE.readText())
+            val json = JSONObject(UI_CONFIG_FILE.readText())
             json.getJSONObject("user_star_tab")
         } catch (ignore: Throwable) {
             return
@@ -167,7 +170,7 @@ open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migratio
         val newJson = JSONObject().apply {
             put("user_star_app_id_list", newStarJson)
         }
-        FileUtil.UI_CONFIG_FILE.writeText(newJson.toString())
+        UI_CONFIG_FILE.writeText(newJson.toString())
     }
 
     private fun checkHubDatabase() {
@@ -303,11 +306,11 @@ open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migratio
     private fun getOldDatabase(database: SupportSQLiteDatabase) {
         with(database.query("SELECT * FROM app")) {
             while (moveToNext()) {
-                val id = getLong(getColumnIndex("id"))
-                val name = getString(getColumnIndex("name"))
-                val url = getString(getColumnIndex("url"))
-                val packageId = getString(getColumnIndex("package_id"))
-                val hubUuid = getString(getColumnIndex("hub_uuid"))
+                val id = getLong(getColumnIndexOrThrow("id"))
+                val name = getString(getColumnIndexOrThrow("name"))
+                val url = getString(getColumnIndexOrThrow("url"))
+                val packageId = getString(getColumnIndexOrThrow("package_id"))
+                val hubUuid = getString(getColumnIndexOrThrow("hub_uuid"))
                 val ignoreVersionNumber = getStringOrNull(getColumnIndex("ignore_version_number"))
                 val cloudConfig = getStringOrNull(getColumnIndex("cloud_config"))
                 val appJson = JSONObject().apply {
@@ -323,9 +326,9 @@ open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migratio
         }
         with(database.query("SELECT * FROM applications")) {
             while (moveToNext()) {
-                val id = getLong(getColumnIndex("id"))
-                val name = getString(getColumnIndex("name"))
-                val hubUuid = getString(getColumnIndex("hub_uuid"))
+                val id = getLong(getColumnIndexOrThrow("id"))
+                val name = getString(getColumnIndexOrThrow("name"))
+                val hubUuid = getString(getColumnIndexOrThrow("hub_uuid"))
                 val invalidPackageList = getStringOrNull(getColumnIndex("invalid_package_list"))
                 val ignoreApps = getStringOrNull(getColumnIndex("ignore_app_list"))
                 val json = JSONObject().apply {
@@ -339,12 +342,22 @@ open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migratio
         }
         with(database.query("SELECT * FROM hub")) {
             while (moveToNext()) {
-                val uuid = getString(getColumnIndex("uuid"))
-                val hubConfig = JSONObject(getString(getColumnIndex("hub_config")))
+                val uuid = getString(getColumnIndexOrThrow("uuid"))
+                val hubConfig = JSONObject(getString(getColumnIndexOrThrow("hub_config")))
                 allHubDatabaseMap[uuid] = JSONObject().apply { put("hub_config", hubConfig) }
             }
         }
     }
+}
+
+@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+private fun JSONObject.getOrNull(key: String): String? {
+    return if (this.has("key"))
+        with(this.getString(key)) {
+            if (this != "null")
+                this
+            else null
+        } else null
 }
 
 val MIGRATION_8_9 = object : Migration_8_9_10_Share(8, 9) {

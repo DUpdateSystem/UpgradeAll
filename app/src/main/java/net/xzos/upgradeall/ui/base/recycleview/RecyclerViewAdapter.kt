@@ -1,12 +1,13 @@
 package net.xzos.upgradeall.ui.base.recycleview
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
+import net.xzos.upgradeall.core.androidutils.runUiFun
 import net.xzos.upgradeall.ui.base.list.ListItemView
-import net.xzos.upgradeall.utils.runUiFun
 
 abstract class RecyclerViewAdapter<LT, L : ListItemView, RHA : RecyclerViewHandler, T : RecyclerViewHolder<in L, RHA, *>>(
     @Suppress("UNCHECKED_CAST")
@@ -16,11 +17,13 @@ abstract class RecyclerViewAdapter<LT, L : ListItemView, RHA : RecyclerViewHandl
     abstract val handler: RHA?
     lateinit var lifecycleScope: LifecycleCoroutineScope
 
-    private var dataSet: List<LT> = listOf<LT>().also { setHasStableIds(true) }
+    private val dataSet: MutableList<LT> = mutableListOf<LT>().also { setHasStableIds(true) }
 
     fun setAdapterData(list: List<LT>, changedPosition: Int, changedTag: String) {
-        dataSet = list
+        dataSet.clear()
+        dataSet.addAll(list)
         runUiFun {
+            @SuppressLint("NotifyDataSetChanged")
             when (changedTag) {
                 RENEW -> notifyDataSetChanged()
                 ADD -> notifyItemInserted(changedPosition)

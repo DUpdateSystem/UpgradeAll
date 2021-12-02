@@ -21,8 +21,8 @@ class Asset private constructor(
             /* 文件数据名称，用来给用户看的 */
             val name: String,
             /* 默认下载链接 */
-            internal val downloadUrl: String,
-            internal val fileType: String,
+            internal val downloadUrl: String?,
+            internal val fileType: String?,
             internal val assetIndex: Pair<Int, Int>,
         )
 

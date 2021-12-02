@@ -1,44 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
         <import type="android.view.View" />
 
-        <variable
-            name="item"
-            type="net.xzos.upgradeall.ui.filemanagement.tasker_dialog.TaskerDialogItem" />
+        <import type="android.content.Context" />
 
         <variable
-            name="handler"
-            type="net.xzos.upgradeall.ui.filemanagement.tasker_dialog.TaskerDialogHandler" />
+            name="viewmodel"
+            type="net.xzos.upgradeall.ui.filemanagement.tasker_dialog.FileTaskerViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <LinearLayout
+        android:id="@+id/standard_bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <androidx.core.widget.NestedScrollView
-            android:id="@+id/nestedScrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-            app:layout_constraintBottom_toTopOf="@id/ll_btns"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_margin="4dp">
 
-            <include
-                android:id="@+id/list_layout"
-                layout="@layout/recyclerlist_content" />
-
+            <net.xzos.upgradeall.ui.base.view.AppListRecyclerView
+                android:id="@+id/rv_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                app:fitsSystemWindowsInsets="bottom"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
         </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/cg_tag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:layout_marginTop="4dp"
+            app:singleLine="true" />
 
         <LinearLayout
             android:id="@+id/ll_btns"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
-            app:layout_constraintBottom_toBottomOf="parent">
+            android:layout_marginTop="4dp">
 
             <Button
                 android:id="@+id/installButton"
@@ -47,9 +57,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:onClick="@{() -> handler.install()}"
+                android:onClick="@{() -> viewmodel.onInstall(context)}"
                 android:text="@string/install"
-                android:visibility="@{item.installable ? View.VISIBLE : View.GONE}" />
+                android:visibility="@{viewmodel.installButtonVisibility ? View.VISIBLE : View.GONE}" />
 
             <Button
                 android:id="@+id/openDirButton"
@@ -58,8 +68,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:onClick="@{(view) -> handler.open(view)}"
-                android:text="@string/open" />
+                android:onClick="@{(view) -> viewmodel.onOpen()}"
+                android:text="@string/open"
+                android:visibility="@{viewmodel.openFileButtonVisibility? View.VISIBLE : View.GONE}" />
 
             <Button
                 android:id="@+id/pauseButton"
@@ -68,20 +79,20 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:onClick="@{() -> handler.pause()}"
+                android:onClick="@{() -> viewmodel.onPause()}"
                 android:text="@string/pause"
-                android:visibility="@{item.suspendable? View.VISIBLE: View.GONE}" />
+                android:visibility="@{viewmodel.pauseButtonVisibility ? View.VISIBLE : View.GONE}" />
 
             <Button
-                android:id="@+id/continueButton"
+                android:id="@+id/resumeButton"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:onClick="@{() -> handler.resume()}"
+                android:onClick="@{() -> viewmodel.onResume()}"
                 android:text="@string/Continue"
-                android:visibility="@{item.continuable? View.VISIBLE: View.GONE}" />
+                android:visibility="@{viewmodel.resumeButtonVisibility ? View.VISIBLE : View.GONE}" />
 
             <Button
                 android:id="@+id/retryButton"
@@ -90,9 +101,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:onClick="@{() -> handler.retry()}"
+                android:onClick="@{() -> viewmodel.onRetry()}"
                 android:text="@string/retry"
-                android:visibility="@{item.retryable? View.VISIBLE: View.GONE}" />
+                android:visibility="@{viewmodel.retryButtonVisibility? View.VISIBLE: View.GONE}" />
 
             <Button
                 android:id="@+id/deleteButton"
@@ -100,9 +111,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="@{() -> handler.delete()}"
-                android:text="@string/delete" />
+                android:onClick="@{() -> viewmodel.onDelete()}"
+                android:text="@string/delete"
+                android:visibility="@{viewmodel.deleteButtonVisibility? View.VISIBLE: View.GONE}" />
         </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </layout>

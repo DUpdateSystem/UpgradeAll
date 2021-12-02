@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.log.ObjectTag
-import net.xzos.upgradeall.utils.ToastUtil
-import net.xzos.upgradeall.utils.file.FileUtil
+import net.xzos.upgradeall.core.androidutils.ToastUtil
+import net.xzos.upgradeall.core.androidutils.writeToUri
+import net.xzos.upgradeall.core.utils.log.ObjectTag
 
 class SaveFileActivity : FilePrefActivity() {
 
@@ -17,11 +17,11 @@ class SaveFileActivity : FilePrefActivity() {
             val uri = resultData.data
             if (uri != null) {
                 val textResId =
-                        if (FileUtil.writeToUri(uri, byteArray = bytes))
-                            R.string.save_file_successfully
-                        else
-                            R.string.save_file_failed
-                ToastUtil.makeText(textResId, Toast.LENGTH_LONG)
+                    if (writeToUri(uri, this, byteArray = bytes))
+                        R.string.save_file_successfully
+                    else
+                        R.string.save_file_failed
+                ToastUtil.showText(this, textResId, Toast.LENGTH_LONG)
             }
         }
         finish()
@@ -50,7 +50,12 @@ class SaveFileActivity : FilePrefActivity() {
         private var mimeType: String? = null
         private var bytes: ByteArray? = null
 
-        suspend fun newInstance(fileName: String, mimeType: String?, byteArray: ByteArray, context: Context): Boolean {
+        suspend fun newInstance(
+            fileName: String,
+            mimeType: String?,
+            byteArray: ByteArray,
+            context: Context
+        ): Boolean {
             isSuccess = false
             this.fileName = fileName
             this.mimeType = mimeType

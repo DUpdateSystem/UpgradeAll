@@ -28,8 +28,8 @@ import net.xzos.upgradeall.databinding.ActivityAppSettingBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListAdapter
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListViewModel
-import net.xzos.upgradeall.utils.ToastUtil
-import net.xzos.upgradeall.utils.runUiFun
+import net.xzos.upgradeall.core.androidutils.ToastUtil
+import net.xzos.upgradeall.core.androidutils.runUiFun
 
 
 class AppSettingActivity : AppBarActivity() {
@@ -38,7 +38,7 @@ class AppSettingActivity : AppBarActivity() {
     private lateinit var binding: ActivityAppSettingBinding
     private val viewModel by viewModels<AttrListViewModel>()
 
-    private val attrMap: Map<String, String?>
+    private val attrMap: Map<String, String>
         get() {
             val attrList = binding.attrList
             val map = mutableMapOf<String, String>()
@@ -60,7 +60,7 @@ class AppSettingActivity : AppBarActivity() {
         return true
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_app_setting, menu)
         return true
     }
@@ -83,7 +83,7 @@ class AppSettingActivity : AppBarActivity() {
             return
         }
         if (appId.isEmpty()) {
-            ToastUtil.makeText(R.string.helper_text_attr_cant_be_empty)
+            ToastUtil.showText(this, R.string.helper_text_attr_cant_be_empty)
             return
         }
         val appEntity = database?.apply {
@@ -91,7 +91,7 @@ class AppSettingActivity : AppBarActivity() {
             this.invalidVersionNumberFieldRegexString = invalidVersionNumberFieldRegex
             this.appId = appId
         } ?: AppEntity(
-            0, name, appId,
+            name, appId,
             invalidVersionNumberFieldRegexString = invalidVersionNumberFieldRegex
         )
         window?.let {
@@ -99,14 +99,12 @@ class AppSettingActivity : AppBarActivity() {
             binding.loadingBar.visibility = View.VISIBLE
 
             lifecycleScope.launch {
-                val appEntityR = withContext(Dispatchers.Default) {
-                    AppManager.updateApp(appEntity)
-                }
+                val appEntityR = AppManager.updateApp(appEntity)
                 runUiFun {
                     if (appEntityR != null)
                         finish()
                     else
-                        ToastUtil.makeText(R.string.failed_to_add, Toast.LENGTH_LONG)
+                        ToastUtil.showText(this@AppSettingActivity, R.string.failed_to_add, Toast.LENGTH_LONG)
                     binding.addButton.visibility = View.VISIBLE
                     binding.loadingBar.visibility = View.GONE
                 }
@@ -145,11 +143,11 @@ class AppSettingActivity : AppBarActivity() {
             fab.visibility = View.VISIBLE
         }
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             // 刷新第三方源列表，获取支持的第三方源列表
             withContext(Dispatchers.Main) {
                 if (HubManager.getHubList().isEmpty()) {
-                    ToastUtil.makeText(R.string.add_something, Toast.LENGTH_LONG)
+                    ToastUtil.showText(this@AppSettingActivity, R.string.add_something, Toast.LENGTH_LONG)
                     finish()
                 }
             }

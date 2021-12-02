@@ -12,7 +12,7 @@ import net.xzos.upgradeall.core.module.app.Updater
 import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
-import net.xzos.upgradeall.server.update.startUpdateWorker
+import net.xzos.upgradeall.server.update.startUpdate
 import net.xzos.upgradeall.ui.applist.apps.AppsActivity
 import net.xzos.upgradeall.ui.applist.magisk.MagiskModuleActivity
 import net.xzos.upgradeall.ui.base.BaseActivity
@@ -22,9 +22,9 @@ import net.xzos.upgradeall.ui.home.adapter.*
 import net.xzos.upgradeall.ui.hubmanager.HubManagerActivity
 import net.xzos.upgradeall.ui.log.LogActivity
 import net.xzos.upgradeall.ui.preference.SettingsActivity
-import net.xzos.upgradeall.utils.ToastUtil
+import net.xzos.upgradeall.core.androidutils.ToastUtil
+import net.xzos.upgradeall.core.androidutils.runUiFun
 import net.xzos.upgradeall.utils.UxUtils
-import net.xzos.upgradeall.utils.runUiFun
 
 
 class MainActivity : BaseActivity() {
@@ -71,7 +71,7 @@ class MainActivity : BaseActivity() {
                     startActivity(Intent(this, SettingsActivity::class.java))
                 },
                 HomeModuleNonCardBean(R.drawable.ic_home_about, R.string.home_about) {
-                    ToastUtil.makeText(R.string.home_about)
+                    ToastUtil.showText(this, R.string.home_about)
                 }
             ))
         } else {
@@ -81,6 +81,11 @@ class MainActivity : BaseActivity() {
         binding.layoutUpdatingCard.apply {
             layoutCard.setOnClickListener {
                 checkUpdate()
+            }
+            layoutCard.setOnLongClickListener {
+                ToastUtil.showText(this@MainActivity, R.string.force_renew)
+                checkUpdate()
+                true
             }
         }
     }
@@ -151,7 +156,7 @@ class MainActivity : BaseActivity() {
     private fun checkUpdate() {
         binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_checking_updates))
         binding.layoutUpdatingCard.ivIcon.setImageResource(R.drawable.ic_loading)
-        startUpdateWorker(this)
+        startUpdate(lifecycleScope)
     }
 
     companion object {

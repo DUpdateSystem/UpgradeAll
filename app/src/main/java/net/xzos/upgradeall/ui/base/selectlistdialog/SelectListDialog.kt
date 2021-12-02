@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
-import net.xzos.upgradeall.core.utils.wait
+import net.xzos.upgradeall.core.utils.coroutines.wait
 import net.xzos.upgradeall.ui.base.listdialog.ListDialog
 
 class SelectListDialog private constructor(

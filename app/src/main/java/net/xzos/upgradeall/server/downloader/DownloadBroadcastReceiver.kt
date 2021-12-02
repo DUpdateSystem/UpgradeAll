@@ -3,24 +3,35 @@ package net.xzos.upgradeall.server.downloader
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import kotlinx.coroutines.runBlocking
+import android.util.Log
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.filetasker.FileTaskerManager
+import net.xzos.upgradeall.wrapper.download.fileTaskerManagerWrapper
+import net.xzos.upgradeall.wrapper.download.installFileTasker
 
 class DownloadBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val fileTaskerId = intent.getIntExtra(EXTRA_IDENTIFIER_FILE_TASKER_ID, -1)
-        val fileTasker = FileTaskerManager.getFileTasker(fileTaskerId) ?: return
+        val fileTaskerId = intent.getStringExtra(EXTRA_IDENTIFIER_FILE_TASKER_ID) ?: return
+        val fileTasker = fileTaskerManagerWrapper.getFileTasker(idString = fileTaskerId) ?: return
+        val notification = DownloadNotificationManager.getNotification(fileTaskerId) ?: return
         when (intent.getIntExtra(EXTRA_IDENTIFIER_FILE_TASKER_CONTROL, -1)) {
-            DOWNLOAD_CANCEL -> deleteFileTasker(fileTasker)
             DOWNLOAD_RETRY -> fileTasker.retry()
             DOWNLOAD_PAUSE -> fileTasker.pause()
             DOWNLOAD_CONTINUE -> fileTasker.resume()
-            NOTIFY_CANCEL -> DownloadNotificationManager.getNotification(fileTasker)
-                ?.cancelNotification()
-            INSTALL_APK -> runBlocking { installFileTasker(fileTasker, context) }
-            OPEN_FILE -> fileTasker.openDownloadDir(context)
+            DOWNLOAD_CANCEL -> {
+                notification.cancelNotification()
+                fileTasker.cancel()
+            }
+            NOTIFY_CANCEL -> notification.cancelNotification()
+            INSTALL_APK -> GlobalScope.launch {
+                installFileTasker(
+                    context, fileTasker,
+                    notification
+                )
+            }
+            OPEN_FILE -> Log.i("Download", "open file: TODO")
         }
     }
 

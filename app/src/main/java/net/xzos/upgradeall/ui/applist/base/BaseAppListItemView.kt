@@ -3,15 +3,12 @@ package net.xzos.upgradeall.ui.applist.base
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
-import android.text.SpannableStringBuilder
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.version.VersionUtils
-import net.xzos.upgradeall.core.utils.android_app.getPackageId
+import net.xzos.upgradeall.core.androidutils.app_info.getPackageId
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.ui.detail.AppVersionItem
-import net.xzos.upgradeall.ui.detail.getVersionNameSpannableString
 
 abstract class BaseAppListItemView(val app: App) : BaseAppIconItem, ListItemView {
 
@@ -24,28 +21,6 @@ abstract class BaseAppListItemView(val app: App) : BaseAppIconItem, ListItemView
 
     fun renewData(context: Context) {
         renewAppIcon(app.appId.getPackageId()?.second, context)
-        versionItem.renew(getShowingVersionNumber(app, context), app, context)
-    }
-
-    companion object {
-        private fun getShowingVersionNumber(app: App, context: Context): SpannableStringBuilder {
-            val sb = SpannableStringBuilder()
-            val latestVersionNumber = app.getLatestVersionNumber()
-            val rawInstalledVersionStringList = app.rawInstalledVersionStringList
-            val installedVersionNumber = if (rawInstalledVersionStringList != null)
-                VersionUtils.getKey(rawInstalledVersionStringList)
-            else null
-            rawInstalledVersionStringList?.run {
-                getVersionNameSpannableString(
-                    this, null,
-                    context, sb
-                )
-            }
-            if (latestVersionNumber != installedVersionNumber && latestVersionNumber != null) {
-                if (sb.isNotEmpty()) sb.append(" -> ")
-                sb.append(latestVersionNumber)
-            }
-            return sb
-        }
+        versionItem.renew(app, context)
     }
 }

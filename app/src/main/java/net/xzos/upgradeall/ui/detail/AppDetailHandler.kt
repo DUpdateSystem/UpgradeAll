@@ -26,7 +26,6 @@ class AppDetailHandler(
             }
             show()
         }
-
     }
 
     fun openUrl(url: String, view: View) {

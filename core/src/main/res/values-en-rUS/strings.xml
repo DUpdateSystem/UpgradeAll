@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="shizuku_permission_request">Please give this software Shizuku permission</string>
-    <string name="download_file_create_error">Download file creation failed</string>
-</resources>

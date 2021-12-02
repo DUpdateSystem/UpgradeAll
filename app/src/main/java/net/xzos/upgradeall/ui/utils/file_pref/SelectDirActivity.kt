@@ -7,8 +7,8 @@ import android.os.Build
 import android.provider.DocumentsContract
 import androidx.activity.result.ActivityResult
 import androidx.documentfile.provider.DocumentFile
-import net.xzos.upgradeall.core.log.ObjectTag
-import net.xzos.upgradeall.utils.file.FileUtil
+import net.xzos.upgradeall.core.androidutils.takePersistableUriPermission
+import net.xzos.upgradeall.core.utils.log.ObjectTag
 import java.io.File
 
 
@@ -16,7 +16,7 @@ class SelectDirActivity : FilePrefActivity() {
 
     override fun onActivityResultOkCallback(resultData: ActivityResult) {
         dirUri = resultData.data?.data?.also {
-            FileUtil.takePersistableUriPermission(this, it)
+            takePersistableUriPermission(this, it)
         }
     }
 

@@ -5,9 +5,9 @@ import android.widget.ImageButton
 import com.chad.library.adapter.base.BaseMultiItemQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.ui.log.LogActivity
 import net.xzos.upgradeall.ui.preference.SettingsActivity
-import net.xzos.upgradeall.utils.ToastUtil
 
 class HomeModuleAdapter : BaseMultiItemQuickAdapter<HomeModuleBean, BaseViewHolder>() {
 
@@ -30,7 +30,7 @@ class HomeModuleAdapter : BaseMultiItemQuickAdapter<HomeModuleBean, BaseViewHold
                 context.startActivity(Intent(context, SettingsActivity::class.java))
             }
             holder.getView<ImageButton>(R.id.btn_about).setOnClickListener {
-                ToastUtil.makeText(R.string.home_about)
+                ToastUtil.showText(context, R.string.home_about)
             }
         }
     }

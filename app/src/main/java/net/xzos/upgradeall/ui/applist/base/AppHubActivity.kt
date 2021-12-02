@@ -9,15 +9,18 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.databinding.ActivityAppHubBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
 
-const val TAB_UPDATE = 0
-const val TAB_STAR = 1
-const val TAB_ALL = 2
-const val TAB_APPLICATIONS_APP = 3
+enum class TabIndex(val tag: String) {
+    TAB_UPDATE("TAB_UPDATE"),
+    TAB_STAR("TAB_STAR"),
+    TAB_ALL("TAB_ALL"),
+    TAB_APPLICATIONS_APP("TAB_APPLICATIONS_APP"),
+}
 
 abstract class AppHubActivity(private val mAppType: String) : AppBarActivity() {
 
@@ -31,17 +34,18 @@ abstract class AppHubActivity(private val mAppType: String) : AppBarActivity() {
     override fun getAppBar(): Toolbar = binding.appbar.toolbar
 
     override fun initView() {
-        val types = mutableListOf(
-                TAB_UPDATE, TAB_STAR, TAB_ALL
-        )
+        val types = mutableListOf(TabIndex.TAB_UPDATE, TabIndex.TAB_ALL)
         val tabTitles = mutableListOf(
-                getText(R.string.hub_tab_updates),
-                getText(R.string.user_star),
-                getText(R.string.hub_tab_all),
+            getText(R.string.hub_tab_updates),
+            getText(R.string.hub_tab_all),
         )
+        if (AppManager.getAppList().any { it.star }) {
+            types.add(1, TabIndex.TAB_STAR)
+            tabTitles.add(1, getText(R.string.user_star))
+        }
 
         if (HubManager.isEnableApplicationsMode()) {
-            types.add(TAB_APPLICATIONS_APP)
+            types.add(TabIndex.TAB_APPLICATIONS_APP)
             tabTitles.add(getText(R.string.applications))
         }
 
@@ -52,7 +56,7 @@ abstract class AppHubActivity(private val mAppType: String) : AppBarActivity() {
                 }
 
                 override fun createFragment(position: Int): Fragment {
-                    return getAppHubListFragment(mAppType, position)
+                    return getAppHubListFragment(mAppType, types[position])
                 }
             }
         }
@@ -63,7 +67,7 @@ abstract class AppHubActivity(private val mAppType: String) : AppBarActivity() {
         mediator.attach()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.menu_app_list, menu)
         return true

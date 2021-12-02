@@ -8,17 +8,21 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.databinding.ListContentBinding
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 
-class DownloadListDialog private constructor(private val fileNameList: List<String>,
-                                             private val downloadFun: (position: Int, externalDownloader: Boolean) -> Unit
+class DownloadListDialog private constructor(
+    private val fileNameList: List<String>,
+    private val downloadFun: (position: Int, externalDownloader: Boolean) -> Unit
 ) : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
         val contentBinding = ListContentBinding.inflate(layoutInflater)
-        MiscellaneousUtils.showToast(R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG)
+        ToastUtil.showText(
+            requireContext(),
+            R.string.long_click_to_use_external_downloader, Toast.LENGTH_LONG
+        )
 
         contentBinding.apply {
             list.setOnItemClickListener { _, _, position, _ ->
@@ -29,23 +33,31 @@ class DownloadListDialog private constructor(private val fileNameList: List<Stri
                 return@setOnItemLongClickListener true
             }
             if (fileNameList.isNotEmpty()) {
-                list.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, fileNameList)
+                list.adapter = ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_list_item_1,
+                    fileNameList
+                )
             } else {
                 vfContainer.displayedChild = 1
             }
         }
 
         return AlertDialog.Builder(requireContext())
-                .setView(contentBinding.root)
-                .setTitle(R.string.dialog_title_select_download_item)
-                .create()
+            .setView(contentBinding.root)
+            .setTitle(R.string.dialog_title_select_download_item)
+            .create()
     }
 
     companion object {
-        fun show(activity: AppCompatActivity, fileNameList: List<String>,
-                 downloadFun: (position: Int, externalDownloader: Boolean) -> Unit
+        fun show(
+            activity: AppCompatActivity, fileNameList: List<String>,
+            downloadFun: (position: Int, externalDownloader: Boolean) -> Unit
         ) {
-            DownloadListDialog(fileNameList, downloadFun).run { show(activity.supportFragmentManager, tag) }
+            DownloadListDialog(
+                fileNameList,
+                downloadFun
+            ).run { show(activity.supportFragmentManager, tag) }
         }
     }
 }

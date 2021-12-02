@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -38,7 +39,7 @@ class AppDetailActivity : AppBarActivity() {
         return binding.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.menu_app_detail, menu)
         return true
@@ -57,7 +58,7 @@ class AppDetailActivity : AppBarActivity() {
                     if (!hubMap.containsKey(it))
                         hubMap[it] = false
                 }
-                GlobalScope.launch {
+                lifecycleScope.launch {
                     val selectDataList = SelectListDialog.showDialog(
                         hubMap.map { SelectItem(it.key.name, it.key.uuid, it.value) },
                         supportFragmentManager, R.string.change_hub_priority

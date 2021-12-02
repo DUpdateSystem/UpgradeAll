@@ -9,21 +9,29 @@ import net.xzos.upgradeall.databinding.FragmentHubUpdateListBinding
 import net.xzos.upgradeall.ui.applist.base.AppHubListFragment
 
 
-class UpdateAppHubListFragment : AppHubListFragment<UpdateAppListItemView, UpdateAppHubListViewHolder>() {
+class UpdateAppHubListFragment :
+    AppHubListFragment<UpdateAppListItemView, UpdateAppHubListViewHolder>() {
 
-    lateinit var rootBinding: FragmentHubUpdateListBinding
+    private lateinit var rootBinding: FragmentHubUpdateListBinding
     override val adapter = UpdateAppHubListAdapter(
-            listContainerViewConvertFun = {
-                UpdateAppListItemView(it).apply { renew(requireContext()) }
-            })
+        listContainerViewConvertFun = {
+            UpdateAppListItemView(it).apply { renew(requireContext()) }
+        })
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         rootBinding = FragmentHubUpdateListBinding.inflate(inflater)
-        initView(rootBinding.fragmentHubList)
 
         viewModel.getLiveData().observe(viewLifecycleOwner, { triple ->
-            rootBinding.tvAppUpdateTip.text = String.format(getString(R.string.hub_format_app_update_tip), triple.first.size)
+            rootBinding.tvAppUpdateTip.text =
+                String.format(getString(R.string.hub_format_app_update_tip), triple.first.size)
         })
-        return binding.root
+        rootBinding.fragmentHubList.listLayout.run {
+            initView(rvList, srlContainer)
+        }
+        return rootBinding.root
     }
 }

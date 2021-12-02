@@ -1,64 +1,94 @@
 package net.xzos.upgradeall.ui.filemanagement.tasker_dialog
 
-import android.content.Context
 import android.os.Bundle
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.chip.Chip
 import com.tonyodev.fetch2.Download
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import net.xzos.upgradeall.core.filetasker.FileTasker
+import net.xzos.upgradeall.R
 import net.xzos.upgradeall.databinding.DialogFileTaskerBinding
-import net.xzos.upgradeall.ui.base.listdialog.ListDialogPart
+import net.xzos.upgradeall.ui.base.list.HubListPart
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItem
+import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItemHolder
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerListAdapter
-import net.xzos.upgradeall.utils.runUiFun
-import java.io.File
+import net.xzos.upgradeall.wrapper.download.FileTaskerWrapper
 
 
-class TaskerListDialog private constructor(
-        context: Context,
-        private val fileTasker: FileTasker,
-        private val item: TaskerDialogItem,
-        private val downloadList: List<Download>
-) : BottomSheetDialog(context), ListDialogPart {
+class TaskerListDialog private constructor(private val fileTasker: FileTaskerWrapper) :
+    BottomSheetDialogFragment(), HubListPart<Download, TaskerItem, TaskerItemHolder> {
 
-    override val sAdapter = TaskerListAdapter(emptyList())
+    override val adapter = TaskerListAdapter()
 
-    private lateinit var binding: DialogFileTaskerBinding
+    private lateinit var rootBinding: DialogFileTaskerBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        binding = DialogFileTaskerBinding.inflate(layoutInflater)
-        initView(binding)
-        setContentView(binding.root)
-        super.onCreate(savedInstanceState)
+    override lateinit var rvList: RecyclerView
+    override var srlContainer: SwipeRefreshLayout? = null
+
+    private val rootViewModel: FileTaskerViewModel by viewModels()
+    override val viewModel: FileTaskerListViewModel by viewModels()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        rootBinding = DialogFileTaskerBinding.inflate(inflater)
+        rootViewModel.setFileTasker(fileTasker)
+        rootViewModel.renew()
+        initView(rootBinding)
+        initListView(rootBinding.rvList)
+        return rootBinding.root
     }
 
-    private fun renewList() {
-        sAdapter.setDataList(downloadList.map { getItemView(it) })
-        renewListView(binding.listLayout)
+    private fun initListView(rvList: RecyclerView, srlContainer: SwipeRefreshLayout? = null) {
+        this.rvList = rvList
+        this.srlContainer = srlContainer
+        initViewData(this)
     }
 
     private fun initView(binding: DialogFileTaskerBinding) {
-        val handler = TaskerDialogHandler(fileTasker, this@TaskerListDialog, context)
-        binding.item = item
-        binding.handler = handler
-        renewList()
+        viewModel.getDownload = { rootViewModel.downloadList.value ?: emptyList() }
+        viewModel.loadData(rootViewModel.downloadList.value ?: emptyList())
+        rootViewModel.downloadList.observe(this) { list ->
+            viewModel.loadData(list)
+        }
+
+        rootViewModel.tagList.observe(this) { list ->
+            val chipGroup = binding.cgTag
+            chipGroup.removeAllViewsInLayout()
+            list.forEach {
+                val typeChip = (layoutInflater.inflate(
+                    R.layout.single_chip_layout,
+                    chipGroup,
+                    false
+                ) as Chip).apply {
+                    text = it
+                }
+                chipGroup.addView(
+                    typeChip,
+                    -1,
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                )
+            }
+        }
+
+        binding.viewmodel = rootViewModel
     }
 
     companion object {
-        private fun getItemView(downloader: Download): TaskerItem {
-            val file = File(downloader.file)
-            return TaskerItem(file.name, file.path, downloader.progress)
-        }
-
-        fun newInstance(context: Context, fileTasker: FileTasker) {
-            GlobalScope.launch {
-                val item = TaskerDialogItem(fileTasker, context)
-                val downloadList = fileTasker.downloader?.getDownloadList() ?: emptyList()
-                runUiFun {
-                    TaskerListDialog(context, fileTasker, item, downloadList).show()
-                }
-            }
+        private const val TAG = "TaskerListDialog"
+        fun newInstance(activity: AppCompatActivity, fileTasker: FileTaskerWrapper) {
+            val taskerListDialog = TaskerListDialog(fileTasker)
+            taskerListDialog.show(activity.supportFragmentManager, TAG)
         }
     }
 }

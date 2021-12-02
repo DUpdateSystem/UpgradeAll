@@ -11,10 +11,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
-import net.xzos.upgradeall.core.log.Log
-import net.xzos.upgradeall.core.log.ObjectTag
-import net.xzos.upgradeall.core.module.network.OkHttpApi
-import net.xzos.upgradeall.utils.MiscellaneousUtils
+import net.xzos.upgradeall.core.androidutils.ToastUtil
+import net.xzos.upgradeall.core.utils.getOrNull
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
+import net.xzos.upgradeall.core.websdk.web.http.OkHttpApi.Companion.callHttpFunc
+import net.xzos.upgradeall.core.websdk.web.http.openOkHttpApi
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
@@ -22,7 +25,7 @@ import java.util.*
 private const val TAG = "Egg"
 private val logObjectTag = ObjectTag("UI", TAG)
 
-private val eggDay by lazy { runBlocking(Dispatchers.IO) { getEggDayOrNull() } }
+private val eggDay by lazy { runBlocking(Dispatchers.Default) { getEggDayOrNull() } }
 
 fun getEggDayOrNull(): Day? {
     val cal = Calendar.getInstance()
@@ -42,7 +45,13 @@ fun getEggDayOnline(): Day? {
     val url = "http://timor.tech/api/holiday/info/$year-$month-$day"
     val holidayName: String
     try {
-        val json = JSONObject(OkHttpApi.get(logObjectTag, url)?.body?.string() ?: return null)
+        val json = JSONObject(
+            callHttpFunc(
+                logObjectTag,
+                url
+            ) { openOkHttpApi.getExecute(HttpRequestData(url)) }?.body?.string() ?: return null
+        )
+        json.getOrNull("holiday") ?: return null
         val holidayJson = json.getJSONObject("holiday")
         holidayName = holidayJson.getString("name")
     } catch (e: JSONException) {
@@ -64,7 +73,8 @@ fun egg() {
 }
 
 fun halloweenAndBirthday() {
-    MiscellaneousUtils.showToast(
+    ToastUtil.showText(
+        context,
         "\uD83C\uDF6C\uD83E\uDD70\uD83D\uDE0B\uD83D\uDE1D\uD83D\uDE09",
         Toast.LENGTH_LONG
     )
@@ -81,6 +91,10 @@ fun setAppEggTitleSuffix(sb: SpannableStringBuilder, view: View) {
             getImageSpan(context, R.drawable.ic_rice_dumpling, width, height),
             0
         )
+        Day.HALLOWEEN -> {
+            sb.insert(0, "\uD83C\uDF83 ")
+            sb.append(" \uD83D\uDC7B")
+        }
     }
 }
 
