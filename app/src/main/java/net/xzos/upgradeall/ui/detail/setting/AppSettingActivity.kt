@@ -60,7 +60,7 @@ class AppSettingActivity : AppBarActivity() {
         return true
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_app_setting, menu)
         return true
     }

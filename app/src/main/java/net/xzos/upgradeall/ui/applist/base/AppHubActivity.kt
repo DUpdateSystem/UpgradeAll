@@ -67,7 +67,7 @@ abstract class AppHubActivity(private val mAppType: String) : AppBarActivity() {
         mediator.attach()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.menu_app_list, menu)
         return true

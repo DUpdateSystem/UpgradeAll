@@ -39,7 +39,7 @@ class AppDetailActivity : AppBarActivity() {
         return binding.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.menu_app_detail, menu)
         return true
