@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.databinding.FragmentHubUpdateListBinding
 import net.xzos.upgradeall.ui.applist.base.AppHubListFragment
 
@@ -29,7 +30,10 @@ class UpdateAppHubListFragment :
             rootBinding.tvAppUpdateTip.text =
                 String.format(getString(R.string.hub_format_app_update_tip), triple.first.size)
         })
-        rootBinding.fragmentHubList.listLayout.run {
+        rootBinding.tvUpdateAll.setOnClickListener {
+            viewModel.upgradeAll(it.context)
+        }
+            rootBinding.fragmentHubList.listLayout.run {
             initView(rvList, srlContainer)
         }
         return rootBinding.root
