@@ -55,11 +55,8 @@ dependencies {
     //noinspection DifferentStdlibGradleVersion
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    // kotlin 协程
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2-native-mt'
-
     // database
-    def room_version = '2.3.0'
+    def room_version = '2.4.0-rc01'
     api "androidx.room:room-runtime:$room_version"
     kapt 'org.xerial:sqlite-jdbc:3.36.0' //Work around on Apple Silicon
     kapt "androidx.room:room-compiler:$room_version"
@@ -69,8 +66,8 @@ dependencies {
 
 
     // Gson
-    implementation 'com.google.code.gson:gson:2.8.8'
+    implementation 'com.google.code.gson:gson:2.8.9'
 
     // OkHttp
-    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.2'
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.3'
 }

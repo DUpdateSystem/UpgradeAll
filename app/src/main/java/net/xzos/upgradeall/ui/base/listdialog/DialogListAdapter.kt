@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.RecyclerView
 import net.xzos.upgradeall.ui.base.list.ListItemView
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHandler
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
-import okhttp3.internal.assertThreadDoesntHoldLock
 
 open class DialogListAdapter<L : ListItemView, RHA : RecyclerViewHandler, RH : RecyclerViewHolder<L, RHA, *>>(
         private val dataList: MutableList<L>,
