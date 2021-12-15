@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.ui.applist.base.normal
+package net.xzos.upgradeall.ui.applist.base.applications
 
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
@@ -9,7 +9,7 @@ import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.ui.applist.base.AppHubListItemHandler
 import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
 
-class NormalAppHubListItemHandler : AppHubListItemHandler(){
+class ApplicationsAppHubListItemHandler : AppHubListItemHandler(){
     override fun showPopup(app: App, v: View): Boolean {
         PopupMenu(v.context, v).apply {
             setOnMenuItemClickListener { item ->

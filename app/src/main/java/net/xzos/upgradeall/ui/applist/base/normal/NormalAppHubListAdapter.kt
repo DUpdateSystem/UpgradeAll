@@ -7,12 +7,15 @@ import net.xzos.upgradeall.databinding.ItemHubAppNormalBinding
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 
 class NormalAppHubListAdapter(
-        listContainerViewConvertFun: (App) -> NormalAppListItemView
-) : RecyclerViewAdapter<App, NormalAppListItemView, NormalAppHubListItemHandler, NormalAppHubListViewHolder>(listContainerViewConvertFun) {
-
+    listContainerViewConvertFun: (App) -> NormalAppListItemView,
     override val handler: NormalAppHubListItemHandler = NormalAppHubListItemHandler()
+) : RecyclerViewAdapter<App, NormalAppListItemView, NormalAppHubListItemHandler, NormalAppHubListViewHolder>(
+    listContainerViewConvertFun
+) {
 
-    override fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): NormalAppHubListViewHolder {
+    override fun getViewHolder(
+        layoutInflater: LayoutInflater, viewGroup: ViewGroup
+    ): NormalAppHubListViewHolder {
         val binding = ItemHubAppNormalBinding.inflate(layoutInflater, viewGroup, false)
         return NormalAppHubListViewHolder(binding)
     }
