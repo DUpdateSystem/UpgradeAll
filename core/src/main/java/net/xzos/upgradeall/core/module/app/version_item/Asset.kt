@@ -27,9 +27,10 @@ class Asset private constructor(
         )
 
         fun newInstance(
-            versionNumber: String, hub: Hub, changelog: String?,
+            versionNumber: String?, hub: Hub, changelog: String?,
             _fileAssetList: List<TmpFileAsset>
-        ): Asset {
+        ): Asset? {
+            if (versionNumber == null) return null
             val fileAssetList: List<FileAsset> = _fileAssetList.map {
                 FileAsset(it.name, it.downloadUrl, it.fileType, it.assetIndex, hub)
             }

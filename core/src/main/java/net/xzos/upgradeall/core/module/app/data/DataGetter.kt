@@ -82,7 +82,7 @@ internal class DataGetter(private val dataStorage: DataStorage) {
                     )
                 }
             )
-            assetsList.add(asset)
+            asset?.apply { assetsList.add(this) }
         }
         dataStorage.versionData.addAsset(assetsList, hub.uuid)
     }
