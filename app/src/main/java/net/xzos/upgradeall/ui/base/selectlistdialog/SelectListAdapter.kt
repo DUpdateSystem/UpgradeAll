@@ -29,7 +29,6 @@ class SelectListAdapter(val dataList: MutableList<SelectItem>)
         dataList[toPosition] = dataList[fromPosition].also {
             dataList[fromPosition] = dataList[toPosition]
         }
-        setDataList(dataList)
         notifyItemMoved(fromPosition, toPosition)
     }
 }

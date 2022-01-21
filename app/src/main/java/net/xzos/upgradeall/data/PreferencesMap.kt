@@ -3,6 +3,8 @@ package net.xzos.upgradeall.data
 import android.app.Activity
 import android.content.Context
 import androidx.preference.PreferenceManager
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.data.CoreConfig
@@ -161,6 +163,12 @@ object PreferencesMap {
         if (install_apk_api == "Shizuku") {
             ApkShizukuInstaller.requestShizukuPermission(activity, 1)
             ApkShizukuInstaller.initByActivity(activity, 1)
+        }
+    }
+
+    fun async() {
+        GlobalScope.launch {
+            sync()
         }
     }
 

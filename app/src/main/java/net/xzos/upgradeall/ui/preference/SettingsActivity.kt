@@ -47,6 +47,6 @@ class SettingsActivity : AppBarActivity() {
 
     override fun onPause() {
         super.onPause()
-        PreferencesMap.sync()
+        PreferencesMap.async()
     }
 }

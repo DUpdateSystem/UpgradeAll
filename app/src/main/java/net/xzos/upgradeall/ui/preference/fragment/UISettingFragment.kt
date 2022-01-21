@@ -43,14 +43,12 @@ class UISettingFragment : PrefFragment(R.xml.preferences_ui),
             GlobalScope.launch {
                 val homeBottomMap = PreferencesMap.home_bottom_map
                 val dataList = SelectListDialog.showDialog(
-                    homeBottomMap.map {
-                        SelectItem(
-                            requireContext().getString(
-                                MainActivity.getBeanName(
-                                    it.key
-                                )!!
-                            ), it.key, it.value
-                        )
+                    homeBottomMap.mapNotNull { item ->
+                        MainActivity.getBeanName(item.key)?.let { id ->
+                            SelectItem(
+                                requireContext().getString(id), item.key, item.value
+                            )
+                        }
                     },
                     requireActivity().supportFragmentManager, R.string.home_bottom_queue_setting
                 )
