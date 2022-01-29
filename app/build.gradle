@@ -52,21 +52,21 @@ android {
         dataBinding true
         viewBinding true
     }
+    packagingOptions {
+        jniLibs {
+            excludes += ['META-INF/**', 'kotlin/**', 'org/**']
+        }
+        resources {
+            excludes += ['META-INF/**', 'kotlin/**', 'org/**', '**.properties', '**.bin']
+        }
+    }
 
-    lintOptions {
+
+    dependenciesInfo.includeInApk false
+    lint {
         abortOnError true
         checkReleaseBuilds false
     }
-
-    packagingOptions {
-        exclude 'META-INF/**'
-        exclude 'kotlin/**'
-        exclude 'org/**'
-        exclude '**.properties'
-        exclude '**.bin'
-    }
-
-    dependenciesInfo.includeInApk false
 
 }
 
