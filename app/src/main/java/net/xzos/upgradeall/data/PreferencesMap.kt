@@ -36,7 +36,7 @@ object PreferencesMap {
         get() {
             val customCloudRulesHubUrl =
                 prefs.getString(CUSTOM_CLOUD_RULES_HUB_URL_KEY, "FromUpdateServer")!!
-            return customCloudRulesHubUrl.lowercase(Locale.ENGLISH) == "Custom"
+            return customCloudRulesHubUrl == "Custom"
         }
 
     var cloud_rules_hub_url: String?

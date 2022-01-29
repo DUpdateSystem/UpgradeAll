@@ -11,18 +11,17 @@ import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.data.PreferencesMap.CUSTOM_CLOUD_RULES_HUB_URL_KEY
 import net.xzos.upgradeall.databinding.ViewEditviewBinding
 
-class UpdatesPrefFragment : PrefFragment(R.xml.preferences_update), SharedPreferences.OnSharedPreferenceChangeListener {
+class UpdatesPrefFragment : PrefFragment(R.xml.preferences_update),
+    SharedPreferences.OnSharedPreferenceChangeListener {
 
     override fun onResume() {
         super.onResume()
-        preferenceScreen.sharedPreferences
-                .registerOnSharedPreferenceChangeListener(this)
+        preferenceScreen.sharedPreferences!!.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        preferenceScreen.sharedPreferences
-                .unregisterOnSharedPreferenceChangeListener(this)
+        preferenceScreen.sharedPreferences!!.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
