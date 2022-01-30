@@ -58,11 +58,10 @@ fun getEggDayOnline(): Day? {
         Log.e(logObjectTag, TAG, "getEggDay: ${e.stackTraceToString()}")
         return null
     }
-    return when (holidayName) {
-        "春节" -> Day.CHINESE_NEW_YEAR
-        "端午节" -> Day.DRAGON_BOAT_FESTIVAL
-        else -> null
-    }
+    return if (holidayName.contains("初") || holidayName in listOf("春节", "除夕"))
+        Day.CHINESE_NEW_YEAR
+    else if (holidayName == "端午节") Day.DRAGON_BOAT_FESTIVAL
+    else null
 }
 
 @Suppress("NON_EXHAUSTIVE_WHEN")
@@ -108,5 +107,5 @@ fun getImageSpan(
 }
 
 fun getChineseNewYearExtraText(): String {
-    return "\uD83C\uDFEE"
+    return " \uD83C\uDFEE"
 }
