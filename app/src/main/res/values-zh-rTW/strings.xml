@@ -13,7 +13,7 @@
     <string name="add">新增</string>
     <string name="desc">網址</string>
     <string name="name">名稱</string>
-    <string name="package_id">追蹤目標</string>
+    <string name="package_id">跟蹤目標</string>
     <string name="basic_info">基礎資訊</string>
     <string name="versioning_check_setting">版本控制設定</string>
     <string name="test">測試</string>
@@ -22,7 +22,7 @@
     <string name="restore_default_icon">還原預設圖示</string>
     <string name="export">匯出</string>
     <string name="edit">編輯</string>
-    <string name="initiative_sync_time">資料到期時間(min)</string>
+    <string name="initiative_sync_time">資料過期時間(min)</string>
     <string name="background_sync_time">後臺資料更新時間(h)</string>
     <string name="background_sync_time_desc">軟體在後臺檢查更新的週期\n若週期為0，則禁用後臺更新檢查</string>
     <string name="changelog">更新日誌</string>
@@ -107,10 +107,10 @@
     <string name="detailed_help">\n詳細幫助</string>
     <string name="readme_url">https://upgradeall.now.sh/</string>
 
-    <string name="setting_app_hub_explain">軟體來源（必填）\n透過何種渠道取得更新資訊</string>
-    <string name="setting_app_name_explain">應用程式名稱（選填）\n留空則呼叫軟體來源指令碼，以取得預設應用程式名稱</string>
-    <string name="setting_app_url_explain">應用程式專案主頁網址（必填）\n透過該網址取得應用程式資訊</string>
-    <string name="setting_app_versioning_explain">應用程式目標指向字元（必填）\n透過該字元串確認本地應用程式資訊\n 例如：net.xzos.upgradeall\n 當選擇的版本控制模組不為 Shell 時，\n 會開啟搜尋功能</string>
+    <string name="setting_app_hub_explain">軟體來源（必填）\n透過何種渠道獲取更新資訊</string>
+    <string name="setting_app_name_explain">軟體名稱（選填）\n留空則呼叫軟體來源指令碼，以獲取預設軟體名稱</string>
+    <string name="setting_app_url_explain">軟體專案主頁網址（必填）\n透過該網址獲取軟體資訊</string>
+    <string name="setting_app_versioning_explain">軟體目標指向字元（必填）\n透過該字元串確認本地軟體資訊\n 例如：net.xzos.upgradeall\n 當選擇的版本控制模組不為 Shell 時，\n 會開啟搜尋功能</string>
     <string name="show">顯示</string>
     <string name="hide">隱藏</string>
     <string name="split_line">--------------------------------------------------</string>
@@ -142,7 +142,7 @@
     <string name="add_single_app">新增單個追蹤專案</string>
     <string name="android_app">Android 應用程式</string>
     <string name="shell">SHELL 命令</string>
-    <string name="shell_root">ROOT 授權的 SHELL 命令</string>
+    <string name="shell_root">ROOT 許可權的 SHELL 命令</string>
 
     <string name="please_input_name">請填寫名稱</string>
     <string name="please_do_not_hide_all_bookmark_page">請勿隱藏所有標簽頁，這將導致您難以使用該軟體</string>
@@ -151,7 +151,7 @@
     <string name="long_click_to_delete_image">長按側滑欄圖片可以刪除圖片</string>
     <string name="save_file_successfully">檔案儲存成功</string>
     <string name="save_file_failed">檔案儲存失敗</string>
-    <string name="shizuku_permission_request">請給予本軟體 Shizuku 授權</string>
+    <string name="shizuku_permission_request">請給予本軟體 Shizuku 許可權</string>
     <string name="ucrop_error">uCrop 執行錯誤</string>
     <string name="copied_to_pasteboard">已復制到貼上板</string>
     <string name="download_task_begin">下載任務開始</string>
