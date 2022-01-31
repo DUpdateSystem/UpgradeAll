@@ -49,8 +49,11 @@ class FileTaskerWrapper(
             )
         )
         val urlReplaceUtil = URLReplace(ExtraHubEntityManager.getUrlReplace(hub.uuid))
+
+        @Suppress("UNCHECKED_CAST")
+        val appId = app.appId.filterValues { it != null } as Map<String, String>
         downloadInfoList = app.serverApi.getDownloadInfo(
-            ApiRequestData(hub.uuid, hub.auth, app.appId), fileAsset.assetIndex
+            ApiRequestData(hub.uuid, hub.auth, appId), fileAsset.assetIndex
         ).map {
             it.copy(url = urlReplaceUtil.replaceURL(it.url))
         }

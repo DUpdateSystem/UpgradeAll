@@ -17,7 +17,7 @@ import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 @Entity(tableName = "app")
 data class AppEntity(
     @ColumnInfo(name = "name") var name: String,
-    @ColumnInfo(name = "app_id") var appId: Map<String, String>,
+    @ColumnInfo(name = "app_id") var appId: Map<String, String?>,
     @ColumnInfo(name = "invalid_version_number_field_regex") var invalidVersionNumberFieldRegexString: String? = null,
     @ColumnInfo(name = "ignore_version_number") var ignoreVersionNumber: String? = null,
     @ColumnInfo(name = "cloud_config") var cloudConfig: AppConfigGson? = null,
