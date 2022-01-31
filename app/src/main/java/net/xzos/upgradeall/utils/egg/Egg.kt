@@ -12,7 +12,6 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.androidutils.ToastUtil
-import net.xzos.upgradeall.core.utils.getOrNull
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
@@ -51,8 +50,11 @@ fun getEggDayOnline(): Day? {
                 url
             ) { openOkHttpApi.getExecute(HttpRequestData(url)) }?.body?.string() ?: return null
         )
-        json.getOrNull("holiday") ?: return null
-        val holidayJson = json.getJSONObject("holiday")
+        val holidayJson = try {
+            json.getJSONObject("holiday")
+        } catch (e: JSONException) {
+            return null
+        }
         holidayName = holidayJson.getString("name")
     } catch (e: JSONException) {
         Log.e(logObjectTag, TAG, "getEggDay: ${e.stackTraceToString()}")
@@ -68,6 +70,7 @@ fun getEggDayOnline(): Day? {
 fun egg() {
     when (eggDay) {
         Day.HALLOWEEN -> halloweenAndBirthday()
+        else -> {}
     }
 }
 
@@ -94,6 +97,7 @@ fun setAppEggTitleSuffix(sb: SpannableStringBuilder, view: View) {
             sb.insert(0, "\uD83C\uDF83 ")
             sb.append(" \uD83D\uDC7B")
         }
+        else -> {}
     }
 }
 
