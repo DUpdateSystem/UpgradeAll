@@ -30,6 +30,11 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [enableCrashReporting: "true", appName: "UpgradeAll"]
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    output.outputFileName = "UpgradeAll_${versionName}.apk"
+                }
+            }
         }
         debug {
             minifyEnabled false
