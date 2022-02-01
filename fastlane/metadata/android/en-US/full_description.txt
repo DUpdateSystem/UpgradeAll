@@ -1,0 +1,16 @@
+UpgradeAll is a Free and Open Source Software that simplifies the process of finding updates for Android apps (even you didn't install them), Magisk modules and more. 
+<h3>FAQ</h3>
+<ul>
+<li>Q: How to use?</li>
+<li>A: Just download apk file, install it and run.</li>
+<li>Q: Where's the help document?</li>
+<li>A: Currently we only have [Chinese documents](https://upgradeall.now.sh/).</li>
+</ul>
+<h3>Features</h3>
+<ul>
+<li>Get updates from various sources.</li>
+<li>Download files with external application.</li>
+<li>Highly customizable rules.</li>
+<li>Modern and clean design.</li>
+<li>Supports Android 5.0 to 9 (Not test on android Q)</li>
+</ul>
