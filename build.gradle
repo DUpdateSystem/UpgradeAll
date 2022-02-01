@@ -46,3 +46,9 @@ compileTestKotlin {
         jvmTarget = JavaVersion.VERSION_1_8
     }
 }
+
+if (!project.hasProperty('free')) {
+    project.logger.lifecycle('build with no free lib')
+} else {
+    project.logger.lifecycle('build without no free lib')
+}

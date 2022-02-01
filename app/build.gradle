@@ -175,4 +175,3 @@ tasks.whenTaskAdded { task ->
         task.finalizedBy optimizeReleaseRes
     }
 }
-
