@@ -1,1 +1,1 @@
-检查 Android 应用，Magisk 模块以及其他更新
+Finding updates for Android apps, Magisk modules and more
