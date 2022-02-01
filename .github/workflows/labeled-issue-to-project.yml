@@ -13,7 +13,7 @@ jobs:
         with:
           project: Distributed Update System 看板
           column: 'Android 端需求'
-          repo-token: '${{ secrets.GH_TOKEN }}'
+          repo-token: '${{ secrets.BOT_TOKEN }}'
 
       - name: labeled Solved issue to project
         uses: alex-page/github-project-automation-plus@v0.2.4
@@ -21,7 +21,7 @@ jobs:
         with:
           project: Distributed Update System 看板
           column: 'Android 端已完成'
-          repo-token: '${{ secrets.GH_TOKEN }}'
+          repo-token: '${{ secrets.BOT_TOKEN }}'
 
       - name: labeled bug issue to project
         uses: alex-page/github-project-automation-plus@v0.2.4
@@ -29,4 +29,4 @@ jobs:
         with:
           project: Distributed Update System 看板
           column: 'BUG'
-          repo-token: '${{ secrets.GH_TOKEN }}'
+          repo-token: '${{ secrets.BOT_TOKEN }}'
