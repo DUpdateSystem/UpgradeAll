@@ -12,5 +12,5 @@ UpgradeAll 是自由开源软件，帮助你轻松检查检查 Android 应用（
 <li>通过外部应用下载文件。</li>
 <li>高度可自定义规则。</li>
 <li>现代且简洁的设计。</li>
-<li>支持 Android 5.0 到 9（android Q 未测试）</li>
+<li>支持 Android 5.0 到 12（android S 未测试）</li>
 </ul>
