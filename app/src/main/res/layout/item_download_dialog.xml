@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="net.xzos.upgradeall.ui.detail.download.DownloadItem" />
+
+        <variable
+            name="handler"
+            type="net.xzos.upgradeall.ui.detail.download.DownloadItemHandler" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <View
+            android:id="@+id/decorator"
+            android:layout_width="2dp"
+            android:layout_height="0dp"
+            android:background="@android:color/black"
+            android:backgroundTint="@{item.hubColor}"
+            app:layout_constraintBottom_toBottomOf="@id/tv_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_name" />
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:singleLine="true"
+            android:text="@{item.name}"
+            app:layout_constraintStart_toEndOf="@id/decorator"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/app_name" />
+
+        <TextView
+            android:id="@+id/tv_hub"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:text="@{item.hubName}"
+            app:layout_constraintStart_toStartOf="@id/decorator"
+            app:layout_constraintTop_toBottomOf="@id/tv_name"
+            tools:text="@string/app_hub" />
+
+        <Button
+            android:id="@+id/button_download"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{() -> handler.clickDownload(item.fileAsset)}"
+            android:text="@string/download"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:onLongClickListener="@{() -> handler.longClickDownload(item.fileAsset)}" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

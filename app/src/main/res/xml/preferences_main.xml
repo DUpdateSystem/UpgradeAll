@@ -5,33 +5,39 @@
     android:layout_height="match_parent">
 
     <Preference
-        android:fragment="net.xzos.upgradeall.ui.fragment.setting.preference.UpdatesPrefFragment"
+        android:fragment="net.xzos.upgradeall.ui.preference.fragment.UpdatesPrefFragment"
         app:icon="@drawable/ic_menu_update"
         app:layout="@layout/item_preference"
         app:title="@string/update" />
 
     <Preference
-        android:fragment="net.xzos.upgradeall.ui.fragment.setting.preference.DownloaderFragment"
+        android:fragment="net.xzos.upgradeall.ui.preference.fragment.DownloaderFragment"
         app:icon="@drawable/ic_menu_download"
         app:layout="@layout/item_preference"
         app:title="@string/download" />
 
     <Preference
-        android:fragment="net.xzos.upgradeall.ui.fragment.setting.preference.InstallationFragment"
+        android:fragment="net.xzos.upgradeall.ui.preference.fragment.InstallationFragment"
         app:icon="@drawable/ic_installation"
         app:layout="@layout/item_preference"
         app:title="@string/install" />
 
     <Preference
-        android:fragment="net.xzos.upgradeall.ui.fragment.setting.preference.BackupFragment"
+        android:fragment="net.xzos.upgradeall.ui.preference.fragment.BackupFragment"
         app:icon="@drawable/ic_backup"
         app:layout="@layout/item_preference"
         app:title="@string/backup" />
 
     <Preference
-        android:fragment="net.xzos.upgradeall.ui.fragment.setting.preference.LanguageFragment"
+        android:fragment="net.xzos.upgradeall.ui.preference.fragment.LanguageFragment"
         app:icon="@drawable/ic_language"
         app:layout="@layout/item_preference"
         app:title="@string/language" />
+
+    <Preference
+        android:fragment="net.xzos.upgradeall.ui.preference.fragment.UISettingFragment"
+        app:icon="@drawable/ic_settings_ui"
+        app:layout="@layout/item_preference"
+        app:title="@string/ui" />
 
 </androidx.preference.PreferenceScreen>

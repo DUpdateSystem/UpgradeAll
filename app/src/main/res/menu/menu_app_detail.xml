@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/edit_app"
+        android:title="@string/edit" />
+
+    <item
+        android:id="@+id/change_hub_priority"
+        android:title="@string/change_hub_priority" />
+
+    <item
+        android:id="@+id/ignore_current_version"
+        android:title="@string/ignore_version" />
+</menu>

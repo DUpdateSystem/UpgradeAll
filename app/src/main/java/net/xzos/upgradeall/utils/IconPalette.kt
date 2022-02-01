@@ -15,7 +15,8 @@ import com.devs.vectorchildfinder.VectorChildFinder
 import kotlinx.coroutines.*
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.server_manager.module.app.App
+import net.xzos.upgradeall.core.module.app.App
+import net.xzos.upgradeall.core.androidutils.app_info.getPackageId
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -109,7 +110,7 @@ object IconPalette {
         GlobalScope.launch(coroutineDispatcher) {
             loadIconView(iconImageView,
                     (iconInfo ?: IconInfo(
-                            app_package = app?.appDatabase?.packageId?.extraString
+                            app_package = app?.appId?.getPackageId()?.second
                     )).also {
                         it.drawable = ContextCompat.getDrawable(context, R.drawable.ic_android_placeholder)
                     }

@@ -3,13 +3,14 @@ package net.xzos.upgradeall.application
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import com.akexorcist.localizationactivity.core.LocalizationApplicationDelegate
 import jonathanfinerty.once.Once
-import me.weishu.reflection.Reflection
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.data.constants.OnceTag
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import org.jetbrains.annotations.Contract
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 import java.io.File
 
 class MyApplication : Application() {
@@ -17,8 +18,12 @@ class MyApplication : Application() {
     private val localizationDelegate = LocalizationApplicationDelegate()
 
     override fun attachBaseContext(base: Context) {
-        Reflection.unseal(this) // bypass hidden api restriction, https://github.com/tiann/FreeReflection
-        PreferencesMap.setContext(base)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            HiddenApiBypass.addHiddenApiExemptions("L")
+        }
+
+        PreferencesMap.setContext(fun() = base)
         val local = PreferencesMap.custom_language_locale ?: return super.attachBaseContext(base)
         localizationDelegate.setDefaultLanguage(base, local)
         super.attachBaseContext(localizationDelegate.attachBaseContext(base))
@@ -39,7 +44,7 @@ class MyApplication : Application() {
             }
             Once.markDone(OnceTag.DB_NAME_MIGRATION)
         }
-        MiscellaneousUtils.initData()
+        initCore()
     }
 
     companion object {

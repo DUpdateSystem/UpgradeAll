@@ -4,10 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <SwitchPreferenceCompat
-        android:defaultValue="false"
-        android:title="@string/use_external_downloader"
-        app:key="enforce_use_external_downloader" />
+    <PreferenceCategory app:title="@string/external_downloader_setting">
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:title="@string/use_external_downloader"
+            app:key="enforce_use_external_downloader"
+            app:summary="@string/use_external_downloader_desc" />
+
+        <EditTextPreference
+            app:key="external_downloader_package_name"
+            app:title="@string/external_downloader_package_name"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/built_in_downloader_setting">
 

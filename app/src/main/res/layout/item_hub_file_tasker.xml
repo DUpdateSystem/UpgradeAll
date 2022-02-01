@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="fileItem"
+            type="net.xzos.upgradeall.ui.filemanagement.FileItemView" />
+
+        <variable
+            name="hander"
+            type="net.xzos.upgradeall.ui.filemanagement.FileHubListItemHandler" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/item_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="@{() -> hander.showDialog(fileItem.fileTasker)}"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp"
+                android:background="@null"
+                android:clipToPadding="false"
+                android:paddingHorizontal="16dp">
+
+                <TextView
+                    android:id="@+id/iv_icon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_circle"
+                    android:contentDescription="App icon"
+                    android:gravity="center"
+                    android:text="@{String.valueOf(fileItem.appName.charAt(0))}"
+                    android:textSize="20sp"
+                    android:transitionName="app_icon"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="HardcodedText"
+                    tools:text="A" />
+
+                <TextView
+                    android:id="@+id/tv_app_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="@{fileItem.appName}"
+                    android:textSize="16sp"
+                    android:transitionName="app_name"
+                    app:layout_constraintBottom_toBottomOf="@+id/iv_icon"
+                    app:layout_constraintStart_toEndOf="@id/iv_icon"
+                    app:layout_constraintTop_toTopOf="@id/iv_icon"
+                    tools:text="@string/app_name" />
+
+                <TextView
+                    android:id="@+id/tv_completed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:drawablePadding="4dp"
+                    android:textColor="@color/coolapk_green"
+                    app:drawableLeftCompat="@drawable/bg_circle"
+                    app:drawableTint="@color/coolapk_green"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_downloading"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_downloading"
+                    app:layout_constraintTop_toTopOf="@+id/tv_downloading"
+                    app:layout_constraintVertical_bias="0.0"
+                    tools:text="@string/num_zero" />
+
+                <TextView
+                    android:id="@+id/tv_downloading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:drawablePadding="4dp"
+                    android:textColor="@color/colorBlue"
+                    app:drawableLeftCompat="@drawable/bg_circle"
+                    app:drawableTint="@color/colorBlue"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_paused"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_paused"
+                    app:layout_constraintTop_toTopOf="@+id/tv_paused"
+                    app:layout_constraintVertical_bias="1.0"
+                    tools:text="@string/num_zero" />
+
+                <TextView
+                    android:id="@+id/tv_paused"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:drawablePadding="4dp"
+                    android:textColor="@color/colorOrange"
+                    app:drawableLeftCompat="@drawable/bg_circle"
+                    app:drawableTint="@color/colorOrange"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_failed"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_failed"
+                    app:layout_constraintTop_toTopOf="@+id/tv_failed"
+                    app:layout_constraintVertical_bias="1.0"
+                    tools:text="@string/num_zero" />
+
+                <TextView
+                    android:id="@+id/tv_failed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="4dp"
+                    android:textColor="@color/colorRed"
+                    app:drawableLeftCompat="@drawable/bg_circle"
+                    app:drawableTint="@color/colorRed"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="@string/num_zero" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ProgressBar
+                android:id="@+id/pbDownload"
+                style="@android:style/Widget.Material.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:progressBackgroundTint="@android:color/transparent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:progress="25" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>

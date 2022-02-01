@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="item"
+            type="net.xzos.upgradeall.ui.base.selectlistdialog.SelectItem" />
+
+        <variable
+            name="handler"
+            type="net.xzos.upgradeall.ui.base.selectlistdialog.SelectItemHandler" />
+    </data>
+
+    <LinearLayout xmlns:tool="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/ibDrag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="0"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/drag"
+            app:srcCompat="@drawable/baseline_drag_indicator" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="@={item.enableObservable.enable}"
+            android:text="@{item.name}"
+            tool:text="Switch" />
+
+    </LinearLayout>
+</layout>

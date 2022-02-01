@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="appItem"
+            type="net.xzos.upgradeall.ui.applist.base.BaseAppListItemView" />
+
+        <variable
+            name="handler"
+            type="net.xzos.upgradeall.ui.applist.base.AppHubListItemHandler" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/item_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:clipToPadding="false"
+        android:onClick="@{(view) -> handler.onClickApp(appItem.app, view)}"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        app:onLongClickListener="@{(view) -> handler.showPopup(appItem.app, view)}">
+
+        <TextView
+            android:id="@+id/iv_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@{appItem.appIcon}"
+            android:backgroundTint="@{appItem.iconBackgroundTint}"
+            android:gravity="center"
+            android:text="@{appItem.nameFirst}"
+            android:textSize="20sp"
+            android:transitionName="app_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:background="@mipmap/ic_launcher_round" />
+
+        <TextView
+            android:id="@+id/tv_app_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@{appItem.appName}"
+            android:textSize="16sp"
+            android:transitionName="app_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_icon"
+            app:layout_constraintTop_toTopOf="@id/iv_icon"
+            tools:text="@string/app_name" />
+
+        <include
+            android:id="@+id/version_number_layout"
+            layout="@layout/content_version_number"
+            android:layout_width="wrap_content"
+            app:item="@{appItem.versionItem}"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:fontFamily="sans-serif-condensed"
+            android:transitionName="version_name"
+            app:layout_constraintStart_toEndOf="@id/iv_icon"
+            app:layout_constraintTop_toBottomOf="@id/tv_app_name" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

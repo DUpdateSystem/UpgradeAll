@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="android.content.Context" />
+
+        <variable
+            name="viewmodel"
+            type="net.xzos.upgradeall.ui.filemanagement.tasker_dialog.FileTaskerViewModel" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/standard_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp">
+
+            <net.xzos.upgradeall.ui.base.view.AppListRecyclerView
+                android:id="@+id/rv_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                app:fitsSystemWindowsInsets="bottom"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/cg_tag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:layout_marginTop="4dp"
+            app:singleLine="true" />
+
+        <LinearLayout
+            android:id="@+id/ll_btns"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:layout_marginTop="4dp">
+
+            <Button
+                android:id="@+id/installButton"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:onClick="@{() -> viewmodel.onInstall(context)}"
+                android:text="@string/install"
+                android:visibility="@{viewmodel.installButtonVisibility ? View.VISIBLE : View.GONE}" />
+
+            <Button
+                android:id="@+id/openDirButton"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:onClick="@{(view) -> viewmodel.onOpen()}"
+                android:text="@string/open"
+                android:visibility="@{viewmodel.openFileButtonVisibility? View.VISIBLE : View.GONE}" />
+
+            <Button
+                android:id="@+id/pauseButton"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:onClick="@{() -> viewmodel.onPause()}"
+                android:text="@string/pause"
+                android:visibility="@{viewmodel.pauseButtonVisibility ? View.VISIBLE : View.GONE}" />
+
+            <Button
+                android:id="@+id/resumeButton"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:onClick="@{() -> viewmodel.onResume()}"
+                android:text="@string/Continue"
+                android:visibility="@{viewmodel.resumeButtonVisibility ? View.VISIBLE : View.GONE}" />
+
+            <Button
+                android:id="@+id/retryButton"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:onClick="@{() -> viewmodel.onRetry()}"
+                android:text="@string/retry"
+                android:visibility="@{viewmodel.retryButtonVisibility? View.VISIBLE: View.GONE}" />
+
+            <Button
+                android:id="@+id/deleteButton"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="@{() -> viewmodel.onDelete()}"
+                android:text="@string/delete"
+                android:visibility="@{viewmodel.deleteButtonVisibility? View.VISIBLE: View.GONE}" />
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>
