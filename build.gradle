@@ -47,8 +47,6 @@ compileTestKotlin {
     }
 }
 
-if (!project.hasProperty('free')) {
-    project.logger.lifecycle('build with no free lib')
-} else {
+if (project.hasProperty('free')) {
     project.logger.lifecycle('build without no free lib')
 }

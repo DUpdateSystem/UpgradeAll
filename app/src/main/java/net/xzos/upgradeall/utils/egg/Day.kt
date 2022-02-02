@@ -1,5 +1,7 @@
 package net.xzos.upgradeall.utils.egg
 
 enum class Day {
-    HALLOWEEN, CHINESE_NEW_YEAR, DRAGON_BOAT_FESTIVAL
+    HALLOWEEN, // 万圣节
+    CHINESE_NEW_YEAR, // 新年
+    DRAGON_BOAT_FESTIVAL, // 端午节
 }

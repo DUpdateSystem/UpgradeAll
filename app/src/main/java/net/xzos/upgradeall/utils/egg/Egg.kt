@@ -7,18 +7,13 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import com.nlf.calendar.util.HolidayUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.androidutils.ToastUtil
-import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
-import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
-import net.xzos.upgradeall.core.websdk.web.http.OkHttpApi.Companion.callHttpFunc
-import net.xzos.upgradeall.core.websdk.web.http.openOkHttpApi
-import org.json.JSONException
-import org.json.JSONObject
 import java.util.*
 
 private const val TAG = "Egg"
@@ -28,39 +23,19 @@ private val eggDay by lazy { runBlocking(Dispatchers.Default) { getEggDayOrNull(
 
 fun getEggDayOrNull(): Day? {
     val cal = Calendar.getInstance()
+    val year = cal.get(Calendar.YEAR)
     val month = cal.get(Calendar.MONTH) + 1
     val day = cal.get(Calendar.DATE)
     return when {
         month == 10 && day == 31 -> Day.HALLOWEEN
-        else -> getEggDayOnline()
+        else -> getEggDayLunar(year, month, day)
     }
 }
 
-fun getEggDayOnline(): Day? {
-    val cal = Calendar.getInstance()
-    val year = cal.get(Calendar.YEAR)
-    val month = cal.get(Calendar.MONTH) + 1
-    val day = cal.get(Calendar.DATE)
-    val url = "http://timor.tech/api/holiday/info/$year-$month-$day"
-    val holidayName: String
-    try {
-        val json = JSONObject(
-            callHttpFunc(
-                logObjectTag,
-                url
-            ) { openOkHttpApi.getExecute(HttpRequestData(url)) }?.body?.string() ?: return null
-        )
-        val holidayJson = try {
-            json.getJSONObject("holiday")
-        } catch (e: JSONException) {
-            return null
-        }
-        holidayName = holidayJson.getString("name")
-    } catch (e: JSONException) {
-        Log.e(logObjectTag, TAG, "getEggDay: ${e.stackTraceToString()}")
-        return null
-    }
-    return if (holidayName.contains("初") || holidayName in listOf("春节", "除夕"))
+private fun getEggDayLunar(year: Int, month: Int, day: Int): Day? {
+    val d = HolidayUtil.getHoliday(year, month, day) ?: return null
+    val holidayName = d.name
+    return if (holidayName in listOf("春节", "除夕") || holidayName.contains("初"))
         Day.CHINESE_NEW_YEAR
     else if (holidayName == "端午节") Day.DRAGON_BOAT_FESTIVAL
     else null
