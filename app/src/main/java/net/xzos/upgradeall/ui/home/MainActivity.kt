@@ -7,6 +7,8 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.androidutils.ToastUtil
+import net.xzos.upgradeall.core.androidutils.runUiFun
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.Updater
 import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
@@ -22,8 +24,6 @@ import net.xzos.upgradeall.ui.home.adapter.*
 import net.xzos.upgradeall.ui.hubmanager.HubManagerActivity
 import net.xzos.upgradeall.ui.log.LogActivity
 import net.xzos.upgradeall.ui.preference.SettingsActivity
-import net.xzos.upgradeall.core.androidutils.ToastUtil
-import net.xzos.upgradeall.core.androidutils.runUiFun
 import net.xzos.upgradeall.utils.UxUtils
 
 
@@ -38,7 +38,7 @@ class MainActivity : BaseActivity() {
         setContentView(binding.root)
         initView()
 
-        checkUpdate()
+        if (PreferencesMap.auto_start_update) checkUpdate()
         PreferencesMap.initByActivity(this)
     }
 

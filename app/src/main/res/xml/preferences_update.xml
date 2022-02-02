@@ -18,6 +18,11 @@
     <PreferenceCategory app:title="@string/auto_update_setting">
         <SwitchPreferenceCompat
             android:defaultValue="true"
+            android:title="@string/auto_start_update"
+            app:key="auto_start_update" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
             android:summary="@string/auto_update_app_config_desc"
             android:title="@string/auto_update_app_config"
             app:key="auto_update_app_config" />

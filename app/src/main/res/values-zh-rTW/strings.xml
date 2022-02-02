@@ -96,6 +96,7 @@
     <string name="loading">載入中…</string>
     <string name="add_apps">新增</string>
     <string name="group_name">分組名稱</string>
+    <string name="auto_start_update">進入主頁時自動更新數據</string>
     <string name="auto_update_hub_config">自動更新軟體來源設定</string>
     <string name="auto_update_hub_config_desc">當進入雲端設定頁面時，檢查從雲端倉庫下載的軟體來源，並當有新版本時自動更新軟體來源設定</string>
     <string name="auto_update_app_config">自動更新追蹤專案設定</string>

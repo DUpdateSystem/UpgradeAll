@@ -46,6 +46,8 @@ object PreferencesMap {
         get() = prefs.getString(UPDATE_SERVER_URL_KEY, DEF_UPDATE_SERVER_URL)!!
         set(value) = prefs.edit().putString(UPDATE_SERVER_URL_KEY, value).apply()
 
+    val auto_start_update: Boolean
+        get() = prefs.getBoolean("auto_start_update", true)
     val auto_update_app_config: Boolean
         get() = prefs.getBoolean("auto_update_app_config", true)
     val auto_update_hub_config: Boolean

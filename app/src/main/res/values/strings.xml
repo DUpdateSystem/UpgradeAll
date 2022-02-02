@@ -98,6 +98,7 @@
     <string name="group_name">分组名称</string>
     <string name="auto_update_hub_config">自动更新软件源配置</string>
     <string name="auto_update_hub_config_desc">当进入云端配置页面时，检查从云端仓库下载的软件源，并当有新版本时自动更新软件源配置</string>
+    <string name="auto_start_update">进入主页时自动更新数据</string>
     <string name="auto_update_app_config">自动更新跟踪项配置</string>
     <string name="auto_update_app_config_desc">当进入云端配置页面时，检查从云端仓库下载的跟踪项，并当有新版本时自动更新跟踪项配置</string>
     <string name="auto_update_setting">自动更新设置</string>

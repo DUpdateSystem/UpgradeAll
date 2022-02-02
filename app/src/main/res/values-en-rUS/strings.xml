@@ -91,6 +91,7 @@
     <string name="loading">loading…</string>
     <string name="add_apps">Add App</string>
     <string name="group_name">Group Name</string>
+    <string name="auto_start_update">Auto update data when entering the home page</string>
     <string name="auto_update_hub_config">Auto Update Hub Config</string>
     <string name="auto_update_hub_config_desc">When entering the Cloud Rules Hub page, check the hub config downloaded from the cloud hub and automatically update it when a new version is available.</string>
     <string name="auto_update_app_config">Auto Update App Config</string>
