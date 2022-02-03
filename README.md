@@ -42,15 +42,15 @@ Check updates for Android apps, Magisk modules and more!
 
 1. If you want to install `UpgradeAll`, first select a channel from above, find the latest version, download and install it.
 
-2. Then open it, find app sources u need in `App Hub` page then open it
+2. Then open it, find app sources u need in `App Hub` page then open it.
 
 3. After selecting the sources you want to use, go back to main screen, go to `Discover` page and wait a moment, then find / search for the apps / modules you need.
 
 4. Now, go back to main screen and go to `Apps` page, you can see all the updates of your installed / added apps / modules.
 
-- **The app market mode will automatically check for updates to your installed apps when it opens**.
+- **The app market mode will automatically check for updates to your installed apps when it opens**
 
-- You can also visit [here](https://upgradeall.now.sh/guide/#%E9%80%9A%E8%BF%87%E4%BA%91%E7%AB%AF%E4%BB%93%E5%BA%93%E6%B7%BB%E5%8A%A0%E8%BD%AF%E4%BB%B6) for a more detailed graphic tutorial .
+- You can also visit [here](https://upgradeall.now.sh/guide/#%E9%80%9A%E8%BF%87%E4%BA%91%E7%AB%AF%E4%BB%93%E5%BA%93%E6%B7%BB%E5%8A%A0%E8%BD%AF%E4%BB%B6) for a more detailed graphic tutorial.
 
 
 ## 🎈 Features
@@ -58,11 +58,11 @@ Check updates for Android apps, Magisk modules and more!
 - Download files via external applications.
 - Highly customizable rules.
 - Modern and clean design.
-- Supports Android 5.0 to 12L (Android 12L not tested)
+- Supports Android 5.0 to 12L (Android 12L not tested).
 
 
 ## ❓ FAQ
-During the use of the application, you may encounter some problems, this document may help you to solve the difficulties you encounter: [FAQ](https://upgradeall.now.sh/faq/#%E4%BA%91%E7%AB%AF%E4%BB%93%E5%BA%93%E7%BD%91%E7%BB%9C%E9%94%99%E8%AF%AF)
+During the use of the application, you may encounter some problems, this document may help you to solve the difficulties you encounter: [FAQ](https://upgradeall.now.sh/faq/#%E4%BA%91%E7%AB%AF%E4%BB%93%E5%BA%93%E7%BD%91%E7%BB%9C%E9%94%99%E8%AF%AF).
 
 
 ## 💬 Exchange Group
@@ -108,7 +108,7 @@ If you are familier with multiple languages,Plese help us introduce it to the wh
 
 
 ## 📖 License
-Use of this software code is **subject to the following license agreement**  
+Use of this software code is **subject to the following license agreement**:  
 [GNU General Public License v3.0](https://github.com/DUpdateSystem/UpgradeAll/blob/master/LICENSE)
 
 

@@ -56,7 +56,7 @@
 - 通过外部应用下载文件。
 - 高度可自定义规则。
 - 现代且简洁的设计。
-- 支持 Android 5.0 到 12L（Android 12L 未测试）
+- 支持 Android 5.0 到 12L（Android 12L 未测试）。
 
 
 ## ❓ 常见问题
@@ -102,11 +102,11 @@
 - Traditional Chinese
 - English
 
-如果您会多种语言，请帮助我们翻译这个软件吧!
+如果您会多种语言，请帮助我们翻译这个软件吧！
 
 
 ## 📖 许可证
-使用此软件代码需**遵循以下许可证协议**  
+使用此软件代码需**遵循以下许可证协议**：  
 [GNU General Public License v3.0](https://github.com/DUpdateSystem/UpgradeAll/blob/master/LICENSE)
 
 
