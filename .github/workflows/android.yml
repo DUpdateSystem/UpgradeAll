@@ -1,6 +1,12 @@
 name: Android CI
 
-on: [ push, pull_request ]
+on:  
+  push: 
+  pull_request:
+    paths-ignore:
+      - 'source/**'
+      - '**.md'
+      - '.github/**'
 jobs:
   build:
     name: Build
@@ -30,7 +36,7 @@ jobs:
       - name: Build with Gradle
         run: bash ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease
       - name: Sign Android release
-        if: success() && github.repository == 'DUpdateSystem/UpgradeAll'
+        if: success() && github.repository == 'DUpdateSystem/UpgradeAll' && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         id: sign
         uses: r0adkll/sign-android-release@v1.0.4
         env:
