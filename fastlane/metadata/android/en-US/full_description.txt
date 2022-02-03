@@ -12,5 +12,5 @@ UpgradeAll is a Free and Open Source Software that simplifies the process of fin
 <li>Download files with external application.</li>
 <li>Highly customizable rules.</li>
 <li>Modern and clean design.</li>
-<li>Supports Android 5.0 to 12 (Not test on android S)</li>
+<li>Supports Android 5.0 to 12L (Not test on Android 12L)</li>
 </ul>
