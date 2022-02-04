@@ -72,7 +72,7 @@ You can join our exchange group by clicking cards below:
 
 
 ## 📃 Developer Documentation
-All developer documentation for `UpgradeAll`, including the cloud directory structure, tracking entries, writing the software source configuration, etc., is located in [Here](https://upgradeall.now.sh/dev), if you find any documentation missing or incorrect, please submit [Issue](https://github.com/) DUpdateSystem/UpgradeAll/issues) for clarification.
+All developer documentation for `UpgradeAll`, including the cloud directory structure, tracking entries, writing the software source configuration, etc., is located in [Here](https://upgradeall.now.sh/dev), if you find any documentation missing or incorrect, please raise an [Issue](https://github.com/DUpdateSystem/UpgradeAll/issues).
 
 
 ## 😊 Acknowledgements  
