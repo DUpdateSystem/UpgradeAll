@@ -4,7 +4,7 @@ UpgradeAll 是自由开源软件，帮助你轻松检查检查 Android 应用（
 <li>Q: 如何使用？</li>
 <li>A: 下载 apk 文件，安装并运行。</li>
 <li>Q: 哪里有帮助文档？</li>
-<li>A: 目前我们只有[中文文档](https://upgradeall.now.sh/)。</li>
+<li>A: 目前我们只有<a href="https://upgradeall.now.sh/">中文文档</a>。</li>
 </ul>
 <h3>功能</h3>
 <ul>

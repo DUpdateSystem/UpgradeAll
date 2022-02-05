@@ -4,7 +4,7 @@ UpgradeAll is a Free and Open Source Software that simplifies the process of fin
 <li>Q: How to use?</li>
 <li>A: Just download apk file, install it and run.</li>
 <li>Q: Where's the help document?</li>
-<li>A: Currently we only have [Chinese documents](https://upgradeall.now.sh/).</li>
+<li>A: Currently we only have <a href="https://upgradeall.now.sh/">Chinese documents</a>.</li>
 </ul>
 <h3>Features</h3>
 <ul>
