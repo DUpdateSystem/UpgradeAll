@@ -1,6 +1,16 @@
 name: Android CI
 
-on: [ push, pull_request ]
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - 'source/**'
+      - '**.md'
+      - '.github/**'
+      - 'fastlane/**'
+  pull_request:
+  workflow_dispatch:
+
 jobs:
   build:
     name: Build
@@ -30,7 +40,7 @@ jobs:
       - name: Build with Gradle
         run: bash ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease
       - name: Sign Android release
-        if: success() && github.repository == 'DUpdateSystem/UpgradeAll'
+        if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         id: sign
         uses: r0adkll/sign-android-release@v1.0.4
         env:
@@ -42,7 +52,7 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
       - name: Upload built apk
-        if: success() && github.repository == 'DUpdateSystem/UpgradeAll'
+        if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v2
         with:
           name: snapshot
@@ -54,18 +64,19 @@ jobs:
           name: mappings
           path: "app/build/outputs/mapping/release"
       - name: Get apk info
+        if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         id: apk-info
         uses: hkusu/apk-info-action@v1
         with:
           apk-path: ${{ steps.sign.outputs.signedReleaseFile }}
       - name: Upload mappings with App Center CLI
-        if: success() && github.repository == 'DUpdateSystem/UpgradeAll'
+        if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         uses: avocaddo/AppCenter-Github-Action@v1.0.2
         with:
           command: appcenter crashes upload-mappings --mapping app/build/outputs/mapping/release/mapping.txt --version-name ${{ steps.apk-info.outputs.version-name }} --version-code ${{ steps.apk-info.outputs.version-code }} --app DUpdateSystem/UpgradeAll
           token: ${{secrets.APP_CENTER_TOKEN}}
       - name: Send commit to Telegram
-        if: success() && github.repository == 'DUpdateSystem/UpgradeAll' && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/master' }}
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
