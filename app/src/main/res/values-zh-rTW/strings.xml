@@ -109,7 +109,8 @@
     <string name="update_info">更新資料</string>
     <string name="update_status_prompt">升級提示符</string>
     <string name="waiting_check_update">檢查更新中…</string>
-    <string name="example_update_overview">%d 個應用程式中的 %d 個需要升級</string>
+    <string name="example_update_overview" formatted="false">%d 個應用程式中的 %d 個需要升級</string>
+    <!-- Example -->
     <!--  Home  -->
     <string name="home_checking_updates">正在檢查更新…</string>
     <string name="home_check_updates">檢查更新</string>
@@ -187,7 +188,7 @@
     <string name="download_service_running">下載服務執行中</string>
     <string name="use_external_downloader_desc">目前內建下載器未準備好，預設使用外部下載器</string>
     <!-- Installable File Type -->
-    <string name="apk">APK</string>
+    <string name="apk">安裝包</string>
     <!-- Hub Setting -->
     <string name="global_setting">全域性設定</string>
     <string name="use_global_setting">使用全域性設定</string>
