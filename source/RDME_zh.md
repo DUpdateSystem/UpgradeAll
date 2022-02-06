@@ -12,6 +12,7 @@
 检查 Android 应用，Magisk 模块以及其他更新！
 <br><br>
 [![Release Builder](https://github.com/DUpdateSystem/UpgradeAll/actions/workflows/android.yml/badge.svg)](https://github.com/DUpdateSystem/UpgradeAll/actions/workflows/android.yml)
+[![Crowdin](https://badges.crowdin.net/upgradeall/localized.svg)](https://crowdin.com/project/upgradeall)
 
 </div>
 
@@ -29,6 +30,7 @@
 - [😊 鸣谢](#-鸣谢)
 - [♾️ 数据源](#%EF%B8%8F-数据源)
 - [🌐 语言支持](#-语言支持)
+    - [ℹ️ 如何翻译](#如何将-upgradeall-翻译成您的语言)
 - [📖 许可证](#-许可证)
 - [⚖️ 法律声明](#%EF%B8%8F-法律声明)
 - [🧩 截图](#-截图)
@@ -104,6 +106,9 @@
 
 如果您会多种语言，请帮助我们翻译这个软件吧！
 
+### ℹ️ 如何将 UpgradeAll 翻译成您的语言？
+
+你可以在 [Crowdin](https://crowdin.com/project/upgradeall) 上翻译它。
 
 ## 📖 许可证
 使用此软件代码需**遵循以下许可证协议**：  
