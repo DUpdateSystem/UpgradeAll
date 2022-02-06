@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">UpgradeAll</string>
     <string name="help">幫助</string>
@@ -33,7 +34,6 @@
     <string name="update_server_url">升級服務 URL</string>
     <string name="menu_search">搜尋</string>
     <string name="menu_search_hint">搜尋…</string>
-
     <string name="download">下載</string>
     <string name="install">安裝</string>
     <string name="install_success">安裝成功</string>
@@ -96,18 +96,16 @@
     <string name="loading">載入中…</string>
     <string name="add_apps">新增</string>
     <string name="group_name">分組名稱</string>
-    <string name="auto_start_update">進入主頁時自動更新資料</string>
     <string name="auto_update_hub_config">自動更新軟體來源設定</string>
     <string name="auto_update_hub_config_desc">當進入雲端設定頁面時，檢查從雲端倉庫下載的軟體來源，並當有新版本時自動更新軟體來源設定</string>
+    <string name="auto_start_update">進入主頁時自動更新資料</string>
     <string name="auto_update_app_config">自動更新追蹤專案設定</string>
     <string name="auto_update_app_config_desc">當進入雲端設定頁面時，檢查從雲端倉庫下載的追蹤專案，並當有新版本時自動更新追蹤專案設定</string>
     <string name="auto_update_setting">自動更新設定</string>
     <string name="enable_applications_mode">啟動應用程式市場模式</string>
     <string name="enable_applications_mode_desc">應用程式將取得裝置安裝的所有應用程式資訊，以從已啟用的軟體來源中檢測更新，其使用方式與一般的應用程式市場類似</string>
-
     <string name="detailed_help">\n詳細幫助</string>
     <string name="readme_url">https://upgradeall.now.sh/</string>
-
     <string name="setting_app_hub_explain">軟體來源（必填）\n透過何種渠道獲取更新資訊</string>
     <string name="setting_app_name_explain">軟體名稱（選填）\n留空則呼叫軟體來源指令碼，以獲取預設軟體名稱</string>
     <string name="setting_app_url_explain">軟體專案主頁網址（必填）\n透過該網址獲取軟體資訊</string>
@@ -115,7 +113,6 @@
     <string name="show">顯示</string>
     <string name="hide">隱藏</string>
     <string name="split_line">--------------------------------------------------</string>
-
     <string name="whether_download_dependency_hub">是否下載缺失的依賴軟體來源</string>
     <string name="start_download_dependency_hub">開始下載缺失的依賴軟體來源</string>
     <string name="long_click_to_use_external_downloader">長按以使用外部下載器下載</string>
@@ -144,7 +141,6 @@
     <string name="android_app">Android 應用程式</string>
     <string name="shell">SHELL 命令</string>
     <string name="shell_root">ROOT 許可權的 SHELL 命令</string>
-
     <string name="please_input_name">請填寫名稱</string>
     <string name="please_do_not_hide_all_bookmark_page">請勿隱藏所有標簽頁，這將導致您難以使用該軟體</string>
     <string name="network_error">網路錯誤</string>
@@ -184,7 +180,6 @@
     <string name="backup_stop">備份完成</string>
     <string name="dialog_title_select_download_item">選擇下載項</string>
     <string name="btn_add_extra">新增附加項</string>
-
     <string name="ui">介面</string>
     <string name="enable_bottom_sheet">平鋪選單按鈕</string>
     <string name="enable_simple_bottom_main">在主頁以簡略圖示顯示按鈕</string>
@@ -194,14 +189,11 @@
     <string name="custom">自定義</string>
     <string name="system_installer">系統預設安裝器</string>
     <string name="plz_restart">請重啟應用程式</string>
-
     <string name="download_auto_retry_max_attempts">下載任務重試次數</string>
-
     <string name="built_in_downloader_setting">內建下載器設定</string>
     <string name="external_downloader_setting">外接下載器設定</string>
     <string name="external_downloader_package_name">外接下載器程式包名</string>
     <string name="use_external_downloader">強制使用外接下載器</string>
-
     <!--  Home  -->
     <string name="home_checking_updates">正在檢查更新…</string>
     <string name="home_check_updates">檢查更新</string>
@@ -216,7 +208,6 @@
     <string name="home_settings">設定</string>
     <string name="home_about">關於</string>
     <string name="force_renew">強制更新</string>
-
     <!--  Hub  -->
     <string name="hub_tab_updates">更新</string>
     <string name="hub_tab_all">全部</string>
@@ -227,7 +218,6 @@
     <string name="hub_ignore_all">全部忽略</string>
     <string name="num_zero">0</string>
     <string name="percent_temp">d %</string>
-
     <!-- APP Detail-->
     <string name="version_number">版本號</string>
     <string name="waiting">等待中</string>
@@ -240,7 +230,6 @@
     <string name="change_hub_priority">軟體來源優先級</string>
     <string name="more_url">更多網址</string>
     <string name="download_loading">準備開始下載</string>
-
     <!-- APP Setting -->
     <string name="edit_app">編輯追蹤專案</string>
     <string name="ok">確認</string>
@@ -257,7 +246,6 @@
     <string name="helper_text_attr_cant_be_empty">屬性列表不能為空</string>
     <string name="updating_setting">更新設定</string>
     <string name="custom_invalid_version_number_field_regex">自定義無效版本號欄位的正規表示式</string>
-
     <!-- File Manager -->
     <string name="save_as">另存</string>
     <string name="show_download_tasker">檢視下載進度</string>
@@ -265,20 +253,15 @@
     <string name="Continue">繼續</string>
     <string name="open">開啟</string>
     <string name="open_file">開啟檔案</string>
-
     <string name="drag">拖動</string>
-
     <!-- UI Setting -->
     <string name="home_bottom_queue_setting">自定義主頁按鈕列表</string>
-
     <!-- UI Setting -->
     <string name="applications_setting">應用程式市場設定</string>
     <string name="ignore_system_app">忽略系統應用程式</string>
     <string name="ignore_system_app_desc">不使用應用程式市場模式檢查系統應用程式</string>
-
     <!-- Other -->
     <string name="download_dir_check_filed">下載檔案夾檢查失效</string>
-
     <!-- Update Notification -->
     <string name="update_service">更新服務</string>
     <string name="update_service_desc">顯示更新服務狀態</string>
@@ -288,7 +271,6 @@
     <string name="update_format_app_update_tip">%d 個應用程式更新</string>
     <string name="update_progress">更新進度</string>
     <string name="click_open_homepage">點按開啟應用程式主頁</string>
-
     <!-- Download Notification -->
     <string name="file_download">檔案下載</string>
     <string name="download_paused">下載已暫停</string>
@@ -299,10 +281,8 @@
     <string name="waiting_pre_process">等待預處理完成</string>
     <string name="download_service_running">下載服務執行中</string>
     <string name="use_external_downloader_desc">目前內建下載器未準備好，預設使用外部下載器</string>
-
     <!-- Installable File Type -->
     <string name="apk">APK</string>
-
     <!-- Hub Setting -->
     <string name="global_setting">全域性設定</string>
     <string name="use_global_setting">使用全域性設定</string>

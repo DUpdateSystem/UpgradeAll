@@ -32,6 +32,8 @@
     <string name="cloud_rules">Cloud Rules Hub</string>
     <string name="cloud_rules_repo_url">Cloud Rules Repo URL</string>
     <string name="update_server_url">Update Server URL</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_search_hint">Search…</string>
     <string name="download">Download</string>
     <string name="install">Install</string>
     <string name="install_success">Installation success</string>
@@ -59,6 +61,8 @@
     <string name="navigation_head_image">Navigation Head Image</string>
     <string name="clean_sort_log">Clean current sort\'s log</string>
     <string name="clean_all_log">Clean all log</string>
+    <string name="clean_sort_log_alert_message">It will drop current sort logs</string>
+    <string name="clean_all_log_alert_message">It will drop all logs</string>
     <string name="export_all">Export All</string>
     <string name="clean_log">Clean Log</string>
     <string name="other">Other</string>
@@ -75,7 +79,7 @@
     <string name="add_group">Add Group</string>
     <string name="add_hub">Add Hub</string>
     <string name="example_number">0</string>
-    <string name="example_update_overview">Total Applications: %d, Need Upgrade:%d</string>
+    <string name="example_update_overview" formatted="false">Total Applications: %d, Need Upgrade:%d</string>
     <string name="update_status_prompt">Update Status Prompt</string>
     <string name="waiting_check_update">Checking for updates......</string>
     <string name="local_version_number">Local</string>
@@ -87,13 +91,14 @@
     <string name="latest_version_number">Latest</string>
     <string name="cloud_version_number">Cloud</string>
     <string name="null_english">NULL</string>
+    <string name="please_grant_storage_perm">Please give this software read and write storage space permission</string>
     <string name="more_other_version_number">More version numbers</string>
     <string name="loading">loading…</string>
     <string name="add_apps">Add App</string>
     <string name="group_name">Group Name</string>
-    <string name="auto_start_update">Auto update data when entering the home page</string>
     <string name="auto_update_hub_config">Auto Update Hub Config</string>
     <string name="auto_update_hub_config_desc">When entering the Cloud Rules Hub page, check the hub config downloaded from the cloud hub and automatically update it when a new version is available.</string>
+    <string name="auto_start_update">Auto update data when entering the home page</string>
     <string name="auto_update_app_config">Auto Update App Config</string>
     <string name="auto_update_app_config_desc">When entering the Cloud Rules Hub page, check the app config downloaded from the cloud hub and automatically update it when a new version is available.</string>
     <string name="auto_update_setting">Auto Update Setting</string>
@@ -143,7 +148,6 @@
     <string name="long_click_to_delete_image">Long press on the sidebar image to delete the image</string>
     <string name="save_file_successfully">File saved successfully</string>
     <string name="save_file_failed">File save failed</string>
-    <string name="please_grant_storage_perm">Please give this software read and write storage space permission</string>
     <string name="shizuku_permission_request">Please give this software Shizuku permission</string>
     <string name="ucrop_error">uCrop Error</string>
     <string name="copied_to_pasteboard">Copied to clipboard</string>
@@ -176,7 +180,6 @@
     <string name="backup_stop">Backup complete</string>
     <string name="dialog_title_select_download_item">Please select item</string>
     <string name="btn_add_extra">Add Extra Info</string>
-
     <string name="ui">UI</string>
     <string name="enable_bottom_sheet">enable bottom sheet</string>
     <string name="enable_simple_bottom_main">show simple bottom on main page</string>
@@ -186,25 +189,26 @@
     <string name="custom">Custom</string>
     <string name="system_installer">System Installer</string>
     <string name="plz_restart">Please restart app</string>
-    <string name="menu_search">Search</string>
-    <string name="menu_search_hint">Search…</string>
     <string name="download_auto_retry_max_attempts">Auto Retry Max Attempts</string>
-
     <string name="built_in_downloader_setting">Built-in Downloader Setting</string>
     <string name="external_downloader_setting">External Downloader Setting</string>
-    <string name="use_external_downloader">Forcing the use of external downloader</string>
     <string name="external_downloader_package_name">External Downloader Package Name</string>
+    <string name="use_external_downloader">Forcing the use of external downloader</string>
+    <!--  Home  -->
     <string name="home_checking_updates">Checking updates…</string>
     <string name="home_check_updates">Check updates</string>
-    <string name="home_format_items_need_update">%d tracking item(s) need to be updated</string>
+    <string name="home_module_discovery">Discover</string>
     <string name="home_module_file_management">File Management</string>
     <string name="home_module_apps">Apps</string>
     <string name="home_module_magisk_module">Magisk modules</string>
     <string name="home_module_rss">RSS</string>
     <string name="home_module_others">Others</string>
+    <string name="home_format_items_need_update">%d tracking item(s) need to be updated</string>
     <string name="home_log">Logs</string>
     <string name="home_settings">Settings</string>
     <string name="home_about">About</string>
+    <string name="force_renew">Force Renew</string>
+    <!--  Hub  -->
     <string name="hub_tab_updates">Updates</string>
     <string name="hub_tab_all">All</string>
     <string name="hub_tab_ignored">Ignored</string>
@@ -212,11 +216,9 @@
     <string name="hub_format_app_update_tip">A total of %d app(s) updates</string>
     <string name="hub_update_all">Update all</string>
     <string name="hub_ignore_all">Ignore all</string>
-    <string name="home_module_discovery">Discover</string>
-    <string name="clean_all_log_alert_message">It will drop all logs</string>
-    <string name="clean_sort_log_alert_message">It will drop current sort logs</string>
     <string name="num_zero">0</string>
     <string name="percent_temp">d %</string>
+    <!-- APP Detail-->
     <string name="version_number">Version Number</string>
     <string name="waiting">Waiting</string>
     <string name="queued">Queued</string>
@@ -228,8 +230,6 @@
     <string name="change_hub_priority">Change Hub Priority</string>
     <string name="more_url">More URL</string>
     <string name="download_loading">Loading Download</string>
-    <string name="force_renew">Force Renew</string>
-
     <!-- APP Setting -->
     <string name="edit_app">Edit App</string>
     <string name="ok">OK</string>
@@ -246,27 +246,22 @@
     <string name="helper_text_attr_cant_be_empty">Attributes List not empty</string>
     <string name="updating_setting">Updating Setting</string>
     <string name="custom_invalid_version_number_field_regex">Custom the regex of invalid version number field</string>
-
+    <!-- File Manager -->
     <string name="save_as">Save As</string>
     <string name="show_download_tasker">View the download progress</string>
     <string name="pause">Pause</string>
     <string name="Continue">Continue</string>
     <string name="open">Open</string>
     <string name="open_file">Open file</string>
-
     <string name="drag">Drag</string>
-
     <!-- UI Setting -->
     <string name="home_bottom_queue_setting">Custom home button list</string>
-
     <!-- UI Setting -->
     <string name="applications_setting">Applications Mode Setting</string>
     <string name="ignore_system_app">Ignore System Apps</string>
     <string name="ignore_system_app_desc">Do not enable applications mode for system apps</string>
-
     <!-- Other -->
     <string name="download_dir_check_filed">Download folder check failed</string>
-
     <!-- Update Notification -->
     <string name="update_service">Update Service</string>
     <string name="update_service_desc">Show update service status</string>
@@ -276,7 +271,6 @@
     <string name="update_format_app_update_tip">%d app(s) updates</string>
     <string name="update_progress">Update Progress</string>
     <string name="click_open_homepage">Tap to open the app homepage</string>
-
     <!-- Download Notification -->
     <string name="file_download">File Download</string>
     <string name="download_paused">Download Paused</string>
@@ -287,10 +281,8 @@
     <string name="waiting_pre_process">Wait for pre-processing to complete</string>
     <string name="download_service_running">Download Service is running</string>
     <string name="use_external_downloader_desc">Currently the built-in downloader is not ready, the default is to use an external downloader</string>
-
     <!-- Installable File Type -->
     <string name="apk">APK</string>
-
     <!-- Hub Setting -->
     <string name="global_setting">Global Setting</string>
     <string name="use_global_setting">Use Global Setting</string>
