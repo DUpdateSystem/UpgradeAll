@@ -16,4 +16,5 @@
 .externalNativeBuild
 /keystore.properties
 /crowdin.properties
+/crowdin.cli.yml
 #/core/src/main/proto/
