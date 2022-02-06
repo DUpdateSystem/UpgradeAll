@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">UpgradeAll</string>
     <string name="help">帮助</string>
     <string name="update">更新</string>
     <string name="backup">备份</string>
@@ -47,8 +46,6 @@
     <string name="background_image">背景图片</string>
     <string name="apps_logo">软件图标</string>
     <string name="nothing_in_there"><![CDATA[这里好像什么也没有(>﹏<)]]></string>
-    <string name="example_version_number">0.0.0</string>
-    <string name="null_english">NULL</string>
     <string name="please_grant_storage_perm">请授予存储读写权限</string>
     <string name="add_apps">添加应用</string>
     <string name="auto_update_hub_config">自动更新软件源配置</string>
@@ -125,7 +122,6 @@
     <string name="hub_format_app_update_tip">共 %d 个应用更新</string>
     <string name="hub_update_all">全部升级</string>
     <string name="hub_ignore_all">全部忽略</string>
-    <string name="num_zero">0</string>
     <!-- APP Detail-->
     <string name="version_number">版本号</string>
     <string name="waiting">等待中</string>

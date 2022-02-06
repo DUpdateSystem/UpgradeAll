@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">UpgradeAll</string>
+    <string name="app_name" translatable="false">UpgradeAll</string>
     <string name="help">Help</string>
     <string name="update">Update</string>
     <string name="backup">Backup</string>
@@ -47,8 +47,8 @@
     <string name="background_image">Background Image</string>
     <string name="apps_logo">App Logo</string>
     <string name="nothing_in_there"><![CDATA[There\'s nothing here. (>﹏<)]]></string>
-    <string name="example_version_number">0.0.0</string>
-    <string name="null_english">NULL</string>
+    <string name="example_version_number" translatable="false">0.0.0</string>
+    <string name="null_english" translatable="false">NULL</string>
     <string name="please_grant_storage_perm">Please give this software read and write storage space permission</string>
     <string name="add_apps">Add App</string>
     <string name="auto_update_hub_config">Auto Update Hub Config</string>
@@ -125,7 +125,7 @@
     <string name="hub_format_app_update_tip">A total of %d app(s) updates</string>
     <string name="hub_update_all">Update all</string>
     <string name="hub_ignore_all">Ignore all</string>
-    <string name="num_zero">0</string>
+    <string name="num_zero" translatable="false">0</string>
     <!-- APP Detail-->
     <string name="version_number">Version Number</string>
     <string name="waiting">Waiting</string>
