@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app">软件</string>
     <string name="help">帮助</string>
     <string name="update">更新</string>
     <string name="backup">备份</string>
@@ -103,6 +104,12 @@
     <string name="external_downloader_setting">外置下载器设置</string>
     <string name="external_downloader_package_name">外置下载器包名</string>
     <string name="use_external_downloader">强制使用外置下载器</string>
+    <string name="update_status_identifier">更新状态标识</string>
+    <string name="end">到底啦</string>
+    <string name="update_info">更新数据</string>
+    <string name="update_status_prompt">升级提示符</string>
+    <string name="waiting_check_update">检查更新中…</string>
+    <string name="example_update_overview">%d 个应用中的 %d 个需要升级</string>
     <!--  Home  -->
     <string name="home_checking_updates">正在检查更新…</string>
     <string name="home_check_updates">检查更新</string>

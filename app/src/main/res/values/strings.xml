@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app">App</string>
     <string name="app_name" translatable="false">UpgradeAll</string>
     <string name="help">Help</string>
     <string name="update">Update</string>
@@ -47,7 +48,6 @@
     <string name="background_image">Background Image</string>
     <string name="apps_logo">App Logo</string>
     <string name="nothing_in_there"><![CDATA[There\'s nothing here. (>﹏<)]]></string>
-    <string name="example_version_number" translatable="false">0.0.0</string>
     <string name="null_english" translatable="false">NULL</string>
     <string name="please_grant_storage_perm">Please give this software read and write storage space permission</string>
     <string name="add_apps">Add App</string>
@@ -106,6 +106,17 @@
     <string name="external_downloader_setting">External Downloader Setting</string>
     <string name="external_downloader_package_name">External Downloader Package Name</string>
     <string name="use_external_downloader">Forcing the use of external downloader</string>
+    <string name="update_status_identifier">Update Status Identifier</string>
+    <string name="end">That\'s the end.</string>
+    <string name="update_info">Update Info</string>
+    <string name="update_status_prompt">Update Status Prompt</string>
+    <string name="waiting_check_update">Checking for updates......</string>
+    <string name="example_update_overview" formatted="false">Total Applications: %d, Need Upgrade:%d</string>
+    <!-- Example -->
+    <string name="example_name" translatable="false">Example Name</string>
+    <string name="example_version_number" translatable="false">0.0.0</string>
+    <string name="example_number" translatable="false">0</string>
+    <string name="example_package_name" translatable="false">com.example.app</string>
     <!--  Home  -->
     <string name="home_checking_updates">Checking updates…</string>
     <string name="home_check_updates">Check updates</string>
