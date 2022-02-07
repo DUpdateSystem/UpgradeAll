@@ -109,7 +109,8 @@
     <string name="update_info">更新数据</string>
     <string name="update_status_prompt">升级提示符</string>
     <string name="waiting_check_update">检查更新中…</string>
-    <string name="example_update_overview">%d 个应用中的 %d 个需要升级</string>
+    <string name="example_update_overview" formatted="false">%d 个应用中的 %d 个需要升级</string>
+    <!-- Example -->
     <!--  Home  -->
     <string name="home_checking_updates">正在检查更新…</string>
     <string name="home_check_updates">检查更新</string>
