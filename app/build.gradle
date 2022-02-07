@@ -133,7 +133,7 @@ dependencies {
     implementation 'dev.rikka.rikkax.layoutinflater:layoutinflater:1.2.0'
 
     //RecyclerView
-    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.6'
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.7'
 
     // 日历
     implementation 'com.github.6tail:lunar-java:v1.2.18'
