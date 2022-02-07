@@ -58,13 +58,13 @@
 
     <string-array name="language_list">
         <item>
-            en_US
+            en-US
         </item>
         <item>
-            zh_CN
+            zh-CN
         </item>
         <item>
-            zh_TW
+            zh-TW
         </item>
         <item>
             pt-BR

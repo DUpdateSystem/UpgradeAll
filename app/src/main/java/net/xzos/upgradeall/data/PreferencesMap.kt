@@ -119,7 +119,7 @@ object PreferencesMap {
         get() {
             return if (locale_custom) {
                 val (language, country) = prefs.getString(LANGUAGE_LOCALE_CODE_KEY, null)
-                    ?.split("_")
+                    ?.split("_", "-") // 兼容旧版本错误的下划线语言代码格式
                     ?: return null
                 Locale(language, country)
             } else {
