@@ -19,8 +19,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 94
-        versionName "0.12-rc"
+        versionCode 95
+        versionName "0.12-rc.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
@@ -129,7 +129,7 @@ dependencies {
     implementation 'com.github.kobakei:MaterialFabSpeedDial:master-SNAPSHOT'
     // svg 单个 path 颜色切换
     implementation 'com.github.devsideal:VectorChildFinder:1.0.0'
-    implementation 'dev.rikka.rikkax.insets:insets:1.1.1'
+    implementation 'dev.rikka.rikkax.insets:insets:1.2.0'
     implementation 'dev.rikka.rikkax.layoutinflater:layoutinflater:1.2.0'
 
     //RecyclerView

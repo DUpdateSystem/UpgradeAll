@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28"></uses-permission>
+        android:maxSdkVersion="28" />
     <uses-permission android:name="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE" />
 
     <application
@@ -69,19 +69,19 @@
         </activity>
         <activity
             android:name=".ui.hubmanager.HubManagerActivity"
-            android:label="@string/app_hub"></activity>
+            android:label="@string/app_hub" />
         <activity
             android:name=".ui.applist.magisk.MagiskModuleActivity"
-            android:label="@string/home_module_magisk_module"></activity>
+            android:label="@string/home_module_magisk_module" />
         <activity
             android:name=".ui.applist.apps.AppsActivity"
-            android:label="@string/home_module_apps"></activity>
+            android:label="@string/home_module_apps" />
         <activity
             android:name=".ui.filemanagement.FileManagementActivity"
-            android:label="@string/home_module_file_management"></activity>
+            android:label="@string/home_module_file_management" />
         <activity
             android:name=".ui.discover.DiscoverActivity"
-            android:label="@string/home_module_discovery"></activity>
+            android:label="@string/home_module_discovery" />
         <activity android:name=".ui.detail.AppDetailActivity" />
         <activity
             android:name=".ui.detail.setting.AppSettingActivity"
