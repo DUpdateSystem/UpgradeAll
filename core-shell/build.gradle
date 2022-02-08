@@ -37,6 +37,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     // shell
-    api 'eu.darken.rxshell:core:1.0.9'
+    api 'eu.darken.rxshell:core:3.0.0'
     implementation 'eu.darken.rxshell:root:3.0.0'
 }
