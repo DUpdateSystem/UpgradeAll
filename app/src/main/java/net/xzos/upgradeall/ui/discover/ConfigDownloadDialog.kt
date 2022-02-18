@@ -14,7 +14,9 @@ import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.manager.GetStatus
+import net.xzos.upgradeall.core.manager.getAppId
 import net.xzos.upgradeall.core.module.app.getConfigJson
+import net.xzos.upgradeall.databinding.DialogDiscoverAppInfoBinding
 
 class ConfigDownloadDialog(
     private val uuid: String,
@@ -38,6 +40,10 @@ class ConfigDownloadDialog(
             appConfig.info.desc?.run {
                 builder.setMessage(this)
             }
+            val contentView = DialogDiscoverAppInfoBinding.inflate(layoutInflater)
+            contentView.tvAppId.text = appConfig.getAppId().toString()
+            contentView.tvUrl.text = appConfig.info.url
+            builder.setView(contentView.root)
             builder.setTitle(appConfig.info.name)
                 .setPositiveButton(
                     positiveButtonText
