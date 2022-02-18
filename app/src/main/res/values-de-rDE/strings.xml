@@ -195,4 +195,7 @@
     <string name="download_url_replace_rule">URL-Ersetzungsregel herunterladen</string>
     <string name="match_rule">Gleiche Regel</string>
     <string name="replace_string">Zeichenkette ersetzen</string>
+    <string name="url">URL</string>
+    <string name="app_base_hub">Base APP Hub</string>
+    <string name="app_id">APP ID</string>
 </resources>
