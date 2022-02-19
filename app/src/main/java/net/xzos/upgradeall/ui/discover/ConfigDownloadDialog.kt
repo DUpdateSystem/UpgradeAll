@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.androidutils.ToastUtil
+import net.xzos.upgradeall.core.androidutils.app_info.getPackageId
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.manager.GetStatus
@@ -41,7 +42,7 @@ class ConfigDownloadDialog(
                 builder.setMessage(this)
             }
             val contentView = DialogDiscoverAppInfoBinding.inflate(layoutInflater)
-            contentView.tvAppId.text = appConfig.getAppId().toString()
+            contentView.tvAppId.text = appConfig.getAppId()?.getPackageId()?.second.toString()
             contentView.tvUrl.text = appConfig.info.url
             builder.setView(contentView.root)
             builder.setTitle(appConfig.info.name)
