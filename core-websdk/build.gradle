@@ -42,5 +42,5 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.9.0'
 
     // OkHttp
-    api 'com.squareup.okhttp3:okhttp:5.0.0-alpha.4'
+    api 'com.squareup.okhttp3:okhttp:5.0.0-alpha.5'
 }
