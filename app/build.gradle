@@ -120,7 +120,7 @@ dependencies {
 
     // 图片加载
     implementation 'com.github.bumptech.glide:glide:4.13.0'
-    kapt 'com.github.bumptech.glide:compiler:4.13.0'
+    kapt 'com.github.bumptech.glide:compiler:4.13.1'
 
     // 界面设计
     // Google MD 库
