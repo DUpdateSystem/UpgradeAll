@@ -50,7 +50,7 @@
 
 - **打开应用市场模式后会自动检查您已安装软件的更新**
 
-- 您也可以前往 [此处](https://upgradeall.now.sh/guide/#%E9%80%9A%E8%BF%87%E4%BA%91%E7%AB%AF%E4%BB%93%E5%BA%93%E6%B7%BB%E5%8A%A0%E8%BD%AF%E4%BB%B6) 查看更详细的图文教程 。
+- 您也可以前往 [此处](https://github.com/DUpdateSystem/UpgradeAll/wiki) 查看更详细的图文教程 。
 
 
 ## 🎈 功能
@@ -62,7 +62,7 @@
 
 
 ## ❓ 常见问题
-在应用的使用过程中，你可能会碰到一些问题，这篇文档也许可以帮助你解决遇到的困难：[常见问题](https://upgradeall.now.sh/faq/#%E4%BA%91%E7%AB%AF%E4%BB%93%E5%BA%93%E7%BD%91%E7%BB%9C%E9%94%99%E8%AF%AF)
+在应用的使用过程中，你可能会碰到一些问题，这篇文档也许可以帮助你解决遇到的困难：[常见问题](https://github.com/DUpdateSystem/UpgradeAll/wiki/FAQ)
 
 
 ## 💬 交流群
@@ -103,6 +103,8 @@
 - Simplified Chinese
 - Traditional Chinese
 - English
+- Brazilian Portuguese
+- German
 
 如果您会多种语言，请帮助我们翻译这个软件吧！
 

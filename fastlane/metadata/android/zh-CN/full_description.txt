@@ -1,10 +1,10 @@
-UpgradeAll 是自由开源软件，帮助你轻松检查检查 Android 应用（即使没有安装），Magisk 模块以及其他更新。
+UpgradeAll 是一款自由开源软件，帮助你轻松检查 Android 应用（即使没有安装），Magisk 模块以及其他更新。
 <h3>FAQ</h3>
 <ul>
 <li>Q: 如何使用？</li>
 <li>A: 下载 apk 文件，安装并运行。</li>
 <li>Q: 哪里有帮助文档？</li>
-<li>A: 目前我们只有<a href="https://upgradeall.now.sh/">中文文档</a>。</li>
+<li>A: 你可以在<a href="https://github.com/DUpdateSystem/UpgradeAll/wiki">这里</a>查看。</li>
 </ul>
 <h3>功能</h3>
 <ul>

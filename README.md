@@ -1,4 +1,4 @@
-English | [Simplified Chinese](./source/RDME_zh.md)
+English | [简体中文](./source/RDME_zh.md)
 <p align="center">
 <img src="https://avatars.githubusercontent.com/u/59827079?s=90&v=4"/>
 </p>
@@ -52,7 +52,7 @@ Check updates for Android apps, Magisk modules and more!
 
 - **The app market mode will automatically check for updates to your installed apps when it opens**
 
-- You can also visit [here](https://upgradeall.now.sh/guide/#%E9%80%9A%E8%BF%87%E4%BA%91%E7%AB%AF%E4%BB%93%E5%BA%93%E6%B7%BB%E5%8A%A0%E8%BD%AF%E4%BB%B6) for a more detailed graphic tutorial.
+- You can also visit [here](https://github.com/DUpdateSystem/UpgradeAll/wiki) for a more detailed graphic tutorial.
 
 
 ## 🎈 Features
@@ -64,7 +64,7 @@ Check updates for Android apps, Magisk modules and more!
 
 
 ## ❓ FAQ
-During the use of the application, you may encounter some problems, this document may help you to solve the difficulties you encounter: [FAQ](https://upgradeall.now.sh/faq/#%E4%BA%91%E7%AB%AF%E4%BB%93%E5%BA%93%E7%BD%91%E7%BB%9C%E9%94%99%E8%AF%AF).
+During the use of the application, you may encounter some problems, this document may help you to solve the difficulties you encounter: [FAQ](https://github.com/DUpdateSystem/UpgradeAll/wiki/FAQ).
 
 
 ## 💬 Exchange Group
@@ -105,6 +105,8 @@ Currently, the following officially supported sources are available:
 - Simplified Chinese
 - Traditional Chinese
 - English
+- Brazilian Portuguese
+- German
 
 If you are familier with multiple languages,Plese help us introduce it to the whole world!
 ### ℹ️ How to translate UpgradeAll to your language?
@@ -117,7 +119,7 @@ Use of this software code is **subject to the following license agreement**:
 
 
 ## ⚖️ Legal Notices
-UpgradeAll (hereinafter referred to as "this product") is an all-in-one software download and update tool. All software and materials provided herein are provided by the author of the software and recommended by users and may not be used for any commercial purposes. The copyright of the software provided in this product belongs to the software author. Users are free to choose whether to use the software provided in this product. If the user downloads, installs and uses the software provided in this product, it means that the user trusts the author of the software, and I am not responsible for any form of loss or injury that may be caused to the user or others when using the software provided in this product for any reason. Any unit or individual who believes that the software provided through this product may be suspected of infringing their legal rights and interests should provide me (email: xiangzhedev@gmail.com) with written feedback and proof of identity, proof of ownership and detailed proof of infringement, and I will remove the allegedly infringing software as soon as possible after receiving the above legal documents. Some of the free software in this product comes from the Internet, due to some reasons we were not able to contact the author of the free software, if the author of the software has any objections to the use of this product to provide downloads, updates, are welcome to contact us to communicate. I will give within the specified time to delete and other related processing. Any dispute arising out of or in connection with this product shall be settled by friendly consultation between the parties; if consultation fails, either party may submit the dispute in question to the Nanjing Arbitration Commission and arbitrate it in accordance with its arbitration rules then in effect; the arbitration award shall be final and binding on all parties.
+UpgradeAll（以下简称“本产品”）是一个集软件下载、更新于一体的工具。本软件提供的所有软件和资料均为软件作者提供及网友推荐发布，不得用于任何商业用途。本产品中提供的软件之著作权归软件作者所有。用户可以自由选择是否使用本产品提供的软件。如果用户下载、安装、使用本产品中所提供的软件，即表明用户信任该软件作者，本人对任何原因在使用本产品中提供的软件时可能对用户自己或他人造成的任何形式的损失和伤害不承担责任。任何单位或个人认为通过本产品提供的软件可能涉嫌侵犯其合法权益，应该及时向本人（邮箱：xiangzhedev@gmail.com）书面反馈，并提供身份证明、权属证明及详细侵权情况证明，本人在收到上述法律文件后，将会尽快移除被控侵权软件。本产品中的部分免费软件来源于互联网，由于某些原因我们没能联系上免费软件作者，如果软件作者对使用本产品提供下载、更新有任何异议，都欢迎与我们联系沟通。本人将在规定时间内给予删除等相关处理。因本产品引起的或与本产品有关的任何争议，各方应友好协商解决；协商不成的，任何一方均可将有关争议提交至南京仲裁委员会并按照其届时有效的仲裁规则仲裁；仲裁裁决是终局的，对各方均有约束力。
 
 
 ## 🧩 Screenshot
