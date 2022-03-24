@@ -153,7 +153,7 @@ dependencies {
     if (!project.hasProperty('free')) {
         // Firebase
         implementation 'com.google.firebase:firebase-perf:20.0.6'
-        implementation 'com.google.firebase:firebase-analytics:20.1.1'
+        implementation 'com.google.firebase:firebase-analytics:20.1.2'
         implementation 'com.google.firebase:firebase-crashlytics:18.2.9'
     }
 }
