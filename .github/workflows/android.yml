@@ -67,14 +67,14 @@ jobs:
         if: ${{ !github.event.pull_request }}
         with:
           path: './app/build/outputs/apk/debug/*'
-          name: build_debug_${{ github.event.head_commit.id }}
+          name: build_debug_${{ env.VERSION }}
           
       - name: Upload release apk
         uses: actions/upload-artifact@v3
         if: ${{ !github.event.pull_request }}
         with:
           path: ${{ steps.sign.outputs.signedReleaseFile }}
-          name: build_release_${{ github.event.head_commit.id }}
+          name: build_release_${{ env.VERSION }}
           
       - name: Get apk info
         if: ${{ !github.event.pull_request }}
