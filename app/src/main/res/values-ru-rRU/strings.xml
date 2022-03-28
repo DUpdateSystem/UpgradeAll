@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app">App</string>
-    <string name="help">Help</string>
+    <string name="app">Приложение</string>
+    <string name="help">Помощь</string>
     <string name="update">Update</string>
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>
