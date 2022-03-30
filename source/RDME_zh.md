@@ -1,6 +1,6 @@
-[英语](../README.md) | 简体中文
+[English](../README.md) | 简体中文
 <p align="center">
-<img src="https://avatars.githubusercontent.com/u/59827079?s=90&v=4"/>
+<img src="./icon.svg" height="80"/>
 </p>
 
 <div align="center">
