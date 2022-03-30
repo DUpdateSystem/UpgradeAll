@@ -1,6 +1,6 @@
 English | [简体中文](./source/RDME_zh.md)
 <p align="center">
-<img src="https://avatars.githubusercontent.com/u/59827079?s=90&v=4"/>
+<img src="./source/icon.svg" height="80"/>
 </p>
 
 <div align="center">
