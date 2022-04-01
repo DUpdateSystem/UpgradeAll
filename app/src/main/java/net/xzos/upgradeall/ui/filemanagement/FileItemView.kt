@@ -3,15 +3,15 @@ package net.xzos.upgradeall.ui.filemanagement
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import androidx.databinding.ObservableField
-import com.tonyodev.fetch2.Status
+import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadStatus
+import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadStatusSnap
 import net.xzos.upgradeall.core.downloader.filedownloader.item.Downloader
-import net.xzos.upgradeall.core.downloader.filetasker.FileTasker
 import net.xzos.upgradeall.ui.base.list.ActivityListItemView
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
-import net.xzos.upgradeall.wrapper.download.FileTaskerWrapper
+import net.xzos.upgradeall.wrapper.download.DownloadTasker
 
 class FileItemView(
-    name: String, val fileTasker: FileTaskerWrapper,
+    name: String, val fileTasker: DownloadTasker,
 ) : BaseAppIconItem, ActivityListItemView {
     private val numUtil = DownloadTaskerNumUtil(fileTasker.downloader)
     suspend fun getDownloadingNum() = numUtil.getDownloadingNum().toString()
@@ -31,17 +31,20 @@ class FileItemView(
 
 class DownloadTaskerNumUtil(private val downloader: Downloader?) {
 
-    suspend fun getDownloadingNum() = getDownloadNumByStatus(Status.DOWNLOADING)
-    suspend fun getPauseNum() = getDownloadNumByStatus(Status.PAUSED)
-    suspend fun getCompletedNum() = getDownloadNumByStatus(Status.COMPLETED)
-    suspend fun getFailedNum() = getDownloadNumByStatus(Status.FAILED)
+    suspend fun getDownloadingNum() = getDownloadNumByStatus(DownloadStatus.RUNNING)
+    suspend fun getPauseNum() = getDownloadNumByStatus(DownloadStatus.STOP)
+    suspend fun getCompletedNum() = getDownloadNumByStatus(DownloadStatus.COMPLETE)
+    suspend fun getFailedNum() = getDownloadNumByStatus(DownloadStatus.FAIL)
     suspend fun getDownloadProgress() = downloader?.getDownloadProgress() ?: -1
 
-    private suspend fun getDownloadNumByStatus(status: Status): Int {
-        return this.downloader?.getDownloadNumByStatus(status) ?: 0
+    private fun getDownloadNumByStatus(status: DownloadStatus) =
+        getDownloadNumByStatus { it.status == status }
+
+    private fun getDownloadNumByStatus(predicate: (DownloadStatusSnap) -> Boolean): Int {
+        return this.downloader?.getDownloadNumByStatus(predicate) ?: 0
     }
 
-    private suspend fun Downloader.getDownloadNumByStatus(status: Status): Int {
-        return getDownloadList().filter { status == it.status }.size
+    private fun Downloader.getDownloadNumByStatus(predicate: (DownloadStatusSnap) -> Boolean): Int {
+        return downloader?.getStatusList()?.filter(predicate)?.size ?: 0
     }
 }

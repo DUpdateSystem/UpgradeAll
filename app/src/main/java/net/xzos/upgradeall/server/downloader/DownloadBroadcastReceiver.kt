@@ -7,22 +7,23 @@ import android.util.Log
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.wrapper.download.fileTaskerManagerWrapper
+import net.xzos.upgradeall.wrapper.download.DownloadTaskerManager
 import net.xzos.upgradeall.wrapper.download.installFileTasker
 
 class DownloadBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val fileTaskerId = intent.getStringExtra(EXTRA_IDENTIFIER_FILE_TASKER_ID) ?: return
-        val fileTasker = fileTaskerManagerWrapper.getFileTasker(idString = fileTaskerId) ?: return
-        val notification = DownloadNotificationManager.getNotification(fileTaskerId) ?: return
+        val fileTasker = DownloadTaskerManager.getFileTasker(fileTaskerId) ?: return
+        val downloader = fileTasker.downloader ?: return
+        val notification = DownloadNotificationManager.getNotification(fileTasker) ?: return
         when (intent.getIntExtra(EXTRA_IDENTIFIER_FILE_TASKER_CONTROL, -1)) {
-            DOWNLOAD_RETRY -> fileTasker.retry()
-            DOWNLOAD_PAUSE -> fileTasker.pause()
-            DOWNLOAD_CONTINUE -> fileTasker.resume()
+            DOWNLOAD_RETRY -> downloader.retry()
+            DOWNLOAD_PAUSE -> downloader.pause()
+            DOWNLOAD_CONTINUE -> downloader.resume()
             DOWNLOAD_CANCEL -> {
                 notification.cancelNotification()
-                fileTasker.cancel()
+                downloader.cancel()
             }
             NOTIFY_CANCEL -> notification.cancelNotification()
             INSTALL_APK -> GlobalScope.launch {

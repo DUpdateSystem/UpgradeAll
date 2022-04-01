@@ -4,10 +4,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <application>
-        <service
-            android:name=".service.DownloadService"
-            android:enabled="true"
-            android:exported="false" />
     </application>
 
 </manifest>

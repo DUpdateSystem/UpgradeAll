@@ -206,4 +206,5 @@
     <string name="example_url" translatable="false">https://example.com/</string>
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
+    <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
 </resources>

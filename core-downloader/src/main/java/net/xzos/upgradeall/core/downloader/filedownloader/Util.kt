@@ -2,23 +2,12 @@ package net.xzos.upgradeall.core.downloader.filedownloader
 
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
-import com.tonyodev.fetch2.Error
 import net.xzos.upgradeall.core.downloader.filedownloader.item.Downloader
-import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerManager
-import net.xzos.upgradeall.core.downloader.service.DownloadService
 import net.xzos.upgradeall.core.utils.log.Log
 import java.io.File
 import java.util.*
 
 private const val DOWNLOAD_CANCELLED = "DOWNLOAD_CANCELLED"
-
-fun renewDownloadServiceStatus() {
-    if (DownloaderManager.getDownloaderList().isEmpty()
-        || FileTaskerManager.getFileTaskerList().isEmpty()
-    ) {
-        DownloadService.close()
-    }
-}
 
 fun getDownloadDirDocumentFile(name: String, parent: DocumentFile): DocumentFile {
     return parent.createDirectory(name) ?: throw DownloadFileError(parent, name).apply {

@@ -28,6 +28,11 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
         <activity
+            android:name=".ui.detail.setting.NeoAppSettingActivity"
+            android:exported="false"
+            android:label="@string/title_activity_neo_app_setting"
+            android:theme="@style/AppTheme" />
+        <activity
             android:name=".ui.restore.RestoreActivity"
             android:exported="false" />
 

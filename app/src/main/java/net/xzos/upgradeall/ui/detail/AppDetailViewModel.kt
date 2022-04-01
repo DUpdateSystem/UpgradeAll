@@ -6,14 +6,11 @@ import android.text.SpannableStringBuilder
 import android.widget.ArrayAdapter
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.tonyodev.fetch2.Download
-import com.tonyodev.fetch2.Status
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadOb
+import net.xzos.upgradeall.core.androidutils.app_info.getPackageId
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version_item.FileAsset
-import net.xzos.upgradeall.core.androidutils.app_info.getPackageId
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
 import net.xzos.upgradeall.ui.data.livedata.AppViewModel
 import net.xzos.upgradeall.utils.setValueBackground
@@ -74,18 +71,6 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun updateData() {
         appViewModel.updateData()
-    }
-
-    // 下载状态信息
-    private val obFun = fun(d: Download) { downloadData.setDownload(d) }
-    val waitDownload = {
-        downloadData.setDownloadProgress(0)
-        downloadData.setDownloadStatus(Status.NONE)
-    }
-
-    val failDownload = fun(_: Throwable) {
-        downloadData.setDownloadProgress(-1)
-        downloadData.setDownloadStatus(Status.FAILED)
     }
 
     var currentVersion: Version? = null
