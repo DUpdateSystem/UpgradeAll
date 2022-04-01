@@ -162,7 +162,7 @@ dependencies {
     // Integration with ViewModels
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0-alpha01'
     // UI Tests
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.0.5'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
     // Compose Theme Adapter
     implementation "com.google.accompanist:accompanist-appcompat-theme:0.24.5-alpha"
 
