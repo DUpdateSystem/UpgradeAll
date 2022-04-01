@@ -156,7 +156,7 @@ dependencies {
     // Compose Material Design
     implementation 'androidx.compose.material:material:1.1.1'
     // Animations
-    implementation 'androidx.compose.animation:animation:1.1.0'
+    implementation 'androidx.compose.animation:animation:1.1.1'
     // Tooling support (Previews, etc.)
     implementation 'androidx.compose.ui:ui-tooling:1.1.1'
     // Integration with ViewModels
