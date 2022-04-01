@@ -19,21 +19,22 @@ internal object DownloaderManager {
     }
 
     internal fun addDownloader(downloader: Downloader) {
-        getDownloader(downloader.downloadId)?.run {
+        val id = downloader.downloadId
+        getDownloader(id)?.run {
             throw MultipleSameIdDownloaderException(downloadId)
         }
-        DownloadRegister.registerOb(downloader.downloadId, downloader.downloadOb)
+        DownloadRegister.registerDownloader(downloader)
         downloaderList.add(downloader)
     }
 
     internal fun removeDownloader(downloader: Downloader) {
         DownloadRegister.unRegisterId(downloader.downloadId)
         downloaderList.remove(downloader)
-        renewDownloadServiceStatus()
     }
 }
 
-internal class MultipleSameIdDownloaderException(private val downloadId: DownloadId) : IOException() {
+internal class MultipleSameIdDownloaderException(private val downloadId: DownloadId) :
+    IOException() {
     override fun toString(): String {
         return "DownloaderList exist same id downloader($downloadId) in DownloaderManager."
     }

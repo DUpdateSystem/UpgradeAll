@@ -30,7 +30,7 @@ class FileHubListViewHolder(private val binding: ItemHubFileTaskerBinding)
                 binding.tvDownloading.text = downloadingNum
                 binding.tvPaused.text = pausedNum
                 binding.tvFailed.text = failedNum
-                binding.pbDownload.progress = downloadProgress
+                binding.pbDownload.progress = downloadProgress.toInt()
             }
         }
     }

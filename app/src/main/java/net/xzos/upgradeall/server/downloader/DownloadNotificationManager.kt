@@ -1,9 +1,10 @@
 package net.xzos.upgradeall.server.downloader
 
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
+import net.xzos.upgradeall.wrapper.download.DownloadTasker
 
 object DownloadNotificationManager {
-    private val notificationMap = coroutinesMutableMapOf<String, DownloadNotification>(true)
+    private val notificationMap = coroutinesMutableMapOf<DownloadTasker, DownloadNotification>(true)
 
     private fun cancelAllNotification() {
         notificationMap.forEach {
@@ -11,16 +12,16 @@ object DownloadNotificationManager {
         }
     }
 
-    fun addNotification(fileTaskerId: String, notification: DownloadNotification) {
-        notificationMap[fileTaskerId]?.apply {
+    fun addNotification(downloadTasker: DownloadTasker, notification: DownloadNotification) {
+        notificationMap[downloadTasker]?.apply {
             cancelNotification()
             removeNotification(this)
         }
-        notificationMap[fileTaskerId] = notification
+        notificationMap[downloadTasker] = notification
     }
 
-    fun getNotification(fileTaskerId: String): DownloadNotification? {
-        return notificationMap[fileTaskerId]
+    fun getNotification(downloadTasker: DownloadTasker): DownloadNotification? {
+        return notificationMap[downloadTasker]
     }
 
     fun removeNotification(notification: DownloadNotification) {

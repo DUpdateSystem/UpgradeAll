@@ -3,23 +3,21 @@ package net.xzos.upgradeall.ui.filemanagement.tasker_dialog
 import android.app.Application
 import android.content.Context
 import androidx.databinding.ObservableBoolean
-import com.tonyodev.fetch2.Download
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.xzos.upgradeall.core.androidutils.runUiFun
-import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerSnap
-import net.xzos.upgradeall.core.downloader.filetasker.FileTaskerStatus
+import kotlinx.coroutines.runBlocking
+import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadStatus
+import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadStatusSnap
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 import net.xzos.upgradeall.utils.ObservableViewModel
 import net.xzos.upgradeall.utils.mutableLiveDataOf
 import net.xzos.upgradeall.utils.setList
-import net.xzos.upgradeall.wrapper.download.FileTaskerWrapper
-import net.xzos.upgradeall.wrapper.download.installFileTasker
+import net.xzos.upgradeall.wrapper.download.*
 
 class FileTaskerViewModel : ObservableViewModel() {
-    private lateinit var fileTasker: FileTaskerWrapper
-    fun setFileTasker(fileTasker: FileTaskerWrapper) {
+    private lateinit var fileTasker: DownloadTasker
+    fun setFileTasker(fileTasker: DownloadTasker) {
         this.fileTasker = fileTasker
         this.fileTasker.observeForever(observerFun)
     }
@@ -37,34 +35,34 @@ class FileTaskerViewModel : ObservableViewModel() {
         }
     }
     val downloadList by lazy {
-        mutableLiveDataOf<MutableList<Download>>().apply {
+        mutableLiveDataOf<MutableList<DownloadStatusSnap>>().apply {
             value = mutableListOf()
         }
     }
 
-    private fun setStatus(snap: FileTaskerSnap) {
-        when (snap.status) {
-            FileTaskerStatus.DOWNLOAD_START -> {
+    private fun setStatus(snap: DownloadTaskerSnap) {
+        when (snap.getDownloadStatus().first()) {
+            DownloadStatus.START -> {
                 flashActive()
                 pauseButtonVisibility.set(true)
             }
-            FileTaskerStatus.DOWNLOAD_RUNNING -> {
+            DownloadStatus.RUNNING -> {
                 flashActive()
                 pauseButtonVisibility.set(true)
             }
-            FileTaskerStatus.DOWNLOAD_STOP -> {
+            DownloadStatus.STOP -> {
                 flashActive()
                 resumeButtonVisibility.set(true)
             }
-            FileTaskerStatus.DOWNLOAD_COMPLETE -> {
+            DownloadStatus.COMPLETE -> {
                 flashActive()
                 openFileButtonVisibility.set(true)
                 checkInstall()
             }
-            FileTaskerStatus.DOWNLOAD_CANCEL -> {
+            DownloadStatus.CANCEL -> {
                 downloadList.setList(emptyList())
             }
-            FileTaskerStatus.DOWNLOAD_FAIL -> {
+            DownloadStatus.FAIL -> {
                 flashActive()
                 retryButtonVisibility.set(true)
             }
@@ -78,19 +76,13 @@ class FileTaskerViewModel : ObservableViewModel() {
         setStatus(fileTasker.snap)
     }
 
-    private val observerFun = fun(snap: FileTaskerSnap) {
+    private val observerFun = fun(snap: DownloadTaskerSnap) {
         setStatus(snap)
     }
 
     private fun flashActive() {
         resetView()
-        fileTasker.getDownload(
-            {
-                runUiFun {
-                    downloadList.setList(it)
-                }
-            }
-        )
+        downloadList.setList(runBlocking { fileTasker.getDownloadList() })
     }
 
     private fun resetView() {
@@ -129,25 +121,25 @@ class FileTaskerViewModel : ObservableViewModel() {
     }
 
     fun onPause() {
-        fileTasker.pause()
+        fileTasker.downloader?.pause()
     }
 
     fun onResume() {
-        fileTasker.resume()
+        fileTasker.downloader?.resume()
     }
 
     fun onRetry() {
-        fileTasker.retry()
+        fileTasker.downloader?.retry()
     }
 
     fun onDelete() {
-        fileTasker.cancel()
+        fileTasker.downloader?.cancel()
     }
 }
 
 class FileTaskerListViewModel(
     application: Application
-) : ListContainerViewModel<Download>(application) {
-    lateinit var getDownload: () -> List<Download>
-    override suspend fun doLoadData(): List<Download> = getDownload()
+) : ListContainerViewModel<DownloadTaskerSnap>(application) {
+    lateinit var getDownload: () -> List<DownloadTaskerSnap>
+    override suspend fun doLoadData(): List<DownloadTaskerSnap> = getDownload()
 }

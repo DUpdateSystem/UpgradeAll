@@ -9,7 +9,6 @@ import android.os.Build
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.tonyodev.fetch2.Download
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -17,17 +16,17 @@ import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.androidutils.FlagDelegate
-import net.xzos.upgradeall.core.downloader.filetasker.*
+import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadStatus
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.data.PreferencesMap
-import net.xzos.upgradeall.utils.file.fileName
 import net.xzos.upgradeall.utils.getNotificationManager
 import net.xzos.upgradeall.wrapper.download.*
+import java.io.File
 
-class DownloadNotification(private val fileTaskerId: FileTaskerId) {
+class DownloadNotification(private val downloadTasker: DownloadTasker) {
 
     private val notificationIndex: Int = getNotificationIndex()
 
@@ -43,45 +42,45 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
 
     private val mutex = Mutex()
 
-    fun registerNotify(wrapper: FileTaskerWrapper) {
-        DownloadNotificationManager.addNotification(wrapper.id.toString(), this)
-        wrapper.observeWithChecker(DownloadStatus.DOWNLOAD_INFO_RENEW, { snap: FileTaskerSnap ->
-            mutex.runWithLock { preDownload(snap.statusMsg, DownloadStatus.DOWNLOAD_INFO_RENEW) }
+    fun registerNotify(wrapper: DownloadTasker) {
+        DownloadNotificationManager.addNotification(wrapper, this)
+        wrapper.observeWithChecker(DownloadTaskerStatus.INFO_RENEW, { snap: DownloadTaskerSnap ->
+            mutex.runWithLock { preDownload(snap.msg, DownloadTaskerStatus.INFO_RENEW) }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(DownloadStatus.TASK_WAIT_START, {
-            mutex.runWithLock { preDownload(wrapper.name, DownloadStatus.TASK_WAIT_START) }
+        wrapper.observeWithChecker(DownloadTaskerStatus.WAIT_START, { snap: DownloadTaskerSnap ->
+            mutex.runWithLock { preDownload(snap.msg, DownloadTaskerStatus.WAIT_START) }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(DownloadStatus.TASK_START_FAIL, { snap: FileTaskerSnap ->
+        wrapper.observeWithChecker(DownloadTaskerStatus.START_FAIL, { snap: DownloadTaskerSnap ->
             mutex.runWithLock { taskFailed(snap.error) }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(DownloadStatus.EXTERNAL_DOWNLOAD, {
+        wrapper.observeWithChecker(DownloadTaskerStatus.EXTERNAL_DOWNLOAD, {
             mutex.runWithLock { taskCancel() }
         }, { !closed }, { closed })
 
-        wrapper.observeWithChecker(DownloadStatus.TASK_STARTED, { snap: FileTaskerSnap ->
-            mutex.runWithLock { taskStart(snap.statusMsg.toInt()) }
+        wrapper.observeWithChecker(DownloadTaskerStatus.STARTED, { snap: DownloadTaskerSnap ->
+            mutex.runWithLock { taskStart(snap.msg.toInt()) }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(FileTaskerStatus.DOWNLOAD_START, { snap: FileTaskerSnap ->
-            mutex.runWithLock { taskRunning(snap.download ?: return@runWithLock) }
+        wrapper.observeWithChecker(DownloadTaskerStatus.STARTED, { snap: DownloadTaskerSnap ->
+            mutex.runWithLock { taskRunning(snap) }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(FileTaskerStatus.DOWNLOAD_RUNNING, { snap: FileTaskerSnap ->
-            mutex.runWithLock { taskRunning(snap.download ?: return@runWithLock) }
+        wrapper.observeWithChecker(DownloadStatus.RUNNING, { snap: DownloadTaskerSnap ->
+            mutex.runWithLock { taskRunning(snap) }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(FileTaskerStatus.DOWNLOAD_STOP, { snap: FileTaskerSnap ->
+        wrapper.observeWithChecker(DownloadStatus.STOP, { snap: DownloadTaskerSnap ->
             mutex.runWithLock { taskPause() }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(FileTaskerStatus.DOWNLOAD_COMPLETE, { snap: FileTaskerSnap ->
-            mutex.runWithLock { taskComplete(snap.download ?: return@runWithLock) }
+        wrapper.observeWithChecker(DownloadStatus.COMPLETE, { snap: DownloadTaskerSnap ->
+            mutex.runWithLock { taskComplete(snap) }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(FileTaskerStatus.DOWNLOAD_CANCEL, {
+        wrapper.observeWithChecker(DownloadStatus.CANCEL, {
             mutex.runWithLock { taskCancel() }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(FileTaskerStatus.DOWNLOAD_FAIL, {
+        wrapper.observeWithChecker(DownloadStatus.FAIL, {
             mutex.runWithLock { taskFail() }
         }, { !closed }, { closed })
     }
 
-    private fun preDownload(taskName: String, status: DownloadStatus) {
+    private fun preDownload(taskName: String, status: DownloadTaskerStatus) {
         builder.clearActions()
             .setOngoing(true)
             .setContentTitle("${getString(R.string.file_download)}: $taskName")
@@ -129,13 +128,13 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
         notificationNotify()
     }
 
-    private fun taskRunning(task: Download) {
-        val progressCurrent: Int = task.progress
-        val speed = getSpeedText(task)
+    private fun taskRunning(statusSnap: DownloadTaskerSnap) {
+        val progressCurrent = statusSnap.progress()
+        val speed = getSpeedText(statusSnap)
         builder.clearActions()
-            .setContentTitle("${getString(R.string.file_download)}: ${task.file.fileName}")
+            .setContentTitle("${getString(R.string.file_download)}: ${downloadTasker.defName()}")
             .setContentText(speed)
-            .setProgress(PROGRESS_MAX, progressCurrent, false)
+            .setProgress(PROGRESS_MAX, progressCurrent.toInt(), false)
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .addAction(
                 android.R.drawable.ic_media_pause, getString(R.string.pause),
@@ -186,30 +185,24 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
         notificationNotify()
     }
 
-    private fun taskComplete(download: Download) {
-        val fileTasker = fileTaskerManagerWrapper.getFileTasker(fileTaskerId)!!
-        val fileType = fileTasker.fileType
-        showManualMenuNotification(download, fileType)
+    private fun taskComplete(statusSnap: DownloadTaskerSnap) {
+        val fileType = downloadTasker.fileType
+        val fileList = downloadTasker.getFileList()
+        showManualMenuNotification(fileList, fileType)
         if (fileType != FileType.UNKNOWN && PreferencesMap.auto_install) {
             GlobalScope.launch {
-                installFileTasker(
-                    context, fileTasker, this@DownloadNotification
-                )
+                installFileTasker(context, downloadTasker, this@DownloadNotification)
             }
         }
     }
 
-    private fun showManualMenuNotification(download: Download, fileType: FileType?) {
+    private fun showManualMenuNotification(fileList: List<File>, fileType: FileType?) {
         builder.clearActions().run {
-            val filePath = download.file
-            setContentTitle("${getString(R.string.download_complete)}: ${filePath.fileName}")
-            val contentText =
-                "${getString(R.string.file_path)}: $filePath"
+            val file = fileList.first()
+            setContentTitle("${getString(R.string.download_complete)}: ${file.name}")
+            val contentText = "${getString(R.string.file_path)}: $file"
             setContentText(contentText)
-            setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(contentText)
-            )
+            setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
             setSmallIcon(android.R.drawable.stat_sys_download_done)
             setProgress(0, 0, false)
             setNotificationCanGoing()
@@ -262,7 +255,7 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
             )
             putExtra(
                 DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_ID,
-                fileTaskerId.toString()
+                downloadTasker.toString()
             )
         }
     }
@@ -284,8 +277,8 @@ class DownloadNotification(private val fileTaskerId: FileTaskerId) {
         )
     }
 
-    private fun getSpeedText(task: Download): String {
-        val speed = task.downloadedBytesPerSecond
+    private fun getSpeedText(taskerSnap: DownloadTaskerSnap): String {
+        val speed = taskerSnap.speed()
         return when {
             speed == -1L -> "0 b/s"
             speed < 1024L -> "$speed b/s"

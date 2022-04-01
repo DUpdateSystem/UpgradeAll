@@ -17,10 +17,11 @@ import net.xzos.upgradeall.ui.base.list.HubListPart
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItem
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItemHolder
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerListAdapter
+import net.xzos.upgradeall.wrapper.download.DownloadTasker
 import net.xzos.upgradeall.wrapper.download.FileTaskerWrapper
 
 
-class TaskerListDialog private constructor(private val fileTasker: FileTaskerWrapper) :
+class TaskerListDialog private constructor(private val fileTasker: DownloadTasker) :
     BottomSheetDialogFragment(), HubListPart<Download, TaskerItem, TaskerItemHolder> {
 
     override val adapter = TaskerListAdapter()

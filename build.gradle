@@ -1,9 +1,12 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.6.10'
-    ext.kotlin_coroutines_version = '1.6.0-native-mt'
-    ext.kotlin_stdlib_version = '1.5.0'
+    ext {
+        compose_version = '1.2.0-alpha02'
+        kotlin_version = '1.6.10'
+        kotlin_coroutines_version = '1.6.0-native-mt'
+        kotlin_stdlib_version = '1.5.0'
+    }
     repositories {
         google()
         mavenCentral()

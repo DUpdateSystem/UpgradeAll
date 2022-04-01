@@ -5,10 +5,10 @@ import android.app.Application
 import android.content.Context
 import android.os.Build
 import com.akexorcist.localizationactivity.core.LocalizationApplicationDelegate
+import com.jakewharton.threetenabp.AndroidThreeTen
 import jonathanfinerty.once.Once
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.data.constants.OnceTag
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 import org.jetbrains.annotations.Contract
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import java.io.File
@@ -35,6 +35,7 @@ class MyApplication : Application() {
         context = applicationContext
 
         Once.initialise(this)
+        AndroidThreeTen.init(this)
 
         // 修补旧版本的命名
         if (!Once.beenDone(Once.THIS_APP_INSTALL, OnceTag.DB_NAME_MIGRATION)) {
