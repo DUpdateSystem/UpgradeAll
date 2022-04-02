@@ -1,5 +1,5 @@
 package net.xzos.upgradeall.utils
 
-import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadStatusSnap
+import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskSnap
 
-fun DownloadStatusSnap.progress() = downloadSize / totalSize * 100
+fun TaskSnap?.progress() = this?.let { downloadSize / totalSize * 100 } ?: -1L

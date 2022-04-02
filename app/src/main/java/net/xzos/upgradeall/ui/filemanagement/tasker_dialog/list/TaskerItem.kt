@@ -1,8 +1,8 @@
 package net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list
 
-import com.tonyodev.fetch2.Download
+import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskWrapper
 import net.xzos.upgradeall.ui.base.list.ListItemView
-import java.io.File
+import net.xzos.upgradeall.utils.progress
 
 class TaskerItem(
     val name: String,
@@ -10,7 +10,6 @@ class TaskerItem(
     val progress: Int,
 ) : ListItemView
 
-fun Download.getTaskerItem(): TaskerItem {
-    val file = File(file)
-    return TaskerItem(file.name, file.path, progress)
+fun TaskWrapper.getTaskerItem(): TaskerItem {
+    return TaskerItem(file.name, file.path, snap.progress().toInt())
 }

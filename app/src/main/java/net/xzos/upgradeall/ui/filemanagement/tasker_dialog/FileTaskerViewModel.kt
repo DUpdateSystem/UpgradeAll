@@ -6,8 +6,7 @@ import androidx.databinding.ObservableBoolean
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadStatus
-import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadStatusSnap
+import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskWrapper
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 import net.xzos.upgradeall.utils.ObservableViewModel
@@ -35,34 +34,34 @@ class FileTaskerViewModel : ObservableViewModel() {
         }
     }
     val downloadList by lazy {
-        mutableLiveDataOf<MutableList<DownloadStatusSnap>>().apply {
+        mutableLiveDataOf<MutableList<TaskWrapper>>().apply {
             value = mutableListOf()
         }
     }
 
-    private fun setStatus(snap: DownloadTaskerSnap) {
-        when (snap.getDownloadStatus().first()) {
-            DownloadStatus.START -> {
+    private fun setStatus(status: DownloadTaskerStatus) {
+        when (status) {
+            DownloadTaskerStatus.DOWNLOAD_START -> {
                 flashActive()
                 pauseButtonVisibility.set(true)
             }
-            DownloadStatus.RUNNING -> {
+            DownloadTaskerStatus.DOWNLOAD_RUNNING -> {
                 flashActive()
                 pauseButtonVisibility.set(true)
             }
-            DownloadStatus.STOP -> {
+            DownloadTaskerStatus.DOWNLOAD_STOP -> {
                 flashActive()
                 resumeButtonVisibility.set(true)
             }
-            DownloadStatus.COMPLETE -> {
+            DownloadTaskerStatus.DOWNLOAD_COMPLETE -> {
                 flashActive()
                 openFileButtonVisibility.set(true)
                 checkInstall()
             }
-            DownloadStatus.CANCEL -> {
+            DownloadTaskerStatus.DOWNLOAD_CANCEL -> {
                 downloadList.setList(emptyList())
             }
-            DownloadStatus.FAIL -> {
+            DownloadTaskerStatus.DOWNLOAD_FAIL -> {
                 flashActive()
                 retryButtonVisibility.set(true)
             }
@@ -73,16 +72,16 @@ class FileTaskerViewModel : ObservableViewModel() {
     }
 
     fun renew() {
-        setStatus(fileTasker.snap)
+        setStatus(fileTasker.snap.status())
     }
 
     private val observerFun = fun(snap: DownloadTaskerSnap) {
-        setStatus(snap)
+        setStatus(snap.status())
     }
 
     private fun flashActive() {
         resetView()
-        downloadList.setList(runBlocking { fileTasker.getDownloadList() })
+        downloadList.setList(runBlocking { fileTasker.downloader?.getTaskList() ?: listOf() })
     }
 
     private fun resetView() {
@@ -139,7 +138,7 @@ class FileTaskerViewModel : ObservableViewModel() {
 
 class FileTaskerListViewModel(
     application: Application
-) : ListContainerViewModel<DownloadTaskerSnap>(application) {
-    lateinit var getDownload: () -> List<DownloadTaskerSnap>
-    override suspend fun doLoadData(): List<DownloadTaskerSnap> = getDownload()
+) : ListContainerViewModel<TaskWrapper>(application) {
+    lateinit var getDownload: () -> List<TaskWrapper>
+    override suspend fun doLoadData(): List<TaskWrapper> = getDownload()
 }
