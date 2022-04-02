@@ -20,6 +20,7 @@ import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_OUTDATED
 import net.xzos.upgradeall.ui.home.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
+
 class UpdateNotification {
     init {
         createNotificationChannel()
@@ -148,14 +149,17 @@ class UpdateNotification {
         private val mainActivityPendingIntent: PendingIntent? =
             TaskStackBuilder.create(context).run {
                 addNextIntentWithParentStack(Intent(context, MainActivity::class.java))
-                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE)
+                getPendingIntent(
+                    0,
+                    PendingIntent.FLAG_UPDATE_CURRENT or FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE
+                )
             }
 
         @SuppressLint("StaticFieldLeak")
         private val builder = NotificationCompat.Builder(context, UPDATE_SERVICE_CHANNEL_ID).apply {
             setContentTitle(getString(R.string.update_service_running))
             setOngoing(true)
-            setSmallIcon(R.drawable.ic_launcher_foreground)
+            setSmallIcon(R.drawable.ic_launcher_main)
             priority = NotificationCompat.PRIORITY_LOW
         }
 
