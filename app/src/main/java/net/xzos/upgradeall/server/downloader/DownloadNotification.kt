@@ -16,7 +16,7 @@ import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.androidutils.FlagDelegate
-import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadStatus
+import net.xzos.upgradeall.core.downloader.filedownloader.item.Status
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.coroutines.runWithLock
@@ -63,19 +63,19 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
         wrapper.observeWithChecker(DownloadTaskerStatus.STARTED, { snap: DownloadTaskerSnap ->
             mutex.runWithLock { taskRunning(snap) }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(DownloadStatus.RUNNING, { snap: DownloadTaskerSnap ->
+        wrapper.observeWithChecker(Status.RUNNING, { snap: DownloadTaskerSnap ->
             mutex.runWithLock { taskRunning(snap) }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(DownloadStatus.STOP, { snap: DownloadTaskerSnap ->
+        wrapper.observeWithChecker(Status.STOP, { snap: DownloadTaskerSnap ->
             mutex.runWithLock { taskPause() }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(DownloadStatus.COMPLETE, { snap: DownloadTaskerSnap ->
+        wrapper.observeWithChecker(Status.COMPLETE, { snap: DownloadTaskerSnap ->
             mutex.runWithLock { taskComplete(snap) }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(DownloadStatus.CANCEL, {
+        wrapper.observeWithChecker(Status.CANCEL, {
             mutex.runWithLock { taskCancel() }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker(DownloadStatus.FAIL, {
+        wrapper.observeWithChecker(Status.FAIL, {
             mutex.runWithLock { taskFail() }
         }, { !closed }, { closed })
     }

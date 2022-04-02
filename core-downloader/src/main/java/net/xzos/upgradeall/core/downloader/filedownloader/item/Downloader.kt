@@ -1,32 +1,49 @@
 package net.xzos.upgradeall.core.downloader.filedownloader.item
 
-import net.xzos.upgradeall.core.downloader.downloadConfig
 import net.xzos.upgradeall.core.downloader.filedownloader.DownloadCanceledError
 import net.xzos.upgradeall.core.downloader.filedownloader.DownloaderManager
 import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadOb
 import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadRegister
-import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
-import zlc.season.rxdownload4.manager.*
-import zlc.season.rxdownload4.task.Task
+import zlc.season.rxdownload4.manager.delete
+import zlc.season.rxdownload4.manager.start
+import zlc.season.rxdownload4.manager.stop
 import java.io.File
 
 
 /* 下载管理 */
 class Downloader(downloadDir: File) {
+    val id by lazy { hashCode() }
 
-    lateinit var downloadId: DownloadId
-    val downloadFile = DownloadFile(downloadDir)
+    var status: Status = Status.NONE
+        private set
 
-    private val requestList: MutableList<DownloadInfoProxy> = mutableListOf()
-    internal val taskList: MutableList<DownloadTaskWrapper> = mutableListOf()
+    private fun renewStatus() {
+        val taskList = taskList
+        status = when {
+            taskList.isEmpty() -> Status.NONE
+            taskList.any { it.snap?.status == Status.START } -> Status.START
+            taskList.any { it.snap?.status == Status.RUNNING } -> Status.RUNNING
+            taskList.all { it.snap?.status == Status.STOP } -> Status.RUNNING
+            taskList.all { it.snap?.status == Status.COMPLETE } -> Status.COMPLETE
+            taskList.all { it.snap?.status == Status.CANCEL } -> Status.CANCEL
+            taskList.any { it.snap?.status == Status.FAIL } -> Status.FAIL
+            else -> Status.NONE
+        }
+    }
+
+    private val downloadFile by lazy { getDownloadDir(downloadDir) }
+
+    private val requestList: MutableList<TaskData> = mutableListOf()
+    private val taskList: MutableList<TaskWrapper> = mutableListOf()
+
     fun register(downloadOb: DownloadOb) {
-        DownloadRegister.registerOb(downloadId, downloadOb)
+        DownloadRegister.registerOb(this, downloadOb)
     }
 
     fun unregister(downloadOb: DownloadOb) {
-        DownloadRegister.unRegisterOb(downloadId, downloadOb)
+        DownloadRegister.unRegisterOb(this, downloadOb)
     }
 
     fun removeFile() {
@@ -34,8 +51,8 @@ class Downloader(downloadDir: File) {
         downloadFile.delete()
     }
 
-    fun addTask(downloadInfoItem: DownloadInfoItem) {
-        requestList.add(downloadInfoItem.getProxy())
+    fun addTask(inputData: InputData) {
+        requestList.add(inputData.getTaskData(downloadFile))
     }
 
     fun getDownloadProgress(): Long {
@@ -49,12 +66,17 @@ class Downloader(downloadDir: File) {
         return downloadedSize / totalSize * 100
     }
 
-    fun getStatusList(): List<DownloadStatusSnap> {
-        return taskList.mapNotNull { it.snap }
+    fun getTaskList(): List<TaskWrapper> {
+        return taskList
+    }
+
+    fun TaskWrapper.start() = this.apply {
+        subscribe { renewStatus() }
+        manager.start()
     }
 
     fun start(
-        taskStartedFun: (DownloadId) -> Unit,
+        taskStartedFun: () -> Unit,
         taskStartFailedFun: (Throwable) -> Unit,
         vararg downloadOb: DownloadOb
     ) {
@@ -62,33 +84,30 @@ class Downloader(downloadDir: File) {
             taskStartFailedFun(DownloadCanceledError("no request list"))
             return
         }
-        downloadId = DownloadId(requestList.size != 1, downloadIdCount.up())
-        taskList.addAll(requestList.map {
-            it.manager().let { manager ->
-                DownloadTaskWrapper(manager).apply {
-                    manager.start()
-                }
-            }
-        })
+        taskList.addAll(requestList.map { it.manager().wrapper().start() })
         requestList.clear()
         register(*downloadOb)
-        taskStartedFun(downloadId)
+        taskStartedFun()
     }
 
-    fun resume() {
-        taskList.forEach { it.manager.start() }
+    fun resume(tasker: TaskWrapper? = null) {
+        tasker?.also { it.manager.start() }
+            ?: taskList.forEach { it.manager.start() }
     }
 
-    fun pause() {
-        taskList.forEach { it.manager.stop() }
+    fun pause(tasker: TaskWrapper? = null) {
+        tasker?.also { it.manager.stop() }
+            ?: taskList.forEach { it.manager.stop() }
     }
 
-    fun retry() {
-        taskList.forEach { it.manager.start() }
+    fun retry(tasker: TaskWrapper? = null) {
+        tasker?.also { it.manager.start() }
+            ?: taskList.forEach { it.manager.start() }
     }
 
-    fun cancel() {
-        taskList.forEach { it.manager.delete() }
+    fun cancel(tasker: TaskWrapper? = null) {
+        tasker?.also { it.manager.delete() }
+            ?: taskList.forEach { it.manager.delete() }
     }
 
     private fun delTask() {
@@ -100,7 +119,7 @@ class Downloader(downloadDir: File) {
     private fun register(vararg downloadOb: DownloadOb) {
         DownloaderManager.addDownloader(this)
         downloadOb.forEach {
-            DownloadRegister.registerOb(downloadId, it)
+            DownloadRegister.registerOb(this, it)
         }
     }
 
@@ -108,36 +127,8 @@ class Downloader(downloadDir: File) {
         DownloaderManager.removeDownloader(this)
     }
 
-    private fun DownloadInfoProxy.manager(): TaskManager {
-        val task = Task(url, name, saveName = name, savePath = filePath)
-        return task.manager(headers)
-    }
-
-    private fun DownloadInfoItem.getProxy(): DownloadInfoProxy {
-        // 检查重复任务
-        val file = downloadFile.getFile(name)
-        val request = DownloadInfoProxy(name, file.path, url)
-            .autoRetryMaxAttempts(downloadConfig.DOWNLOAD_AUTO_RETRY_MAX_ATTEMPTS)
-        for ((key, value) in headers) {
-            request.header(key, value)
-        }
-        if (cookies.isNotEmpty()) {
-            var cookiesStr = ""
-            for ((key, value) in cookies) {
-                cookiesStr += "$key: $value; "
-            }
-            if (cookiesStr.isNotBlank()) {
-                cookiesStr = cookiesStr.subSequence(0, cookiesStr.length - 2).toString()
-                request.header("Cookie", cookiesStr)
-            }
-        }
-        return request
-    }
-
     companion object {
         const val TAG = "Downloader"
         val logTagObject = ObjectTag(core, TAG)
-
-        private var downloadIdCount = CoroutinesCount(1)
     }
 }

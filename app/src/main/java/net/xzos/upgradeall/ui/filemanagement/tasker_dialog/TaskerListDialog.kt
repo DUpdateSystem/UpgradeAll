@@ -10,19 +10,18 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
-import com.tonyodev.fetch2.Download
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskWrapper
 import net.xzos.upgradeall.databinding.DialogFileTaskerBinding
 import net.xzos.upgradeall.ui.base.list.HubListPart
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItem
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItemHolder
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerListAdapter
 import net.xzos.upgradeall.wrapper.download.DownloadTasker
-import net.xzos.upgradeall.wrapper.download.FileTaskerWrapper
 
 
 class TaskerListDialog private constructor(private val fileTasker: DownloadTasker) :
-    BottomSheetDialogFragment(), HubListPart<Download, TaskerItem, TaskerItemHolder> {
+    BottomSheetDialogFragment(), HubListPart<TaskWrapper, TaskerItem, TaskerItemHolder> {
 
     override val adapter = TaskerListAdapter()
 
@@ -87,7 +86,7 @@ class TaskerListDialog private constructor(private val fileTasker: DownloadTaske
 
     companion object {
         private const val TAG = "TaskerListDialog"
-        fun newInstance(activity: AppCompatActivity, fileTasker: FileTaskerWrapper) {
+        fun newInstance(activity: AppCompatActivity, fileTasker: DownloadTasker) {
             val taskerListDialog = TaskerListDialog(fileTasker)
             taskerListDialog.show(activity.supportFragmentManager, TAG)
         }

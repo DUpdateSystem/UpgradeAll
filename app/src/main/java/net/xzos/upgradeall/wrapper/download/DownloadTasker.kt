@@ -2,8 +2,10 @@ package net.xzos.upgradeall.wrapper.download
 
 import android.content.Context
 import net.xzos.upgradeall.core.database.table.extra_hub.ExtraHubEntityManager
-import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadInfoItem
+import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskSnap
 import net.xzos.upgradeall.core.downloader.filedownloader.item.Downloader
+import net.xzos.upgradeall.core.downloader.filedownloader.item.InputData
+import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadOb
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version_item.FileAsset
@@ -20,6 +22,10 @@ class DownloadTasker(
     val app: App, private val fileAsset: FileAsset
 ) : Informer {
     override val informerId: Int = Informer.getInformerId()
+
+    var snap: DownloadTaskerSnap? = null
+        private set
+
     var downloader: Downloader? = null
         private set
     private var _fileType: FileType? = null
@@ -30,10 +36,18 @@ class DownloadTasker(
 
     var downloadInfoList: List<DownloadItem> = emptyList()
 
-    private fun getDownloadSnapList() = downloader?.getStatusList() ?: listOf()
+    private fun getDownloadSnapList() =
+        downloader?.getTaskList()?.mapNotNull { it.snap } ?: listOf()
 
-    private fun getFileTaskerSnap(status: DownloadTaskerStatus) =
-        DownloadTaskerSnap(status, getDownloadSnapList())
+    private fun getFileTaskerSnap(
+        status: DownloadTaskerStatus? = null,
+        snapList: List<TaskSnap> = getDownloadSnapList()
+    ) = DownloadTaskerSnap(
+        status
+            ?: if (snapList.isNotEmpty()) DownloadTaskerStatus.IN_DOWNLOAD
+            else throw RuntimeException("Error to build FileTaskerSnap(no status)"),
+        snapList
+    )
 
     private suspend fun getDownloadInfo() {
         val hub = fileAsset.hub
@@ -76,9 +90,9 @@ class DownloadTasker(
         }
     }
 
-    private fun setDownload(infoList: List<DownloadInfoItem>, dir: File): Downloader {
+    private fun setDownload(dataList: List<InputData>, dir: File): Downloader {
         return Downloader(dir).apply {
-            infoList.forEach {
+            dataList.forEach {
                 addTask(it)
             }
         }
@@ -88,18 +102,37 @@ class DownloadTasker(
         notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.WAIT_START))
         downloader.start(
             {
-                notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.STARTED).msg(it.toString()))
+                notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.STARTED).msg("${app.name}$downloader"))
             },
             {
                 notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.START_FAIL).error(it))
-            }
+            },
+            DownloadOb(
+                startFunc = {
+                    notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.DOWNLOAD_START))
+                },
+                runningFunc = {
+                    notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.DOWNLOAD_RUNNING))
+                },
+                stopFunc = {
+                    notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.DOWNLOAD_STOP))
+                },
+                completeFunc = {
+                    notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.DOWNLOAD_COMPLETE))
+                },
+                cancelFunc = {
+                    notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.DOWNLOAD_CANCEL))
+                }, failFunc = {
+                    notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.DOWNLOAD_FAIL))
+                }
+            )
         )
     }
 
     private fun notifyChanged(snap: DownloadTaskerSnap) {
+        this.snap = snap
         notifyChanged(snap.status, snap)
     }
 }
 
-fun DownloadTasker.defName() =
-    downloader?.downloadFile?.getFileList()?.getOrNull(0)?.name ?: app.name
+fun DownloadTasker.defName() = downloader?.getTaskList()?.first()?.file?.name ?: app.name

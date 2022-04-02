@@ -4,7 +4,7 @@ import android.content.Context
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.androidutils.ToastUtil
-import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadInfoItem
+import net.xzos.upgradeall.core.downloader.filedownloader.item.InputData
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.installer.Installer
 import net.xzos.upgradeall.core.installer.getFileType
@@ -15,11 +15,11 @@ import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.server.downloader.DownloadNotification
 import net.xzos.upgradeall.server.downloader.DownloadNotificationManager
 
-fun DownloadItem.getDownloadInfoItem(defName: String): DownloadInfoItem {
-    return DownloadInfoItem(name ?: defName, url, headers ?: emptyMap(), cookies ?: emptyMap())
+fun DownloadItem.getDownloadInfoItem(defName: String): InputData {
+    return InputData(name ?: defName, url, headers ?: emptyMap(), cookies ?: emptyMap())
 }
 
-fun DownloadTasker.getFileList() = downloader?.downloadFile?.getFileList() ?: listOf()
+fun DownloadTasker.getFileList() = downloader?.getTaskList()?.map { it.file } ?: listOf()
 
 fun DownloadTasker.getFileType() =
     getFileType(getFileList(), context)

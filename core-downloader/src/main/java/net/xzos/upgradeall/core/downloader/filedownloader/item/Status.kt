@@ -4,7 +4,8 @@ import net.xzos.upgradeall.core.utils.oberver.Tag
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
-enum class DownloadStatus : Tag {
+enum class Status : Tag {
+    NONE,
     START,
     RUNNING,
     STOP,
@@ -13,8 +14,8 @@ enum class DownloadStatus : Tag {
     FAIL
 }
 
-class DownloadStatusSnap(
-    val status: DownloadStatus,
+class TaskSnap(
+    val status: Status,
     var downloadSize: Long = 0,
     var totalSize: Long = 0,
 ) {
@@ -26,7 +27,7 @@ class DownloadStatusSnap(
     }
 }
 
-fun DownloadStatusSnap.countSpeed(snap: DownloadStatusSnap) {
+fun TaskSnap.countSpeed(snap: TaskSnap) {
     val downloaded = downloadSize - snap.downloadSize
     val time = time - snap.time
     val speed = downloaded / time
