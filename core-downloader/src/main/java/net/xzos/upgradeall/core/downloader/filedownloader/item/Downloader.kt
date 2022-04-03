@@ -25,9 +25,15 @@ class Downloader(downloadDir: File) {
             taskList.isEmpty() -> Status.NONE
             taskList.any { it.snap?.status == Status.START } -> Status.START
             taskList.any { it.snap?.status == Status.RUNNING } -> Status.RUNNING
-            taskList.all { it.snap?.status == Status.STOP } -> Status.RUNNING
-            taskList.all { it.snap?.status == Status.COMPLETE } -> Status.COMPLETE
-            taskList.all { it.snap?.status == Status.CANCEL } -> Status.CANCEL
+            taskList.all { task ->
+                task.snap?.status?.let { it == Status.STOP } ?: true
+            } -> Status.RUNNING
+            taskList.all { task ->
+                task.snap?.status?.let { it == Status.COMPLETE } ?: true
+            } -> Status.COMPLETE
+            taskList.all { task ->
+                task.snap?.status?.let { it == Status.CANCEL } ?: true
+            } -> Status.CANCEL
             taskList.any { it.snap?.status == Status.FAIL } -> Status.FAIL
             else -> Status.NONE
         }
