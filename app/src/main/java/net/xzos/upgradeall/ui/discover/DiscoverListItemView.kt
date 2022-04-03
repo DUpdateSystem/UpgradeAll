@@ -14,10 +14,10 @@ import net.xzos.upgradeall.ui.base.list.ActivityListItemView
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 
 class DiscoverListItemView(
-        name: String,
-        val type: Int,
-        val hubName: String,
-        val uuid: String,
+    name: String,
+    val type: Int,
+    val hubName: String,
+    val uuid: String,
 ) : BaseAppIconItem, ActivityListItemView {
     override val appName: ObservableField<String> = ObservableField(name)
     override val nameFirst: ObservableField<String> = ObservableField()
@@ -31,22 +31,25 @@ class DiscoverListItemView(
     }
 
     companion object {
-        fun getCloudAppItemCardView(appConfig: net.xzos.upgradeall.core.websdk.json.AppConfigGson, context: Context): DiscoverListItemView? {
+        fun getCloudAppItemCardView(
+            appConfig: net.xzos.upgradeall.core.websdk.json.AppConfigGson,
+            context: Context
+        ): DiscoverListItemView {
             val name = appConfig.info.name
             val appUuid = appConfig.uuid
             val appId = appConfig.getAppId()
-            val packageId = appId?.getPackageId() ?: return null
+            val packageId = appId?.getPackageId() ?: Pair("", "")
             val type: Int = when (packageId.first) {
                 ANDROID_APP_TYPE -> R.string.android_app
                 ANDROID_MAGISK_MODULE_TYPE -> R.string.magisk_module
                 ANDROID_CUSTOM_SHELL -> R.string.shell
                 ANDROID_CUSTOM_SHELL_ROOT -> R.string.shell_root
-                else -> return null
+                else -> R.string.app
             }
             val hubUuid = appConfig.baseHubUuid
-            val hubName = CloudConfigGetter.getHubCloudConfig(hubUuid)?.info?.hubName ?: return null
+            val hubName = CloudConfigGetter.getHubCloudConfig(hubUuid)?.info?.hubName ?: ""
             return DiscoverListItemView(name, type, hubName, appUuid).apply {
-                renewAppIcon(packageId.second, context)
+                packageId.second.also { if (it.isNotBlank()) renewAppIcon(it, context) }
             }
         }
     }

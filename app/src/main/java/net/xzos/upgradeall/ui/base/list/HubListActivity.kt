@@ -13,8 +13,9 @@ import net.xzos.upgradeall.databinding.ActivityDiscoverBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewHolder
 
-abstract class HubListActivity<L : ActivityListItemView, T : RecyclerViewHolder<L, *, *>>
-    : HubListPart<L, L, T>, AppBarActivity(), SearchView.OnQueryTextListener {
+abstract class HubListActivity<T, L : ActivityListItemView, RH : RecyclerViewHolder<L, *, *>>(
+    val idConvertFun: (T) -> String = { it.hashCode().toString() }
+) : HubListPart<T, L, RH>, AppBarActivity(), SearchView.OnQueryTextListener {
     private lateinit var activityBinding: ActivityDiscoverBinding
     private var isListReady = false
     private var menu: Menu? = null
@@ -75,7 +76,7 @@ abstract class HubListActivity<L : ActivityListItemView, T : RecyclerViewHolder<
     override fun onQueryTextChange(newText: String): Boolean {
         viewModel.getLiveData().value?.let { triple ->
             val filter = triple.first.filter {
-                it.getItemIdName().contains(newText, ignoreCase = true)
+                idConvertFun(it).contains(newText, ignoreCase = true)
             }
             viewModel.renewList(filter)
         }

@@ -11,10 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
             <net.xzos.upgradeall.ui.base.view.AppListRecyclerView
                 android:id="@+id/rv_list"
                 android:layout_width="match_parent"
@@ -23,8 +19,6 @@
                 android:orientation="vertical"
                 app:fitsSystemWindowsInsets="bottom"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-        </androidx.core.widget.NestedScrollView>
-
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <TextView
