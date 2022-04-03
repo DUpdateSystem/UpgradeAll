@@ -16,7 +16,6 @@ import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.androidutils.FlagDelegate
-import net.xzos.upgradeall.core.downloader.filedownloader.item.Status
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.coroutines.runWithLock
@@ -63,19 +62,21 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
         wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.STARTED, { snap ->
             mutex.runWithLock { taskRunning(snap) }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(Status.RUNNING, { snap ->
-            mutex.runWithLock { taskRunning(snap) }
-        }, { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(Status.STOP, {
+        wrapper.observeWithChecker<DownloadTaskerSnap>(
+            DownloadTaskerStatus.DOWNLOAD_RUNNING,
+            { snap -> mutex.runWithLock { taskRunning(snap) } },
+            { !closed }, { closed })
+        wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.DOWNLOAD_STOP, {
             mutex.runWithLock { taskPause() }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(Status.COMPLETE, { snap ->
-            mutex.runWithLock { taskComplete(snap) }
-        }, { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(Status.CANCEL, {
+        wrapper.observeWithChecker<DownloadTaskerSnap>(
+            DownloadTaskerStatus.DOWNLOAD_COMPLETE,
+            { snap -> mutex.runWithLock { taskComplete(snap) } },
+            { !closed }, { closed })
+        wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.DOWNLOAD_CANCEL, {
             mutex.runWithLock { taskCancel() }
         }, { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(Status.FAIL, {
+        wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.DOWNLOAD_FAIL, {
             mutex.runWithLock { taskFail() }
         }, { !closed }, { closed })
     }

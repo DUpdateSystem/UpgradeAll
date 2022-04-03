@@ -26,7 +26,7 @@ class TaskSnap(
 }
 
 fun TaskSnap.progress() = if (totalSize == 0L) 0
-else downloadSize / totalSize
+else (downloadSize / totalSize) * 100
 
 fun TaskSnap.countSpeed(snap: TaskSnap) {
     val downloaded = downloadSize - snap.downloadSize
