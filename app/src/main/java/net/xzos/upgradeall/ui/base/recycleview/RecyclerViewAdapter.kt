@@ -46,7 +46,6 @@ abstract class RecyclerViewAdapter<LT, L : ListItemView, RHA : RecyclerViewHandl
     abstract fun getViewHolder(layoutInflater: LayoutInflater, viewGroup: ViewGroup): T
 
     override fun onBindViewHolder(viewHolder: T, position: Int) {
-        println(position)
         val itemView = listContainerViewConvertFun(dataSet[position])
         viewHolder.bind(itemView)
         lifecycleScope.launch {
