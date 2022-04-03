@@ -1,8 +1,6 @@
 package net.xzos.upgradeall.core.downloader.filedownloader.item
 
 import net.xzos.upgradeall.core.utils.oberver.Tag
-import java.time.Instant
-import java.time.format.DateTimeFormatter
 
 enum class Status : Tag {
     NONE,
@@ -19,7 +17,7 @@ class TaskSnap(
     var downloadSize: Long = 0,
     var totalSize: Long = 0,
 ) {
-    internal val time = DateTimeFormatter.ISO_INSTANT.format(Instant.now()).toLong()
+    internal val time = System.currentTimeMillis() / 1000L
     var speed = 0L
 
     fun speed(speed: Long) {
@@ -27,9 +25,12 @@ class TaskSnap(
     }
 }
 
+fun TaskSnap.progress() = if (totalSize == 0L) 0
+else downloadSize / totalSize
+
 fun TaskSnap.countSpeed(snap: TaskSnap) {
     val downloaded = downloadSize - snap.downloadSize
     val time = time - snap.time
-    val speed = downloaded / time
+    val speed = if (time == 0L) snap.speed else downloaded / time
     speed(speed)
 }

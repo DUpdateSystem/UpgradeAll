@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.wrapper.download
 
 import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskSnap
+import net.xzos.upgradeall.core.downloader.filedownloader.item.progress
 import net.xzos.upgradeall.core.utils.oberver.Tag
 
 enum class DownloadTaskerStatus(val msg: String? = null) : Tag {
@@ -41,13 +42,12 @@ class DownloadTaskerSnap(
 fun DownloadTaskerSnap?.status() = this?.status ?: DownloadTaskerStatus.NONE
 
 fun DownloadTaskerSnap.progress(): Long {
-    var total = 0L
-    var download = 0L
+    var progress = 0L
     snapList.forEach {
-        total += it.totalSize
-        download += it.downloadSize
+        progress += it.progress()
     }
-    return download / total
+    return if (progress == 0L) 0
+    else progress / snapList.size
 }
 
 fun DownloadTaskerSnap.speed(): Long {
