@@ -8,7 +8,7 @@ import net.xzos.upgradeall.ui.base.list.HubListActivity
 import net.xzos.upgradeall.ui.hubmanager.setting.HubSettingDialog
 
 
-class HubManagerActivity : HubListActivity<HubManagerListItemView, HubManagerListViewHolder>() {
+class HubManagerActivity : HubListActivity<HubManagerListItemView, HubManagerListItemView, HubManagerListViewHolder>() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menu.add(R.string.global_setting)
         return true
