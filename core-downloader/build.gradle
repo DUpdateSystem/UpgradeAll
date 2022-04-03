@@ -45,8 +45,4 @@ dependencies {
 
     // RxDownload
     implementation 'com.github.ssseasonnn:RxDownload:1.1.4'
-
-    // Java desugar
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.4.0'
 }
