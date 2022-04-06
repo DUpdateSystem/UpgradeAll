@@ -154,7 +154,7 @@ dependencies {
     // Integration with activities
     implementation 'androidx.activity:activity-compose:1.4.0'
     // Compose Material Design
-    implementation 'androidx.compose.material:material:1.2.0-alpha06'
+    implementation 'androidx.compose.material:material:1.2.0-alpha07'
     // Animations
     implementation 'androidx.compose.animation:animation:1.1.1'
     // Tooling support (Previews, etc.)
