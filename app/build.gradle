@@ -164,7 +164,7 @@ dependencies {
     // UI Tests
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
     // Compose Theme Adapter
-    implementation "com.google.accompanist:accompanist-appcompat-theme:0.24.5-alpha"
+    implementation "com.google.accompanist:accompanist-appcompat-theme:0.24.6-alpha"
 
     //RecyclerView
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.7'
