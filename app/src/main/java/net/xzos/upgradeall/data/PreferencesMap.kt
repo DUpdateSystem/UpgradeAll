@@ -97,7 +97,7 @@ object PreferencesMap {
         get() = prefs.getBoolean("enforce_use_external_downloader", true)
 
     val external_downloader_package_name: String?
-        get() = prefs.getString("external_downloader_package_name", null)
+        get() = prefs.getString("external_downloader_package_name", null)?.let{ if(it.isNotBlank()) it else null }
 
     // WebDAV
     val webdav_url
