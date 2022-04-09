@@ -5,12 +5,12 @@ import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.UpdateStatus
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
-import net.xzos.upgradeall.core.utils.oberver.ObserverFun
+import net.xzos.upgradeall.core.utils.oberver.Func
 
 open class AppViewModel {
-    private val appMap: MutableMap<App, List<ObserverFun<App>>> = coroutinesMutableMapOf(true)
+    private val appMap: MutableMap<App, List<Func<App>>> = coroutinesMutableMapOf(true)
 
-    private val appAddedObserver: ObserverFun<App> = {
+    private val appAddedObserver: Func<App> = {
         runUiFun {
             appAdded(it)
             appMap[it]?.run {
@@ -18,7 +18,7 @@ open class AppViewModel {
             }
         }
     }
-    private val appDeletedObserver: ObserverFun<App> = {
+    private val appDeletedObserver: Func<App> = {
         runUiFun {
             appDeleted(it)
             appMap[it]?.run {
@@ -26,7 +26,7 @@ open class AppViewModel {
             }
         }
     }
-    private val appChangedObserver: ObserverFun<App> = {
+    private val appChangedObserver: Func<App> = {
         runUiFun {
             appChanged(it)
             appMap[it]?.run {
@@ -34,7 +34,7 @@ open class AppViewModel {
             }
         }
     }
-    private val appUpdatingObserver: ObserverFun<App> = {
+    private val appUpdatingObserver: Func<App> = {
         runUiFun {
             appUpdating(it)
             appMap[it]?.run {
@@ -43,7 +43,7 @@ open class AppViewModel {
         }
     }
 
-    private val appUpdateChangedObserver: ObserverFun<App> = {
+    private val appUpdateChangedObserver: Func<App> = {
         runUiFun {
             appUpdateChanged(it)
             appMap[it]?.run {
@@ -52,7 +52,7 @@ open class AppViewModel {
         }
     }
 
-    private val appUpdatedObserver: ObserverFun<App> = {
+    private val appUpdatedObserver: Func<App> = {
         runUiFun {
             appUpdated(it)
             appMap[it]?.run {
@@ -74,18 +74,18 @@ open class AppViewModel {
     open fun appUpdated(app: App) {}
 
     private fun initObserve() {
-        AppManager.observeForever(UpdateStatus.APP_START_UPDATE_NOTIFY, appUpdatingObserver)
-        AppManager.observeForever(UpdateStatus.APP_UPDATE_STATUS_CHANGED_NOTIFY, appUpdateChangedObserver)
-        AppManager.observeForever(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, appUpdatedObserver)
-        AppManager.observeForever(UpdateStatus.APP_ADDED_NOTIFY, appAddedObserver)
-        AppManager.observeForever(UpdateStatus.APP_DATABASE_CHANGED_NOTIFY, appChangedObserver)
-        AppManager.observeForever(UpdateStatus.APP_DELETED_NOTIFY, appDeletedObserver)
+        AppManager.observe(UpdateStatus.APP_START_UPDATE_NOTIFY, appUpdatingObserver)
+        AppManager.observe(UpdateStatus.APP_UPDATE_STATUS_CHANGED_NOTIFY, appUpdateChangedObserver)
+        AppManager.observe(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, appUpdatedObserver)
+        AppManager.observe(UpdateStatus.APP_ADDED_NOTIFY, appAddedObserver)
+        AppManager.observe(UpdateStatus.APP_DATABASE_CHANGED_NOTIFY, appChangedObserver)
+        AppManager.observe(UpdateStatus.APP_DELETED_NOTIFY, appDeletedObserver)
     }
 
     fun addObserve(
-            app: App,
-            appAddedObserver: ObserverFun<App>, appDeletedObserver: ObserverFun<App>,
-            appChangedObserver: ObserverFun<App>, appUpdatedObserver: ObserverFun<App>,
+        app: App,
+        appAddedObserver: Func<App>, appDeletedObserver: Func<App>,
+        appChangedObserver: Func<App>, appUpdatedObserver: Func<App>,
     ) {
         removeObserve(app)
         appMap[app] = listOf(appAddedObserver, appDeletedObserver, appChangedObserver, appUpdatedObserver)

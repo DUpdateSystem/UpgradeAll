@@ -3,7 +3,7 @@ package net.xzos.upgradeall.core.downloader.filedownloader.item
 import net.xzos.upgradeall.core.downloader.filedownloader.DownloadCanceledError
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
-import net.xzos.upgradeall.core.utils.oberver.Informer
+import net.xzos.upgradeall.core.utils.oberver.InformerNoTag
 import zlc.season.rxdownload4.manager.delete
 import zlc.season.rxdownload4.manager.start
 import zlc.season.rxdownload4.manager.stop
@@ -13,9 +13,8 @@ import java.io.File
 /* 下载管理 */
 class Downloader internal constructor(
     downloadDir: File,
-) : Informer {
+) : InformerNoTag<Status>() {
 
-    override val informerId = Informer.getInformerId()
     val id by lazy { hashCode() }
 
     private val downloadFile by lazy { getDownloadDir(downloadDir) }

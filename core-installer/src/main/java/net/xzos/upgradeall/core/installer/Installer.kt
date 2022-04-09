@@ -1,16 +1,16 @@
 package net.xzos.upgradeall.core.installer
 
 import android.content.Context
-import net.xzos.upgradeall.core.utils.oberver.ObserverFun
-import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
+import net.xzos.upgradeall.core.utils.oberver.Func
+import net.xzos.upgradeall.core.utils.oberver.FuncNoArg
 import java.io.File
 
 object Installer {
     suspend fun install(
         fileList: List<File>,
         fileType: FileType, context: Context,
-        failedInstallObserverFun: ObserverFun<Throwable>,
-        completeInstallObserverFun: ObserverFunNoArg
+        failedInstallObserverFun: Func<Throwable>,
+        completeInstallObserverFun: FuncNoArg
     ) {
         if (fileList.size == 1) {
             val file = fileList.first()

@@ -68,7 +68,7 @@ object Log {
      */
     internal fun notifyChange() {
         runBlocking {
-            LogNotify.logChanged(logMap)
+            LogNotify.logChanged()
         }
     }
 

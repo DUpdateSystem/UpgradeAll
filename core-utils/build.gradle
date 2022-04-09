@@ -21,6 +21,8 @@ android {
         }
     }
     compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -44,4 +46,6 @@ dependencies {
 
     // 字符串匹配；日志打印去除转义字符
     implementation 'org.apache.commons:commons-text:1.9'
+    // core library desugaring
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }

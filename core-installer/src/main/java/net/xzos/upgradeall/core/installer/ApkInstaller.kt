@@ -7,8 +7,8 @@ import net.xzos.upgradeall.core.installer.installerapi.ApkRootInstall
 import net.xzos.upgradeall.core.installer.installerapi.ApkShizukuInstaller
 import net.xzos.upgradeall.core.installer.installerapi.ApkSystemInstaller
 import net.xzos.upgradeall.core.installer.status.InstallObserver
-import net.xzos.upgradeall.core.utils.oberver.ObserverFun
-import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
+import net.xzos.upgradeall.core.utils.oberver.Func
+import net.xzos.upgradeall.core.utils.oberver.FuncNoArg
 import java.io.File
 
 
@@ -20,15 +20,15 @@ internal object ApkInstaller {
 
     suspend fun install(
         file: File, context: Context,
-        failedInstallObserverFun: ObserverFun<Throwable>,
-        completeInstallObserverFun: ObserverFunNoArg
+        failedInstallObserverFun: Func<Throwable>,
+        completeInstallObserverFun: FuncNoArg
     ) {
         installMutex.withLock {
             try {
                 InstallObserver.observeInstall(file, context, completeInstallObserverFun)
                 doInstall(file, context)
             } catch (e: Throwable) {
-                InstallObserver.removeObserver(file)
+                InstallObserver.notifyFail(file, context)
                 failedInstallObserverFun(e)
             }
         }
@@ -47,15 +47,15 @@ internal object ApkInstaller {
 
     suspend fun multipleInstall(
         dirFile: File, context: Context,
-        failedInstallObserverFun: ObserverFun<Throwable>,
-        completeInstallObserverFun: ObserverFunNoArg
+        failedInstallObserverFun: Func<Throwable>,
+        completeInstallObserverFun: FuncNoArg
     ) {
         installMutex.withLock {
             try {
                 InstallObserver.observeInstall(dirFile, context, completeInstallObserverFun)
                 doMultipleInstall(dirFile, context)
             } catch (e: Throwable) {
-                InstallObserver.removeObserver(dirFile)
+                InstallObserver.notifyFail(dirFile, context)
                 failedInstallObserverFun(e)
             }
         }

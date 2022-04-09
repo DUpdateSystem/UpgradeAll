@@ -7,8 +7,8 @@ import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.log.msg
-import net.xzos.upgradeall.core.utils.oberver.ObserverFun
-import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
+import net.xzos.upgradeall.core.utils.oberver.Func
+import net.xzos.upgradeall.core.utils.oberver.FuncNoArg
 import java.io.File
 
 internal object MagiskModuleInstaller {
@@ -17,8 +17,8 @@ internal object MagiskModuleInstaller {
 
     suspend fun install(
         file: File,
-        failedInstallObserverFun: ObserverFun<Throwable>,
-        completeInstallObserverFun: ObserverFunNoArg
+        failedInstallObserverFun: Func<Throwable>,
+        completeInstallObserverFun: FuncNoArg
     ) {
         val command = "magisk --install-module ${file.path}"
         try {

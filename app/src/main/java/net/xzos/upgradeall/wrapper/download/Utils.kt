@@ -9,8 +9,8 @@ import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.installer.Installer
 import net.xzos.upgradeall.core.installer.getFileType
 import net.xzos.upgradeall.core.utils.log.msg
-import net.xzos.upgradeall.core.utils.oberver.ObserverFun
-import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
+import net.xzos.upgradeall.core.utils.oberver.Func
+import net.xzos.upgradeall.core.utils.oberver.FuncNoArg
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.server.downloader.DownloadNotification
 import net.xzos.upgradeall.server.downloader.DownloadNotificationManager
@@ -26,8 +26,8 @@ fun DownloadTasker.getFileType() =
 
 suspend fun DownloadTasker.install(
     context: Context, fileType: FileType,
-    failedInstallObserverFun: ObserverFun<Throwable>,
-    completeInstallObserverFun: ObserverFunNoArg
+    failedInstallObserverFun: Func<Throwable>,
+    completeInstallObserverFun: FuncNoArg
 ) {
     Installer.install(
         getFileList(), fileType, context, failedInstallObserverFun, completeInstallObserverFun

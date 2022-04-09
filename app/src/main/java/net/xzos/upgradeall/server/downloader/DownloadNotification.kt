@@ -43,42 +43,31 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
 
     fun registerNotify(wrapper: DownloadTasker) {
         DownloadNotificationManager.addNotification(wrapper, this)
-        wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.INFO_RENEW, { snap ->
-            mutex.runWithLock { preDownload(snap.msg, DownloadTaskerStatus.INFO_RENEW) }
-        }, { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.WAIT_START, { snap ->
-            mutex.runWithLock { preDownload(snap.msg, DownloadTaskerStatus.WAIT_START) }
-        }, { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.START_FAIL, { snap ->
-            mutex.runWithLock { taskFailed(snap.error) }
-        }, { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.EXTERNAL_DOWNLOAD, {
-            mutex.runWithLock { taskCancel() }
-        }, { !closed }, { closed })
-
-        wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.STARTED, { snap ->
-            mutex.runWithLock { taskStart(snap) }
-        }, { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.STARTED, { snap ->
-            mutex.runWithLock { taskRunning(snap) }
-        }, { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(
-            DownloadTaskerStatus.DOWNLOAD_RUNNING,
-            { snap -> mutex.runWithLock { taskRunning(snap) } },
-            { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.DOWNLOAD_STOP, {
-            mutex.runWithLock { taskPause() }
-        }, { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(
-            DownloadTaskerStatus.DOWNLOAD_COMPLETE,
-            { snap -> mutex.runWithLock { taskComplete(snap) } },
-            { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.DOWNLOAD_CANCEL, {
-            mutex.runWithLock { taskCancel() }
-        }, { !closed }, { closed })
-        wrapper.observeWithChecker<DownloadTaskerSnap>(DownloadTaskerStatus.DOWNLOAD_FAIL, {
-            mutex.runWithLock { taskFail() }
-        }, { !closed }, { closed })
+        wrapper.observe(checkerRunFun = { !closed }, observerFun = {
+            mutex.runWithLock {
+                when (it.status()) {
+                    DownloadTaskerStatus.INFO_RENEW -> preDownload(
+                        it.msg, DownloadTaskerStatus.INFO_RENEW
+                    )
+                    DownloadTaskerStatus.WAIT_START -> preDownload(
+                        it.msg, DownloadTaskerStatus.WAIT_START
+                    )
+                    DownloadTaskerStatus.START_FAIL -> taskFailed(it.error)
+                    DownloadTaskerStatus.EXTERNAL_DOWNLOAD -> taskCancel()
+                    DownloadTaskerStatus.STARTED -> taskStart(it)
+                    DownloadTaskerStatus.DOWNLOAD_START -> taskRunning(it)
+                    DownloadTaskerStatus.DOWNLOAD_RUNNING -> taskRunning(it)
+                    DownloadTaskerStatus.DOWNLOAD_STOP -> taskPause()
+                    DownloadTaskerStatus.DOWNLOAD_COMPLETE -> taskComplete(it)
+                    DownloadTaskerStatus.DOWNLOAD_CANCEL -> taskCancel()
+                    DownloadTaskerStatus.DOWNLOAD_FAIL -> taskFail()
+                    DownloadTaskerStatus.NONE -> {}
+                    DownloadTaskerStatus.INFO_COMPLETE -> {}
+                    DownloadTaskerStatus.INFO_FAILED -> {}
+                    DownloadTaskerStatus.IN_DOWNLOAD -> {}
+                }
+            }
+        })
     }
 
     private fun preDownload(taskName: String, status: DownloadTaskerStatus) {

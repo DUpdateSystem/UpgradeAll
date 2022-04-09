@@ -10,8 +10,9 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.androidutils.runUiFun
 import net.xzos.upgradeall.core.manager.AppManager
+import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater
-import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
+import net.xzos.upgradeall.core.utils.oberver.Func
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
 import net.xzos.upgradeall.server.update.startUpdate
@@ -30,7 +31,7 @@ import net.xzos.upgradeall.utils.UxUtils
 class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val observer: ObserverFunNoArg = { renewUpdateStatus() }
+    private val observer: Func<App?> = { renewUpdateStatus() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -132,7 +133,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onResume() {
-        AppManager.observeForever(observer)
+        AppManager.observeAlways(observer)
         super.onResume()
         renewUpdateStatus()
     }

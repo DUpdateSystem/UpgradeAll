@@ -1,172 +1,152 @@
 package net.xzos.upgradeall.core.utils.oberver
 
-import net.xzos.upgradeall.core.utils.coroutines.*
-import net.xzos.upgradeall.core.utils.none
-
-private val DEFAULT_TAG = object : Tag {}
-
-interface Informer {
-
-    val informerId: Int
-
+abstract class InformerNoClass : InformerBase<Any>() {
     fun notifyChanged() {
-        notifyChanged(DEFAULT_TAG)
+        pNotifyChanged(doTag, null)
     }
 
-    fun notifyChanged(tag: Tag) {
-        notifyChanged(tag, none)
-    }
-
-    fun <E> notifyChanged(arg: E) {
-        notifyChanged(DEFAULT_TAG, arg)
-    }
-
-    fun <E> notifyChanged(tag: Tag, arg: E) {
-        val observerMap = getObserverMap(informerId, false)
-        for (observer in getExistObserverList<E>(tag, observerMap)) {
-            if (observer.enableCheck())
-                observer.call(arg)
-            if (observer.removeCheck())
-                removeObserver(tag, observer)
-        }
-    }
-
-    fun <E> observeForever(observerFun: ObserverFun<E>) {
-        observeForever(DEFAULT_TAG, observerFun)
-    }
-
-    fun <E> observeOneOff(observerFun: ObserverFun<E>) {
-        observeOneOff(DEFAULT_TAG, observerFun)
-    }
-
-    fun <E> observeOneOff(tag: Tag, observerFun: ObserverFun<E>) {
-        observeWithChecker(tag, observerFun, { true }, { true })
-    }
-
-    fun observeForever(observerFun: ObserverFunNoArg) {
-        observeForever(DEFAULT_TAG, observerFun)
-    }
-
-    fun observeOneOff(observerFun: ObserverFunNoArg) {
-        observeOneOff(DEFAULT_TAG, observerFun)
-    }
-
-    fun observeOneOff(tag: Tag, observerFun: ObserverFunNoArg) {
-        observeWithChecker(tag, observerFun, { true }, { true })
-    }
-
-    fun <E> observeWithChecker(
-        tag: Tag, observerFun: ObserverFun<E>,
-        checkerStartFun: () -> Boolean, checkerRemoveFun: () -> Boolean
+    fun observe(
+        observerFun: FuncNoArg,
+        checkerRunFun: () -> Boolean = { true },
+        checkerRemoveFun: () -> Boolean = { false },
     ) {
-        observeForever(tag, object : ObserverFunWithChecker<E>(observerFun) {
-            override fun enableCheck(): Boolean = checkerStartFun()
-            override fun removeCheck(): Boolean = checkerRemoveFun()
-            override fun disableCheck(): Boolean = !checkerStartFun()
-        })
+        pObserve(doTag, { observerFun() }, checkerRunFun, checkerRemoveFun, observerFun)
     }
 
-    fun observeWithChecker(
-        tag: Tag, observerFun: ObserverFunNoArg,
-        checkerStartFun: () -> Boolean, checkerRemoveFun: () -> Boolean
+    fun removeObserver(func: FuncNoArg) {
+        map.forEach {
+            it.value.remove(func)
+        }
+    }
+}
+
+abstract class InformerNoTag<E> : InformerBase<E>() {
+    fun notifyChanged(arg: E) {
+        pNotifyChanged(doTag, arg)
+    }
+
+    fun observe(
+        observerFun: Func<E>,
     ) {
-        observeForever(tag, object : ObserverFunWithCheckerNoArg(observerFun) {
-            override fun enableCheck(): Boolean = checkerStartFun()
-            override fun removeCheck(): Boolean = checkerRemoveFun()
-            override fun disableCheck(): Boolean = !checkerStartFun()
-        })
+        pObserve(doTag, { it?.run { observerFun(this) } }, id = observerFun)
     }
 
-    fun <E> observeForever(tag: Tag, function: ObserverFun<E>) {
-        observeForever(tag, Observer(function))
+    fun observe(
+        observerFun: Func<E>,
+        checkerRunFun: () -> Boolean = { true },
+        checkerRemoveFun: () -> Boolean = { !checkerRunFun() },
+    ) {
+        pObserve(
+            doTag, { it?.run { observerFun(this) } },
+            checkerRunFun, checkerRemoveFun, observerFun
+        )
     }
 
-    fun observeForever(tag: Tag, function: ObserverFunNoArg) {
-        observeForever(tag, ObserverNoArg(function))
-    }
-
-    fun observeForever(tag: Tag, observer: BaseObserver<*>) {
-        val observerMap = getObserverMap(informerId)
-        val observerList = getObserverList(tag, observerMap)
-        if (!observerList.containsId(observer))
-            observerList.add(observer)
-    }
-
-    fun <E> removeObserver(observerFun: ObserverFun<E>) {
-        getObserverMap(informerId, false).forEach {
-            it.value.run {
-                forEach { observer ->
-                    if (observer.id == observerFun)
-                        remove(observer)
-                }
-            }
+    fun removeObserver(func: Func<E>) {
+        map.forEach {
+            it.value.remove(func)
         }
     }
+}
 
-    fun removeObserver(observerFun: ObserverFunNoArg) {
-        getObserverMap(informerId, false).forEach {
-            it.value.run {
-                forEach { observer ->
-                    if (observer.id == observerFun)
-                        remove(observer)
-                }
-            }
-        }
+abstract class InformerNoArg<T : Tag> : InformerBase<Any>() {
+    fun notifyChanged(tag: T) {
+        pNotifyChanged(tag, null)
     }
 
-    fun removeObserver(tag: Tag, observer: BaseObserver<*>) {
-        getObserverMap(informerId, false)[tag]?.remove(observer)
+    fun observe(
+        tag: T, observerFun: FuncNoArg,
+        checkerRunFun: () -> Boolean = { true },
+        checkerRemoveFun: () -> Boolean = { false },
+    ) {
+        pObserve(
+            tag, { it?.run { observerFun() } },
+            checkerRunFun, checkerRemoveFun, observerFun
+        )
     }
 
-    fun removeObserver(tag: Tag) {
-        getObserverMap(informerId, false).remove(tag)
+    fun observe(tag: T, observerFun: FuncNoArg) {
+        pObserve(tag, { it?.run { observerFun() } }, id = observerFun)
     }
 
-    fun finalize() {
-        observerMap.remove(informerId)
+    fun removeObserver(tag: T) {
+        map.remove(tag)
     }
 
-    companion object {
-        private fun List<BaseObserver<*>>.containsId(value: Any): Boolean {
-            val id = if (value is Observer<*>)
-                value.id
-            else value
-            forEach { observer ->
-                if (observer.id == id)
-                    return true
-            }
-            return false
+    fun removeObserver(tag: T, func: FuncNoArg) {
+        map[tag]?.remove(func)
+    }
+
+    fun removeObserver(func: FuncNoArg) {
+        map.forEach {
+            it.value.remove(func)
         }
+    }
+}
 
-        private val observerMap: CoroutinesMutableMap<Int, CoroutinesMutableMap<Tag, CoroutinesMutableList<BaseObserver<*>>>> =
-            coroutinesMutableMapOf(true)
-        private val informerIdGetter: CoroutinesCount = CoroutinesCount(0)
+abstract class Informer<T : Tag, E : Any> : InformerBase<E>() {
+    fun notifyChanged(tag: T, arg: E) {
+        pNotifyChanged(tag, arg)
+    }
 
-        fun getInformerId(): Int = informerIdGetter.getNewValue(1)
+    fun observe(
+        tag: T, observerFun: Func<E>,
+        checkerRunFun: () -> Boolean = { true },
+        checkerRemoveFun: () -> Boolean = { false },
+    ) {
+        pObserve(
+            tag, { it?.run { observerFun(this) } },
+            checkerRunFun, checkerRemoveFun, observerFun
+        )
+    }
 
-        private fun getObserverMap(
-            informerId: Int,
-            createNew: Boolean = true
-        ): CoroutinesMutableMap<Tag, CoroutinesMutableList<BaseObserver<*>>> {
-            return (if (createNew)
-                observerMap.getOrDefault(informerId) { coroutinesMutableMapOf(true) }
-            else
-                observerMap[informerId] ?: coroutinesMutableMapOf(true))
+    fun observe(tag: T, observerFun: Func<E>) {
+        pObserve(tag, { it?.run { observerFun(this) } }, id = observerFun)
+    }
 
+    fun removeObserver(tag: T) {
+        map.remove(tag)
+    }
+
+    fun removeObserver(tag: T, func: Func<E>) {
+        map[tag]?.remove(func)
+    }
+
+    fun removeObserver(func: Func<E>) {
+        map.forEach {
+            it.value.remove(func)
         }
+    }
+}
 
-        fun getObserverList(
-            tag: Tag,
-            observerMap: CoroutinesMutableMap<Tag, CoroutinesMutableList<BaseObserver<*>>>,
-        ): MutableList<BaseObserver<*>> {
-            return observerMap.getOrDefault(tag) { coroutinesMutableListOf(true) }
-        }
+abstract class InformerNullable<T : Tag, E : Any?> : InformerBase<E>() {
+    fun notifyChanged(tag: T, arg: E?) {
+        pNotifyChanged(tag, arg)
+    }
 
-        fun <E> getExistObserverList(
-            tag: Tag,
-            observerMap: CoroutinesMutableMap<Tag, CoroutinesMutableList<BaseObserver<*>>>,
-        ): List<BaseObserver<E>> {
-            return (observerMap[tag] ?: emptyList()) as List<BaseObserver<E>>
+    fun observe(
+        tag: T,
+        checkerRunFun: () -> Boolean = { true },
+        checkerRemoveFun: () -> Boolean = { false },
+        observerFun: Func<E?>,
+    ) {
+        pObserve(
+            tag, { it?.run { observerFun(this) } },
+            checkerRunFun, checkerRemoveFun, observerFun
+        )
+    }
+
+    fun removeObserver(tag: T) {
+        map.remove(tag)
+    }
+
+    fun removeObserver(tag: T, func: Func<E?>) {
+        map[tag]?.remove(func)
+    }
+
+    fun removeObserver(func: Func<E?>) {
+        map.forEach {
+            it.value.remove(func)
         }
     }
 }
