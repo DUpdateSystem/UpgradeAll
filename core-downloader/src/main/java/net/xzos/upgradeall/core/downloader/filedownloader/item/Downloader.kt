@@ -1,11 +1,9 @@
 package net.xzos.upgradeall.core.downloader.filedownloader.item
 
 import net.xzos.upgradeall.core.downloader.filedownloader.DownloadCanceledError
-import net.xzos.upgradeall.core.downloader.filedownloader.DownloaderManager
-import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadOb
-import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadRegister
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.utils.oberver.Informer
 import zlc.season.rxdownload4.manager.delete
 import zlc.season.rxdownload4.manager.start
 import zlc.season.rxdownload4.manager.stop
@@ -13,43 +11,20 @@ import java.io.File
 
 
 /* 下载管理 */
-class Downloader(downloadDir: File) {
+class Downloader internal constructor(
+    downloadDir: File,
+) : Informer {
+
+    override val informerId = Informer.getInformerId()
     val id by lazy { hashCode() }
-
-    var status: Status = Status.NONE
-        private set
-
-    private fun renewStatus() {
-        val taskList = taskList
-        status = when {
-            taskList.isEmpty() -> Status.NONE
-            taskList.any { it.snap?.status == Status.START } -> Status.START
-            taskList.any { it.snap?.status == Status.RUNNING } -> Status.RUNNING
-            taskList.all { task ->
-                task.snap?.status?.let { it == Status.STOP } ?: true
-            } -> Status.RUNNING
-            taskList.all { task ->
-                task.snap?.status?.let { it == Status.COMPLETE } ?: true
-            } -> Status.COMPLETE
-            taskList.all { task ->
-                task.snap?.status?.let { it == Status.CANCEL } ?: true
-            } -> Status.CANCEL
-            taskList.any { it.snap?.status == Status.FAIL } -> Status.FAIL
-            else -> Status.NONE
-        }
-    }
 
     private val downloadFile by lazy { getDownloadDir(downloadDir) }
 
     private val requestList: MutableList<TaskData> = mutableListOf()
     private val taskList: MutableList<TaskWrapper> = mutableListOf()
 
-    fun register(downloadOb: DownloadOb) {
-        DownloadRegister.registerOb(this, downloadOb)
-    }
-
-    fun unregister(downloadOb: DownloadOb) {
-        DownloadRegister.unRegisterOb(this, downloadOb)
+    private fun notifyStatus() {
+        notifyChanged(status())
     }
 
     fun removeFile() {
@@ -65,7 +40,7 @@ class Downloader(downloadDir: File) {
         var totalSize = 0L
         var downloadedSize = 0L
         taskList.forEach {
-            val status = it.snap ?: return@forEach
+            val status = it.snap
             totalSize += status.totalSize
             downloadedSize += status.downloadSize
         }
@@ -76,23 +51,35 @@ class Downloader(downloadDir: File) {
         return taskList
     }
 
-    fun TaskWrapper.start() = this.apply {
-        subscribe { renewStatus() }
-        manager.start()
+    fun status(): Status {
+        return getTaskList().run {
+            when {
+                isEmpty() -> Status.NONE
+                any { it.snap.status == Status.START } -> Status.START
+                any { it.snap.status == Status.RUNNING } -> Status.RUNNING
+                all { it.snap.status == Status.STOP } -> Status.STOP
+                all { it.snap.status == Status.COMPLETE } -> Status.COMPLETE
+                all { it.snap.status == Status.CANCEL } -> Status.CANCEL
+                any { it.snap.status == Status.FAIL } -> Status.FAIL
+                else -> Status.NONE
+            }
+        }
     }
 
-    fun start(
+    private suspend fun TaskData.managerWrapper() = this.manager().wrapper({ notifyStatus() })
+
+    private fun TaskWrapper.start() = this.apply { manager.start() }
+
+    suspend fun start(
         taskStartedFun: () -> Unit,
         taskStartFailedFun: (Throwable) -> Unit,
-        vararg downloadOb: DownloadOb
     ) {
         if (requestList.isEmpty()) {
             taskStartFailedFun(DownloadCanceledError("no request list"))
             return
         }
-        taskList.addAll(requestList.map { it.manager().wrapper().start() })
+        taskList.addAll(requestList.map { it.managerWrapper().start() })
         requestList.clear()
-        register(*downloadOb)
         taskStartedFun()
     }
 
@@ -119,18 +106,6 @@ class Downloader(downloadDir: File) {
     private fun delTask() {
         taskList.forEach { it.manager.delete() }
         downloadFile.delete()
-        unregister()
-    }
-
-    private fun register(vararg downloadOb: DownloadOb) {
-        DownloaderManager.addDownloader(this)
-        downloadOb.forEach {
-            DownloadRegister.registerOb(this, it)
-        }
-    }
-
-    private fun unregister() {
-        DownloaderManager.removeDownloader(this)
     }
 
     companion object {

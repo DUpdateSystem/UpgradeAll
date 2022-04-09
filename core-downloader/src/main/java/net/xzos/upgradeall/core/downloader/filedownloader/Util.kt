@@ -7,8 +7,6 @@ import net.xzos.upgradeall.core.utils.log.Log
 import java.io.File
 import java.util.*
 
-private const val DOWNLOAD_CANCELLED = "DOWNLOAD_CANCELLED"
-
 fun getDownloadDirDocumentFile(name: String, parent: DocumentFile): DocumentFile {
     return parent.createDirectory(name) ?: throw DownloadFileError(parent, name).apply {
         Log.e(
@@ -41,15 +39,3 @@ fun getNewRandomNameFile(targetDir: File, isDir: Boolean): File {
             it.createNewFile()
     }
 }
-
-class DownloadFileError internal constructor(
-    val parent: DocumentFile, val fileName: String
-) : RuntimeException()
-
-class DownloadCanceledError internal constructor(
-    val msg: String? = null
-) : RuntimeException(DOWNLOAD_CANCELLED)
-
-class DownloadFetchError internal constructor(
-    val error: Error
-) : RuntimeException(DOWNLOAD_CANCELLED)

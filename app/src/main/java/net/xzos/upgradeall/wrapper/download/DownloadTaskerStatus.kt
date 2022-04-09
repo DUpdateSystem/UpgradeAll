@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.wrapper.download
 
+import net.xzos.upgradeall.core.downloader.filedownloader.item.Status
 import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskSnap
 import net.xzos.upgradeall.core.downloader.filedownloader.item.progress
 import net.xzos.upgradeall.core.utils.oberver.Tag
@@ -22,6 +23,16 @@ enum class DownloadTaskerStatus(val msg: String? = null) : Tag {
     DOWNLOAD_COMPLETE,
     DOWNLOAD_CANCEL,
     DOWNLOAD_FAIL
+}
+
+fun Status.taskStatus() = when (this) {
+    Status.START -> DownloadTaskerStatus.DOWNLOAD_START
+    Status.RUNNING -> DownloadTaskerStatus.DOWNLOAD_RUNNING
+    Status.STOP -> DownloadTaskerStatus.DOWNLOAD_STOP
+    Status.COMPLETE -> DownloadTaskerStatus.DOWNLOAD_COMPLETE
+    Status.CANCEL -> DownloadTaskerStatus.DOWNLOAD_CANCEL
+    Status.FAIL -> DownloadTaskerStatus.DOWNLOAD_FAIL
+    else -> DownloadTaskerStatus.NONE
 }
 
 class DownloadTaskerSnap(

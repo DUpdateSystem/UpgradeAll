@@ -2,10 +2,12 @@ package net.xzos.upgradeall.wrapper.download
 
 import android.content.Context
 import net.xzos.upgradeall.core.database.table.extra_hub.ExtraHubEntityManager
-import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskSnap
+import net.xzos.upgradeall.core.downloader.filedownloader.DownloaderManager
 import net.xzos.upgradeall.core.downloader.filedownloader.item.Downloader
 import net.xzos.upgradeall.core.downloader.filedownloader.item.InputData
-import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadOb
+import net.xzos.upgradeall.core.downloader.filedownloader.item.Status
+import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskSnap
+import net.xzos.upgradeall.core.downloader.filedownloader.newDownloader
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version_item.FileAsset
@@ -37,7 +39,7 @@ class DownloadTasker(
     var downloadInfoList: List<DownloadItem> = emptyList()
 
     private fun getDownloadSnapList() =
-        downloader?.getTaskList()?.mapNotNull { it.snap } ?: listOf()
+        downloader?.getTaskList()?.map { it.snap } ?: listOf()
 
     private fun getFileTaskerSnap(
         status: DownloadTaskerStatus? = null,
@@ -91,41 +93,20 @@ class DownloadTasker(
     }
 
     private fun setDownload(dataList: List<InputData>, dir: File): Downloader {
-        return Downloader(dir).apply {
-            dataList.forEach {
-                addTask(it)
+        return DownloaderManager.newDownloader(dir).apply {
+            dataList.forEach { addTask(it) }
+        }.also { d ->
+            d.observeForever<Status> {
+                notifyChanged(getFileTaskerSnap(it.taskStatus()))
             }
         }
     }
 
-    private fun startDownloader(downloader: Downloader) {
+    private suspend fun startDownloader(downloader: Downloader) {
         notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.WAIT_START))
         downloader.start(
-            {
-                notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.STARTED).msg("${app.name}$downloader"))
-            },
-            {
-                notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.START_FAIL).error(it))
-            },
-            DownloadOb(
-                startFunc = {
-                    notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.DOWNLOAD_START))
-                },
-                runningFunc = {
-                    notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.DOWNLOAD_RUNNING))
-                },
-                stopFunc = {
-                    notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.DOWNLOAD_STOP))
-                },
-                completeFunc = {
-                    notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.DOWNLOAD_COMPLETE))
-                },
-                cancelFunc = {
-                    notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.DOWNLOAD_CANCEL))
-                }, failFunc = {
-                    notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.DOWNLOAD_FAIL))
-                }
-            )
+            { notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.STARTED).msg("${app.name}$downloader")) },
+            { notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.START_FAIL).error(it)) }
         )
     }
 

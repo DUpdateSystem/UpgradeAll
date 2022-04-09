@@ -1,19 +1,19 @@
 package net.xzos.upgradeall.core.downloader.filedownloader.item
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
+import kotlinx.coroutines.withContext
 import zlc.season.rxdownload4.manager.*
 
-class TaskWrapper internal constructor(internal val manager: TaskManager) {
+class TaskWrapper private constructor(
+    internal val manager: TaskManager,
+    private var subscribeList: Array<out (TaskSnap) -> Unit>
+) {
     val file = manager.file()
 
-    var snap: TaskSnap? = null
+    var snap: TaskSnap = getNoneTaskSnap()
 
-    private val subscribeList = coroutinesMutableListOf<(TaskSnap) -> Unit>()
-
-    init {
-        runBlocking(Dispatchers.Main) {
+    private suspend fun init() {
+        withContext(Dispatchers.Main) {
             manager.subscribe { status ->
                 subscribeFun(status)
             }
@@ -33,16 +33,20 @@ class TaskWrapper internal constructor(internal val manager: TaskManager) {
         }
         val progress = status.progress
         manager.currentStatus()
-        val oldSnap = this@TaskWrapper.snap
         val snap = TaskSnap(downloadStatus, progress.downloadSize, progress.totalSize)
-        oldSnap?.also { snap.countSpeed(it) }
-        this@TaskWrapper.snap = snap
+        snap.countSpeed(this.snap)
+        this.snap = snap
         subscribeList.map { it(snap) }
     }
 
-    internal fun subscribe(function: (TaskSnap) -> Unit) {
-        subscribeList.add(function)
+    companion object {
+        internal suspend fun new(
+            manager: TaskManager,
+            vararg subscribe: (TaskSnap) -> Unit
+        ) = TaskWrapper(manager, subscribe).apply { init() }
     }
 }
 
-fun TaskManager.wrapper() = TaskWrapper(this)
+suspend fun TaskManager.wrapper(
+    vararg subscribe: (TaskSnap) -> Unit
+) = TaskWrapper.new(this, *subscribe)
