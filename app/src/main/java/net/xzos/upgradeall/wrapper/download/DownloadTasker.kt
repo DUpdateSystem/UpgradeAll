@@ -5,14 +5,13 @@ import net.xzos.upgradeall.core.database.table.extra_hub.ExtraHubEntityManager
 import net.xzos.upgradeall.core.downloader.filedownloader.DownloaderManager
 import net.xzos.upgradeall.core.downloader.filedownloader.item.Downloader
 import net.xzos.upgradeall.core.downloader.filedownloader.item.InputData
-import net.xzos.upgradeall.core.downloader.filedownloader.item.Status
 import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskSnap
 import net.xzos.upgradeall.core.downloader.filedownloader.newDownloader
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version_item.FileAsset
 import net.xzos.upgradeall.core.utils.URLReplace
-import net.xzos.upgradeall.core.utils.oberver.Informer
+import net.xzos.upgradeall.core.utils.oberver.InformerNoTag
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.data.PreferencesMap
@@ -22,9 +21,7 @@ import java.io.File
 
 class DownloadTasker(
     val app: App, private val fileAsset: FileAsset
-) : Informer {
-    override val informerId: Int = Informer.getInformerId()
-
+) : InformerNoTag<DownloadTaskerSnap>() {
     var snap: DownloadTaskerSnap? = null
         private set
 
@@ -53,7 +50,7 @@ class DownloadTasker(
 
     private suspend fun getDownloadInfo() {
         val hub = fileAsset.hub
-        notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.INFO_RENEW).msg(fileAsset.name))
+        changed(getFileTaskerSnap(DownloadTaskerStatus.INFO_RENEW).msg(fileAsset.name))
         val urlReplaceUtil = URLReplace(ExtraHubEntityManager.getUrlReplace(hub.uuid))
 
         @Suppress("UNCHECKED_CAST")
@@ -64,9 +61,9 @@ class DownloadTasker(
             it.copy(url = urlReplaceUtil.replaceURL(it.url))
         }
         if (downloadInfoList.isEmpty())
-            notifyChanged(DownloadTaskerStatus.INFO_FAILED, DownloadInfoEmpty)
+            changed(getFileTaskerSnap(DownloadTaskerStatus.INFO_FAILED).error(DownloadInfoEmpty))
         else
-            notifyChanged(DownloadTaskerStatus.INFO_COMPLETE)
+            changed(getFileTaskerSnap(DownloadTaskerStatus.INFO_COMPLETE))
     }
 
     suspend fun start(
@@ -74,14 +71,14 @@ class DownloadTasker(
     ) {
         getDownloadInfo()
         if (downloadInfoList.isEmpty()) {
-            notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.START_FAIL).error(DownloadInfoEmpty))
+            changed(getFileTaskerSnap(DownloadTaskerStatus.START_FAIL).error(DownloadInfoEmpty))
             return
         }
         if (externalDownload || PreferencesMap.enforce_use_external_downloader) {
             downloadInfoList.forEach {
                 MiscellaneousUtils.accessByBrowser(it.url, context)
             }
-            notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.EXTERNAL_DOWNLOAD))
+            changed(getFileTaskerSnap(DownloadTaskerStatus.EXTERNAL_DOWNLOAD))
         } else {
             val downloader = setDownload(
                 downloadInfoList.map { it.getDownloadInfoItem(fileAsset.name) },
@@ -96,23 +93,23 @@ class DownloadTasker(
         return DownloaderManager.newDownloader(dir).apply {
             dataList.forEach { addTask(it) }
         }.also { d ->
-            d.observeForever<Status> {
-                notifyChanged(getFileTaskerSnap(it.taskStatus()))
+            d.observe {
+                changed(getFileTaskerSnap(it.taskStatus()))
             }
         }
     }
 
     private suspend fun startDownloader(downloader: Downloader) {
-        notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.WAIT_START))
+        changed(getFileTaskerSnap(DownloadTaskerStatus.WAIT_START))
         downloader.start(
-            { notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.STARTED).msg("${app.name}$downloader")) },
-            { notifyChanged(getFileTaskerSnap(DownloadTaskerStatus.START_FAIL).error(it)) }
+            { changed(getFileTaskerSnap(DownloadTaskerStatus.STARTED).msg("${app.name}$downloader")) },
+            { changed(getFileTaskerSnap(DownloadTaskerStatus.START_FAIL).error(it)) }
         )
     }
 
-    private fun notifyChanged(snap: DownloadTaskerSnap) {
+    private fun changed(snap: DownloadTaskerSnap) {
         this.snap = snap
-        notifyChanged(snap.status, snap)
+        notifyChanged(snap)
     }
 }
 

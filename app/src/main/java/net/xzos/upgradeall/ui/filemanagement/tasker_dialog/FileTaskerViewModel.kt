@@ -18,7 +18,7 @@ class FileTaskerViewModel : ObservableViewModel() {
     private lateinit var fileTasker: DownloadTasker
     fun setFileTasker(fileTasker: DownloadTasker) {
         this.fileTasker = fileTasker
-        this.fileTasker.observeForever(observerFun)
+        this.fileTasker.observe(observerFun)
     }
 
     val installButtonVisibility = ObservableBoolean(false)

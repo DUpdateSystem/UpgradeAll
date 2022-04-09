@@ -1,9 +1,7 @@
 package net.xzos.upgradeall.core.utils.log
 
 import android.util.Log
-import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
-import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
-import net.xzos.upgradeall.core.utils.oberver.Informer
+import net.xzos.upgradeall.core.utils.oberver.InformerNullable
 import net.xzos.upgradeall.core.utils.oberver.Tag
 
 
@@ -14,7 +12,7 @@ enum class LogStatus : Tag {
 /**
  * 自定义的日志打印工具类
  */
-object LogNotify : Informer {
+object LogNotify : InformerNullable<LogStatus, LogItemData?>() {
 
     internal fun printLog(logItemData: LogItemData) {
         notifyChanged(LogStatus.PRINT_LOG_TAG, logItemData)
@@ -28,9 +26,7 @@ object LogNotify : Informer {
         }
     }
 
-    internal fun logChanged(logMap: CoroutinesMutableMap<ObjectTag, CoroutinesMutableList<LogItemData>>) {
-        notifyChanged(LogStatus.LOG_CHANGED_TAG, logMap)
+    internal fun logChanged() {
+        notifyChanged(LogStatus.LOG_CHANGED_TAG, null)
     }
-
-    override val informerId: Int = Informer.getInformerId()
 }

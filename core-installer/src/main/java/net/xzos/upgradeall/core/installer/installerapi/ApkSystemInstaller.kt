@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.installer.installerapi
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -9,17 +8,15 @@ import android.net.Uri
 import android.os.Build
 import net.xzos.upgradeall.core.installer.getApkUri
 import net.xzos.upgradeall.core.installer.service.ApkInstallerService
-import net.xzos.upgradeall.core.androidutils.FlagDelegate
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.log.msg
-import net.xzos.upgradeall.core.utils.oberver.Informer
 import java.io.File
 import java.io.IOException
 
 
-object ApkSystemInstaller : Informer {
+object ApkSystemInstaller {
 
     private const val TAG = "ApkSystemInstaller"
     private val logObjectTag = ObjectTag(core, TAG)
@@ -116,7 +113,10 @@ object ApkSystemInstaller : Informer {
         try {
             val callbackIntent = Intent(context, ApkInstallerService::class.java)
             val pendingIntent = PendingIntent.getService(
-                context, 0, callbackIntent, net.xzos.upgradeall.core.androidutils.FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE
+                context,
+                0,
+                callbackIntent,
+                net.xzos.upgradeall.core.androidutils.FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE
             )
             session.commit(pendingIntent.intentSender)
             session.close()
@@ -153,6 +153,4 @@ object ApkSystemInstaller : Informer {
             obbFile.renameTo(File("/storage/emulated/0/Android/obb/$obbPackageName/", obbFile.name))
         }
     }
-
-    override val informerId: Int = Informer.getInformerId()
 }

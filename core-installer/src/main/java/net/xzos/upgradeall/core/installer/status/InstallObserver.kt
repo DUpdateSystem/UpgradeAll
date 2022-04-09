@@ -3,30 +3,23 @@ package net.xzos.upgradeall.core.installer.status
 import android.content.Context
 import android.content.pm.PackageInfo
 import net.xzos.upgradeall.core.installer.getPackageInfo
-import net.xzos.upgradeall.core.installer.installerapi.ApkSystemInstaller
-import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
-import net.xzos.upgradeall.core.utils.oberver.Informer
-import net.xzos.upgradeall.core.utils.oberver.ObserverFunNoArg
+import net.xzos.upgradeall.core.utils.oberver.FuncNoArg
+import net.xzos.upgradeall.core.utils.oberver.InformerNoArg
 import net.xzos.upgradeall.core.utils.oberver.Tag
 import net.xzos.upgradeall.core.utils.watchdog.WatchdogItem
 import java.io.File
 
-private data class PackageInfoTag(
+data class PackageInfoData(
     val packageName: String,
     val versionName: String,
 ) : Tag
 
-internal object InstallObserver : Informer {
-    override val informerId = Informer.getInformerId()
+internal object InstallObserver : InformerNoArg<(PackageInfoData)>() {
 
-    private val filePackageMap = coroutinesMutableMapOf<File, PackageInfo>(true)
-
-    fun observeInstall(apkFile: File, context: Context, observerFun: ObserverFunNoArg) {
-        val packageInfo = apkFile.getPackageInfo(context)
-        if (packageInfo != null) {
-            filePackageMap[apkFile] = packageInfo
-            val key = getObserveKey(packageInfo)
-            ApkSystemInstaller.observeForever(key, observerFun)
+    fun observeInstall(file: File, context: Context, observerFun: FuncNoArg) {
+        val key = file.getPackageInfo(context)?.observeKey() ?: return
+        if (key != null) {
+            observe(key, observerFun = observerFun)
         } else {
             val watchdog = WatchdogItem(30).apply {
                 addStopListener(observerFun)
@@ -35,19 +28,17 @@ internal object InstallObserver : Informer {
         }
     }
 
-    fun notifyCompleteInstall(packageInfo: PackageInfo) {
-        val key = getObserveKey(packageInfo)
-        ApkSystemInstaller.notifyChanged(key)
-        ApkSystemInstaller.removeObserver(key)
+    fun notifyComplete(packageInfo: PackageInfo) {
+        val key = packageInfo.observeKey()
+        notifyChanged(key)
+        removeObserver(key)
     }
 
-    fun removeObserver(file: File) {
-        val packageInfo = filePackageMap.remove(file) ?: return
-        val key = getObserveKey(packageInfo)
-        ApkSystemInstaller.removeObserver(key)
+    fun notifyFail(file: File, context: Context) {
+        val key = file.getPackageInfo(context)?.observeKey() ?: return
+        notifyChanged(key)
+        removeObserver(key)
     }
 
-    private fun getObserveKey(packageInfo: PackageInfo): PackageInfoTag {
-        return PackageInfoTag(packageInfo.packageName, packageInfo.versionName)
-    }
+    private fun PackageInfo.observeKey() = PackageInfoData(packageName, versionName)
 }

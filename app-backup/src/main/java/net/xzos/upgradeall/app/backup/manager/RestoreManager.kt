@@ -14,10 +14,10 @@ import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.utils.file.parseZipBytes
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
-import net.xzos.upgradeall.core.utils.oberver.InformerClass
+import net.xzos.upgradeall.core.utils.oberver.InformerNoTag
 
 
-object RestoreManager : InformerClass() {
+object RestoreManager : InformerNoTag<RestoreStatus>() {
     private const val TAG = "RestoreManager"
     private val logObjectTag = ObjectTag("app-backup", TAG)
 

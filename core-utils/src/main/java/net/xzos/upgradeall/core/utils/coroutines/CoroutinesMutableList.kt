@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.utils.coroutines
 
 import kotlinx.coroutines.sync.Mutex
+import net.xzos.upgradeall.core.utils.oberver.Observer
 
 class CoroutinesMutableList<E>(hash: Boolean = false, collection: Collection<E>? = null) : MutableList<E> {
     private val mutex = Mutex()

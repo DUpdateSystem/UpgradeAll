@@ -37,7 +37,7 @@ enum class UpdateStatus : Tag {
     APP_DELETED_NOTIFY,
 }
 
-object AppManager : Informer {
+object AppManager : Informer<UpdateStatus, App>() {
 
     private val appMap = coroutinesMutableMapOf<Int, CoroutinesMutableList<App>>(true)
 
@@ -290,6 +290,4 @@ object AppManager : Informer {
         }
         removeAppList(app)
     }
-
-    override val informerId: Int = Informer.getInformerId()
 }

@@ -19,7 +19,7 @@ class AppInstallReceiver : BroadcastReceiver() {
 
         try {
             val info = manager.getPackageInfo(packageName, 0)
-            InstallObserver.notifyCompleteInstall(info)
+            InstallObserver.notifyComplete(info)
         } catch (e: PackageManager.NameNotFoundException) {
             Log.e(logObjectTag, TAG, "error: ${e.msg()}")
         }

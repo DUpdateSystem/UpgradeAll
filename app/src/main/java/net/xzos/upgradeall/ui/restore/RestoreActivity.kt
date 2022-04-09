@@ -33,6 +33,6 @@ class RestoreActivity : AppBarActivity() {
                 binding.textViewNote.text = status.stepNote
             }
         }
-        RestoreManager.observeForever(observerFun)
+        RestoreManager.observe(observerFun)
     }
 }
