@@ -1,16 +1,15 @@
 package net.xzos.upgradeall.core.downloader.filedownloader
 
 import net.xzos.upgradeall.core.downloader.filedownloader.item.Downloader
-import net.xzos.upgradeall.core.downloader.filedownloader.observe.DownloadRegister
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
-import java.io.IOException
+import java.io.File
 
-internal object DownloaderManager {
+object DownloaderManager {
     private val downloaderList = coroutinesMutableListOf<Downloader>(true)
 
     fun getDownloaderList(): List<Downloader> = downloaderList
 
-    private fun getDownloader(downloadId: Int): Downloader? {
+    fun getDownloader(downloadId: Int): Downloader? {
         val list = downloaderList.filter { it.id == downloadId }
         return if (list.isNotEmpty())
             list[0]
@@ -20,18 +19,13 @@ internal object DownloaderManager {
     internal fun addDownloader(downloader: Downloader) {
         if (!downloaderList.add(downloader))
             throw MultipleSameIdDownloaderException(downloader)
-        DownloadRegister.registerDownloader(downloader)
     }
 
-    internal fun removeDownloader(downloader: Downloader) {
-        DownloadRegister.unRegisterId(downloader)
+    fun removeDownloader(downloader: Downloader) {
         downloaderList.remove(downloader)
     }
 }
 
-internal class MultipleSameIdDownloaderException(private val downloader: Downloader) :
-    IOException() {
-    override fun toString(): String {
-        return "DownloaderList exist same id downloader(${downloader.id}) in DownloaderManager."
-    }
+fun DownloaderManager.newDownloader(downloadDir: File) = Downloader(downloadDir).apply {
+    addDownloader(this)
 }

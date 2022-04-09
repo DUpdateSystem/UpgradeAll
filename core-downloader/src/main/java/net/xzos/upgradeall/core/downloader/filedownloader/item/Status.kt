@@ -9,7 +9,7 @@ enum class Status : Tag {
     STOP,
     COMPLETE,
     CANCEL,
-    FAIL
+    FAIL,
 }
 
 class TaskSnap(
@@ -24,6 +24,8 @@ class TaskSnap(
         this.speed = speed
     }
 }
+
+fun getNoneTaskSnap() = TaskSnap(Status.NONE)
 
 fun TaskSnap.progress() = if (totalSize == 0L) 0
 else (downloadSize / totalSize) * 100

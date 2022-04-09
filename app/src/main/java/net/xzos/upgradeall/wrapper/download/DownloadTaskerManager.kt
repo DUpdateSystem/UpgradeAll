@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.wrapper.download
 
+import net.xzos.upgradeall.core.downloader.filedownloader.DownloaderManager
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 
 object DownloadTaskerManager {
@@ -26,7 +27,9 @@ object DownloadTaskerManager {
         return map.getOrDefault(owner, null)
     }
 
-    fun removeFileTasker(owner: Any) = map.remove(owner)
+    fun removeFileTasker(owner: Any) = map.remove(owner)?.also {
+        it.downloader?.run { DownloaderManager.removeDownloader(this) }
+    }
 
     fun removeFileTasker(downloadTasker: DownloadTasker) {
         downloadTasker.downloader?.removeFile()
