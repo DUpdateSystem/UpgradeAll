@@ -42,13 +42,7 @@ android {
             manifestPlaceholders = [enableCrashReporting: "true", appName: "UpgradeAll"]
             applicationVariants.all { variant ->
                 variant.outputs.each { output ->
-                    def filename
-                    if (project.hasProperty('appVerName')) {
-                        filename = "UpgradeAll_${versionName}_${appVerName}.apk"
-                    } else {
-                        filename = "UpgradeAll_${versionName}.apk"
-                    }
-                    output.outputFileName = filename
+                    output.outputFileName = "UpgradeAll_${versionName}.apk"
                 }
             }
         }
