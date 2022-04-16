@@ -1,6 +1,11 @@
 package net.xzos.upgradeall.core.downloader.filedownloader.item
 
 import net.xzos.upgradeall.core.downloader.filedownloader.DownloadCanceledError
+import net.xzos.upgradeall.core.downloader.filedownloader.getDownloadDir
+import net.xzos.upgradeall.core.downloader.filedownloader.item.data.InputData
+import net.xzos.upgradeall.core.downloader.filedownloader.item.data.TaskData
+import net.xzos.upgradeall.core.downloader.filedownloader.item.data.getTaskData
+import net.xzos.upgradeall.core.downloader.filedownloader.item.data.manager
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.oberver.InformerNoTag

@@ -4,7 +4,7 @@ import android.content.Context
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.androidutils.ToastUtil
-import net.xzos.upgradeall.core.downloader.filedownloader.item.InputData
+import net.xzos.upgradeall.core.downloader.filedownloader.item.data.InputData
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.installer.Installer
 import net.xzos.upgradeall.core.installer.getFileType

@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.downloader.filedownloader.item
+package net.xzos.upgradeall.core.downloader.filedownloader.item.data
 
 import net.xzos.upgradeall.core.downloader.downloadConfig
 import java.io.File

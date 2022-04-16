@@ -4,8 +4,8 @@ import android.content.Context
 import net.xzos.upgradeall.core.database.table.extra_hub.ExtraHubEntityManager
 import net.xzos.upgradeall.core.downloader.filedownloader.DownloaderManager
 import net.xzos.upgradeall.core.downloader.filedownloader.item.Downloader
-import net.xzos.upgradeall.core.downloader.filedownloader.item.InputData
 import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskSnap
+import net.xzos.upgradeall.core.downloader.filedownloader.item.data.InputData
 import net.xzos.upgradeall.core.downloader.filedownloader.newDownloader
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.module.app.App
@@ -42,9 +42,8 @@ class DownloadTasker(
         status: DownloadTaskerStatus? = null,
         snapList: List<TaskSnap> = getDownloadSnapList()
     ) = DownloadTaskerSnap(
-        status
-            ?: if (snapList.isNotEmpty()) DownloadTaskerStatus.IN_DOWNLOAD
-            else throw RuntimeException("Error to build FileTaskerSnap(no status)"),
+        status ?: if (snapList.isNotEmpty()) DownloadTaskerStatus.IN_DOWNLOAD
+        else throw RuntimeException("Error to build FileTaskerSnap(no status)"),
         snapList
     )
 

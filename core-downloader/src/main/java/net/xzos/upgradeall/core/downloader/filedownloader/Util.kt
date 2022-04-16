@@ -7,6 +7,8 @@ import net.xzos.upgradeall.core.utils.log.Log
 import java.io.File
 import java.util.*
 
+fun getDownloadDir(parent: File) = getNewRandomNameFile(parent, true)
+
 fun getDownloadDirDocumentFile(name: String, parent: DocumentFile): DocumentFile {
     return parent.createDirectory(name) ?: throw DownloadFileError(parent, name).apply {
         Log.e(

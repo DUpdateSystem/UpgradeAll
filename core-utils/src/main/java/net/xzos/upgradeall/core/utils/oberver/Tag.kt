@@ -2,4 +2,4 @@ package net.xzos.upgradeall.core.utils.oberver
 
 interface Tag
 
-val doTag = object : Tag {}
+internal val doTag = object : Tag {}
