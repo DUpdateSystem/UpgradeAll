@@ -1,10 +1,10 @@
-package net.xzos.upgradeall.core.downloader.filedownloader.item
+package net.xzos.upgradeall.core.downloader.filedownloader.item.data
 
 import zlc.season.rxdownload4.manager.TaskManager
 import zlc.season.rxdownload4.manager.manager
 import zlc.season.rxdownload4.task.Task
 
-data class TaskData(
+internal data class TaskData(
     val name: String,
     val filePath: String,
     val url: String,
@@ -24,7 +24,7 @@ data class TaskData(
     }
 }
 
-fun TaskData.manager(): TaskManager {
+internal fun TaskData.manager(): TaskManager {
     val task = Task(url, name, saveName = name, savePath = filePath)
     return task.manager(headers)
 }
