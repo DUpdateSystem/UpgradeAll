@@ -21,6 +21,9 @@ android {
         targetSdkVersion 31
         versionCode 97
         versionName "0.13-alpha"
+        if (project.hasProperty('appVerName')) {
+            versionName = "${versionName}_${appVerName}"
+        }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
             arguments {
