@@ -72,5 +72,11 @@
         <item>
             de-DE
         </item>
+        <item>
+            ru-RU
+        </item>
+        <item>
+            tr-TR
+        </item>
     </string-array>
 </resources>
