@@ -14,7 +14,7 @@
     <string name="delete">Sil</string>
     <string name="edit">Düzenle</string>
     <string name="background_sync_time">Arkaplan senkronizasyon zamanı (saat)</string>
-    <string name="background_sync_time_desc">The turnaround time of checks the update.\nIf value is 0, the background update check will be disabled.</string>
+    <string name="background_sync_time_desc">Güncellemenin geri dönüş süresi kontrol edilir.\nIf değeri 0\'dır, arka plan güncelleştirme denetimi devre dışı bırakılır.</string>
     <string name="cloud_rules_repo_url">Bulut Kuralları depo URL\'si</string>
     <string name="update_server_url">Sunucu URL\'sini güncelle</string>
     <string name="menu_search">Ara</string>
@@ -23,8 +23,8 @@
     <string name="install">Yükle</string>
     <string name="install_success">Yükleme başarılı</string>
     <string name="install_failed">Yükleme başarısız</string>
-    <string name="auto_install">Otomatik yükle</string>
-    <string name="installing">Yükleniyor: </string>
+    <string name="auto_install">Otomatik Yükleme</string>
+    <string name="installing">Yükleme: </string>
     <string name="install_apk_api">APK yöntemini yükle</string>
     <string name="user_download_path">Kullanıcı İndirme Yolu</string>
     <string name="download_thread_num">Konu Numarasını İndir</string>
@@ -50,10 +50,10 @@
     <string name="please_grant_storage_perm">Lütfen bu yazılıma depolama alanı okuma ve yazma izni verin</string>
     <string name="add_apps">Uygulamalar ekle</string>
     <string name="auto_update_hub_config">Otomatik Güncelleme Hub Yapılandırması</string>
-    <string name="auto_update_hub_config_desc">When entering the Cloud Rules Hub page, check the hub config downloaded from the cloud hub and automatically update it when a new version is available.</string>
+    <string name="auto_update_hub_config_desc">Cloud Rules Hub sayfasına girerken, Cloud Hub\'dan indirilen hub yapılandırmasını kontrol edin ve yeni bir sürüm kullanıma sunulduğunda otomatik olarak güncelleyin.</string>
     <string name="auto_start_update">Ana sayfaya girerken verileri otomatik güncelleme</string>
     <string name="auto_update_app_config">Uygulama yapılandırmasını otomatik güncelle</string>
-    <string name="auto_update_app_config_desc">When entering the Cloud Rules Hub page, check the app config downloaded from the cloud hub and automatically update it when a new version is available.</string>
+    <string name="auto_update_app_config_desc">Cloud Rules Hub sayfasına girerken, cloud hub\'dan indirilen uygulama yapılandırmasını kontrol edin ve yeni bir sürüm kullanıma sunulduğunda otomatik olarak güncelleyin.</string>
     <string name="auto_update_setting">Otomatik güncelleme ayarı</string>
     <string name="long_click_to_use_external_downloader">Harici indiriciyi kullanmak için uzun basın</string>
     <string name="download_start">İndirmeyi başlat</string>
@@ -81,7 +81,7 @@
     <string name="backup_to_webdav">WebDAV\'a Yedekle</string>
     <string name="restore_from_webdav">WebDAV\'dan geri yükle</string>
     <string name="webdav_path">WebDAV dosya yolu</string>
-    <string name="webdav_path_desc">WebDAV yolunun mevcut olduğundan emin olun.</string>
+    <string name="webdav_path_desc">WebDAV. yolunun mevcut olduğundan emin olun.</string>
     <string name="webdav_url">WebDAV URL\'si</string>
     <string name="webdav_username">WebDAV kullanıcı adı</string>
     <string name="webdav_password">WebDAV şifresi</string>
@@ -144,16 +144,16 @@
     <string name="ok">Tamam</string>
     <string name="cancel">Iptal</string>
     <string name="attr_list">Özellikler Listesi</string>
-    <string name="key">key</string>
-    <string name="value">value</string>
-    <string name="parse_attr_by_url">Parse attributes from URL</string>
-    <string name="add_attr">Add attributes</string>
-    <string name="open_list">Open list</string>
-    <string name="plz_input_app_url">Please input APP\'s URL</string>
-    <string name="not_match_any_template">Cannot match any template.</string>
-    <string name="helper_text_cant_be_empty">Not empty</string>
-    <string name="helper_text_attr_cant_be_empty">Attributes List not empty</string>
-    <string name="updating_setting">Updating Setting</string>
+    <string name="key">anahtar</string>
+    <string name="value">değer</string>
+    <string name="parse_attr_by_url">URL\'den özellikleri ayrıştır</string>
+    <string name="add_attr">Özellik ekle</string>
+    <string name="open_list">Listeyi aç</string>
+    <string name="plz_input_app_url">Lütfen Uygulama\'nın URL\'sini girin</string>
+    <string name="not_match_any_template">Herhangi bir şablonla eşleşemez.</string>
+    <string name="helper_text_cant_be_empty">Boş değil</string>
+    <string name="helper_text_attr_cant_be_empty">Özellikler Listesi boş değil</string>
+    <string name="updating_setting">Ayar Güncelleniyor</string>
     <string name="custom_invalid_version_number_field_regex">Geçersiz sürüm numarası alanının normal ifadesini özelleştir</string>
     <!-- File Manager -->
     <string name="pause">Durdur</string>
@@ -171,32 +171,32 @@
     <!-- Update Notification -->
     <string name="update_service">Hizmeti Güncelle</string>
     <string name="update_service_desc">Güncelleme hizmeti durumunu göster</string>
-    <string name="update_service_running">UpgradeAll Update Service Running</string>
-    <string name="update_running">Update Running</string>
-    <string name="update_recheck_running">Recheck Inactive App</string>
-    <string name="update_format_app_update_tip">%d app(s) updates</string>
-    <string name="update_progress">Update Progress</string>
-    <string name="click_open_homepage">Tap to open the app homepage</string>
+    <string name="update_service_running">UpgradeAll Güncelleme Hizmeti Çalışıyor</string>
+    <string name="update_running">Güncelleme Yürütülüyor</string>
+    <string name="update_recheck_running">Etkin Olmayan Uygulamayı Yeniden Kontrol Edin</string>
+    <string name="update_format_app_update_tip">%d uygulama(lar) güncellemesi</string>
+    <string name="update_progress">Güncelleme İlerlemesi</string>
+    <string name="click_open_homepage">Uygulama ana sayfasını açmak için dokunun</string>
     <!-- Download Notification -->
-    <string name="file_download">File Download</string>
-    <string name="download_paused">Download Paused</string>
-    <string name="download_failed_click_to_retry">Download task failed, click me to retry</string>
-    <string name="download_complete">Download Complete</string>
-    <string name="file_path">File path</string>
-    <string name="show_download_status">Show the download status</string>
-    <string name="waiting_pre_process">Wait for pre-processing to complete</string>
-    <string name="download_service_running">Download Service is running</string>
-    <string name="use_external_downloader_desc">Currently the built-in downloader is not ready, the default is to use an external downloader</string>
+    <string name="file_download">Dosya indirme</string>
+    <string name="download_paused">Indirme Duraklatıldı</string>
+    <string name="download_failed_click_to_retry">İndirme görevi başarısız oldu, tekrar denemek için bana tıklayın</string>
+    <string name="download_complete">İndirme tamamlandı</string>
+    <string name="file_path">Dosya yolu</string>
+    <string name="show_download_status">İndirme durumunu göster</string>
+    <string name="waiting_pre_process">Ön işlemenin tamamlanmasını bekleyin</string>
+    <string name="download_service_running">İndirme Hizmeti yürütülüyor</string>
+    <string name="use_external_downloader_desc">Şu anda yerleşik indirici hazır değil, varsayılan, harici bir indirici kullanmaktır</string>
     <!-- Installable File Type -->
     <string name="apk">APK</string>
     <!-- Hub Setting -->
-    <string name="global_setting">Global Setting</string>
-    <string name="use_global_setting">Use Global Setting</string>
-    <string name="download_url_replace_rule">Download URL Replace Rule</string>
-    <string name="match_rule">Match Rule</string>
-    <string name="replace_string">Replace String</string>
+    <string name="global_setting">Küresel Ayar</string>
+    <string name="use_global_setting">Küresel Ayarı Kullan</string>
+    <string name="download_url_replace_rule">URL Değiştirme Kuralını İndir</string>
+    <string name="match_rule">Eşleşme Kuralı</string>
+    <string name="replace_string">Dizeyi Değiştir</string>
     <string name="url">URL</string>
-    <string name="app_base_hub">Base APP Hub</string>
-    <string name="app_id">APP ID</string>
+    <string name="app_base_hub">Temel APP Hub</string>
+    <string name="app_id">Uygulama Kimliği</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
 </resources>
