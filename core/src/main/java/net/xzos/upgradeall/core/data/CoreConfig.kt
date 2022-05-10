@@ -1,5 +1,7 @@
 package net.xzos.upgradeall.core.data
 
+import java.io.File
+
 class CoreConfig(
     // 缓存过期时间
     internal val data_expiration_time: Int,

@@ -7,6 +7,7 @@ import net.xzos.upgradeall.core.database.initDatabase
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.websdk.renewServerApi
+import java.io.File
 
 
 @SuppressLint("StaticFieldLeak")

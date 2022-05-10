@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.websdk
 
-import android.util.Log
 import net.xzos.upgradeall.core.utils.coroutines.ValueLock
 import net.xzos.upgradeall.core.utils.data_cache.DataCache
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
@@ -11,11 +10,9 @@ import net.xzos.upgradeall.core.websdk.json.isEmpty
 import net.xzos.upgradeall.core.websdk.web.WebApi
 import net.xzos.upgradeall.core.websdk.web.WebApiProxy
 
-class ServerApi internal constructor(host: String, dataCacheTimeSec: Int) {
-    companion object;
+class ServerApi internal constructor(host: String, private val dataCache: DataCache) {
 
     private val webApi = WebApi()
-    private val dataCache = DataCache(dataCacheTimeSec)
     private val webApiProxy = WebApiProxy(host, webApi, dataCache)
 
     fun shutdown() {
@@ -33,24 +30,26 @@ class ServerApi internal constructor(host: String, dataCacheTimeSec: Int) {
     }
 
     fun getAppRelease(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
-        dataCache.getAppRelease(data)?.also {
-            callback(it)
-        } ?: webApiProxy.getAppRelease(data) {
-            it?.let {
-                dataCache.cacheAppStatus(data, it)
+        val key = data.getKey()
+        dataCache.get(key, callback) {
+            webApiProxy.getAppRelease(data) {
+                it?.let {
+                    dataCache.cache(key, it)
+                    callback(it)
+                }
             }
-            callback(it)
         }
     }
 
     fun getAppReleaseList(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
-        dataCache.getAppRelease(data)?.also {
-            callback(it)
-        } ?: webApiProxy.getAppReleaseList(data) {
-            it?.let {
-                dataCache.cacheAppStatus(data, it)
+        val key = data.getKey()
+        dataCache.get(key, callback) {
+            webApiProxy.getAppReleaseList(data) {
+                it?.let {
+                    dataCache.cache(key, it)
+                    callback(it)
+                }
             }
-            callback(it)
         }
     }
 
@@ -82,21 +81,11 @@ class ServerApi internal constructor(host: String, dataCacheTimeSec: Int) {
     }
 }
 
-fun DataCache.getAppRelease(
-    data: ApiRequestData,
-): List<ReleaseGson>? {
-    val key = data.getKey()
-    return get(key)
-}
-
-fun DataCache.cacheAppStatus(
-    data: ApiRequestData,
-    releaseList: List<ReleaseGson>?
-) {
-    if (this.getAppRelease(data) != releaseList) {
-        val key = data.getKey()
-        cache(key, releaseList)
+fun <E> DataCache.get(key: String, callback: (E?) -> Unit, renewFun: () -> Unit) {
+    val value = getRaw<E>(key)?.apply {
+        callback(this.first)
     }
+    if (value?.second != true) renewFun()
 }
 
 fun ApiRequestData.getKey() = hubUuid + auth + appId

@@ -32,18 +32,16 @@ class DataCache(private val defExpires: Int, private val autoRemove: Boolean = t
     }
 
     fun <E> get(key: String): E? {
-        return cache.anyCacheMap[key]?.let {
-            if (it.expired()) {
+        return getRaw<E>(key)?.let {
+            if (it.second) {
                 if (autoRemove) remove(key)
                 null
-            } else {
-                @Suppress("UNCHECKED_CAST")
-                it.first as E
-            }
+            } else it.first
         }
     }
 
-    fun <E> getWithExpireCheck(key: String): Pair<E?, Boolean>? {
+
+    fun <E> getRaw(key: String): Pair<E?, Boolean>? {
         return cache.anyCacheMap[key]?.let {
             @Suppress("UNCHECKED_CAST")
             Pair(it.first as E, it.expired())
