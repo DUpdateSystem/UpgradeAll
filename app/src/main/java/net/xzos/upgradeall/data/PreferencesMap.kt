@@ -16,6 +16,7 @@ import net.xzos.upgradeall.core.installer.initConfig
 import net.xzos.upgradeall.core.installer.installerapi.ApkShizukuInstaller
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.ui.home.MainActivity
+import net.xzos.upgradeall.utils.file.SDK_CACHE_DIR
 import java.util.*
 
 
@@ -97,7 +98,8 @@ object PreferencesMap {
         get() = prefs.getBoolean("enforce_use_external_downloader", true)
 
     val external_downloader_package_name: String?
-        get() = prefs.getString("external_downloader_package_name", null)?.let{ if(it.isNotBlank()) it else null }
+        get() = prefs.getString("external_downloader_package_name", null)
+            ?.let { if (it.isNotBlank()) it else null }
 
     // WebDAV
     val webdav_url
@@ -191,6 +193,7 @@ object PreferencesMap {
     private fun syncCoreConfig() {
         val coreConfig = CoreConfig(
             data_expiration_time = 20,
+            cache_dir = SDK_CACHE_DIR,
             update_server_url = update_server_url,
             cloud_rules_hub_url = cloud_rules_hub_url,
             applications_ignore_system_app = applications_ignore_system_app,

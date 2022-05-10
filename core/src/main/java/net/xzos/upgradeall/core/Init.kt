@@ -6,8 +6,8 @@ import net.xzos.upgradeall.core.data.CoreConfig
 import net.xzos.upgradeall.core.database.initDatabase
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
-import net.xzos.upgradeall.core.websdk.renewServerApi
-import java.io.File
+import net.xzos.upgradeall.core.websdk.initSdkCache
+import net.xzos.upgradeall.core.websdk.renewSdkApi
 
 
 @SuppressLint("StaticFieldLeak")
@@ -23,7 +23,8 @@ fun initCore(
     _coreConfig: CoreConfig,
 ) {
     coreConfig = _coreConfig
-    renewServerApi(_coreConfig.update_server_url, _coreConfig.data_expiration_time)
+    initSdkCache(_coreConfig.data_expiration_time, _coreConfig.cache_dir)
+    renewSdkApi(_coreConfig.update_server_url)
     initObject(context)
 }
 

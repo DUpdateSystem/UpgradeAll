@@ -13,14 +13,14 @@ val data = Data()
 val serverApi get() = data.serverApi
 lateinit var dataCache: DataCache
 
-fun init(dataCacheTimeSec: Int, cacheDir: File) {
+fun initSdkCache(dataCacheTimeSec: Int, cacheDir: File) {
     dataCache = DataCache(dataCacheTimeSec)
 }
 
-fun renewServerApi(host: String) {
+fun renewSdkApi(host: String) {
     with(data) {
         serverApi?.shutdown()
-        serverApi = ServerApi(host, dataCacheTimeSec)
+        serverApi = ServerApi(host, dataCache)
     }
 }
 
