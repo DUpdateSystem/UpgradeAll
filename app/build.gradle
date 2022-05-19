@@ -169,7 +169,7 @@ dependencies {
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.7'
 
     // 日历
-    implementation 'com.github.6tail:lunar-java:1.2.22'
+    implementation 'com.github.6tail:lunar-java:1.2.23'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.4.0'
