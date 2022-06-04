@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: ${{ !github.event.pull_request }}
         with:
-          path: './app/build/outputs/apk/debug/*'
+          path: './app/build/outputs/apk/debug/*.apk'
           name: build_debug_${{ env.VERSION }}
           
       - name: Upload release apk
@@ -95,7 +95,7 @@ jobs:
         env:
           CHANNEL_ID: ${{ secrets.TELEGRAM_TO }}
           BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          FILE: ${{ github.workspace }}/${{ steps.sign.outputs.signedReleaseFile }}
+          RELEASE: ${{ github.workspace }}/${{ steps.sign.outputs.signedReleaseFile }}
           COMMIT_MESSAGE: |+
             New push to Github\!
             ```
@@ -104,5 +104,7 @@ jobs:
             See commit detail [Here](${{ github.event.head_commit.url }})
             Snapshot apk is attached
         run: |
+          OUTPUT="app/build/outputs/apk/debug/"
+          export debug=$(find $OUTPUT -name "*.apk")
           ESCAPED=`python3 -c 'import json,os,urllib.parse; print(urllib.parse.quote(json.dumps(os.environ["COMMIT_MESSAGE"])))'`
-          curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22:%22document%22,%20%22media%22:%22attach://release%22,%22parse_mode%22:%22MarkdownV2%22,%22caption%22:${ESCAPED}%7D%5D"  -F release="@$FILE"
+          curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22:%22document%22,%22media%22:%22attach://release%22%7D,%7B%22type%22:%22document%22,%22media%22:%22attach://debug%22,%22parse_mode%22:%22MarkdownV2%22,%22caption%22:$%7BESCAPED%7D%7D%5D" -F release="@$RELEASE" -F debug="@$debug"
