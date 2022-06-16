@@ -6,6 +6,7 @@ import net.xzos.upgradeall.core.data.CoreConfig
 import net.xzos.upgradeall.core.database.initDatabase
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
+import net.xzos.upgradeall.core.utils.data_cache.CacheConfig
 import net.xzos.upgradeall.core.websdk.initSdkCache
 import net.xzos.upgradeall.core.websdk.renewSdkApi
 
@@ -23,7 +24,7 @@ fun initCore(
     _coreConfig: CoreConfig,
 ) {
     coreConfig = _coreConfig
-    initSdkCache(_coreConfig.data_expiration_time, _coreConfig.cache_dir)
+    initSdkCache(CacheConfig(_coreConfig.data_expiration_time, _coreConfig.cache_dir))
     renewSdkApi(_coreConfig.update_server_url)
     initObject(context)
 }

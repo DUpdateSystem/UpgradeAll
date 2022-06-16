@@ -8,6 +8,7 @@ import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.module.app.version_item.Asset
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
 import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
@@ -57,9 +58,10 @@ class VersionUtils internal constructor(private val appEntity: AppEntity) {
             val mapKey = getKey(key)
             if (mapKey.isBlank()) return@forEach
             val list = versionMap[mapKey]
-                ?: Version(key, coroutinesMutableListOf(true), this)
+                ?: Version(key, coroutinesMutableListOf(true), this).apply {
+                    versionMap[mapKey] = this
+                }
             list.assetList.add(asset)
-            versionMap[mapKey] = list
         }
         return versionMap.values.toList()
     }

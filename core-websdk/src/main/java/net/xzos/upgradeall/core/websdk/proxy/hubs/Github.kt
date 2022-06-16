@@ -2,6 +2,7 @@ package net.xzos.upgradeall.core.websdk.proxy.hubs
 
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
 import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.web.http.OkHttpApi
 import net.xzos.upgradeall.core.websdk.web.http.openOkHttpApi
@@ -25,7 +26,11 @@ class Github : BaseHub() {
         for (i in 0..rawList.length()) {
             val raw = rawList.getJSONObject(i)
             val release = JSONObject()
-            release.put("version_number", raw.getString("name"))
+            var name = raw.getString("name")
+            if (VersioningUtils.matchVersioningString(name) == null) {
+                name = raw.getString("tag_name")
+            }
+            release.put("version_number", name)
             release.put("change_log", raw.getString("body"))
             val assets = JSONArray()
             val rawAssets = raw.getJSONArray("assets")

@@ -13,10 +13,10 @@ import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.database.table.setSortHubUuidList
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.utils.AutoTemplate
-import net.xzos.upgradeall.core.utils.data_cache.DataCache
-import net.xzos.upgradeall.core.utils.data_cache.getValueIfNocache
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.websdk.cache.CloudConfigListEncoder
+import net.xzos.upgradeall.core.websdk.dataCacheManager
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
 import net.xzos.upgradeall.core.websdk.json.HubConfigGson
@@ -30,8 +30,6 @@ object CloudConfigGetter {
     private val appCloudRulesHubUrl: String? get() = coreConfig.cloud_rules_hub_url
     private var cloudConfig: CloudConfigList? = null
     private val renewMutex = Mutex()
-
-    private val dataCache = DataCache(coreConfig.data_expiration_time)
 
     suspend fun renew() {
         withContext(Dispatchers.IO) {
@@ -52,7 +50,7 @@ object CloudConfigGetter {
             "http://${coreConfig.update_server_url}/v1/rules/download/dev"
         else url
         val func = { runBlocking { serverApi?.getCloudConfig(key) } }
-        return dataCache.getValueIfNocache(key, func)
+        return dataCacheManager.get(key, CloudConfigListEncoder, func)
     }
 
     fun getAppCloudConfig(appUuid: String?): AppConfigGson? {

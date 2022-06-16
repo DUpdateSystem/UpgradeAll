@@ -9,7 +9,8 @@ import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version.VersionUtils
 import net.xzos.upgradeall.core.module.app.version.versionComparator
 import net.xzos.upgradeall.core.module.app.version_item.Asset
-import net.xzos.upgradeall.core.utils.data_cache.DataCache
+import net.xzos.upgradeall.core.utils.data_cache.CacheConfig
+import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 
 class VersionData internal constructor(appEntity: AppEntity) {
     private val versionUtils = VersionUtils(appEntity)
@@ -18,21 +19,16 @@ class VersionData internal constructor(appEntity: AppEntity) {
     private var versionList: List<Version> = emptyList()
     private var sorted = false
     private val mutex = Mutex()
-    private val dataCache = DataCache(coreConfig.data_expiration_time)
+    private val dataCache =
+        DataCacheManager(CacheConfig(coreConfig.data_expiration_time, null), true)
 
-    fun getCachedHubUuidList(): List<String> {
-        return dataCache.getAll().values.filterIsInstance(String::class.java)
-    }
+    fun getCachedHubUuidList() = dataCache.getAll<String>().values
 
     suspend fun addAsset(assetList: List<Asset>, hubUuid: String) {
         sorted = false
         mutex.withLock {
-            // save cache time
-            dataCache.cache(hubUuid, true)
-
-            // process version
             val rowVersionList = VersionUtils.cleanAsset(hubUuid, versionList)
-            val versionMap = rowVersionList.map { it.name to it }.toMap().toMutableMap()
+            val versionMap = rowVersionList.associateBy { it.name }.toMutableMap()
             val versionList = versionUtils.doAddAsset(assetList, versionMap)
             this.versionList = versionList
         }
