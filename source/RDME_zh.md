@@ -72,7 +72,7 @@
 
 
 ## 📃 开发者文档
-所有关于 `UpgradeAll` 的开发者文档，包括云端目录结构、跟踪项，软件源配置的编写等，都放在 [此处](https://upgradeall.now.sh/dev) 中，如果你发现有文档缺失或错误，请提交 [Issue](https://github.com/DUpdateSystem/UpgradeAll/issues) 说明。
+所有关于 `UpgradeAll` 的开发者文档，包括云端目录结构、跟踪项，软件源配置的编写等，都放在 [此处](https://up-a.org/dev) 中，如果你发现有文档缺失或错误，请提交 [Issue](https://github.com/DUpdateSystem/UpgradeAll/issues) 说明。
 
 
 ## 😊 鸣谢  
