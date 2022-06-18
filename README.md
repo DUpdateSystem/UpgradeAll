@@ -18,7 +18,7 @@ Check updates for Android apps, Magisk modules and more!
 
 ---
 
-`UpgradeAll` is a free and open source software which simplifies the process of finding updates for Android apps (even you didn't install them), Magisk modules and more. The main focus is on speed and ease of use, which is widely appreciated by users.
+`UpgradeAll` is a free and open source software which simplifies the process of finding updates for Android apps (even if you didn't install them), Magisk modules and more. The main focus is on speed and ease of use, which is widely appreciated by users.
 
 
 ## 📚 Table of Contents
@@ -44,37 +44,37 @@ Check updates for Android apps, Magisk modules and more!
 
 1. If you want to install `UpgradeAll`, first select a channel from above, find the latest version, download and install it.
 
-2. Then open it, find app sources u need in `App Hub` page then open it.
+2. Then open it, find app sources u need on `App Hub` page and switch them on.
 
-3. After selecting the sources you want to use, go back to main screen, go to `Discover` page and wait a moment, then find / search for the apps / modules you need.
+3. After selecting the sources you want to use, return to Home page, go to `Discover` page and wait a moment, then find / search for the apps / modules you need.
 
-4. Now, go back to main screen and go to `Apps` page, you can see all the updates of your installed / added apps / modules.
+4. Now, return to Home page and go to `Apps` page, you can see all the updates of your installed / added apps / modules.
 
-- **The app market mode will automatically check for updates to your installed apps when it opens**
+- **The App market mode will automatically check for updates of your installed apps on open**
 
 - You can also visit [here](https://github.com/DUpdateSystem/UpgradeAll/wiki) for a more detailed graphic tutorial.
 
 
 ## 🎈 Features
 - Get updates from multiple sources.
-- Download files via external applications.
+- Download files via external downloader.
 - Highly customizable rules.
 - Modern and clean design.
 - Supports Android 5.0 to 12L (Android 12L not tested).
 
 
 ## ❓ FAQ
-During the use of the application, you may encounter some problems, this document may help you to solve the difficulties you encounter: [FAQ](https://github.com/DUpdateSystem/UpgradeAll/wiki/FAQ).
+During use of the application, you may encounter some problems, and this document may help you to solve them: [FAQ](https://github.com/DUpdateSystem/UpgradeAll/wiki/FAQ).
 
 
-## 💬 Exchange Group
-You can join our exchange group by clicking cards below:   
+## 💬 Communication Group
+You can join our communication group by clicking cards below:   
 [<img src="https://img.shields.io/badge/QQ-000000?style=for-the-badge" alt="Join us on QQ" height="30">](https://jq.qq.com/?_wv=1027&k=ZAOtKhuH)
 [<img src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram" alt="Join us on Telegram" height="30">](https://t.me/DUpdateSystem)
 
 
 ## 📃 Developer Documentation
-All developer documentation for `UpgradeAll`, including the cloud directory structure, tracking entries, writing the software source configuration, etc., is located in [Here](https://upgradeall.now.sh/dev), if you find any documentation missing or incorrect, please raise an [Issue](https://github.com/DUpdateSystem/UpgradeAll/issues).
+All developer documentation for `UpgradeAll`, including the cloud directory structure, tracking entries, creating software source configurations, etc., is located in [Here](https://upgradeall.now.sh/dev). If you find any documentation missing or incorrect, please raise an [Issue](https://github.com/DUpdateSystem/UpgradeAll/issues).
 
 
 ## 😊 Acknowledgements  
@@ -92,7 +92,7 @@ Many thanks to the developers of these libraries:
 
 
 ## ♾️ Data sources
-Currently, the following officially supported sources are available:
+Currently, the following sources are officially supported:
 - [Github](https://github.com)
 - [Gitlab](https://gitlab.com)
 - [F-Droid](https://f-droid.org)
@@ -108,8 +108,8 @@ Currently, the following officially supported sources are available:
 - Brazilian Portuguese
 - German
 
-If you are familier with multiple languages,Plese help us introduce it to the whole world!
-### ℹ️ How to translate UpgradeAll to your language?
+If you are familier with multiple languages, please help us introduce the App to the whole world!
+### ℹ️ How to translate UpgradeAll into your language?
 You can help us translate this project on [Crowdin](https://crowdin.com/project/upgradeall).
 
 
