@@ -1,16 +1,20 @@
-UpgradeAll is a Free and Open Source Software that simplifies the process of checking updates for Android apps (even you didn't install them), Magisk modules and more! 
-<h3>FAQ</h3>
-<ul>
-<li>Q: How to use?</li>
-<li>A: Just download apk file, install it and run.</li>
-<li>Q: Where's the help document?</li>
-<li>A: You can find it <a href="https://github.com/DUpdateSystem/UpgradeAll/wiki">Here</a>.</li>
-</ul>
+UpgradeAll is a free and open source software which simplifies the process of finding updates for Android apps (even if you didn't install them), Magisk modules and more. The main focus is on speed and ease of use, which is widely appreciated by users.
 <h3>Features</h3>
 <ul>
-<li>Get updates from various sources.</li>
-<li>Download files with external application.</li>
+<li>Get updates from multiple sources.</li>
+<li>Download files with external downloader.</li>
 <li>Highly customizable rules.</li>
 <li>Modern and clean design.</li>
-<li>Supports Android 5.0 to 12L (Not test on Android 12L)</li>
+<li>Support Android 5.0 to 12L (Android 12L not tested).</li>
 </ul>
+<h3>App sources</h3>
+<ul>
+<li><a href="https://github.com">Github</a></li>
+<li><a href="https://gitlab.com">Gitlab</a></li>
+<li><a href="https://f-droid.org">F-Droid</a></li>
+<li><a href="https://play.google.com">Play Store</a></li>
+<li><a href="https://www.coolapk.com">Coolapk</a></li>
+<li>and <a href="https://github.com/DUpdateSystem/UpgradeAll-rules/tree/master/rules/hubs">more</a></li>
+</ul>
+<h3>FAQ</h3>
+You can find the <a href="https://github.com/DUpdateSystem/UpgradeAll/wiki/FAQ">FAQ</a> and <a href="https://github.com/DUpdateSystem/UpgradeAll/wiki">tutorials</a> on GitHub Wiki.
