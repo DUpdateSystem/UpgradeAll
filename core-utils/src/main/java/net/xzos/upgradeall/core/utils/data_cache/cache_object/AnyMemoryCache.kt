@@ -1,6 +1,10 @@
 package net.xzos.upgradeall.core.utils.data_cache.cache_object
 
 import net.xzos.upgradeall.core.utils.data_cache.CacheConfig
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
+import kotlin.text.Charsets.UTF_8
 
 class AnyMemoryCache<T>(
     key: String,
@@ -15,7 +19,11 @@ class AnyMemoryCache<T>(
             this@AnyMemoryCache.any = value
             super.write(any)
             encoder?.run {
-                bytesDiskCache?.write(this.encode(value))
+                try {
+                    bytesDiskCache?.write(this.encode(value))
+                } catch (e: Throwable) {
+                    Log.e(logObjectTag, TAG, e.stackTraceToString())
+                }
             }
         }
     }
@@ -29,8 +37,13 @@ class AnyMemoryCache<T>(
 
     fun read(encoder: Encoder<T>?, throwError: Boolean = false): T? {
         val cache = any ?: encoder?.let {
-            bytesDiskCache?.read()?.apply {
-                any = it.decode(this)
+            bytesDiskCache?.read()?.let { bytes ->
+                try {
+                    it.decode(bytes).apply { any = this }
+                } catch (e: Throwable) {
+                    Log.e(logObjectTag, TAG, e.stackTraceToString())
+                    null
+                }
             }
         }
         if (cache == null && throwError)
@@ -39,4 +52,9 @@ class AnyMemoryCache<T>(
     }
 
     override fun read(): T? = any
+
+    companion object {
+        private const val TAG = "AnyMemoryCache"
+        private val logObjectTag = ObjectTag(core, TAG)
+    }
 }
