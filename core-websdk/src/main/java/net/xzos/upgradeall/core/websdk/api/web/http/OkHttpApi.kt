@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.websdk.web.http
+package net.xzos.upgradeall.core.websdk.api.web.http
 
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag

@@ -7,7 +7,7 @@ import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.module.app.version.Version
-import net.xzos.upgradeall.core.websdk.ServerApiProxy
+import net.xzos.upgradeall.core.websdk.api.ServerApiProxy
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
 class App(

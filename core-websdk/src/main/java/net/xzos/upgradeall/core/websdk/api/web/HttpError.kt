@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.websdk.web
+package net.xzos.upgradeall.core.websdk.api.web
 
 import okhttp3.Call
 

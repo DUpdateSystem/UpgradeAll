@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.websdk.web.http
+package net.xzos.upgradeall.core.websdk.api.web.http
 
 data class HttpResponse(
     val code: Int,

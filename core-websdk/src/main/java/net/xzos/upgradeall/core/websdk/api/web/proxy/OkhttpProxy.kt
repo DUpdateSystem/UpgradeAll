@@ -1,10 +1,8 @@
-package net.xzos.upgradeall.core.websdk.web.proxy
+package net.xzos.upgradeall.core.websdk.api.web.proxy
 
-import net.xzos.upgradeall.core.websdk.web.HttpError
-import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
-import net.xzos.upgradeall.core.websdk.web.http.HttpResponse
-import okhttp3.Call
-import okhttp3.Response
+import net.xzos.upgradeall.core.websdk.api.web.HttpError
+import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
+import net.xzos.upgradeall.core.websdk.api.web.http.HttpResponse
 
 internal open class OkhttpProxy : OkhttpProxyCallNoErrorApi() {
     fun okhttpExecute(

@@ -1,8 +1,8 @@
-package net.xzos.upgradeall.core.websdk.web.proxy
+package net.xzos.upgradeall.core.websdk.api.web.proxy
 
 import net.xzos.upgradeall.core.utils.log.ObjectTag
-import net.xzos.upgradeall.core.websdk.web.HttpError
-import net.xzos.upgradeall.core.websdk.web.http.HttpResponse
+import net.xzos.upgradeall.core.websdk.api.web.HttpError
+import net.xzos.upgradeall.core.websdk.api.web.http.HttpResponse
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response

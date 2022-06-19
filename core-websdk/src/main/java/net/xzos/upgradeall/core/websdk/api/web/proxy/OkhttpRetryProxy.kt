@@ -1,9 +1,8 @@
-package net.xzos.upgradeall.core.websdk.web.proxy
+package net.xzos.upgradeall.core.websdk.api.web.proxy
 
-import net.xzos.upgradeall.core.websdk.web.HttpError
-import net.xzos.upgradeall.core.websdk.web.http.HttpRequestData
-import net.xzos.upgradeall.core.websdk.web.http.HttpResponse
-import okhttp3.Call
+import net.xzos.upgradeall.core.websdk.api.web.HttpError
+import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
+import net.xzos.upgradeall.core.websdk.api.web.http.HttpResponse
 import okhttp3.Response
 
 internal open class OkhttpRetryProxy : OkhttpTrackerProxy() {

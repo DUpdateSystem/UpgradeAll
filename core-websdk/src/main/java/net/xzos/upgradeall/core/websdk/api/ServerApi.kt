@@ -1,8 +1,12 @@
-package net.xzos.upgradeall.core.websdk
+package net.xzos.upgradeall.core.websdk.api
 
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.utils.coroutines.ValueLock
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.Encoder
+import net.xzos.upgradeall.core.websdk.api.client_proxy.ClientProxyApi
+import net.xzos.upgradeall.core.websdk.api.web.WebApi
+import net.xzos.upgradeall.core.websdk.api.web.WebApiProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.cache.AppReleaseListEncoder
 import net.xzos.upgradeall.core.websdk.cache.CloudConfigListEncoder
@@ -10,13 +14,15 @@ import net.xzos.upgradeall.core.websdk.json.CloudConfigList
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import net.xzos.upgradeall.core.websdk.json.isEmpty
-import net.xzos.upgradeall.core.websdk.web.WebApi
-import net.xzos.upgradeall.core.websdk.web.WebApiProxy
 
-class ServerApi internal constructor(host: String, private val dataCache: DataCacheManager) {
+class ServerApi internal constructor(
+    host: String, private val dataCache: DataCacheManager
+) {
 
     private val webApi = WebApi()
     private val webApiProxy = WebApiProxy(host, webApi, dataCache)
+
+    private val clientProxyApi = ClientProxyApi()
 
     fun shutdown() {
         webApi.shutdown()
@@ -28,37 +34,38 @@ class ServerApi internal constructor(host: String, private val dataCache: DataCa
 
     suspend fun getCloudConfig(url: String): CloudConfigList? {
         return dataCache.get(url, CloudConfigListEncoder) {
-            webApi.getCloudConfig(url)?.let { if (it.isEmpty()) it else null }
+            runBlocking {
+                clientProxyApi.getCloudConfig(url) ?: webApiProxy.getCloudConfig(url)
+            }?.let { if (it.isEmpty()) it else null }
         }
     }
 
     fun getAppRelease(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
         val key = data.getKey()
-        dataCache.getOrRenewWithCallback(
-            key, AppReleaseListEncoder, callback,
-            webApiProxy::getAppRelease, data
-        )
+        val value = dataCache.get(key, AppReleaseListEncoder) {
+            clientProxyApi.getAppRelease(data) ?: webApiProxy.getAppRelease(data)
+        }
+        callback(value)
     }
 
     fun getAppReleaseList(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
         val key = data.getKey()
-        dataCache.getOrRenewWithCallback(
-            key, AppReleaseListEncoder, callback,
-            webApiProxy::getAppReleaseList, data
-        )
+        val value = dataCache.get(key, AppReleaseListEncoder) {
+            clientProxyApi.getAppReleaseList(data) ?: webApiProxy.getAppReleaseList(data)
+        }
+        callback(value)
     }
 
     suspend fun getDownloadInfo(
         data: ApiRequestData, assetIndex: Pair<Int, Int>
     ): List<DownloadItem> {
         val downloadItemList = try {
-            webApiProxy.getDownloadInfo(data, assetIndex)
+            clientProxyApi.getDownloadInfo(data, assetIndex)
+                ?: webApiProxy.getDownloadInfo(data, assetIndex)
         } catch (e: Throwable) {
             return emptyList()
         }
-        return if (downloadItemList.isNotEmpty())
-            downloadItemList
-        else {
+        return downloadItemList.ifEmpty {
             val releaseListLock = ValueLock<List<ReleaseGson>>()
             if (assetIndex.first == 0)
                 getAppRelease(data) { releaseListLock.setValue(it) }

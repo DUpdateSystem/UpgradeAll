@@ -2,6 +2,8 @@ package net.xzos.upgradeall.core.websdk
 
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.CacheConfig
+import net.xzos.upgradeall.core.websdk.api.ServerApi
+import net.xzos.upgradeall.core.websdk.api.ServerApiProxy
 
 class Data(
     var serverApi: ServerApi? = null

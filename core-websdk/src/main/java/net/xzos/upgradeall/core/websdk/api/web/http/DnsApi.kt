@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.websdk.web.http
+package net.xzos.upgradeall.core.websdk.api.web.http
 
 import java.net.InetAddress
 import java.net.URI

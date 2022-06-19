@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.websdk
+package net.xzos.upgradeall.core.websdk.api
 
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
