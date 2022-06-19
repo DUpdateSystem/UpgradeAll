@@ -1,20 +1,33 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy
 
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.websdk.api.BaseApi
+import net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config.CloudConfig
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.BaseHub
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.Github
+import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
-class ClientProxyApi : BaseApi {
+internal class ClientProxyApi : BaseApi {
+    private val okhttpProxy = OkhttpProxy()
+    private val cloudConfig = CloudConfig(okhttpProxy)
+
     private val hubMap: Map<String, BaseHub> = listOf(
         Github()
     ).associateBy({ it.uuid }, { it })
 
     override suspend fun getCloudConfig(url: String): CloudConfigList? {
-        return null
+        return try {
+            cloudConfig.getCloudConfig(url)
+        } catch (e: Throwable) {
+            Log.e(logObjectTag, TAG, e.stackTraceToString())
+            null
+        }
     }
 
     override fun getAppRelease(data: ApiRequestData): List<ReleaseGson>? {
@@ -36,5 +49,10 @@ class ClientProxyApi : BaseApi {
         val hubUuid = data.hubUuid
         val hub = hubMap[hubUuid]
         return hub?.getDownload(data.appId, data.auth, assetIndex.toList())
+    }
+
+    companion object {
+        private const val TAG = "ClientProxyApi"
+        private val logObjectTag = ObjectTag(core, TAG)
     }
 }

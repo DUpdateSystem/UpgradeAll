@@ -27,18 +27,23 @@ class DataCacheManager(
         return map
     }
 
-    fun <E> get(key: String, encoder: Encoder<E>): E? {
-        return get(key, encoder) { null }
+    fun <E> get(key: String, encoder: Encoder<E>, nullable: Boolean = false): E? {
+        return get(key, encoder, nullable) { null }
     }
 
     fun <E> get(
         key: String, encoder: Encoder<E>?,
-        renewFun: () -> E?
+        nullable: Boolean = false, renewFun: () -> E?
     ): E? {
         val cache = getCache<E>(key)
-        return if (cache?.checkValid(config.defExpires) != true)
-            renewFun().apply { cache(key, this, encoder) }
-        else cache.read(encoder)
+        if (cache?.checkValid(config.defExpires) == true) {
+            cache.read(encoder).let {
+                if (it != null || nullable) return it
+            }
+        }
+        return renewFun().apply {
+            if (this != null || nullable) cache(key, this, encoder)
+        }
     }
 
     private fun <T> getCache(key: String): AnyMemoryCache<T>? =

@@ -50,7 +50,7 @@ object CloudConfigGetter {
             "http://${coreConfig.update_server_url}/v1/rules/download/dev"
         else url
         val func = { runBlocking { serverApi?.getCloudConfig(key) } }
-        return dataCacheManager.get(key, CloudConfigListEncoder, func)
+        return dataCacheManager.get(key, CloudConfigListEncoder, false, func)
     }
 
     fun getAppCloudConfig(appUuid: String?): AppConfigGson? {

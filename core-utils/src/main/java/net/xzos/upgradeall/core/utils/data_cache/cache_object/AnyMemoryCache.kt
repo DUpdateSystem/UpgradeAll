@@ -27,13 +27,13 @@ class AnyMemoryCache<T>(
 
     override fun delete() = true
 
-    fun read(encoder: Encoder<T>?): T? {
+    fun read(encoder: Encoder<T>?, throwError: Boolean = false): T? {
         val cache = any ?: encoder?.let {
             bytesDiskCache?.read()?.apply {
                 any = it.decode(this)
             }
         }
-        if (cache == null)
+        if (cache == null && throwError)
             throw NoCacheError()
         else return cache as T
     }

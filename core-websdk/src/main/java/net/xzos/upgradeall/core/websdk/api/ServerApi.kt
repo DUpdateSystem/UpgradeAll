@@ -33,11 +33,12 @@ class ServerApi internal constructor(
     }
 
     suspend fun getCloudConfig(url: String): CloudConfigList? {
-        return dataCache.get(url, CloudConfigListEncoder) {
+        val value = dataCache.get(url, CloudConfigListEncoder) {
             runBlocking {
                 clientProxyApi.getCloudConfig(url) ?: webApiProxy.getCloudConfig(url)
-            }?.let { if (it.isEmpty()) it else null }
+            }?.let { if (it.isEmpty()) null else it }
         }
+        return value
     }
 
     fun getAppRelease(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {

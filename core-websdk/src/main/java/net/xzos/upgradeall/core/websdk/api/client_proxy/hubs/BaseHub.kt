@@ -4,7 +4,7 @@ import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 abstract class BaseHub {
-    open val uuid: String = TODO()
+    abstract val uuid: String
 
     abstract fun getRelease(
         appId: Map<String, String?>,
