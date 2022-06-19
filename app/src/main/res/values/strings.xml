@@ -12,8 +12,8 @@
     <string name="name">Name</string>
     <string name="basic_info">Basic Info</string>
     <string name="versioning_check_setting">Version Control Setting</string>
-    <string name="Delete">Delete</string>
-    <string name="Edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
     <string name="background_sync_time">Background Sync Frequency (hr)</string>
     <string name="background_sync_time_desc">Time interval of background update check.\nDisabled for value 0.</string>
     <string name="cloud_rules_repo_url">Rule Subscription Repo URL</string>
