@@ -25,10 +25,10 @@ Check updates for Android apps, Magisk modules and more!
 - [🙌 Let's get started](#-lets-get-started)
 - [🎈 Features](#-features)
 - [❓ FAQ](#-faq)
-- [💬 Exchange Group](#-exchange-group)
+- [💬 Communication Groups](#-communication-groups)
 - [📃 Developer Documentation](#-developer-documentation)
 - [😊 Acknowledgements](#-acknowledgements)
-- [♾️ Data sources](#%EF%B8%8F-data-sources)
+- [♾️ App sources](#%EF%B8%8F-app-sources)
 - [🌐 Language Support](#-language-support)
   - [ℹ️ How to translate](#ℹ%EF%B8%8F-how-to-translate-upgradeall-to-your-language)
 - [📖 License](#-license)
@@ -50,31 +50,31 @@ Check updates for Android apps, Magisk modules and more!
 
 4. Now, return to Home page and go to `Apps` page, you can see all the updates of your installed / added apps / modules.
 
-- **The App market mode will automatically check for updates of your installed apps on open**
+- **The App market mode will automatically check upon open for updates of your installed apps**
 
 - You can also visit [here](https://github.com/DUpdateSystem/UpgradeAll/wiki) for a more detailed graphic tutorial.
 
 
 ## 🎈 Features
 - Get updates from multiple sources.
-- Download files via external downloader.
+- Download files with external downloader.
 - Highly customizable rules.
 - Modern and clean design.
-- Supports Android 5.0 to 12L (Android 12L not tested).
+- Support Android 5.0 to 12L (Android 12L not tested).
 
 
 ## ❓ FAQ
 During use of the application, you may encounter some problems, and this document may help you to solve them: [FAQ](https://github.com/DUpdateSystem/UpgradeAll/wiki/FAQ).
 
 
-## 💬 Communication Group
-You can join our communication group by clicking cards below:   
+## 💬 Communication Groups
+You can join our communication groups by clicking cards below:   
 [<img src="https://img.shields.io/badge/QQ-000000?style=for-the-badge" alt="Join us on QQ" height="30">](https://jq.qq.com/?_wv=1027&k=ZAOtKhuH)
 [<img src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram" alt="Join us on Telegram" height="30">](https://t.me/DUpdateSystem)
 
 
 ## 📃 Developer Documentation
-All developer documentation for `UpgradeAll`, including the cloud directory structure, tracking entries, creating software source configurations, etc., is located in [Here](https://up-a.org/dev). If you find any documentation missing or incorrect, please raise an [Issue](https://github.com/DUpdateSystem/UpgradeAll/issues).
+All developer documentation for `UpgradeAll`, including the cloud directory structure, tracking entries, creating software source configurations, etc., is located [Here](https://up-a.org/dev). If you find any documentation missing or incorrect, please raise an [Issue](https://github.com/DUpdateSystem/UpgradeAll/issues).
 
 
 ## 😊 Acknowledgements  
@@ -91,14 +91,14 @@ Many thanks to the developers of these libraries:
 - [commons-text](https://commons.apache.org/text/)
 
 
-## ♾️ Data sources
+## ♾️ App sources
 Currently, the following sources are officially supported:
 - [Github](https://github.com)
 - [Gitlab](https://gitlab.com)
 - [F-Droid](https://f-droid.org)
 - [Play Store](https://play.google.com)
 - [Coolapk](https://www.coolapk.com)
-- [Source List](https://github.com/xz-dev/UpgradeAll-rules/)
+- [Source List](https://github.com/DUpdateSystem/UpgradeAll-rules/tree/master/rules/hubs)
 
 
 ## 🌐 Language Support
@@ -123,4 +123,4 @@ UpgradeAll（以下简称“本产品”）是一个集软件下载、更新于�
 
 
 ## 🧩 Screenshot
-<img src="./source/screenshot/1_en.png" alt="ScreenShot" height="520"><img src="./source/screenshot/2_en.png" alt="ScreenShot" height="520">
+<img src="./source/screenshot/1_en.png" alt="ScreenShot" height="520"><img src="./source/screenshot/2_en.png" alt="ScreenShot" height="520"><img src="./source/screenshot/3_en.png" alt="ScreenShot" height="520"><img src="./source/screenshot/4_en.png" alt="ScreenShot" height="520"><img src="./source/screenshot/5_en.png" alt="ScreenShot" height="520">
