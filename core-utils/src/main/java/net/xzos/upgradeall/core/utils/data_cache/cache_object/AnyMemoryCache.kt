@@ -4,7 +4,6 @@ import net.xzos.upgradeall.core.utils.data_cache.CacheConfig
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
-import kotlin.text.Charsets.UTF_8
 
 class AnyMemoryCache<T>(
     key: String,

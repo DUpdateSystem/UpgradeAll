@@ -33,13 +33,23 @@ internal class ClientProxyApi : BaseApi {
     override fun getAppRelease(data: ApiRequestData): List<ReleaseGson>? {
         val hubUuid = data.hubUuid
         val hub = hubMap[hubUuid]
-        return hub?.getRelease(data.appId, data.auth)
+        return try {
+            hub?.getRelease(data.appId, data.auth)
+        } catch (e: Throwable) {
+            Log.e(logObjectTag, TAG, e.stackTraceToString())
+            null
+        }
     }
 
     override fun getAppReleaseList(data: ApiRequestData): List<ReleaseGson>? {
         val hubUuid = data.hubUuid
         val hub = hubMap[hubUuid]
-        return hub?.getRelease(data.appId, data.auth)
+        return try {
+            hub?.getRelease(data.appId, data.auth)
+        } catch (e: Throwable) {
+            Log.e(logObjectTag, TAG, e.stackTraceToString())
+            null
+        }
     }
 
     override suspend fun getDownloadInfo(
@@ -48,7 +58,12 @@ internal class ClientProxyApi : BaseApi {
     ): List<DownloadItem>? {
         val hubUuid = data.hubUuid
         val hub = hubMap[hubUuid]
-        return hub?.getDownload(data.appId, data.auth, assetIndex.toList())
+        return try {
+            hub?.getDownload(data.appId, data.auth, assetIndex.toList())
+        } catch (e: Throwable) {
+            Log.e(logObjectTag, TAG, e.stackTraceToString())
+            null
+        }
     }
 
     companion object {
