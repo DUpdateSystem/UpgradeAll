@@ -193,7 +193,6 @@
     <string name="show_download_status">Show Download Status</string>
     <string name="waiting_pre_process">Waiting for Pre-processing to Complete</string>
     <string name="download_service_running">Download Service Running</string>
-    <string name="use_external_downloader_desc">Built-in downloader not ready yet, use external downloader by default</string>
     <!-- Installable File Type -->
     <string name="apk">APK</string>
     <!-- Hub Setting -->

@@ -186,7 +186,6 @@
     <string name="show_download_status">Download-Status anzeigen</string>
     <string name="waiting_pre_process">Warten bis die Vorverarbeitung abgeschlossen ist</string>
     <string name="download_service_running">Download-Service läuft</string>
-    <string name="use_external_downloader_desc">Derzeit ist der eingebaute Downloader nicht bereit, die Standardeinstellung ist die Verwendung eines externen Downloaders</string>
     <!-- Installable File Type -->
     <string name="apk">APK</string>
     <!-- Hub Setting -->

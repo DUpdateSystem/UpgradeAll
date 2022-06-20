@@ -186,7 +186,6 @@
     <string name="show_download_status">İndirme durumunu göster</string>
     <string name="waiting_pre_process">Ön işlemenin tamamlanmasını bekleyin</string>
     <string name="download_service_running">İndirme Hizmeti yürütülüyor</string>
-    <string name="use_external_downloader_desc">Şu anda yerleşik indirici hazır değil, varsayılan, harici bir indirici kullanmaktır</string>
     <!-- Installable File Type -->
     <string name="apk">APK</string>
     <!-- Hub Setting -->

@@ -186,7 +186,6 @@
     <string name="show_download_status">Mostrar o status da transferência</string>
     <string name="waiting_pre_process">Aguarde a conclusão do pré-processamento</string>
     <string name="download_service_running">O serviço de transferência está em execução</string>
-    <string name="use_external_downloader_desc">Atualmente o downloader integrado não está pronto, o padrão é usar um downloader externo</string>
     <!-- Installable File Type -->
     <string name="apk">APK</string>
     <!-- Hub Setting -->

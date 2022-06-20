@@ -7,9 +7,7 @@
     <PreferenceCategory app:title="@string/external_downloader_setting">
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:title="@string/use_external_downloader"
-            app:key="enforce_use_external_downloader"
-            app:summary="@string/use_external_downloader_desc" />
+            android:title="@string/use_external_downloader"/>
 
         <EditTextPreference
             app:key="external_downloader_package_name"

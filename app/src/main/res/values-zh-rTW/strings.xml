@@ -186,7 +186,6 @@
     <string name="show_download_status">顯示檔案的下載狀態</string>
     <string name="waiting_pre_process">等待預處理完成</string>
     <string name="download_service_running">下載服務執行中</string>
-    <string name="use_external_downloader_desc">目前內建下載器未準備好，預設使用外部下載器</string>
     <!-- Installable File Type -->
     <string name="apk">安裝包</string>
     <!-- Hub Setting -->
