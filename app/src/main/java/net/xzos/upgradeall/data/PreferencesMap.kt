@@ -36,12 +36,12 @@ object PreferencesMap {
     val custom_cloud_rules_hub_url: Boolean
         get() {
             val customCloudRulesHubUrl =
-                prefs.getString(CUSTOM_CLOUD_RULES_HUB_URL_KEY, "FromUpdateServer")!!
+                prefs.getString(CUSTOM_CLOUD_RULES_HUB_URL_KEY, "Custom")!!
             return customCloudRulesHubUrl == "Custom"
         }
 
     var cloud_rules_hub_url: String?
-        get() = prefs.getString(CLOUD_RULES_HUB_URL_KEY, null)
+        get() = prefs.getString(CLOUD_RULES_HUB_URL_KEY, "https://raw.fastgit.org/DUpdateSystem/UpgradeAll-rules/master/rules/rules.json")
         set(value) = prefs.edit().putString(CLOUD_RULES_HUB_URL_KEY, value).apply()
     private var update_server_url: String
         get() = prefs.getString(UPDATE_SERVER_URL_KEY, DEF_UPDATE_SERVER_URL)!!
