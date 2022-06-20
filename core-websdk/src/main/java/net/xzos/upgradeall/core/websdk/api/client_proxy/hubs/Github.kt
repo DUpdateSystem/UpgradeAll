@@ -10,7 +10,7 @@ import net.xzos.upgradeall.core.websdk.json.Assets
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.json.JSONArray
 
-class Github : BaseHub() {
+internal class Github : BaseHub() {
     private val objectTag = ObjectTag(core, "Github")
     override val uuid = "fd9b2602-62c5-4d55-bd1e-0d6537714ca0"
 
@@ -27,7 +27,7 @@ class Github : BaseHub() {
         } ?: return null
         val rawList = JSONArray(response.body.string())
         val data = mutableListOf<ReleaseGson>()
-        for (i in 0..rawList.length()) {
+        for (i in 0 until rawList.length()) {
             val raw = rawList.getJSONObject(i)
             var name = raw.getString("name")
             if (VersioningUtils.matchVersioningString(name) == null) {
@@ -35,7 +35,7 @@ class Github : BaseHub() {
             }
             val assets = mutableListOf<Assets>()
             val rawAssets = raw.getJSONArray("assets")
-            for (ai in 0..rawAssets.length()) {
+            for (ai in 0 until rawAssets.length()) {
                 val rawAsset = rawAssets.getJSONObject(ai)
                 val asset = Assets(
                     fileName = rawAsset.getString("name"),
