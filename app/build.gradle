@@ -13,12 +13,12 @@ if (!project.hasProperty('free')) {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode 97
         versionName "0.13-alpha"
         if (project.hasProperty('appVerName')) {
@@ -64,8 +64,8 @@ android {
         // Flag to enable support for the new language APIs
         coreLibraryDesugaringEnabled true
         // Sets Java compatibility to Java 8
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
@@ -98,6 +98,7 @@ android {
         abortOnError true
         checkReleaseBuilds false
     }
+    buildToolsVersion '33.0.0'
 
 }
 
