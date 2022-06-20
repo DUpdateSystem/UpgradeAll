@@ -95,7 +95,7 @@ object PreferencesMap {
         set(value) = prefs.edit().putInt(DOWNLOAD_AUTO_RETRY_MAX_ATTEMPTS_KEY, value).apply()
 
     val enforce_use_external_downloader: Boolean
-        get() = prefs.getBoolean("enforce_use_external_downloader", true)
+        get() = prefs.getBoolean("enforce_use_external_downloader", false)
 
     val external_downloader_package_name: String?
         get() = prefs.getString("external_downloader_package_name", null)
