@@ -194,7 +194,7 @@
     <string name="download_url_replace_rule">Regra de substituição de URL de transferência</string>
     <string name="match_rule">Regra de correspondência</string>
     <string name="replace_string">Substituir String</string>
-    <string name="url">URL</string>
+    <string name="url">URL:</string>
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>

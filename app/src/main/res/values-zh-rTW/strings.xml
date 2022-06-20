@@ -194,7 +194,7 @@
     <string name="download_url_replace_rule">下載地址替換規則</string>
     <string name="match_rule">匹配規則</string>
     <string name="replace_string">替換字串</string>
-    <string name="url">URL</string>
+    <string name="url">網址</string>
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
