@@ -3,7 +3,7 @@ package net.xzos.upgradeall.core.utils
 import android.content.Context
 import android.content.Intent
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.androidutils.app_info.AppInfo
 import net.xzos.upgradeall.core.androidutils.app_info.AppReceiver
 import net.xzos.upgradeall.core.manager.AppManager

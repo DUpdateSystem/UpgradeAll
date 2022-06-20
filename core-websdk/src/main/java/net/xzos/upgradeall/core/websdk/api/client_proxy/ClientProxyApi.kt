@@ -6,6 +6,7 @@ import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.websdk.api.BaseApi
 import net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config.CloudConfig
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.BaseHub
+import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.CoolApk
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.Github
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
@@ -18,7 +19,7 @@ internal class ClientProxyApi : BaseApi {
     private val cloudConfig = CloudConfig(okhttpProxy)
 
     private val hubMap: Map<String, BaseHub> = listOf(
-        Github()
+        Github(), CoolApk(okhttpProxy)
     ).associateBy({ it.uuid }, { it })
 
     override suspend fun getCloudConfig(url: String): CloudConfigList? {
@@ -58,8 +59,10 @@ internal class ClientProxyApi : BaseApi {
     ): List<DownloadItem>? {
         val hubUuid = data.hubUuid
         val hub = hubMap[hubUuid]
+        val assets = getAppReleaseList(data)
+            ?.get(assetIndex.first)?.assetList?.get(assetIndex.second)
         return try {
-            hub?.getDownload(data.appId, data.auth, assetIndex.toList())
+            hub?.getDownload(data.appId, data.auth, assetIndex.toList(), assets)
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, e.stackTraceToString())
             null

@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
+import net.xzos.upgradeall.core.websdk.json.Assets
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
@@ -11,10 +12,11 @@ abstract class BaseHub {
         auth: Map<String, String?>
     ): List<ReleaseGson>?
 
-    fun getDownload(
+    open fun getDownload(
         appId: Map<String, String?>,
         auth: Map<String, String?>,
-        assetIndex: List<Int>
+        assetIndex: List<Int>,
+        assets: Assets?
     ): List<DownloadItem>? {
         return null
     }

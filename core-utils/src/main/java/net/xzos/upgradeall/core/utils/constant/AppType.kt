@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.androidutils.app_info
+package net.xzos.upgradeall.core.utils.constant
 
 // 可用的 APP 跟踪类型
 const val ANDROID_APP_TYPE = "android_app_package"

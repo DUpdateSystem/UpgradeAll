@@ -6,6 +6,8 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import net.xzos.upgradeall.core.androidutils.getProp
 import net.xzos.upgradeall.core.shell.getFileNameList
+import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.constant.ANDROID_MAGISK_MODULE_TYPE
 
 
 private const val MODULE_FOLDER_PATH = "/data/adb/modules/"

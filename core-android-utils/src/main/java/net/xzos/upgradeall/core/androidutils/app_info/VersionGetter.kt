@@ -6,6 +6,10 @@ import net.xzos.upgradeall.core.androidutils.getProp
 import net.xzos.upgradeall.core.androidutils.locale
 import net.xzos.upgradeall.core.shell.Shell
 import net.xzos.upgradeall.core.shell.getOutputString
+import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.constant.ANDROID_CUSTOM_SHELL
+import net.xzos.upgradeall.core.utils.constant.ANDROID_CUSTOM_SHELL_ROOT
+import net.xzos.upgradeall.core.utils.constant.ANDROID_MAGISK_MODULE_TYPE
 
 
 fun Map<String, String?>.getPackageId(): Pair<String, String>? {

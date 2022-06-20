@@ -2,10 +2,10 @@ package net.xzos.upgradeall.core.utils
 
 import android.content.Context
 import android.content.pm.PackageManager
-import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_APP_TYPE
-import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_CUSTOM_SHELL
-import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_CUSTOM_SHELL_ROOT
-import net.xzos.upgradeall.core.androidutils.app_info.ANDROID_MAGISK_MODULE_TYPE
+import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.constant.ANDROID_CUSTOM_SHELL
+import net.xzos.upgradeall.core.utils.constant.ANDROID_CUSTOM_SHELL_ROOT
+import net.xzos.upgradeall.core.utils.constant.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.manager.HubManager
 
 
