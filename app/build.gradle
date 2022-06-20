@@ -38,18 +38,26 @@ android {
     buildTypes {
         release {
             minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [enableCrashReporting: "true", appName: "UpgradeAll"]
-            applicationVariants.all { variant ->
-                variant.outputs.each { output ->
-                    output.outputFileName = "UpgradeAll_${versionName}.apk"
-                }
-            }
         }
         debug {
             minifyEnabled false
+            zipAlignEnabled true
             manifestPlaceholders = [enableCrashReporting: "false", appName: "UpgradeAll-β"]
             applicationIdSuffix ".debug"
+        }
+    }
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            if(variant.buildType.name == 'release'){
+                outputFileName = "UpgradeAll_${versionName}.apk"
+            }
+            if(variant.buildType.name == 'debug'){
+                outputFileName = "UpgradeAll_${versionName}-debug.apk"
+            }
         }
     }
     compileOptions {
