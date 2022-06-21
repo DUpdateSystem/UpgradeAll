@@ -9,7 +9,7 @@ import okhttp3.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
 
-internal interface OkhttpTimeoutProxy {
+interface OkhttpTimeoutProxy {
     companion object {
         private const val TAG = "OkhttpTimeoutProxy"
         private val objectTag = ObjectTag(ObjectTag.core, TAG)

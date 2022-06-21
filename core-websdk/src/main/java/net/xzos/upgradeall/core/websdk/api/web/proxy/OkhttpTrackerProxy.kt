@@ -6,7 +6,7 @@ import net.xzos.upgradeall.core.websdk.api.web.http.HttpResponse
 import net.xzos.upgradeall.core.websdk.api.web.http.OkHttpApi
 import okhttp3.Response
 
-internal open class OkhttpTrackerProxy : OkhttpTimeoutProxy {
+open class OkhttpTrackerProxy : OkhttpTimeoutProxy {
     private val cancelProxy = OkhttpCancelProxy()
     private val okHttpApi = OkHttpApi()
     private val okHttpExecuteApi = OkHttpApi()

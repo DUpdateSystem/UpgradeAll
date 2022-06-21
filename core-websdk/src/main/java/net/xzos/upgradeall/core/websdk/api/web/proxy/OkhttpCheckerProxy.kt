@@ -6,7 +6,7 @@ import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpResponse
 import okhttp3.Response
 
-internal open class OkhttpCheckerProxy : OkhttpRetryProxy() {
+open class OkhttpCheckerProxy : OkhttpRetryProxy() {
     private val invalidMarkList = coroutinesMutableListOf<String>(true)
 
     protected fun okhttpExecuteWithChecker(

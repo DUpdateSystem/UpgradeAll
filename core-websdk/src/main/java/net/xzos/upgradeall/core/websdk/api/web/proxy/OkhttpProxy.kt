@@ -4,7 +4,7 @@ import net.xzos.upgradeall.core.websdk.api.web.HttpError
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpResponse
 
-internal open class OkhttpProxy : OkhttpProxyCallNoErrorApi() {
+open class OkhttpProxy : OkhttpProxyCallNoErrorApi() {
     fun okhttpExecute(
         requestData: HttpRequestData, retryNum: Int = 3
     ) = okhttpExecuteNoError(requestData, retryNum)

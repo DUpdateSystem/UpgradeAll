@@ -5,7 +5,7 @@ import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpResponse
 import okhttp3.Response
 
-internal open class OkhttpRetryProxy : OkhttpTrackerProxy() {
+open class OkhttpRetryProxy : OkhttpTrackerProxy() {
     protected fun okhttpExecuteWithRetry(
         requestData: HttpRequestData, checkRunnable: () -> Boolean = { true }, retryNum: Int = 3
     ): Response? {

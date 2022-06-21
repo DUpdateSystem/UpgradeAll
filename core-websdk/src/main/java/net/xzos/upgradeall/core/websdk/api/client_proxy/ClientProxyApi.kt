@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy
 
+import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
@@ -8,18 +9,19 @@ import net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config.CloudConfig
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.BaseHub
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.CoolApk
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.Github
+import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.LsposedRepo
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
-internal class ClientProxyApi : BaseApi {
+internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
     private val okhttpProxy = OkhttpProxy()
     private val cloudConfig = CloudConfig(okhttpProxy)
 
     private val hubMap: Map<String, BaseHub> = listOf(
-        Github(), CoolApk(okhttpProxy)
+        Github(dataCache, okhttpProxy), CoolApk(dataCache, okhttpProxy), LsposedRepo(dataCache, okhttpProxy)
     ).associateBy({ it.uuid }, { it })
 
     override suspend fun getCloudConfig(url: String): CloudConfigList? {

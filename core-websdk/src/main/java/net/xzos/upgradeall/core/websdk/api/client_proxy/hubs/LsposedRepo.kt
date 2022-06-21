@@ -1,0 +1,55 @@
+package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
+
+import net.xzos.upgradeall.core.utils.asSequence
+import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
+import net.xzos.upgradeall.core.utils.data_cache.utils.JsonArrayEncoder
+import net.xzos.upgradeall.core.utils.getOrNull
+import net.xzos.upgradeall.core.utils.iterator
+import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
+import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
+import net.xzos.upgradeall.core.websdk.json.Assets
+import net.xzos.upgradeall.core.websdk.json.ReleaseGson
+import org.json.JSONArray
+import org.json.JSONObject
+
+class LsposedRepo(
+    dataCache: DataCacheManager, okhttpProxy: OkhttpProxy
+) : BaseHub(dataCache, okhttpProxy) {
+    override val uuid: String = "401e6259-2eab-46f0-8e8a-d2bfafedf5bf"
+
+    override fun getRelease(
+        appId: Map<String, String?>, auth: Map<String, String?>
+    ): List<ReleaseGson>? {
+        val dataJson = dataCache.get("lsposed_repo_json", JsonArrayEncoder, false) {
+            val response = okhttpProxy.okhttpExecute(
+                HttpRequestData("https://modules.lsposed.org/modules.json")
+            ) ?: return@get null
+            JSONArray(response.body.string())
+        } ?: return null
+
+        val appPackage = appId[ANDROID_APP_TYPE]
+        var json: JSONObject? = null
+        for (tmp in dataJson.iterator<JSONObject>()) {
+            if (tmp.getString("name") == appPackage) {
+                json = tmp
+                break
+            }
+        }
+        json ?: return emptyList()
+        val data = json.getJSONArray("releases").asSequence<JSONObject>().map {
+            ReleaseGson(
+                versionNumber = it.getString("name"),
+                changelog = it.getOrNull("descriptionHTML"),
+                assetList = it.getJSONArray("releaseAssets").asSequence<JSONObject>().map { asset ->
+                    Assets(
+                        fileName = asset.getString("name"),
+                        fileType = asset.getString("contentType"),
+                        downloadUrl = asset.getString("downloadUrl")
+                    )
+                }.toList()
+            )
+        }.toList()
+        return data
+    }
+}

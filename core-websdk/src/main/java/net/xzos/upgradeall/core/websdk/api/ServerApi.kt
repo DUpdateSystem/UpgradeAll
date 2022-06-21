@@ -22,7 +22,7 @@ class ServerApi internal constructor(
     private val webApi = WebApi()
     private val webApiProxy = WebApiProxy(host, webApi, dataCache)
 
-    private val clientProxyApi = ClientProxyApi()
+    private val clientProxyApi = ClientProxyApi(dataCache)
 
     fun shutdown() {
         webApi.shutdown()

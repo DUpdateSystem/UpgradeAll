@@ -8,7 +8,7 @@ import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpResponse
 import okhttp3.Response
 
-internal open class OkhttpProxyCallNoErrorApi : OkhttpCheckerProxy() {
+open class OkhttpProxyCallNoErrorApi : OkhttpCheckerProxy() {
     companion object {
         private const val TAG = "OkhttpProxyCallNoErrorApi"
         private val objectTag = ObjectTag(ObjectTag.core, TAG)

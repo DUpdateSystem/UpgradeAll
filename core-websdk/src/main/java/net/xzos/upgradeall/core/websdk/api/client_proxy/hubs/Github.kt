@@ -1,17 +1,18 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
-import net.xzos.upgradeall.core.utils.log.ObjectTag
-import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.utils.asSequence
+import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
-import net.xzos.upgradeall.core.websdk.api.web.http.OkHttpApi
-import net.xzos.upgradeall.core.websdk.api.web.http.openOkHttpApi
+import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.json.Assets
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.json.JSONArray
+import org.json.JSONObject
 
-internal class Github : BaseHub() {
-    private val objectTag = ObjectTag(core, "Github")
+internal class Github(
+    dataCache: DataCacheManager, okhttpProxy: OkhttpProxy
+) : BaseHub(dataCache, okhttpProxy) {
     override val uuid = "fd9b2602-62c5-4d55-bd1e-0d6537714ca0"
 
     override fun getRelease(
@@ -22,35 +23,26 @@ internal class Github : BaseHub() {
         val repo = appId["repo"]
         val url = "https://api.github.com/repos/$owner/$repo/releases"
         val requestData = HttpRequestData(url)
-        val response = OkHttpApi.callHttpFunc(objectTag, url) {
-            openOkHttpApi.getExecute(requestData)
-        } ?: return null
-        val rawList = JSONArray(response.body.string())
-        val data = mutableListOf<ReleaseGson>()
-        for (i in 0 until rawList.length()) {
-            val raw = rawList.getJSONObject(i)
-            var name = raw.getString("name")
+        val response = okhttpProxy.okhttpExecute(requestData)
+            ?: return null
+        val jsonArray = JSONArray(response.body.string())
+        val data = jsonArray.asSequence<JSONObject>().map {
+            var name = it.getString("name")
             if (VersioningUtils.matchVersioningString(name) == null) {
-                name = raw.getString("tag_name")
+                name = it.getString("tag_name")
             }
-            val assets = mutableListOf<Assets>()
-            val rawAssets = raw.getJSONArray("assets")
-            for (ai in 0 until rawAssets.length()) {
-                val rawAsset = rawAssets.getJSONObject(ai)
-                val asset = Assets(
-                    fileName = rawAsset.getString("name"),
-                    fileType = rawAsset.getString("content_type"),
-                    downloadUrl = rawAsset.getString("browser_download_url")
-                )
-                assets.add(asset)
-            }
-            val release = ReleaseGson(
+            ReleaseGson(
                 versionNumber = name,
-                changelog = raw.getString("body"),
-                assetList = assets
+                changelog = it.getString("body"),
+                assetList = it.getJSONArray("assets").asSequence<JSONObject>().map { assets ->
+                    Assets(
+                        fileName = assets.getString("name"),
+                        fileType = assets.getString("content_type"),
+                        downloadUrl = assets.getString("browser_download_url")
+                    )
+                }.toList()
             )
-            data.add(release)
-        }
+        }.toList()
         return data
     }
 }
