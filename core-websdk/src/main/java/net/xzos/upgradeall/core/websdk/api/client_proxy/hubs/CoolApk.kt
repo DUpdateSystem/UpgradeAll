@@ -2,7 +2,9 @@ package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
 import android.util.Base64
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.getOrNull
+import net.xzos.upgradeall.core.utils.iterator
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
@@ -14,8 +16,11 @@ import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import okhttp3.Request
 import org.json.JSONObject
+import java.time.Instant
 
-internal class CoolApk(private val httpProxy: OkhttpProxy) : BaseHub() {
+internal class CoolApk(
+    dataCache: DataCacheManager, okhttpProxy: OkhttpProxy
+) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "1c010cc9-cff8-4461-8993-a86cd190d377"
 
     override fun getRelease(
@@ -50,8 +55,7 @@ internal class CoolApk(private val httpProxy: OkhttpProxy) : BaseHub() {
             ?: return data
         val historyJsonList = historyJsonObject.getOrNull("data", historyJsonObject::getJSONArray)
             ?: return data
-        for (i in 0 until historyJsonList.length()) {
-            val historyJson = historyJsonList.getJSONObject(i)
+        for (historyJson in historyJsonList.iterator<JSONObject>()) {
             val versionName = historyJson.getString("versionName")
             val versionId = historyJson.getString("versionId")
             data.add(
@@ -116,9 +120,9 @@ internal class CoolApk(private val httpProxy: OkhttpProxy) : BaseHub() {
     )
 
     private fun httpRedirects(url: String) =
-        httpProxy.okhttpExecute(HttpRequestData(url, headerMap))?.request
+        okhttpProxy.okhttpExecute(HttpRequestData(url, headerMap))?.request
 
-    private fun httpGet(url: String) = httpProxy.okhttpExecute(HttpRequestData(url, headerMap))
+    private fun httpGet(url: String) = okhttpProxy.okhttpExecute(HttpRequestData(url, headerMap))
 
     companion object {
         private const val TAG = "CoolApk"
@@ -145,7 +149,7 @@ internal class CoolApk(private val httpProxy: OkhttpProxy) : BaseHub() {
         private const val DEVICE_ID = "55077056-48ee-46c8-80a6-2a21a9c5b12b"
 
         private fun getAppToken(): String {
-            val t = 1655735191
+            val t = Instant.now().epochSecond
             val tHex = "0x${t.toString(16)}"
             // 时间戳加密
             val tMd5 = t.toString().md5()
