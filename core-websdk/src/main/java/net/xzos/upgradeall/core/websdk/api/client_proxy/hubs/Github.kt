@@ -27,9 +27,14 @@ internal class Github(
             ?: return null
         val jsonArray = JSONArray(response.body.string())
         val data = jsonArray.asSequence<JSONObject>().map {
-            var name = it.getString("tag_name")
-            if (VersioningUtils.matchVersioningString(name) == null) {
-                name = it.getString("name")
+            val name = appId[VERSION_NUMBER_KEY]?.let { key ->
+                it.getString(key)
+            } ?: kotlin.run {
+                var name = it.getString("name")
+                if (VersioningUtils.matchVersioningString(name) == null) {
+                    name = it.getString("tag_name")
+                }
+                name
             }
             ReleaseGson(
                 versionNumber = name,
@@ -44,5 +49,9 @@ internal class Github(
             )
         }.toList()
         return data
+    }
+
+    companion object {
+        private const val VERSION_NUMBER_KEY = "version_number_key"
     }
 }
