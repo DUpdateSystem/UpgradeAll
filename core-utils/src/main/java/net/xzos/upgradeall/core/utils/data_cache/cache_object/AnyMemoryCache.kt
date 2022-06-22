@@ -10,6 +10,8 @@ class AnyMemoryCache<T>(
     config: CacheConfig,
 ) : BaseCache<T>(key) {
 
+    override var time: Long = 0L
+
     private var any: T? = null
     private val bytesDiskCache by lazy { config.dir?.let { BytesDiskCache(key, config) } }
 

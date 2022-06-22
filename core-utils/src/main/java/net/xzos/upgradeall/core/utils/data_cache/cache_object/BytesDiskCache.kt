@@ -7,6 +7,12 @@ import java.io.FileNotFoundException
 class BytesDiskCache(key: String, config: CacheConfig) : BaseCache<ByteArray>(key) {
     private val file = File(config.dir, key)
 
+    override var time: Long
+        get() = file.lastModified()
+        set(value) {
+            file.setLastModified(value)
+        }
+
     override fun write(any: ByteArray?) {
         any?.run {
             file.createNewFile()

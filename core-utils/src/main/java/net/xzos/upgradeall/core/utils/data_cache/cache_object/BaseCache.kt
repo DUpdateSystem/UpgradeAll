@@ -5,11 +5,7 @@ import java.time.Instant
 abstract class BaseCache<T>(
     val key: String
 ) {
-    var time: Long = 0L
-
-    init {
-        renewTime()
-    }
+    abstract var time: Long
 
     fun checkValid(dataCacheTimeSec: Int): Boolean {
         return (Instant.now().epochSecond - time <= dataCacheTimeSec)
