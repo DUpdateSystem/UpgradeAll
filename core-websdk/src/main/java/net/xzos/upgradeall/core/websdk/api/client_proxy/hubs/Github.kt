@@ -26,24 +26,22 @@ internal class Github(
         val response = okhttpProxy.okhttpExecute(requestData)
             ?: return null
         val jsonArray = JSONArray(response.body.string())
-        val data = jsonArray.asSequence<JSONObject>().map {
-            val name = appId[VERSION_NUMBER_KEY]?.let { key ->
-                it.getString(key)
-            } ?: kotlin.run {
-                var name = it.getString("name")
-                if (VersioningUtils.matchVersioningString(name) == null) {
-                    name = it.getString("tag_name")
-                }
-                name
+        val data = jsonArray.asSequence<JSONObject>().map { json ->
+            val name = appId[VERSION_NUMBER_KEY]?.let {
+                json.getString(it)
+            } ?: json.getString("name").let {
+                if (VersioningUtils.matchVersioningString(it) == null)
+                    json.getString("tag_name")
+                else it
             }
             ReleaseGson(
                 versionNumber = name,
-                changelog = it.getString("body"),
-                assetList = it.getJSONArray("assets").asSequence<JSONObject>().map { assets ->
+                changelog = json.getString("body"),
+                assetList = json.getJSONArray("assets").asSequence<JSONObject>().map {
                     Assets(
-                        fileName = assets.getString("name"),
-                        fileType = assets.getString("content_type"),
-                        downloadUrl = assets.getString("browser_download_url")
+                        fileName = it.getString("name"),
+                        fileType = it.getString("content_type"),
+                        downloadUrl = it.getString("browser_download_url")
                     )
                 }.toList()
             )
