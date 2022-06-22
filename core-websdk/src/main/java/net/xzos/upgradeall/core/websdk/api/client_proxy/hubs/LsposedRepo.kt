@@ -8,6 +8,7 @@ import net.xzos.upgradeall.core.utils.getOrNull
 import net.xzos.upgradeall.core.utils.iterator
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
+import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.json.Assets
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.json.JSONArray
@@ -19,7 +20,7 @@ class LsposedRepo(
     override val uuid: String = "401e6259-2eab-46f0-8e8a-d2bfafedf5bf"
 
     override fun getRelease(
-        appId: Map<String, String?>, auth: Map<String, String?>
+        data: ApiRequestData
     ): List<ReleaseGson>? {
         val dataJson = dataCache.get("lsposed_repo_json", JsonArrayEncoder, false) {
             val response = okhttpProxy.okhttpExecute(
@@ -28,7 +29,7 @@ class LsposedRepo(
             JSONArray(response.body.string())
         } ?: return null
 
-        val appPackage = appId[ANDROID_APP_TYPE]
+        val appPackage = data.appId[ANDROID_APP_TYPE]
         var json: JSONObject? = null
         for (tmp in dataJson.iterator<JSONObject>()) {
             if (tmp.getString("name") == appPackage) {
@@ -37,7 +38,7 @@ class LsposedRepo(
             }
         }
         json ?: return emptyList()
-        val data = json.getJSONArray("releases").asSequence<JSONObject>().map {
+        return json.getJSONArray("releases").asSequence<JSONObject>().map {
             ReleaseGson(
                 versionNumber = it.getString("name"),
                 changelog = it.getOrNull("descriptionHTML"),
@@ -50,6 +51,5 @@ class LsposedRepo(
                 }.toList()
             )
         }.toList()
-        return data
     }
 }

@@ -11,6 +11,7 @@ import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.md5
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
+import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.json.Assets
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
@@ -24,10 +25,9 @@ internal class CoolApk(
     override val uuid: String = "1c010cc9-cff8-4461-8993-a86cd190d377"
 
     override fun getRelease(
-        appId: Map<String, String?>,
-        auth: Map<String, String?>
+        data: ApiRequestData,
     ): List<ReleaseGson>? {
-        val appPackage = appId[ANDROID_APP_TYPE] ?: return emptyList()
+        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
 
         // get latest
         val detailUrl = "https://api.coolapk.com/v6/apk/detail?id=$appPackage"
@@ -89,8 +89,7 @@ internal class CoolApk(
     }
 
     override fun getDownload(
-        appId: Map<String, String?>,
-        auth: Map<String, String?>,
+        data: ApiRequestData,
         assetIndex: List<Int>,
         assets: Assets?
     ): List<DownloadItem>? {
@@ -100,7 +99,7 @@ internal class CoolApk(
         ) {
             Log.i(logObjectTag, TAG, "getDownload: 返回非安装包数据")
             val newAssets =
-                getRelease(appId, auth)?.get(assetIndex[0])?.assetList?.get(assetIndex[1])
+                getRelease(data)?.get(assetIndex[0])?.assetList?.get(assetIndex[1])
                     ?: return null
             return listOf(
                 DownloadItem(

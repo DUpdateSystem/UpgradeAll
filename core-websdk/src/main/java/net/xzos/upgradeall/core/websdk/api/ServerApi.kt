@@ -96,4 +96,4 @@ fun <E> DataCacheManager.getOrRenewWithCallback(
     }
 }
 
-fun ApiRequestData.getKey() = hubUuid + auth + appId
+fun ApiRequestData.getKey() = hubUuid + auth + appId + other

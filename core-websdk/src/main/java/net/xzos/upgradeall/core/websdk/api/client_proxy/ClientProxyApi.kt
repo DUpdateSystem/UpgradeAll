@@ -21,7 +21,9 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
     private val cloudConfig = CloudConfig(okhttpProxy)
 
     private val hubMap: Map<String, BaseHub> = listOf(
-        Github(dataCache, okhttpProxy), CoolApk(dataCache, okhttpProxy), LsposedRepo(dataCache, okhttpProxy)
+        Github(dataCache, okhttpProxy),
+        CoolApk(dataCache, okhttpProxy),
+        LsposedRepo(dataCache, okhttpProxy)
     ).associateBy({ it.uuid }, { it })
 
     override suspend fun getCloudConfig(url: String): CloudConfigList? {
@@ -37,7 +39,7 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         val hubUuid = data.hubUuid
         val hub = hubMap[hubUuid]
         return try {
-            hub?.getRelease(data.appId, data.auth)
+            hub?.getRelease(data)
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, e.stackTraceToString())
             null
@@ -48,7 +50,7 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         val hubUuid = data.hubUuid
         val hub = hubMap[hubUuid]
         return try {
-            hub?.getRelease(data.appId, data.auth)
+            hub?.getRelease(data)
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, e.stackTraceToString())
             null
@@ -64,7 +66,7 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         val assets = getAppReleaseList(data)
             ?.get(assetIndex.first)?.assetList?.get(assetIndex.second)
         return try {
-            hub?.getDownload(data.appId, data.auth, assetIndex.toList(), assets)
+            hub?.getDownload(data, assetIndex.toList(), assets)
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, e.stackTraceToString())
             null

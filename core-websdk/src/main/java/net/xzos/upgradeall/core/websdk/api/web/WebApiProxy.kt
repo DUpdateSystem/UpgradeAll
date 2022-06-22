@@ -95,7 +95,7 @@ internal class WebApiProxy(
             return appIdPath.replaceFirst("/", "")
         }
 
-        private fun getAuthHeaderDict(auth: Map<String, String>): Map<String, String> {
+        private fun getAuthHeaderDict(auth: Map<String, String?>): Map<String, String> {
             return mapOf("Authorization" to Gson().toJson(auth))
         }
 

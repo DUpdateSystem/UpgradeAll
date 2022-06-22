@@ -1,13 +1,13 @@
 package net.xzos.upgradeall.core.module
 
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
-import net.xzos.upgradeall.core.utils.constant.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.utils.AutoTemplate
+import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.constant.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
@@ -19,42 +19,45 @@ class Hub(private val hubDatabase: HubEntity) {
 
     fun isValidApp(appId: Map<String, String?>): Boolean = getValidKey(appId) != null
 
-    private fun getValidKey(appId: Map<String, String?>): Map<String, String>? {
-        return filterValidKey(appId)
+    fun getValidKey(appId: Map<String, String?>): Map<String, String?>? {
+        return filterValidKey(appId).first.ifEmpty { null }
     }
 
-    private fun filterValidKey(appId: Map<String, String?>): Map<String, String>? {
+    fun filterValidKey(appId: Map<String, String?>): Pair<Map<String, String?>, Map<String, String?>> {
+        val mapPair = Pair(mutableMapOf<String, String?>(), mutableMapOf<String, String?>())
         val apiKeywords = hubDatabase.hubConfig.apiKeywords
-        val keyMap = mutableMapOf<String, String>()
-        for (key in apiKeywords) {
-            keyMap[key] = appId[key] ?: return null
+        appId.forEach {
+            if (it.key in apiKeywords) {
+                mapPair.first[it.key] = it.value
+            } else {
+                mapPair.second[it.key] = it.value
+            }
         }
-        return keyMap
+        return mapPair
     }
-
 
     fun isIgnoreApp(_appId: Map<String, String?>): Boolean {
-        val appId = filterValidKey(_appId) ?: return true
+        val appId = getValidKey(_appId) ?: return true
         val ignoreAppIdList = hubDatabase.userIgnoreAppIdList
         return ignoreAppIdList.contains(appId)
     }
 
     suspend fun ignoreApp(_appId: Map<String, String?>) {
-        val appId = filterValidKey(_appId) ?: return
+        val appId = getValidKey(_appId) ?: return
         val ignoreAppIdList = hubDatabase.userIgnoreAppIdList
         ignoreAppIdList.add(appId)
         saveDatabase()
     }
 
     suspend fun unignoreApp(_appId: Map<String, String?>) {
-        val appId = filterValidKey(_appId) ?: return
+        val appId = getValidKey(_appId) ?: return
         val ignoreAppIdList = hubDatabase.userIgnoreAppIdList
         ignoreAppIdList.remove(appId)
         saveDatabase()
     }
 
     private fun getAppPriority(_appId: Map<String, String?>): Int {
-        val appId = filterValidKey(_appId) ?: return LOW_PRIORITY_APP
+        val appId = getValidKey(_appId) ?: return LOW_PRIORITY_APP
         return if (isActiveApp(appId))
             NORMAL_PRIORITY_APP
         else
@@ -62,20 +65,20 @@ class Hub(private val hubDatabase: HubEntity) {
     }
 
     fun isActiveApp(_appId: Map<String, String?>): Boolean {
-        val appId = filterValidKey(_appId) ?: return false
+        val appId = getValidKey(_appId) ?: return false
         val inactiveAppIdList = hubDatabase.ignoreAppIdList
         return !inactiveAppIdList.contains(appId)
     }
 
     private suspend fun setActiveApp(_appId: Map<String, String?>) {
-        val appId = filterValidKey(_appId) ?: return
+        val appId = getValidKey(_appId) ?: return
         val lowPriorityAppIdList = hubDatabase.ignoreAppIdList
         if (lowPriorityAppIdList.remove(appId))
             saveDatabase()
     }
 
     private suspend fun unsetActiveApp(_appId: Map<String, String?>) {
-        val appId = filterValidKey(_appId) ?: return
+        val appId = getValidKey(_appId) ?: return
         val lowPriorityAppIdList = hubDatabase.ignoreAppIdList
         if (lowPriorityAppIdList.add(appId))
             saveDatabase()
@@ -113,11 +116,12 @@ class Hub(private val hubDatabase: HubEntity) {
     internal fun getAppReleaseList(
         appDataStorage: DataStorage, callback: (List<ReleaseGson>?) -> Unit
     ) {
-        val appId = getValidKey(appDataStorage.appDatabase.appId) ?: kotlin.run {
+        val (appId, other) = filterValidKey(appDataStorage.appDatabase.appId)
+        if (appId.isEmpty()) {
             callback(null)
             return
         }
-        appDataStorage.serverApi.getAppReleaseList(ApiRequestData(uuid, auth, appId)) {
+        appDataStorage.serverApi.getAppReleaseList(ApiRequestData(uuid, auth, appId, other)) {
             it?.let {
                 runBlocking {
                     if (it.isEmpty())

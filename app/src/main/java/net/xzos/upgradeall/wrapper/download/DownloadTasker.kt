@@ -51,11 +51,9 @@ class DownloadTasker(
         val hub = fileAsset.hub
         changed(getFileTaskerSnap(DownloadTaskerStatus.INFO_RENEW).msg(fileAsset.name))
         val urlReplaceUtil = URLReplace(ExtraHubEntityManager.getUrlReplace(hub.uuid))
-
-        @Suppress("UNCHECKED_CAST")
-        val appId = app.appId.filterValues { it != null } as Map<String, String>
+        val (appId, other) = hub.filterValidKey(app.appId)
         downloadInfoList = app.serverApi.getDownloadInfo(
-            ApiRequestData(hub.uuid, hub.auth, appId), fileAsset.assetIndex
+            ApiRequestData(hub.uuid, hub.auth, appId, other), fileAsset.assetIndex
         ).map {
             it.copy(url = urlReplaceUtil.replaceURL(it.url))
         }
