@@ -27,9 +27,9 @@ internal class Github(
             ?: return null
         val jsonArray = JSONArray(response.body.string())
         val data = jsonArray.asSequence<JSONObject>().map {
-            var name = it.getString("name")
+            var name = it.getString("tag_name")
             if (VersioningUtils.matchVersioningString(name) == null) {
-                name = it.getString("tag_name")
+                name = it.getString("name")
             }
             ReleaseGson(
                 versionNumber = name,
