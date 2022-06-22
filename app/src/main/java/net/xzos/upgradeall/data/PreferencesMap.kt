@@ -41,7 +41,10 @@ object PreferencesMap {
         }
 
     var cloud_rules_hub_url: String?
-        get() = prefs.getString(CLOUD_RULES_HUB_URL_KEY, "https://raw.fastgit.org/DUpdateSystem/UpgradeAll-rules/master/rules/rules.json")
+        get() = prefs.getString(
+            CLOUD_RULES_HUB_URL_KEY,
+            "https://raw.fastgit.org/DUpdateSystem/UpgradeAll-rules/master/rules/rules.json"
+        )
         set(value) = prefs.edit().putString(CLOUD_RULES_HUB_URL_KEY, value).apply()
     private var update_server_url: String
         get() = prefs.getString(UPDATE_SERVER_URL_KEY, DEF_UPDATE_SERVER_URL)!!
@@ -55,7 +58,11 @@ object PreferencesMap {
         get() = prefs.getBoolean("auto_update_hub_config", true)
     private val background_sync_time
         get() = prefs.getInt("background_sync_time", 18)
-
+    private val data_expiration_time
+        get() = (background_sync_time * 3600).let {
+            if (it > 1800) 15 * 60
+            else it
+        }
     val applications_ignore_system_app: Boolean
         get() = prefs.getBoolean("applications_ignore_system_app", true)
 
@@ -192,7 +199,7 @@ object PreferencesMap {
     // 同步 Core 模块的配置
     private fun syncCoreConfig() {
         val coreConfig = CoreConfig(
-            data_expiration_time = 20,
+            data_expiration_time = data_expiration_time,
             cache_dir = SDK_CACHE_DIR,
             update_server_url = update_server_url,
             cloud_rules_hub_url = cloud_rules_hub_url,
