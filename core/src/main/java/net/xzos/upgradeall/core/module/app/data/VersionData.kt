@@ -20,7 +20,7 @@ class VersionData internal constructor(appEntity: AppEntity) {
     private var sorted = false
     private val mutex = Mutex()
     private val dataCache =
-        DataCacheManager(CacheConfig(coreConfig.data_expiration_time, null), true)
+        DataCacheManager(CacheConfig(coreConfig.data_expiration_time, null, true))
 
     fun getCachedHubUuidList() = dataCache.getAll<String>().values
 

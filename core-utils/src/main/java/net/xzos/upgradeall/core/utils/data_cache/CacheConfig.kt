@@ -5,4 +5,5 @@ import java.io.File
 class CacheConfig(
     val defExpires: Int,
     val dir: File?,
+    val autoRemove: Boolean = true,
 )
