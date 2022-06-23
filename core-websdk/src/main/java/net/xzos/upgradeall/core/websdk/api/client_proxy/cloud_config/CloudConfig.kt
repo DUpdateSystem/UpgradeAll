@@ -11,7 +11,7 @@ import net.xzos.upgradeall.core.websdk.json.HubConfigGson
 import org.json.JSONObject
 
 internal class CloudConfig(private val okHttpApi: OkhttpProxy) {
-    suspend fun getCloudConfig(url: String): CloudConfigList? {
+    fun getCloudConfig(url: String): CloudConfigList? {
         val response = okHttpApi.okhttpExecute(HttpRequestData(url))
         val str = response?.body?.string() ?: return null
         val json = JSONObject(str)

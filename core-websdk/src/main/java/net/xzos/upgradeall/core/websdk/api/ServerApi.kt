@@ -5,6 +5,7 @@ import net.xzos.upgradeall.core.utils.coroutines.ValueLock
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.Encoder
 import net.xzos.upgradeall.core.websdk.api.client_proxy.ClientProxyApi
+import net.xzos.upgradeall.core.websdk.api.client_proxy.NoFunction
 import net.xzos.upgradeall.core.websdk.api.web.WebApi
 import net.xzos.upgradeall.core.websdk.api.web.WebApiProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
@@ -32,7 +33,7 @@ class ServerApi internal constructor(
         webApiProxy.cancelRequest(requestData)
     }
 
-    suspend fun getCloudConfig(url: String): CloudConfigList? {
+    fun getCloudConfig(url: String): CloudConfigList? {
         val value = dataCache.get(url, CloudConfigListEncoder) {
             runBlocking {
                 clientProxyApi.getCloudConfig(url) ?: webApiProxy.getCloudConfig(url)
@@ -44,7 +45,7 @@ class ServerApi internal constructor(
     fun getAppRelease(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
         val key = data.getKey()
         val value = dataCache.get(key, AppReleaseListEncoder) {
-            clientProxyApi.getAppRelease(data) ?: webApiProxy.getAppRelease(data)
+            callOrBack(data, clientProxyApi::getAppRelease, webApiProxy::getAppRelease)
         }
         callback(value)
     }
@@ -52,7 +53,7 @@ class ServerApi internal constructor(
     fun getAppReleaseList(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
         val key = data.getKey()
         val value = dataCache.get(key, AppReleaseListEncoder) {
-            clientProxyApi.getAppReleaseList(data) ?: webApiProxy.getAppReleaseList(data)
+            callOrBack(data, clientProxyApi::getAppReleaseList, webApiProxy::getAppReleaseList)
         }
         callback(value)
     }
@@ -61,8 +62,10 @@ class ServerApi internal constructor(
         data: ApiRequestData, assetIndex: Pair<Int, Int>
     ): List<DownloadItem> {
         val downloadItemList = try {
-            clientProxyApi.getDownloadInfo(data, assetIndex)
-                ?: webApiProxy.getDownloadInfo(data, assetIndex)
+            callOrBack(
+                data,
+                { d -> clientProxyApi.getDownloadInfo(d, assetIndex) },
+                { d -> webApiProxy.getDownloadInfo(d, assetIndex) })
         } catch (e: Throwable) {
             return emptyList()
         }
@@ -81,6 +84,18 @@ class ServerApi internal constructor(
                 )
             )
         }
+    }
+}
+
+private fun <T> callOrBack(
+    data: ApiRequestData,
+    function: (ApiRequestData) -> T,
+    callback: (ApiRequestData) -> T
+): T {
+    return try {
+        function(data)
+    } catch (e: NoFunction) {
+        callback(data)
     }
 }
 

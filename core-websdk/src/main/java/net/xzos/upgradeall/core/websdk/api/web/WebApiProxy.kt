@@ -30,7 +30,7 @@ internal class WebApiProxy(
         } ?: _host
     private val requestDataMap = coroutinesMutableMapOf<ApiRequestData, HttpRequestData>()
 
-    override suspend fun getCloudConfig(url: String): CloudConfigList? {
+    override fun getCloudConfig(url: String): CloudConfigList? {
         return webApi.getCloudConfig(url)
     }
 
@@ -60,7 +60,7 @@ internal class WebApiProxy(
         }
     }
 
-    override suspend fun getDownloadInfo(
+    override fun getDownloadInfo(
         data: ApiRequestData,
         assetIndex: Pair<Int, Int>
     ): List<DownloadItem> {

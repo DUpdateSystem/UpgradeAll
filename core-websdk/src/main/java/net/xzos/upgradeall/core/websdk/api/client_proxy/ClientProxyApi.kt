@@ -26,7 +26,7 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         LsposedRepo(dataCache, okhttpProxy)
     ).associateBy({ it.uuid }, { it })
 
-    override suspend fun getCloudConfig(url: String): CloudConfigList? {
+    override fun getCloudConfig(url: String): CloudConfigList? {
         return try {
             cloudConfig.getCloudConfig(url)
         } catch (e: Throwable) {
@@ -35,11 +35,14 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         }
     }
 
+    private fun getHub(uuid: String): BaseHub {
+        return hubMap[uuid] ?: throw NoFunction()
+    }
+
     override fun getAppRelease(data: ApiRequestData): List<ReleaseGson>? {
-        val hubUuid = data.hubUuid
-        val hub = hubMap[hubUuid]
+        val hub = getHub(data.hubUuid)
         return try {
-            hub?.getRelease(data)
+            hub.getRelease(data)
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, e.stackTraceToString())
             null
@@ -47,30 +50,28 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
     }
 
     override fun getAppReleaseList(data: ApiRequestData): List<ReleaseGson>? {
-        val hubUuid = data.hubUuid
-        val hub = hubMap[hubUuid]
+        val hub = getHub(data.hubUuid)
         return try {
-            hub?.getRelease(data)
+            hub.getRelease(data)
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, e.stackTraceToString())
             null
         }
     }
 
-    override suspend fun getDownloadInfo(
+    override fun getDownloadInfo(
         data: ApiRequestData,
         assetIndex: Pair<Int, Int>
-    ): List<DownloadItem>? {
-        val hubUuid = data.hubUuid
-        val hub = hubMap[hubUuid]
+    ): List<DownloadItem> {
+        val hub = getHub(data.hubUuid)
         val assets = getAppReleaseList(data)
             ?.get(assetIndex.first)?.assetList?.get(assetIndex.second)
         return try {
-            hub?.getDownload(data, assetIndex.toList(), assets)
+            hub.getDownload(data, assetIndex.toList(), assets)
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, e.stackTraceToString())
             null
-        }
+        } ?: emptyList()
     }
 
     companion object {

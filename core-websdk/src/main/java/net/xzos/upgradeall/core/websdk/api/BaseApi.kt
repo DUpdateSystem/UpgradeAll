@@ -6,13 +6,13 @@ import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 interface BaseApi {
-    suspend fun getCloudConfig(url: String): CloudConfigList?
+    fun getCloudConfig(url: String): CloudConfigList?
 
     fun getAppRelease(data: ApiRequestData): List<ReleaseGson>?
 
     fun getAppReleaseList(data: ApiRequestData): List<ReleaseGson>?
 
-    suspend fun getDownloadInfo(
+    fun getDownloadInfo(
         data: ApiRequestData, assetIndex: Pair<Int, Int>
     ): List<DownloadItem>?
 }
