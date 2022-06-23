@@ -10,10 +10,12 @@ class AnyMemoryCache<T>(
     config: CacheConfig,
 ) : BaseCache<T>(key) {
 
-    override var time: Long = 0L
-
     private var any: T? = null
     private val bytesDiskCache by lazy { config.dir?.let { BytesDiskCache(key, config) } }
+
+    override var time: Long = 0L
+        get() = bytesDiskCache?.time ?: field
+
 
     fun write(any: T?, encoder: Encoder<T>?) {
         any?.also { value ->
