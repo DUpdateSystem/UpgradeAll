@@ -4,6 +4,7 @@ import net.xzos.upgradeall.core.utils.data_cache.CacheConfig
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
+import java.time.Instant
 
 class AnyMemoryCache<T>(
     key: String,
@@ -11,6 +12,10 @@ class AnyMemoryCache<T>(
 ) : BaseCache<T>(key) {
 
     private var any: T? = null
+        set(value) {
+            time = Instant.now().epochSecond
+            field = value
+        }
     private val bytesDiskCache by lazy { config.dir?.let { BytesDiskCache(key, config) } }
 
     override var time: Long = 0L

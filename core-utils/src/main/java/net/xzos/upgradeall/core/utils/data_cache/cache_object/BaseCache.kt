@@ -12,7 +12,7 @@ abstract class BaseCache<T>(
     }
 
     private fun renewTime() {
-        time = System.currentTimeMillis()
+        time = Instant.now().epochSecond
     }
 
     open fun write(any: T?) {

@@ -60,7 +60,7 @@ object PreferencesMap {
         get() = prefs.getInt("background_sync_time", 18)
     private val data_expiration_time
         get() = (background_sync_time * 3600).let {
-            if (it > 1800) 15 * 60
+            if (it > 1800) 1800
             else it
         }
     val applications_ignore_system_app: Boolean

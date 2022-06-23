@@ -8,17 +8,14 @@ class BytesDiskCache(key: String, config: CacheConfig) : BaseCache<ByteArray>(ke
     private val file = File(config.dir, key)
 
     override var time: Long
-        get() = file.lastModified()
-        set(value) {
-            file.setLastModified(value)
-        }
+        get() = file.lastModified() / 1000
+        set(_) {}
 
     override fun write(any: ByteArray?) {
         any?.run {
             file.createNewFile()
             file.writeBytes(this)
         }
-        super.write(any)
     }
 
     override fun read() = try {
