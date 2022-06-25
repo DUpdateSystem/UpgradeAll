@@ -14,6 +14,7 @@ import net.xzos.upgradeall.core.downloader.initDownload
 import net.xzos.upgradeall.core.initCore
 import net.xzos.upgradeall.core.installer.initConfig
 import net.xzos.upgradeall.core.installer.installerapi.ApkShizukuInstaller
+import net.xzos.upgradeall.data.constants.DEFAULT_REPO_URL
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.ui.home.MainActivity
 import net.xzos.upgradeall.utils.file.SDK_CACHE_DIR
@@ -41,10 +42,7 @@ object PreferencesMap {
         }
 
     var cloud_rules_hub_url: String?
-        get() = prefs.getString(
-            CLOUD_RULES_HUB_URL_KEY,
-            "https://raw.fastgit.org/DUpdateSystem/UpgradeAll-rules/master/rules/rules.json"
-        )
+        get() = prefs.getString(CLOUD_RULES_HUB_URL_KEY, DEFAULT_REPO_URL)
         set(value) = prefs.edit().putString(CLOUD_RULES_HUB_URL_KEY, value).apply()
     private var update_server_url: String
         get() = prefs.getString(UPDATE_SERVER_URL_KEY, DEF_UPDATE_SERVER_URL)!!
