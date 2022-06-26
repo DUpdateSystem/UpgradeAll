@@ -5,11 +5,12 @@ import com.jaredrummler.ktsh.Shell
 
 object CoreShell {
 
-    private val session: Shell get() = Shell.SH
-    private val rootSession: Shell?
-        get() = if (runShell("su", session).isSuccess)
-            Shell.SU
-        else null
+    private val session: Shell by lazy {
+        Shell.SH
+    }
+    private val rootSession: Shell? by lazy {
+        Shell.SH.apply { run("su") }
+    }
 
     fun runShellCommand(commands: String): Shell.Command.Result? {
         return runShell(commands, session)
