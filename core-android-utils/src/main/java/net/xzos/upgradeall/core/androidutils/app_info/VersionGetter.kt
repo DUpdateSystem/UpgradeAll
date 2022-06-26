@@ -27,8 +27,8 @@ fun getAppVersion(appId: Map<String, String?>, context: Context = androidContext
     return when (api.lowercase(locale)) {
         ANDROID_APP_TYPE -> getAndroidAppVersion(key, context)
         ANDROID_MAGISK_MODULE_TYPE -> getMagiskModuleVersion(key)
-        ANDROID_CUSTOM_SHELL -> CoreShell.runShellCommand(key)?.getOutputString()
-        ANDROID_CUSTOM_SHELL_ROOT -> CoreShell.runSuShellCommand(key)?.getOutputString()
+        ANDROID_CUSTOM_SHELL -> CoreShell.runShellCommand(key).getOutputString()
+        ANDROID_CUSTOM_SHELL_ROOT -> CoreShell.runSuShellCommand(key).getOutputString()
         else -> null
     }
 }

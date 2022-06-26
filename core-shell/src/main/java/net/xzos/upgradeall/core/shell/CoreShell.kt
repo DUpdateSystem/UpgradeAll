@@ -1,27 +1,22 @@
 package net.xzos.upgradeall.core.shell
 
-import com.jaredrummler.ktsh.Shell
-
 
 object CoreShell {
 
-    private val session: Shell by lazy {
-        Shell.SH
-    }
-    private val rootSession: Shell? by lazy {
-        Shell.SH.apply { run("su") }
-    }
-
-    fun runShellCommand(commands: String): Shell.Command.Result? {
-        return runShell(commands, session)
+    fun runShellCommand(commands: String): ShellResult {
+        return try {
+            Shell().run("sh", commands)
+        } catch (e: Throwable) {
+            ShellResult()
+        }
     }
 
-    fun runSuShellCommand(commands: String): Shell.Command.Result? {
-        return rootSession?.let { runShell(commands, it) }
-    }
-
-    private fun runShell(commands: String, session: Shell): Shell.Command.Result {
-        return session.run(commands)
+    fun runSuShellCommand(commands: String): ShellResult {
+        return try {
+            Shell().run("su", commands)
+        } catch (e: Throwable) {
+            ShellResult()
+        }
     }
 }
 
@@ -30,10 +25,10 @@ object CoreShell {
  * 后切换 Shell 库后为已有的功能
  * 目前用作调用统计
  */
-fun Shell.Command.Result.getOutputString(): String {
+fun ShellResult.getOutputString(): String {
     return stdout()
 }
 
-fun Shell.Command.Result.getErrorsString(): String {
+fun ShellResult.getErrorsString(): String {
     return stderr()
 }

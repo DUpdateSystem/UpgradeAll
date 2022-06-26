@@ -27,7 +27,11 @@ private val logObjectTag = ObjectTag("Core", TAG)
  * 获取指定文件的 Prop 格式数据
  */
 fun getProp(path: String): Properties? {
-    return getFileText(path)?.parseProperties()
+    return try {
+        getFileText(path).parseProperties()
+    } catch (e: Throwable) {
+        null
+    }
 }
 
 fun performFileSearch(activity: Activity, READ_REQUEST_CODE: Int, mimeType: String) {

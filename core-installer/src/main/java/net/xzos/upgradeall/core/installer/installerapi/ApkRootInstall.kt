@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.core.installer.installerapi
 
-import com.jaredrummler.ktsh.Shell
 import net.xzos.upgradeall.core.shell.CoreShell
+import net.xzos.upgradeall.core.shell.ShellResult
 import net.xzos.upgradeall.core.shell.getErrorsString
 import net.xzos.upgradeall.core.shell.getOutputString
 import net.xzos.upgradeall.core.utils.log.Log
@@ -72,7 +72,7 @@ object ApkRootInstall {
         runSuShellCommand(command)
     }
 
-    private fun runSuShellCommand(command: String): Shell.Command.Result? {
+    private fun runSuShellCommand(command: String): ShellResult? {
         return try {
             CoreShell.runSuShellCommand(command)?.also {
                 if (it.exitCode != 0)

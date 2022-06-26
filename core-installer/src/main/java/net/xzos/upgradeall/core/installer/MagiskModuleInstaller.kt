@@ -22,7 +22,7 @@ internal object MagiskModuleInstaller {
     ) {
         val command = "magisk --install-module ${file.path}"
         try {
-            CoreShell.runSuShellCommand(command)?.also {
+            CoreShell.runSuShellCommand(command).also {
                 if (it.exitCode == 0) {
                     completeInstallObserverFun()
                 } else {
@@ -31,10 +31,6 @@ internal object MagiskModuleInstaller {
                     Log.e(logObjectTag, TAG, errorMsg)
                     failedInstallObserverFun(RuntimeException(errorMsg))
                 }
-            } ?: kotlin.run {
-                val errorMsg = "No Root"
-                Log.e(logObjectTag, TAG, errorMsg)
-                failedInstallObserverFun(RuntimeException("No Root"))
             }
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, e.msg())
