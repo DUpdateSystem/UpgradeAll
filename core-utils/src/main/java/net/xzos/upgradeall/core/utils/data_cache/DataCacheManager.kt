@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.utils.data_cache
 
-import android.util.Log
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.AnyMemoryCache

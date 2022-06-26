@@ -37,8 +37,8 @@ internal class CoolApk(
         val detail = json.getOrNull("data", json::getJSONObject) ?: return null
         val aid = detail.getString("id")
         val latestVersionNumber = detail.getString("apkversionname")
-        val data = mutableListOf<ReleaseGson>()
-        data.add(
+        val releaseList = mutableListOf<ReleaseGson>()
+        releaseList.add(
             ReleaseGson(
                 versionNumber = latestVersionNumber,
                 changelog = detail.getString("changelog"),
@@ -52,13 +52,13 @@ internal class CoolApk(
         val historyUrl = "https://api.coolapk.com/v6/apk/downloadVersionList?id=${aid}"
         val historyResponse = httpGet(historyUrl)
         val historyJsonObject = historyResponse?.body?.string()?.let { JSONObject(it) }
-            ?: return data
+            ?: return releaseList
         val historyJsonList = historyJsonObject.getOrNull("data", historyJsonObject::getJSONArray)
-            ?: return data
+            ?: return releaseList
         for (historyJson in historyJsonList.iterator<JSONObject>()) {
             val versionName = historyJson.getString("versionName")
             val versionId = historyJson.getString("versionId")
-            data.add(
+            releaseList.add(
                 ReleaseGson(
                     versionNumber = versionName,
                     changelog = null,
@@ -70,7 +70,7 @@ internal class CoolApk(
                 )
             )
         }
-        return data
+        return releaseList
     }
 
     private fun getLatestAsset(appPackage: String, aid: String, versionName: String): Assets? {

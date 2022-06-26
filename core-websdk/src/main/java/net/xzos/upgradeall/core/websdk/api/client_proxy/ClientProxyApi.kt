@@ -6,10 +6,7 @@ import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.websdk.api.BaseApi
 import net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config.CloudConfig
-import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.BaseHub
-import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.CoolApk
-import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.Github
-import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.LsposedRepo
+import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.*
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
@@ -23,7 +20,8 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
     private val hubMap: Map<String, BaseHub> = listOf(
         Github(dataCache, okhttpProxy),
         CoolApk(dataCache, okhttpProxy),
-        LsposedRepo(dataCache, okhttpProxy)
+        LsposedRepo(dataCache, okhttpProxy),
+        FDroid(dataCache, okhttpProxy),
     ).associateBy({ it.uuid }, { it })
 
     override fun getCloudConfig(url: String): CloudConfigList? {

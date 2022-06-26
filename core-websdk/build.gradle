@@ -48,4 +48,6 @@ dependencies {
 
     // OkHttp
     api 'com.squareup.okhttp3:okhttp:5.0.0-alpha.9'
+    // dom4j, xml support
+    implementation 'org.dom4j:dom4j:2.1.3'
 }
