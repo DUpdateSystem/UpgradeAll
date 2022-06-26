@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.core.installer
 
-import net.xzos.upgradeall.core.shell.Shell
+import net.xzos.upgradeall.core.shell.CoreShell
 import net.xzos.upgradeall.core.shell.getErrorsString
 import net.xzos.upgradeall.core.shell.getOutputString
 import net.xzos.upgradeall.core.utils.log.Log
@@ -22,7 +22,7 @@ internal object MagiskModuleInstaller {
     ) {
         val command = "magisk --install-module ${file.path}"
         try {
-            Shell.runSuShellCommand(command)?.also {
+            CoreShell.runSuShellCommand(command)?.also {
                 if (it.exitCode == 0) {
                     completeInstallObserverFun()
                 } else {
