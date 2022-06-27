@@ -22,6 +22,7 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         CoolApk(dataCache, okhttpProxy),
         LsposedRepo(dataCache, okhttpProxy),
         FDroid(dataCache, okhttpProxy),
+        Gitlab(dataCache, okhttpProxy),
     ).associateBy({ it.uuid }, { it })
 
     override fun getCloudConfig(url: String): CloudConfigList? {
@@ -77,3 +78,5 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         private val logObjectTag = ObjectTag(core, TAG)
     }
 }
+
+class NoFunction : RuntimeException()
