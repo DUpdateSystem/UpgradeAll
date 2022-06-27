@@ -25,13 +25,13 @@ fun String.getAssets(host: String, path: String): List<Assets> {
         Assets(
             fileName = it.text,
             fileType = null,
-            downloadUrl = getFullUrl(host, "$path/${it.valueOf("./@href")}")
+            downloadUrl = getFullUrl(host, path, it.valueOf("./@href"))
         )
     }
 }
 
-fun getFullUrl(host: String, path: String): String {
+fun getFullUrl(host: String, patchPath: String, path: String): String {
     val url = URI(path)
     if (url.host != null) return path
-    return URI(host).resolve(path).toString()
+    return URI(host).resolve("$patchPath/$path").toString()
 }
