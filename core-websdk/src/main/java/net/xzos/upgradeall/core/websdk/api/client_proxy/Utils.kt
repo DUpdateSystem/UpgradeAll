@@ -11,8 +11,7 @@ import java.net.URI
 fun String.mdToHtml(): String {
     val flavour = CommonMarkFlavourDescriptor()
     val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(this)
-    val a = HtmlGenerator(this, parsedTree, flavour).generateHtml()
-    return a
+    return HtmlGenerator(this, parsedTree, flavour).generateHtml()
 }
 
 fun String.getAssets(host: String, path: String): List<Assets> {
