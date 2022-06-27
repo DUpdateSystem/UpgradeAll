@@ -36,9 +36,8 @@ jobs:
         run: |
           echo VERSION=$(echo ${{ github.event.head_commit.id }} | head -c 10) >> $GITHUB_ENV
 
-      - name: Grant execution permission to Gradle Wrapper
+      - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-        run: chmod +x gradlew
           
       - name: Build with Gradle
         run: ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease assembleDebug
