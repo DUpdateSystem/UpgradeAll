@@ -30,7 +30,7 @@ class VersionData internal constructor(appEntity: AppEntity) {
             val rowVersionList = VersionUtils.cleanAsset(hubUuid, versionList)
             val versionMap = rowVersionList.associateBy { it.name }.toMutableMap()
             val versionList = versionUtils.doAddAsset(assetList, versionMap)
-            this.versionList = versionList
+            this.versionList = versionList.filter { it.name.isNotBlank() }
         }
     }
 
