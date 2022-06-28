@@ -7,13 +7,13 @@ on:
     paths-ignore:
       - 'source/**'
       - '**.md'
-      - '.github/**'
+      - '.**'
       - 'fastlane/**'
   pull_request:
       paths-ignore:
       - 'source/**'
       - '**.md'
-      - '.github/**'
+      - '.**'
       - 'fastlane/**'
   workflow_dispatch:
 
@@ -21,7 +21,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    if: ${{ !startsWith(github.event.head_commit.message, '[skip ci]') }}
 
     steps:
       - uses: actions/checkout@v3
