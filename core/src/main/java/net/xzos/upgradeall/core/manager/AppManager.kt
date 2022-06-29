@@ -54,12 +54,12 @@ object AppManager : Informer<UpdateStatus, App>() {
 
     private suspend fun renewAppList(context: Context) {
         metaDatabase.appDao().loadAll().forEach { database ->
-            addAppList(App(database), true)
+            addAppList(App.new(database), true)
         }
         getInstalledAppList(
             context, coreConfig.applications_ignore_system_app
         ).forEach { database ->
-            addAppList(App(database), false)
+            addAppList(App.new(database), false)
         }
     }
 
@@ -272,7 +272,7 @@ object AppManager : Informer<UpdateStatus, App>() {
         val changedTag = if (oldApp != null)
             UpdateStatus.APP_DATABASE_CHANGED_NOTIFY
         else UpdateStatus.APP_ADDED_NOTIFY
-        val app = oldApp ?: App(appDatabase).apply {
+        val app = oldApp ?: App.new(appDatabase).apply {
             addAppList(this, false)
         }
         renewApp(app)

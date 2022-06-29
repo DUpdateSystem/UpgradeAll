@@ -10,14 +10,11 @@ import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.websdk.api.ServerApiProxy
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
-class App(
-    appDatabase: AppEntity,
-    statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
-) {
+@Suppress("DataClassPrivateConstructor")
+data class App private constructor(val appDatabase: AppEntity) {
     private val dataStorage = DataStorage(appDatabase)
-    internal val appDatabase: AppEntity = dataStorage.appDatabase
     val serverApi: ServerApiProxy = dataStorage.serverApi
-    private val updater = Updater(dataStorage, statusRenewedFun)
+    private val updater = Updater(dataStorage)
 
     /* App 对象的属性字典 */
     val appId: Map<String, String?> get() = appDatabase.appId
@@ -101,15 +98,13 @@ class App(
         return updater.getReleaseStatus() == Updater.APP_LATEST
     }
 
-    override fun equals(other: Any?): Boolean {
-        return when (other) {
-            !is App -> false
-            else -> hashCode() == other.hashCode()
+    companion object {
+        fun new(
+            appDatabase: AppEntity,
+            statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
+        ) = App(appDatabase).apply {
+            setStatusRenewedFun(statusRenewedFun)
         }
-    }
-
-    override fun hashCode(): Int {
-        return dataStorage.hashCode()
     }
 }
 
