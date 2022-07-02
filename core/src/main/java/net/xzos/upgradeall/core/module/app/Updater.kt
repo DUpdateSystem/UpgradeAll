@@ -10,7 +10,6 @@ import net.xzos.upgradeall.core.utils.MatchInfo
 import net.xzos.upgradeall.core.utils.MatchString
 import net.xzos.upgradeall.core.utils.SearchInfo
 import net.xzos.upgradeall.core.utils.SearchUtils
-import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
 
 class Updater internal constructor(
     private val dataStorage: DataStorage,
@@ -26,13 +25,13 @@ class Updater internal constructor(
         val status = if (versionNumberList.isEmpty()) {
             NETWORK_ERROR
         } else {
-            val localVersionNumber = getInstalledVersionNumber()
-                ?: dataStorage.appDatabase.ignoreVersionNumber
+            val localVersion = getLocalVersion()
+                ?: dataStorage.appDatabase.getIgnoreVersion()
             when {
                 versionEntityUtils.isIgnored(versionNumberList.first().versionInfo.name) -> APP_LATEST
-                localVersionNumber == null -> APP_NO_LOCAL
+                localVersion == null -> APP_NO_LOCAL
                 !isLatestVersionNumber(
-                    localVersionNumber, versionNumberList.map { it.versionInfo.name }
+                    localVersion, versionNumberList.map { it.versionInfo }
                 ) -> APP_OUTDATED
                 else -> APP_LATEST
             }
@@ -66,25 +65,23 @@ class Updater internal constructor(
         }
     }
 
-    internal fun getInstalledVersionNumber(): String? {
-        return getLocalVersion()?.name ?: return null
-    }
-
     private fun isLatestVersionNumber(
-        localVersionNumber: String,
-        versionNumberList: List<String>
+        localVersion: VersionInfo,
+        versionList: List<VersionInfo>
     ): Boolean {
-        if (versionNumberList.isEmpty()) return true
-        val latestVersion = versionNumberList[0]
-        return when (VersioningUtils.compareVersionNumber(localVersionNumber, latestVersion)) {
+        if (versionList.isEmpty()) return true
+        val latestVersion = versionList[0]
+        return when (localVersion.compareToOrError(latestVersion)) {
             1 -> true
             0 -> true
             -1 -> false
             else -> {
+                val versionNumberList = versionList.map { it.name }
+                val localVersionName = localVersion.name
                 val searchUtils = SearchUtils(versionNumberList.map {
                     SearchInfo(MatchInfo(it, it, listOf(MatchString(it))), null)
                 })
-                val searchList = searchUtils.search(localVersionNumber)
+                val searchList = searchUtils.search(localVersionName)
                 if (searchList.isNotEmpty()) {
                     val version = searchList[0].matchInfo.matchList[0].matchString
                     versionNumberList.indexOf(version) == 0

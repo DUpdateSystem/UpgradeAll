@@ -4,8 +4,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.module.app.version.Version
-import net.xzos.upgradeall.core.module.app.version.VersionWrapper
 import net.xzos.upgradeall.core.module.app.version.VersionInfo
+import net.xzos.upgradeall.core.module.app.version.VersionWrapper
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 class VersionMap private constructor() {
@@ -18,7 +18,7 @@ class VersionMap private constructor() {
 
     private var versionList: List<Version> = listOf()
     private var sorted
-        get() = versionList.isEmpty() && versionMap.isNotEmpty()
+        get() = !(versionMap.isNotEmpty() && versionList.isEmpty())
         set(value) {
             if (!value) versionList = listOf()
         }
@@ -54,7 +54,7 @@ class VersionMap private constructor() {
         if (!sorted)
             mutex.withLock {
                 if (sorted) return@withLock  // 优化等待锁后已经排序的情况
-                versionList = versionMap.keys.filter { it.name.isNotBlank() }.sorted()
+                versionList = versionMap.keys.filter { it.name.isNotBlank() }.sortedDescending()
                     .map { Version(it, versionMap[it] ?: emptyList()) }
             }
         return versionList

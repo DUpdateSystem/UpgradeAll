@@ -8,20 +8,37 @@ data class VersionInfo private constructor(
     val name: String,
     val extra: Map<String, Any?>,
 ) : Comparable<VersionInfo> {
-    lateinit var versionCharList: List<Pair<Char, Boolean>>
+    var versionCharList: List<Pair<Char, Boolean>> = listOf()
+        set(value) {
+            field = value + printExtraChar().joinToString("", "(", ")")
+                .map { Pair(it, true) }
+        }
 
-    override fun compareTo(other: VersionInfo): Int {
-        compareExtra(other, VERSION_CODE) { 0 }.let {
+    private fun printExtraChar() = extra.values.map {
+        if (it is Number) {
+            it.toString().substringBefore(".")
+        } else it.toString()
+    }
+
+    fun compareToOrError(other: VersionInfo): Int? {
+        compareExtra(other, VERSION_CODE) {
+            if (it is Long) it
+            else it.toString().toDouble().toLong()
+        }.let {
             if (it != 0) return it
         }
-        return VersioningUtils.compareVersionNumber(other.name, name) ?: -1
+        return VersioningUtils.compareVersionNumber(other.name, name)
+    }
+
+    override fun compareTo(other: VersionInfo): Int {
+        return compareToOrError(other) ?: -1
     }
 
     private fun <V : Comparable<V>> compareExtra(
-        other: VersionInfo, key: String, defaultValue: () -> V
+        other: VersionInfo, key: String, transfer: (Any) -> V
     ): Int {
-        return extra.getOrElseWrap(key, defaultValue).compareTo(
-            other.extra.getOrElseWrap(key, defaultValue)
+        return transfer(extra[key] ?: return 0).compareTo(
+            transfer(other.extra[key] ?: return 0)
         )
     }
 
@@ -39,9 +56,4 @@ data class VersionInfo private constructor(
             }
         }
     }
-}
-
-private fun <V> Map<String, Any?>.getOrElseWrap(key: String, defaultValue: () -> V): V {
-    @Suppress("UNCHECKED_CAST")
-    return this.getOrElse(key, defaultValue) as V
 }

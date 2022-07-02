@@ -63,7 +63,7 @@ internal class CoolApk(
             releaseList.add(
                 ReleaseGson(
                     versionNumber = versionName,
-                    extra = mapOf(VERSION_CODE to detail.getLong("apkversioncode")),
+                    extra = mapOf(VERSION_CODE to historyJson.getLong("versionCode")),
                     changelog = null,
                     assetGsonList = getHistoryDownloadUrl(
                         appPackage, aid, versionId, versionName

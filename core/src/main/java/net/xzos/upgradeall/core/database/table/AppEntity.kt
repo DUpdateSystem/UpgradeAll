@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
+import net.xzos.upgradeall.core.module.app.version.VersionInfo
 import net.xzos.upgradeall.core.utils.cleanBlankValue
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
@@ -29,6 +30,8 @@ data class AppEntity(
     var star: Boolean
         get() = startRaw == true
         set(value) = if (value) startRaw = value else startRaw = null
+
+    fun getIgnoreVersion() = ignoreVersionNumber?.let { VersionInfo.new(it) }
 
     /** @return 软件源的排序列表 与 其是否被使用 */
     fun getSortHubUuidList(): List<String> {
