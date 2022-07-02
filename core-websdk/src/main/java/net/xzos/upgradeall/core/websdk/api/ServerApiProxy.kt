@@ -33,11 +33,11 @@ class ServerApiProxy internal constructor(
 
     suspend fun getDownloadInfo(
         requestData: ApiRequestData,
-        assetIndex: Pair<Int, Int>
+        assetIndex: List<Int>
     ): List<DownloadItem> {
         return serverApi?.let {
             requestDataList.add(requestData)
-            it.getDownloadInfo(requestData, assetIndex).apply {
+            it.getDownloadInfo(requestData, Pair(assetIndex.first(), assetIndex.last())).apply {
                 requestDataList.remove(requestData)
             }
         } ?: emptyList()

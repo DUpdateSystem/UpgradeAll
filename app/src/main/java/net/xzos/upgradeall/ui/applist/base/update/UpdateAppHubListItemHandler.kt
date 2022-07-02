@@ -4,25 +4,17 @@ import android.view.View
 import androidx.appcompat.widget.PopupMenu
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.ui.applist.base.AppHubListItemHandler
-import net.xzos.upgradeall.ui.detail.setting.AppSettingActivity
-import net.xzos.upgradeall.wrapper.download.startDownload
+import net.xzos.upgradeall.wrapper.core.isIgnored
+import net.xzos.upgradeall.wrapper.core.switchIgnoreStatus
+import net.xzos.upgradeall.wrapper.core.upgrade
 
 class UpdateAppHubListItemHandler : AppHubListItemHandler() {
     fun clickDownload(app: App, view: View) {
-        val fileAsset = app.versionList.firstOrNull()
-            ?.assetList?.firstOrNull()
-            ?.fileAssetList?.firstOrNull()
-            ?: return
         GlobalScope.launch {
-            startDownload(
-                view.context, false,
-                app, fileAsset,
-            )
+            app.upgrade(view.context)
         }
     }
 
@@ -31,7 +23,7 @@ class UpdateAppHubListItemHandler : AppHubListItemHandler() {
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.ignore_update -> {
-                        runBlocking { app.versionList.firstOrNull()?.switchIgnoreStatus() }
+                        app.versionList.firstOrNull()?.switchIgnoreStatus(app)
                         true
                     }
                     else -> false

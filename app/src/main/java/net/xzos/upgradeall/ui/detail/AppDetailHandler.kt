@@ -7,12 +7,13 @@ import net.xzos.upgradeall.ui.detail.download.DownloadListDialog
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
 class AppDetailHandler(
-        private val viewModel: AppDetailViewModel,
-        private val supportFragmentManager: FragmentManager,
+    private val viewModel: AppDetailViewModel,
+    private val supportFragmentManager: FragmentManager,
 ) {
     fun clickDownload() {
-        DownloadListDialog(viewModel.currentVersion?.assetList
-                ?: return, viewModel).show(supportFragmentManager)
+        DownloadListDialog(
+            viewModel.currentVersion?.getAssetList() ?: return, viewModel
+        ).show(supportFragmentManager)
     }
 
     fun showMoreURL(urlList: Set<String>, view: View) {

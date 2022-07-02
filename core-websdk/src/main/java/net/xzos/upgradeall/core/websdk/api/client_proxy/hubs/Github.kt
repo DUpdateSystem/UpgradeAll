@@ -6,7 +6,7 @@ import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
-import net.xzos.upgradeall.core.websdk.json.Assets
+import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.json.JSONArray
 import org.json.JSONObject
@@ -38,8 +38,8 @@ internal class Github(
             ReleaseGson(
                 versionNumber = name,
                 changelog = json.getString("body"),
-                assetList = json.getJSONArray("assets").asSequence<JSONObject>().map {
-                    Assets(
+                assetGsonList = json.getJSONArray("assets").asSequence<JSONObject>().map {
+                    AssetGson(
                         fileName = it.getString("name"),
                         fileType = it.getString("content_type"),
                         downloadUrl = it.getString("browser_download_url")

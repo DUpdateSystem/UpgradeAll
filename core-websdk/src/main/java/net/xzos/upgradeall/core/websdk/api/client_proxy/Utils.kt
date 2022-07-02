@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy
 
-import net.xzos.upgradeall.core.websdk.json.Assets
+import net.xzos.upgradeall.core.websdk.json.AssetGson
 import org.dom4j.DocumentException
 import org.dom4j.io.SAXReader
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
@@ -14,14 +14,14 @@ fun String.mdToHtml(): String {
     return HtmlGenerator(this, parsedTree, flavour).generateHtml()
 }
 
-fun String.getAssets(host: String, path: String): List<Assets> {
+fun String.getAssets(host: String, path: String): List<AssetGson> {
     val root = try {
         SAXReader().read(this.byteInputStream()).rootElement
     } catch (e: DocumentException) {
         return emptyList()
     }
     return root.selectNodes("//a").map {
-        Assets(
+        AssetGson(
             fileName = it.text,
             fileType = null,
             downloadUrl = getFullUrl(host, path, it.valueOf("./@href"))

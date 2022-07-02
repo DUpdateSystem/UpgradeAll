@@ -9,11 +9,12 @@ import androidx.lifecycle.MutableLiveData
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.androidutils.app_info.getPackageId
 import net.xzos.upgradeall.core.module.app.App
+import net.xzos.upgradeall.core.module.app.version.AssetWrapper
 import net.xzos.upgradeall.core.module.app.version.Version
-import net.xzos.upgradeall.core.module.app.version_item.FileAsset
 import net.xzos.upgradeall.databinding.ActivityAppDetailBinding
 import net.xzos.upgradeall.ui.data.livedata.AppViewModel
 import net.xzos.upgradeall.utils.setValueBackground
+import net.xzos.upgradeall.wrapper.core.isIgnored
 import net.xzos.upgradeall.wrapper.download.startDownload
 
 class AppDetailViewModel(application: Application) : AndroidViewModel(application) {
@@ -55,7 +56,7 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private fun updateInstalledVersion(app: App) {
-        app.rawInstalledVersionStringList?.run {
+        app.localVersion?.versionCharList?.run {
             getShowInstalledVersion(this)?.run {
                 item.renewVersionItem(app, getApplication())
             }
@@ -75,11 +76,8 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     var currentVersion: Version? = null
 
-    suspend fun download(fileAsset: FileAsset, externalDownload: Boolean) {
-        startDownload(
-            getApplication(), externalDownload,
-            app, fileAsset,
-        )
+    suspend fun download(fileAsset: AssetWrapper, externalDownload: Boolean) {
+        startDownload(getApplication(), externalDownload, app, fileAsset)
     }
 
     private lateinit var versionNumberSpannableStringList: List<SpannableStringBuilder>
@@ -93,7 +91,7 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         val versionItem = versionList[index]
         currentVersion = versionItem
         setTvMoreVersion(position)
-        item.setAssetInfo(currentVersion?.assetList, context)
+        item.setAssetInfo(currentVersion?.versionList, context)
     }
 
     private fun setTvMoreVersion(position: Int) {
@@ -105,9 +103,11 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
         versionNumberSpannableStringList =
             versionList.map {
                 getVersionNameSpannableStringWithRes(
-                    it.rawVersionStringList,
-                    if (it.isIgnored) R.color.colorPrimary else null, null,
-                    getApplication()
+                    it.versionInfo.versionCharList,
+                    if (it.isIgnored(app))
+                        R.color.colorPrimary
+                    else null,
+                    null, getApplication()
                 )
             }
         val tvMoreVersion = binding.tvMoreVersion

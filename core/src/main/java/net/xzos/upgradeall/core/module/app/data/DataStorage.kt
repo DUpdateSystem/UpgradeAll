@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.module.app.data
 
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.getEnableSortHubList
@@ -17,7 +18,8 @@ internal data class DataStorage(
         get() = appDatabase.getEnableSortHubList().filter { it.isValidApp(appDatabase.appId) }
 
     // Version 信息
-    val versionData: VersionData = VersionData(appDatabase)
+    val versionMap: VersionMap =
+        runBlocking { VersionMap.new(appDatabase.invalidVersionNumberFieldRegexString) }
 
     val serverApi = getServerApi()
 }

@@ -1,12 +1,13 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.utils.StringEncoder
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
-import net.xzos.upgradeall.core.websdk.json.Assets
+import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.dom4j.io.SAXReader
 
@@ -28,11 +29,12 @@ class FDroid(
         var changelog = node.valueOf("changelog")
         return node.selectNodes("package").map {
             ReleaseGson(
-                it.valueOf("version"),
-                changelog.apply { changelog = null },
-                listOf(
+                versionNumber = it.valueOf("version"),
+                extra = mapOf(VERSION_CODE to it.numberValueOf("versioncode").toLong()),
+                changelog = changelog.apply { changelog = null },
+                assetGsonList = listOf(
                     it.valueOf("apkname").let { name ->
-                        Assets(
+                        AssetGson(
                             name, "application/vnd.android.package-archive",
                             "$url/$name"
                         )

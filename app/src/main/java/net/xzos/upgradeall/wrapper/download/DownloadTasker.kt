@@ -9,7 +9,7 @@ import net.xzos.upgradeall.core.downloader.filedownloader.item.data.InputData
 import net.xzos.upgradeall.core.downloader.filedownloader.newDownloader
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.version_item.FileAsset
+import net.xzos.upgradeall.core.module.app.version.AssetWrapper
 import net.xzos.upgradeall.core.utils.URLReplace
 import net.xzos.upgradeall.core.utils.oberver.InformerNoTag
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
@@ -20,8 +20,10 @@ import net.xzos.upgradeall.utils.file.DOWNLOAD_EXTRA_CACHE_DIR
 import java.io.File
 
 class DownloadTasker(
-    val app: App, private val fileAsset: FileAsset
+    val app: App, private val wrapper: AssetWrapper
 ) : InformerNoTag<DownloadTaskerSnap>() {
+    private val assetIndex = wrapper.assetIndex
+    val name = wrapper.asset.fileName
     var snap: DownloadTaskerSnap? = null
         private set
 
@@ -48,12 +50,12 @@ class DownloadTasker(
     )
 
     private suspend fun getDownloadInfo() {
-        val hub = fileAsset.hub
-        changed(getFileTaskerSnap(DownloadTaskerStatus.INFO_RENEW).msg(fileAsset.name))
+        val hub = wrapper.hub
+        changed(getFileTaskerSnap(DownloadTaskerStatus.INFO_RENEW).msg(name))
         val urlReplaceUtil = URLReplace(ExtraHubEntityManager.getUrlReplace(hub.uuid))
         val (appId, other) = hub.filterValidKey(app.appId)
         downloadInfoList = app.serverApi.getDownloadInfo(
-            ApiRequestData(hub.uuid, hub.auth, appId, other), fileAsset.assetIndex
+            ApiRequestData(hub.uuid, hub.auth, appId, other), assetIndex
         ).map {
             it.copy(url = urlReplaceUtil.replaceURL(it.url))
         }
@@ -78,7 +80,7 @@ class DownloadTasker(
             changed(getFileTaskerSnap(DownloadTaskerStatus.EXTERNAL_DOWNLOAD))
         } else {
             val downloader = setDownload(
-                downloadInfoList.map { it.getDownloadInfoItem(fileAsset.name) },
+                downloadInfoList.map { it.getDownloadInfoItem(name) },
                 DOWNLOAD_EXTRA_CACHE_DIR
             )
             startDownloader(downloader)

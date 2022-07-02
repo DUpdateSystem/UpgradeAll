@@ -1,34 +1,27 @@
 package net.xzos.upgradeall.core.module.app.version
 
-import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.module.app.version_item.Asset
-import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
-import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
+import net.xzos.upgradeall.core.module.Hub
+import net.xzos.upgradeall.core.websdk.json.AssetGson
+import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 /**
- * 版本号数据
+ * 版本号数据的快照
  */
-class Version(
-    val rawVersionStringList: List<Pair<Char, Boolean>>,
-    /* 资源列表 */
-    val assetList: CoroutinesMutableList<Asset>,
-    private val versionUtils: VersionUtils,
-) : Comparable<Version> {
-
-    /* 版本号 */
-    val name: String = VersionUtils.getKey(rawVersionStringList)
-
-    val isIgnored: Boolean get() = runBlocking { versionUtils.isIgnored(name) }
-
-    suspend fun switchIgnoreStatus() {
-        versionUtils.switchIgnoreStatus(name)
-    }
-
-    override fun compareTo(other: Version): Int {
-        return VersioningUtils.compareVersionNumber(other.name, name) ?: -1
-    }
+data class Version(
+    val versionInfo: VersionInfo,
+    val versionList: List<VersionWrapper>,
+) {
+    fun getAssetList() = versionList.flatMap { it.assetList }
 }
 
-val versionComparator = Comparator { v1: Version, v2: Version ->
-    v1.compareTo(v2)
-}
+data class VersionWrapper(
+    val hub: Hub,
+    val release: ReleaseGson,
+    val assetList: List<AssetWrapper>,
+)
+
+data class AssetWrapper(
+    val hub: Hub,
+    val assetIndex: List<Int>,
+    val asset: AssetGson,
+)

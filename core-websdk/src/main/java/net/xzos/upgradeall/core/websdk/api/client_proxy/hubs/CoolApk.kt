@@ -2,6 +2,7 @@ package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
 import android.util.Base64
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.getOrNull
 import net.xzos.upgradeall.core.utils.iterator
@@ -12,7 +13,7 @@ import net.xzos.upgradeall.core.utils.md5
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
-import net.xzos.upgradeall.core.websdk.json.Assets
+import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import okhttp3.Request
@@ -41,8 +42,9 @@ internal class CoolApk(
         releaseList.add(
             ReleaseGson(
                 versionNumber = latestVersionNumber,
+                extra = mapOf(VERSION_CODE to detail.getLong("apkversioncode")),
                 changelog = detail.getString("changelog"),
-                assetList = getLatestAsset(appPackage, aid, latestVersionNumber)?.let {
+                assetGsonList = getLatestAsset(appPackage, aid, latestVersionNumber)?.let {
                     listOf(it)
                 } ?: emptyList()
             )
@@ -61,8 +63,9 @@ internal class CoolApk(
             releaseList.add(
                 ReleaseGson(
                     versionNumber = versionName,
+                    extra = mapOf(VERSION_CODE to detail.getLong("apkversioncode")),
                     changelog = null,
-                    assetList = getHistoryDownloadUrl(
+                    assetGsonList = getHistoryDownloadUrl(
                         appPackage, aid, versionId, versionName
                     )?.let {
                         listOf(it)
@@ -73,7 +76,7 @@ internal class CoolApk(
         return releaseList
     }
 
-    private fun getLatestAsset(appPackage: String, aid: String, versionName: String): Assets? {
+    private fun getLatestAsset(appPackage: String, aid: String, versionName: String): AssetGson? {
         val url = "https://api.coolapk.com/v6/apk/download?pn=$appPackage&aid=$aid"
         val request = httpRedirects(url) ?: return null
         return getAsset(request, appPackage, versionName)
@@ -81,7 +84,7 @@ internal class CoolApk(
 
     private fun getHistoryDownloadUrl(
         appPackage: String, aid: String, versionId: String, versionName: String
-    ): Assets? {
+    ): AssetGson? {
         val url =
             "https://api.coolapk.com/v6/apk/downloadHistory?pn=$appPackage&aid=$aid&versionId=$versionId&downloadFrom=coolapk"
         val request = httpRedirects(url) ?: return null
@@ -91,15 +94,15 @@ internal class CoolApk(
     override fun getDownload(
         data: ApiRequestData,
         assetIndex: List<Int>,
-        assets: Assets?
+        assetGson: AssetGson?
     ): List<DownloadItem>? {
-        val request = assets?.downloadUrl?.let { httpRedirects(it) }
+        val request = assetGson?.downloadUrl?.let { httpRedirects(it) }
         if (request?.headers?.get("Content-Type")?.split(";")
                 ?.get(0) != "application/vnd.android.package-archive"
         ) {
             Log.i(logObjectTag, TAG, "getDownload: 返回非安装包数据")
             val newAssets =
-                getRelease(data)?.get(assetIndex[0])?.assetList?.get(assetIndex[1])
+                getRelease(data)?.get(assetIndex[0])?.assetGsonList?.get(assetIndex[1])
                     ?: return null
             return listOf(
                 DownloadItem(
@@ -108,11 +111,11 @@ internal class CoolApk(
             )
         } else {
             Log.i(logObjectTag, TAG, "getDownload: 网址验证正确")
-            return listOf(DownloadItem(assets.fileName, request.url.toString(), null, null))
+            return listOf(DownloadItem(assetGson.fileName, request.url.toString(), null, null))
         }
     }
 
-    private fun getAsset(request: Request, appPackage: String, versionName: String) = Assets(
+    private fun getAsset(request: Request, appPackage: String, versionName: String) = AssetGson(
         fileName = "${appPackage}_$versionName.apk",
         fileType = request.headers["Content-Type"]?.split(";")?.get(0),
         downloadUrl = request.url.toString()

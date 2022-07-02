@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.module.app
 
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.isInit
 import net.xzos.upgradeall.core.database.table.setSortHubUuidList
@@ -7,6 +8,7 @@ import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.module.app.version.Version
+import net.xzos.upgradeall.core.module.app.version.VersionEntityUtils
 import net.xzos.upgradeall.core.websdk.api.ServerApiProxy
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
@@ -14,7 +16,8 @@ import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 data class App private constructor(val appDatabase: AppEntity) {
     private val dataStorage = DataStorage(appDatabase)
     val serverApi: ServerApiProxy = dataStorage.serverApi
-    private val updater = Updater(dataStorage)
+    val entityUtils = VersionEntityUtils(dataStorage.appDatabase)
+    private val updater = Updater(dataStorage, entityUtils)
 
     /* App 对象的属性字典 */
     val appId: Map<String, String?> get() = appDatabase.appId
@@ -46,10 +49,7 @@ data class App private constructor(val appDatabase: AppEntity) {
         get() = !appDatabase.isInit()
 
     /* App 在本地的版本号 */
-    val rawInstalledVersionStringList: List<Pair<Char, Boolean>>? =
-        updater.getRawInstalledVersionStringList()
-
-    val installedVersionNumber: String? = updater.getInstalledVersionNumber()
+    var localVersion = updater.getLocalVersion()
 
 
     /* 获取相应软件源的网址 */
@@ -66,7 +66,7 @@ data class App private constructor(val appDatabase: AppEntity) {
     }
 
     /* 版本号数据列表 */
-    val versionList: List<Version> get() = dataStorage.versionData.getVersionList()
+    val versionList: List<Version> get() = runBlocking { dataStorage.versionMap.getVersionList() }
 
     /* 刷新版本号数据 */
     suspend fun update() {
@@ -78,7 +78,7 @@ data class App private constructor(val appDatabase: AppEntity) {
     }
 
     fun isRenewing(): Boolean {
-        return dataStorage.versionData.isLocked()
+        return updater.isRenewing()
     }
 
     /* 获取 App 的更新状态 */
@@ -86,11 +86,11 @@ data class App private constructor(val appDatabase: AppEntity) {
         return updater.getReleaseStatus()
     }
 
-    fun getLatestVersionNumber(): String? {
+    suspend fun getLatestVersionNumber(): String? {
         return if (isLatestVersion())
-            installedVersionNumber ?: appDatabase.ignoreVersionNumber
+            localVersion?.name ?: appDatabase.ignoreVersionNumber
         else
-            versionList.firstOrNull()?.name
+            versionList.firstOrNull()?.versionInfo?.name
     }
 
     /* 获取 App 的更新状态 */

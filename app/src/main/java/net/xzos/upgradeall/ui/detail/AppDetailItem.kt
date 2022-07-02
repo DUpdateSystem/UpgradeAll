@@ -11,7 +11,7 @@ import androidx.core.text.HtmlCompat
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.version_item.Asset
+import net.xzos.upgradeall.core.module.app.version.VersionWrapper
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 import net.xzos.upgradeall.ui.detail.download.DownloadStatusData
 import net.xzos.upgradeall.utils.MiscellaneousUtils.hasHTMLTags
@@ -50,15 +50,15 @@ class AppDetailItem : BaseAppIconItem {
         appUrlList = urlList
     }
 
-    fun setAssetInfo(assetList: List<Asset>?, context: Context) {
-        assetList ?: return
+    fun setAssetInfo(versionList: List<VersionWrapper>?, context: Context) {
+        versionList ?: return
         val latestChangeLog = SpannableStringBuilder()
-        assetList.forEach { asset ->
-            val changelog = asset.changelog
+        versionList.forEach { version ->
+            val changelog = version.release.changelog
             if (!changelog.isNullOrBlank()) {
                 val colorSpan = ForegroundColorSpan(Color.BLUE)
                 val start = latestChangeLog.length
-                val hubName = asset.hub.name
+                val hubName = version.hub.name
                 latestChangeLog.append("$hubName\n${changelog}\n\n")
                 latestChangeLog.setSpan(
                     colorSpan,

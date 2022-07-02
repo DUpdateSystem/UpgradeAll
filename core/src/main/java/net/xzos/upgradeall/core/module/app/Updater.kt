@@ -4,12 +4,17 @@ import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.androidutils.app_info.getAppVersion
 import net.xzos.upgradeall.core.module.app.data.DataGetter
 import net.xzos.upgradeall.core.module.app.data.DataStorage
-import net.xzos.upgradeall.core.module.app.version.VersionUtils
-import net.xzos.upgradeall.core.utils.*
+import net.xzos.upgradeall.core.module.app.version.VersionEntityUtils
+import net.xzos.upgradeall.core.module.app.version.VersionInfo
+import net.xzos.upgradeall.core.utils.MatchInfo
+import net.xzos.upgradeall.core.utils.MatchString
+import net.xzos.upgradeall.core.utils.SearchInfo
+import net.xzos.upgradeall.core.utils.SearchUtils
 import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
 
 class Updater internal constructor(
     private val dataStorage: DataStorage,
+    private val versionEntityUtils: VersionEntityUtils,
     internal var statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
 ) {
 
@@ -17,17 +22,17 @@ class Updater internal constructor(
     private var tmpUpdateStatus: Int = NETWORK_ERROR - 1
 
     internal fun getReleaseStatus(): Int {
-        val versionNumberList = dataStorage.versionData.getVersionList()
+        val versionNumberList = dataStorage.versionMap.getVersionList()
         val status = if (versionNumberList.isEmpty()) {
             NETWORK_ERROR
         } else {
             val localVersionNumber = getInstalledVersionNumber()
                 ?: dataStorage.appDatabase.ignoreVersionNumber
             when {
-                versionNumberList.first().isIgnored -> APP_LATEST
+                versionEntityUtils.isIgnored(versionNumberList.first().versionInfo.name) -> APP_LATEST
                 localVersionNumber == null -> APP_NO_LOCAL
                 !isLatestVersionNumber(
-                    localVersionNumber, versionNumberList.map { it.name }
+                    localVersionNumber, versionNumberList.map { it.versionInfo.name }
                 ) -> APP_OUTDATED
                 else -> APP_LATEST
             }
@@ -40,11 +45,13 @@ class Updater internal constructor(
     }
 
     /* App 在本地的版本号 */
-    internal fun getRawInstalledVersionStringList(): List<Pair<Char, Boolean>>? {
+    internal fun getLocalVersion(): VersionInfo? {
         val appDatabase = dataStorage.appDatabase
-        return VersionUtils.getKeyVersionNumber(
-            getAppVersion(appDatabase.appId) ?: return null,
-            appDatabase.invalidVersionNumberFieldRegexString
+        val appVersionInfo = getAppVersion(appDatabase.appId) ?: return null
+        return VersionInfo.new(
+            appVersionInfo.name,
+            appDatabase.invalidVersionNumberFieldRegexString,
+            appVersionInfo.extra,
         )
     }
 
@@ -60,7 +67,7 @@ class Updater internal constructor(
     }
 
     internal fun getInstalledVersionNumber(): String? {
-        return VersionUtils.getKey(getRawInstalledVersionStringList() ?: return null)
+        return getLocalVersion()?.name ?: return null
     }
 
     private fun isLatestVersionNumber(
@@ -84,6 +91,10 @@ class Updater internal constructor(
                 } else false
             }
         }
+    }
+
+    fun isRenewing(): Boolean {
+        return dataStorage.renewMutex.isLocked
     }
 
     companion object {

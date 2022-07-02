@@ -9,7 +9,7 @@ import net.xzos.upgradeall.core.utils.iterator
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
-import net.xzos.upgradeall.core.websdk.json.Assets
+import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.json.JSONArray
 import org.json.JSONObject
@@ -42,8 +42,8 @@ class LsposedRepo(
             ReleaseGson(
                 versionNumber = it.getString("name"),
                 changelog = it.getOrNull("descriptionHTML"),
-                assetList = it.getJSONArray("releaseAssets").asSequence<JSONObject>().map { asset ->
-                    Assets(
+                assetGsonList = it.getJSONArray("releaseAssets").asSequence<JSONObject>().map { asset ->
+                    AssetGson(
                         fileName = asset.getString("name"),
                         fileType = asset.getString("contentType"),
                         downloadUrl = asset.getString("downloadUrl")

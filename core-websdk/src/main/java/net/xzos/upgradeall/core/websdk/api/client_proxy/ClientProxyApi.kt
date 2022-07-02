@@ -64,7 +64,7 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
     ): List<DownloadItem> {
         val hub = getHub(data.hubUuid)
         val assets = getAppReleaseList(data)
-            ?.get(assetIndex.first)?.assetList?.get(assetIndex.second)
+            ?.get(assetIndex.first)?.assetGsonList?.get(assetIndex.second)
         return try {
             hub.getDownload(data, assetIndex.toList(), assets)
         } catch (e: Throwable) {

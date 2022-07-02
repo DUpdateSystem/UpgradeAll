@@ -8,7 +8,7 @@ import net.xzos.upgradeall.core.websdk.api.client_proxy.mdToHtml
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
-import net.xzos.upgradeall.core.websdk.json.Assets
+import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.json.JSONArray
 import org.json.JSONObject
@@ -36,9 +36,9 @@ class Gitlab(
                 else it
             }
             val changelog = json.getString("description").mdToHtml()
-            val assetList = json.getJSONObject("assets").getJSONArray("links")
+            val assetGsonList = json.getJSONObject("assets").getJSONArray("links")
                 .asSequence<JSONObject>().map {
-                    Assets(
+                    AssetGson(
                         fileName = it.getString("name"),
                         fileType = it.getString("link_type"),
                         downloadUrl = it.getString("url")
@@ -47,7 +47,7 @@ class Gitlab(
             ReleaseGson(
                 versionNumber = name,
                 changelog = changelog,
-                assetList = assetList
+                assetGsonList = assetGsonList
             )
         }.toList()
     }

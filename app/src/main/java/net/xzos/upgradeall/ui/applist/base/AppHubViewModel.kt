@@ -5,19 +5,19 @@ import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
-import net.xzos.upgradeall.core.utils.constant.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.Updater
+import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.constant.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
+import net.xzos.upgradeall.wrapper.core.upgrade
 import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.ADD
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.CHANGE
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.DEL
 import net.xzos.upgradeall.ui.data.livedata.AppViewModel
-import net.xzos.upgradeall.wrapper.download.startDownload
 
 
 class AppHubViewModel(application: Application) : ListContainerViewModel<App>(application) {
@@ -134,13 +134,8 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
     fun upgradeAll(context: Context) {
         GlobalScope.launch(Dispatchers.IO) {
             getLiveData().value?.first?.map { app ->
-                val fileAsset = app.versionList.firstOrNull()
-                    ?.assetList?.firstOrNull()
-                    ?.fileAssetList?.firstOrNull()
                 launch {
-                    fileAsset?.apply {
-                        startDownload(context, false, app, this)
-                    }
+                    app.upgrade(context)
                 }
             }
         }

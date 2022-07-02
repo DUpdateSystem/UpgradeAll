@@ -4,10 +4,10 @@ import android.content.Context
 import android.text.SpannableStringBuilder
 import androidx.annotation.ColorRes
 import androidx.databinding.ObservableField
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.version.Version
-import net.xzos.upgradeall.core.module.app.version.VersionUtils
+import net.xzos.upgradeall.wrapper.core.isIgnored
 
 class AppVersionItem {
     val versionNumberVisibility: ObservableField<Boolean> = ObservableField()
@@ -32,19 +32,14 @@ class AppVersionItem {
         } else {
             versionNumberVisibility.set(false)
         }
-        var markVersion: Version? = null
-        app.versionList.forEach {
-            if (it.isIgnored)
-                markVersion = it
-        }
-        if (markVersion != null) {
+        app.versionList.firstOrNull { it.isIgnored(app) }?.run {
             markVersionNumberVisibility.set(true)
             markVersionNumber.set(
                 getVersionNameSpannableStringWithRes(
-                    markVersion!!.rawVersionStringList, null, null, context
+                    versionInfo.versionCharList, null, null, context
                 )
             )
-        } else {
+        } ?: kotlin.run {
             markVersionNumberVisibility.set(false)
         }
     }
@@ -55,12 +50,10 @@ class AppVersionItem {
             @ColorRes normalColorRes: Int?, @ColorRes lowLevelColorRes: Int?,
         ): SpannableStringBuilder {
             val sb = SpannableStringBuilder()
-            val latestVersionNumber = app.getLatestVersionNumber()
-            val rawInstalledVersionStringList = app.rawInstalledVersionStringList
-            val installedVersionNumber = if (rawInstalledVersionStringList != null)
-                VersionUtils.getKey(rawInstalledVersionStringList)
-            else null
-            rawInstalledVersionStringList?.run {
+            val latestVersionNumber = runBlocking { app.getLatestVersionNumber() }
+            val localVersion = app.localVersion
+            val installedVersionNumber = localVersion?.name
+            localVersion?.versionCharList?.run {
                 getVersionNameSpannableStringWithRes(
                     this, normalColorRes, lowLevelColorRes,
                     context, sb

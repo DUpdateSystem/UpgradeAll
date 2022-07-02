@@ -76,7 +76,7 @@ class ServerApi internal constructor(
             else getAppReleaseList(data) { releaseListLock.setValue(it) }
             val releaseList = releaseListLock.getValue()
             val asset = releaseList?.getOrNull(assetIndex.first)
-                ?.assetList?.getOrNull(assetIndex.second) ?: return emptyList()
+                ?.assetGsonList?.getOrNull(assetIndex.second) ?: return emptyList()
             listOf(
                 DownloadItem(
                     asset.fileName, asset.downloadUrl ?: return emptyList(),
