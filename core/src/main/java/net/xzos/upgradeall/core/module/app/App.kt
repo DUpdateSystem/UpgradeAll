@@ -9,6 +9,7 @@ import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version.VersionEntityUtils
+import net.xzos.upgradeall.core.module.app.version.VersionInfo
 import net.xzos.upgradeall.core.websdk.api.ServerApiProxy
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
@@ -86,11 +87,10 @@ data class App private constructor(val appDatabase: AppEntity) {
         return updater.getReleaseStatus()
     }
 
-    suspend fun getLatestVersionNumber(): String? {
+    fun getLatestVersion(): VersionInfo? {
         return if (isLatestVersion())
-            localVersion?.name ?: appDatabase.ignoreVersionNumber
-        else
-            versionList.firstOrNull()?.versionInfo?.name
+            localVersion ?: appDatabase.getIgnoreVersion()
+        else versionList.firstOrNull()?.versionInfo
     }
 
     /* 获取 App 的更新状态 */

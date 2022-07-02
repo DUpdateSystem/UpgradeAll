@@ -14,7 +14,7 @@ object VersioningUtils {
     fun matchVersioningString(versionString: CharSequence?): MatchResult? {
         return if (versionString != null) {
             (VERSION_NUMBER_STRICT_MATCH_REGEX.find(versionString)
-                    ?: VERSION_NUMBER_MATCH_REGEX.find(versionString))
+                ?: VERSION_NUMBER_MATCH_REGEX.find(versionString))
         } else null
     }
 
@@ -47,10 +47,6 @@ object VersioningUtils {
          */
         val version0 = DefaultArtifactVersion(matchVersioning0)
         val version1 = DefaultArtifactVersion(matchVersioning1)
-        return when {
-            version0 > version1 -> 1
-            version0 == version1 -> 0
-            else -> -1
-        }
+        return version0.compareTo(version1).inv()
     }
 }

@@ -10,21 +10,22 @@ data class VersionInfo private constructor(
 ) : Comparable<VersionInfo> {
     var versionCharList: List<Pair<Char, Boolean>> = listOf()
         set(value) {
-            field = value + printExtraChar().joinToString("", "(", ")")
-                .map { Pair(it, true) }
+            field = value + printExtraChar()
         }
 
-    private fun printExtraChar() = extra.values.map {
-        if (it is Number) {
-            it.toString().substringBefore(".")
-        } else it.toString()
-    }
+    private fun printExtraChar() = if (extra.isNotEmpty())
+        extra.values.joinToString(",", "(", ")") {
+            if (it is Number) {
+                it.toString().substringBefore(".")
+            } else it.toString()
+        }.map { Pair(it, true) }
+    else emptyList()
 
     fun compareToOrError(other: VersionInfo): Int? {
         compareExtra(other, VERSION_CODE) {
             if (it is Long) it
             else it.toString().toDouble().toLong()
-        }.let {
+        }?.let {
             if (it != 0) return it
         }
         return VersioningUtils.compareVersionNumber(other.name, name)
@@ -36,9 +37,9 @@ data class VersionInfo private constructor(
 
     private fun <V : Comparable<V>> compareExtra(
         other: VersionInfo, key: String, transfer: (Any) -> V
-    ): Int {
-        return transfer(extra[key] ?: return 0).compareTo(
-            transfer(other.extra[key] ?: return 0)
+    ): Int? {
+        return transfer(extra[key] ?: return null).compareTo(
+            transfer(other.extra[key] ?: return null)
         )
     }
 
@@ -50,7 +51,8 @@ data class VersionInfo private constructor(
         ): VersionInfo {
             val versionCharList = getVersionNumberCharString(versionName, ignoreVersionNumberRegex)
             return VersionInfo(
-                versionCharList.filter { it.second }.joinToString(""), extra
+                versionCharList.mapNotNull { if (it.second) it.first else null }.joinToString(""),
+                extra
             ).apply {
                 this.versionCharList = versionCharList
             }

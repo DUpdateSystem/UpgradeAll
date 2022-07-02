@@ -50,7 +50,7 @@ class AppVersionItem {
             @ColorRes normalColorRes: Int?, @ColorRes lowLevelColorRes: Int?,
         ): SpannableStringBuilder {
             val sb = SpannableStringBuilder()
-            val latestVersionNumber = runBlocking { app.getLatestVersionNumber() }
+            val latestVersionNumber = runBlocking { app.getLatestVersion() }
             val localVersion = app.localVersion
             val installedVersionNumber = localVersion?.name
             localVersion?.versionCharList?.run {
@@ -59,9 +59,14 @@ class AppVersionItem {
                     context, sb
                 )
             }
-            if (latestVersionNumber != installedVersionNumber && latestVersionNumber != null) {
+            if (latestVersionNumber?.name != installedVersionNumber && latestVersionNumber != null) {
                 if (sb.isNotEmpty()) sb.append(" -> ")
-                sb.append(latestVersionNumber)
+                latestVersionNumber.versionCharList.run {
+                    getVersionNameSpannableStringWithRes(
+                        this, normalColorRes, lowLevelColorRes,
+                        context, sb
+                    )
+                }
             }
             return sb
         }
