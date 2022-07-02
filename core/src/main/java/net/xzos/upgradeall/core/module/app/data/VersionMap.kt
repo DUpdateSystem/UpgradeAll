@@ -14,7 +14,7 @@ class VersionMap private constructor() {
     private val mutex = Mutex()
 
     /* 版本号数据列表 */
-    private var versionMap: MutableMap<VersionInfo, MutableList<VersionWrapper>> = mutableMapOf()
+    private var versionMap: MutableMap<VersionInfo, MutableSet<VersionWrapper>> = mutableMapOf()
 
     private var versionList: List<Version> = listOf()
     private var sorted
@@ -42,7 +42,7 @@ class VersionMap private constructor() {
         sorted = false
         mutex.withLock {
             val versionInfo = getVersionInfo(release.release)
-            versionMap.getOrPut(versionInfo) { mutableListOf() }.add(release)
+            versionMap.getOrPut(versionInfo) { mutableSetOf() }.add(release)
         }
     }
 
@@ -55,7 +55,7 @@ class VersionMap private constructor() {
             mutex.withLock {
                 if (sorted) return@withLock  // 优化等待锁后已经排序的情况
                 versionList = versionMap.keys.filter { it.name.isNotBlank() }.sortedDescending()
-                    .map { Version(it, versionMap[it] ?: emptyList()) }
+                    .map { Version(it, versionMap[it]?.toList() ?: emptyList()) }
             }
         return versionList
     }
