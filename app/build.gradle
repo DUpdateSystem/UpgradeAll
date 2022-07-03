@@ -19,8 +19,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode 97
-        versionName "0.13-alpha"
+        versionCode 98
+        versionName "0.13-alpha.1"
         if (project.hasProperty('appVerName')) {
             versionName = "${versionName}_${appVerName}"
         }
