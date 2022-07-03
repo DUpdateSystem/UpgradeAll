@@ -4,12 +4,11 @@ import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.msg
 import okhttp3.*
-import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
+import java.net.CookieManager
 import java.util.concurrent.TimeUnit
 
 
@@ -20,6 +19,7 @@ class OkHttpApi internal constructor() {
     }
 
     private val client = OkHttpClient().newBuilder()
+        .cookieJar(cookieJar)
         .dispatcher(dispatcher)
         .callTimeout(15, TimeUnit.SECONDS)
         .connectTimeout(15, TimeUnit.SECONDS)
@@ -85,6 +85,8 @@ class OkHttpApi internal constructor() {
 
     companion object {
         private const val TAG = "OkHttpApi"
+
+        private val cookieJar = JavaNetCookieJar(CookieManager())
 
         fun callHttpFunc(objectTag: ObjectTag, url: String, core: () -> Response): Response? {
             return try {

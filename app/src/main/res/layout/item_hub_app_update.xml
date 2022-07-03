@@ -62,6 +62,7 @@
                 android:background="@drawable/bg_update_btn"
                 android:onClick="@{(view) -> handler.clickDownload(item.app, view)}"
                 android:text="@string/update"
+                android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

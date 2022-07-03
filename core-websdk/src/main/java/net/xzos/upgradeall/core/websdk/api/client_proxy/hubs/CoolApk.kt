@@ -105,12 +105,12 @@ internal class CoolApk(
                 ?: return null
             return listOf(
                 DownloadItem(
-                    newAssets.fileName, newAssets.downloadUrl ?: return null, headerMap, null
+                    newAssets.fileName, newAssets.downloadUrl ?: return null, null, null
                 )
             )
         } else {
             Log.i(logObjectTag, TAG, "getDownload: 网址验证正确")
-            return listOf(DownloadItem(assetGson.fileName, request.url.toString(), headerMap, null))
+            return listOf(DownloadItem(assetGson.fileName, request.url.toString(), null, null))
         }
     }
 
