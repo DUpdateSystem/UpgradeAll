@@ -101,17 +101,16 @@ internal class CoolApk(
                 ?.get(0) != "application/vnd.android.package-archive"
         ) {
             Log.i(logObjectTag, TAG, "getDownload: 返回非安装包数据")
-            val newAssets =
-                getRelease(data)?.get(assetIndex[0])?.assetGsonList?.get(assetIndex[1])
-                    ?: return null
+            val newAssets = getRelease(data)?.get(assetIndex[0])?.assetGsonList?.get(assetIndex[1])
+                ?: return null
             return listOf(
                 DownloadItem(
-                    newAssets.fileName, newAssets.downloadUrl ?: return null, null, null
+                    newAssets.fileName, newAssets.downloadUrl ?: return null, headerMap, null
                 )
             )
         } else {
             Log.i(logObjectTag, TAG, "getDownload: 网址验证正确")
-            return listOf(DownloadItem(assetGson.fileName, request.url.toString(), null, null))
+            return listOf(DownloadItem(assetGson.fileName, request.url.toString(), headerMap, null))
         }
     }
 
