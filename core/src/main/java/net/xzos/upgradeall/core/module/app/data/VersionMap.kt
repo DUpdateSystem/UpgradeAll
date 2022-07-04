@@ -47,7 +47,9 @@ class VersionMap private constructor() {
     }
 
     private fun getVersionInfo(release: ReleaseGson): VersionInfo {
-        return VersionInfo.new(release.versionNumber, ignoreVersionNumberRegex, release.extra)
+        return VersionInfo.new(
+            release.versionNumber, ignoreVersionNumberRegex, release.extra ?: emptyMap()
+        )
     }
 
     private suspend fun sortList(): List<Version> {
