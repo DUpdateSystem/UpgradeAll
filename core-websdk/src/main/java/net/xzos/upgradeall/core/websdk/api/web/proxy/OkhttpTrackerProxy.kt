@@ -8,16 +8,15 @@ import okhttp3.Response
 
 open class OkhttpTrackerProxy : OkhttpTimeoutProxy {
     private val cancelProxy = OkhttpCancelProxy()
-    private val okHttpApi = OkHttpApi()
-    private val okHttpExecuteApi = OkHttpApi()
+    private val okHttpApi = OkHttpApi
+    private val okHttpExecuteApi = OkHttpApi
 
     fun cancelCall(data: HttpRequestData) {
         cancelProxy.cancelCall(data)
     }
 
     fun shutdown() {
-        okHttpApi.shutdown()
-        okHttpExecuteApi.shutdown()
+        // clean http request
     }
 
     protected fun okhttpExecuteWithTracker(

@@ -12,7 +12,26 @@ import java.net.CookieManager
 import java.util.concurrent.TimeUnit
 
 
-class OkHttpApi internal constructor() {
+object OkHttpApi {
+
+    private const val TAG = "OkHttpApi"
+
+    private val cookieJar = JavaNetCookieJar(CookieManager())
+
+    fun callHttpFunc(objectTag: ObjectTag, url: String, core: () -> Response): Response? {
+        return try {
+            core()
+        } catch (e: IllegalArgumentException) {
+            Log.e(objectTag, TAG, "getHttpResponse: URL: $url ${e.msg()} ")
+            null
+        } catch (e: IOException) {
+            Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: ${e.msg()}")
+            null
+        } catch (e: Throwable) {
+            Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: ${e.msg()}")
+            null
+        }
+    }
 
     private val dispatcher = Dispatcher().apply {
         maxRequests = 128
@@ -82,27 +101,4 @@ class OkHttpApi internal constructor() {
         val request = makeRequest(data)
         return request.post(body).build()
     }
-
-    companion object {
-        private const val TAG = "OkHttpApi"
-
-        private val cookieJar = JavaNetCookieJar(CookieManager())
-
-        fun callHttpFunc(objectTag: ObjectTag, url: String, core: () -> Response): Response? {
-            return try {
-                core()
-            } catch (e: IllegalArgumentException) {
-                Log.e(objectTag, TAG, "getHttpResponse: URL: $url ${e.msg()} ")
-                null
-            } catch (e: IOException) {
-                Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: ${e.msg()}")
-                null
-            } catch (e: Throwable) {
-                Log.e(objectTag, TAG, "getHttpResponse: 网络错误 ERROR_MESSAGE: ${e.msg()}")
-                null
-            }
-        }
-    }
 }
-
-val openOkHttpApi = OkHttpApi()
