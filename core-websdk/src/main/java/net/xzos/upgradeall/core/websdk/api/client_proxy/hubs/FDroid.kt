@@ -4,6 +4,7 @@ import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.utils.StringEncoder
+import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
@@ -34,10 +35,7 @@ class FDroid(
                 changelog = changelog.apply { changelog = null },
                 assetGsonList = listOf(
                     it.valueOf("apkname").let { name ->
-                        AssetGson(
-                            name, "application/vnd.android.package-archive",
-                            "$url/$name"
-                        )
+                        AssetGson(name, APK_CONTENT_TYPE, "$url/$name")
                     }
                 )
             )

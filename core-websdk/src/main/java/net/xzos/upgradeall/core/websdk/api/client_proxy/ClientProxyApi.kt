@@ -23,6 +23,7 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         LsposedRepo(dataCache, okhttpProxy),
         FDroid(dataCache, okhttpProxy),
         Gitlab(dataCache, okhttpProxy),
+        GooglePlay(dataCache, okhttpProxy),
     ).associateBy({ it.uuid }, { it })
 
     override fun getCloudConfig(url: String): CloudConfigList? {

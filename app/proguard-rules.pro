@@ -163,3 +163,7 @@
 -keep @androidx.room.Entity class *
 -dontwarn androidx.room.paging.**
 ##---------------End: proguard configuration for ROOM ----------
+
+##---------------Begin: proguard configuration for Firebase ----------
+-keep class com.google.firebase.** { *; }
+##---------------End: proguard configuration for Firebase ----------

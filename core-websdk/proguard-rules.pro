@@ -19,3 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+##---------------Begin: proguard configuration for GPlay API ----------
+-keep public class com.aurora.gplayapi.** { *; }
+##---------------End: proguard configuration for GPlay API ----------

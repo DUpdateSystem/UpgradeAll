@@ -19,8 +19,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode 99
-        versionName "0.13-alpha.2"
+        versionCode 100
+        versionName "0.13-alpha.3"
         if (project.hasProperty('appVerName')) {
             versionName = "${versionName}_${appVerName}"
         }
@@ -75,14 +75,6 @@ android {
         // 视图绑定
         dataBinding true
         viewBinding true
-    }
-    packagingOptions {
-        jniLibs {
-            excludes += ['META-INF/**', 'kotlin/**', 'org/**']
-        }
-        resources {
-            excludes += ['META-INF/**', 'kotlin/**', 'org/**', '**.properties', '**.bin']
-        }
     }
 
     dependenciesInfo.includeInApk false
@@ -169,4 +161,11 @@ dependencies {
         implementation 'com.google.firebase:firebase-analytics:21.0.0'
         implementation 'com.google.firebase:firebase-crashlytics:18.2.11'
     }
+    //Protobuf
+    implementation "com.google.protobuf:protobuf-java:3.21.2"
+}
+// fix different protobuf versions of gplayapi and firebase
+configurations {
+    all*.exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
+    all*.exclude group: 'com.google.firebase', module: 'protolite-well-known-types'
 }

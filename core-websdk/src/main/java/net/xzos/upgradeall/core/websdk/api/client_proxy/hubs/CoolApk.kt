@@ -10,6 +10,7 @@ import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.md5
+import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
@@ -97,9 +98,7 @@ internal class CoolApk(
         assetGson: AssetGson?
     ): List<DownloadItem>? {
         val request = assetGson?.downloadUrl?.let { httpRedirects(it) }
-        if (request?.headers?.get("Content-Type")?.split(";")
-                ?.get(0) != "application/vnd.android.package-archive"
-        ) {
+        if (request?.headers?.get("Content-Type")?.split(";")?.get(0) != APK_CONTENT_TYPE) {
             Log.i(logObjectTag, TAG, "getDownload: 返回非安装包数据")
             val newAssets = getRelease(data)?.get(assetIndex[0])?.assetGsonList?.get(assetIndex[1])
                 ?: return null
