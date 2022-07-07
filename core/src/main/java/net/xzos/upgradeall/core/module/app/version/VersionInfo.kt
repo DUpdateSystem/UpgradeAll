@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.module.app.version
 
 import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
+import net.xzos.upgradeall.core.utils.fmt
 import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
 
 @Suppress("DataClassPrivateConstructor")
@@ -15,9 +16,8 @@ data class VersionInfo private constructor(
 
     private fun printExtraChar() = if (extra.isNotEmpty())
         extra.values.joinToString(",", "(", ")") {
-            if (it is Number) {
-                it.toString().substringBefore(".")
-            } else it.toString()
+            if (it is Double) it.fmt()
+            else it.toString()
         }.map { Pair(it, true) }
     else emptyList()
 
