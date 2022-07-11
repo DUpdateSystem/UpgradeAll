@@ -68,11 +68,7 @@ class AppDetailItem : BaseAppIconItem {
                 if (index < versionList.size - 1) latestChangeLog.append("\n")
             }
         }
-        val length = latestChangeLog.length
-        val spannableStringBuilder = if (length != 0)
-            latestChangeLog.delete(length - 1, length)
-        else latestChangeLog
-        changelog.set(spannableStringBuilder)
+        changelog.set(latestChangeLog)
     }
 
     private fun getChangelogSpanned(changelog: String?, context: Context): Spanned {
