@@ -17,8 +17,6 @@ fun getBackupMetaDatabase(dbFileBytes: ByteArray): MetaDatabase {
 
 private fun deleteTmpDB() {
     tmpDBFile.delete()
-    File(tmpDBFile.name + "-shm").delete()
-    File(tmpDBFile.name + "-wal").delete()
 }
 
 fun delBackupTmp() {
