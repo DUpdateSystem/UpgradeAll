@@ -54,7 +54,7 @@ class AppDetailActivity : AppBarActivity() {
             }
             R.id.change_hub_priority -> {
                 val hubMap =
-                    app.hubList.map { it to true }.toMap().toMutableMap()
+                    app.hubEnableList.map { it to true }.toMap().toMutableMap()
                 HubManager.getHubList().forEach {
                     if (!hubMap.containsKey(it))
                         hubMap[it] = false

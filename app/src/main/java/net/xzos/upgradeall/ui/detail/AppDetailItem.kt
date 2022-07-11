@@ -12,6 +12,7 @@ import androidx.core.text.toSpanned
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
+import net.xzos.upgradeall.core.module.app.hubAvailableList
 import net.xzos.upgradeall.core.module.app.version.VersionWrapper
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 import net.xzos.upgradeall.ui.detail.download.DownloadStatusData
@@ -37,9 +38,9 @@ class AppDetailItem : BaseAppIconItem {
     }
 
     fun setAppUrl(app: App) {
-        val urlList = app.hubList.mapNotNull {
-            app.getUrl(it.uuid)
-        }.toSet()
+        val urlList = app.hubAvailableList.ifEmpty { app.hubEnableList }
+            .mapNotNull { app.getUrl(it.uuid) }
+            .toSet()
         val mainUrl = urlList.firstOrNull()
         if (mainUrl == null) {
             urlLayoutVisibility.set(false)

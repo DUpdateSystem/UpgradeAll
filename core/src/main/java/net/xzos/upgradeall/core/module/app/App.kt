@@ -26,8 +26,8 @@ data class App private constructor(val appDatabase: AppEntity) {
     /* App 名称 */
     val name get() = appDatabase.name
 
-    /* 这个 App 可用的软件源 */
-    val hubList: List<Hub>
+    /* 这个 App 已启用的软件源 */
+    val hubEnableList: List<Hub>
         get() = dataStorage.hubList
 
     /* 是否星标 */
@@ -39,7 +39,7 @@ data class App private constructor(val appDatabase: AppEntity) {
 
     val isActive: Boolean
         get() {
-            hubList.forEach {
+            hubEnableList.forEach {
                 if (it.isActiveApp(appId))
                     return true
             }
@@ -110,3 +110,7 @@ data class App private constructor(val appDatabase: AppEntity) {
 
 fun App.getDatabase(): AppEntity = appDatabase
 fun App.getConfigJson(): AppConfigGson? = appDatabase.cloudConfig
+
+/* 这个 App 数据可用的软件源 */
+val App.hubAvailableList: List<Hub>
+    get() = versionList.flatMap { version -> version.versionList.map { it.hub } }

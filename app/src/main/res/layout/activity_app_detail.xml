@@ -101,7 +101,7 @@
                             app:item="@{item.versionItem}" />
 
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:visibility="@{item.urlLayoutVisibility ? View.VISIBLE : View.GONE}"
@@ -109,9 +109,9 @@
 
                             <TextView
                                 android:id="@+id/tv_url"
-                                android:layout_width="wrap_content"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center"
+                                android:layout_weight="1"
                                 android:fontFamily="sans-serif-condensed"
                                 android:onClick="@{(view) -> handler.openUrl(item.showingURL, view)}"
                                 android:text="@{item.showingURL}"
@@ -123,7 +123,7 @@
                                 android:id="@+id/iv_more_url"
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
-                                android:layout_gravity="center"
+                                android:layout_weight="0"
                                 android:contentDescription="@string/more_url"
                                 android:onClick="@{(view) -> handler.showMoreURL(item.appUrlList, view)}"
                                 android:src="@drawable/ic_baseline_more_vert"
@@ -192,7 +192,7 @@
         <net.xzos.upgradeall.ui.base.view.ProgressButton
             android:id="@+id/btn_update"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="48dp"
             android:layout_gravity="bottom"
             android:layout_margin="40dp"
             android:onClick="@{() -> handler.clickDownload()}"
