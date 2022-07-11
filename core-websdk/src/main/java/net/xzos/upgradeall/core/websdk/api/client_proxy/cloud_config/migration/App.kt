@@ -8,7 +8,7 @@ fun app1to2(oldJson: JSONObject): JSONObject? {
         "magisk_module" -> "android_magisk_module"
         "shell" -> "android_custom_shell"
         "shell_root" -> "android_custom_shell_root"
-        else -> null
+        else -> s.lowercase()
     }
 
     if (oldJson.getInt("base_version") != 1) return null
