@@ -1,7 +1,9 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
+import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
+import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.utils.StringEncoder
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
@@ -20,10 +22,12 @@ class FDroid(
 
     override fun getRelease(data: ApiRequestData): List<ReleaseGson>? {
         val xmlUrl = getXmlUrl(url)
-        val xmlStr = dataCache.get(
-            xmlUrl, StringEncoder
-        ) { okhttpProxy.okhttpExecute(HttpRequestData(xmlUrl))?.body?.string() ?: return@get null }
-            ?: return null
+        val xmlStr = mutex.runWithLock {
+            dataCache.get(xmlUrl, StringEncoder) {
+                okhttpProxy.okhttpExecute(HttpRequestData(xmlUrl))?.body?.string()
+                    ?: return@get null
+            }
+        } ?: return null
         val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
         val root = SAXReader().read(xmlStr.byteInputStream()).rootElement
         val node = root.selectSingleNode(".//application[@id=\"$appPackage\"]")
@@ -43,4 +47,8 @@ class FDroid(
     }
 
     private fun getXmlUrl(url: String) = "$url/index.xml"
+
+    companion object {
+        private val mutex = Mutex()
+    }
 }

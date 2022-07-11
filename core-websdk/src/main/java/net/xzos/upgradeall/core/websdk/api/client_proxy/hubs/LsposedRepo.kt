@@ -1,7 +1,9 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
+import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.asSequence
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.utils.JsonArrayEncoder
 import net.xzos.upgradeall.core.utils.getOrNull
@@ -22,11 +24,13 @@ class LsposedRepo(
     override fun getRelease(
         data: ApiRequestData
     ): List<ReleaseGson>? {
-        val dataJson = dataCache.get("lsposed_repo_json", JsonArrayEncoder, false) {
-            val response = okhttpProxy.okhttpExecute(
-                HttpRequestData("https://modules.lsposed.org/modules.json")
-            ) ?: return@get null
-            JSONArray(response.body.string())
+        val dataJson = mutex.runWithLock {
+            dataCache.get("lsposed_repo_json", JsonArrayEncoder, false) {
+                val response = okhttpProxy.okhttpExecute(
+                    HttpRequestData("https://modules.lsposed.org/modules.json")
+                ) ?: return@get null
+                JSONArray(response.body.string())
+            }
         } ?: return null
 
         val appPackage = data.appId[ANDROID_APP_TYPE]
@@ -42,14 +46,19 @@ class LsposedRepo(
             ReleaseGson(
                 versionNumber = it.getString("name"),
                 changelog = it.getOrNull("descriptionHTML"),
-                assetGsonList = it.getJSONArray("releaseAssets").asSequence<JSONObject>().map { asset ->
-                    AssetGson(
-                        fileName = asset.getString("name"),
-                        fileType = asset.getString("contentType"),
-                        downloadUrl = asset.getString("downloadUrl")
-                    )
-                }.toList()
+                assetGsonList = it.getJSONArray("releaseAssets").asSequence<JSONObject>()
+                    .map { asset ->
+                        AssetGson(
+                            fileName = asset.getString("name"),
+                            fileType = asset.getString("contentType"),
+                            downloadUrl = asset.getString("downloadUrl")
+                        )
+                    }.toList()
             )
         }.toList()
+    }
+
+    companion object {
+        private val mutex = Mutex()
     }
 }
