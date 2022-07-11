@@ -1,7 +1,9 @@
 package net.xzos.upgradeall.core.utils.data_cache
 
+import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
+import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.AnyMemoryCache
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.Encoder
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.NoCacheError
@@ -17,6 +19,24 @@ class DataCacheManager(var config: CacheConfig) {
             val cache = cacheContainer.getCache<T>(it) ?: return@mapNotNull null
             it to cache.read()
         }.toMap()
+    }
+
+    fun <E> get(
+        mutex: Mutex,
+        key: String, encoder: Encoder<E>?,
+        nullable: Boolean = false, renewFun: () -> E? = { null },
+    ): E? {
+        return mutex.runWithLock {
+            val cache = getCache<E>(key)
+            if (cache?.checkValid(config.defExpires) == true) {
+                cache.read(encoder).let {
+                    if (it != null || nullable) return@runWithLock it
+                }
+            }
+            renewFun().apply {
+                if (this != null || nullable) cache(key, this, encoder)
+            }
+        }
     }
 
     fun <E> get(

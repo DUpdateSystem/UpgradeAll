@@ -3,10 +3,9 @@ package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
-import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
-import net.xzos.upgradeall.core.utils.data_cache.utils.StringEncoder
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
+import net.xzos.upgradeall.core.websdk.api.client_proxy.XmlEncoder
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
@@ -21,22 +20,22 @@ class FDroid(
     override val uuid: String = "6a6d590b-1809-41bf-8ce3-7e3f6c8da945"
 
     override fun getRelease(data: ApiRequestData): List<ReleaseGson>? {
-        val xmlUrl = getXmlUrl(url)
-        val xmlStr = mutex.runWithLock {
-            dataCache.get(xmlUrl, StringEncoder) {
-                okhttpProxy.okhttpExecute(HttpRequestData(xmlUrl))?.body?.string()
-                    ?: return@get null
-            }
-        } ?: return null
         val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
-        val root = SAXReader().read(xmlStr.byteInputStream()).rootElement
+        val xmlUrl = getXmlUrl(url)
+        val doc = dataCache.get(mutex, xmlUrl, XmlEncoder) {
+            val stream = okhttpProxy.okhttpExecute(HttpRequestData(xmlUrl))?.body?.byteStream()
+                ?: return@get null
+            SAXReader().read(stream)
+        } ?: return null
+        val root = doc.rootElement
         val node = root.selectSingleNode(".//application[@id=\"$appPackage\"]")
+            ?: return emptyList()
         var changelog = node.valueOf("changelog")
         return node.selectNodes("package").map {
             ReleaseGson(
                 versionNumber = it.valueOf("version"),
                 extra = mapOf(VERSION_CODE to it.numberValueOf("versioncode").toLong()),
-                changelog = changelog.apply { changelog = null },
+                changelog = changelog?.apply { changelog = null },
                 assetGsonList = listOf(
                     it.valueOf("apkname").let { name ->
                         AssetGson(name, APK_CONTENT_TYPE, "$url/$name")
