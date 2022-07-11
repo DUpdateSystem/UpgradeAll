@@ -8,6 +8,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import androidx.core.text.HtmlCompat
+import androidx.core.text.toSpanned
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
@@ -53,44 +54,35 @@ class AppDetailItem : BaseAppIconItem {
     fun setAssetInfo(versionList: List<VersionWrapper>?, context: Context) {
         versionList ?: return
         val latestChangeLog = SpannableStringBuilder()
-        versionList.forEach { version ->
+        versionList.forEachIndexed { index, version ->
             val changelog = version.release.changelog
             if (!changelog.isNullOrBlank()) {
                 val colorSpan = ForegroundColorSpan(Color.BLUE)
                 val start = latestChangeLog.length
                 val hubName = version.hub.name
-                latestChangeLog.append("$hubName\n${changelog}\n\n")
+                latestChangeLog.append("$hubName\n")
                 latestChangeLog.setSpan(
-                    colorSpan,
-                    start,
-                    start + hubName.length,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    colorSpan, start, start + hubName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
-                latestChangeLog.append()
+                latestChangeLog.append(getChangelogSpanned(changelog, context))
+                if (index < versionList.size - 1) latestChangeLog.append("\n")
             }
         }
         val length = latestChangeLog.length
         val spannableStringBuilder = if (length != 0)
             latestChangeLog.delete(length - 1, length)
         else latestChangeLog
-        setChangelog(spannableStringBuilder, context)
+        changelog.set(spannableStringBuilder)
     }
 
-    private fun setChangelog(_changelog: SpannableStringBuilder?, context: Context) {
-        changelog.set(
-            when {
-                _changelog.isNullOrBlank() -> {
-                    context.getString(R.string.null_english)
-                }
-                _changelog.hasHTMLTags() -> {
-                    HtmlCompat.fromHtml(
-                        _changelog.toString(),
-                        HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS
-                    )
-                }
-                else -> _changelog
+    private fun getChangelogSpanned(changelog: String?, context: Context): Spanned {
+        return when {
+            changelog.isNullOrBlank() -> context.getString(R.string.null_english).toSpanned()
+            changelog.hasHTMLTags() -> {
+                HtmlCompat.fromHtml(changelog, HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS)
             }
-        )
+            else -> changelog.toSpanned()
+        }
     }
 
     val changelog: ObservableField<CharSequence> = ObservableField()
