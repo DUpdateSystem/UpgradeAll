@@ -65,10 +65,11 @@
                         tools:ignore="HardcodedText" />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginHorizontal="24dp"
+                        android:layout_weight="1"
                         android:orientation="vertical">
 
                         <net.xzos.upgradeall.ui.base.view.AlwaysMarqueeTextView
@@ -109,7 +110,7 @@
 
                             <TextView
                                 android:id="@+id/tv_url"
-                                android:layout_width="0dp"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:fontFamily="sans-serif-condensed"
