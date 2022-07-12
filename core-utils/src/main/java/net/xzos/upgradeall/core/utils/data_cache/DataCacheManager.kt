@@ -26,16 +26,10 @@ class DataCacheManager(var config: CacheConfig) {
         key: String, encoder: Encoder<E>?,
         nullable: Boolean = false, renewFun: () -> E? = { null },
     ): E? {
-        return mutex.runWithLock {
-            val cache = getCache<E>(key)
-            if (cache?.checkValid(config.defExpires) == true) {
-                cache.read(encoder).let {
-                    if (it != null || nullable) return@runWithLock it
-                }
-            }
-            renewFun().apply {
-                if (this != null || nullable) cache(key, this, encoder)
-            }
+        val value = get(key, encoder, nullable) { null }
+        return if (value != null || nullable) value
+        else mutex.runWithLock {
+            get(key, encoder, nullable, renewFun)
         }
     }
 
