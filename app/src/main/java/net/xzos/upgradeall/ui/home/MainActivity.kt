@@ -25,6 +25,7 @@ import net.xzos.upgradeall.ui.home.adapter.*
 import net.xzos.upgradeall.ui.hubmanager.HubManagerActivity
 import net.xzos.upgradeall.ui.log.LogActivity
 import net.xzos.upgradeall.ui.preference.SettingsActivity
+import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.UxUtils
 
 
@@ -72,7 +73,7 @@ class MainActivity : BaseActivity() {
                     startActivity(Intent(this, SettingsActivity::class.java))
                 },
                 HomeModuleNonCardBean(R.drawable.ic_home_about, R.string.home_about) {
-                    ToastUtil.showText(this, R.string.home_about)
+                    MiscellaneousUtils.accessByBrowser("https://up-a.org/", this)
                 }
             ))
         } else {
