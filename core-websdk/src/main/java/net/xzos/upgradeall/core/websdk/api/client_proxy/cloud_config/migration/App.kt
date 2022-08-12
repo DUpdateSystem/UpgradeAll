@@ -11,21 +11,21 @@ fun app1to2(oldJson: JSONObject): JSONObject? {
         else -> s.lowercase()
     }
 
-    if (oldJson.getInt("base_version") != 1) return null
+    if (oldJson.optInt("base_version") != 1) return null
     val targetCheckerJson = oldJson.getJSONObject("app_config")
         .getJSONObject("target_checker")
     val map = mapOf(
         "base_version" to 2,
-        "config_version" to oldJson.getJSONObject("info").getString("config_version"),
-        "uuid" to oldJson.getString("uuid"),
+        "config_version" to oldJson.getJSONObject("info").optInt("config_version"),
+        "uuid" to oldJson.optString("uuid"),
         "base_hub_uuid" to oldJson.getJSONObject("app_config")
             .getJSONObject("hub_info")
-            .getString("hub_uuid"),
+            .optString("hub_uuid"),
         "info" to mapOf(
-            "name" to oldJson.getJSONObject("info").getString("app_name"),
-            "url" to oldJson.getJSONObject("info").getString("url"),
+            "name" to oldJson.getJSONObject("info").optString("app_name"),
+            "url" to oldJson.getJSONObject("info").optString("url"),
             "extra_map" to mapOf(
-                apiConvert(targetCheckerJson.getString("api")) to targetCheckerJson.getString("extra_string")
+                apiConvert(targetCheckerJson.getString("api")) to targetCheckerJson.optString("extra_string")
             )
         ),
     )
