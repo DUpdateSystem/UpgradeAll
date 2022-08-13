@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config
 
-import com.google.gson.Gson
 import net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config.migration.app1to2
 import net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config.migration.hub5to6
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
@@ -21,20 +20,12 @@ internal class CloudConfig(private val okHttpApi: OkhttpProxy) {
         val hubList = mutableListOf<HubConfigGson>()
         for (i in 0 until appJsonList.length()) {
             val appJson = appJsonList.getJSONObject(i)
-            app1to2(appJson)?.toString()?.let {
-                appList.add(gson.fromJson(it, AppConfigGson::class.java))
-            }
+            app1to2(appJson)?.let { appList.add(it) }
         }
         for (i in 0 until hubJsonList.length()) {
             val hubJson = hubJsonList.getJSONObject(i)
-            hub5to6(hubJson)?.toString()?.let {
-                hubList.add(gson.fromJson(it, HubConfigGson::class.java))
-            }
+            hub5to6(hubJson)?.let { hubList.add(it) }
         }
         return CloudConfigList(appList, hubList)
-    }
-
-    companion object {
-        private val gson = Gson()
     }
 }
