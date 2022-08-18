@@ -4,6 +4,7 @@ import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
+import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
 import net.xzos.upgradeall.core.websdk.api.client_proxy.XmlEncoder
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
@@ -22,7 +23,7 @@ class FDroid(
     override fun getRelease(data: ApiRequestData): List<ReleaseGson>? {
         val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
         val xmlUrl = getXmlUrl(url)
-        val doc = dataCache.get(mutex, xmlUrl, XmlEncoder) {
+        val doc = dataCache.get(mutex, xmlUrl, SaveMode.DISK_ONLY, XmlEncoder) {
             val stream = okhttpProxy.okhttpExecute(HttpRequestData(xmlUrl))?.body?.byteStream()
                 ?: return@get null
             SAXReader().read(stream)

@@ -10,6 +10,7 @@ import com.aurora.gplayapi.helpers.PurchaseHelper
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
+import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.utils.data_cache.utils.JsonObjectEncoder
 import net.xzos.upgradeall.core.utils.getLocale
 import net.xzos.upgradeall.core.utils.log.Log
@@ -30,7 +31,7 @@ class GooglePlay(
     override val uuid: String = "65c2f60c-7d08-48b8-b4ba-ac6ee924f6fa"
 
     private fun getAuthJson(url: String = "https://auroraoss.com/api/auth"): JSONObject? {
-        return dataCache.get("AuroraOSS_auth", JsonObjectEncoder) {
+        return dataCache.get("AuroraOSS_auth", SaveMode.DISK_ONLY, JsonObjectEncoder) {
             okhttpProxy.okhttpExecute(HttpRequestData(url))?.body?.string()
                 ?.let { JSONObject(it) }
         }

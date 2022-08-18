@@ -9,10 +9,12 @@ import java.time.Instant
 class AnyMemoryCache<T>(
     key: String,
     config: CacheConfig,
+    var saveMode: SaveMode,
 ) : BaseCache<T>(key) {
 
     private var any: T? = null
         set(value) {
+            if (saveMode == SaveMode.DISK_ONLY) return
             time = Instant.now().epochSecond
             field = value
         }
@@ -26,12 +28,17 @@ class AnyMemoryCache<T>(
         any?.also { value ->
             this@AnyMemoryCache.any = value
             super.write(any)
-            encoder?.run {
-                try {
-                    bytesDiskCache?.write(this.encode(value))
-                } catch (e: Throwable) {
-                    Log.e(logObjectTag, TAG, e.stackTraceToString())
-                }
+            if (saveMode != SaveMode.MEMORY_ONLY)
+                writeToDisk(value, encoder)
+        }
+    }
+
+    private fun writeToDisk(value: T, encoder: Encoder<T>?) {
+        encoder?.run {
+            try {
+                bytesDiskCache?.write(this.encode(value))
+            } catch (e: Throwable) {
+                Log.e(logObjectTag, TAG, e.stackTraceToString())
             }
         }
     }

@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.websdk.api.web
 import com.google.gson.Gson
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
+import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.msg
@@ -20,7 +21,7 @@ internal class WebApiProxy(
     private val dataCache: DataCacheManager,
 ) : BaseApi {
     private val host: String
-        get() = dataCache.get(_host, null) {
+        get() = dataCache.get(_host, SaveMode.MEMORY_ONLY, null) {
             try {
                 DnsApi.resolve(_host)
             } catch (e: Throwable) {

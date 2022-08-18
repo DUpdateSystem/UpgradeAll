@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.utils.coroutines.ValueLock
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.Encoder
+import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.websdk.api.client_proxy.ClientProxyApi
 import net.xzos.upgradeall.core.websdk.api.client_proxy.NoFunction
 import net.xzos.upgradeall.core.websdk.api.web.WebApi
@@ -34,7 +35,7 @@ class ServerApi internal constructor(
     }
 
     fun getCloudConfig(url: String): CloudConfigList? {
-        val value = dataCache.get(url, CloudConfigListEncoder) {
+        val value = dataCache.get(url, SaveMode.MEMORY_AND_DISK, CloudConfigListEncoder) {
             runBlocking {
                 clientProxyApi.getCloudConfig(url) ?: webApiProxy.getCloudConfig(url)
             }?.let { if (it.isEmpty()) null else it }
@@ -44,7 +45,7 @@ class ServerApi internal constructor(
 
     fun getAppRelease(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
         val key = data.getKey()
-        val value = dataCache.get(key, AppReleaseListEncoder) {
+        val value = dataCache.get(key, SaveMode.MEMORY_AND_DISK, AppReleaseListEncoder) {
             callOrBack(data, clientProxyApi::getAppRelease, webApiProxy::getAppRelease)
         }
         callback(value)
@@ -52,7 +53,7 @@ class ServerApi internal constructor(
 
     fun getAppReleaseList(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
         val key = data.getKey()
-        val value = dataCache.get(key, AppReleaseListEncoder) {
+        val value = dataCache.get(key, SaveMode.MEMORY_AND_DISK, AppReleaseListEncoder) {
             callOrBack(data, clientProxyApi::getAppReleaseList, webApiProxy::getAppReleaseList)
         }
         callback(value)
@@ -100,13 +101,13 @@ private fun <T> callOrBack(
 }
 
 fun <E> DataCacheManager.getOrRenewWithCallback(
-    key: String, encoder: Encoder<E>,
+    key: String, saveMode: SaveMode, encoder: Encoder<E>,
     callback: (E?) -> Unit,
     renewFun: (ApiRequestData, (E?) -> Unit) -> Unit, data: ApiRequestData
 ) {
-    callback(get(key, encoder) { null })
+    callback(get(key, saveMode, encoder) { null })
     renewFun(data) {
-        cache(key, it, encoder)
+        cache(key, saveMode, it, encoder)
         callback(it)
     }
 }

@@ -13,6 +13,7 @@ import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.database.table.setSortHubUuidList
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.utils.AutoTemplate
+import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.websdk.cache.CloudConfigListEncoder
@@ -50,7 +51,7 @@ object CloudConfigGetter {
             "http://${coreConfig.update_server_url}/v1/rules/download/dev"
         else url
         val func = { runBlocking { serverApi?.getCloudConfig(key) } }
-        return dataCacheManager.get(key, CloudConfigListEncoder, false, func)
+        return dataCacheManager.get(key, SaveMode.DISK_ONLY, CloudConfigListEncoder, false, func)
     }
 
     fun getAppCloudConfig(appUuid: String?): AppConfigGson? {

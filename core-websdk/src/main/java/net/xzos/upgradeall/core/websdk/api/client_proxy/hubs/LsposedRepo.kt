@@ -4,6 +4,7 @@ import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.asSequence
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
+import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.utils.data_cache.utils.JsonArrayEncoder
 import net.xzos.upgradeall.core.utils.getOrNull
 import net.xzos.upgradeall.core.utils.iterator
@@ -24,11 +25,16 @@ class LsposedRepo(
         data: ApiRequestData
     ): List<ReleaseGson>? {
         val dataJson =
-            dataCache.get(mutex, "lsposed_repo_json", JsonArrayEncoder, false) {
-                val response = okhttpProxy.okhttpExecute(
+            dataCache.get(
+                mutex,
+                "lsposed_repo_json", SaveMode.DISK_ONLY, JsonArrayEncoder,
+                false
+            ) {
+                okhttpProxy.okhttpExecute(
                     HttpRequestData("https://modules.lsposed.org/modules.json")
-                ) ?: return@get null
-                JSONArray(response.body.string())
+                )?.let {
+                    JSONArray(it.body.string())
+                }
             } ?: return null
 
         val appPackage = data.appId[ANDROID_APP_TYPE]
