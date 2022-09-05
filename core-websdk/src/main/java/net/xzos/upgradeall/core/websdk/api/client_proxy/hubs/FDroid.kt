@@ -15,13 +15,13 @@ import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.dom4j.io.SAXReader
 
 class FDroid(
-    dataCache: DataCacheManager, okhttpProxy: OkhttpProxy,
-    private val url: String = "https://f-droid.org/repo"
+    dataCache: DataCacheManager, okhttpProxy: OkhttpProxy
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "6a6d590b-1809-41bf-8ce3-7e3f6c8da945"
 
     override fun getRelease(data: ApiRequestData): List<ReleaseGson>? {
         val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
+        val url = data.other[REPO_URL] ?: DEF_URL
         val xmlUrl = getXmlUrl(url)
         val doc = dataCache.get(mutex, xmlUrl, SaveMode.DISK_ONLY, XmlEncoder) {
             val stream = okhttpProxy.okhttpExecute(HttpRequestData(xmlUrl))?.body?.byteStream()
@@ -50,5 +50,8 @@ class FDroid(
 
     companion object {
         private val mutex = Mutex()
+        private const val DEF_URL = "https://f-droid.org/repo"
+
+        private const val REPO_URL = "repo_url"
     }
 }
