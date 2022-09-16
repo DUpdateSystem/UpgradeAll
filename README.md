@@ -40,7 +40,6 @@ Check updates for Android apps, Magisk modules and more!
 [<img src="https://img.shields.io/badge/Get-Github-black?style=for-the-badge&logo=github" alt="Get it on Github" height="30">](https://github.com/DUpdateSystem/UpgradeAll/releases)
 [<img src="https://img.shields.io/badge/Get-FDroid-blue?style=for-the-badge&logo=fdroid" alt="Get it on F-Droid" height="30">](https://f-droid.org/packages/net.xzos.upgradeall)
 [<img src="https://img.shields.io/badge/Get-Telegram-2CA5E0?style=for-the-badge&logo=telegram" alt="Get it on Coolapk" height="30">](https://t.me/upallci)
-[<img src="https://img.shields.io/badge/Get-Coolapk-green?style=for-the-badge&logo=android" alt="Get it on Coolapk" height="30">](https://www.coolapk.com/apk/net.xzos.upgradeall)
 
 1. If you want to install `UpgradeAll`, first select a channel from above, find the latest version, download and install it.
 
