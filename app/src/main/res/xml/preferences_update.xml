@@ -41,6 +41,14 @@
             app:showSeekBarValue="true"
             app:title="@string/background_sync_time" />
 
+        <SeekBarPreference
+            android:defaultValue="30"
+            android:max="1440"
+            android:summary="@string/data_expiration_time_desc"
+            app:key="data_expiration_time"
+            app:showSeekBarValue="true"
+            app:title="@string/data_expiration_time" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/applications_setting">

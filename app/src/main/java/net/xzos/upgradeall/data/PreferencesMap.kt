@@ -54,13 +54,10 @@ object PreferencesMap {
         get() = prefs.getBoolean("auto_update_app_config", true)
     val auto_update_hub_config: Boolean
         get() = prefs.getBoolean("auto_update_hub_config", true)
-    private val background_sync_time
+    private val background_sync_hr_time
         get() = prefs.getInt("background_sync_time", 18)
-    private val data_expiration_time
-        get() = (background_sync_time * 3600).let {
-            if (it > 1800) 1800
-            else it
-        }
+    private val data_expiration_min_time
+        get() = prefs.getInt("data_expiration_time", 30)
     val applications_ignore_system_app: Boolean
         get() = prefs.getBoolean("applications_ignore_system_app", true)
 
@@ -190,14 +187,14 @@ object PreferencesMap {
 
     // 设置 Android 平台设置
     private fun syncAndroidConfig() {
-        UpdateServiceBroadcastReceiver.setAlarms(background_sync_time)
+        UpdateServiceBroadcastReceiver.setAlarms(background_sync_hr_time)
         initConfig(context, install_apk_api)
     }
 
     // 同步 Core 模块的配置
     private fun syncCoreConfig() {
         val coreConfig = CoreConfig(
-            data_expiration_time = data_expiration_time,
+            data_expiration_time = data_expiration_min_time * 60,
             cache_dir = SDK_CACHE_DIR,
             update_server_url = update_server_url,
             cloud_rules_hub_url = cloud_rules_hub_url,
