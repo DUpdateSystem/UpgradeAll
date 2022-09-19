@@ -10,6 +10,7 @@ import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 class VersionMap private constructor() {
     private var ignoreVersionNumberRegex: String? = null
+    private var includeVersionNumberRegex: String? = null
 
     private val mutex = Mutex()
 
@@ -23,8 +24,9 @@ class VersionMap private constructor() {
             if (!value) versionList = listOf()
         }
 
-    suspend fun setIgnoreVersionNumberRegex(regex: String) {
-        ignoreVersionNumberRegex = regex
+    suspend fun setVersionNumberRegex(ignore: String?, include: String?) {
+        ignoreVersionNumberRegex = ignore
+        includeVersionNumberRegex = include
         refreshMap()
     }
 
@@ -48,7 +50,10 @@ class VersionMap private constructor() {
 
     private fun getVersionInfo(release: ReleaseGson): VersionInfo {
         return VersionInfo.new(
-            release.versionNumber, ignoreVersionNumberRegex, release.extra ?: emptyMap()
+            release.versionNumber,
+            ignoreVersionNumberRegex,
+            includeVersionNumberRegex,
+            release.extra ?: emptyMap()
         )
     }
 
@@ -66,11 +71,10 @@ class VersionMap private constructor() {
 
     companion object {
         suspend fun new(
-            ignoreVersionNumberRegex: String? = null
+            ignoreVersionNumberRegex: String?,
+            includeVersionNumberRegex: String?,
         ) = VersionMap().apply {
-            ignoreVersionNumberRegex?.let {
-                setIgnoreVersionNumberRegex(it)
-            }
+            setVersionNumberRegex(ignoreVersionNumberRegex, includeVersionNumberRegex)
         }
     }
 }

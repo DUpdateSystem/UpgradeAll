@@ -20,7 +20,7 @@ import java.io.File
 
 @Database(
     entities = [AppEntity::class, HubEntity::class, ExtraAppEntity::class, ExtraHubEntity::class],
-    version = 16
+    version = 17
 )
 @TypeConverters(Converters::class)
 abstract class MetaDatabase : RoomDatabase() {
@@ -68,6 +68,7 @@ fun <E : RoomDatabase> getDatabaseBuilder(
         .addMigrations(MIGRATION_13_14)
         .addMigrations(MIGRATION_14_15)
         .addMigrations(MIGRATION_15_16)
+        .addMigrations(MIGRATION_16_17)
 }
 
 fun <E : RoomDatabase> getDatabase(context: Context, less: Class<E>, name: String) =

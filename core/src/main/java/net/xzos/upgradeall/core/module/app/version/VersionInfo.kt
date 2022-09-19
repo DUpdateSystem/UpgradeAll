@@ -47,9 +47,14 @@ data class VersionInfo private constructor(
         fun new(
             versionName: String,
             ignoreVersionNumberRegex: String? = null,
+            includeVersionNumberRegex: String? = null,
             extra: Map<String, Any?> = mapOf(),
         ): VersionInfo {
-            val versionCharList = getVersionNumberCharString(versionName, ignoreVersionNumberRegex)
+            val versionCharList = getVersionNumberCharString(
+                versionName,
+                ignoreVersionNumberRegex,
+                includeVersionNumberRegex
+            )
             return VersionInfo(
                 versionCharList.mapNotNull { if (it.second) it.first else null }.joinToString(""),
                 extra

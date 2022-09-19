@@ -9,20 +9,24 @@ private const val TAG = "VersionUtils"
 private val logObjectTag = ObjectTag(core, TAG)
 
 fun getVersionNumberCharString(
-    rawVersionNumber: String, invalidStringFieldRegexString: String?
+    rawVersionNumber: String,
+    invalidStringFieldRegexString: String?,
+    includeVersionNumberRegex: String?,
 ): List<Pair<Char, Boolean>> {
+    // pre clean version by custom regex
     val preVersionNumberInfoList =
         rawVersionNumber.map { Pair(it, true) }.toMutableList()
     invalidStringFieldRegexString?.run {
         try {
-            getInvalidVersionNumberIndex(rawVersionNumber, this).let {
-                setVersionNumberInfoList(preVersionNumberInfoList, it)
-            }
+            setVersionNumberInfoList(
+                preVersionNumberInfoList,
+                getMatchIndex(rawVersionNumber, this)
+            )
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, " getKeyVersionNumber: ${e.stackTraceToString()}")
         }
     }
-
+    // get the map of index of pre clean list and raw list
     val indexMap = mutableMapOf<Int, Int>()
     val preVersionNumber = StringBuilder()
     preVersionNumberInfoList.forEachIndexed { index, pair ->
@@ -31,7 +35,7 @@ fun getVersionNumberCharString(
             indexMap[preVersionNumber.length - 1] = index
         }
     }
-
+    // get version number
     val finishVersionNumberInfoList =
         rawVersionNumber.map { Pair(it, false) }.toMutableList()
     VersioningUtils.matchVersioningString(preVersionNumber)?.range?.run {
@@ -45,7 +49,22 @@ fun getVersionNumberCharString(
             true
         )
     }
-    return finishVersionNumberInfoList
+    // include string in version number by custom regex
+    val includeVersionNumberInfoList =
+        rawVersionNumber.map { Pair(it, false) }.toMutableList()
+    includeVersionNumberRegex?.run {
+        try {
+            setVersionNumberInfoList(
+                includeVersionNumberInfoList,
+                getMatchIndex(rawVersionNumber, this), true
+            )
+        } catch (e: Throwable) {
+            Log.e(logObjectTag, TAG, " getKeyVersionNumber: ${e.stackTraceToString()}")
+        }
+    }
+    return finishVersionNumberInfoList.mapIndexed { index, pair ->
+        Pair(pair.first, pair.second || includeVersionNumberInfoList[index].second)
+    }
 }
 
 private fun setVersionNumberInfoList(
@@ -59,12 +78,12 @@ private fun setVersionNumberInfoList(
     }
 }
 
-fun getInvalidVersionNumberIndex(
-    rawVersionNumber: String,
-    invalidVersionNumberFieldRegexString: String
+fun getMatchIndex(
+    s: String,
+    regexString: String
 ): List<Int> {
-    val invalidVersionNumberFieldRegex = invalidVersionNumberFieldRegexString.toRegex()
-    val list = invalidVersionNumberFieldRegex.findAll(rawVersionNumber)
+    val invalidVersionNumberFieldRegex = regexString.toRegex()
+    val list = invalidVersionNumberFieldRegex.findAll(s)
     val indexList = mutableListOf<Int>()
     list.forEach {
         indexList.addAll(it.range.first..it.range.last)

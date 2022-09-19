@@ -164,6 +164,7 @@
     <string name="helper_text_attr_cant_be_empty">Attributes List Cannot be Empty</string>
     <string name="updating_setting">Update Settings</string>
     <string name="custom_invalid_version_number_field_regex">Regex for the field of invalid version name</string>
+    <string name="custom_include_version_number_field_regex">Regex for the field of mandatory include version name</string>
     <!-- File Manager -->
     <string name="pause">Pause</string>
     <string name="Continue">Continue</string>

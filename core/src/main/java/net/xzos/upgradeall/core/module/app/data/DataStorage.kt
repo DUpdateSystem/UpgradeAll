@@ -19,7 +19,14 @@ internal data class DataStorage(
 
     // Version 信息
     val versionMap: VersionMap =
-        runBlocking { VersionMap.new(appDatabase.invalidVersionNumberFieldRegexString) }
+        runBlocking {
+            appDatabase.run {
+                VersionMap.new(
+                    invalidVersionNumberFieldRegexString,
+                    includeVersionNumberFieldRegexString
+                )
+            }
+        }
 
     val serverApi = getServerApi()
 }

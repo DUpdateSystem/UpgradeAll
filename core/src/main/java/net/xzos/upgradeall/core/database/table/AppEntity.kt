@@ -20,6 +20,7 @@ data class AppEntity(
     @ColumnInfo(name = "name") var name: String,
     @ColumnInfo(name = "app_id") var appId: Map<String, String?>,
     @ColumnInfo(name = "invalid_version_number_field_regex") var invalidVersionNumberFieldRegexString: String? = null,
+    @ColumnInfo(name = "include_version_number_field_regex") var includeVersionNumberFieldRegexString: String? = null,
     @ColumnInfo(name = "ignore_version_number") var ignoreVersionNumber: String? = null,
     @ColumnInfo(name = "cloud_config") var cloudConfig: AppConfigGson? = null,
     @ColumnInfo(name = "enable_hub_list") var _enableHubUuidListString: String? = null,

@@ -50,6 +50,7 @@ class Updater internal constructor(
         return VersionInfo.new(
             appVersionInfo.name,
             appDatabase.invalidVersionNumberFieldRegexString,
+            appDatabase.includeVersionNumberFieldRegexString,
             appVersionInfo.extra,
         )
     }

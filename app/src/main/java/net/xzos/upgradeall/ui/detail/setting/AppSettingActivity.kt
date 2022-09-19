@@ -77,6 +77,8 @@ class AppSettingActivity : AppBarActivity() {
         val name = binding.nameEdit.text.toString()
         val invalidVersionNumberFieldRegex =
             binding.invalidVersionNumberFieldRegexEdit.text.toString()
+        val includeVersionNumberFieldRegex =
+            binding.includeVersionNumberFieldRegexEdit.text.toString()
         val appId = attrMap
         if (name.isBlank()) {
             binding.nameEdit.error = getString(R.string.helper_text_cant_be_empty)
@@ -89,10 +91,12 @@ class AppSettingActivity : AppBarActivity() {
         val appEntity = database?.apply {
             this.name = name
             this.invalidVersionNumberFieldRegexString = invalidVersionNumberFieldRegex
+            this.includeVersionNumberFieldRegexString = includeVersionNumberFieldRegex
             this.appId = appId
         } ?: AppEntity(
             name, appId,
-            invalidVersionNumberFieldRegexString = invalidVersionNumberFieldRegex
+            invalidVersionNumberFieldRegexString = invalidVersionNumberFieldRegex,
+            includeVersionNumberFieldRegexString = includeVersionNumberFieldRegex,
         )
         window?.let {
             binding.addButton.visibility = View.GONE
@@ -104,7 +108,11 @@ class AppSettingActivity : AppBarActivity() {
                     if (appEntityR != null)
                         finish()
                     else
-                        ToastUtil.showText(this@AppSettingActivity, R.string.failed_to_add, Toast.LENGTH_LONG)
+                        ToastUtil.showText(
+                            this@AppSettingActivity,
+                            R.string.failed_to_add,
+                            Toast.LENGTH_LONG
+                        )
                     binding.addButton.visibility = View.VISIBLE
                     binding.loadingBar.visibility = View.GONE
                 }
@@ -117,6 +125,7 @@ class AppSettingActivity : AppBarActivity() {
         database?.run {
             binding.nameEdit.setText(name)
             binding.invalidVersionNumberFieldRegexEdit.setText(invalidVersionNumberFieldRegexString)
+            binding.includeVersionNumberFieldRegexEdit.setText(includeVersionNumberFieldRegexString)
             appId.forEach {
                 viewModel.addItem(it.key, it.value)
             }
@@ -147,7 +156,11 @@ class AppSettingActivity : AppBarActivity() {
             // 刷新第三方源列表，获取支持的第三方源列表
             withContext(Dispatchers.Main) {
                 if (HubManager.getHubList().isEmpty()) {
-                    ToastUtil.showText(this@AppSettingActivity, R.string.add_something, Toast.LENGTH_LONG)
+                    ToastUtil.showText(
+                        this@AppSettingActivity,
+                        R.string.add_something,
+                        Toast.LENGTH_LONG
+                    )
                     finish()
                 }
             }
