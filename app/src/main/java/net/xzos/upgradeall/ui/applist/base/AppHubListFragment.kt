@@ -25,7 +25,7 @@ fun getAppHubListFragment(appType: String, tabIndex: TabIndex): Fragment {
         TabIndex.TAB_STAR -> StarAppHubListFragment()
         TabIndex.TAB_ALL -> NormalAppHubListFragment()
         else -> ApplicationsAppHubListFragment()
-    }.apply { arguments = bundle }
+    }.apply { setArguments(bundle) }
 }
 
 abstract class AppHubListFragment<L : BaseAppListItemView, LV : RecyclerViewHolder<L, *, ItemHubAppBinding>> :

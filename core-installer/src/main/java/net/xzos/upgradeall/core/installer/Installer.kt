@@ -21,6 +21,7 @@ object Installer {
                 FileType.MAGISK_MODULE -> MagiskModuleInstaller.install(
                     file, failedInstallObserverFun, completeInstallObserverFun
                 )
+                else -> {}
             }
         } else {
             if (fileType == FileType.APK)
