@@ -7,11 +7,13 @@ import com.aurora.gplayapi.exceptions.ApiException
 import com.aurora.gplayapi.helpers.AppDetailsHelper
 import com.aurora.gplayapi.helpers.AuthHelper
 import com.aurora.gplayapi.helpers.PurchaseHelper
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
-import net.xzos.upgradeall.core.utils.data_cache.utils.JsonObjectEncoder
+import net.xzos.upgradeall.core.utils.data_cache.utils.StringEncoder
 import net.xzos.upgradeall.core.utils.getLocale
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
@@ -23,23 +25,37 @@ import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
-import org.json.JSONObject
 
 class GooglePlay(
     dataCache: DataCacheManager, okhttpProxy: OkhttpProxy
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "65c2f60c-7d08-48b8-b4ba-ac6ee924f6fa"
 
-    private fun getAuthJson(url: String = "https://auroraoss.com/api/auth"): JSONObject? {
-        return dataCache.get("AuroraOSS_auth", SaveMode.DISK_ONLY, JsonObjectEncoder) {
+    private fun getAuthJson(data: ApiRequestData): Map<String, String?>? {
+        return data.auth[EMAIL_AUTH]?.let {
+            data.auth[TOKEN_AUTH]?.run {
+                mapOf(
+                    EMAIL_AUTH to data.auth[EMAIL_AUTH],
+                    TOKEN_AUTH to data.auth[TOKEN_AUTH]
+                )
+            }
+        } ?: getAuthJsonFromWeb(data.other.get(AUTH_SERVER) ?: "https://auroraoss.com/api/auth")
+    }
+
+    private fun getAuthJsonFromWeb(url: String): Map<String, String>? {
+        return dataCache.get("AuroraOSS_auth", SaveMode.DISK_ONLY, StringEncoder) {
             okhttpProxy.okhttpExecute(HttpRequestData(url))?.body?.string()
-                ?.let { JSONObject(it) }
+        }?.let {
+            return@let Gson().fromJson(it, object : TypeToken<Map<String, String>?>() {}.type)
         }
     }
 
-    private fun getAuthData(authJson: JSONObject, deviceName: String = "px_3a"): AuthData? {
-        val email = authJson.getString("email")
-        val auth = authJson.getString("auth")
+    private fun getAuthData(
+        authJson: Map<String, String?>,
+        deviceName: String = "px_3a"
+    ): AuthData? {
+        val email = authJson["email"] ?: return null
+        val auth = authJson["auth"] ?: return null
         Log.i(logObjectTag, TAG, "getAuthData: email: $email")
         val properties = DeviceManager.loadProperties("$deviceName.properties") ?: return null
         val locale = getLocale()
@@ -51,7 +67,7 @@ class GooglePlay(
     override fun getRelease(data: ApiRequestData): List<ReleaseGson>? {
         val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
         Log.i(logObjectTag, TAG, "getRelease: package: $appPackage")
-        val authJson = getAuthJson() ?: return null
+        val authJson = getAuthJson(data) ?: return null
         val authData = getAuthData(authJson) ?: return null
         val detailHelper = AppDetailsHelper(authData)
         val app = try {
@@ -82,7 +98,7 @@ class GooglePlay(
         assetGson: AssetGson?
     ): List<DownloadItem>? {
         val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
-        val authJson = getAuthJson() ?: return null
+        val authJson = getAuthJson(data) ?: return null
         val authData = getAuthData(authJson) ?: return null
         val detailHelper = AppDetailsHelper(authData)
         val app = detailHelper.getAppByPackageName(appPackage)
@@ -97,6 +113,11 @@ class GooglePlay(
 
     companion object {
         private const val TAG = "GooglePlay"
+
+        private const val EMAIL_AUTH = "email"
+        private const val TOKEN_AUTH = "auth"
+
+        private const val AUTH_SERVER = "auth_server"
         private val logObjectTag = ObjectTag(core, TAG)
     }
 }
