@@ -11,6 +11,7 @@ import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.md5
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
+import net.xzos.upgradeall.core.websdk.api.client_proxy.versionCode
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
@@ -64,14 +65,13 @@ internal class CoolApk(
             releaseList.add(
                 ReleaseGson(
                     versionNumber = versionName,
-                    extra = mapOf(VERSION_CODE to historyJson.getLong("versionCode")),
                     changelog = null,
                     assetGsonList = getHistoryDownloadUrl(
                         appPackage, aid, versionId, versionName
                     )?.let {
                         listOf(it)
                     } ?: emptyList()
-                )
+                ).versionCode(historyJson.getLong("versionCode"))
             )
         }
         return releaseList

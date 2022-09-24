@@ -1,8 +1,11 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
 import net.xzos.upgradeall.core.utils.asSequence
+import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
+import net.xzos.upgradeall.core.websdk.api.client_proxy.tryGetTimestamp
+import net.xzos.upgradeall.core.websdk.api.client_proxy.versionCode
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
@@ -35,6 +38,13 @@ internal class Github(
                     json.getString("tag_name")
                 else it
             }
+            val versionCode = data.other[VERSION_CODE_KEY]?.run {
+                try {
+                    json.optString(this).tryGetTimestamp()
+                } catch (e: Throwable) {
+                    null
+                }
+            }
             ReleaseGson(
                 versionNumber = name,
                 changelog = json.getString("body"),
@@ -45,11 +55,12 @@ internal class Github(
                         downloadUrl = it.getString("browser_download_url")
                     )
                 }.toList()
-            )
+            ).versionCode(versionCode)
         }.toList()
     }
 
     companion object {
         private const val VERSION_NUMBER_KEY = "version_number_key"
+        private const val VERSION_CODE_KEY = "version_code_key"
     }
 }

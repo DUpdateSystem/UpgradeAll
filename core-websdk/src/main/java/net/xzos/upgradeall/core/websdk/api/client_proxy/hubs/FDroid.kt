@@ -7,6 +7,7 @@ import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
 import net.xzos.upgradeall.core.websdk.api.client_proxy.XmlEncoder
+import net.xzos.upgradeall.core.websdk.api.client_proxy.versionCode
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
@@ -35,14 +36,13 @@ class FDroid(
         return node.selectNodes("package").map {
             ReleaseGson(
                 versionNumber = it.valueOf("version"),
-                extra = mapOf(VERSION_CODE to it.numberValueOf("versioncode").toLong()),
                 changelog = changelog?.apply { changelog = null },
                 assetGsonList = listOf(
                     it.valueOf("apkname").let { name ->
                         AssetGson(name, APK_CONTENT_TYPE, "$url/$name")
                     }
                 )
-            )
+            ).versionCode(it.numberValueOf("versioncode"))
         }
     }
 

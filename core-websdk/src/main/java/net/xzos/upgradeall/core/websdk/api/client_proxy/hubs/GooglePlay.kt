@@ -19,6 +19,7 @@ import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
+import net.xzos.upgradeall.core.websdk.api.client_proxy.versionCode
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
@@ -79,7 +80,6 @@ class GooglePlay(
         return listOf(
             ReleaseGson(
                 versionNumber = app.versionName,
-                extra = mapOf(VERSION_CODE to app.versionCode),
                 changelog = app.changes,
                 assetGsonList = app.fileList.map {
                     AssetGson(
@@ -88,7 +88,7 @@ class GooglePlay(
                         downloadUrl = it.url,
                     )
                 }
-            )
+            ).versionCode(app.versionCode)
         )
     }
 
