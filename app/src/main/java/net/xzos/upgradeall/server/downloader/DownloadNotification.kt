@@ -272,9 +272,8 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
         return when {
             speed == -1L -> "0 b/s"
             speed < 1024L -> "$speed b/s"
-            1024L <= speed && speed < 1024 * 1024L -> "${speed / 1024} kb/s"
-            1024 * 1024L <= speed -> "${speed / (1024 * 1024)} mb/s"
-            else -> ""
+            speed < 1024 * 1024L -> "${speed / 1024} kb/s"
+            else -> "${speed / (1024 * 1024)} mb/s"
         }
     }
 

@@ -1,15 +1,14 @@
 package net.xzos.upgradeall.core.downloader.filedownloader.item.data
 
-import zlc.season.rxdownload4.manager.TaskManager
-import zlc.season.rxdownload4.manager.manager
-import zlc.season.rxdownload4.task.Task
+import net.xzos.upgradeall.core.downloader.filedownloader.item.DownloadWorker
+import java.io.File
 
 internal data class TaskData(
     val name: String,
     val filePath: String,
     val url: String,
     val headers: MutableMap<String, String> = mutableMapOf(),
-    var autoRetryMaxAttempts: Int? = null,
+    var autoRetryMaxAttempts: Int = 0,
 ) {
     fun header(key: String, value: String) = this.apply {
         this.headers[key] = value
@@ -24,7 +23,8 @@ internal data class TaskData(
     }
 }
 
-internal fun TaskData.manager(): TaskManager {
-    val task = Task(url, name, saveName = name, savePath = filePath)
-    return task.manager(headers)
+internal fun TaskData.file() = File(filePath)
+
+internal fun TaskData.manager(): DownloadWorker {
+    return DownloadWorker(this)
 }

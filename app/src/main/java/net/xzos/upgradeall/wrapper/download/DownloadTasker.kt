@@ -79,12 +79,12 @@ class DownloadTasker(
             }
             changed(getFileTaskerSnap(DownloadTaskerStatus.EXTERNAL_DOWNLOAD))
         } else {
-            val downloader = setDownload(
+            downloader = setDownload(
                 downloadInfoList.map { it.getDownloadInfoItem(name) },
                 DOWNLOAD_EXTRA_CACHE_DIR
-            )
-            startDownloader(downloader)
-            this.downloader = downloader
+            ).apply {
+                startDownloader(this)
+            }
         }
     }
 

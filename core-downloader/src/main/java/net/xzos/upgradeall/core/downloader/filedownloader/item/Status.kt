@@ -12,27 +12,30 @@ enum class Status : Tag {
     FAIL,
 }
 
-class TaskSnap(
+data class TaskSnap(
     val status: Status,
-    var downloadSize: Long = 0,
-    var totalSize: Long = 0,
+    val downloadSize: Long = 0,
+    val totalSize: Long = 0,
 ) {
-    internal val time = System.currentTimeMillis() / 1000L
+    internal val time = System.currentTimeMillis()
     var speed = 0L
 
-    fun speed(speed: Long) {
-        this.speed = speed
+    fun speed(snap: TaskSnap): TaskSnap {
+        this.speed = countSpeed(snap)
+        return this
+    }
+
+    companion object {
+        private fun TaskSnap.countSpeed(snap: TaskSnap): Long {
+            val downloaded = downloadSize - snap.downloadSize
+            val time = time - snap.time
+            return if (time == 0L) snap.speed else (downloaded / time) * 1000L
+        }
+
     }
 }
 
 fun getNoneTaskSnap() = TaskSnap(Status.NONE)
 
-fun TaskSnap.progress() = if (totalSize == 0L) 0
-else (downloadSize / totalSize) * 100
-
-fun TaskSnap.countSpeed(snap: TaskSnap) {
-    val downloaded = downloadSize - snap.downloadSize
-    val time = time - snap.time
-    val speed = if (time == 0L) snap.speed else downloaded / time
-    speed(speed)
-}
+fun TaskSnap.progress() = if (totalSize <= 0L) 0.toFloat()
+else (downloadSize.toFloat() / totalSize.toFloat()) * 100

@@ -9,9 +9,6 @@ import net.xzos.upgradeall.core.downloader.filedownloader.item.data.manager
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.oberver.InformerNoTag
-import zlc.season.rxdownload4.manager.delete
-import zlc.season.rxdownload4.manager.start
-import zlc.season.rxdownload4.manager.stop
 import java.io.File
 
 

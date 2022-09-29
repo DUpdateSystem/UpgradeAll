@@ -52,13 +52,14 @@ class DownloadTaskerSnap(
 
 fun DownloadTaskerSnap?.status() = this?.status ?: DownloadTaskerStatus.NONE
 
-fun DownloadTaskerSnap.progress(): Long {
-    var progress = 0L
+fun DownloadTaskerSnap.progress(): Float {
+    var downloadSize: Long = 0
+    var totalSize: Long = 0
     snapList.forEach {
-        progress += it.progress()
+        downloadSize += it.downloadSize
+        totalSize += it.totalSize
     }
-    return if (progress == 0L) 0
-    else progress / snapList.size
+    return TaskSnap(Status.NONE, downloadSize, totalSize).progress()
 }
 
 fun DownloadTaskerSnap.speed(): Long {
