@@ -38,7 +38,7 @@ class DataCacheManager(var config: CacheConfig) {
         key: String, saveMode: SaveMode, encoder: Encoder<E>?,
         nullable: Boolean = false, renewFun: () -> E? = { null }
     ): E? {
-        val cache = getCache<E>(key)
+        val cache = getCache<E>(key, saveMode)
         if (cache?.checkValid(config.defExpires) == true) {
             cache.read(encoder).let {
                 if (it != null || nullable) return it
@@ -49,9 +49,13 @@ class DataCacheManager(var config: CacheConfig) {
         }
     }
 
-    private fun <T> getCache(key: String): AnyMemoryCache<T>? =
+    private fun <T> getCache(key: String, saveMode: SaveMode): AnyMemoryCache<T>? =
         try {
-            cacheContainer.get(key)
+            cacheContainer.get(key) ?: kotlin.run {
+                if (saveMode != SaveMode.MEMORY_ONLY)
+                    cacheContainer.create(key, saveMode)
+                else null
+            }
         } catch (e: NoCacheError) {
             null
         }
@@ -71,10 +75,12 @@ class DataCacheManager(var config: CacheConfig) {
 
             fun <T> getCache(key: String): AnyMemoryCache<T>? {
                 return anyCacheMap[key]?.takeIf { cache ->
-                    (config.autoRemove && cache.checkValid(config.defExpires)).also {
-                        if (it) remove(cache.key)
+                    (cache.checkValid(config.defExpires)).also {
+                        if (!it && config.autoRemove) remove(cache.key)
                     }
-                }?.let { it as AnyMemoryCache<T> }
+                }?.let {
+                    it as AnyMemoryCache<T>
+                }
             }
 
             fun <T> create(_key: String, saveMode: SaveMode): AnyMemoryCache<T> {
