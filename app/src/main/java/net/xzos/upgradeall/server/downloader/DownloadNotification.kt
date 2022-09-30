@@ -9,9 +9,6 @@ import android.os.Build
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
@@ -20,7 +17,6 @@ import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.log.msg
-import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.getNotificationManager
 import net.xzos.upgradeall.wrapper.download.*
 import java.io.File
@@ -29,8 +25,11 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
 
     private val notificationIndex: Int = getNotificationIndex()
 
+    private var timestamp = 0L
+
     private val builder = NotificationCompat.Builder(context, DOWNLOAD_CHANNEL_ID).apply {
         priority = NotificationCompat.PRIORITY_LOW
+        setOnlyAlertOnce(true)
     }
 
     init {
@@ -56,7 +55,8 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
                     DownloadTaskerStatus.EXTERNAL_DOWNLOAD -> taskCancel()
                     DownloadTaskerStatus.STARTED -> taskStart(it)
                     DownloadTaskerStatus.DOWNLOAD_START -> taskRunning(it)
-                    DownloadTaskerStatus.DOWNLOAD_RUNNING -> taskRunning(it)
+                    DownloadTaskerStatus.DOWNLOAD_RUNNING -> if (checkTimestamp(200))
+                        taskRunning(it)
                     DownloadTaskerStatus.DOWNLOAD_STOP -> taskPause()
                     DownloadTaskerStatus.DOWNLOAD_COMPLETE -> taskComplete(it)
                     DownloadTaskerStatus.DOWNLOAD_CANCEL -> taskCancel()
@@ -179,36 +179,29 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
         val fileType = downloadTasker.fileType
         val fileList = downloadTasker.getFileList()
         showManualMenuNotification(fileList, fileType)
-        if (fileType != FileType.UNKNOWN && PreferencesMap.auto_install) {
-            GlobalScope.launch {
-                installFileTasker(context, downloadTasker, this@DownloadNotification)
-            }
-        }
     }
 
     private fun showManualMenuNotification(fileList: List<File>, fileType: FileType?) {
+        val file = fileList.first()
+        val contentText = "${getString(R.string.file_path)}: $file"
         builder.clearActions().run {
-            val file = fileList.first()
             setContentTitle("${getString(R.string.download_complete)}: ${file.name}")
-            val contentText = "${getString(R.string.file_path)}: $file"
             setContentText(contentText)
             setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
             setSmallIcon(android.R.drawable.stat_sys_download_done)
             setProgress(0, 0, false)
             setNotificationCanGoing()
-            runBlocking {
-                if (fileType != null) {
-                    val extraText = when (fileType) {
-                        FileType.APK -> getString(R.string.apk)
-                        FileType.MAGISK_MODULE -> getString(R.string.magisk_module)
-                        else -> ""
-                    }
-                    addAction(
-                        R.drawable.ic_check_mark_circle,
-                        "${getString(R.string.install)} $extraText",
-                        getSnoozePendingIntent(DownloadBroadcastReceiver.INSTALL_APK)
-                    )
+            if (fileType != null) {
+                val extraText = when (fileType) {
+                    FileType.APK -> getString(R.string.apk)
+                    FileType.MAGISK_MODULE -> getString(R.string.magisk_module)
+                    else -> ""
                 }
+                addAction(
+                    R.drawable.ic_check_mark_circle,
+                    "${getString(R.string.install)} $extraText",
+                    getSnoozePendingIntent(DownloadBroadcastReceiver.INSTALL_APK)
+                )
             }
             addAction(
                 android.R.drawable.stat_sys_download_done, getString(R.string.open_file),
@@ -227,8 +220,11 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
     private fun getString(@StringRes resId: Int): CharSequence = context.getString(resId)
 
     private fun notificationNotify() {
+        timestamp = System.currentTimeMillis()
         notificationNotify(notificationIndex, builder.build())
     }
+
+    private fun checkTimestamp(limit: Long) = System.currentTimeMillis() - timestamp >= limit
 
     fun cancelNotification() {
         closed = true

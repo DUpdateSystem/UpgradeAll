@@ -5,8 +5,8 @@ import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskSnap
 import net.xzos.upgradeall.core.downloader.filedownloader.item.progress
 import net.xzos.upgradeall.core.utils.oberver.Tag
 
-enum class DownloadTaskerStatus(val msg: String? = null) : Tag {
-    NONE,
+enum class DownloadTaskerStatus(val msg: String) : Tag {
+    NONE("NONE"),
     INFO_RENEW("get download info"),
     INFO_COMPLETE("download info acquired"),
     INFO_FAILED("fail get download info"),
@@ -17,12 +17,12 @@ enum class DownloadTaskerStatus(val msg: String? = null) : Tag {
     EXTERNAL_DOWNLOAD("download external"),
 
     // 下载状态包装
-    DOWNLOAD_START,
-    DOWNLOAD_RUNNING,
-    DOWNLOAD_STOP,
-    DOWNLOAD_COMPLETE,
-    DOWNLOAD_CANCEL,
-    DOWNLOAD_FAIL
+    DOWNLOAD_START("download start"),
+    DOWNLOAD_RUNNING("downloading"),
+    DOWNLOAD_STOP("download stop"),
+    DOWNLOAD_COMPLETE("download complete"),
+    DOWNLOAD_CANCEL("download cancel"),
+    DOWNLOAD_FAIL("download fail")
 }
 
 fun Status.taskStatus() = when (this) {
