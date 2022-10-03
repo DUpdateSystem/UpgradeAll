@@ -1,6 +1,6 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
-import android.util.Base64
+import net.xzos.upgradeall.core.utils.base64
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
@@ -20,7 +20,9 @@ import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import okhttp3.Request
 import org.json.JSONObject
-import java.time.Instant
+import org.mindrot.jbcrypt.BCrypt
+import java.util.*
+
 
 internal class CoolApk(
     dataCache: DataCacheManager, okhttpProxy: OkhttpProxy
@@ -33,8 +35,8 @@ internal class CoolApk(
         val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
 
         // get latest
-        val detailUrl = "https://api.coolapk.com/v6/apk/detail?id=$appPackage"
-        val response = httpGet(detailUrl)
+        val detailUrl = "$apiUrl/v6/apk/detail?id=$appPackage"
+        @Suppress("SameParameterValue") val response = httpGet(detailUrl)
         val json = response?.body?.string()?.let { JSONObject(it) } ?: return null
         if (json.getOrNull("status", json::getInt) == -2) return emptyList()
         val detail = json.getOrNull("data", json::getJSONObject) ?: return null
@@ -53,7 +55,7 @@ internal class CoolApk(
         )
 
         // get history
-        val historyUrl = "https://api.coolapk.com/v6/apk/downloadVersionList?id=${aid}"
+        val historyUrl = "$apiUrl/v6/apk/downloadVersionList?id=${aid}"
         val historyResponse = httpGet(historyUrl)
         val historyJsonObject = historyResponse?.body?.string()?.let { JSONObject(it) }
             ?: return releaseList
@@ -78,7 +80,7 @@ internal class CoolApk(
     }
 
     private fun getLatestAsset(appPackage: String, aid: String, versionName: String): AssetGson? {
-        val url = "https://api.coolapk.com/v6/apk/download?pn=$appPackage&aid=$aid"
+        val url = "$apiUrl/v6/apk/download?pn=$appPackage&aid=$aid"
         val request = httpRedirects(url) ?: return null
         return getAsset(request, appPackage, versionName)
     }
@@ -86,8 +88,8 @@ internal class CoolApk(
     private fun getHistoryDownloadUrl(
         appPackage: String, aid: String, versionId: String, versionName: String
     ): AssetGson? {
-        val url =
-            "https://api.coolapk.com/v6/apk/downloadHistory?pn=$appPackage&aid=$aid&versionId=$versionId&downloadFrom=coolapk"
+        @Suppress("SameParameterValue") val url =
+            "$apiUrl/v6/apk/downloadHistory?pn=$appPackage&aid=$aid&versionId=$versionId&downloadFrom=coolapk"
         val request = httpRedirects(url) ?: return null
         return getAsset(request, appPackage, versionName)
     }
@@ -128,38 +130,95 @@ internal class CoolApk(
         private const val TAG = "CoolApk"
         private val logObjectTag = ObjectTag(core, TAG)
 
-        // 加密算法来自 https://github.com/ZCKun/CoolapkTokenCrack、https://zhuanlan.zhihu.com/p/69195418
+        // 加密算法来自 https://github.com/XiaoMengXinX/FuckCoolapkTokenV2、https://github.com/Coolapk-UWP/Coolapk-UWP
 
-        private val headerMap
-            get() = mapOf(
-                "User-Agent" to "Dalvik/2.1.0 (Linux; U; Android 9; MI 8 SE MIUI/9.5.9) (#Build; Xiaomi; MI 8 SE; PKQ1.181121.001; 9) +CoolMarket/9.2.2-1905301",
-                "X-App-Id" to "com.coolapk.market",
-                "X-Requested-With" to "XMLHttpRequest",
-                "X-Sdk-Int" to "28",
-                "X-Sdk-Locale" to "zh-CN",
-                "X-Api-Version" to "9",
-                "X-App-Version" to "9.2.2",
-                "X-App-Code" to "1903501",
-                "X-App-Device" to "QRTBCOgkUTgsTat9WYphFI7kWbvFWaYByO1YjOCdjOxAjOxEkOFJjODlDI7ATNxMjM5MTOxcjMwAjN0AyOxEjNwgDNxITM2kDMzcTOgsTZzkTZlJ2MwUDNhJ2MyYzM",
-                "Host" to "api.coolapk.com",
-                "X-Dark-Mode" to "0",
-                "X-App-Token" to getAppToken(),
+        private const val manufactor = "Google"
+        private const val brand = "Google"
+        private const val model = "Pixel 5a"
+        private const val buildNumber = "SQ1D.220105.007"
+
+        private fun getToken(): Pair<String, String> {
+            val randDeviceCode = createDeviceCode(
+                randHexString(16),
+                randMacAdress(),
+                manufactor,
+                brand,
+                model,
+                buildNumber
             )
+            return Pair(
+                randDeviceCode,
+                getTokenWithDeviceCode(randDeviceCode)
+            )
+        }
 
-        private const val DEVICE_ID = "55077056-48ee-46c8-80a6-2a21a9c5b12b"
+        private fun getTokenWithDeviceCode(deviceCode: String): String {
+            val timeStamp = "${System.currentTimeMillis() / 1000}"
+            val base64TimeStamp = timeStamp.base64()
+            val md5TimeStamp = timeStamp.md5()
+            val md5DeviceCode = deviceCode.md5()
 
-        private fun getAppToken(): String {
-            val t = Instant.now().epochSecond
-            val tHex = "0x${t.toString(16)}"
-            // 时间戳加密
-            val tMd5 = t.toString().md5()
-            // 不知道什么鬼字符串拼接
-            val a =
-                "token://com.coolapk.market/c67ef5943784d09750dcfbb31020f0ab?$tMd5$$DEVICE_ID&com.coolapk.market"
+            val token =
+                "token://com.coolapk.market/dcf01e569c1e3db93a3d0fcf191a622c?$md5TimeStamp$$md5DeviceCode&com.coolapk.market"
+            val base64Token = token.base64()
+            val md5Base64Token = base64Token.md5()
+            val md5Token = token.md5()
 
-            // 不知道什么鬼字符串拼接 后的字符串再次加密
-            val aMd5 = Base64.encodeToString(a.toByteArray(), Base64.NO_WRAP).md5()
-            return "$aMd5$DEVICE_ID$tHex"
+            val bcryptSalt =
+                "$2a$10$${base64TimeStamp.substring(0, 14)}/${md5Token.substring(0, 6)}u"
+
+            val bcryptresult = BCrypt.hashpw(md5Base64Token, bcryptSalt)
+            val reBcryptresult = bcryptresult.replaceRange(0, 3, "$2y")
+            return "v2${reBcryptresult.base64()}"
+        }
+
+        @Suppress("SameParameterValue")
+        private fun createDeviceCode(
+            aid: String,
+            mac: String,
+            manufactor: String,
+            brand: String,
+            model: String,
+            buildNumber: String
+        ) = "$aid; ; ; $mac; $manufactor; $brand; $model; $buildNumber".base64()
+
+        private val rand = Random()
+
+        private fun randHexString(@Suppress("SameParameterValue") n: Int): String {
+            rand.setSeed(System.currentTimeMillis())
+            return (0 until n).joinToString("") {
+                rand.nextInt(256).toString(16)
+            }.uppercase()
+        }
+
+        private fun randMacAdress() = (0 until 6).toList().joinToString(":") {
+            String.format("%02x", rand.nextInt(256))
         }
     }
+
+    // CoolAPK header
+    private val headerMap
+        get() = mapOf(
+            "User-Agent" to "Dalvik/2.1.0 (Linux; U; Android 9; MI 8 SE MIUI/9.5.9) (#Build; Xiaomi; MI 8 SE; PKQ1.181121.001; 9) +CoolMarket/12.4.2-2208241-universal",
+            "X-App-Id" to "com.coolapk.market",
+            "X-Requested-With" to "XMLHttpRequest",
+            "X-Sdk-Int" to "30",
+            "X-App-Mode" to "universal",
+            "X-App-Channel" to "coolapk",
+            "X-Sdk-Locale" to "zh-CN",
+            "X-App-Version" to "12.4.2",
+            "X-Api-Supported" to "2208241",
+            "X-App-Code" to "2208241",
+            "X-Api-Version" to "12",
+            "X-App-Device" to deviceCode,
+            "X-Dark-Mode" to "0",
+            "X-App-Token" to reqToken,
+        )
+
+
+    private val tokenPair = getToken()
+    private val deviceCode get() = tokenPair.first
+    private val reqToken get() = tokenPair.second
+
+    private val apiUrl = "https://api2.coolapk.com"
 }
