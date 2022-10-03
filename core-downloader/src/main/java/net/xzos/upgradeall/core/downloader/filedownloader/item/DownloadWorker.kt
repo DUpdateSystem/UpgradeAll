@@ -63,19 +63,35 @@ internal class DownloadWorker(
     private suspend fun testDownloadRange(): Boolean {
         return acceptRanges ?: kotlin.run {
             val client = client ?: return false
-            client.prepareHead(taskData.url) {
-                headers {
-                    append("Range", "0")
-                    taskData.headers.forEach { (k, v) ->
-                        append(k, v)
-                    }
-                }
-            }.execute().status.also {
-                Log.i(objectTag, TAG, "testDownloadRange: response status: $it")
-            } == HttpStatusCode.PartialContent
-        }.also {
-            acceptRanges = it
+            (testDownloadRangeByHead(client) || testDownloadRangeByFakeRange(client)).apply {
+                acceptRanges = this
+            }
         }
+    }
+
+    private suspend fun testDownloadRangeByHead(client: HttpClient): Boolean {
+        return client.prepareHead(taskData.url) {
+            headers {
+                taskData.headers.forEach { (k, v) ->
+                    append(k, v)
+                }
+            }
+        }.execute().headers["Accept-Ranges"].also {
+            Log.i(objectTag, TAG, "testDownloadRangeByHead: response Accept-Ranges: $it")
+        } !in listOf("none", null)
+    }
+
+    private suspend fun testDownloadRangeByFakeRange(client: HttpClient): Boolean {
+        return client.prepareHead(taskData.url) {
+            headers {
+                append("Range", "bytes=0-")
+                taskData.headers.forEach { (k, v) ->
+                    append(k, v)
+                }
+            }
+        }.execute().status.also {
+            Log.i(objectTag, TAG, "testDownloadRangeByFakeRange: response status: $it")
+        } == HttpStatusCode.PartialContent
     }
 
     private fun launchDownloader() {
@@ -124,7 +140,7 @@ internal class DownloadWorker(
     private fun HttpRequestBuilder.headers() {
         headers {
             if (acceptRanges!!) {
-                append("Range", "bytes=${taskData.file().length()}")
+                append("Range", "bytes=${taskData.file().length()}-")
             }
             taskData.headers.forEach { (k, v) ->
                 append(k, v)
