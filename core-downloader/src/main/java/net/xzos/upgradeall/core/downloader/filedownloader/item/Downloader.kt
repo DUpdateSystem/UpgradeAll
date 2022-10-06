@@ -85,8 +85,8 @@ class Downloader internal constructor(
     }
 
     fun resume(tasker: TaskWrapper? = null) {
-        tasker?.also { it.manager.start() }
-            ?: taskList.forEach { it.manager.start() }
+        tasker?.also { it.manager.resume() }
+            ?: taskList.forEach { it.manager.resume() }
     }
 
     fun pause(tasker: TaskWrapper? = null) {

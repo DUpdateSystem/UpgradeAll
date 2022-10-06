@@ -28,13 +28,7 @@ internal class DownloadWorker(
     private var acceptRanges: Boolean? = null
 
     fun start() {
-        client = HttpClient {
-            install(HttpRequestRetry) {
-                retryOnServerErrors(maxRetries = taskData.autoRetryMaxAttempts)
-                exponentialDelay()
-            }
-        }
-
+        boot()
         resume()
     }
 
@@ -50,14 +44,30 @@ internal class DownloadWorker(
 
     fun cancel() {
         job?.cancel()?.also {
-            client?.close()
             notifyChanged(TaskSnap(Status.CANCEL))
         }
+        shutdown()
     }
 
     fun delete() {
         cancel()
         taskData.file().delete()
+    }
+
+    private fun boot() {
+        if (client == null) {
+            client = HttpClient {
+                install(HttpRequestRetry) {
+                    retryOnServerErrors(maxRetries = taskData.autoRetryMaxAttempts)
+                    exponentialDelay()
+                }
+            }
+        }
+    }
+
+    private fun shutdown() {
+        client?.close()
+        client = null
     }
 
     private suspend fun testDownloadRange(): Boolean {
@@ -101,6 +111,8 @@ internal class DownloadWorker(
             } catch (e: Throwable) {
                 Log.e(objectTag, TAG, e.msg())
                 notifyChanged(TaskSnap(Status.FAIL))
+            } finally {
+                shutdown()
             }
         }
     }
