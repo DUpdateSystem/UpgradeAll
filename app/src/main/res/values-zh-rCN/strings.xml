@@ -14,7 +14,8 @@
     <string name="delete">删除</string>
     <string name="edit">编辑</string>
     <string name="background_sync_time">后台数据刷新时间(h)</string>
-    <string name="background_sync_time_desc">软件在后台检查更新的周期\n若周期为0，则禁用后台更新检查</string>
+    <string name="background_sync_time_desc">软件在后台检查更新的周期
+\n若周期为0，则禁用后台更新检查</string>
     <string name="cloud_rules_repo_url">Git 仓库地址</string>
     <string name="update_server_url">升级服务 URL</string>
     <string name="menu_search">搜索</string>
