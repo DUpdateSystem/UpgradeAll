@@ -14,7 +14,8 @@
     <string name="delete">Удалить</string>
     <string name="edit">Редактировать</string>
     <string name="background_sync_time">Время фоновой синхронизации (h)</string>
-    <string name="background_sync_time_desc">Время проверки обновления.\nЕсли значение равно 0, то проверка фонового обновления будет отключена.</string>
+    <string name="background_sync_time_desc">Время проверки обновления.
+\nЕсли значение равно 0, то проверка фонового обновления будет отключена.</string>
     <string name="cloud_rules_repo_url">Правила URL репозитория в облаке</string>
     <string name="update_server_url">Обновить URL сервера</string>
     <string name="menu_search">Поиск</string>
