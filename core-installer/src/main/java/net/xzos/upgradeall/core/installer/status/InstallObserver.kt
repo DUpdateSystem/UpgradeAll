@@ -18,14 +18,7 @@ internal object InstallObserver : InformerNoArg<(PackageInfoData)>() {
 
     fun observeInstall(file: File, context: Context, observerFun: FuncNoArg) {
         val key = file.getPackageInfo(context)?.observeKey() ?: return
-        if (key != null) {
-            observe(key, observerFun = observerFun)
-        } else {
-            val watchdog = WatchdogItem(30).apply {
-                addStopListener(observerFun)
-            }
-            watchdog.start()
-        }
+        observe(key, observerFun = observerFun)
     }
 
     fun notifyComplete(packageInfo: PackageInfo) {

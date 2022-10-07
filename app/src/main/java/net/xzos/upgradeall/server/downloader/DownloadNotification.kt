@@ -40,7 +40,11 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
 
     private val mutex = Mutex()
 
-    fun registerNotify(wrapper: DownloadTasker) {
+    init {
+        registerNotify(downloadTasker)
+    }
+
+    private fun registerNotify(wrapper: DownloadTasker) {
         DownloadNotificationManager.addNotification(wrapper, this)
         wrapper.observe(checkerRunFun = { !closed }, observerFun = {
             mutex.runWithLock {
@@ -239,10 +243,7 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
                 DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_CONTROL,
                 extraIdentifierDownloadControlId
             )
-            putExtra(
-                DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_ID,
-                downloadTasker.toString()
-            )
+            putExtra(DownloadBroadcastReceiver.EXTRA_IDENTIFIER_FILE_TASKER_ID, downloadTasker.id)
         }
     }
 

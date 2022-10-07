@@ -10,9 +10,10 @@ suspend fun startDownload(
     app: App, wrapper: AssetWrapper
 ): DownloadTasker {
     val downloadTasker = DownloadTasker(app, wrapper)
-    DownloadNotification(downloadTasker).apply {
-        registerNotify(downloadTasker)
-    }
+    // register
+    DownloadNotification(downloadTasker)
+    DownloadTaskerManager.register(downloadTasker)
+    //start
     downloadTasker.start(context, externalDownload)
     return downloadTasker
 }

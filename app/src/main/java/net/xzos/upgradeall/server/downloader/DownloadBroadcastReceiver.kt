@@ -8,7 +8,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.wrapper.download.DownloadTaskerManager
-import net.xzos.upgradeall.wrapper.download.installFileTasker
+import net.xzos.upgradeall.wrapper.download.install
 
 class DownloadBroadcastReceiver : BroadcastReceiver() {
 
@@ -21,16 +21,10 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
             DOWNLOAD_RETRY -> downloader.retry()
             DOWNLOAD_PAUSE -> downloader.pause()
             DOWNLOAD_CONTINUE -> downloader.resume()
-            DOWNLOAD_CANCEL -> {
-                notification.cancelNotification()
-                downloader.cancel()
-            }
+            DOWNLOAD_CANCEL -> downloader.cancel()
             NOTIFY_CANCEL -> notification.cancelNotification()
             INSTALL_APK -> GlobalScope.launch {
-                installFileTasker(
-                    context, fileTasker,
-                    notification
-                )
+                fileTasker.install()
             }
             OPEN_FILE -> Log.i("Download", "open file: TODO")
         }

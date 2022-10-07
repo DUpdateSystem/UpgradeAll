@@ -1,47 +1,48 @@
 package net.xzos.upgradeall.wrapper.download
 
-import net.xzos.upgradeall.core.downloader.filedownloader.DownloaderManager
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
+import net.xzos.upgradeall.data.PreferencesMap
 
 object DownloadTaskerManager {
 
-    private val map = coroutinesMutableMapOf<Any, DownloadTasker>()
+    private val map = coroutinesMutableMapOf<String, DownloadTasker>(true)
 
     fun getFileTaskerList() = map.values
 
-    fun addFileTasker(
-        owner: Any, downloadTasker: DownloadTasker
-    ) = if (getFileTasker(owner) != null)
-        map.put(owner, downloadTasker).let { true }
-    else false
-
-    fun getFileTasker(id: String): DownloadTasker? {
-        getFileTaskerList().forEach {
-            if (it.toString() == id)
-                return it
-        }
-        return null
+    fun register(downloadTasker: DownloadTasker) {
+        addFileTasker(downloadTasker)
+        downloadTasker.observe(
+            checkerRunFun = { getFileTaskerList().contains(downloadTasker) },
+            observerFun = {
+                when (it.status()) {
+                    DownloadTaskerStatus.INFO_RENEW -> {}
+                    DownloadTaskerStatus.WAIT_START -> {}
+                    DownloadTaskerStatus.START_FAIL -> {}
+                    DownloadTaskerStatus.EXTERNAL_DOWNLOAD -> removeFileTasker(downloadTasker)
+                    DownloadTaskerStatus.STARTED -> {}
+                    DownloadTaskerStatus.DOWNLOAD_START -> {}
+                    DownloadTaskerStatus.DOWNLOAD_RUNNING -> {}
+                    DownloadTaskerStatus.DOWNLOAD_STOP -> {}
+                    DownloadTaskerStatus.DOWNLOAD_COMPLETE -> {
+                        if (PreferencesMap.auto_install)
+                            GlobalScope.launch { downloadTasker.install() }
+                    }
+                    DownloadTaskerStatus.DOWNLOAD_CANCEL -> removeFileTasker(downloadTasker)
+                    DownloadTaskerStatus.DOWNLOAD_FAIL -> {}
+                    DownloadTaskerStatus.NONE -> {}
+                    DownloadTaskerStatus.INFO_COMPLETE -> {}
+                    DownloadTaskerStatus.INFO_FAILED -> {}
+                    DownloadTaskerStatus.IN_DOWNLOAD -> {}
+                }
+            })
     }
 
-    fun getFileTasker(owner: Any): DownloadTasker? {
-        return map.getOrDefault(owner, null)
-    }
+    private fun addFileTasker(downloadTasker: DownloadTasker) =
+        map.put(downloadTasker.id, downloadTasker)
 
-    fun removeFileTasker(owner: Any) = map.remove(owner)?.also {
-        it.downloader?.run { DownloaderManager.removeDownloader(this) }
-    }
+    fun removeFileTasker(downloadTasker: DownloadTasker) = map.remove(downloadTasker.id)
 
-    fun removeFileTasker(downloadTasker: DownloadTasker) {
-        downloadTasker.downloader?.removeFile()
-        var owner: Any? = null
-        for (item in map.iterator()) {
-            if (item.value == downloadTasker) {
-                owner = item.key
-                break
-            }
-        }
-        owner?.let {
-            removeFileTasker(owner)
-        }
-    }
+    fun getFileTasker(id: String): DownloadTasker? = map[id]
 }

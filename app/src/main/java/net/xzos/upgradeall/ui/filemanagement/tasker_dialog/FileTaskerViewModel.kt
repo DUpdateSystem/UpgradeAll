@@ -112,7 +112,7 @@ class FileTaskerViewModel : ObservableViewModel() {
 
     fun onInstall(context: Context) {
         GlobalScope.launch {
-            installFileTasker(context, fileTasker)
+            fileTasker.install(context)
         }
     }
 

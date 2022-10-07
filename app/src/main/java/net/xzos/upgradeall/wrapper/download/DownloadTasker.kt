@@ -2,11 +2,9 @@ package net.xzos.upgradeall.wrapper.download
 
 import android.content.Context
 import net.xzos.upgradeall.core.database.table.extra_hub.ExtraHubEntityManager
-import net.xzos.upgradeall.core.downloader.filedownloader.DownloaderManager
 import net.xzos.upgradeall.core.downloader.filedownloader.item.Downloader
 import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskSnap
 import net.xzos.upgradeall.core.downloader.filedownloader.item.data.InputData
-import net.xzos.upgradeall.core.downloader.filedownloader.newDownloader
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version.AssetWrapper
@@ -22,6 +20,7 @@ import java.io.File
 class DownloadTasker(
     val app: App, private val wrapper: AssetWrapper
 ) : InformerNoTag<DownloadTaskerSnap>() {
+    val id: String by lazy { "${app.hashCode()}:${wrapper.hashCode()}" }
     private val assetIndex = wrapper.assetIndex
     val name = wrapper.asset.fileName
     var snap: DownloadTaskerSnap? = null
@@ -89,7 +88,7 @@ class DownloadTasker(
     }
 
     private fun setDownload(dataList: List<InputData>, dir: File): Downloader {
-        return DownloaderManager.newDownloader(dir).apply {
+        return Downloader(dir).apply {
             dataList.forEach { addTask(it) }
         }.also { d ->
             d.observe {

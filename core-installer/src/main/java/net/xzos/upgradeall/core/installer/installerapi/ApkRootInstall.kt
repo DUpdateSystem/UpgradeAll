@@ -74,7 +74,7 @@ object ApkRootInstall {
 
     private fun runSuShellCommand(command: String): ShellResult? {
         return try {
-            CoreShell.runSuShellCommand(command)?.also {
+            CoreShell.runSuShellCommand(command).also {
                 if (it.exitCode != 0)
                     Log.e(
                         logObjectTag, TAG,

@@ -13,9 +13,7 @@ import java.io.File
 
 
 /* 下载管理 */
-class Downloader internal constructor(
-    downloadDir: File,
-) : InformerNoTag<Status>() {
+class Downloader(downloadDir: File) : InformerNoTag<Status>() {
 
     val id by lazy { hashCode() }
 
@@ -26,11 +24,6 @@ class Downloader internal constructor(
 
     private fun notifyStatus() {
         notifyChanged(status())
-    }
-
-    fun removeFile() {
-        delTask()
-        downloadFile.delete()
     }
 
     fun addTask(inputData: InputData) {
@@ -45,7 +38,8 @@ class Downloader internal constructor(
             totalSize += status.totalSize
             downloadedSize += status.downloadSize
         }
-        return downloadedSize / totalSize * 100
+        return if (totalSize == 0L) return 0
+        else downloadedSize / totalSize * 100
     }
 
     fun getTaskList(): List<TaskWrapper> {
@@ -102,10 +96,6 @@ class Downloader internal constructor(
     fun cancel(tasker: TaskWrapper? = null) {
         tasker?.also { it.manager.delete() }
             ?: taskList.forEach { it.manager.delete() }
-    }
-
-    private fun delTask() {
-        taskList.forEach { it.manager.delete() }
         downloadFile.delete()
     }
 

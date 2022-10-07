@@ -2,6 +2,7 @@ package net.xzos.upgradeall.wrapper.download
 
 import android.content.Context
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.application.MyApplication.Companion.context
 import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.downloader.filedownloader.item.data.InputData
@@ -12,7 +13,7 @@ import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.core.utils.oberver.Func
 import net.xzos.upgradeall.core.utils.oberver.FuncNoArg
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
-import net.xzos.upgradeall.server.downloader.DownloadNotification
+import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.downloader.DownloadNotificationManager
 
 fun DownloadItem.getDownloadInfoItem(defName: String): InputData {
@@ -34,16 +35,16 @@ suspend fun DownloadTasker.install(
     )
 }
 
-suspend fun installFileTasker(
-    context: Context, downloadTasker: DownloadTasker,
-    notification: DownloadNotification? = DownloadNotificationManager.getNotification(downloadTasker)
+suspend fun DownloadTasker.install(
+    context: Context = MyApplication.context
 ) {
-    downloadTasker.install(context, downloadTasker.fileType, {
+    install(context, fileType, {
         ToastUtil.showText(
             context, "${context.getString(R.string.install_failed)}: ${it.msg()}"
         )
     }, {
-        notification?.cancelNotification()
+        DownloadNotificationManager.getNotification(this)?.cancelNotification()
         ToastUtil.showText(context, R.string.install_success)
+        if (PreferencesMap.auto_delete_file) downloader?.cancel()
     })
 }
