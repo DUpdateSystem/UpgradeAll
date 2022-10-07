@@ -14,7 +14,8 @@
     <string name="delete">Sil</string>
     <string name="edit">Düzenle</string>
     <string name="background_sync_time">Arkaplan senkronizasyon zamanı (saat)</string>
-    <string name="background_sync_time_desc">Güncellemenin geri dönüş süresi kontrol edilir.\nIf değeri 0\'dır, arka plan güncelleştirme denetimi devre dışı bırakılır.</string>
+    <string name="background_sync_time_desc">Güncellemenin geri dönüş süresi kontrol edilir.
+\nIf değeri 0\'dır, arka plan güncelleştirme denetimi devre dışı bırakılır.</string>
     <string name="cloud_rules_repo_url">Bulut Kuralları depo URL\'si</string>
     <string name="update_server_url">Sunucu URL\'sini güncelle</string>
     <string name="menu_search">Ara</string>
