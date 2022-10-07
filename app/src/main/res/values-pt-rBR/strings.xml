@@ -14,7 +14,8 @@
     <string name="delete">Excluir</string>
     <string name="edit">Editar</string>
     <string name="background_sync_time">Tempo de sincronização em segundo plano (h)</string>
-    <string name="background_sync_time_desc">O tempo de resposta para verificar a atualização.\nSe o valor for 0, a verificação de atualizações em segundo plano será desativada.</string>
+    <string name="background_sync_time_desc">O tempo de resposta para verificar a atualização.
+\nSe o valor for 0, a verificação de atualizações em segundo plano será desativada.</string>
     <string name="cloud_rules_repo_url">URL do repositório de regras da Nuvem</string>
     <string name="update_server_url">Atualizar URL do servidor</string>
     <string name="menu_search">Buscar</string>
