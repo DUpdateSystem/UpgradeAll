@@ -12,7 +12,7 @@ English | [简体中文](./source/RDME_zh.md)
 Check updates for Android apps, Magisk modules and more!
 <br><br>
 [![Android CI](https://github.com/DUpdateSystem/UpgradeAll/actions/workflows/android.yml/badge.svg)](https://github.com/DUpdateSystem/UpgradeAll/actions/workflows/android.yml)
-[![Crowdin](https://badges.crowdin.net/upgradeall/localized.svg)](https://crowdin.com/project/upgradeall)
+[![Weblate](https://hosted.weblate.org/widgets/upgradeall/-/upgradeall/svg-badge.svg)](https://hosted.weblate.org/projects/upgradeall/)
 
 </div>
 
@@ -109,7 +109,7 @@ Currently, the following sources are officially supported:
 
 If you are familier with multiple languages, please help us introduce the App to the whole world!
 ### ℹ️ How to translate UpgradeAll into your language?
-You can help us translate this project on [Crowdin](https://crowdin.com/project/upgradeall).
+You can help us translate this project on ~~[Crowdin](https://crowdin.com/project/upgradeall)~~ [Weblate](https://hosted.weblate.org/projects/upgradeall/).
 
 
 ## 📖 License

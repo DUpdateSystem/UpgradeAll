@@ -12,7 +12,7 @@
 检查 Android 应用，Magisk 模块以及其他更新！
 <br><br>
 [![Release Builder](https://github.com/DUpdateSystem/UpgradeAll/actions/workflows/android.yml/badge.svg)](https://github.com/DUpdateSystem/UpgradeAll/actions/workflows/android.yml)
-[![Crowdin](https://badges.crowdin.net/upgradeall/localized.svg)](https://crowdin.com/project/upgradeall)
+[![Weblate](https://hosted.weblate.org/widgets/upgradeall/-/upgradeall/svg-badge.svg)](https://hosted.weblate.org/projects/upgradeall/)
 
 </div>
 
@@ -110,7 +110,7 @@
 
 ### ℹ️ 如何将 UpgradeAll 翻译成您熟悉的语言？
 
-你可以在 [Crowdin](https://crowdin.com/project/upgradeall) 上翻译它。
+你可以在 ~~[Crowdin](https://crowdin.com/project/upgradeall)~~ [Weblate](https://hosted.weblate.org/projects/upgradeall/) 上翻译它。
 
 ## 📖 许可证
 使用此软件代码需**遵循以下许可证协议**：  
