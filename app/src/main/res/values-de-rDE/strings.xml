@@ -14,7 +14,8 @@
     <string name="delete">Löschen</string>
     <string name="edit">Bearbeiten</string>
     <string name="background_sync_time">Hintergrund Sync Zeit (h)</string>
-    <string name="background_sync_time_desc">Die Bearbeitungszeit des Updates.\nWenn der Wert 0 ist, wird die Hintergrund-Update-Prüfung deaktiviert.</string>
+    <string name="background_sync_time_desc">Die Bearbeitungszeit des Updates.
+\nWenn der Wert 0 ist, wird die Hintergrund-Update-Prüfung deaktiviert.</string>
     <string name="cloud_rules_repo_url">Cloud-Regeln Repo URL</string>
     <string name="update_server_url">Server-URL aktualisieren</string>
     <string name="menu_search">Suchen</string>
