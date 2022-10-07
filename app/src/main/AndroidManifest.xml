@@ -29,11 +29,6 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
         <activity
-            android:name=".ui.detail.setting.NeoAppSettingActivity"
-            android:exported="false"
-            android:label="@string/title_activity_neo_app_setting"
-            android:theme="@style/AppTheme" />
-        <activity
             android:name=".ui.restore.RestoreActivity"
             android:exported="false" />
 
@@ -53,6 +48,21 @@
             android:permission="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE">
             <intent-filter>
                 <action android:name="net.xzos.upgradeAll.DOWNLOAD_BROADCAST" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="net.xzos.upgradeall.core.installer.status.AppInstallReceiver"
+            android:exported="true">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_CHANGED" />
+                <action android:name="android.intent.action.PACKAGE_INSTALL" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
 

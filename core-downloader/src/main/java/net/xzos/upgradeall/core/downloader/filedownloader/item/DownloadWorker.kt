@@ -141,11 +141,12 @@ internal class DownloadWorker(
                     notifyChanged(TaskSnap(Status.RUNNING, file.length(), totalSize))
                 }
             }
+            if (file.length() == totalSize)
+                notifyChanged(TaskSnap(Status.COMPLETE, file.length(), totalSize))
             Log.i(
                 objectTag, TAG,
                 "startDownload: Finally received ${file.length()} bytes from ${httpResponse.contentLength()}"
             )
-            notifyChanged(TaskSnap(Status.COMPLETE, file.length(), totalSize))
         }
     }
 
