@@ -49,7 +49,7 @@ dependencies {
     implementation "androidx.documentfile:documentfile:1.0.1"
 
     // Shizuku
-    def shizuku_version = '12.1.0'
+    def shizuku_version = '12.2.0'
     implementation "dev.rikka.shizuku:api:$shizuku_version"
     // add this if you want to support Shizuku
     implementation "dev.rikka.shizuku:provider:$shizuku_version"
