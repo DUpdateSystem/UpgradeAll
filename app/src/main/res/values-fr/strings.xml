@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="update">Mise à jour</string>
+    <string name="name">Nom</string>
+    <string name="basic_info">Infos de base</string>
+    <string name="versioning_check_setting">Réglage du contrôle de version</string>
+    <string name="delete">Supprimer</string>
+    <string name="edit">Modifier</string>
+    <string name="background_sync_time">Fréquence de synchronisation du fond (h)</string>
+    <string name="data_expiration_time">Temps d\'expiration du cache de données (min)</string>
+    <string name="app">Appli</string>
+    <string name="help">Aide</string>
+    <string name="backup">Sauvegarde</string>
+    <string name="user_star">Étoile</string>
+    <string name="restore">Restaurer</string>
+    <string name="background_sync_time_desc">Intervalle de temps de la vérification de la mise à jour en arrière-plan.
+\nDésactivé pour la valeur 0.</string>
+</resources>

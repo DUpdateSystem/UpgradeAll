@@ -15,7 +15,8 @@
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="background_sync_time">Background Sync Frequency (hr)</string>
-    <string name="background_sync_time_desc">Time interval of background update check.\nDisabled for value 0.</string>
+    <string name="background_sync_time_desc">Time interval of background update check.
+\nDisabled for value 0.</string>
     <string name="data_expiration_time">Data cache expiration time (min)</string>
     <string name="data_expiration_time_desc">The expiration time of the cache of version number data obtained from the web.\nDisabled for value 0(debug only).</string>
     <string name="cloud_rules_repo_url">Rule Subscription Repo URL</string>
