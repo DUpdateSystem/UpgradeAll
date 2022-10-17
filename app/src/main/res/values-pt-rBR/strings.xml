@@ -24,7 +24,7 @@
     <string name="install_success">Instalação concluída</string>
     <string name="install_failed">Instalação falhou</string>
     <string name="auto_install">Instalação automática</string>
-    <string name="installing">Instalando: </string>
+    <string name="installing">Instalando:</string>
     <string name="install_apk_api">Instalar método APK</string>
     <string name="user_download_path">Caminho de transferência do usuário</string>
     <string name="download_thread_num">Baixar número do tópico</string>
@@ -46,7 +46,7 @@
     <string name="clean_log">Limpar Registros</string>
     <string name="background_image">Imagem de fundo</string>
     <string name="apps_logo">Logotipo do aplicativo</string>
-    <string name="nothing_in_there"><![CDATA[Não há nada aqui.(>﹏<)]]></string>
+    <string name="nothing_in_there">Não há nada aqui.(&gt;﹏&lt;)</string>
     <string name="please_grant_storage_perm">Por favor, dê a este software permissão de espaço de armazenamento de leitura e gravação</string>
     <string name="add_apps">Adicionar Aplicativo</string>
     <string name="auto_update_hub_config">Configuração do hub de atualização automática</string>
@@ -198,4 +198,15 @@
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
+    <string name="data_expiration_time_desc"></string>
+    <string name="example_package_name" translatable="false"></string>
+    <string name="example_number" translatable="false"></string>
+    <string name="custom_include_version_number_field_regex"></string>
+    <string name="data_expiration_time"></string>
+    <string name="example_name" translatable="false"></string>
+    <string name="example_version_number" translatable="false"></string>
+    <string name="null_english" translatable="false"></string>
+    <string name="num_zero" translatable="false"></string>
+    <string name="example_url" translatable="false"></string>
+    <string name="app_name" translatable="false"></string>
 </resources>
