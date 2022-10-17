@@ -199,15 +199,9 @@
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
-    <string name="data_expiration_time_desc"></string>
-    <string name="example_package_name" translatable="false"></string>
-    <string name="example_number" translatable="false"></string>
-    <string name="custom_include_version_number_field_regex"></string>
-    <string name="data_expiration_time"></string>
-    <string name="example_name" translatable="false"></string>
-    <string name="example_version_number" translatable="false"></string>
-    <string name="null_english" translatable="false"></string>
-    <string name="num_zero" translatable="false"></string>
-    <string name="example_url" translatable="false"></string>
-    <string name="app_name" translatable="false"></string>
+    <string name="example_package_name" translatable="false"/>
+    <string name="custom_include_version_number_field_regex"/>
+    <string name="example_name" translatable="false"/>
+    <string name="null_english" translatable="false"/>
+    <string name="example_url" translatable="false"/>
 </resources>
