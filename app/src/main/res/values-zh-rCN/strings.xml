@@ -14,7 +14,8 @@
     <string name="delete">删除</string>
     <string name="edit">编辑</string>
     <string name="background_sync_time">后台数据刷新时间(h)</string>
-    <string name="background_sync_time_desc">软件在后台检查更新的周期\n若周期为0，则禁用后台更新检查</string>
+    <string name="background_sync_time_desc">软件在后台检查更新的周期
+\n若周期为0，则禁用后台更新检查</string>
     <string name="cloud_rules_repo_url">Git 仓库地址</string>
     <string name="update_server_url">升级服务 URL</string>
     <string name="menu_search">搜索</string>
@@ -46,7 +47,7 @@
     <string name="clean_log">清空日志</string>
     <string name="background_image">背景图片</string>
     <string name="apps_logo">软件图标</string>
-    <string name="nothing_in_there"><![CDATA[这里好像什么也没有(>﹏<)]]></string>
+    <string name="nothing_in_there">这里好像什么也没有(&gt;﹏&lt;)</string>
     <string name="please_grant_storage_perm">请授予存储读写权限</string>
     <string name="add_apps">添加应用</string>
     <string name="auto_update_hub_config">自动更新软件源配置</string>
@@ -195,7 +196,7 @@
     <string name="match_rule">匹配规则</string>
     <string name="replace_string">替换字符串</string>
     <string name="url">网址</string>
-    <string name="app_base_hub"> 基础软件源</string>
+    <string name="app_base_hub">基础软件源</string>
     <string name="app_id">应用 ID</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
 </resources>

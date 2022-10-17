@@ -14,7 +14,8 @@
     <string name="delete">Löschen</string>
     <string name="edit">Bearbeiten</string>
     <string name="background_sync_time">Hintergrund Sync Zeit (h)</string>
-    <string name="background_sync_time_desc">Die Bearbeitungszeit des Updates.\nWenn der Wert 0 ist, wird die Hintergrund-Update-Prüfung deaktiviert.</string>
+    <string name="background_sync_time_desc">Die Bearbeitungszeit des Updates.
+\nWenn der Wert 0 ist, wird die Hintergrund-Update-Prüfung deaktiviert.</string>
     <string name="cloud_rules_repo_url">Cloud-Regeln Repo URL</string>
     <string name="update_server_url">Server-URL aktualisieren</string>
     <string name="menu_search">Suchen</string>
@@ -24,7 +25,7 @@
     <string name="install_success">Installation erfolgreich</string>
     <string name="install_failed">Installation fehlgeschlagen</string>
     <string name="auto_install">Automatisch installieren</string>
-    <string name="installing">Installation: </string>
+    <string name="installing">Installation:</string>
     <string name="install_apk_api">APK-Methode Installieren</string>
     <string name="user_download_path">Benutzer Downloadpfad</string>
     <string name="download_thread_num">Download Strang Nummer</string>
@@ -46,7 +47,7 @@
     <string name="clean_log">Log bereinigen</string>
     <string name="background_image">Hintergrundbild</string>
     <string name="apps_logo">Anwendungs Logo</string>
-    <string name="nothing_in_there"><![CDATA[Hier gibt es nichts. (>_<)]]></string>
+    <string name="nothing_in_there">Hier gibt es nichts. (&gt;_&lt;)</string>
     <string name="please_grant_storage_perm">Bitte erteilen Sie dieser Software die Berechtigung zum Lesen und Schreiben von Speicherplatz</string>
     <string name="add_apps">App hinzufügen</string>
     <string name="auto_update_hub_config">Hub-Konfiguration automatisch aktualisieren</string>

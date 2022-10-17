@@ -14,7 +14,8 @@
     <string name="delete">刪除</string>
     <string name="edit">編輯</string>
     <string name="background_sync_time">後臺資料更新時間(h)</string>
-    <string name="background_sync_time_desc">軟體在後臺檢查更新的週期\n若週期為0，則禁用後臺更新檢查</string>
+    <string name="background_sync_time_desc">軟體在後臺檢查更新的週期
+\n若週期為0，則禁用後臺更新檢查</string>
     <string name="cloud_rules_repo_url">Git 倉庫地址</string>
     <string name="update_server_url">升級服務 URL</string>
     <string name="menu_search">搜尋</string>
@@ -46,7 +47,7 @@
     <string name="clean_log">清空日誌</string>
     <string name="background_image">背景圖片</string>
     <string name="apps_logo">軟體圖示</string>
-    <string name="nothing_in_there"><![CDATA[這裡好像什麼也沒有(>﹏<)]]></string>
+    <string name="nothing_in_there">這裡好像什麼也沒有(&gt;﹏&lt;)</string>
     <string name="please_grant_storage_perm">請授予儲存讀寫許可權</string>
     <string name="add_apps">新增</string>
     <string name="auto_update_hub_config">自動更新軟體來源設定</string>

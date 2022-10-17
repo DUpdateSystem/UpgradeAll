@@ -14,7 +14,8 @@
     <string name="delete">Удалить</string>
     <string name="edit">Редактировать</string>
     <string name="background_sync_time">Время фоновой синхронизации (h)</string>
-    <string name="background_sync_time_desc">Время проверки обновления.\nЕсли значение равно 0, то проверка фонового обновления будет отключена.</string>
+    <string name="background_sync_time_desc">Время проверки обновления.
+\nЕсли значение равно 0, то проверка фонового обновления будет отключена.</string>
     <string name="cloud_rules_repo_url">Правила URL репозитория в облаке</string>
     <string name="update_server_url">Обновить URL сервера</string>
     <string name="menu_search">Поиск</string>
@@ -24,7 +25,7 @@
     <string name="install_success">Установка завершена успешно</string>
     <string name="install_failed">Ошибка установки</string>
     <string name="auto_install">Автоматическая установка</string>
-    <string name="installing">Установка: </string>
+    <string name="installing">Установка:</string>
     <string name="install_apk_api">Метод установки приложений</string>
     <string name="user_download_path">Пользовательский путь загрузки</string>
     <string name="download_thread_num">Номер загрузки потока</string>
@@ -46,7 +47,7 @@
     <string name="clean_log">Очистить журнал</string>
     <string name="background_image">Фоновое изображение</string>
     <string name="apps_logo">Логотип приложения</string>
-    <string name="nothing_in_there"><![CDATA[Здесь ничего нет. (>_<)]]></string>
+    <string name="nothing_in_there">Здесь ничего нет. (&gt;_&lt;)</string>
     <string name="please_grant_storage_perm">Пожалуйста, предоставьте этому приложению разрешение на чтение и запись памяти</string>
     <string name="add_apps">Добавить приложение</string>
     <string name="auto_update_hub_config">Auto Update Hub Config</string>
