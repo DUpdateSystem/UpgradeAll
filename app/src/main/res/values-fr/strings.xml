@@ -15,49 +15,26 @@
     <string name="restore">Restaurer</string>
     <string name="background_sync_time_desc">Intervalle de temps de la vérification de la mise à jour en arrière-plan.
 \nDésactivé pour la valeur 0.</string>
-    <string name="example_version_number" translatable="false"/>
     <string name="waiting_check_update"/>
-    <string name="home_module_file_management"/>
     <string name="update_server_url"/>
-    <string name="change_hub_priority"/>
     <string name="enable_simple_bottom_main"/>
-    <string name="Continue"/>
     <string name="file_download"/>
-    <string name="update_recheck_running"/>
     <string name="waiting_pre_process"/>
-    <string name="ok"/>
     <string name="save_file_failed"/>
-    <string name="add_attr"/>
     <string name="update_service_running"/>
-    <string name="update_status_identifier"/>
     <string name="select_browser"/>
-    <string name="cancel"/>
     <string name="global_setting"/>
-    <string name="app_hub"/>
     <string name="auto_install"/>
-    <string name="download_thread_num"/>
     <string name="auto_delete_file"/>
-    <string name="save_failed"/>
     <string name="clean_all_log"/>
-    <string name="clean_log"/>
     <string name="null_english" translatable="false"/>
-    <string name="auto_update_hub_config_desc"/>
     <string name="long_click_to_use_external_downloader"/>
-    <string name="applications"/>
     <string name="failed_to_add"/>
-    <string name="same_as_server_config"/>
     <string name="backup_to_file"/>
-    <string name="restore_from_webdav"/>
     <string name="webdav_username"/>
-    <string name="dialog_title_select_download_item"/>
     <string name="custom"/>
-    <string name="built_in_downloader_setting"/>
     <string name="update_info"/>
-    <string name="home_log"/>
     <string name="hub_tab_updates"/>
-    <string name="attr_list"/>
     <string name="pause"/>
-    <string name="click_open_homepage"/>
     <string name="match_rule"/>
-    <string name="app_base_hub"/>
 </resources>
