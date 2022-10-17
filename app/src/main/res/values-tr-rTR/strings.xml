@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app">Uygulama </string>
+    <string name="app">Uygulama</string>
     <string name="help">Yardım</string>
     <string name="update">Güncelleme</string>
     <string name="backup">Yedekleme</string>
@@ -24,7 +24,7 @@
     <string name="install_success">Yükleme başarılı</string>
     <string name="install_failed">Yükleme başarısız</string>
     <string name="auto_install">Otomatik Yükleme</string>
-    <string name="installing">Yükleme: </string>
+    <string name="installing">Yükleme:</string>
     <string name="install_apk_api">APK yöntemini yükle</string>
     <string name="user_download_path">Kullanıcı İndirme Yolu</string>
     <string name="download_thread_num">Konu Numarasını İndir</string>
@@ -46,7 +46,7 @@
     <string name="clean_log">Kaydı temizle</string>
     <string name="background_image">Arkaplan resmi</string>
     <string name="apps_logo">Uygulama simgesi</string>
-    <string name="nothing_in_there"><![CDATA[Burada hiçbir şey yok (>﹏<)]]></string>
+    <string name="nothing_in_there">Burada hiçbir şey yok (&gt;﹏&lt;)</string>
     <string name="please_grant_storage_perm">Lütfen bu yazılıma depolama alanı okuma ve yazma izni verin</string>
     <string name="add_apps">Uygulamalar ekle</string>
     <string name="auto_update_hub_config">Otomatik Güncelleme Hub Yapılandırması</string>
@@ -198,4 +198,15 @@
     <string name="app_base_hub">Temel APP Hub</string>
     <string name="app_id">Uygulama Kimliği</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
+    <string name="app_name" translatable="false"></string>
+    <string name="example_name" translatable="false"></string>
+    <string name="example_url" translatable="false"></string>
+    <string name="example_version_number" translatable="false"></string>
+    <string name="example_package_name" translatable="false"></string>
+    <string name="custom_include_version_number_field_regex"></string>
+    <string name="data_expiration_time"></string>
+    <string name="data_expiration_time_desc"></string>
+    <string name="num_zero" translatable="false"></string>
+    <string name="null_english" translatable="false"></string>
+    <string name="example_number" translatable="false"></string>
 </resources>
