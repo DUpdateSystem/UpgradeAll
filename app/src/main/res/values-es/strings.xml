@@ -53,5 +53,4 @@
     <string name="clean_download_dir_desc">Eliminar carpeta de descarga almacenada con archivos dentro.</string>
     <string name="add_something">Por favor añade Configuraciones de aplicación o descarga configuraciones de repositorio desde la regla de suscripción del repo</string>
     <string name="please_grant_storage_perm">Por favor otorgue permiso de leer y escribir en el almacenamiento</string>
-    <string name="cloud_backup"/>
 </resources>

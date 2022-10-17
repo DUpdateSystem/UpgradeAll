@@ -15,5 +15,4 @@
     <string name="restore">Restaurer</string>
     <string name="background_sync_time_desc">Intervalle de temps de la vérification de la mise à jour en arrière-plan.
 \nDésactivé pour la valeur 0.</string>
-    <string name="backup_to_file"/>
 </resources>
