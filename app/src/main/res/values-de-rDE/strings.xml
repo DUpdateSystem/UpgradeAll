@@ -24,7 +24,7 @@
     <string name="install_success">Installation erfolgreich</string>
     <string name="install_failed">Installation fehlgeschlagen</string>
     <string name="auto_install">Automatisch installieren</string>
-    <string name="installing">Installation: </string>
+    <string name="installing">Installation:</string>
     <string name="install_apk_api">APK-Methode Installieren</string>
     <string name="user_download_path">Benutzer Downloadpfad</string>
     <string name="download_thread_num">Download Strang Nummer</string>
@@ -46,7 +46,7 @@
     <string name="clean_log">Log bereinigen</string>
     <string name="background_image">Hintergrundbild</string>
     <string name="apps_logo">Anwendungs Logo</string>
-    <string name="nothing_in_there"><![CDATA[Hier gibt es nichts. (>_<)]]></string>
+    <string name="nothing_in_there">Hier gibt es nichts. (&gt;_&lt;)</string>
     <string name="please_grant_storage_perm">Bitte erteilen Sie dieser Software die Berechtigung zum Lesen und Schreiben von Speicherplatz</string>
     <string name="add_apps">App hinzufügen</string>
     <string name="auto_update_hub_config">Hub-Konfiguration automatisch aktualisieren</string>
@@ -198,4 +198,15 @@
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
+    <string name="num_zero" translatable="false"></string>
+    <string name="custom_include_version_number_field_regex"></string>
+    <string name="example_number" translatable="false"></string>
+    <string name="example_name" translatable="false"></string>
+    <string name="data_expiration_time_desc"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="example_package_name" translatable="false"></string>
+    <string name="example_url" translatable="false"></string>
+    <string name="example_version_number" translatable="false"></string>
+    <string name="data_expiration_time"></string>
+    <string name="null_english" translatable="false"></string>
 </resources>
