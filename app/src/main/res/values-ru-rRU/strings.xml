@@ -24,7 +24,7 @@
     <string name="install_success">Установка завершена успешно</string>
     <string name="install_failed">Ошибка установки</string>
     <string name="auto_install">Автоматическая установка</string>
-    <string name="installing">Установка: </string>
+    <string name="installing">Установка:</string>
     <string name="install_apk_api">Метод установки приложений</string>
     <string name="user_download_path">Пользовательский путь загрузки</string>
     <string name="download_thread_num">Номер загрузки потока</string>
@@ -46,7 +46,7 @@
     <string name="clean_log">Очистить журнал</string>
     <string name="background_image">Фоновое изображение</string>
     <string name="apps_logo">Логотип приложения</string>
-    <string name="nothing_in_there"><![CDATA[Здесь ничего нет. (>_<)]]></string>
+    <string name="nothing_in_there">Здесь ничего нет. (&gt;_&lt;)</string>
     <string name="please_grant_storage_perm">Пожалуйста, предоставьте этому приложению разрешение на чтение и запись памяти</string>
     <string name="add_apps">Добавить приложение</string>
     <string name="auto_update_hub_config">Auto Update Hub Config</string>
@@ -198,4 +198,15 @@
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
+    <string name="app_name" translatable="false"></string>
+    <string name="null_english" translatable="false"></string>
+    <string name="custom_include_version_number_field_regex"></string>
+    <string name="example_version_number" translatable="false"></string>
+    <string name="data_expiration_time_desc"></string>
+    <string name="example_number" translatable="false"></string>
+    <string name="num_zero" translatable="false"></string>
+    <string name="data_expiration_time"></string>
+    <string name="example_package_name" translatable="false"></string>
+    <string name="example_url" translatable="false"></string>
+    <string name="example_name" translatable="false"></string>
 </resources>
