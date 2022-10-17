@@ -199,9 +199,6 @@
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
-    <string name="null_english" translatable="false"/>
     <string name="example_name" translatable="false"/>
-    <string name="example_number" translatable="false"/>
     <string name="data_expiration_time"/>
-    <string name="example_url" translatable="false"/>
 </resources>
