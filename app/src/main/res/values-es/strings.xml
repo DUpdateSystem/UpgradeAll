@@ -53,22 +53,13 @@
     <string name="clean_download_dir_desc">Eliminar carpeta de descarga almacenada con archivos dentro.</string>
     <string name="add_something">Por favor añade Configuraciones de aplicación o descarga configuraciones de repositorio desde la regla de suscripción del repo</string>
     <string name="please_grant_storage_perm">Por favor otorgue permiso de leer y escribir en el almacenamiento</string>
-    <string name="custom_language"/>
     <string name="parse_attr_by_url"/>
-    <string name="system_installer"/>
     <string name="downloading"/>
-    <string name="restore_stop"/>
     <string name="export_current_sort_log"/>
-    <string name="auto_update_app_config_desc"/>
     <string name="auto_update_app_config"/>
-    <string name="backup_running"/>
     <string name="helper_text_attr_cant_be_empty"/>
-    <string name="custom_include_version_number_field_regex"/>
     <string name="update_info"/>
-    <string name="Continue"/>
     <string name="show_download_status"/>
-    <string name="example_update_overview" formatted="false"/>
     <string name="cloud_backup"/>
-    <string name="home_checking_updates"/>
     <string name="updating_setting"/>
 </resources>

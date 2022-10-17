@@ -199,5 +199,4 @@
     <string name="app_base_hub">基础软件源</string>
     <string name="app_id">应用 ID</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
-    <string name="data_expiration_time_desc"/>
 </resources>

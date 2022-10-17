@@ -15,26 +15,15 @@
     <string name="restore">Restaurer</string>
     <string name="background_sync_time_desc">Intervalle de temps de la vérification de la mise à jour en arrière-plan.
 \nDésactivé pour la valeur 0.</string>
-    <string name="waiting_check_update"/>
     <string name="update_server_url"/>
-    <string name="enable_simple_bottom_main"/>
     <string name="file_download"/>
-    <string name="waiting_pre_process"/>
     <string name="save_file_failed"/>
-    <string name="update_service_running"/>
     <string name="select_browser"/>
-    <string name="global_setting"/>
     <string name="auto_install"/>
-    <string name="auto_delete_file"/>
     <string name="clean_all_log"/>
-    <string name="null_english" translatable="false"/>
     <string name="long_click_to_use_external_downloader"/>
-    <string name="failed_to_add"/>
     <string name="backup_to_file"/>
-    <string name="webdav_username"/>
     <string name="custom"/>
-    <string name="update_info"/>
     <string name="hub_tab_updates"/>
-    <string name="pause"/>
     <string name="match_rule"/>
 </resources>
