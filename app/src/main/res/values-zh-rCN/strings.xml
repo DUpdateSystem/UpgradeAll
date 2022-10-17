@@ -46,7 +46,7 @@
     <string name="clean_log">清空日志</string>
     <string name="background_image">背景图片</string>
     <string name="apps_logo">软件图标</string>
-    <string name="nothing_in_there"><![CDATA[这里好像什么也没有(>﹏<)]]></string>
+    <string name="nothing_in_there">这里好像什么也没有(&gt;﹏&lt;)</string>
     <string name="please_grant_storage_perm">请授予存储读写权限</string>
     <string name="add_apps">添加应用</string>
     <string name="auto_update_hub_config">自动更新软件源配置</string>
@@ -195,7 +195,18 @@
     <string name="match_rule">匹配规则</string>
     <string name="replace_string">替换字符串</string>
     <string name="url">网址</string>
-    <string name="app_base_hub"> 基础软件源</string>
+    <string name="app_base_hub">基础软件源</string>
     <string name="app_id">应用 ID</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
+    <string name="example_number" translatable="false"></string>
+    <string name="example_url" translatable="false"></string>
+    <string name="example_name" translatable="false"></string>
+    <string name="null_english" translatable="false"></string>
+    <string name="num_zero" translatable="false"></string>
+    <string name="example_version_number" translatable="false"></string>
+    <string name="custom_include_version_number_field_regex"></string>
+    <string name="data_expiration_time_desc"></string>
+    <string name="example_package_name" translatable="false"></string>
+    <string name="data_expiration_time"></string>
+    <string name="app_name" translatable="false"></string>
 </resources>
