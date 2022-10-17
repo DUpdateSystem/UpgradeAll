@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app">Aplicación</string>
+    <string name="update">Actualizar</string>
+    <string name="backup">Respaldar</string>
+    <string name="restore">Restaurar</string>
+    <string name="user_star">Estrella</string>
+    <string name="magisk_module">Módulo de Magisk</string>
+    <string name="app_hub">Repositorios de Aplicaciones</string>
+    <string name="name">Nombre</string>
+    <string name="basic_info">Información Básica</string>
+    <string name="versioning_check_setting">Ajuste de Control de Versión</string>
+    <string name="delete">Eliminar</string>
+    <string name="edit">Editar</string>
+    <string name="background_sync_time">Frecuencia de Escaneo en Segundo plano (hr)</string>
+    <string name="data_expiration_time">Tiempo de expiración de caché de datos (min)</string>
+    <string name="cloud_rules_repo_url">URL de Regla de Suscripción de Repo</string>
+    <string name="update_server_url">Actualizar URL del Servidor</string>
+    <string name="menu_search">Buscar</string>
+    <string name="menu_search_hint">Buscar…</string>
+    <string name="download">Descargar</string>
+    <string name="install">Instalar</string>
+    <string name="install_success">Instalación Exitosa</string>
+    <string name="install_failed">Instalación Fallida</string>
+    <string name="auto_install">Auto Instalar</string>
+    <string name="installing">Instalando:</string>
+    <string name="install_apk_api">Método de Instalación de APK</string>
+    <string name="user_download_path">Ruta de Descarga del Usuario</string>
+    <string name="download_thread_num">Núm de Hilos de Descarga</string>
+    <string name="download_max_task_num">Núm Máx de Tareas de Descarga</string>
+    <string name="clean_download_dir">Limpiar Archivos de Descarga</string>
+    <string name="auto_delete_file">Auto Eliminar Archivos</string>
+    <string name="auto_dump_download_file">Auto Eliminar Archivos de Descarga</string>
+    <string name="enable">Habilitar</string>
+    <string name="save_successfully">Guardado Exitosamente</string>
+    <string name="save_failed">Falló al guardar</string>
+    <string name="main_program">Programa Principal</string>
+    <string name="clean_sort_log">Limpiar Registros de Categoría Actual</string>
+    <string name="clean_all_log">Limpiar Todos los Registros</string>
+    <string name="clean_sort_log_alert_message">Los registros de la categoría actual serán eliminados</string>
+    <string name="clean_all_log_alert_message">Todos los registros se eliminarán</string>
+    <string name="export_all">Exportar Todo</string>
+    <string name="clean_log">Limpiar Registros</string>
+    <string name="background_image">Imagen de Fondo</string>
+    <string name="apps_logo">Ícono de Aplicación</string>
+    <string name="add_apps">Añadir Aplicación</string>
+    <string name="help">Ayuda</string>
+    <string name="background_sync_time_desc">Intervalo de tiempo de verificación de actualización en segundo plano.
+\nDeshabilitado para valor 0.</string>
+    <string name="data_expiration_time_desc">Tiempo de expiración de la caché de información de número de versión obtenida de la web.
+\nDeshabilitada para valor 0(sólo depuración).</string>
+    <string name="nothing_in_there">Aquí no hay nada. (&gt;﹏&lt;)</string>
+    <string name="clean_download_dir_desc">Eliminar carpeta de descarga almacenada con archivos dentro.</string>
+    <string name="add_something">Por favor añade Configuraciones de aplicación o descarga configuraciones de repositorio desde la regla de suscripción del repo</string>
+    <string name="please_grant_storage_perm">Por favor otorgue permiso de leer y escribir en el almacenamiento</string>
+</resources>
