@@ -15,15 +15,9 @@
     <string name="restore">Restaurer</string>
     <string name="background_sync_time_desc">Intervalle de temps de la vérification de la mise à jour en arrière-plan.
 \nDésactivé pour la valeur 0.</string>
-    <string name="update_server_url"/>
     <string name="file_download"/>
-    <string name="save_file_failed"/>
     <string name="select_browser"/>
-    <string name="auto_install"/>
     <string name="clean_all_log"/>
-    <string name="long_click_to_use_external_downloader"/>
     <string name="backup_to_file"/>
-    <string name="custom"/>
     <string name="hub_tab_updates"/>
-    <string name="match_rule"/>
 </resources>
