@@ -97,9 +97,9 @@ dependencies {
     implementation "androidx.drawerlayout:drawerlayout:1.1.1"
     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'
 
-    implementation "androidx.activity:activity-ktx:1.6.0"
-    implementation 'androidx.fragment:fragment-ktx:1.5.3'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.2'
+    implementation 'androidx.activity:activity-ktx:1.6.1'
+    implementation 'androidx.fragment:fragment-ktx:1.5.4'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
 
     // Kotlin
@@ -138,7 +138,7 @@ dependencies {
     implementation 'dev.rikka.rikkax.layoutinflater:layoutinflater:1.2.0'
 
     //RecyclerView
-    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.10'
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.11'
 
     // 日历
     implementation 'com.github.6tail:lunar-java:1.2.25'
