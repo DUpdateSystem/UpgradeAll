@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        kotlin_version = '1.7.20'
+        kotlin_version = '1.7.21'
         kotlin_coroutines_version = '1.6.4'
         kotlin_stdlib_version = '1.5.0'
     }
@@ -25,7 +25,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.7.20'
+    id 'org.jetbrains.kotlin.jvm' version '1.7.21'
 }
 
 allprojects {
