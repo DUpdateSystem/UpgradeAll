@@ -109,7 +109,7 @@ Currently, the following sources are officially supported:
 
 If you are familier with multiple languages, please help us introduce the App to the whole world!
 ### ℹ️ How to translate UpgradeAll into your language?
-You can help us translate this project on ~~[Crowdin](https://crowdin.com/project/upgradeall)~~ [Weblate](https://hosted.weblate.org/projects/upgradeall/).
+You can help us translate this project on [Weblate](https://hosted.weblate.org/projects/upgradeall/).
 
 
 ## 📖 License

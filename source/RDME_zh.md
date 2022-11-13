@@ -110,7 +110,7 @@
 
 ### ℹ️ 如何将 UpgradeAll 翻译成您熟悉的语言？
 
-你可以在 ~~[Crowdin](https://crowdin.com/project/upgradeall)~~ [Weblate](https://hosted.weblate.org/projects/upgradeall/) 上翻译它。
+你可以在 [Weblate](https://hosted.weblate.org/projects/upgradeall/) 上翻译它。
 
 ## 📖 许可证
 使用此软件代码需**遵循以下许可证协议**：  
