@@ -8,6 +8,7 @@ class ObjectTag(
 ){
     companion object{
         const val core = "Core"
+        const val app = "App"
         const val downloader = "Downloader"
     }
 }

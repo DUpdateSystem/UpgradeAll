@@ -75,6 +75,7 @@
     <string name="save_file_failed">Failed to Save File</string>
     <string name="select_browser">Please select a browser to open the page</string>
     <string name="system_browser_error">You may have encountered an error caused by system; trying to call another method to open it</string>
+    <string name="open_browser_failed">Browser open failed; unknown reason</string>
     <string name="please_input_custom_url">Please enter custom URL</string>
     <string name="same_as_server_config">Follow Update Server Configs</string>
     <string name="ignore_version">Ignore Current Version</string>

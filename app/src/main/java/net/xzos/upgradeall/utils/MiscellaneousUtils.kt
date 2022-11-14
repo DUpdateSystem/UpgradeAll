@@ -13,6 +13,10 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.androidutils.runUiFun
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.app
+import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.data.PreferencesMap
 import java.util.*
 import java.util.regex.Matcher
@@ -20,6 +24,9 @@ import java.util.regex.Pattern
 
 
 object MiscellaneousUtils {
+
+    private const val TAG = "MiscellaneousUtils"
+    private val logObjectTag = ObjectTag(app, TAG)
 
     private const val HTML_PATTERN = "<(\"[^\"]*\"|'[^']*'|[^'\">])*>"
     private val pattern: Pattern = Pattern.compile(HTML_PATTERN)
@@ -29,35 +36,31 @@ object MiscellaneousUtils {
         return matcher.find()
     }
 
-    fun accessByBrowser(url: String?, context: Context?) {
-        if (url != null && context != null)
+    fun accessByBrowser(url: String, context: Context) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            if (context == MyApplication.context)
+                this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        try {
+            context.startActivity(
+                Intent.createChooser(intent, context.getString(R.string.select_browser))
+            )
+        } catch (e: Exception) {
+            ToastUtil.showText(
+                context, R.string.system_browser_error, duration = Toast.LENGTH_LONG
+            )
+            Log.e(logObjectTag, TAG, "accessByBrowser: ${e.msg()}")
             try {
-                val rawIntent = Intent(Intent.ACTION_VIEW).apply {
-                    this.data = Uri.parse(url)
-                }
-                val intent = PreferencesMap.external_downloader_package_name?.let {
-                    rawIntent.apply {
-                        this.setPackage(it)
-                    }
-                } ?: Intent.createChooser(
-                    rawIntent, context.getString(R.string.select_browser)
-                )
-                context.startActivity(
-                    intent.apply {
-                        if (context == MyApplication.context)
-                            this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    }
-                )
+                context.startActivity(intent)
             } catch (e: Exception) {
                 ToastUtil.showText(
                     context,
-                    R.string.system_browser_error,
+                    R.string.open_browser_failed,
                     duration = Toast.LENGTH_LONG
                 )
-                Intent(Intent.ACTION_VIEW).apply {
-                    this.data = Uri.parse(url)
-                }
+                Log.e(logObjectTag, TAG, "accessByBrowser: ${e.msg()}")
             }
+        }
     }
 
     fun getCurrentLocale(context: Context): Locale? =
