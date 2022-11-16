@@ -35,6 +35,10 @@ internal class WebApiProxy(
         return webApi.getCloudConfig(url)
     }
 
+    override fun getAppListRelease(dataList: List<ApiRequestData>): Map<ApiRequestData, List<ReleaseGson>> {
+        return mapOf()
+    }
+
     override fun getAppRelease(data: ApiRequestData): List<ReleaseGson>? {
         val appIdPath = getMapPath(data.appId)
         val hubUuid = data.hubUuid

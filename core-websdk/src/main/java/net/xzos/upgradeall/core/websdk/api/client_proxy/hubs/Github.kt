@@ -1,7 +1,6 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
 import net.xzos.upgradeall.core.utils.asSequence
-import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
 import net.xzos.upgradeall.core.websdk.api.client_proxy.tryGetTimestamp

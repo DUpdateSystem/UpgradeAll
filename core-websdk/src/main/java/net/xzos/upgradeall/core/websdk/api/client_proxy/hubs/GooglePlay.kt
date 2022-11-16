@@ -10,7 +10,6 @@ import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
-import net.xzos.upgradeall.core.utils.constant.VERSION_CODE
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.utils.data_cache.utils.StringEncoder

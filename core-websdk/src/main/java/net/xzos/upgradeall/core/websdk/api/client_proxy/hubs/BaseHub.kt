@@ -8,8 +8,7 @@ import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 abstract class BaseHub(
-    protected val dataCache: DataCacheManager,
-    protected val okhttpProxy: OkhttpProxy
+    protected val dataCache: DataCacheManager, protected val okhttpProxy: OkhttpProxy
 ) {
     abstract val uuid: String
 
@@ -17,10 +16,14 @@ abstract class BaseHub(
         data: ApiRequestData,
     ): List<ReleaseGson>?
 
+    open fun getAppListRelease(
+        dataList: List<ApiRequestData>
+    ): Map<ApiRequestData, List<ReleaseGson>> {
+        return mapOf()
+    }
+
     open fun getDownload(
-        data: ApiRequestData,
-        assetIndex: List<Int>,
-        assetGson: AssetGson?
+        data: ApiRequestData, assetIndex: List<Int>, assetGson: AssetGson?
     ): List<DownloadItem>? {
         return null
     }

@@ -43,6 +43,14 @@ class ServerApi internal constructor(
         return value
     }
 
+    fun getAppListRelease(
+        dataList: List<ApiRequestData>, callback: (Map<ApiRequestData, List<ReleaseGson>>) -> Unit
+    ) {
+        val value =
+            callOrBack(dataList, clientProxyApi::getAppListRelease, webApiProxy::getAppListRelease)
+        callback(value)
+    }
+
     fun getAppRelease(data: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
         val key = data.getKey()
         val value = dataCache.get(key, SaveMode.MEMORY_AND_DISK, AppReleaseListEncoder) {
@@ -88,10 +96,10 @@ class ServerApi internal constructor(
     }
 }
 
-private fun <T> callOrBack(
-    data: ApiRequestData,
-    function: (ApiRequestData) -> T,
-    callback: (ApiRequestData) -> T
+private fun <A, T> callOrBack(
+    data: A,
+    function: (A) -> T,
+    callback: (A) -> T
 ): T {
     return try {
         function(data)

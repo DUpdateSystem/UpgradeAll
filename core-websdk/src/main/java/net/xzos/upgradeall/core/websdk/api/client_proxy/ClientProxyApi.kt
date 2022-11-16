@@ -4,6 +4,7 @@ import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
+import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.core.websdk.api.BaseApi
 import net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config.CloudConfig
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.*
@@ -39,12 +40,24 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         return hubMap[uuid] ?: throw NoFunction()
     }
 
+    override fun getAppListRelease(
+        dataList: List<ApiRequestData>
+    ): Map<ApiRequestData, List<ReleaseGson>> {
+        val hub = getHub(dataList.firstOrNull()?.hubUuid ?: return mapOf())
+        return try {
+            hub.getAppListRelease(dataList)
+        } catch (e: Throwable) {
+            Log.e(logObjectTag, TAG, "getAppListRelease: ${e.msg()}")
+            mapOf()
+        }
+    }
+
     override fun getAppRelease(data: ApiRequestData): List<ReleaseGson>? {
         val hub = getHub(data.hubUuid)
         return try {
             hub.getRelease(data)
         } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, e.stackTraceToString())
+            Log.e(logObjectTag, TAG, "getAppRelease: ${e.msg()}")
             null
         }
     }
@@ -54,18 +67,17 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         return try {
             hub.getRelease(data)
         } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, e.stackTraceToString())
+            Log.e(logObjectTag, TAG, "getAppReleaseList: ${e.msg()}")
             null
         }
     }
 
     override fun getDownloadInfo(
-        data: ApiRequestData,
-        assetIndex: Pair<Int, Int>
+        data: ApiRequestData, assetIndex: Pair<Int, Int>
     ): List<DownloadItem> {
         val hub = getHub(data.hubUuid)
-        val assets = getAppReleaseList(data)
-            ?.get(assetIndex.first)?.assetGsonList?.get(assetIndex.second)
+        val assets =
+            getAppReleaseList(data)?.get(assetIndex.first)?.assetGsonList?.get(assetIndex.second)
         return try {
             hub.getDownload(data, assetIndex.toList(), assets)
         } catch (e: Throwable) {
