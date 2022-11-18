@@ -37,10 +37,19 @@ object MiscellaneousUtils {
 
     fun accessByBrowser(url: String, context: Context, packageName: String? = null) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-            packageName?.let { setPackage(it) }
             if (context == MyApplication.context)
-                this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
+        if (packageName == null) {
+            launchChooser(intent, context)
+        } else {
+            sendIntent(intent.apply {
+                setPackage(packageName)
+            }, context)
+        }
+    }
+
+    private fun launchChooser(intent: Intent, context: Context) {
         try {
             context.startActivity(
                 Intent.createChooser(intent, context.getString(R.string.select_browser))
@@ -50,16 +59,20 @@ object MiscellaneousUtils {
                 context, R.string.system_browser_error, duration = Toast.LENGTH_LONG
             )
             Log.e(logObjectTag, TAG, "accessByBrowser: ${e.msg()}")
-            try {
-                context.startActivity(intent)
-            } catch (e: Exception) {
-                ToastUtil.showText(
-                    context,
-                    R.string.open_browser_failed,
-                    duration = Toast.LENGTH_LONG
-                )
-                Log.e(logObjectTag, TAG, "accessByBrowser: ${e.msg()}")
-            }
+            sendIntent(intent, context)
+        }
+    }
+
+    private fun sendIntent(intent: Intent, context: Context) {
+        try {
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            ToastUtil.showText(
+                context,
+                R.string.open_browser_failed,
+                duration = Toast.LENGTH_LONG
+            )
+            Log.e(logObjectTag, TAG, "accessByBrowser: ${e.msg()}")
         }
     }
 
