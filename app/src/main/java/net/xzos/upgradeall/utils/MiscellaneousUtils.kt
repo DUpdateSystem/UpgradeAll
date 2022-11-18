@@ -17,7 +17,6 @@ import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.app
 import net.xzos.upgradeall.core.utils.log.msg
-import net.xzos.upgradeall.data.PreferencesMap
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -36,8 +35,9 @@ object MiscellaneousUtils {
         return matcher.find()
     }
 
-    fun accessByBrowser(url: String, context: Context) {
+    fun accessByBrowser(url: String, context: Context, packageName: String? = null) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            packageName?.let { setPackage(it) }
             if (context == MyApplication.context)
                 this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }

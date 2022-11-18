@@ -74,7 +74,10 @@ class DownloadTasker(
         }
         if (externalDownload || PreferencesMap.enforce_use_external_downloader) {
             downloadInfoList.forEach {
-                MiscellaneousUtils.accessByBrowser(it.url, context)
+                MiscellaneousUtils.accessByBrowser(
+                    it.url, context,
+                    PreferencesMap.external_downloader_package_name
+                )
             }
             changed(getFileTaskerSnap(DownloadTaskerStatus.EXTERNAL_DOWNLOAD))
         } else {
