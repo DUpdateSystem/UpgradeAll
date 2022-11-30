@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
+import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
@@ -27,7 +28,7 @@ class FDroid(
     }
 
     override fun getRelease(data: ApiRequestData): List<ReleaseGson>? =
-        getRelease(data, mutableMapOf())
+        tmpMutex.runWithLock { getRelease(data, mutableMapOf()) }
 
     private fun getRelease(
         data: ApiRequestData,
@@ -65,6 +66,7 @@ class FDroid(
     private fun getXmlUrl(url: String) = "$url/index.xml"
 
     companion object {
+        private val tmpMutex = Mutex()
         private val mutex = Mutex()
         private const val DEF_URL = "https://f-droid.org/repo"
 
