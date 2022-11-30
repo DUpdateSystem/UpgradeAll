@@ -54,10 +54,10 @@ class DownloadTasker(
         val urlReplaceUtil = URLReplace(ExtraHubEntityManager.getUrlReplace(hub.uuid))
         val (appId, other) = hub.filterValidKey(app.appId)
         downloadInfoList = app.serverApi.getDownloadInfo(
-            ApiRequestData(hub.uuid, hub.auth, appId, other), assetIndex
-        ).map {
+            ApiRequestData(hub.uuid, hub.auth, appId, other), Pair(assetIndex[0], assetIndex[1])
+        )?.map {
             it.copy(url = urlReplaceUtil.replaceURL(it.url))
-        }
+        } ?: emptyList()
         if (downloadInfoList.isEmpty())
             changed(getFileTaskerSnap(DownloadTaskerStatus.INFO_FAILED).error(DownloadInfoEmpty))
         else

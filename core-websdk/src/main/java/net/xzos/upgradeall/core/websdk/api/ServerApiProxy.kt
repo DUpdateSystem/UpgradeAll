@@ -1,51 +1,34 @@
 package net.xzos.upgradeall.core.websdk.api
 
-import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
+import net.xzos.upgradeall.core.websdk.json.CloudConfigList
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 class ServerApiProxy internal constructor(
     private val getServerApi: () -> ServerApi?
-) {
+) : BaseApi {
     private val serverApi get() = getServerApi()
-    private val requestDataList = coroutinesMutableListOf<ApiRequestData>()
 
-    fun getAppRelease(requestData: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
-        serverApi?.also { api ->
-            requestDataList.add(requestData)
-            api.getAppRelease(requestData) {
-                requestDataList.remove(requestData)
-                callback(it)
-            }
-        } ?: callback(null)
+    override fun getCloudConfig(url: String): CloudConfigList? {
+        return serverApi?.getCloudConfig(url)
     }
 
-    fun getAppReleaseList(requestData: ApiRequestData, callback: (List<ReleaseGson>?) -> Unit) {
-        serverApi?.also { api ->
-            requestDataList.add(requestData)
-            api.getAppReleaseList(requestData) {
-                requestDataList.remove(requestData)
-                callback(it)
-            }
-        } ?: callback(null)
+    override fun getAppListRelease(dataList: List<ApiRequestData>): Map<ApiRequestData, List<ReleaseGson>> {
+        return serverApi?.getAppListRelease(dataList) ?: emptyMap()
     }
 
-    suspend fun getDownloadInfo(
-        requestData: ApiRequestData,
-        assetIndex: List<Int>
-    ): List<DownloadItem> {
-        return serverApi?.let {
-            requestDataList.add(requestData)
-            it.getDownloadInfo(requestData, Pair(assetIndex.first(), assetIndex.last())).apply {
-                requestDataList.remove(requestData)
-            }
-        } ?: emptyList()
+    override fun getAppRelease(data: ApiRequestData): List<ReleaseGson>? {
+        return serverApi?.getAppReleaseList(data)
     }
 
-    fun cancel() {
-        requestDataList.forEach {
-            serverApi?.cancelRequest(it)
-        }
+    override fun getAppReleaseList(data: ApiRequestData): List<ReleaseGson>? {
+        return serverApi?.getAppReleaseList(data)
+    }
+
+    override fun getDownloadInfo(
+        data: ApiRequestData, assetIndex: Pair<Int, Int>
+    ): List<DownloadItem>? {
+        return serverApi?.getDownloadInfo(data, assetIndex)
     }
 }

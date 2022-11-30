@@ -114,15 +114,12 @@ class Hub(private val hubDatabase: HubEntity) {
     }
 
     internal fun getAppReleaseList(
-        appDataStorage: DataStorage, callback: (List<ReleaseGson>?) -> Unit
-    ) {
+        appDataStorage: DataStorage
+    ): List<ReleaseGson>? {
         val (appId, other) = filterValidKey(appDataStorage.appDatabase.appId)
-        if (appId.isEmpty()) {
-            callback(null)
-            return
-        }
-        appDataStorage.serverApi.getAppReleaseList(ApiRequestData(uuid, auth, appId, other)) {
-            it?.let {
+        if (appId.isEmpty()) return null
+        return appDataStorage.serverApi.getAppReleaseList(ApiRequestData(uuid, auth, appId, other))
+            ?.also {
                 runBlocking {
                     if (it.isEmpty())
                         unsetActiveApp(appId)
@@ -130,8 +127,6 @@ class Hub(private val hubDatabase: HubEntity) {
                         setActiveApp(appId)
                 }
             }
-            callback(it)
-        }
     }
 
     private suspend fun saveDatabase() {

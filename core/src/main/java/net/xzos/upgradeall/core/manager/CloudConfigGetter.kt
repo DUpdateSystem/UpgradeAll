@@ -18,10 +18,10 @@ import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.websdk.cache.CloudConfigListEncoder
 import net.xzos.upgradeall.core.websdk.dataCacheManager
+import net.xzos.upgradeall.core.websdk.getServerApi
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
 import net.xzos.upgradeall.core.websdk.json.HubConfigGson
-import net.xzos.upgradeall.core.websdk.serverApi
 
 
 object CloudConfigGetter {
@@ -50,7 +50,7 @@ object CloudConfigGetter {
         val key = if (url.isNullOrBlank())
             "http://${coreConfig.update_server_url}/v1/rules/download/dev"
         else url
-        val func = { runBlocking { serverApi?.getCloudConfig(key) } }
+        val func = { runBlocking { getServerApi()?.getCloudConfig(key) } }
         return dataCacheManager.get(key, SaveMode.DISK_ONLY, CloudConfigListEncoder, false, func)
     }
 

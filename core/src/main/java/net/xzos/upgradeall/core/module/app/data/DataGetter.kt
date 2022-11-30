@@ -45,17 +45,15 @@ internal class DataGetter(private val dataStorage: DataStorage) {
     }
 
     private suspend fun renewVersionList(hub: Hub) {
-        hub.getAppReleaseList(dataStorage) {
-            it?.forEachIndexed { releaseIndex, releaseGson ->
-                runBlocking {
-                    dataStorage.versionMap.addRelease(
-                        VersionWrapper(
-                            hub, releaseGson,
-                            releaseGson.assetGsonList.mapIndexed { assetIndex, assetGson ->
-                                AssetWrapper(hub, listOf(releaseIndex, assetIndex), assetGson)
-                            })
-                    )
-                }
+        hub.getAppReleaseList(dataStorage)?.forEachIndexed { releaseIndex, releaseGson ->
+            runBlocking {
+                dataStorage.versionMap.addRelease(
+                    VersionWrapper(
+                        hub, releaseGson,
+                        releaseGson.assetGsonList.mapIndexed { assetIndex, assetGson ->
+                            AssetWrapper(hub, listOf(releaseIndex, assetIndex), assetGson)
+                        })
+                )
             }
         }
     }

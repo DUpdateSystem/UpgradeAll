@@ -10,13 +10,12 @@ import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version.VersionEntityUtils
 import net.xzos.upgradeall.core.module.app.version.VersionInfo
-import net.xzos.upgradeall.core.websdk.api.ServerApiProxy
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 
 @Suppress("DataClassPrivateConstructor")
 data class App private constructor(val appDatabase: AppEntity) {
     private val dataStorage = DataStorage(appDatabase)
-    val serverApi: ServerApiProxy = dataStorage.serverApi
+    val serverApi = dataStorage.serverApi
     val entityUtils = VersionEntityUtils(dataStorage.appDatabase)
     private val updater = Updater(dataStorage, entityUtils)
 
