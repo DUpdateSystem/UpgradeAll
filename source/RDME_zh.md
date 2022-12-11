@@ -69,6 +69,7 @@
 你可以点击下面的卡片来加入我们的交流群:  
 [<img src="https://img.shields.io/badge/QQ-000000?style=for-the-badge" alt="Join us on QQ" height="30">](https://jq.qq.com/?_wv=1027&k=ZAOtKhuH)
 [<img src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram" alt="Join us on Telegram" height="30">](https://t.me/DUpdateSystem)
+[<img src="https://img.shields.io/badge/Matrix-0DBD8B?style=for-the-badge&logo=matrix" alt="Join us on Matrix" height="30">](https://matrix.to/#/#upgradeall:matrix.org)
 
 
 ## 📃 开发者文档
