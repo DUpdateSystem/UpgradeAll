@@ -8,6 +8,8 @@ import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 interface BaseApi {
     fun getCloudConfig(url: String): CloudConfigList?
 
+    fun checkAppAvailable(data: ApiRequestData): Boolean?
+
     fun getAppListRelease(dataList: List<ApiRequestData>): Map<ApiRequestData, List<ReleaseGson>>
 
     fun getAppRelease(data: ApiRequestData): List<ReleaseGson>?

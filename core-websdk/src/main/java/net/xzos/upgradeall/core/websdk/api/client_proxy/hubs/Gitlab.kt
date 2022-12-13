@@ -18,6 +18,8 @@ class Gitlab(
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "a84e2fbe-1478-4db5-80ae-75d00454c7eb"
 
+    override fun checkAppAvailable(data: ApiRequestData): Boolean? = null
+
     override fun getRelease(data: ApiRequestData): List<ReleaseGson>? {
         val appId = data.appId
         val owner = appId["owner"]

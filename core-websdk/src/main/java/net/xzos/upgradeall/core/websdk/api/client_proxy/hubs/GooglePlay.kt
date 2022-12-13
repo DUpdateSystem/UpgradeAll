@@ -31,6 +31,8 @@ class GooglePlay(
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "65c2f60c-7d08-48b8-b4ba-ac6ee924f6fa"
 
+    override fun checkAppAvailable(data: ApiRequestData): Boolean? = null
+
     private fun getAuthJson(data: ApiRequestData): Map<String, String?>? {
         return data.auth[EMAIL_AUTH]?.let {
             data.auth[TOKEN_AUTH]?.run {

@@ -35,6 +35,8 @@ internal class WebApiProxy(
         return webApi.getCloudConfig(url)
     }
 
+    override fun checkAppAvailable(data: ApiRequestData): Boolean? = null
+
     override fun getAppListRelease(dataList: List<ApiRequestData>): Map<ApiRequestData, List<ReleaseGson>> {
         return mapOf()
     }

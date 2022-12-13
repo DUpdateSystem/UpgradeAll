@@ -14,6 +14,10 @@ class ServerApiProxy internal constructor(
         return serverApi?.getCloudConfig(url)
     }
 
+    override fun checkAppAvailable(data: ApiRequestData): Boolean? {
+        return serverApi?.checkAppAvailable(data)
+    }
+
     override fun getAppListRelease(dataList: List<ApiRequestData>): Map<ApiRequestData, List<ReleaseGson>> {
         return serverApi?.getAppListRelease(dataList) ?: emptyMap()
     }

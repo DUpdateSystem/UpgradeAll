@@ -12,6 +12,8 @@ abstract class BaseHub(
 ) {
     abstract val uuid: String
 
+    abstract fun checkAppAvailable(data: ApiRequestData): Boolean?
+
     abstract fun getRelease(
         data: ApiRequestData,
     ): List<ReleaseGson>?
