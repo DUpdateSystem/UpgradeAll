@@ -2,7 +2,6 @@ package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
-import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
@@ -15,6 +14,7 @@ import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.dom4j.Element
+import org.dom4j.Node
 import org.dom4j.io.SAXReader
 
 class FDroid(
@@ -22,23 +22,20 @@ class FDroid(
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "6a6d590b-1809-41bf-8ce3-7e3f6c8da945"
 
+    override fun checkAppAvailable(data: ApiRequestData): Boolean {
+        return getAppNode(data).let { !(it != null && it.second == null) }
+    }
+
     override fun getAppListRelease(dataList: List<ApiRequestData>): Map<ApiRequestData, List<ReleaseGson>> {
-        val map = CoroutinesMutableMap<String, Element>(true)
-        return dataList.associateWith { getRelease(it, map) ?: listOf() }
+        return dataList.associateWith { getRelease(it) ?: listOf() }
     }
 
     override fun getRelease(data: ApiRequestData): List<ReleaseGson>? =
-        tmpMutex.runWithLock { getRelease(data, mutableMapOf()) }
+        tmpMutex.runWithLock { getRelease0(data) }
 
-    private fun getRelease(
-        data: ApiRequestData,
-        rootMap: MutableMap<String, Element>
-    ): List<ReleaseGson>? {
-        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
-        val url = data.other[REPO_URL] ?: DEF_URL
-        val root = rootMap.getOrPut(url) { getRoot(url) ?: return null }
-        val node = root.selectSingleNode(".//application[@id=\"$appPackage\"]")
-            ?: return emptyList()
+    private fun getRelease0(data: ApiRequestData): List<ReleaseGson>? {
+        val (url, node) = getAppNode(data) ?: return null
+        node ?: return emptyList()
         var changelog = node.valueOf("changelog")
         return node.selectNodes("package").map {
             ReleaseGson(
@@ -51,6 +48,13 @@ class FDroid(
                 )
             ).versionCode(it.numberValueOf("versioncode"))
         }
+    }
+
+    private fun getAppNode(data: ApiRequestData): Pair<String, Node?>? {
+        val url = data.other[REPO_URL] ?: DEF_URL
+        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return Pair(url, null)
+        val root = getRoot(url) ?: return null
+        return Pair(url, root.selectSingleNode(".//application[@id=\"$appPackage\"]"))
     }
 
     private fun getRoot(url: String): Element? {

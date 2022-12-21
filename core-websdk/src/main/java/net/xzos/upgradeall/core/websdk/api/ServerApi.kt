@@ -42,6 +42,14 @@ class ServerApi internal constructor(
         return value
     }
 
+    override fun checkAppAvailable(data: ApiRequestData): Boolean? {
+        return callOrBack(
+            data,
+            clientProxyApi::checkAppAvailable,
+            webApiProxy::checkAppAvailable
+        )
+    }
+
     override fun getAppListRelease(dataList: List<ApiRequestData>): Map<ApiRequestData, List<ReleaseGson>> {
         return callOrBack(
             dataList,

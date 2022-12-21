@@ -52,6 +52,8 @@ object OkHttpApi {
         client.cache?.close()
     }
 
+    fun call(request: Request) = client.newCall(request)
+
     fun getCall(data: HttpRequestData): Call {
         val request = makeRequest(data)
         return client.newCall(request.build())
@@ -61,9 +63,11 @@ object OkHttpApi {
         return getCall(data).execute()
     }
 
-    private fun makeRequest(
+    fun getRequestBuilder() = Request.Builder().cacheControl(cacheControl)
+
+    fun makeRequest(
         data: HttpRequestData
-    ): Request.Builder = Request.Builder().cacheControl(cacheControl)
+    ): Request.Builder = getRequestBuilder()
         .url(data.url).apply {
             for ((key, value) in data.headers)
                 addHeader(key, value)

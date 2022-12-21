@@ -21,32 +21,16 @@ class LsposedRepo(
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "401e6259-2eab-46f0-8e8a-d2bfafedf5bf"
 
+    override fun checkAppAvailable(data: ApiRequestData): Boolean {
+        return getAppJson(data)?.length() != 0
+    }
+
     override fun getRelease(
         data: ApiRequestData
     ): List<ReleaseGson>? {
-        val dataJson =
-            dataCache.get(
-                mutex,
-                "lsposed_repo_json", SaveMode.DISK_ONLY, JsonArrayEncoder,
-                false
-            ) {
-                okhttpProxy.okhttpExecute(
-                    HttpRequestData("https://modules.lsposed.org/modules.json")
-                )?.let {
-                    JSONArray(it.body.string())
-                }
-            } ?: return null
-
-        val appPackage = data.appId[ANDROID_APP_TYPE]
-        var json: JSONObject? = null
-        for (tmp in dataJson.iterator<JSONObject>()) {
-            if (tmp.getString("name") == appPackage) {
-                json = tmp
-                break
-            }
-        }
-        json ?: return emptyList()
-        return json.getJSONArray("releases").asSequence<JSONObject>().map {
+        val json = getAppJson(data) ?: return null
+        val jsonArray = json.getOrNull("releases", json::getJSONArray) ?: return emptyList()
+        return jsonArray.asSequence<JSONObject>().map {
             ReleaseGson(
                 versionNumber = it.getString("name"),
                 changelog = it.getOrNull("descriptionHTML"),
@@ -60,6 +44,30 @@ class LsposedRepo(
                     }.toList()
             )
         }.toList()
+    }
+
+    private fun getAppJson(data: ApiRequestData): JSONObject? {
+        val dataJson = dataCache.get(
+            mutex,
+            "lsposed_repo_json", SaveMode.DISK_ONLY, JsonArrayEncoder,
+            false
+        ) {
+            okhttpProxy.okhttpExecute(
+                HttpRequestData("https://modules.lsposed.org/modules.json")
+            )?.let {
+                JSONArray(it.body.string())
+            }
+        } ?: return null
+
+        val appPackage = data.appId[ANDROID_APP_TYPE]
+        var json: JSONObject? = null
+        for (tmp in dataJson.iterator<JSONObject>()) {
+            if (tmp.getString("name") == appPackage) {
+                json = tmp
+                break
+            }
+        }
+        return json ?: JSONObject()
     }
 
     companion object {

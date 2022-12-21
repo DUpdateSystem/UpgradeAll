@@ -13,6 +13,7 @@ import net.xzos.upgradeall.core.utils.md5
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
 import net.xzos.upgradeall.core.websdk.api.client_proxy.versionCode
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
+import net.xzos.upgradeall.core.websdk.api.web.http.OkHttpApi
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
@@ -28,6 +29,13 @@ internal class CoolApk(
     dataCache: DataCacheManager, okhttpProxy: OkhttpProxy
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "1c010cc9-cff8-4461-8993-a86cd190d377"
+
+    override fun checkAppAvailable(data: ApiRequestData): Boolean {
+        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return false
+        val request = OkHttpApi.getRequestBuilder().url("https://www.coolapk.com/apk/$appPackage")
+            .head().build()
+        return OkHttpApi.call(request).execute().code != 404
+    }
 
     override fun getRelease(
         data: ApiRequestData,
