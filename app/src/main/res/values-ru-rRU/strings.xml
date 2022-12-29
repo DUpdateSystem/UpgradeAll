@@ -51,10 +51,10 @@
     <string name="please_grant_storage_perm">Пожалуйста, предоставьте этому приложению разрешение на чтение и запись памяти</string>
     <string name="add_apps">Добавить приложение</string>
     <string name="auto_update_hub_config">Auto Update Hub Config</string>
-    <string name="auto_update_hub_config_desc">When entering the Cloud Rules Hub page, check the hub config downloaded from the cloud hub and automatically update it when a new version is available.</string>
+    <string name="auto_update_hub_config_desc">Проверьте репозиторий подписки на правила для конфигураций концентратора и автоматически синхронизируйте их при входе на страницу App Hub</string>
     <string name="auto_start_update">Auto update data when entering the home page</string>
     <string name="auto_update_app_config">Auto Update App Config</string>
-    <string name="auto_update_app_config_desc">When entering the Cloud Rules Hub page, check the app config downloaded from the cloud hub and automatically update it when a new version is available.</string>
+    <string name="auto_update_app_config_desc">Проверка репозитория подписки на правила для конфигураций приложений и автоматическая синхронизация при входе на страницу App Hub</string>
     <string name="auto_update_setting">Auto Update Setting</string>
     <string name="long_click_to_use_external_downloader">Long click to use external downloader</string>
     <string name="download_start">Start Download</string>
@@ -82,9 +82,9 @@
     <string name="backup_to_webdav">Резервное копирование в WebDAV</string>
     <string name="restore_from_webdav">Восстановить из WebDAV</string>
     <string name="webdav_path">WebDAV file path</string>
-    <string name="webdav_path_desc">Make sure the WebDAV path is exist.</string>
+    <string name="webdav_path_desc">Убедитесь, что путь к WebDAV существует</string>
     <string name="webdav_url">WebDAV URL</string>
-    <string name="webdav_username">WebDAV Username</string>
+    <string name="webdav_username">Имя пользователя WebDAV</string>
     <string name="webdav_password">Пароль WebDAV</string>
     <string name="restore_running">restoring</string>
     <string name="restore_stop">Recovery complete</string>
@@ -106,10 +106,10 @@
     <string name="external_downloader_package_name">Название внешнего пакета загрузчика</string>
     <string name="use_external_downloader">Forcing the use of external downloader</string>
     <string name="update_status_identifier">Обновить идентификатор статуса</string>
-    <string name="end">That\'s the end.</string>
+    <string name="end">Конец</string>
     <string name="update_info">Update Info</string>
     <string name="update_status_prompt">Обновить статус запроса</string>
-    <string name="waiting_check_update">Checking for updates......</string>
+    <string name="waiting_check_update">Проверяем обновления…</string>
     <string name="example_update_overview" formatted="false">Total Applications: %d, Need Upgrade:%d</string>
     <!-- Example -->
     <!--  Home  -->
@@ -150,8 +150,8 @@
     <string name="parse_attr_by_url">Parse attributes from URL</string>
     <string name="add_attr">Add attributes</string>
     <string name="open_list">Open list</string>
-    <string name="plz_input_app_url">Please input APP\'s URL</string>
-    <string name="not_match_any_template">Cannot match any template.</string>
+    <string name="plz_input_app_url">Пожалуйста, введите URL приложения</string>
+    <string name="not_match_any_template">Невозможно сопоставить ни один шаблон</string>
     <string name="helper_text_cant_be_empty">Not empty</string>
     <string name="helper_text_attr_cant_be_empty">Attributes List not empty</string>
     <string name="updating_setting">Updating Setting</string>
@@ -199,4 +199,9 @@
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
     <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
+    <string name="data_expiration_time_desc">Время истечения срока действия кэша данных о номере версии, полученных из Интернета.
+\nОтключено для значения 0 (только для отладки).</string>
+    <string name="custom_include_version_number_field_regex">Regex для поля обязательного включения имени версии</string>
+    <string name="data_expiration_time">Время истечения кэша данных (мин)</string>
+    <string name="open_browser_failed">Не удалось открыть браузер; причина неизвестна</string>
 </resources>
