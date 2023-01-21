@@ -155,7 +155,7 @@
     <string name="helper_text_cant_be_empty">不能为空</string>
     <string name="helper_text_attr_cant_be_empty">属性列表不能为空</string>
     <string name="updating_setting">更新设置</string>
-    <string name="custom_invalid_version_number_field_regex">自定义无效版本号字段的正则表达式</string>
+    <string name="custom_invalid_version_number_field_regex">自定义版本号将会被舍弃的部分的正则表达式</string>
     <!-- File Manager -->
     <string name="pause">暂停</string>
     <string name="Continue">继续</string>
