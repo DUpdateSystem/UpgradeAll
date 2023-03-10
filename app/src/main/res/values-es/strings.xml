@@ -14,7 +14,7 @@
     <string name="edit">Editar</string>
     <string name="background_sync_time">Frecuencia de Escaneo en Segundo plano (hr)</string>
     <string name="data_expiration_time">Tiempo de expiración de caché de datos (min)</string>
-    <string name="cloud_rules_repo_url">URL de Regla de Suscripción de Repo</string>
+    <string name="cloud_rules_repo_url">Regla Suscripción Repo URL</string>
     <string name="update_server_url">Actualizar URL del Servidor</string>
     <string name="menu_search">Buscar</string>
     <string name="menu_search_hint">Buscar…</string>
