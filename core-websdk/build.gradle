@@ -47,7 +47,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10'
 
     // OkHttp
-    api 'com.squareup.okhttp3:okhttp:5.0.0-alpha.10'
+    api 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:5.0.0-alpha.10'
     // dom4j, xml support
     implementation 'org.dom4j:dom4j:2.1.3'
