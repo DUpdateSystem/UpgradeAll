@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        kotlin_version = '1.7.22'
+        kotlin_version = '1.8.10'
         kotlin_coroutines_version = '1.6.4'
         kotlin_stdlib_version = '1.5.0'
     }
@@ -18,14 +18,14 @@ buildscript {
         // NO FREE
         if (!project.hasProperty('free')) {
             classpath 'com.google.gms:google-services:4.3.14'
-            classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.2'
+            classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.4'
             classpath 'com.google.firebase:perf-plugin:1.4.2'
         }
     }
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.7.22'
+    id 'org.jetbrains.kotlin.jvm' version '1.8.10'
 }
 
 allprojects {

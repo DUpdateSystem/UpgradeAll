@@ -110,7 +110,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
 
     // Java desugar
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.2'
     implementation 'com.jakewharton.threetenabp:threetenabp:1.4.4'
 
     // WorkManager
@@ -144,8 +144,8 @@ dependencies {
     implementation 'com.github.6tail:lunar-java:1.2.28'
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test:runner:1.5.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     implementation project(path: ':app-backup')
     implementation project(path: ':core-android-utils')
@@ -159,7 +159,7 @@ dependencies {
         // Firebase
         implementation 'com.google.firebase:firebase-perf:20.3.0'
         implementation 'com.google.firebase:firebase-analytics:21.2.0'
-        implementation 'com.google.firebase:firebase-crashlytics:18.3.2'
+        implementation 'com.google.firebase:firebase-crashlytics:18.3.5'
     }
     //Protobuf
     implementation "com.google.protobuf:protobuf-java:3.21.12"
