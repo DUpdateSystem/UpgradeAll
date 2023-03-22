@@ -159,7 +159,7 @@ dependencies {
         // Firebase
         implementation 'com.google.firebase:firebase-perf:20.3.0'
         implementation 'com.google.firebase:firebase-analytics:21.2.0'
-        implementation 'com.google.firebase:firebase-crashlytics:18.3.2'
+        implementation 'com.google.firebase:firebase-crashlytics:18.3.5'
     }
     //Protobuf
     implementation "com.google.protobuf:protobuf-java:3.21.12"
