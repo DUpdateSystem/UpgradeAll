@@ -8,6 +8,8 @@ import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.constant.ANDROID_MAGISK_MODULE_TYPE
+import net.xzos.upgradeall.core.websdk.base_model.AppData
+import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
@@ -119,16 +121,15 @@ class Hub(private val hubDatabase: HubEntity) {
         val (appId, other) = filterValidKey(appDataStorage.appDatabase.appId)
         if (appId.isEmpty()) return null
         return appDataStorage.serverApi.getAppReleaseList(
-            SingleRequestData(uuid, auth, appId, other)
-        )
-            ?.also {
-                runBlocking {
-                    if (it.isEmpty())
-                        unsetActiveApp(appId)
-                    else
-                        setActiveApp(appId)
-                }
+            SingleRequestData(HubData(uuid, auth), AppData(appId, other))
+        )?.also {
+            runBlocking {
+                if (it.isEmpty())
+                    unsetActiveApp(appId)
+                else
+                    setActiveApp(appId)
             }
+        }
     }
 
     private suspend fun saveDatabase() {

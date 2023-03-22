@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.websdk.api
 
+import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
@@ -19,7 +20,7 @@ class ServerApiProxy internal constructor(
         return serverApi?.checkAppAvailable(data)
     }
 
-    override fun getAppUpdate(data: MultiRequestData): Map<Map<String, String?>, ReleaseGson>? {
+    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson>? {
         return serverApi?.getAppUpdate(data)
     }
 

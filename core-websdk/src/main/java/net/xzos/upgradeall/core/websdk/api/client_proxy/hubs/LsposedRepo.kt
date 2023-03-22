@@ -10,7 +10,8 @@ import net.xzos.upgradeall.core.utils.getOrNull
 import net.xzos.upgradeall.core.utils.iterator
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
-import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
+import net.xzos.upgradeall.core.websdk.base_model.AppData
+import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.json.JSONArray
@@ -20,12 +21,12 @@ class LsposedRepo(
     dataCache: DataCacheManager, okhttpProxy: OkhttpProxy
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "401e6259-2eab-46f0-8e8a-d2bfafedf5bf"
-    override fun checkAppAvailable(data: SingleRequestData): Boolean? {
-        return getAppJson(data)?.length() != 0
+    override fun checkAppAvailable(hub: HubData, app: AppData): Boolean {
+        return getAppJson(app)?.length() != 0
     }
 
-    override fun getReleases(data: SingleRequestData): List<ReleaseGson>? {
-        val json = getAppJson(data) ?: return null
+    override fun getReleases(hub: HubData, app: AppData): List<ReleaseGson>? {
+        val json = getAppJson(app) ?: return null
         val jsonArray = json.getOrNull("releases", json::getJSONArray) ?: return emptyList()
         return jsonArray.asSequence<JSONObject>().map {
             ReleaseGson(
@@ -43,7 +44,7 @@ class LsposedRepo(
         }.toList()
     }
 
-    private fun getAppJson(data: SingleRequestData): JSONObject? {
+    private fun getAppJson(app: AppData): JSONObject? {
         val dataJson = dataCache.get(
             mutex,
             "lsposed_repo_json", SaveMode.DISK_ONLY, JsonArrayEncoder,
@@ -56,7 +57,7 @@ class LsposedRepo(
             }
         } ?: return null
 
-        val appPackage = data.appId[ANDROID_APP_TYPE]
+        val appPackage = app.appId[ANDROID_APP_TYPE]
         var json: JSONObject? = null
         for (tmp in dataJson.iterator<JSONObject>()) {
             if (tmp.getString("name") == appPackage) {

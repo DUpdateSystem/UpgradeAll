@@ -15,8 +15,8 @@ import net.xzos.upgradeall.core.websdk.api.client_proxy.versionCode
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.http.OkHttpApi
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
-import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
-import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
+import net.xzos.upgradeall.core.websdk.base_model.AppData
+import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
@@ -31,19 +31,19 @@ internal class CoolApk(
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "1c010cc9-cff8-4461-8993-a86cd190d377"
 
-    override fun checkAppAvailable(data: SingleRequestData): Boolean {
-        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return false
+    override fun checkAppAvailable(hub: HubData, app: AppData): Boolean {
+        val appPackage = app.appId[ANDROID_APP_TYPE] ?: return false
         val request = OkHttpApi.getRequestBuilder().url("https://www.coolapk.com/apk/$appPackage")
             .head().build()
         return OkHttpApi.call(request).execute().code != 404
     }
 
-    override fun getUpdate(data: MultiRequestData): Map<Map<String, String?>, ReleaseGson> {
+    override fun getUpdate(hub: HubData, appList: List<AppData>): Map<AppData, ReleaseGson> {
         TODO("Not yet implemented")
     }
 
-    override fun getReleases(data: SingleRequestData): List<ReleaseGson>? {
-        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
+    override fun getReleases(hub: HubData, app: AppData): List<ReleaseGson>? {
+        val appPackage = app.appId[ANDROID_APP_TYPE] ?: return emptyList()
 
         // get latest
         val detailUrl = "$apiUrl/v6/apk/detail?id=$appPackage"
@@ -106,13 +106,15 @@ internal class CoolApk(
     }
 
     override fun getDownload(
-        data: SingleRequestData, assetIndex: List<Int>, assetGson: AssetGson?
+        hub: HubData, app: AppData,
+        assetIndex: List<Int>, assetGson: AssetGson?
     ): List<DownloadItem>? {
         val request = assetGson?.downloadUrl?.let { httpRedirects(it) }
         if (request?.headers?.get("Content-Type")?.split(";")?.get(0) != APK_CONTENT_TYPE) {
             Log.i(logObjectTag, TAG, "getDownload: 返回非安装包数据")
-            val newAssets = getReleases(data)?.get(assetIndex[0])?.assetGsonList?.get(assetIndex[1])
-                ?: return null
+            val newAssets =
+                getReleases(hub, app)?.get(assetIndex[0])?.assetGsonList?.get(assetIndex[1])
+                    ?: return null
             return listOf(
                 DownloadItem(
                     newAssets.fileName, newAssets.downloadUrl ?: return null, null, null

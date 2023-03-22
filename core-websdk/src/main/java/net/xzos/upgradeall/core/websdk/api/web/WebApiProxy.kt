@@ -10,7 +10,8 @@ import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.core.websdk.api.BaseApi
 import net.xzos.upgradeall.core.websdk.api.web.http.DnsApi
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
-import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
+import net.xzos.upgradeall.core.websdk.base_model.AppData
+import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
@@ -31,7 +32,7 @@ internal class WebApiProxy(
                 null
             }
         } ?: _host
-    private val requestDataMap = coroutinesMutableMapOf<ApiRequestData, HttpRequestData>()
+    private val requestDataMap = coroutinesMutableMapOf<String, HttpRequestData>()
 
     override fun getCloudConfig(url: String): CloudConfigList? {
         return webApi.getCloudConfig(url)
@@ -39,37 +40,37 @@ internal class WebApiProxy(
 
     override fun checkAppAvailable(data: SingleRequestData): Boolean? = null
 
-    override fun getAppUpdate(data: MultiRequestData): Map<Map<String, String?>, ReleaseGson>? {
-        return data.appIdList.mapNotNull {
-            getAppRelease(
-                SingleRequestData(data.hubUuid, data.auth, it, data.other)
-            )?.firstOrNull()?.let { r -> it to r }
+    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson>? {
+        return data.appList.mapNotNull {
+            getAppRelease(data.hub, it)?.firstOrNull()?.let { r -> it to r }
         }.toMap()
     }
 
-    private fun getAppRelease(data: SingleRequestData): List<ReleaseGson>? {
-        val appIdPath = getMapPath(data.appId)
-        val hubUuid = data.hubUuid
-        val authHeader = getAuthHeaderDict(data.auth)
+    private fun getAppRelease(hub: HubData, app: AppData): List<ReleaseGson>? {
+        val appIdPath = getMapPath(app.appId + app.other)
+        val hubUuid = hub.hubUuid
+        val authHeader = getAuthHeaderDict(hub.auth)
         val url = "http://$host/v1/app/${hubUuid}/${appIdPath}/release"
+        val mapKey = getRequestMapKey(hub, app)
         val httpRequestData = HttpRequestData(url, authHeader, markId = hubUuid).apply {
-            requestDataMap[data] = this
+            requestDataMap[mapKey] = this
         }
         return webApi.getAppRelease(httpRequestData).apply {
-            requestDataMap.remove(data)
+            requestDataMap.remove(mapKey)
         }
     }
 
     override fun getAppReleaseList(data: SingleRequestData): List<ReleaseGson>? {
-        val appIdPath = getMapPath(data.appId)
-        val hubUuid = data.hubUuid
+        val appIdPath = getMapPath(data.app.appId + data.app.other)
+        val hubUuid = data.hub.hubUuid
         val url = "http://$host/v1/app/${hubUuid}/${appIdPath}/releases"
-        val authHeader = getAuthHeaderDict(data.auth)
+        val authHeader = getAuthHeaderDict(data.hub.auth)
+        val mapKey = getRequestMapKey(data.hub, data.app)
         val httpRequestData = HttpRequestData(url, authHeader, markId = hubUuid).apply {
-            requestDataMap[data] = this
+            requestDataMap[mapKey] = this
         }
         return webApi.getAppReleaseList(httpRequestData).apply {
-            requestDataMap.remove(data)
+            requestDataMap.remove(mapKey)
         }
     }
 
@@ -77,21 +78,26 @@ internal class WebApiProxy(
         data: SingleRequestData,
         assetIndex: Pair<Int, Int>
     ): List<DownloadItem>? {
-        val appIdPath = getMapPath(data.appId)
-        val hubUuid = data.hubUuid
-        val authHeader = getAuthHeaderDict(data.auth)
+        val appIdPath = getMapPath(data.app.appId + data.app.other)
+        val hubUuid = data.hub.hubUuid
+        val authHeader = getAuthHeaderDict(data.hub.auth)
         val assetIndexPath = getIntListPath(assetIndex.toList())
         val url = "http://$host/v1/app/${hubUuid}/${appIdPath}/extra_download/$assetIndexPath"
+        val mapKey = getRequestMapKey(data.hub, data.app)
         val httpRequestData = HttpRequestData(url, authHeader, markId = hubUuid).apply {
-            requestDataMap[data] = this
+            requestDataMap[mapKey] = this
         }
         return webApi.getDownloadInfo(httpRequestData).apply {
-            requestDataMap.remove(data)
+            requestDataMap.remove(mapKey)
         }
     }
 
-    fun cancelRequest(requestData: ApiRequestData) {
-        requestDataMap[requestData]?.apply {
+    private fun getRequestMapKey(hub: HubData, app: AppData): String {
+        return "${hub.getStringId()}-${app.getStringId()}"
+    }
+
+    fun cancelRequest(hub: HubData, app: AppData) {
+        requestDataMap[getRequestMapKey(hub, app)]?.apply {
             webApi.cancelCall(this)
         }
     }

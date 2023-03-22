@@ -1,22 +1,33 @@
 package net.xzos.upgradeall.core.websdk.base_model
 
 
-abstract class ApiRequestData(
+data class HubData(
     val hubUuid: String,
     val auth: Map<String, String?>,
+    val other: Map<String, String?> = mapOf(),
+) {
+    fun getStringId(): String = "$hubUuid/${auth.getString()}/${other.getString()}"
+}
+
+data class AppData(
+    val appId: Map<String, String?>,
     val other: Map<String, String?>,
+) {
+    fun getStringId(): String = "${appId.getString()}/${other.getString()}"
+}
+
+abstract class ApiRequestData(
+    val hub: HubData,
 )
 
 class SingleRequestData(
-    hubUuid: String,
-    auth: Map<String, String?>,
-    val appId: Map<String, String?>,
-    other: Map<String, String?>,
-) : ApiRequestData(hubUuid, auth, other)
+    hub: HubData,
+    val app: AppData,
+) : ApiRequestData(hub)
 
 class MultiRequestData(
-    hubUuid: String,
-    auth: Map<String, String?>,
-    val appIdList: List<Map<String, String?>>,
-    other: Map<String, String?>,
-) : ApiRequestData(hubUuid, auth, other)
+    hub: HubData,
+    val appList: List<AppData>,
+) : ApiRequestData(hub)
+
+fun Map<String, String?>.getString() = entries.joinToString { "${it.key}:${it.value}" }

@@ -8,7 +8,8 @@ import net.xzos.upgradeall.core.websdk.api.client_proxy.mdToHtml
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.http.OkHttpApi
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
-import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
+import net.xzos.upgradeall.core.websdk.base_model.AppData
+import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.json.JSONArray
@@ -19,8 +20,8 @@ class Gitlab(
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "a84e2fbe-1478-4db5-80ae-75d00454c7eb"
 
-    override fun checkAppAvailable(data: SingleRequestData): Boolean {
-        val appId = data.appId
+    override fun checkAppAvailable(hub: HubData, app: AppData): Boolean {
+        val appId = app.appId
         val owner = appId["owner"]
         val repo = appId["repo"]
         val request = OkHttpApi.getRequestBuilder().url("https://github.com/$owner/$repo/")
@@ -28,8 +29,8 @@ class Gitlab(
         return OkHttpApi.call(request).execute().code != 404
     }
 
-    override fun getReleases(data: SingleRequestData): List<ReleaseGson>? {
-        val appId = data.appId
+    override fun getReleases(hub: HubData, app: AppData): List<ReleaseGson>? {
+        val appId = app.appId
         val owner = appId["owner"]
         val repo = appId["repo"]
         val url = "$GITLAB_HOST/api/v4/projects/$owner%2F$repo/releases"
@@ -38,7 +39,7 @@ class Gitlab(
             ?: return null
         val jsonArray = JSONArray(response.body.string())
         return jsonArray.asSequence<JSONObject>().map { json ->
-            val name = data.other[VERSION_NUMBER_KEY]?.let {
+            val name = app.other[VERSION_NUMBER_KEY]?.let {
                 json.getString(it)
             } ?: json.getString("name").let {
                 if (VersioningUtils.matchVersioningString(it) == null)

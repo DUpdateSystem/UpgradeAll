@@ -8,6 +8,8 @@ import net.xzos.upgradeall.core.websdk.api.client_proxy.versionCode
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.http.OkHttpApi
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
+import net.xzos.upgradeall.core.websdk.base_model.AppData
+import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
@@ -19,8 +21,8 @@ internal class Github(
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid = "fd9b2602-62c5-4d55-bd1e-0d6537714ca0"
 
-    override fun checkAppAvailable(data: SingleRequestData): Boolean {
-        val appId = data.appId
+    override fun checkAppAvailable(hub: HubData, app: AppData): Boolean {
+        val appId = app.appId
         val owner = appId["owner"]
         val repo = appId["repo"]
         val request = OkHttpApi.getRequestBuilder().url("https://github.com/$owner/$repo/")
@@ -28,8 +30,8 @@ internal class Github(
         return OkHttpApi.call(request).execute().code != 404
     }
 
-    override fun getReleases(data: SingleRequestData): List<ReleaseGson>? {
-        val appId = data.appId
+    override fun getReleases(hub: HubData, app: AppData): List<ReleaseGson>? {
+        val appId = app.appId
         val owner = appId["owner"]
         val repo = appId["repo"]
         val url = "https://api.github.com/repos/$owner/$repo/releases"
@@ -38,14 +40,14 @@ internal class Github(
             ?: return null
         val jsonArray = JSONArray(response.body.string())
         return jsonArray.asSequence<JSONObject>().map { json ->
-            val name = data.other[VERSION_NUMBER_KEY]?.let {
+            val name = app.other[VERSION_NUMBER_KEY]?.let {
                 json.getString(it)
             } ?: json.getString("name").let {
                 if (VersioningUtils.matchVersioningString(it) == null)
                     json.getString("tag_name")
                 else it
             }
-            val versionCode = data.other[VERSION_CODE_KEY]?.run {
+            val versionCode = app.other[VERSION_CODE_KEY]?.run {
                 try {
                     json.optString(this).tryGetTimestamp()
                 } catch (e: Throwable) {

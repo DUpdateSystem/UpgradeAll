@@ -2,13 +2,13 @@ package net.xzos.upgradeall.core.websdk.api
 
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
-import net.xzos.upgradeall.core.utils.data_cache.cache_object.Encoder
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.websdk.api.client_proxy.ClientProxyApi
 import net.xzos.upgradeall.core.websdk.api.client_proxy.NoFunction
 import net.xzos.upgradeall.core.websdk.api.web.WebApi
 import net.xzos.upgradeall.core.websdk.api.web.WebApiProxy
-import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
+import net.xzos.upgradeall.core.websdk.base_model.AppData
+import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.cache.AppReleaseListEncoder
@@ -31,8 +31,8 @@ class ServerApi internal constructor(
         webApi.shutdown()
     }
 
-    fun cancelRequest(requestData: ApiRequestData) {
-        webApiProxy.cancelRequest(requestData)
+    fun cancelRequest(hub: HubData, app: AppData) {
+        webApiProxy.cancelRequest(hub, app)
     }
 
     override fun getCloudConfig(url: String): CloudConfigList? {
@@ -52,7 +52,7 @@ class ServerApi internal constructor(
         )
     }
 
-    override fun getAppUpdate(data: MultiRequestData): Map<Map<String, String?>, ReleaseGson>? {
+    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson>? {
         return callOrBack(
             data,
             clientProxyApi::getAppUpdate,
@@ -107,16 +107,4 @@ private fun <A, T> callOrBack(
     }
 }
 
-fun <E> DataCacheManager.getOrRenewWithCallback(
-    key: String, saveMode: SaveMode, encoder: Encoder<E>,
-    callback: (E?) -> Unit,
-    renewFun: (ApiRequestData, (E?) -> Unit) -> Unit, data: ApiRequestData
-) {
-    callback(get(key, saveMode, encoder) { null })
-    renewFun(data) {
-        cache(key, saveMode, it, encoder)
-        callback(it)
-    }
-}
-
-fun SingleRequestData.getKey() = hubUuid + auth + appId + other
+fun SingleRequestData.getKey() = "${hub.getStringId()}-${app.getStringId()}"

@@ -9,7 +9,8 @@ import net.xzos.upgradeall.core.websdk.api.client_proxy.XmlEncoder
 import net.xzos.upgradeall.core.websdk.api.client_proxy.versionCode
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
-import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
+import net.xzos.upgradeall.core.websdk.base_model.AppData
+import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.dom4j.Element
@@ -21,16 +22,16 @@ class FDroid(
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "6a6d590b-1809-41bf-8ce3-7e3f6c8da945"
 
-    override fun checkAppAvailable(data: SingleRequestData): Boolean {
-        return getAppNode(data).let { !(it != null && it.second == null) }
+    override fun checkAppAvailable(hub: HubData, app: AppData): Boolean {
+        return getAppNode(hub, app).let { !(it != null && it.second == null) }
     }
 
-    override fun getReleases(data: SingleRequestData): List<ReleaseGson> {
-        return getRelease0(data) ?: listOf()
+    override fun getReleases(hub: HubData, app: AppData): List<ReleaseGson> {
+        return getRelease0(hub, app) ?: listOf()
     }
 
-    private fun getRelease0(data: SingleRequestData): List<ReleaseGson>? {
-        val (url, node) = getAppNode(data) ?: return null
+    private fun getRelease0(hub: HubData, app: AppData): List<ReleaseGson>? {
+        val (url, node) = getAppNode(hub, app) ?: return null
         node ?: return emptyList()
         var changelog = node.valueOf("changelog")
         return node.selectNodes("package").map {
@@ -46,9 +47,9 @@ class FDroid(
         }
     }
 
-    private fun getAppNode(data: SingleRequestData): Pair<String, Node?>? {
-        val url = data.other[REPO_URL] ?: DEF_URL
-        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return Pair(url, null)
+    private fun getAppNode(hub: HubData, app: AppData): Pair<String, Node?>? {
+        val url = hub.other[REPO_URL] ?: DEF_URL
+        val appPackage = app.appId[ANDROID_APP_TYPE] ?: return Pair(url, null)
         val root = getRoot(url) ?: return null
         return Pair(url, root.selectSingleNode(".//application[@id=\"$appPackage\"]"))
     }

@@ -22,8 +22,8 @@ import net.xzos.upgradeall.core.websdk.api.client_proxy.versionCode
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.http.OkHttpApi
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
-import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
-import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
+import net.xzos.upgradeall.core.websdk.base_model.AppData
+import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
@@ -33,18 +33,18 @@ class GooglePlay(
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "65c2f60c-7d08-48b8-b4ba-ac6ee924f6fa"
 
-    override fun checkAppAvailable(data: SingleRequestData): Boolean {
-        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return false
+    override fun checkAppAvailable(hub: HubData, app: AppData): Boolean {
+        val appPackage = app.appId[ANDROID_APP_TYPE] ?: return false
         val request = OkHttpApi.getRequestBuilder()
             .url("https://play.google.com/store/apps/details?id=$appPackage")
             .head().build()
         return OkHttpApi.call(request).execute().code != 404
     }
 
-    override fun getReleases(data: SingleRequestData): List<ReleaseGson>? {
-        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
+    override fun getReleases(hub: HubData, app: AppData): List<ReleaseGson>? {
+        val appPackage = app.appId[ANDROID_APP_TYPE] ?: return emptyList()
         Log.i(logObjectTag, TAG, "getRelease: package: $appPackage")
-        val authJson = getAuthJson(data) ?: return null
+        val authJson = getAuthJson(hub) ?: return null
         val authData = getAuthData(authJson) ?: return null
         val detailHelper = AppDetailsHelper(authData)
         val app = try {
@@ -69,31 +69,30 @@ class GooglePlay(
     }
 
     override fun getDownload(
-        data: SingleRequestData, assetIndex: List<Int>, assetGson: AssetGson?
+        hub: HubData, app: AppData,
+        assetIndex: List<Int>, assetGson: AssetGson?
     ): List<DownloadItem>? {
-        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
-        val authJson = getAuthJson(data) ?: return null
+        val appPackage = app.appId[ANDROID_APP_TYPE] ?: return emptyList()
+        val authJson = getAuthJson(hub) ?: return null
         val authData = getAuthData(authJson) ?: return null
         val detailHelper = AppDetailsHelper(authData)
         val app = detailHelper.getAppByPackageName(appPackage)
         return PurchaseHelper(authData).purchase(
-            app.packageName,
-            app.versionCode,
-            app.offerType
+            app.packageName, app.versionCode, app.offerType
         ).map {
             DownloadItem(it.name, it.url, null, null)
         }
     }
 
-    private fun getAuthJson(data: ApiRequestData): Map<String, String?>? {
-        return data.auth[EMAIL_AUTH]?.let {
-            data.auth[TOKEN_AUTH]?.run {
+    private fun getAuthJson(hub: HubData): Map<String, String?>? {
+        return hub.auth[EMAIL_AUTH]?.let {
+            hub.auth[TOKEN_AUTH]?.run {
                 mapOf(
-                    EMAIL_AUTH to data.auth[EMAIL_AUTH],
-                    TOKEN_AUTH to data.auth[TOKEN_AUTH]
+                    EMAIL_AUTH to hub.auth[EMAIL_AUTH],
+                    TOKEN_AUTH to hub.auth[TOKEN_AUTH]
                 )
             }
-        } ?: getAuthJsonFromWeb(data.other.get(AUTH_SERVER) ?: "https://auroraoss.com/api/auth")
+        } ?: getAuthJsonFromWeb(hub.other[AUTH_SERVER] ?: "https://auroraoss.com/api/auth")
     }
 
     private fun getAuthJsonFromWeb(url: String): Map<String, String>? {
