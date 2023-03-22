@@ -34,7 +34,7 @@ private suspend fun addApp(context: Context, packageName: String) {
     } catch (e: Throwable) {
         return
     }
-    AppManager.updateApp(appInfo.toAppEntity())
+    AppManager.saveApp(appInfo.toAppEntity())
 }
 
 private suspend fun renewApp(packageName: String) {

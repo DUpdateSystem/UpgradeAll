@@ -10,8 +10,8 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.androidutils.runUiFun
 import net.xzos.upgradeall.core.manager.AppManager
+import net.xzos.upgradeall.core.module.AppStatus
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.Updater
 import net.xzos.upgradeall.core.utils.oberver.Func
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.databinding.ActivityMainBinding
@@ -145,9 +145,8 @@ class MainActivity : BaseActivity() {
     }
 
     private fun renewUpdateStatus() {
-        val appMap = AppManager.getAppMap()
         runUiFun {
-            val needUpdateNum = appMap[Updater.APP_OUTDATED]?.size ?: 0
+            val needUpdateNum = AppManager.getAppList(AppStatus.APP_OUTDATED).size
             binding.layoutUpdatingCard.tvSubtitle.text =
                 String.format(getString(R.string.home_format_items_need_update), needUpdateNum)
             binding.layoutUpdatingCard.tsTitle.setText(getString(R.string.home_check_updates))

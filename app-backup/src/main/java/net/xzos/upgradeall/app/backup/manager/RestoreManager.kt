@@ -75,7 +75,7 @@ object RestoreManager : InformerNoTag<RestoreStatus>() {
         }
         with(metaDatabase.appDao().loadAll()) {
             forEachIndexed { index, appEntity ->
-                AppManager.updateApp(appEntity.copy(id = 0L))
+                AppManager.saveApp(appEntity.copy(id = 0L))
                 notifyChanged(
                     RestoreStatus(
                         RestoreStage.RESTORE_DATABASE,

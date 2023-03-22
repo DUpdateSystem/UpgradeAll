@@ -5,6 +5,7 @@ import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.isInit
 import net.xzos.upgradeall.core.database.table.setSortHubUuidList
 import net.xzos.upgradeall.core.manager.HubManager
+import net.xzos.upgradeall.core.module.AppStatus
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.module.app.version.Version
@@ -56,13 +57,13 @@ data class App private constructor(val appDatabase: AppEntity) {
     fun getUrl(hubUuid: String): String? = HubManager.getHub(hubUuid)?.getUrl(this)
 
     /* 设置 App 版本号数据刷新时的回调函数 */
-    fun setStatusRenewedFun(statusRenewedFun: (appStatus: Int) -> Unit) {
+    fun setStatusRenewedFun(statusRenewedFun: (appStatus: AppStatus) -> Unit) {
         updater.statusRenewedFun = statusRenewedFun
     }
 
     /* 清除 App 版本号数据刷新时的回调函数 */
     fun renewStatusRenewedFun() {
-        updater.statusRenewedFun = fun(_: Int) {}
+        updater.statusRenewedFun = fun(_) {}
     }
 
     /* 版本号数据列表 */
@@ -73,7 +74,7 @@ data class App private constructor(val appDatabase: AppEntity) {
         updater.update()
     }
 
-    suspend fun getReleaseStatusWaitRenew(): Int {
+    suspend fun getReleaseStatusWaitRenew(): AppStatus {
         return updater.getReleaseStatusWaitRenew()
     }
 
@@ -82,7 +83,7 @@ data class App private constructor(val appDatabase: AppEntity) {
     }
 
     /* 获取 App 的更新状态 */
-    fun getReleaseStatus(): Int {
+    fun getReleaseStatus(): AppStatus {
         return updater.getReleaseStatus()
     }
 
@@ -94,13 +95,13 @@ data class App private constructor(val appDatabase: AppEntity) {
 
     /* 获取 App 的更新状态 */
     fun isLatestVersion(): Boolean {
-        return updater.getReleaseStatus() == Updater.APP_LATEST
+        return updater.getReleaseStatus() == AppStatus.APP_LATEST
     }
 
     companion object {
         fun new(
             appDatabase: AppEntity,
-            statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
+            statusRenewedFun: (appStatus: AppStatus) -> Unit = fun(_) {},
         ) = App(appDatabase).apply {
             setStatusRenewedFun(statusRenewedFun)
         }

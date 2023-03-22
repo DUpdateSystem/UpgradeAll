@@ -105,7 +105,7 @@ object CloudConfigGetter {
             if (solveHubDependency(it.baseHubUuid, notifyFun)) {
                 it.toAppEntity()?.apply {
                     // 添加数据库
-                    val app = AppManager.updateApp(this)
+                    val app = AppManager.saveApp(this)
                     if (app != null) {
                         notifyFun(GetStatus.SUCCESS_SAVE_APP_DATA)
                         notifyFun(GetStatus.SUCCESS)

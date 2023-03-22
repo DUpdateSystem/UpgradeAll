@@ -2,6 +2,7 @@ plugins {
     id 'com.android.library'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -45,6 +46,7 @@ dependencies {
     implementation project(path: ':core-utils')
     api project(path: ':core-websdk')  // 传递 API 返回值的数据结构
     implementation project(path: ':core-android-utils')
+    implementation 'androidx.core:core-ktx:1.9.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -57,7 +59,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     // database
-    def room_version = '2.4.3'
+    def room_version = '2.5.0'
     api "androidx.room:room-runtime:$room_version"
     kapt 'org.xerial:sqlite-jdbc:3.40.0.0' //Work around on Apple Silicon
     kapt "androidx.room:room-compiler:$room_version"

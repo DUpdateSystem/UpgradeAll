@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.module.app.data
 
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.module.Hub
@@ -25,11 +24,11 @@ internal class DataGetter(private val dataStorage: DataStorage) {
             }
     }
 
-    suspend fun getVersionList(callback: (List<Version>) -> Unit) {
+    fun getVersionList(callback: (List<Version>) -> Unit) {
         doGetVersionList(callback)
     }
 
-    private suspend fun doGetVersionList(callback: (List<Version>) -> Unit) {
+    private fun doGetVersionList(callback: (List<Version>) -> Unit) {
         hubList.forEach {
             renewVersionList(it)
         }
@@ -44,17 +43,15 @@ internal class DataGetter(private val dataStorage: DataStorage) {
         mutex.wait()
     }
 
-    private suspend fun renewVersionList(hub: Hub) {
-        hub.getAppReleaseList(dataStorage)?.forEachIndexed { releaseIndex, releaseGson ->
-            runBlocking {
-                dataStorage.versionMap.addRelease(
-                    VersionWrapper(
-                        hub, releaseGson,
-                        releaseGson.assetGsonList.mapIndexed { assetIndex, assetGson ->
-                            AssetWrapper(hub, listOf(releaseIndex, assetIndex), assetGson)
-                        })
-                )
-            }
+    private fun renewVersionList(hub: Hub) {
+        hub.getAppReleaseList(dataStorage)?.mapIndexed { index, releaseGson ->
+            VersionWrapper(
+                hub, releaseGson,
+                releaseGson.assetGsonList.mapIndexed { assetIndex, assetGson ->
+                    AssetWrapper(hub, listOf(index, assetIndex), assetGson)
+                })
+        }?.run {
+            dataStorage.versionMap.addReleaseList(this)
         }
     }
 }

@@ -1,51 +1,51 @@
 package net.xzos.upgradeall.core.module.app.data
 
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version.VersionInfo
 import net.xzos.upgradeall.core.module.app.version.VersionWrapper
+import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
+import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 class VersionMap private constructor() {
     private var ignoreVersionNumberRegex: String? = null
     private var includeVersionNumberRegex: String? = null
 
-    private val mutex = Mutex()
+    /* 是否只包含更新数据 */
+    private var status: VersionStatus? = null
 
     /* 版本号数据列表 */
-    private var versionMap: MutableMap<VersionInfo, MutableSet<VersionWrapper>> = mutableMapOf()
+    private val versionMap: CoroutinesMutableMap<VersionInfo, MutableSet<VersionWrapper>> =
+        coroutinesMutableMapOf()
 
     private var versionList: List<Version> = listOf()
-    private var sorted
-        get() = !(versionMap.isNotEmpty() && versionList.isEmpty())
-        set(value) {
-            if (!value) versionList = listOf()
-        }
 
-    suspend fun setVersionNumberRegex(ignore: String?, include: String?) {
+    fun setVersionNumberRegex(ignore: String?, include: String?) {
         ignoreVersionNumberRegex = ignore
         includeVersionNumberRegex = include
         refreshMap()
     }
 
-    private suspend fun refreshMap() {
+    private fun refreshMap() {
         versionMap.toMap().also {
-            versionMap = mutableMapOf()
+            versionMap.clear()
         }.forEach {
-            it.value.forEach { release ->
-                addRelease(release)
-            }
+            addReleaseList(it.value)
         }
     }
 
-    suspend fun addRelease(release: VersionWrapper) {
-        sorted = false
-        mutex.withLock {
-            val versionInfo = getVersionInfo(release.release)
-            versionMap.getOrPut(versionInfo) { mutableSetOf() }.add(release)
+    fun addReleaseList(releaseList: Collection<VersionWrapper>) {
+        releaseList.forEach {
+            val versionInfo = getVersionInfo(it.release)
+            versionMap.getOrPut(versionInfo) { mutableSetOf() }.add(it)
         }
+        status = VersionStatus.PENDING
+    }
+
+    fun addSingleRelease(release: VersionWrapper) {
+        val versionInfo = getVersionInfo(release.release)
+        versionMap.apply { clear() }.getOrPut(versionInfo) { mutableSetOf() }.add(release)
+        status = VersionStatus.SIMPLE
     }
 
     private fun getVersionInfo(release: ReleaseGson): VersionInfo {
@@ -57,24 +57,29 @@ class VersionMap private constructor() {
         )
     }
 
-    private suspend fun sortList(): List<Version> {
-        if (!sorted)
-            mutex.withLock {
-                if (sorted) return@withLock  // 优化等待锁后已经排序的情况
-                versionList = versionMap.keys.filter { it.name.isNotBlank() }.sortedDescending()
-                    .map { Version(it, versionMap[it]?.toList() ?: emptyList()) }
-            }
+    private fun sortList(): List<Version> {
+        if (status == VersionStatus.PENDING) {
+            versionList = versionMap.keys.filter { it.name.isNotBlank() }.sortedDescending()
+                .map { Version(it, versionMap[it]?.toList() ?: emptyList()) }
+            status = VersionStatus.COMPLETE
+        }
         return versionList
     }
 
-    fun getVersionList(): List<Version> = runBlocking { sortList() }
+    fun getVersionList(): List<Version> = sortList()
 
     companion object {
-        suspend fun new(
+        fun new(
             ignoreVersionNumberRegex: String?,
             includeVersionNumberRegex: String?,
         ) = VersionMap().apply {
             setVersionNumberRegex(ignoreVersionNumberRegex, includeVersionNumberRegex)
+        }
+
+        private enum class VersionStatus {
+            PENDING,
+            SIMPLE,
+            COMPLETE,
         }
     }
 }

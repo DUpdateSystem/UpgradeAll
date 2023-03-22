@@ -16,7 +16,7 @@ import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.androidutils.FlagDelegate
 import net.xzos.upgradeall.core.manager.AppManager
-import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_OUTDATED
+import net.xzos.upgradeall.core.module.AppStatus
 import net.xzos.upgradeall.ui.home.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 
@@ -49,8 +49,8 @@ class UpdateNotification {
     }
 
     private fun finishedNotify() {
-        val needUpdateAppList = AppManager.getAppMap()[APP_OUTDATED]
-        if (!needUpdateAppList.isNullOrEmpty())
+        val needUpdateAppList = AppManager.getAppList(AppStatus.APP_OUTDATED)
+        if (!needUpdateAppList.isEmpty())
             updateNotification(needUpdateAppList.size)
         else
             cancelNotification()
