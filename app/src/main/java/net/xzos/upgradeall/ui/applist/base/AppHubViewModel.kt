@@ -91,7 +91,7 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
         super.onCleared()
     }
 
-    private fun getAppList(): List<App> {
+    private fun getAppList(): Set<App> {
         return AppManager.appList
     }
 

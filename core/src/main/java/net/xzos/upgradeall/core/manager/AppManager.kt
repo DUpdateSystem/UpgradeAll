@@ -52,14 +52,14 @@ object AppManager : Informer<UpdateStatus, App>() {
     /**
      * 获取全部 App 实体列表
      */
-    val appList: List<App>
+    val appList: Set<App>
         get() = getAppList(AppStatus.APP_PENDING) +
                 getAppList(AppStatus.APP_OUTDATED) +
                 getAppList(AppStatus.APP_NO_LOCAL) +
                 getAppList(AppStatus.APP_LATEST) +
                 getAppList(AppStatus.NETWORK_ERROR)
 
-    private val inactiveAppList: List<App>
+    private val inactiveAppList: Set<App>
         get() = getAppList(AppStatus.APP_INACTIVE)
 
     fun initObject(context: Context) {
@@ -78,8 +78,8 @@ object AppManager : Informer<UpdateStatus, App>() {
         }
     }
 
-    fun getAppList(key: AppStatus): List<App> {
-        return appMap[key] ?: emptyList()
+    fun getAppList(key: AppStatus): Set<App> {
+        return appMap[key]?.toSet() ?: emptySet()
     }
 
     private fun removeAppList(app: App) {
@@ -156,9 +156,9 @@ object AppManager : Informer<UpdateStatus, App>() {
     }
 
     private suspend fun renewAppList(
-        appList: List<App>,
+        appList: Collection<App>,
         statusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null,
-    ): List<App> {
+    ): Collection<App> {
         val count = CoroutinesCount(appList.size)
         val totalAppNum = appList.size
         Log.w("update record", "renew size start: $totalAppNum")
@@ -206,8 +206,21 @@ object AppManager : Informer<UpdateStatus, App>() {
 
     private fun setAppMap(app: App) {
         val releaseStatus = app.getReleaseStatus()
+
         // check changed
-        if (addAppMap(releaseStatus, app) || removeAppMap(releaseStatus, app))
+        var changed = false
+        // reset app map
+
+        // retry add
+        if (addAppMap(releaseStatus, app))
+            changed = true
+
+        // retry delete
+        if (removeAppMap(releaseStatus, app))
+            changed = true
+
+        // check changed
+        if (changed)
             notifyChanged(UpdateStatus.APP_UPDATE_STATUS_CHANGED_NOTIFY, app)
     }
 
