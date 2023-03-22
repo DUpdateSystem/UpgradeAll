@@ -3,8 +3,8 @@ package net.xzos.upgradeall.ui.applist.base.normal
 import android.content.Context
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.module.AppStatus
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.Updater
 import net.xzos.upgradeall.ui.applist.base.BaseAppListItemView
 
 open class NormalAppListItemView(app: App) : BaseAppListItemView(app) {
@@ -23,15 +23,17 @@ open class NormalAppListItemView(app: App) : BaseAppListItemView(app) {
         }
     }
 
-    protected fun setAppStatusIcon(releaseStatus: Int) {
+    protected fun setAppStatusIcon(releaseStatus: AppStatus) {
         ivStatusVisibility.set(true)
         pbStatusVisibility.set(false)
-        statusIcon.set(when (releaseStatus) {
-            Updater.APP_LATEST -> R.drawable.ic_check_mark_circle
-            Updater.APP_OUTDATED -> R.drawable.ic_check_needupdate
-            Updater.NETWORK_ERROR -> R.drawable.ic_del_or_error
-            Updater.APP_NO_LOCAL -> R.drawable.ic_local_error
-            else -> R.drawable.ic_check_mark_circle
-        })
+        statusIcon.set(
+            when (releaseStatus) {
+                AppStatus.APP_LATEST -> R.drawable.ic_check_mark_circle
+                AppStatus.APP_OUTDATED -> R.drawable.ic_check_needupdate
+                AppStatus.NETWORK_ERROR -> R.drawable.ic_del_or_error
+                AppStatus.APP_NO_LOCAL -> R.drawable.ic_local_error
+                else -> R.drawable.ic_check_mark_circle
+            }
+        )
     }
 }

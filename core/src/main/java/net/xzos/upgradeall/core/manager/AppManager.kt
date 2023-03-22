@@ -11,15 +11,10 @@ import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.isInit
 import net.xzos.upgradeall.core.database.table.recheck
+import net.xzos.upgradeall.core.module.AppStatus
+import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_LATEST
-import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_NO_LOCAL
-import net.xzos.upgradeall.core.module.app.Updater.Companion.APP_OUTDATED
-import net.xzos.upgradeall.core.module.app.Updater.Companion.NETWORK_ERROR
-import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
-import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
-import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
-import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
+import net.xzos.upgradeall.core.utils.coroutines.*
 import net.xzos.upgradeall.core.utils.getInstalledAppList
 import net.xzos.upgradeall.core.utils.oberver.Informer
 import net.xzos.upgradeall.core.utils.oberver.Tag
@@ -39,13 +34,21 @@ enum class UpdateStatus : Tag {
 
 object AppManager : Informer<UpdateStatus, App>() {
 
-    private val appMap = coroutinesMutableMapOf<Int, CoroutinesMutableList<App>>(true)
+    private val appMap = coroutinesMutableMapOf<AppStatus, CoroutinesMutableList<App>>(true)
+    private val hubLinkAppMap = coroutinesMutableMapOf<Hub, CoroutinesMutableList<App>>(true)
 
+    /**
+     * 获取全部 App 实体列表
+     */
+    val appList: List<App>
+        get() = getAppList(AppStatus.APP_PENDING) +
+                getAppList(AppStatus.APP_OUTDATED) +
+                getAppList(AppStatus.APP_NO_LOCAL) +
+                getAppList(AppStatus.APP_LATEST) +
+                getAppList(AppStatus.NETWORK_ERROR)
 
-    // 存储所有 APP 实体
-    private val appList = coroutinesMutableListOf<App>(true)
-    private val inactiveAppList = coroutinesMutableListOf<App>(true)
-
+    private val inactiveAppList: List<App>
+        get() = getAppList(AppStatus.APP_INACTIVE)
 
     fun initObject(context: Context) {
         runBlocking { renewAppList(context) }
@@ -63,22 +66,32 @@ object AppManager : Informer<UpdateStatus, App>() {
         }
     }
 
-    private fun getAppList(key: Int): CoroutinesMutableList<App> {
+    private fun getAppList(key: AppStatus): CoroutinesMutableList<App> {
         return appMap.getOrDefault(key) { coroutinesMutableListOf(true) }
     }
 
     private fun removeAppList(app: App) {
-        if (appList.remove(app))
+        if (appMap.removeApp(app, AppStatus.APP_INACTIVE)) {
             notifyChanged(UpdateStatus.APP_DELETED_NOTIFY, app)
+        }
+    }
+
+    private fun <T> CoroutinesMutableMap<T, CoroutinesMutableList<App>>.removeApp(
+        app: App, vararg excludeKey: T
+    ): Boolean {
+        var deleted = false
+        forEach {
+            if (!excludeKey.contains(it.key) && it.value.remove(app))
+                deleted = true
+        }
+        return deleted
     }
 
     private fun addAppList(app: App, noCheck: Boolean = false) {
-        if (noCheck && appList.add(app)) {
-            notifyChanged(UpdateStatus.APP_ADDED_NOTIFY, app)
-        } else if (app.isActive && appList.add(app)) {
+        if ((noCheck || app.isActive) && getAppList(AppStatus.APP_PENDING).add(app)) {
             notifyChanged(UpdateStatus.APP_ADDED_NOTIFY, app)
         } else {
-            inactiveAppList.add(app)
+            getAppList(AppStatus.APP_INACTIVE).add(app)
         }
     }
 
@@ -86,7 +99,7 @@ object AppManager : Informer<UpdateStatus, App>() {
      * 以更新状态{@link Updater}为键值的字典
      * 在完成数据刷新{@link #renewApp}后，可以通过 App 类型{@link Constant}获取可以通过该字典来查看各个更新状态的 App 列表
      */
-    fun getAppMap(appType: String? = null): Map<Int, List<App>> {
+    fun getAppMap(appType: String? = null): Map<AppStatus, List<App>> {
         return if (appType != null) {
             appMap.map {
                 it.key to it.value.filter { it.appId.containsKey(appType) }
@@ -99,18 +112,7 @@ object AppManager : Informer<UpdateStatus, App>() {
      * 在完成数据刷新{@link #renewApp}后，可以通过 App 类型{@link Constant}获取该类型的列表
      */
     fun getAppSortList(appType: String): List<App> {
-        val list = getAppList(APP_OUTDATED) +
-                getAppList(APP_NO_LOCAL) +
-                getAppList(APP_LATEST) +
-                getAppList(NETWORK_ERROR)
-        return list.filter { it.appId.containsKey(appType) }
-    }
-
-    /**
-     * 获取全部 App 实体列表
-     */
-    fun getAppList(): List<App> {
-        return appList
+        return appList.filter { it.appId.containsKey(appType) }
     }
 
     fun getUserAppList(): List<App> {
@@ -188,13 +190,13 @@ object AppManager : Informer<UpdateStatus, App>() {
 
     private fun checkActiveApp(app: App): Boolean {
         if (!app.appDatabase.isInit()) {
-            return if (app.getReleaseStatus() == NETWORK_ERROR) {
+            return if (app.getReleaseStatus() == AppStatus.NETWORK_ERROR) {
                 appMap.forEach { it.value.remove(app) }
-                inactiveAppList.add(app)
+                getAppList(AppStatus.APP_INACTIVE).add(app)
                 removeAppList(app)
                 false
             } else {
-                inactiveAppList.remove(app)
+                getAppList(AppStatus.APP_INACTIVE).remove(app)
                 addAppList(app, true)
                 true
             }
@@ -285,9 +287,8 @@ object AppManager : Informer<UpdateStatus, App>() {
      */
     suspend fun removeApp(app: App) {
         metaDatabase.appDao().delete(app.appDatabase)
-        appMap.forEach {
-            it.value.remove(app)
-        }
+        hubLinkAppMap.removeApp(app)
         removeAppList(app)
+        getAppList(AppStatus.APP_INACTIVE).remove(app)
     }
 }

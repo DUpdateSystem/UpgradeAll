@@ -2,6 +2,7 @@ package net.xzos.upgradeall.core.module.app
 
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.core.androidutils.app_info.getAppVersion
+import net.xzos.upgradeall.core.module.AppStatus
 import net.xzos.upgradeall.core.module.app.data.DataGetter
 import net.xzos.upgradeall.core.module.app.data.DataStorage
 import net.xzos.upgradeall.core.module.app.version.VersionEntityUtils
@@ -14,26 +15,26 @@ import net.xzos.upgradeall.core.utils.SearchUtils
 class Updater internal constructor(
     private val dataStorage: DataStorage,
     private val versionEntityUtils: VersionEntityUtils,
-    internal var statusRenewedFun: (appStatus: Int) -> Unit = fun(_: Int) {},
+    internal var statusRenewedFun: (appStatus: AppStatus) -> Unit = fun(_) {},
 ) {
 
     private val dataGetter = DataGetter(dataStorage)
-    private var tmpUpdateStatus: Int = NETWORK_ERROR - 1
+    private var tmpUpdateStatus: AppStatus? = null
 
-    internal fun getReleaseStatus(): Int {
+    internal fun getReleaseStatus(): AppStatus {
         val versionNumberList = dataStorage.versionMap.getVersionList()
         val status = if (versionNumberList.isEmpty()) {
-            NETWORK_ERROR
+            AppStatus.NETWORK_ERROR
         } else {
             val localVersion = getLocalVersion()
                 ?: dataStorage.appDatabase.getIgnoreVersion()
             when {
-                versionEntityUtils.isIgnored(versionNumberList.first().versionInfo.name) -> APP_LATEST
-                localVersion == null -> APP_NO_LOCAL
+                versionEntityUtils.isIgnored(versionNumberList.first().versionInfo.name) -> AppStatus.APP_LATEST
+                localVersion == null -> AppStatus.APP_NO_LOCAL
                 !isLatestVersionNumber(
                     localVersion, versionNumberList.map { it.versionInfo }
-                ) -> APP_OUTDATED
-                else -> APP_LATEST
+                ) -> AppStatus.APP_OUTDATED
+                else -> AppStatus.APP_LATEST
             }
         }
         if (status != tmpUpdateStatus) {
@@ -60,7 +61,7 @@ class Updater internal constructor(
         dataGetter.update()
     }
 
-    suspend fun getReleaseStatusWaitRenew(): Int {
+    suspend fun getReleaseStatusWaitRenew(): AppStatus {
         return dataStorage.renewMutex.withLock {
             getReleaseStatus()
         }
@@ -93,12 +94,5 @@ class Updater internal constructor(
 
     fun isRenewing(): Boolean {
         return dataStorage.renewMutex.isLocked
-    }
-
-    companion object {
-        const val NETWORK_ERROR = 0
-        const val APP_LATEST = 1
-        const val APP_OUTDATED = 2
-        const val APP_NO_LOCAL = 3
     }
 }

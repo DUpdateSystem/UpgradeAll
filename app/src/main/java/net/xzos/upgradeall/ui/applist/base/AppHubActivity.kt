@@ -39,7 +39,7 @@ abstract class AppHubActivity(private val mAppType: String) : AppBarActivity() {
             getText(R.string.hub_tab_updates),
             getText(R.string.hub_tab_all),
         )
-        if (AppManager.getAppList().any { it.star }) {
+        if (AppManager.appList.any { it.star }) {
             types.add(1, TabIndex.TAB_STAR)
             tabTitles.add(1, getText(R.string.user_star))
         }

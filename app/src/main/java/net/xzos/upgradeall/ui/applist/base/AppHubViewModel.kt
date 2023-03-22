@@ -6,18 +6,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.manager.AppManager
+import net.xzos.upgradeall.core.module.AppStatus
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.Updater
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.constant.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
-import net.xzos.upgradeall.wrapper.core.upgrade
 import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.ADD
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.CHANGE
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.DEL
 import net.xzos.upgradeall.ui.data.livedata.AppViewModel
+import net.xzos.upgradeall.wrapper.core.upgrade
 
 
 class AppHubViewModel(application: Application) : ListContainerViewModel<App>(application) {
@@ -43,7 +43,7 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
 
         override fun appUpdated(app: App) {
             if (mTabIndex == TabIndex.TAB_APPLICATIONS_APP) {
-                if (app.getReleaseStatus() == Updater.NETWORK_ERROR)
+                if (app.getReleaseStatus() == AppStatus.NETWORK_ERROR)
                     adapterDelete(app)
             } else {
                 adapterChange(app)
@@ -92,7 +92,7 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
     }
 
     private fun getAppList(): List<App> {
-        return AppManager.getAppList()
+        return AppManager.appList
     }
 
     override suspend fun doLoadData(): List<App> {
@@ -122,12 +122,11 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
 
     private fun checkAppStatus(app: App): Boolean {
         return when (mTabIndex) {
-            TabIndex.TAB_UPDATE -> app.getReleaseStatus() == Updater.APP_OUTDATED
+            TabIndex.TAB_UPDATE -> app.getReleaseStatus() == AppStatus.APP_OUTDATED
             TabIndex.TAB_STAR -> app.star
             TabIndex.TAB_ALL -> !app.isVirtual
             TabIndex.TAB_APPLICATIONS_APP -> app.isVirtual
-                    && (app.isRenewing() || (!app.isRenewing() && app.getReleaseStatus() != Updater.NETWORK_ERROR))
-            else -> false
+                    && (app.isRenewing() || (!app.isRenewing() && app.getReleaseStatus() != AppStatus.NETWORK_ERROR))
         }
     }
 
