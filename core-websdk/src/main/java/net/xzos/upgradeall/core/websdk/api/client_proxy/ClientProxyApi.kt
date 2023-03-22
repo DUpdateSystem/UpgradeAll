@@ -9,7 +9,8 @@ import net.xzos.upgradeall.core.websdk.api.BaseApi
 import net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config.CloudConfig
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.*
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
-import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
+import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
+import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
@@ -36,54 +37,41 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         }
     }
 
+    override fun checkAppAvailable(data: SingleRequestData): Boolean? {
+        return runFun("checkAppAvailable") { getHub(data.hubUuid).checkAppAvailable(data) }
+    }
+
+    override fun getAppUpdate(data: MultiRequestData): Map<Map<String, String?>, ReleaseGson>? {
+        return runFun("getAppUpdate") { getHub(data.hubUuid).getUpdate(data) }
+    }
+
+    override fun getAppReleaseList(data: SingleRequestData): List<ReleaseGson>? {
+        return runFun("getAppReleaseList") { getHub(data.hubUuid).getReleases(data) }
+    }
+
+    override fun getDownloadInfo(
+        data: SingleRequestData,
+        assetIndex: Pair<Int, Int>
+    ): List<DownloadItem>? {
+        val hub = getHub(data.hubUuid)
+        val assets =
+            getAppReleaseList(data)?.get(assetIndex.first)?.assetGsonList?.get(assetIndex.second)
+        return runFun(" getDownloadInfo") {
+            hub.getDownload(data, assetIndex.toList(), assets)
+        }
+    }
+
     private fun getHub(uuid: String): BaseHub {
         return hubMap[uuid] ?: throw NoFunction()
     }
 
-    override fun getAppListRelease(
-        dataList: List<ApiRequestData>
-    ): Map<ApiRequestData, List<ReleaseGson>> {
-        val hub = getHub(dataList.firstOrNull()?.hubUuid ?: return mapOf())
+    private fun <O> runFun(funcName: String, func: () -> O): O? {
         return try {
-            hub.getAppListRelease(dataList)
+            func()
         } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, "getAppListRelease: ${e.msg()}")
-            mapOf()
-        }
-    }
-
-    override fun getAppRelease(data: ApiRequestData): List<ReleaseGson>? {
-        val hub = getHub(data.hubUuid)
-        return try {
-            hub.getRelease(data)
-        } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, "getAppRelease: ${e.msg()}")
+            Log.e(logObjectTag, TAG, "$funcName: ${e.msg()}")
             null
         }
-    }
-
-    override fun getAppReleaseList(data: ApiRequestData): List<ReleaseGson>? {
-        val hub = getHub(data.hubUuid)
-        return try {
-            hub.getRelease(data)
-        } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, "getAppReleaseList: ${e.msg()}")
-            null
-        }
-    }
-
-    override fun getDownloadInfo(
-        data: ApiRequestData, assetIndex: Pair<Int, Int>
-    ): List<DownloadItem> {
-        val hub = getHub(data.hubUuid)
-        val assets =
-            getAppReleaseList(data)?.get(assetIndex.first)?.assetGsonList?.get(assetIndex.second)
-        return try {
-            hub.getDownload(data, assetIndex.toList(), assets)
-        } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, e.stackTraceToString())
-            null
-        } ?: emptyList()
     }
 
     companion object {

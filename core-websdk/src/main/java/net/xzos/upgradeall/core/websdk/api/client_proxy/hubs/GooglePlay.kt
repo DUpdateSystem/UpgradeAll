@@ -20,8 +20,10 @@ import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
 import net.xzos.upgradeall.core.websdk.api.client_proxy.versionCode
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
+import net.xzos.upgradeall.core.websdk.api.web.http.OkHttpApi
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
+import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
@@ -31,7 +33,57 @@ class GooglePlay(
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "65c2f60c-7d08-48b8-b4ba-ac6ee924f6fa"
 
-    override fun checkAppAvailable(data: ApiRequestData): Boolean? = null
+    override fun checkAppAvailable(data: SingleRequestData): Boolean {
+        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return false
+        val request = OkHttpApi.getRequestBuilder()
+            .url("https://play.google.com/store/apps/details?id=$appPackage")
+            .head().build()
+        return OkHttpApi.call(request).execute().code != 404
+    }
+
+    override fun getReleases(data: SingleRequestData): List<ReleaseGson>? {
+        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
+        Log.i(logObjectTag, TAG, "getRelease: package: $appPackage")
+        val authJson = getAuthJson(data) ?: return null
+        val authData = getAuthData(authJson) ?: return null
+        val detailHelper = AppDetailsHelper(authData)
+        val app = try {
+            detailHelper.getAppByPackageName(appPackage)
+        } catch (e: ApiException.AppNotFound) {
+            return emptyList()
+        }
+        Log.i(logObjectTag, TAG, "getRelease: appInfo: ${app.appInfo.appInfoMap}")
+        return listOf(
+            ReleaseGson(
+                versionNumber = app.versionName,
+                changelog = app.changes,
+                assetGsonList = app.fileList.map {
+                    AssetGson(
+                        fileName = it.name,
+                        fileType = APK_CONTENT_TYPE,
+                        downloadUrl = it.url,
+                    )
+                }
+            ).versionCode(app.versionCode)
+        )
+    }
+
+    override fun getDownload(
+        data: SingleRequestData, assetIndex: List<Int>, assetGson: AssetGson?
+    ): List<DownloadItem>? {
+        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
+        val authJson = getAuthJson(data) ?: return null
+        val authData = getAuthData(authJson) ?: return null
+        val detailHelper = AppDetailsHelper(authData)
+        val app = detailHelper.getAppByPackageName(appPackage)
+        return PurchaseHelper(authData).purchase(
+            app.packageName,
+            app.versionCode,
+            app.offerType
+        ).map {
+            DownloadItem(it.name, it.url, null, null)
+        }
+    }
 
     private fun getAuthJson(data: ApiRequestData): Map<String, String?>? {
         return data.auth[EMAIL_AUTH]?.let {
@@ -64,52 +116,6 @@ class GooglePlay(
         Log.i(logObjectTag, TAG, "getAuthData: locale: $locale")
         val deviceInfoProvider = DeviceInfoProvider(properties, locale.toString())
         return AuthHelper.buildInsecure(email, auth, locale, deviceInfoProvider)
-    }
-
-    override fun getRelease(data: ApiRequestData): List<ReleaseGson>? {
-        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
-        Log.i(logObjectTag, TAG, "getRelease: package: $appPackage")
-        val authJson = getAuthJson(data) ?: return null
-        val authData = getAuthData(authJson) ?: return null
-        val detailHelper = AppDetailsHelper(authData)
-        val app = try {
-            detailHelper.getAppByPackageName(appPackage)
-        } catch (e: ApiException.AppNotFound) {
-            return emptyList()
-        }
-        Log.i(logObjectTag, TAG, "getRelease: appInfo: ${app.appInfo.appInfoMap}")
-        return listOf(
-            ReleaseGson(
-                versionNumber = app.versionName,
-                changelog = app.changes,
-                assetGsonList = app.fileList.map {
-                    AssetGson(
-                        fileName = it.name,
-                        fileType = APK_CONTENT_TYPE,
-                        downloadUrl = it.url,
-                    )
-                }
-            ).versionCode(app.versionCode)
-        )
-    }
-
-    override fun getDownload(
-        data: ApiRequestData,
-        assetIndex: List<Int>,
-        assetGson: AssetGson?
-    ): List<DownloadItem>? {
-        val appPackage = data.appId[ANDROID_APP_TYPE] ?: return emptyList()
-        val authJson = getAuthJson(data) ?: return null
-        val authData = getAuthData(authJson) ?: return null
-        val detailHelper = AppDetailsHelper(authData)
-        val app = detailHelper.getAppByPackageName(appPackage)
-        return PurchaseHelper(authData).purchase(
-            app.packageName,
-            app.versionCode,
-            app.offerType
-        ).map {
-            DownloadItem(it.name, it.url, null, null)
-        }
     }
 
     companion object {

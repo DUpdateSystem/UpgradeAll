@@ -10,7 +10,7 @@ import net.xzos.upgradeall.core.utils.getOrNull
 import net.xzos.upgradeall.core.utils.iterator
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
-import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
+import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.json.JSONArray
@@ -20,14 +20,11 @@ class LsposedRepo(
     dataCache: DataCacheManager, okhttpProxy: OkhttpProxy
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "401e6259-2eab-46f0-8e8a-d2bfafedf5bf"
-
-    override fun checkAppAvailable(data: ApiRequestData): Boolean {
+    override fun checkAppAvailable(data: SingleRequestData): Boolean? {
         return getAppJson(data)?.length() != 0
     }
 
-    override fun getRelease(
-        data: ApiRequestData
-    ): List<ReleaseGson>? {
+    override fun getReleases(data: SingleRequestData): List<ReleaseGson>? {
         val json = getAppJson(data) ?: return null
         val jsonArray = json.getOrNull("releases", json::getJSONArray) ?: return emptyList()
         return jsonArray.asSequence<JSONObject>().map {
@@ -46,7 +43,7 @@ class LsposedRepo(
         }.toList()
     }
 
-    private fun getAppJson(data: ApiRequestData): JSONObject? {
+    private fun getAppJson(data: SingleRequestData): JSONObject? {
         val dataJson = dataCache.get(
             mutex,
             "lsposed_repo_json", SaveMode.DISK_ONLY, JsonArrayEncoder,

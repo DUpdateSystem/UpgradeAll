@@ -2,7 +2,6 @@ package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
-import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
@@ -10,7 +9,7 @@ import net.xzos.upgradeall.core.websdk.api.client_proxy.XmlEncoder
 import net.xzos.upgradeall.core.websdk.api.client_proxy.versionCode
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
-import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
+import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.dom4j.Element
@@ -22,18 +21,15 @@ class FDroid(
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "6a6d590b-1809-41bf-8ce3-7e3f6c8da945"
 
-    override fun checkAppAvailable(data: ApiRequestData): Boolean {
+    override fun checkAppAvailable(data: SingleRequestData): Boolean {
         return getAppNode(data).let { !(it != null && it.second == null) }
     }
 
-    override fun getAppListRelease(dataList: List<ApiRequestData>): Map<ApiRequestData, List<ReleaseGson>> {
-        return dataList.associateWith { getRelease(it) ?: listOf() }
+    override fun getReleases(data: SingleRequestData): List<ReleaseGson> {
+        return getRelease0(data) ?: listOf()
     }
 
-    override fun getRelease(data: ApiRequestData): List<ReleaseGson>? =
-        tmpMutex.runWithLock { getRelease0(data) }
-
-    private fun getRelease0(data: ApiRequestData): List<ReleaseGson>? {
+    private fun getRelease0(data: SingleRequestData): List<ReleaseGson>? {
         val (url, node) = getAppNode(data) ?: return null
         node ?: return emptyList()
         var changelog = node.valueOf("changelog")
@@ -50,7 +46,7 @@ class FDroid(
         }
     }
 
-    private fun getAppNode(data: ApiRequestData): Pair<String, Node?>? {
+    private fun getAppNode(data: SingleRequestData): Pair<String, Node?>? {
         val url = data.other[REPO_URL] ?: DEF_URL
         val appPackage = data.appId[ANDROID_APP_TYPE] ?: return Pair(url, null)
         val root = getRoot(url) ?: return null
@@ -70,7 +66,6 @@ class FDroid(
     private fun getXmlUrl(url: String) = "$url/index.xml"
 
     companion object {
-        private val tmpMutex = Mutex()
         private val mutex = Mutex()
         private const val DEF_URL = "https://f-droid.org/repo"
 

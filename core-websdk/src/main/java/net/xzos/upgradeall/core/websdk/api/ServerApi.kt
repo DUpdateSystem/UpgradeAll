@@ -9,6 +9,8 @@ import net.xzos.upgradeall.core.websdk.api.client_proxy.NoFunction
 import net.xzos.upgradeall.core.websdk.api.web.WebApi
 import net.xzos.upgradeall.core.websdk.api.web.WebApiProxy
 import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
+import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
+import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.cache.AppReleaseListEncoder
 import net.xzos.upgradeall.core.websdk.cache.CloudConfigListEncoder
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
@@ -42,7 +44,7 @@ class ServerApi internal constructor(
         return value
     }
 
-    override fun checkAppAvailable(data: ApiRequestData): Boolean? {
+    override fun checkAppAvailable(data: SingleRequestData): Boolean? {
         return callOrBack(
             data,
             clientProxyApi::checkAppAvailable,
@@ -50,22 +52,15 @@ class ServerApi internal constructor(
         )
     }
 
-    override fun getAppListRelease(dataList: List<ApiRequestData>): Map<ApiRequestData, List<ReleaseGson>> {
+    override fun getAppUpdate(data: MultiRequestData): Map<Map<String, String?>, ReleaseGson>? {
         return callOrBack(
-            dataList,
-            clientProxyApi::getAppListRelease,
-            webApiProxy::getAppListRelease
+            data,
+            clientProxyApi::getAppUpdate,
+            webApiProxy::getAppUpdate
         )
     }
 
-    override fun getAppRelease(data: ApiRequestData): List<ReleaseGson>? {
-        val key = data.getKey()
-        return dataCache.get(key, SaveMode.MEMORY_AND_DISK, AppReleaseListEncoder) {
-            callOrBack(data, clientProxyApi::getAppRelease, webApiProxy::getAppRelease)
-        }
-    }
-
-    override fun getAppReleaseList(data: ApiRequestData): List<ReleaseGson>? {
+    override fun getAppReleaseList(data: SingleRequestData): List<ReleaseGson>? {
         val key = data.getKey()
         return dataCache.get(key, SaveMode.MEMORY_AND_DISK, AppReleaseListEncoder) {
             callOrBack(data, clientProxyApi::getAppReleaseList, webApiProxy::getAppReleaseList)
@@ -73,7 +68,7 @@ class ServerApi internal constructor(
     }
 
     override fun getDownloadInfo(
-        data: ApiRequestData, assetIndex: Pair<Int, Int>
+        data: SingleRequestData, assetIndex: Pair<Int, Int>
     ): List<DownloadItem> {
         val downloadItemList = try {
             callOrBack(
@@ -82,10 +77,10 @@ class ServerApi internal constructor(
                 { d -> webApiProxy.getDownloadInfo(d, assetIndex) })
         } catch (e: Throwable) {
             return emptyList()
-        }
+        } ?: emptyList()
         return downloadItemList.ifEmpty {
             val releaseList = if (assetIndex.first == 0)
-                getAppRelease(data)
+                getAppReleaseList(data)
             else getAppReleaseList(data)
 
             val asset = releaseList?.getOrNull(assetIndex.first)
@@ -124,4 +119,4 @@ fun <E> DataCacheManager.getOrRenewWithCallback(
     }
 }
 
-fun ApiRequestData.getKey() = hubUuid + auth + appId + other
+fun SingleRequestData.getKey() = hubUuid + auth + appId + other

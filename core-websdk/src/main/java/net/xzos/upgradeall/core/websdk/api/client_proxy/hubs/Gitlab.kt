@@ -6,8 +6,9 @@ import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
 import net.xzos.upgradeall.core.websdk.api.client_proxy.getAssets
 import net.xzos.upgradeall.core.websdk.api.client_proxy.mdToHtml
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
+import net.xzos.upgradeall.core.websdk.api.web.http.OkHttpApi
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
-import net.xzos.upgradeall.core.websdk.base_model.ApiRequestData
+import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.json.AssetGson
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.json.JSONArray
@@ -18,9 +19,16 @@ class Gitlab(
 ) : BaseHub(dataCache, okhttpProxy) {
     override val uuid: String = "a84e2fbe-1478-4db5-80ae-75d00454c7eb"
 
-    override fun checkAppAvailable(data: ApiRequestData): Boolean? = null
+    override fun checkAppAvailable(data: SingleRequestData): Boolean {
+        val appId = data.appId
+        val owner = appId["owner"]
+        val repo = appId["repo"]
+        val request = OkHttpApi.getRequestBuilder().url("https://github.com/$owner/$repo/")
+            .head().build()
+        return OkHttpApi.call(request).execute().code != 404
+    }
 
-    override fun getRelease(data: ApiRequestData): List<ReleaseGson>? {
+    override fun getReleases(data: SingleRequestData): List<ReleaseGson>? {
         val appId = data.appId
         val owner = appId["owner"]
         val repo = appId["repo"]
