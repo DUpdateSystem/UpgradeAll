@@ -61,7 +61,7 @@ dependencies {
     // database
     def room_version = '2.5.0'
     api "androidx.room:room-runtime:$room_version"
-    kapt 'org.xerial:sqlite-jdbc:3.40.0.0' //Work around on Apple Silicon
+    kapt 'org.xerial:sqlite-jdbc:3.41.2.0' //Work around on Apple Silicon
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     // Test helpers
