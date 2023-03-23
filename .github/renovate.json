@@ -4,5 +4,6 @@
     ],
     "extends": [
       "config:base"
-    ]
+    ],
+    "groupName": "all"
   }
