@@ -12,7 +12,8 @@ class VersionMap private constructor() {
     private var includeVersionNumberRegex: String? = null
 
     /* 是否只包含更新数据 */
-    private var status: VersionStatus? = null
+    internal var status: VersionStatus? = null
+        private set
 
     /* 版本号数据列表 */
     private val versionMap: CoroutinesMutableMap<VersionInfo, MutableSet<VersionWrapper>> =
@@ -48,6 +49,10 @@ class VersionMap private constructor() {
         status = VersionStatus.SIMPLE
     }
 
+    fun setError() {
+        status = VersionStatus.ERROR
+    }
+
     private fun getVersionInfo(release: ReleaseGson): VersionInfo {
         return VersionInfo.new(
             release.versionNumber,
@@ -76,7 +81,8 @@ class VersionMap private constructor() {
             setVersionNumberRegex(ignoreVersionNumberRegex, includeVersionNumberRegex)
         }
 
-        private enum class VersionStatus {
+        internal enum class VersionStatus {
+            ERROR,
             PENDING,
             SIMPLE,
             COMPLETE,

@@ -38,16 +38,6 @@ enum class UpdateStatus : Tag {
 object AppManager : Informer<UpdateStatus, App>() {
 
     private val appMap = coroutinesMutableMapOf<AppStatus, CoroutinesMutableList<App>>(true)
-    private val hubLinkAppMap: Map<Hub, List<App>>
-        get() {
-            val map = mutableMapOf<Hub, MutableList<App>>()
-            appList.forEach { app ->
-                app.hubEnableList.forEach { hub ->
-                    map.getOrPut(hub) { mutableListOf() }.add(app)
-                }
-            }
-            return map
-        }
 
     /**
      * 获取全部 App 实体列表
@@ -69,13 +59,23 @@ object AppManager : Informer<UpdateStatus, App>() {
 
     private suspend fun renewAppList(context: Context) {
         metaDatabase.appDao().loadAll().forEach { database ->
-            addAppList(App.new(database), true)
+            addAppList(App(database), true)
         }
         getInstalledAppList(
             context, coreConfig.applications_ignore_system_app
         ).forEach { database ->
-            addAppList(App.new(database), false)
+            addAppList(App(database), false)
         }
+    }
+
+    fun getAppList(hub: Hub): Set<App> {
+        val list = mutableSetOf<App>()
+        appList.forEach { app ->
+            app.hubEnableList.forEach {
+                if (it == hub) list.add(app)
+            }
+        }
+        return list
     }
 
     fun getAppList(key: AppStatus): Set<App> {
@@ -129,7 +129,7 @@ object AppManager : Informer<UpdateStatus, App>() {
      */
     fun getAppByUuid(uuid: String): App? {
         appList.forEach {
-            if (uuid == it.appDatabase.cloudConfig?.uuid)
+            if (uuid == it.cloudConfig?.uuid)
                 return it
         }
         return null
@@ -180,7 +180,7 @@ object AppManager : Informer<UpdateStatus, App>() {
      * 刷新指定 App 项的版本数据
      * @param app 需要重新刷新的 App 项
      */
-    suspend fun renewApp(app: App) {
+    fun renewApp(app: App) {
         notifyChanged(UpdateStatus.APP_START_UPDATE_NOTIFY, app)
         app.update()
         if (checkActiveApp(app))
@@ -189,7 +189,7 @@ object AppManager : Informer<UpdateStatus, App>() {
     }
 
     private fun checkActiveApp(app: App): Boolean {
-        if (!app.appDatabase.isInit()) {
+        if (!app.db.isInit()) {
             return if (app.getReleaseStatus() == AppStatus.NETWORK_ERROR) {
                 appMap.forEach { it.value.remove(app) }
                 addAppMap(AppStatus.APP_INACTIVE, app)
@@ -226,7 +226,7 @@ object AppManager : Informer<UpdateStatus, App>() {
 
     private fun getAppByDatabase(appEntity: AppEntity): App? {
         appList.forEach {
-            if (it.appDatabase == appEntity)
+            if (it.db == appEntity)
                 return it
         }
         return null
@@ -234,7 +234,7 @@ object AppManager : Informer<UpdateStatus, App>() {
 
     fun getAppById(appId: Map<String, String?>): App? {
         appList.forEach {
-            if (appId == it.appDatabase.appId)
+            if (appId == it.appId)
                 return it
         }
         return null
@@ -267,7 +267,7 @@ object AppManager : Informer<UpdateStatus, App>() {
         val changedTag = if (oldApp != null)
             UpdateStatus.APP_DATABASE_CHANGED_NOTIFY
         else UpdateStatus.APP_ADDED_NOTIFY
-        val app = oldApp ?: App.new(appDatabase).apply {
+        val app = oldApp ?: App(appDatabase).apply {
             addAppList(this, false)
         }
         renewApp(app)
@@ -279,7 +279,7 @@ object AppManager : Informer<UpdateStatus, App>() {
      * 删除这个 App 项，包括存储其数据的数据库行
      */
     suspend fun removeApp(app: App) {
-        metaDatabase.appDao().delete(app.appDatabase)
+        metaDatabase.appDao().delete(app.db)
         removeAppList(app)
         removeAppMap(AppStatus.APP_INACTIVE, app)
     }

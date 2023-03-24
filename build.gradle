@@ -13,7 +13,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20-RC2"
 
         // NO FREE
         if (!project.hasProperty('free')) {

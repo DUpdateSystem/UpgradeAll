@@ -38,10 +38,6 @@ internal class CoolApk(
         return OkHttpApi.call(request).execute().code != 404
     }
 
-    override fun getUpdate(hub: HubData, appList: List<AppData>): Map<AppData, ReleaseGson> {
-        TODO("Not yet implemented")
-    }
-
     override fun getReleases(hub: HubData, app: AppData): List<ReleaseGson>? {
         val appPackage = app.appId[ANDROID_APP_TYPE] ?: return emptyList()
 

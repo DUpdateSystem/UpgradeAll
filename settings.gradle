@@ -1,3 +1,8 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+    }
+}
 include ':app'
 include ':core'
 include ':core-websdk'

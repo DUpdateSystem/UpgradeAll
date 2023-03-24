@@ -16,7 +16,6 @@ import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.manager.GetStatus
 import net.xzos.upgradeall.core.manager.getAppId
-import net.xzos.upgradeall.core.module.app.getConfigJson
 import net.xzos.upgradeall.databinding.DialogDiscoverAppInfoBinding
 
 class ConfigDownloadDialog(
@@ -86,7 +85,7 @@ class ConfigDownloadDialog(
 
 
     private fun needUpdate(): Boolean {
-        val localVersion = AppManager.getAppByUuid(uuid)?.getConfigJson()?.configVersion
+        val localVersion = AppManager.getAppByUuid(uuid)?.cloudConfig?.configVersion
             ?: return false
         return appConfig.configVersion > localVersion
     }

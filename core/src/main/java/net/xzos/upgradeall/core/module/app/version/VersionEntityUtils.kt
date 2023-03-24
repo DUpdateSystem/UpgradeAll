@@ -6,12 +6,15 @@ import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.extra_app.ExtraAppEntityManager
 import net.xzos.upgradeall.core.database.table.isInit
+import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.utils.versioning.VersioningUtils
 
 /**
  * 数据库的版本号数据操作包装
  */
-class VersionEntityUtils internal constructor(private val appEntity: AppEntity) {
+class VersionEntityUtils constructor(app: App) {
+
+    private val appEntity: AppEntity = app.db
 
     fun isIgnored(versionNumber: String): Boolean {
         val markedVersionNumber = if (appEntity.isInit())

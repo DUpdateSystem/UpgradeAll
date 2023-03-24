@@ -4,13 +4,15 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.data.DataStorage
+import net.xzos.upgradeall.core.module.app.data.AppDbWrapper
 import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.constant.ANDROID_MAGISK_MODULE_TYPE
 import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.HubData
+import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
+import net.xzos.upgradeall.core.websdk.getServerApi
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 class Hub(private val hubDatabase: HubEntity) {
@@ -100,7 +102,7 @@ class Hub(private val hubDatabase: HubEntity) {
         )
     }
 
-    internal fun getUrl(app: App): String? {
+    internal fun getUrl(app: AppDbWrapper): String? {
         val appId = app.appId.map {
             "%${it.key}" to it.value
         }.toMap()
@@ -115,12 +117,26 @@ class Hub(private val hubDatabase: HubEntity) {
         return null
     }
 
+    internal fun <T : AppDbWrapper> getAppLatestRelease(vararg apps: T): Map<T, ReleaseGson>? {
+        val appMap = apps.mapNotNull { app ->
+            val (appId, other) = filterValidKey(app.appId)
+            if (appId.isEmpty()) null
+            else AppData(appId, other) to app
+        }.toMap()
+        val appUpdateMap = getServerApi().getAppUpdate(
+            MultiRequestData(HubData(uuid, auth), appMap.keys)
+        )
+        return appUpdateMap?.map {
+            appMap[it.key]!! to it.value
+        }?.toMap()
+    }
+
     internal fun getAppReleaseList(
-        appDataStorage: DataStorage
+        app: App
     ): List<ReleaseGson>? {
-        val (appId, other) = filterValidKey(appDataStorage.appDatabase.appId)
+        val (appId, other) = filterValidKey(app.appId)
         if (appId.isEmpty()) return null
-        return appDataStorage.serverApi.getAppReleaseList(
+        return getServerApi().getAppReleaseList(
             SingleRequestData(HubData(uuid, auth), AppData(appId, other))
         )?.also {
             runBlocking {

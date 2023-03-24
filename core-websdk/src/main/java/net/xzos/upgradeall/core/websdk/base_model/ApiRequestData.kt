@@ -27,7 +27,7 @@ class SingleRequestData(
 
 class MultiRequestData(
     hub: HubData,
-    val appList: List<AppData>,
+    val appList: Collection<AppData>,
 ) : ApiRequestData(hub)
 
 fun Map<String, String?>.getString() = entries.joinToString { "${it.key}:${it.value}" }

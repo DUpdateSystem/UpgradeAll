@@ -13,6 +13,7 @@ import net.xzos.upgradeall.core.utils.oberver.InformerNoTag
 import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
+import net.xzos.upgradeall.core.websdk.getServerApi
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
@@ -55,7 +56,7 @@ class DownloadTasker(
         changed(getFileTaskerSnap(DownloadTaskerStatus.INFO_RENEW).msg(name))
         val urlReplaceUtil = URLReplace(ExtraHubEntityManager.getUrlReplace(hub.uuid))
         val (appId, other) = hub.filterValidKey(app.appId)
-        downloadInfoList = app.serverApi.getDownloadInfo(
+        downloadInfoList = getServerApi().getDownloadInfo(
             SingleRequestData(HubData(hub.uuid, hub.auth), AppData(appId, other)),
             Pair(assetIndex[0], assetIndex[1])
         )?.map {

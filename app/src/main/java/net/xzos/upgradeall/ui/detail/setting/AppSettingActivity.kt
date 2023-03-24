@@ -18,18 +18,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
+import net.xzos.upgradeall.core.androidutils.ToastUtil
+import net.xzos.upgradeall.core.androidutils.runUiFun
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.getDatabase
 import net.xzos.upgradeall.core.utils.cleanBlankValue
 import net.xzos.upgradeall.databinding.ActivityAppSettingBinding
 import net.xzos.upgradeall.ui.base.AppBarActivity
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListAdapter
 import net.xzos.upgradeall.ui.detail.setting.attrlist.AttrListViewModel
-import net.xzos.upgradeall.core.androidutils.ToastUtil
-import net.xzos.upgradeall.core.androidutils.runUiFun
 
 
 class AppSettingActivity : AppBarActivity() {
@@ -180,7 +179,7 @@ class AppSettingActivity : AppBarActivity() {
         private var bundleDatabase: AppEntity? = null
 
         fun startActivity(context: Context, app: App? = null) {
-            bundleDatabase = app?.getDatabase()
+            bundleDatabase = app?.db
             context.startActivity(Intent(context, AppSettingActivity::class.java))
         }
     }

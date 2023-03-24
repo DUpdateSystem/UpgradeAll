@@ -12,7 +12,6 @@ import androidx.core.text.toSpanned
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
-import net.xzos.upgradeall.core.module.app.hubAvailableList
 import net.xzos.upgradeall.core.module.app.version.VersionWrapper
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
 import net.xzos.upgradeall.ui.detail.download.DownloadStatusData
