@@ -43,7 +43,7 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
 
         override fun appUpdated(app: App) {
             if (mTabIndex == TabIndex.TAB_APPLICATIONS_APP) {
-                if (app.getReleaseStatus() == AppStatus.NETWORK_ERROR)
+                if (app.releaseStatus == AppStatus.NETWORK_ERROR)
                     adapterDelete(app)
             } else {
                 adapterChange(app)
@@ -122,11 +122,11 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
 
     private fun checkAppStatus(app: App): Boolean {
         return when (mTabIndex) {
-            TabIndex.TAB_UPDATE -> app.getReleaseStatus() == AppStatus.APP_OUTDATED
+            TabIndex.TAB_UPDATE -> app.releaseStatus == AppStatus.APP_OUTDATED
             TabIndex.TAB_STAR -> app.star
             TabIndex.TAB_ALL -> !app.isVirtual
             TabIndex.TAB_APPLICATIONS_APP -> app.isVirtual
-                    && (app.isRenewing() || (!app.isRenewing() && app.getReleaseStatus() != AppStatus.NETWORK_ERROR))
+                    && (app.isRenewing || app.releaseStatus != AppStatus.NETWORK_ERROR)
         }
     }
 

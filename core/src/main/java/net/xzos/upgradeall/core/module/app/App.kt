@@ -46,29 +46,28 @@ data class App(override val db: AppEntity) : AppDbWrapper() {
 
     val cloudConfig: AppConfigGson? get() = db.cloudConfig
 
+    val isRenewing: Boolean
+        get() = versionMap.status == VersionMap.Companion.VersionStatus.PENDING
+
+    /* 获取 App 的更新状态 */
+    val releaseStatus: AppStatus
+        get() = Updater.getReleaseStatus(this)
+
+    val latestVersion: VersionInfo?
+        get() = if (isLatest)
+            localVersion ?: db.getIgnoreVersion()
+        else versionList.firstOrNull()?.versionInfo
+
+    /* 获取 App 的更新状态 */
+    val isLatest: Boolean
+        get() = releaseStatus == AppStatus.APP_LATEST
+
+    val needCompleteVersion: Boolean
+        get() = db.includeVersionNumberFieldRegexString != null
+                || db.invalidVersionNumberFieldRegexString != null
+
     /* 刷新版本号数据 */
     fun update() {
         DataGetter.getLatestVersion(this)
-    }
-
-    fun isRenewing(): Boolean {
-        return versionMap.status != VersionMap.Companion.VersionStatus.SIMPLE
-                || versionMap.status != VersionMap.Companion.VersionStatus.COMPLETE
-    }
-
-    /* 获取 App 的更新状态 */
-    fun getReleaseStatus(): AppStatus {
-        return Updater.getReleaseStatus(this)
-    }
-
-    fun getLatestVersion(): VersionInfo? {
-        return if (isLatestVersion())
-            localVersion ?: db.getIgnoreVersion()
-        else versionList.firstOrNull()?.versionInfo
-    }
-
-    /* 获取 App 的更新状态 */
-    fun isLatestVersion(): Boolean {
-        return getReleaseStatus() == AppStatus.APP_LATEST
     }
 }

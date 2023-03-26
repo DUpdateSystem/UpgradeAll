@@ -12,7 +12,7 @@ class VersionMap private constructor() {
     private var includeVersionNumberRegex: String? = null
 
     /* 是否只包含更新数据 */
-    internal var status: VersionStatus? = null
+    internal var status: VersionStatus = VersionStatus.PENDING
         private set
 
     /* 版本号数据列表 */
@@ -40,7 +40,7 @@ class VersionMap private constructor() {
             val versionInfo = getVersionInfo(it.release)
             versionMap.getOrPut(versionInfo) { mutableSetOf() }.add(it)
         }
-        status = VersionStatus.PENDING
+        status = VersionStatus.COMPLETE
     }
 
     fun addSingleRelease(release: VersionWrapper) {

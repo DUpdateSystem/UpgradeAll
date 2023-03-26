@@ -50,7 +50,7 @@ class AppVersionItem {
             @ColorRes normalColorRes: Int?, @ColorRes lowLevelColorRes: Int?,
         ): SpannableStringBuilder {
             val sb = SpannableStringBuilder()
-            val latestVersionNumber = runBlocking { app.getLatestVersion() }
+            val latestVersionNumber = runBlocking { app.latestVersion }
             val localVersion = app.localVersion
             val installedVersionNumber = localVersion?.name
             localVersion?.versionCharList?.run {

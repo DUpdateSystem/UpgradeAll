@@ -2,24 +2,37 @@ package net.xzos.upgradeall.core.utils.data_cache.cache_object
 
 import java.time.Instant
 
-abstract class BaseCache<T>(
+abstract class BaseCache<B>(
     val key: String
 ) {
-    abstract var time: Long
+    abstract val store: BaseStore<B>
 
     fun checkValid(dataCacheTimeSec: Int): Boolean {
-        return (Instant.now().epochSecond - time <= dataCacheTimeSec)
+        return (Instant.now().epochSecond - store.getTime() <= dataCacheTimeSec)
     }
 
     private fun renewTime() {
-        time = Instant.now().epochSecond
+        store.setTime(Instant.now().epochSecond)
     }
 
-    open fun write(any: T?) {
-        any?.run { renewTime() }
+    fun <T> write(any: T?, encoder: Encoder<T, B>) {
+        store.write(encoder.encode(any))
+        renewTime()
     }
 
-    abstract fun read(): T?
+    fun <T> read(encoder: Encoder<T, B>): T? {
+        return encoder.decode(store.read())
+    }
 
-    abstract fun delete(): Boolean
+    fun delete() {
+        store.delete()
+    }
+}
+
+interface BaseStore<T> {
+    fun setTime(time: Long)
+    fun getTime(): Long
+    fun write(data: T)
+    fun read(): T
+    fun delete()
 }

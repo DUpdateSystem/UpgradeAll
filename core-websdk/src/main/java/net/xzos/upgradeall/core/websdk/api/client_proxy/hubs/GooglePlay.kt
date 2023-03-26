@@ -10,14 +10,15 @@ import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.coroutines.ValueMutex
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
-import net.xzos.upgradeall.core.utils.data_cache.utils.StringEncoder
 import net.xzos.upgradeall.core.utils.getLocale
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
+import net.xzos.upgradeall.core.websdk.api.client_proxy.StringEncoder
 import net.xzos.upgradeall.core.websdk.api.client_proxy.versionCode
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.http.OkHttpApi
@@ -96,7 +97,7 @@ class GooglePlay(
     }
 
     private fun getAuthJsonFromWeb(url: String): Map<String, String>? {
-        return dataCache.get("AuroraOSS_auth", SaveMode.DISK_ONLY, StringEncoder) {
+        return dataCache.get(mutex, SaveMode.DISK_ONLY, "AuroraOSS_auth", StringEncoder) {
             okhttpProxy.okhttpExecute(HttpRequestData(url))?.body?.string()
         }?.let {
             return@let Gson().fromJson(it, object : TypeToken<Map<String, String>?>() {}.type)
@@ -125,5 +126,7 @@ class GooglePlay(
 
         private const val AUTH_SERVER = "auth_server"
         private val logObjectTag = ObjectTag(core, TAG)
+
+        private val mutex = ValueMutex()
     }
 }

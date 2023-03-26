@@ -11,7 +11,7 @@ import net.xzos.upgradeall.core.utils.SearchUtils
 internal object Updater {
 
     internal fun getReleaseStatus(app: App): AppStatus {
-        val versionNumberList = app.versionList
+        val versionNumberList = app.versionMap.getVersionList()
         val status = if (versionNumberList.isEmpty()) {
             AppStatus.NETWORK_ERROR
         } else {
@@ -22,8 +22,7 @@ internal object Updater {
                 ) -> AppStatus.APP_LATEST
                 localVersion == null -> AppStatus.APP_NO_LOCAL
                 !isLatestVersionNumber(
-                    localVersion,
-                    versionNumberList.map { it.versionInfo }
+                    localVersion, versionNumberList.map { it.versionInfo }
                 ) -> AppStatus.APP_OUTDATED
                 else -> AppStatus.APP_LATEST
             }

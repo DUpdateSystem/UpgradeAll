@@ -1,8 +1,8 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
-import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.asSequence
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.coroutines.ValueMutex
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.utils.data_cache.utils.JsonArrayEncoder
@@ -46,9 +46,8 @@ class LsposedRepo(
 
     private fun getAppJson(app: AppData): JSONObject? {
         val dataJson = dataCache.get(
-            mutex,
-            "lsposed_repo_json", SaveMode.DISK_ONLY, JsonArrayEncoder,
-            false
+            mutex, SaveMode.DISK_ONLY,
+            "lsposed_repo_json", JsonArrayEncoder
         ) {
             okhttpProxy.okhttpExecute(
                 HttpRequestData("https://modules.lsposed.org/modules.json")
@@ -69,6 +68,6 @@ class LsposedRepo(
     }
 
     companion object {
-        private val mutex = Mutex()
+        private val mutex = ValueMutex()
     }
 }

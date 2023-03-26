@@ -1,33 +1,27 @@
 package net.xzos.upgradeall.core.module.app.data
 
-import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version.AssetWrapper
 import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version.VersionWrapper
-import net.xzos.upgradeall.core.utils.coroutines.ValueMutex
-import net.xzos.upgradeall.core.utils.coroutines.runWithLock
+import net.xzos.upgradeall.core.utils.coroutines.ValueMutexMap
 
 internal object DataGetter {
 
-    private val lockedHubMutex = Mutex()
-    private val lockedAppMutex = Mutex()
 
-    private val lockedHub = mutableMapOf<Hub, ValueMutex>()
-    private val lockedApp = mutableMapOf<String, ValueMutex>()
+    private val lockMap = ValueMutexMap()
 
     fun getLatestVersion(app: App): Version? {
-        app.hubEnableList.forEach {
-            val mutex = lockedHubMutex.runWithLock {
-                lockedHub.getOrPut(it) { ValueMutex() }
+        app.hubEnableList.forEach { hub ->
+            var appList: Collection<App> = emptySet()
+            if (!app.needCompleteVersion) {
+                appList = lockMap.runWithLock(hub) {
+                    hubGetUpdate(hub)
+                }
             }
-            val appList = mutex.runWithLock {
-                hubGetUpdate(it)
-            }
-            lockedHubMutex.runWithLock { lockedHub.remove(it) }
-            if (!appList.contains(app)) getVersionList(app, it)
+            if (!appList.contains(app)) getVersionList(app, hub)
         }
         return app.versionMap.getVersionList().firstOrNull()
     }
@@ -51,22 +45,14 @@ internal object DataGetter {
 
     fun getVersionList(app: App): List<Version> {
         app.hubEnableList.forEach {
-            lockedHubMutex.runWithLock { lockedHub.remove(it) }
             getVersionList(app, it)
         }
         return app.versionMap.getVersionList()
     }
 
     private fun getVersionList(app: App, hub: Hub): Boolean {
-        val mutex = lockedAppMutex.runWithLock {
-            lockedApp.getOrPut("$app$hub") { ValueMutex() }
-        }
-        return mutex.runWithLock {
-            getVersionList0(app, hub).also {
-                lockedAppMutex.runWithLock {
-                    lockedApp.remove("$app$hub")
-                }
-            }
+        return lockMap.runWithLock(Pair(app, hub)) {
+            getVersionList0(app, hub)
         }
     }
 

@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.websdk.api
 
 import kotlinx.coroutines.runBlocking
+import net.xzos.upgradeall.core.utils.coroutines.ValueMutexMap
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.websdk.api.client_proxy.ClientProxyApi
@@ -36,10 +37,12 @@ class ServerApi internal constructor(
     }
 
     override fun getCloudConfig(url: String): CloudConfigList? {
-        val value = dataCache.get(url, SaveMode.MEMORY_AND_DISK, CloudConfigListEncoder) {
-            runBlocking {
-                clientProxyApi.getCloudConfig(url) ?: webApiProxy.getCloudConfig(url)
-            }?.let { if (it.isEmpty()) null else it }
+        val value = lockMap.runWith(url) {
+            dataCache.get(it, SaveMode.MEMORY_AND_DISK, url, CloudConfigListEncoder) {
+                runBlocking {
+                    clientProxyApi.getCloudConfig(url) ?: webApiProxy.getCloudConfig(url)
+                }?.let { if (it.isEmpty()) null else it }
+            }
         }
         return value
     }
@@ -62,8 +65,10 @@ class ServerApi internal constructor(
 
     override fun getAppReleaseList(data: SingleRequestData): List<ReleaseGson>? {
         val key = data.getKey()
-        return dataCache.get(key, SaveMode.MEMORY_AND_DISK, AppReleaseListEncoder) {
-            callOrBack(data, clientProxyApi::getAppReleaseList, webApiProxy::getAppReleaseList)
+        return lockMap.runWith(key) {
+            dataCache.get(it, SaveMode.DISK_ONLY, key, AppReleaseListEncoder) {
+                callOrBack(data, clientProxyApi::getAppReleaseList, webApiProxy::getAppReleaseList)
+            }
         }
     }
 
@@ -92,6 +97,10 @@ class ServerApi internal constructor(
                 )
             )
         }
+    }
+
+    companion object {
+        private val lockMap = ValueMutexMap()
     }
 }
 

@@ -1,32 +1,32 @@
 package net.xzos.upgradeall.core.utils.data_cache.utils
 
-import net.xzos.upgradeall.core.utils.data_cache.cache_object.Encoder
+import net.xzos.upgradeall.core.utils.data_cache.cache_object.BytesEncoder
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.text.Charsets.UTF_8
 
-object JsonObjectEncoder : Encoder<JSONObject> {
-    override fun encode(value: JSONObject?): ByteArray {
-        return value?.toString(0)?.toByteArray() ?: byteArrayOf()
+object JsonObjectEncoder : BytesEncoder<JSONObject> {
+    override fun encode(obj: JSONObject?): ByteArray {
+        return obj?.toString(0)?.toByteArray() ?: byteArrayOf()
     }
 
-    override fun decode(bytes: ByteArray): JSONObject? {
+    override fun decode(data: ByteArray): JSONObject? {
         return try {
-            JSONObject(bytes.toString(UTF_8))
+            JSONObject(data.toString(UTF_8))
         } catch (e: Throwable) {
             null
         }
     }
 }
 
-object JsonArrayEncoder : Encoder<JSONArray> {
-    override fun encode(value: JSONArray?): ByteArray {
-        return value?.toString(0)?.toByteArray() ?: byteArrayOf()
+object JsonArrayEncoder : BytesEncoder<JSONArray> {
+    override fun encode(obj: JSONArray?): ByteArray {
+        return obj?.toString(0)?.toByteArray() ?: byteArrayOf()
     }
 
-    override fun decode(bytes: ByteArray): JSONArray? {
+    override fun decode(data: ByteArray): JSONArray? {
         return try {
-            JSONArray(bytes.toString(UTF_8))
+            JSONArray(data.toString(UTF_8))
         } catch (e: Throwable) {
             null
         }

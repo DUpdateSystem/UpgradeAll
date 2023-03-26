@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.websdk.api.web
 
 import com.google.gson.Gson
+import net.xzos.upgradeall.core.utils.coroutines.ValueMutex
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
@@ -24,7 +25,7 @@ internal class WebApiProxy(
     private val dataCache: DataCacheManager,
 ) : BaseApi {
     private val host: String
-        get() = dataCache.get(_host, SaveMode.MEMORY_ONLY, null) {
+        get() = dataCache.get(mutex, SaveMode.MEMORY_ONLY, _host, null) {
             try {
                 DnsApi.resolve(_host)
             } catch (e: Throwable) {
@@ -119,5 +120,7 @@ internal class WebApiProxy(
         }
 
         private fun getIntListPath(list: Collection<Int>) = list.joinToString("/")
+
+        private val mutex = ValueMutex()
     }
 }

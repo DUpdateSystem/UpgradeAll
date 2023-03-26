@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
-import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
+import net.xzos.upgradeall.core.utils.coroutines.ValueMutex
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
@@ -56,7 +56,7 @@ class FDroid(
 
     private fun getRoot(url: String): Element? {
         val xmlUrl = getXmlUrl(url)
-        val doc = dataCache.get(mutex, xmlUrl, SaveMode.DISK_ONLY, XmlEncoder) {
+        val doc = dataCache.get(mutex, SaveMode.MEMORY_AND_DISK, xmlUrl, XmlEncoder) {
             val stream = okhttpProxy.okhttpExecute(HttpRequestData(xmlUrl))?.body?.byteStream()
                 ?: return@get null
             SAXReader().read(stream)
@@ -67,7 +67,7 @@ class FDroid(
     private fun getXmlUrl(url: String) = "$url/index.xml"
 
     companion object {
-        private val mutex = Mutex()
+        private val mutex = ValueMutex()
         private const val DEF_URL = "https://f-droid.org/repo"
 
         private const val REPO_URL = "repo_url"

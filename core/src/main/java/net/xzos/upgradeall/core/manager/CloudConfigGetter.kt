@@ -1,7 +1,6 @@
 package net.xzos.upgradeall.core.manager
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -13,11 +12,8 @@ import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.database.table.setSortHubUuidList
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.utils.AutoTemplate
-import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
-import net.xzos.upgradeall.core.websdk.cache.CloudConfigListEncoder
-import net.xzos.upgradeall.core.websdk.dataCacheManager
 import net.xzos.upgradeall.core.websdk.getServerApi
 import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
@@ -50,8 +46,7 @@ object CloudConfigGetter {
         val key = if (url.isNullOrBlank())
             "http://${coreConfig.update_server_url}/v1/rules/download/dev"
         else url
-        val func = { runBlocking { getServerApi()?.getCloudConfig(key) } }
-        return dataCacheManager.get(key, SaveMode.DISK_ONLY, CloudConfigListEncoder, false, func)
+        return getServerApi().getCloudConfig(key)
     }
 
     fun getAppCloudConfig(appUuid: String?): AppConfigGson? {

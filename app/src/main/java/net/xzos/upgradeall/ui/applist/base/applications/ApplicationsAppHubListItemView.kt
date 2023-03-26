@@ -8,8 +8,8 @@ import net.xzos.upgradeall.ui.applist.base.normal.NormalAppListItemView
 class ApplicationsAppHubListItemView(app: App) : NormalAppListItemView(app) {
     override fun renew(context: Context) {
         renewData(context)
-        val releaseStatus = app.getReleaseStatus()
-        if (app.isRenewing()) {
+        val releaseStatus = app.releaseStatus
+        if (app.isRenewing) {
             if (releaseStatus != AppStatus.NETWORK_ERROR) {
                 setAppStatusIcon(releaseStatus)
             } else {

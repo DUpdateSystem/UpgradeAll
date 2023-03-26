@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.manager
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -43,10 +44,10 @@ object AppManager : Informer<UpdateStatus, App>() {
      * 获取全部 App 实体列表
      */
     val appList: Set<App>
-        get() = getAppList(AppStatus.APP_PENDING) +
-                getAppList(AppStatus.APP_OUTDATED) +
+        get() = getAppList(AppStatus.APP_OUTDATED) +
                 getAppList(AppStatus.APP_NO_LOCAL) +
                 getAppList(AppStatus.APP_LATEST) +
+                getAppList(AppStatus.APP_PENDING) +
                 getAppList(AppStatus.NETWORK_ERROR)
 
     private val inactiveAppList: Set<App>
@@ -91,7 +92,7 @@ object AppManager : Informer<UpdateStatus, App>() {
     private fun addAppMap(
         key: AppStatus, app: App
     ): Boolean {
-        return appMap.getOrDefault(key) { coroutinesMutableListOf(true) }.add(app)
+        return appMap.getOrPut(key) { coroutinesMutableListOf(true) }.add(app)
     }
 
     private fun removeAppMapExclude(
@@ -164,7 +165,7 @@ object AppManager : Informer<UpdateStatus, App>() {
         Log.w("update record", "renew size start: $totalAppNum")
         coroutineScope {
             for (app in appList) {
-                launch {
+                launch(Dispatchers.IO) {
                     renewApp(app)
                     count.down()
                     Log.w("update record", "count: ${count.count}, app: ${app.appId}")
@@ -190,13 +191,12 @@ object AppManager : Informer<UpdateStatus, App>() {
 
     private fun checkActiveApp(app: App): Boolean {
         if (!app.db.isInit()) {
-            return if (app.getReleaseStatus() == AppStatus.NETWORK_ERROR) {
-                appMap.forEach { it.value.remove(app) }
+            return if (app.releaseStatus == AppStatus.NETWORK_ERROR) {
                 addAppMap(AppStatus.APP_INACTIVE, app)
                 removeAppList(app)
                 false
             } else {
-                removeAppMapExclude(app, AppStatus.APP_INACTIVE)
+                removeAppMap(AppStatus.APP_INACTIVE, app)
                 addAppList(app, true)
                 true
             }
@@ -205,7 +205,7 @@ object AppManager : Informer<UpdateStatus, App>() {
     }
 
     private fun setAppMap(app: App) {
-        val releaseStatus = app.getReleaseStatus()
+        val releaseStatus = app.releaseStatus
 
         // check changed
         var changed = false
@@ -262,7 +262,7 @@ object AppManager : Informer<UpdateStatus, App>() {
         }
     }
 
-    private suspend fun updateApp(appDatabase: AppEntity): App {
+    private fun updateApp(appDatabase: AppEntity): App {
         val oldApp = getAppByDatabase(appDatabase) ?: getAppById(appDatabase.appId)
         val changedTag = if (oldApp != null)
             UpdateStatus.APP_DATABASE_CHANGED_NOTIFY

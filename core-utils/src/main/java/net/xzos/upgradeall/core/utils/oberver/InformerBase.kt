@@ -55,7 +55,7 @@ abstract class InformerBase<E : Any?> {
         coroutinesMutableMapOf<Tag, CoroutinesMutableList<Observer<E?>>>(true)
 
     private fun CoroutinesMutableMap<Tag, CoroutinesMutableList<Observer<E?>>>.getList(k: Tag) =
-        this.getOrDefault(k) { coroutinesMutableListOf(true) }
+        this.getOrPut(k) { coroutinesMutableListOf(true) }
 
     protected fun CoroutinesMutableList<Observer<E?>>.remove(func: Func<E>) {
         this.removeIf { it.func == func }

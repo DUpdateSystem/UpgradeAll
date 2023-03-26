@@ -15,11 +15,11 @@ open class NormalAppListItemView(app: App) : BaseAppListItemView(app) {
 
     open fun renew(context: Context) {
         renewData(context)
-        if (app.isRenewing()) {
+        if (app.isRenewing) {
             ivStatusVisibility.set(false)
             pbStatusVisibility.set(true)
         } else {
-            setAppStatusIcon(app.getReleaseStatus())
+            setAppStatusIcon(app.releaseStatus)
         }
     }
 
