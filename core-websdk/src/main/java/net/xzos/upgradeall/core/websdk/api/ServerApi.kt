@@ -55,7 +55,7 @@ class ServerApi internal constructor(
         )
     }
 
-    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson>? {
+    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson?>? {
         return callOrBack(
             data,
             clientProxyApi::getAppUpdate,

@@ -10,7 +10,6 @@ import net.xzos.upgradeall.core.utils.coroutines.ValueMutexMap
 
 internal object DataGetter {
 
-
     private val lockMap = ValueMutexMap()
 
     fun getLatestVersion(app: App): Version? {
@@ -18,7 +17,7 @@ internal object DataGetter {
             var appList: Collection<App> = emptySet()
             if (!app.needCompleteVersion) {
                 appList = lockMap.runWithLock(hub) {
-                    hubGetUpdate(hub)
+                    getLatestUpdate(hub, setOf(app))
                 }
             }
             if (!appList.contains(app)) getVersionList(app, hub)
@@ -26,19 +25,22 @@ internal object DataGetter {
         return app.versionMap.getVersionList().firstOrNull()
     }
 
-    private fun hubGetUpdate(hub: Hub): Set<App> {
-        val appList = AppManager.getAppList(hub)
-        val appLatestReleaseMap =
-            hub.getAppLatestRelease(*appList.toTypedArray()) ?: return emptySet()
+    fun getLatestUpdate(
+        hub: Hub, appList: Collection<App> = AppManager.getAppList(hub)
+    ): Set<App> {
+        val appLatestReleaseMap = hub.getAppLatestRelease(*appList.toTypedArray())
+            ?: return emptySet()
         appLatestReleaseMap.forEach {
             val (app, releaseGson) = it
-            app.versionMap.addSingleRelease(
-                VersionWrapper(
-                    hub, releaseGson,
-                    releaseGson.assetGsonList.mapIndexed { assetIndex, assetGson ->
-                        AssetWrapper(hub, listOf(0, assetIndex), assetGson)
-                    })
-            )
+            if (releaseGson != null)
+                app.versionMap.addSingleRelease(
+                    VersionWrapper(
+                        hub, releaseGson,
+                        releaseGson.assetGsonList.mapIndexed { assetIndex, assetGson ->
+                            AssetWrapper(hub, listOf(0, assetIndex), assetGson)
+                        })
+                )
+            else app.versionMap.addReleaseList(listOf())
         }
         return appLatestReleaseMap.keys
     }

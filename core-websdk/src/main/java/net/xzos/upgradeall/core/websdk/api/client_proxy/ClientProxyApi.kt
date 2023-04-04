@@ -44,7 +44,7 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         }
     }
 
-    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson>? {
+    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson?>? {
         return runFun("getAppUpdate") {
             getHub(data.hub.hubUuid).getUpdate(data.hub, data.appList)
         }

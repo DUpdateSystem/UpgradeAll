@@ -12,7 +12,7 @@ interface BaseApi {
 
     fun checkAppAvailable(data: SingleRequestData): Boolean?
 
-    fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson>?
+    fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson?>?
 
     fun getAppReleaseList(data: SingleRequestData): List<ReleaseGson>?
 

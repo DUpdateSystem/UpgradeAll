@@ -15,6 +15,7 @@ import net.xzos.upgradeall.core.database.table.recheck
 import net.xzos.upgradeall.core.module.AppStatus
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.App
+import net.xzos.upgradeall.core.module.app.data.DataGetter
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
@@ -52,6 +53,16 @@ object AppManager : Informer<UpdateStatus, App>() {
 
     private val inactiveAppList: Set<App>
         get() = getAppList(AppStatus.APP_INACTIVE)
+
+    private fun getHubMap(appList: Collection<App>): Map<Hub, Set<App>> {
+        val map = mutableMapOf<Hub, MutableSet<App>>()
+        appList.forEach { app ->
+            app.hubEnableList.forEach {
+                map.getOrPut(it) { mutableSetOf() }.add(app)
+            }
+        }
+        return map
+    }
 
     fun initObject(context: Context) {
         runBlocking { renewAppList(context) }
@@ -163,8 +174,20 @@ object AppManager : Informer<UpdateStatus, App>() {
         val count = CoroutinesCount(appList.size)
         val totalAppNum = appList.size
         Log.w("update record", "renew size start: $totalAppNum")
+        val simpleAppList = mutableListOf<App>()
+        val completeAppList = mutableListOf<App>()
+        appList.forEach {
+            if (it.needCompleteVersion)
+                completeAppList.add(it)
+            else
+                simpleAppList.add(it)
+        }
+        val hubMap = getHubMap(simpleAppList)
+        hubMap.forEach { DataGetter.getLatestUpdate(it.key, it.value) }
+        count.minusAssign(simpleAppList.size)
+        statusFun?.run { this(count.count, totalAppNum) }
         coroutineScope {
-            for (app in appList) {
+            for (app in completeAppList) {
                 launch(Dispatchers.IO) {
                     renewApp(app)
                     count.down()

@@ -23,16 +23,31 @@ class FDroid(
     override val uuid: String = "6a6d590b-1809-41bf-8ce3-7e3f6c8da945"
 
     override fun checkAppAvailable(hub: HubData, app: AppData): Boolean {
-        return getAppNode(hub, app).let { !(it != null && it.second == null) }
+        return getReleases(hub, app).isNotEmpty()
+    }
+
+    override fun getUpdate(
+        hub: HubData, appList: Collection<AppData>
+    ): Map<AppData, ReleaseGson?>? {
+        val url = hub.other[REPO_URL] ?: DEF_URL
+        val root = getRoot(url) ?: return null
+        return appList.associateWith { getRelease(root, it).firstOrNull() }
     }
 
     override fun getReleases(hub: HubData, app: AppData): List<ReleaseGson> {
-        return getRelease0(hub, app) ?: listOf()
+        val url = hub.other[REPO_URL] ?: DEF_URL
+        val root = getRoot(url) ?: return emptyList()
+        return getRelease(root, app)
     }
 
-    private fun getRelease0(hub: HubData, app: AppData): List<ReleaseGson>? {
-        val (url, node) = getAppNode(hub, app) ?: return null
-        node ?: return emptyList()
+    private fun getRelease(root: Element, app: AppData): List<ReleaseGson> {
+        val url = root.valueOf("//repo//url")
+        val appPackage = app.appId[ANDROID_APP_TYPE] ?: return emptyList()
+        val node = root.selectSingleNode(".//application[@id=\"$appPackage\"]")
+        return getRelease(url, node)
+    }
+
+    private fun getRelease(url: String, node: Node): List<ReleaseGson> {
         var changelog = node.valueOf("changelog")
         return node.selectNodes("package").map {
             ReleaseGson(
@@ -45,13 +60,6 @@ class FDroid(
                 )
             ).versionCode(it.numberValueOf("versioncode"))
         }
-    }
-
-    private fun getAppNode(hub: HubData, app: AppData): Pair<String, Node?>? {
-        val url = hub.other[REPO_URL] ?: DEF_URL
-        val appPackage = app.appId[ANDROID_APP_TYPE] ?: return Pair(url, null)
-        val root = getRoot(url) ?: return null
-        return Pair(url, root.selectSingleNode(".//application[@id=\"$appPackage\"]"))
     }
 
     private fun getRoot(url: String): Element? {

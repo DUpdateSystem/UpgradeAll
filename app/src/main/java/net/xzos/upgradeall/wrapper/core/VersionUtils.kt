@@ -5,11 +5,12 @@ import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version.VersionEntityUtils
+import net.xzos.upgradeall.core.module.app.version.VersionInfo
 
-fun Version.switchIgnoreStatus(app: App) = runBlocking(Dispatchers.Default) {
-    VersionEntityUtils(app).switchIgnoreStatus(versionInfo.name)
+fun VersionInfo.switchIgnoreStatus(app: App) = runBlocking(Dispatchers.Default) {
+    VersionEntityUtils(app).switchIgnoreStatus(name)
 }
 
-fun Version.isIgnored(app: App) = runBlocking(Dispatchers.Default) {
-    VersionEntityUtils(app).isIgnored(versionInfo.name)
+fun VersionInfo.isIgnored(app: App) = runBlocking(Dispatchers.Default) {
+    VersionEntityUtils(app).isIgnored(name)
 }

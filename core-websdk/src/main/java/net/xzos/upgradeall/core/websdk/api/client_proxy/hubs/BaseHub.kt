@@ -15,7 +15,7 @@ abstract class BaseHub(
 
     abstract fun checkAppAvailable(hub: HubData, app: AppData): Boolean?
 
-    open fun getUpdate(hub: HubData, appList: Collection<AppData>): Map<AppData, ReleaseGson>? =
+    open fun getUpdate(hub: HubData, appList: Collection<AppData>): Map<AppData, ReleaseGson?>? =
         null
 
     abstract fun getReleases(hub: HubData, app: AppData): List<ReleaseGson>?

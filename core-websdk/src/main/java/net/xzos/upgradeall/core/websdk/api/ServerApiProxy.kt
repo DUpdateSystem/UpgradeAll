@@ -20,7 +20,7 @@ class ServerApiProxy internal constructor(
         return serverApi?.checkAppAvailable(data)
     }
 
-    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson>? {
+    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson?>? {
         return serverApi?.getAppUpdate(data)
     }
 

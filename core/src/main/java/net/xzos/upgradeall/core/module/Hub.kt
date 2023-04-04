@@ -117,7 +117,7 @@ class Hub(private val hubDatabase: HubEntity) {
         return null
     }
 
-    internal fun <T : AppDbWrapper> getAppLatestRelease(vararg apps: T): Map<T, ReleaseGson>? {
+    internal fun <T : AppDbWrapper> getAppLatestRelease(vararg apps: T): Map<T, ReleaseGson?>? {
         val appMap = apps.mapNotNull { app ->
             val (appId, other) = filterValidKey(app.appId)
             if (appId.isEmpty()) null

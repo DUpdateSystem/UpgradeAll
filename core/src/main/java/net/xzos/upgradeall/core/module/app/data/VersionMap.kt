@@ -13,13 +13,17 @@ class VersionMap private constructor() {
 
     /* 是否只包含更新数据 */
     internal var status: VersionStatus = VersionStatus.PENDING
-        private set
+        private set(value) {
+            if (value == VersionStatus.SIMPLE && status == VersionStatus.COMPLETE)
+                return
+            field = value
+        }
 
     /* 版本号数据列表 */
     private val versionMap: CoroutinesMutableMap<VersionInfo, MutableSet<VersionWrapper>> =
         coroutinesMutableMapOf()
 
-    private var versionList: List<Version> = listOf()
+    private var versionList: List<Version>? = null
 
     fun setVersionNumberRegex(ignore: String?, include: String?) {
         ignoreVersionNumberRegex = ignore
@@ -41,12 +45,14 @@ class VersionMap private constructor() {
             versionMap.getOrPut(versionInfo) { mutableSetOf() }.add(it)
         }
         status = VersionStatus.COMPLETE
+        versionList = null
     }
 
     fun addSingleRelease(release: VersionWrapper) {
         val versionInfo = getVersionInfo(release.release)
-        versionMap.apply { clear() }.getOrPut(versionInfo) { mutableSetOf() }.add(release)
+        versionMap.getOrPut(versionInfo) { mutableSetOf() }.add(release)
         status = VersionStatus.SIMPLE
+        versionList = null
     }
 
     fun setError() {
@@ -63,12 +69,10 @@ class VersionMap private constructor() {
     }
 
     private fun sortList(): List<Version> {
-        if (status == VersionStatus.PENDING) {
-            versionList = versionMap.keys.filter { it.name.isNotBlank() }.sortedDescending()
-                .map { Version(it, versionMap[it]?.toList() ?: emptyList()) }
-            status = VersionStatus.COMPLETE
-        }
-        return versionList
+        return versionList ?: versionMap.keys.filter { it.name.isNotBlank() }.sortedDescending()
+            .map { Version(it, versionMap[it]?.toList() ?: emptyList()) }.apply {
+                versionList = this
+            }
     }
 
     fun getVersionList(): List<Version> = sortList()

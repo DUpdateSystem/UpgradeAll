@@ -32,7 +32,7 @@ class AppVersionItem {
         } else {
             versionNumberVisibility.set(false)
         }
-        app.versionList.firstOrNull { it.isIgnored(app) }?.run {
+        app.versionList.firstOrNull { it.versionInfo.isIgnored(app) }?.run {
             markVersionNumberVisibility.set(true)
             markVersionNumber.set(
                 getVersionNameSpannableStringWithRes(

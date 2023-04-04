@@ -41,7 +41,7 @@ internal class WebApiProxy(
 
     override fun checkAppAvailable(data: SingleRequestData): Boolean? = null
 
-    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson>? {
+    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson?>? {
         return data.appList.mapNotNull {
             getAppRelease(data.hub, it)?.firstOrNull()?.let { r -> it to r }
         }.toMap()

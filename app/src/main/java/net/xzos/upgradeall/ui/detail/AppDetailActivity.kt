@@ -11,7 +11,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.app.App
@@ -69,7 +68,7 @@ class AppDetailActivity : AppBarActivity() {
                 return true
             }
             R.id.ignore_current_version -> {
-                runBlocking { viewModel.currentVersion?.switchIgnoreStatus(app) }
+                viewModel.currentVersion?.versionInfo?.switchIgnoreStatus(app)
                 renewMenu()
                 true
             }
@@ -81,7 +80,7 @@ class AppDetailActivity : AppBarActivity() {
         val item = menu.findItem(R.id.ignore_current_version)
         val currentVersion = viewModel.currentVersion ?: return true
         item.setTitle(
-            if (currentVersion.isIgnored(app))
+            if (currentVersion.versionInfo.isIgnored(app))
                 R.string.remove_ignore_version
             else R.string.ignore_version
         )

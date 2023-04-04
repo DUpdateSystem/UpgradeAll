@@ -104,7 +104,7 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
             versionList.map {
                 getVersionNameSpannableStringWithRes(
                     it.versionInfo.versionCharList,
-                    if (it.isIgnored(app))
+                    if (it.versionInfo.isIgnored(app))
                         R.color.colorPrimary
                     else null,
                     null, getApplication()

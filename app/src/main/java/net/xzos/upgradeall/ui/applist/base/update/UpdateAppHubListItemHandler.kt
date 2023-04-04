@@ -7,7 +7,6 @@ import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.ui.applist.base.AppHubListItemHandler
-import net.xzos.upgradeall.wrapper.core.isIgnored
 import net.xzos.upgradeall.wrapper.core.switchIgnoreStatus
 import net.xzos.upgradeall.wrapper.core.upgrade
 
@@ -23,7 +22,7 @@ class UpdateAppHubListItemHandler : AppHubListItemHandler() {
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.ignore_update -> {
-                        app.versionList.firstOrNull()?.switchIgnoreStatus(app)
+                        app.latestVersion?.switchIgnoreStatus(app)
                         true
                     }
                     else -> false
