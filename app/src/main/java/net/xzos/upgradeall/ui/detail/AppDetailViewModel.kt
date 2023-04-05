@@ -47,6 +47,7 @@ class AppDetailViewModel(application: Application) : AndroidViewModel(applicatio
             item.renewAppIcon(packageId, getApplication())
         }, {
             updateInstalledVersion(it)
+            app.update()
             val versionList = it.versionList
             versionListLiveData.setValueBackground(versionList)
             renewVersionList(versionList)

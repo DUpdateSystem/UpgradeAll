@@ -206,6 +206,7 @@ object AppManager : Informer<UpdateStatus, App>() {
      */
     fun renewApp(app: App) {
         notifyChanged(UpdateStatus.APP_START_UPDATE_NOTIFY, app)
+        DataGetter.getLatestVersion(app)
         app.update()
         if (checkActiveApp(app))
             setAppMap(app)

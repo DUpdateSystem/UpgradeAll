@@ -63,6 +63,6 @@ data class App(override val db: AppEntity) : AppDbWrapper() {
 
     /* 刷新版本号数据 */
     fun update() {
-        DataGetter.getLatestVersion(this)
+        DataGetter.getVersionList(this)
     }
 }
