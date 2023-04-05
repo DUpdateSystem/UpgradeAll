@@ -17,7 +17,7 @@ class DataCacheManager(var config: CacheConfig) {
             ?: mutex.runWithLock { get(saveMode, key, encoder, renewFun) }
     }
 
-    private fun <T> get(
+    fun <T> get(
         saveMode: SaveMode, key: String, encoder: BytesEncoder<T>?, renewFun: () -> T? = { null }
     ): T? {
         try {
@@ -37,7 +37,7 @@ class DataCacheManager(var config: CacheConfig) {
         } catch (_: Throwable) {
         }
         return renewFun()?.also {
-            set(saveMode, key, it, encoder!!)
+            set(saveMode, key, encoder!!, it)
         }
     }
 
@@ -59,7 +59,7 @@ class DataCacheManager(var config: CacheConfig) {
         }
     }
 
-    fun <T> set(saveMode: SaveMode, key: String, value: T?, encoder: BytesEncoder<T>) {
+    fun <T> set(saveMode: SaveMode, key: String, encoder: BytesEncoder<T>, value: T?) {
         when (saveMode) {
             SaveMode.MEMORY_ONLY ->
                 anyCacheMap.getOrPut(key) { AnyMemoryCache<T>(key) }.force<T>().write(value)

@@ -34,3 +34,14 @@ object AppReleaseListEncoder : BytesEncoder<List<ReleaseGson>> {
         )
     }
 }
+
+object BoolEncoder : BytesEncoder<Boolean> {
+    override fun encode(obj: Boolean?): ByteArray {
+        if (obj == null) return byteArrayOf()
+        return obj.toString().toByteArray()
+    }
+
+    override fun decode(data: ByteArray): Boolean {
+        return data.toString().toBoolean()
+    }
+}

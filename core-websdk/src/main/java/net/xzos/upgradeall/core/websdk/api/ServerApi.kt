@@ -13,6 +13,7 @@ import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.cache.AppReleaseListEncoder
+import net.xzos.upgradeall.core.websdk.cache.BoolEncoder
 import net.xzos.upgradeall.core.websdk.cache.CloudConfigListEncoder
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
@@ -48,19 +49,41 @@ class ServerApi internal constructor(
     }
 
     override fun checkAppAvailable(data: SingleRequestData): Boolean? {
-        return callOrBack(
-            data,
-            clientProxyApi::checkAppAvailable,
-            webApiProxy::checkAppAvailable
-        )
+        val key = data.getKey()
+        return lockMap.runWith(key) {
+            dataCache.get(it, SaveMode.DISK_ONLY, key, BoolEncoder) {
+                callOrBack(data, clientProxyApi::checkAppAvailable, webApiProxy::checkAppAvailable)
+            }
+        }
     }
 
     override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson?>? {
-        return callOrBack(
-            data,
-            clientProxyApi::getAppUpdate,
-            webApiProxy::getAppUpdate
-        )
+        return lockMap.runWith(data) {
+            val (cacheMap, mdata) = getAppUpdateCache(data)
+            callOrBack(mdata, clientProxyApi::getAppUpdate, webApiProxy::getAppUpdate)?.also {
+                it.forEach { i ->
+                    val key = "${getCacheKey(data.hub, i.key)}-U"
+                    dataCache.set(
+                        SaveMode.DISK_ONLY, key, AppReleaseListEncoder,
+                        i.value?.let { listOf(it) } ?: listOf()
+                    )
+                }
+                cacheMap.plus(it)
+            }
+        }
+    }
+
+    private fun getAppUpdateCache(data: MultiRequestData): Pair<Map<AppData, ReleaseGson?>, MultiRequestData> {
+        val cacheMap = mutableMapOf<AppData, ReleaseGson?>()
+        data.appList.forEach {
+            val key = getCacheKey(data.hub, it)
+            val cache = dataCache.get(SaveMode.DISK_ONLY, key, AppReleaseListEncoder)
+                ?: dataCache.get(SaveMode.DISK_ONLY, "$key-U", AppReleaseListEncoder)
+            if (cache != null) {
+                cacheMap[it] = cache.firstOrNull()
+            }
+        }
+        return Pair(cacheMap, MultiRequestData(data.hub, data.appList.minus(cacheMap.keys)))
     }
 
     override fun getAppReleaseList(data: SingleRequestData): List<ReleaseGson>? {
@@ -116,4 +139,7 @@ private fun <A, T> callOrBack(
     }
 }
 
-fun SingleRequestData.getKey() = "${hub.getStringId()}-${app.getStringId()}"
+fun getCacheKey(hub: HubData, app: AppData) =
+    "${hub.getStringId()}-${app.getStringId()}"
+
+fun SingleRequestData.getKey() = getCacheKey(hub, app)

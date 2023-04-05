@@ -16,18 +16,18 @@ data class AppData(
     fun getStringId(): String = "${appId.getString()}/${other.getString()}"
 }
 
-abstract class ApiRequestData(
-    val hub: HubData,
-)
+interface ApiRequestData {
+    val hub: HubData
+}
 
-class SingleRequestData(
-    hub: HubData,
+data class SingleRequestData(
+    override val hub: HubData,
     val app: AppData,
-) : ApiRequestData(hub)
+) : ApiRequestData
 
-class MultiRequestData(
-    hub: HubData,
+data class MultiRequestData(
+    override val hub: HubData,
     val appList: Collection<AppData>,
-) : ApiRequestData(hub)
+) : ApiRequestData
 
 fun Map<String, String?>.getString() = entries.joinToString { "${it.key}:${it.value}" }
