@@ -91,6 +91,8 @@ class ServerApi internal constructor(
         return lockMap.runWith(key) {
             dataCache.get(it, SaveMode.DISK_ONLY, key, AppReleaseListEncoder) {
                 callOrBack(data, clientProxyApi::getAppReleaseList, webApiProxy::getAppReleaseList)
+            }?.apply {
+                dataCache.del(SaveMode.DISK_ONLY, "$key-U")
             }
         }
     }

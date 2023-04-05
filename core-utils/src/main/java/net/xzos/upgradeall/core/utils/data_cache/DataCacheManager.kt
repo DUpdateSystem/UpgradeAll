@@ -41,6 +41,22 @@ class DataCacheManager(var config: CacheConfig) {
         }
     }
 
+    fun del(
+        saveMode: SaveMode, key: String
+    ) {
+        try {
+            when (saveMode) {
+                SaveMode.MEMORY_ONLY -> anyCacheMap[key]?.delete()
+                SaveMode.DISK_ONLY -> BytesDiskCache(key, config).delete()
+                SaveMode.MEMORY_AND_DISK -> {
+                    anyCacheMap.remove(key)
+                    BytesDiskCache(key, config).delete()
+                }
+            }
+        } catch (_: Throwable) {
+        }
+    }
+
     private fun <T> BytesDiskCache.readCheck(encoder: Encoder<T, ByteArray>): T? {
         return if (checkValid(config.defExpires)) {
             read(encoder)
