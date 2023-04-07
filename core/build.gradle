@@ -46,7 +46,7 @@ dependencies {
     implementation project(path: ':core-utils')
     api project(path: ':core-websdk')  // 传递 API 返回值的数据结构
     implementation project(path: ':core-android-utils')
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.core:core-ktx:1.10.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -54,7 +54,7 @@ dependencies {
 
 
     // Kotlin
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.core:core-ktx:1.10.0'
     //noinspection DifferentStdlibGradleVersion
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
