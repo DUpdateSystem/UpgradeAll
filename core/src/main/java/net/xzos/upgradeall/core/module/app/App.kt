@@ -14,11 +14,9 @@ import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 data class App(override val db: AppEntity) : AppDbWrapper() {
 
     // Version 信息
-    val versionMap: VersionMap =
-        VersionMap.new(
-            db.invalidVersionNumberFieldRegexString,
-            db.includeVersionNumberFieldRegexString
-        )
+    val versionMap: VersionMap = VersionMap.new(
+        db.invalidVersionNumberFieldRegexString, db.includeVersionNumberFieldRegexString
+    )
 
     /* 这个 App 数据可用的软件源 */
     val hubAvailableList: List<Hub>
@@ -49,8 +47,7 @@ data class App(override val db: AppEntity) : AppDbWrapper() {
         get() = Updater.getReleaseStatus(this)
 
     val latestVersion: VersionInfo?
-        get() = if (isLatest)
-            localVersion ?: db.getIgnoreVersion()
+        get() = if (isLatest) localVersion ?: db.getIgnoreVersion()
         else versionList.firstOrNull()?.versionInfo
 
     /* 获取 App 的更新状态 */
@@ -58,11 +55,11 @@ data class App(override val db: AppEntity) : AppDbWrapper() {
         get() = releaseStatus == AppStatus.APP_LATEST
 
     val needCompleteVersion: Boolean
-        get() = db.includeVersionNumberFieldRegexString != null
-                || db.invalidVersionNumberFieldRegexString != null
+        get() = db.includeVersionNumberFieldRegexString != null || db.invalidVersionNumberFieldRegexString != null
 
     /* 刷新版本号数据 */
     fun update() {
+        if (versionMap.status == VersionMap.Companion.VersionStatus.COMPLETE) return
         DataGetter.getVersionList(this)
     }
 }
