@@ -182,10 +182,17 @@ object AppManager : Informer<UpdateStatus, App>() {
             else
                 simpleAppList.add(it)
         }
+        simpleAppList.forEach { app ->
+            notifyChanged(UpdateStatus.APP_START_UPDATE_NOTIFY, app)
+        }
         val hubMap = getHubMap(simpleAppList)
         hubMap.forEach { DataGetter.getLatestUpdate(it.key, it.value) }
         count.minusAssign(simpleAppList.size)
+        simpleAppList.forEach { app ->
+            notifyChanged(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, app)
+        }
         statusFun?.run { this(count.count, totalAppNum) }
+
         coroutineScope {
             for (app in completeAppList) {
                 launch(Dispatchers.IO) {
@@ -207,7 +214,6 @@ object AppManager : Informer<UpdateStatus, App>() {
     fun renewApp(app: App) {
         notifyChanged(UpdateStatus.APP_START_UPDATE_NOTIFY, app)
         DataGetter.getLatestVersion(app)
-        app.update()
         if (checkActiveApp(app))
             setAppMap(app)
         notifyChanged(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, app)
