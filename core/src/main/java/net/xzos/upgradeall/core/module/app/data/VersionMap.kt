@@ -68,9 +68,8 @@ class VersionMap private constructor() {
 
     private fun sortList(): List<Version> {
         return versionList ?: versionMap.keys.filter { it.name.isNotBlank() }.sortedDescending()
-            .map { Version(it, versionMap[it]?.toList() ?: emptyList()) }.apply {
-                versionList = this
-            }
+            .map { Version(it, versionMap[it]?.toList() ?: emptyList()) }
+            .apply { versionList = this }
     }
 
     fun getVersionList(): List<Version> = sortList()

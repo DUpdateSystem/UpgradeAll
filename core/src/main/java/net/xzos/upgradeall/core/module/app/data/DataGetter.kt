@@ -51,7 +51,6 @@ internal object DataGetter {
                             AssetWrapper(hub, listOf(0, assetIndex), assetGson)
                         })
                 )
-            else app.versionMap.addReleaseList(listOf())
         }
         return appLatestReleaseMap.keys
     }

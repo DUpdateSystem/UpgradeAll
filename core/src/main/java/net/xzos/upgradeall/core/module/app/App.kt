@@ -34,8 +34,8 @@ data class App(override val db: AppEntity) : AppDbWrapper() {
             )
         }
 
-    /* 版本号数据列表 */
-    val versionList: List<Version> = versionMap.getVersionList()
+    val versionList: List<Version>
+        get() = versionMap.getVersionList()
 
     val cloudConfig: AppConfigGson? get() = db.cloudConfig
 
