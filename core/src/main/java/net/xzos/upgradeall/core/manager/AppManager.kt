@@ -36,7 +36,7 @@ enum class UpdateStatus : Tag {
     APP_DELETED_NOTIFY,
 }
 
-object AppManager : Informer<UpdateStatus, List<App>>() {
+object AppManager : Informer<UpdateStatus, App>() {
 
     private val appList = coroutinesMutableListOf<App>(true)
 
@@ -138,7 +138,7 @@ object AppManager : Informer<UpdateStatus, List<App>>() {
         coroutineScope {
             appList.forEach {
                 launch {
-                    notifyChanged(UpdateStatus.APP_START_UPDATE_NOTIFY, listOf(it))
+                    notifyChanged(UpdateStatus.APP_START_UPDATE_NOTIFY, it)
                     appStatusMap[it] = it.releaseStatus
                     it.hubEnableList.forEach { hub ->
                         val map = if (it.needCompleteVersion) completeMap else simpleMap
@@ -192,9 +192,9 @@ object AppManager : Informer<UpdateStatus, List<App>>() {
         if (list.contains(hub)) {
             if (list.size == 1) {
                 map.remove(app)
-                notifyChanged(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, listOf(app))
+                notifyChanged(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, app)
                 if (appStatusMap[app] != app.releaseStatus)
-                    notifyChanged(UpdateStatus.APP_UPDATE_STATUS_CHANGED_NOTIFY, listOf(app))
+                    notifyChanged(UpdateStatus.APP_UPDATE_STATUS_CHANGED_NOTIFY, app)
                 count.down()
                 Log.w("update record", "count: ${count.count}, app: ${app.appId}")
                 statusFun?.run { this(count.count, totalAppNum) }
@@ -209,9 +209,9 @@ object AppManager : Informer<UpdateStatus, List<App>>() {
      * @param app 需要重新刷新的 App 项
      */
     fun renewApp(app: App) {
-        notifyChanged(UpdateStatus.APP_START_UPDATE_NOTIFY, listOf(app))
+        notifyChanged(UpdateStatus.APP_START_UPDATE_NOTIFY, app)
         DataGetter.getLatestVersion(app)
-        notifyChanged(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, listOf(app))
+        notifyChanged(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, app)
     }
 
     fun renewApp(app: App, hub: Hub) {
@@ -265,7 +265,7 @@ object AppManager : Informer<UpdateStatus, List<App>>() {
             appList.add(this)
         }
         renewApp(app)
-        notifyChanged(changedTag, listOf(app))
+        notifyChanged(changedTag, app)
         return app
     }
 

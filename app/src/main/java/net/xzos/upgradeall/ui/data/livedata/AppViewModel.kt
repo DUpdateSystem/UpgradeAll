@@ -10,65 +10,53 @@ import net.xzos.upgradeall.core.utils.oberver.Func
 open class AppViewModel {
     private val appMap: MutableMap<App, List<Func<App>>> = coroutinesMutableMapOf(true)
 
-    private val appAddedObserver: Func<List<App>> = { list ->
-        list.forEach {
-            runUiFun {
-                appAdded(it)
-                appMap[it]?.run {
-                    this[0](it)
-                }
+    private val appAddedObserver: Func<App> = {
+        runUiFun {
+            appAdded(it)
+            appMap[it]?.run {
+                this[0](it)
             }
         }
     }
-    private val appDeletedObserver: Func<List<App>> = { list ->
-        list.forEach {
-            runUiFun {
-                appDeleted(it)
-                appMap[it]?.run {
-                    this[1](it)
-                }
+    private val appDeletedObserver: Func<App> = {
+        runUiFun {
+            appDeleted(it)
+            appMap[it]?.run {
+                this[1](it)
             }
         }
     }
-    private val appChangedObserver: Func<List<App>> = { list ->
-        list.forEach {
-            runUiFun {
-                appChanged(it)
-                appMap[it]?.run {
-                    this[2](it)
-                }
+    private val appChangedObserver: Func<App> = {
+        runUiFun {
+            appChanged(it)
+            appMap[it]?.run {
+                this[2](it)
             }
         }
     }
-    private val appUpdatingObserver: Func<List<App>> = { list ->
-        list.forEach {
-            runUiFun {
-                appUpdating(it)
-                appMap[it]?.run {
-                    this[3](it)
-                }
+    private val appUpdatingObserver: Func<App> = {
+        runUiFun {
+            appUpdating(it)
+            appMap[it]?.run {
+                this[3](it)
             }
         }
     }
 
-    private val appUpdateChangedObserver: Func<List<App>> = { list ->
-        list.forEach {
-            runUiFun {
-                appUpdateChanged(it)
-                appMap[it]?.run {
-                    this[3](it)
-                }
+    private val appUpdateChangedObserver: Func<App> = {
+        runUiFun {
+            appUpdateChanged(it)
+            appMap[it]?.run {
+                this[3](it)
             }
         }
     }
 
-    private val appUpdatedObserver: Func<List<App>> = { list ->
-        list.forEach {
-            runUiFun {
-                appUpdated(it)
-                appMap[it]?.run {
-                    this[3](it)
-                }
+    private val appUpdatedObserver: Func<App> = {
+        runUiFun {
+            appUpdated(it)
+            appMap[it]?.run {
+                this[3](it)
             }
         }
     }

@@ -32,7 +32,7 @@ import net.xzos.upgradeall.utils.UxUtils
 class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val observer: Func<List<App>?> = { renewUpdateStatus() }
+    private val observer: Func<App?> = { renewUpdateStatus() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
