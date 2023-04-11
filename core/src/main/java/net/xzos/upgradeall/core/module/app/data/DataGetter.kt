@@ -12,6 +12,17 @@ internal object DataGetter {
 
     private val lockMap = ValueMutexMap()
 
+    fun getLatestVersion(app: App, hub: Hub): Version? {
+        var appList: Collection<App> = emptySet()
+        if (!app.needCompleteVersion) {
+            appList = lockMap.runWithLock(hub) {
+                getLatestUpdate(hub, setOf(app))
+            }
+        }
+        if (!appList.contains(app)) getVersionList(app, hub)
+        return app.versionMap.getVersionList().firstOrNull()
+    }
+
     fun getLatestVersion(app: App): Version? {
         app.hubEnableList.forEach { hub ->
             var appList: Collection<App> = emptySet()
@@ -68,7 +79,7 @@ internal object DataGetter {
         }.also {
             if (it != null)
                 app.versionMap.addReleaseList(it)
-            else app.versionMap.setError()
+            else app.versionMap.setError(hub)
         } != null
     }
 }

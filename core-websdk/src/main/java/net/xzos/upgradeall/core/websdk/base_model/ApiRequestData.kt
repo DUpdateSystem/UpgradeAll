@@ -6,14 +6,14 @@ data class HubData(
     val auth: Map<String, String?>,
     val other: Map<String, String?> = mapOf(),
 ) {
-    fun getStringId(): String = "$hubUuid/${auth.getString()}/${other.getString()}"
+    fun getStringId(): String = "$hubUuid|${auth.getString()}|${other.getString()}"
 }
 
 data class AppData(
     val appId: Map<String, String?>,
     val other: Map<String, String?>,
 ) {
-    fun getStringId(): String = "${appId.getString()}/${other.getString()}"
+    fun getStringId(): String = "${appId.getString()}|${other.getString()}"
 }
 
 interface ApiRequestData {

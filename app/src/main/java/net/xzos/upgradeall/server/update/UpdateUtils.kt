@@ -10,10 +10,9 @@ import kotlinx.coroutines.launch
 
 
 fun startUpdateWorker(context: Context) {
-    val tag = "update_service"
     val updateWorkRequest = OneTimeWorkRequestBuilder<UpdateWorker>().build()
     WorkManager.getInstance(context)
-        .enqueueUniqueWork(tag, ExistingWorkPolicy.REPLACE, updateWorkRequest)
+        .enqueueUniqueWork("update_service", ExistingWorkPolicy.REPLACE, updateWorkRequest)
 }
 
 fun startUpdate(lifecycleScope: CoroutineScope) {

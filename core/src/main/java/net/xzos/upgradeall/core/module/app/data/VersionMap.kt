@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.module.app.data
 
+import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version.VersionInfo
 import net.xzos.upgradeall.core.module.app.version.VersionWrapper
@@ -11,13 +12,8 @@ class VersionMap private constructor() {
     private var ignoreVersionNumberRegex: String? = null
     private var includeVersionNumberRegex: String? = null
 
-    /* 是否只包含更新数据 */
-    internal var status: VersionStatus = VersionStatus.PENDING
-        private set(value) {
-            if (value == VersionStatus.SIMPLE && status == VersionStatus.COMPLETE)
-                return
-            field = value
-        }
+    internal var hubStatus = coroutinesMutableMapOf<Hub, HubStatus>(true)
+    fun isRenewing() = hubStatus.containsValue(HubStatus.RENEW)
 
     /* 版本号数据列表 */
     private val versionMap: CoroutinesMutableMap<VersionInfo, MutableSet<VersionWrapper>> =
@@ -44,19 +40,21 @@ class VersionMap private constructor() {
             val versionInfo = getVersionInfo(it.release)
             versionMap.getOrPut(versionInfo) { mutableSetOf() }.add(it)
         }
-        status = VersionStatus.COMPLETE
+        releaseList.firstOrNull()?.let {
+            hubStatus[it.hub] = HubStatus.FULL
+        }
         versionList = null
     }
 
     fun addSingleRelease(release: VersionWrapper) {
         val versionInfo = getVersionInfo(release.release)
         versionMap.getOrPut(versionInfo) { mutableSetOf() }.add(release)
-        status = VersionStatus.SIMPLE
+        hubStatus[release.hub] = HubStatus.SINGLE
         versionList = null
     }
 
-    fun setError() {
-        status = VersionStatus.ERROR
+    fun setError(hub: Hub) {
+        hubStatus[hub] = HubStatus.ERROR
     }
 
     private fun getVersionInfo(release: ReleaseGson): VersionInfo {
@@ -85,11 +83,11 @@ class VersionMap private constructor() {
             setVersionNumberRegex(ignoreVersionNumberRegex, includeVersionNumberRegex)
         }
 
-        internal enum class VersionStatus {
+        internal enum class HubStatus {
+            RENEW,
             ERROR,
-            PENDING,
-            SIMPLE,
-            COMPLETE,
+            SINGLE,
+            FULL,
         }
     }
 }

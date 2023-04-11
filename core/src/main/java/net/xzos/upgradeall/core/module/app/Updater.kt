@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.module.app
 
+import net.xzos.upgradeall.core.database.table.isInit
 import net.xzos.upgradeall.core.module.AppStatus
 import net.xzos.upgradeall.core.module.app.version.VersionEntityUtils
 import net.xzos.upgradeall.core.module.app.version.VersionInfo
@@ -13,7 +14,11 @@ internal object Updater {
     internal fun getReleaseStatus(app: App): AppStatus {
         val versionNumberList = app.versionMap.getVersionList()
         val status = if (versionNumberList.isEmpty()) {
-            AppStatus.NETWORK_ERROR
+            if (app.versionMap.isRenewing())
+                AppStatus.APP_PENDING
+            else if (app.db.isInit())
+                AppStatus.APP_INACTIVE
+            else AppStatus.NETWORK_ERROR
         } else {
             val localVersion = app.localVersion ?: app.db.getIgnoreVersion()
             when {

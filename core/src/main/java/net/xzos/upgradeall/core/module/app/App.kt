@@ -40,7 +40,8 @@ data class App(override val db: AppEntity) : AppDbWrapper() {
     val cloudConfig: AppConfigGson? get() = db.cloudConfig
 
     val isRenewing: Boolean
-        get() = versionMap.status == VersionMap.Companion.VersionStatus.PENDING
+        get() = versionMap.hubStatus.filter { it.value == VersionMap.Companion.HubStatus.RENEW }
+            .isNotEmpty()
 
     /* 获取 App 的更新状态 */
     val releaseStatus: AppStatus
@@ -59,7 +60,6 @@ data class App(override val db: AppEntity) : AppDbWrapper() {
 
     /* 刷新版本号数据 */
     fun update() {
-        if (versionMap.status == VersionMap.Companion.VersionStatus.COMPLETE) return
         DataGetter.getVersionList(this)
     }
 }
