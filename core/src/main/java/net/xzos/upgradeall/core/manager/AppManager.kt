@@ -38,7 +38,14 @@ enum class UpdateStatus : Tag {
 
 object AppManager : Informer<UpdateStatus, App>() {
 
-    private val appList = coroutinesMutableListOf<App>(true)
+    private val allAppList = coroutinesMutableListOf<App>(true)
+
+    private val inactiveAppList: Set<App>
+        get() = getAppList(AppStatus.APP_INACTIVE)
+    val appList: Set<App>
+        get() = allAppList.minus(inactiveAppList).toSortedSet { o1, o2 ->
+            o1.name.compareTo(o2.name)
+        }
 
     /**
      * 获取全部 App 实体列表
@@ -46,14 +53,11 @@ object AppManager : Informer<UpdateStatus, App>() {
     val appMap: Map<AppStatus, Collection<App>>
         get() {
             val map = mutableMapOf<AppStatus, MutableList<App>>()
-            appList.forEach {
+            allAppList.forEach {
                 map.getOrPut(it.releaseStatus) { mutableListOf(it) }
             }
             return map
         }
-
-    private val inactiveAppList: Set<App>
-        get() = getAppList(AppStatus.APP_INACTIVE)
 
     fun initObject(context: Context) {
         runBlocking { renewAppList(context) }
@@ -62,12 +66,12 @@ object AppManager : Informer<UpdateStatus, App>() {
 
     private suspend fun renewAppList(context: Context) {
         metaDatabase.appDao().loadAll().forEach { database ->
-            appList.add(App(database))
+            allAppList.add(App(database))
         }
         getInstalledAppList(
             context, coreConfig.applications_ignore_system_app
         ).forEach { database ->
-            appList.add(App(database))
+            allAppList.add(App(database))
         }
     }
 
@@ -96,13 +100,6 @@ object AppManager : Informer<UpdateStatus, App>() {
         }
         return null
     }
-
-    fun getSortAppList(): Set<App> =
-        getAppList(AppStatus.APP_OUTDATED) +
-                getAppList(AppStatus.APP_NO_LOCAL) +
-                getAppList(AppStatus.APP_LATEST) +
-                getAppList(AppStatus.APP_PENDING) +
-                getAppList(AppStatus.NETWORK_ERROR)
 
     /**
      * 获取全部 App 实体列表，按照 App 类型过滤
@@ -262,7 +259,7 @@ object AppManager : Informer<UpdateStatus, App>() {
             UpdateStatus.APP_DATABASE_CHANGED_NOTIFY
         else UpdateStatus.APP_ADDED_NOTIFY
         val app = oldApp ?: App(appDatabase).apply {
-            appList.add(this)
+            allAppList.add(this)
         }
         renewApp(app)
         notifyChanged(changedTag, app)
@@ -274,6 +271,6 @@ object AppManager : Informer<UpdateStatus, App>() {
      */
     suspend fun removeApp(app: App) {
         metaDatabase.appDao().delete(app.db)
-        appList.remove(app)
+        allAppList.remove(app)
     }
 }

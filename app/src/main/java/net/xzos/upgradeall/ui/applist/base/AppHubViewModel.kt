@@ -92,7 +92,7 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
     }
 
     private fun getAppList(): Set<App> {
-        return AppManager.getSortAppList()
+        return AppManager.appList
     }
 
     override suspend fun doLoadData(): List<App> {

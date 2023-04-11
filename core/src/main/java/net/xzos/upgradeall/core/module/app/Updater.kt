@@ -17,8 +17,8 @@ internal object Updater {
             if (app.versionMap.isRenewing())
                 AppStatus.APP_PENDING
             else if (app.db.isInit())
-                AppStatus.APP_INACTIVE
-            else AppStatus.NETWORK_ERROR
+                AppStatus.NETWORK_ERROR
+            else AppStatus.APP_INACTIVE
         } else {
             val localVersion = app.localVersion ?: app.db.getIgnoreVersion()
             when {
