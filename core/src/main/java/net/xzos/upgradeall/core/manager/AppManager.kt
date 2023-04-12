@@ -38,26 +38,23 @@ enum class UpdateStatus : Tag {
 
 object AppManager : Informer<UpdateStatus, App>() {
 
+    /**
+     * 获取全部 App 实体列表
+     */
     private val allAppList = coroutinesMutableListOf<App>(true)
 
     private val inactiveAppList: Set<App>
         get() = getAppList(AppStatus.APP_INACTIVE)
-    val appList: Set<App>
-        get() = allAppList.minus(inactiveAppList).toSortedSet { o1, o2 ->
-            o1.name.compareTo(o2.name)
-        }
 
-    /**
-     * 获取全部 App 实体列表
-     */
-    val appMap: Map<AppStatus, Collection<App>>
-        get() {
-            val map = mutableMapOf<AppStatus, MutableList<App>>()
-            allAppList.forEach {
-                map.getOrPut(it.releaseStatus) { mutableListOf(it) }
+    fun getAppList(predicate: ((App) -> Boolean) = { true }): Set<App> =
+        getUnsortedAppList(predicate)
+            .toSortedSet { o1, o2 ->
+                o1.name.compareTo(o2.name)
             }
-            return map
-        }
+
+    private fun getUnsortedAppList(predicate: ((App) -> Boolean) = { true }): Set<App> =
+        allAppList.filter { (it.releaseStatus != AppStatus.APP_INACTIVE) && predicate(it) }
+            .toSet()
 
     fun initObject(context: Context) {
         runBlocking { renewAppList(context) }
@@ -77,7 +74,7 @@ object AppManager : Informer<UpdateStatus, App>() {
 
     fun getAppList(hub: Hub): Set<App> {
         val list = mutableSetOf<App>()
-        appList.forEach { app ->
+        allAppList.forEach { app ->
             app.hubEnableList.forEach {
                 if (it == hub) list.add(app)
             }
@@ -86,7 +83,7 @@ object AppManager : Informer<UpdateStatus, App>() {
     }
 
     fun getAppList(key: AppStatus): Set<App> {
-        return appMap[key]?.toSet() ?: emptySet()
+        return allAppList.filter { it.releaseStatus == key }.toSet()
     }
 
     /**
@@ -94,7 +91,7 @@ object AppManager : Informer<UpdateStatus, App>() {
      * 在完成数据刷新{@link #renewApp}后，可以通过 App 类型{@link Constant}获取该类型的列表
      */
     fun getAppByUuid(uuid: String): App? {
-        appList.forEach {
+        allAppList.forEach {
             if (uuid == it.cloudConfig?.uuid)
                 return it
         }
@@ -104,8 +101,8 @@ object AppManager : Informer<UpdateStatus, App>() {
     /**
      * 获取全部 App 实体列表，按照 App 类型过滤
      */
-    fun getAppList(appType: String): List<App> {
-        return appList.filter { it.appId.containsKey(appType) }
+    fun getAppList(appType: String): Set<App> {
+        return allAppList.filter{ it.appId.containsKey(appType) }.toSet()
     }
 
     /**
@@ -116,6 +113,7 @@ object AppManager : Informer<UpdateStatus, App>() {
         renewStatusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null,
         renewInactiveStatusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null,
     ): Int {
+        val appList = getUnsortedAppList()
         renewAppList(appList, renewStatusFun)
         renewAppList(inactiveAppList, renewInactiveStatusFun)
         return appList.size
@@ -216,7 +214,7 @@ object AppManager : Informer<UpdateStatus, App>() {
     }
 
     private fun getAppByDatabase(appEntity: AppEntity): App? {
-        appList.forEach {
+        allAppList.forEach {
             if (it.db == appEntity)
                 return it
         }
@@ -224,7 +222,7 @@ object AppManager : Informer<UpdateStatus, App>() {
     }
 
     fun getAppById(appId: Map<String, String?>): App? {
-        appList.forEach {
+        allAppList.forEach {
             if (appId == it.appId)
                 return it
         }
