@@ -29,6 +29,7 @@ android {
         jvmTarget = JavaVersion.VERSION_17
     }
     buildToolsVersion '33.0.0'
+    namespace 'net.xzos.upgradeall.core.androidutils'
 }
 
 dependencies {

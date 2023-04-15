@@ -84,6 +84,7 @@ android {
         checkReleaseBuilds false
     }
     buildToolsVersion '33.0.0'
+    namespace 'net.xzos.upgradeall'
 }
 
 dependencies {
