@@ -198,5 +198,8 @@
     <string name="url">网址</string>
     <string name="app_base_hub">基础软件源</string>
     <string name="app_id">应用 ID</string>
-    <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
+    <!-- About -->
+    <string name="official_website">官网</string>
+    <string name="about">关于</string>
+    <string name="donate">打赏</string>
 </resources>

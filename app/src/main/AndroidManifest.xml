@@ -29,6 +29,11 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
         <activity
+            android:name=".ui.home.AboutActivity"
+            android:exported="false"
+            android:label="@string/about"
+            android:theme="@style/AppTheme" />
+        <activity
             android:name=".ui.restore.RestoreActivity"
             android:exported="false" />
 
@@ -51,7 +56,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name="net.xzos.upgradeall.core.installer.status.AppInstallReceiver"
+            android:name=".core.installer.status.AppInstallReceiver"
             android:exported="true">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />

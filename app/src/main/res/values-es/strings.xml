@@ -188,7 +188,6 @@
     <string name="url">Url</string>
     <string name="app_base_hub">App Hub básica</string>
     <string name="app_id">APP ID</string>
-    <string name="title_activity_neo_app_setting">NeoApp ConfiguraciónActividad</string>
     <string name="download_paused">Descargar Pausa</string>
     <string name="download_service_running">Descargar Servicio en marcha</string>
 </resources>

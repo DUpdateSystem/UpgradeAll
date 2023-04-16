@@ -198,7 +198,6 @@
     <string name="url">URL</string>
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
-    <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
     <string name="data_expiration_time_desc">Время истечения срока действия кэша данных о номере версии, полученных из Интернета.
 \nОтключено для значения 0 (только для отладки).</string>
     <string name="custom_include_version_number_field_regex">Regex для поля обязательного включения имени версии</string>

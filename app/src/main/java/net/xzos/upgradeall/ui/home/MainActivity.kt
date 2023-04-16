@@ -21,11 +21,14 @@ import net.xzos.upgradeall.ui.applist.magisk.MagiskModuleActivity
 import net.xzos.upgradeall.ui.base.BaseActivity
 import net.xzos.upgradeall.ui.discover.DiscoverActivity
 import net.xzos.upgradeall.ui.filemanagement.FileManagementActivity
-import net.xzos.upgradeall.ui.home.adapter.*
+import net.xzos.upgradeall.ui.home.adapter.HomeModuleAdapter
+import net.xzos.upgradeall.ui.home.adapter.HomeModuleBean
+import net.xzos.upgradeall.ui.home.adapter.HomeModuleCardBean
+import net.xzos.upgradeall.ui.home.adapter.HomeModuleNonCardBean
+import net.xzos.upgradeall.ui.home.adapter.HomeSimpleCardBean
 import net.xzos.upgradeall.ui.hubmanager.HubManagerActivity
 import net.xzos.upgradeall.ui.log.LogActivity
 import net.xzos.upgradeall.ui.preference.SettingsActivity
-import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.UxUtils
 
 
@@ -72,7 +75,7 @@ class MainActivity : BaseActivity() {
                     startActivity(Intent(this, SettingsActivity::class.java))
                 },
                 HomeModuleNonCardBean(R.drawable.ic_home_about, R.string.home_about) {
-                    MiscellaneousUtils.accessByBrowser("https://up-a.org/", this)
+                    startActivity(Intent(this, AboutActivity::class.java))
                 }
             ))
         } else {
@@ -106,10 +109,12 @@ class MainActivity : BaseActivity() {
                 HomeModuleCardBean(R.drawable.ic_home_discovery, R.string.home_module_discovery) {
                     startActivity(Intent(this, DiscoverActivity::class.java))
                 }
+
             HOME_MODULE_HUB_MANAGER ->
                 HomeModuleCardBean(R.drawable.ic_home_hub, R.string.app_hub) {
                     startActivity(Intent(this, HubManagerActivity::class.java))
                 }
+
             HOME_MODULE_FILE_MANAGER ->
                 HomeModuleCardBean(
                     R.drawable.ic_home_file_management,
@@ -117,10 +122,12 @@ class MainActivity : BaseActivity() {
                 ) {
                     startActivity(Intent(this, FileManagementActivity::class.java))
                 }
+
             HOME_MODULE_APPS_LIST ->
                 HomeModuleCardBean(R.drawable.ic_home_apps, R.string.home_module_apps) {
                     startActivity(Intent(this, AppsActivity::class.java))
                 }
+
             HOME_MODULE_MAGISK_LIST ->
                 HomeModuleCardBean(
                     R.drawable.ic_home_magisk_module,
@@ -128,6 +135,7 @@ class MainActivity : BaseActivity() {
                 ) {
                     startActivity(Intent(this, MagiskModuleActivity::class.java))
                 }
+
             else -> null
         }
     }

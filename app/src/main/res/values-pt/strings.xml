@@ -36,7 +36,6 @@
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
     <string name="url">URL</string>
-    <string name="title_activity_neo_app_setting">NeoAppSettingActivity</string>
     <string name="app">App</string>
     <string name="help">Ajuda</string>
     <string name="update">Atualizar</string>
