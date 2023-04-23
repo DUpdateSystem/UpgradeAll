@@ -203,4 +203,7 @@
     <string name="custom_include_version_number_field_regex">Regex для поля обязательного включения имени версии</string>
     <string name="data_expiration_time">Время истечения кэша данных (мин)</string>
     <string name="open_browser_failed">Не удалось открыть браузер; причина неизвестна</string>
+    <string name="official_website">Официальный сайт</string>
+    <string name="about">О приложении</string>
+    <string name="donate">Пожертвовать</string>
 </resources>
