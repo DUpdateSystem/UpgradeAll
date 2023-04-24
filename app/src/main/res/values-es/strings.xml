@@ -190,4 +190,7 @@
     <string name="app_id">APP ID</string>
     <string name="download_paused">Descargar Pausa</string>
     <string name="download_service_running">Descargar Servicio en marcha</string>
+    <string name="official_website">Página web oficial</string>
+    <string name="about">Acerca de</string>
+    <string name="donate">Donar</string>
 </resources>
