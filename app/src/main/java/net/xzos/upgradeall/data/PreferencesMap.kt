@@ -18,7 +18,7 @@ import net.xzos.upgradeall.data.constants.DEFAULT_REPO_URL
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.ui.home.MainActivity
 import net.xzos.upgradeall.utils.file.SDK_CACHE_DIR
-import java.util.*
+import java.util.Locale
 
 
 object PreferencesMap {
@@ -123,7 +123,7 @@ object PreferencesMap {
         get() {
             return if (locale_custom) {
                 val (language, country) = prefs.getString(LANGUAGE_LOCALE_CODE_KEY, null)
-                    ?.split("_", "-") // 兼容旧版本错误的下划线语言代码格式
+                    ?.split("_", "-")?.plus("") // 兼容旧版本错误的下划线语言代码格式
                     ?: return null
                 Locale(language, country)
             } else {
