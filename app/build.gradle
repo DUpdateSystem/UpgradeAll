@@ -87,7 +87,7 @@ android {
     buildToolsVersion '33.0.0'
     namespace 'net.xzos.upgradeall'
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.5'
+        kotlinCompilerExtensionVersion '1.4.6'
     }
 }
 
@@ -103,8 +103,8 @@ dependencies {
     implementation "androidx.drawerlayout:drawerlayout:1.2.0"
     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'
 
-    implementation 'androidx.activity:activity-ktx:1.7.0'
-    implementation 'androidx.fragment:fragment-ktx:1.5.6'
+    implementation 'androidx.activity:activity-ktx:1.7.1'
+    implementation 'androidx.fragment:fragment-ktx:1.5.7'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
 
@@ -116,21 +116,21 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
     implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
-    implementation 'androidx.activity:activity-compose:1.7.0'
-    implementation 'androidx.compose.ui:ui-viewbinding:1.5.0-alpha02'
-    implementation platform('androidx.compose:compose-bom:2023.04.00')
-    implementation 'androidx.compose.ui:ui:1.5.0-alpha02'
-    implementation 'androidx.compose.ui:ui-graphics:1.5.0-alpha02'
-    implementation 'androidx.compose.ui:ui-tooling-preview:1.5.0-alpha02'
-    implementation 'androidx.compose.material3:material3:1.1.0-beta02'
-    androidTestImplementation platform('androidx.compose:compose-bom:2023.04.00')
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.5.0-alpha02'
+    implementation 'androidx.activity:activity-compose:1.7.1'
+    implementation 'androidx.compose.ui:ui-viewbinding:1.5.0-alpha03'
+    implementation platform('androidx.compose:compose-bom:2023.04.01')
+    implementation 'androidx.compose.ui:ui:1.5.0-alpha03'
+    implementation 'androidx.compose.ui:ui-graphics:1.5.0-alpha03'
+    implementation 'androidx.compose.ui:ui-tooling-preview:1.5.0-alpha03'
+    implementation 'androidx.compose.material3:material3:1.1.0-rc01'
+    androidTestImplementation platform('androidx.compose:compose-bom:2023.04.01')
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.5.0-alpha03'
 
     // Java desugar
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
     implementation 'com.jakewharton.threetenabp:threetenabp:1.4.6'
-    debugImplementation 'androidx.compose.ui:ui-tooling:1.5.0-alpha02'
-    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.5.0-alpha02'
+    debugImplementation 'androidx.compose.ui:ui-tooling:1.5.0-alpha03'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.5.0-alpha03'
 
     // WorkManager
     def work_version = '2.8.1'
@@ -177,11 +177,11 @@ dependencies {
     if (!project.hasProperty('free')) {
         // Firebase
         implementation 'com.google.firebase:firebase-perf:20.3.1'
-        implementation 'com.google.firebase:firebase-analytics:21.2.1'
+        implementation 'com.google.firebase:firebase-analytics:21.2.2'
         implementation 'com.google.firebase:firebase-crashlytics:18.3.6'
     }
     //Protobuf
-    implementation "com.google.protobuf:protobuf-java:3.22.2"
+    implementation "com.google.protobuf:protobuf-java:3.22.3"
 }
 // fix different protobuf versions of gplayapi and firebase
 configurations {
