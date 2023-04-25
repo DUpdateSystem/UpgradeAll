@@ -45,6 +45,9 @@ class MainActivity : BaseActivity() {
 
         if (PreferencesMap.auto_start_update) checkUpdate()
         PreferencesMap.initByActivity(this)
+
+        if (!PreferencesMap.checked_privacy_policy)
+            startActivity(Intent(this, PrivacyPolicyActivity::class.java))
     }
 
     private fun initView() {
