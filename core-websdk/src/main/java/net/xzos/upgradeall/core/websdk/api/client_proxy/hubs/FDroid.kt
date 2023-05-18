@@ -1,7 +1,9 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy.hubs
 
+import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.coroutines.ValueMutex
+import net.xzos.upgradeall.core.utils.coroutines.runWithLock
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.data_cache.cache_object.SaveMode
 import net.xzos.upgradeall.core.websdk.api.client_proxy.APK_CONTENT_TYPE
@@ -35,9 +37,12 @@ class FDroid(
     }
 
     override fun getReleases(hub: HubData, app: AppData): List<ReleaseGson> {
-        val url = hub.other[REPO_URL] ?: DEF_URL
-        val root = getRoot(url) ?: return emptyList()
-        return getRelease(root, app)
+        return mutex0.runWithLock {
+            val url = hub.other[REPO_URL] ?: DEF_URL
+            getRoot(url)?.let { root ->
+                getRelease(root, app)
+            } ?: emptyList()
+        }
     }
 
     private fun getRelease(root: Element, app: AppData): List<ReleaseGson> {
@@ -76,6 +81,7 @@ class FDroid(
 
     companion object {
         private val mutex = ValueMutex()
+        private val mutex0 = Mutex()
         private const val DEF_URL = "https://f-droid.org/repo"
 
         private const val REPO_URL = "repo_url"
