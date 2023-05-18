@@ -1,9 +1,12 @@
 package net.xzos.upgradeall.ui.home
 
+import android.Manifest
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
@@ -48,6 +51,17 @@ class MainActivity : BaseActivity() {
 
         if (!PreferencesMap.checked_privacy_policy)
             startActivity(Intent(this, PrivacyPolicyActivity::class.java))
+
+        // request notification permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permission = Manifest.permission.POST_NOTIFICATIONS
+            if (shouldShowRequestPermissionRationale(permission)) {
+                val requestPermissionLauncher = registerForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { }
+                requestPermissionLauncher.launch(permission)
+            }
+        }
     }
 
     private fun initView() {

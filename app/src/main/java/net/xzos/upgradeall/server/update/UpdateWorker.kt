@@ -7,6 +7,8 @@ import android.os.Build
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.manager.AppManager
 
 class UpdateWorker(context: Context, workerParameters: WorkerParameters) :
@@ -15,12 +17,14 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) :
     private val updateNotification = UpdateNotification()
 
     override suspend fun doWork(): Result {
-        val notificationId = UpdateNotification.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
-        val notification = updateNotification.startUpdateNotification(notificationId)
-        setForeground(createForegroundInfo(notificationId, notification))
-        doUpdateWork(updateNotification)
-        finishNotify(updateNotification)
-        return Result.success()
+        return withContext(Dispatchers.IO) {
+            val notificationId = UpdateNotification.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
+            val notification = updateNotification.startUpdateNotification(notificationId)
+            setForeground(createForegroundInfo(notificationId, notification))
+            doUpdateWork(updateNotification)
+            finishNotify(updateNotification)
+            Result.success()
+        }
     }
 
     companion object {
