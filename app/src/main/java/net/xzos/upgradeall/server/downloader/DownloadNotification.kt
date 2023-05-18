@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.server.downloader
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -21,6 +22,7 @@ import net.xzos.upgradeall.utils.getNotificationManager
 import net.xzos.upgradeall.wrapper.download.*
 import java.io.File
 
+@SuppressLint("MissingPermission")
 class DownloadNotification(private val downloadTasker: DownloadTasker) {
 
     private val notificationIndex: Int = getNotificationIndex()
@@ -52,15 +54,18 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
                     DownloadTaskerStatus.INFO_RENEW -> preDownload(
                         it.msg, DownloadTaskerStatus.INFO_RENEW
                     )
+
                     DownloadTaskerStatus.WAIT_START -> preDownload(
                         it.msg, DownloadTaskerStatus.WAIT_START
                     )
+
                     DownloadTaskerStatus.START_FAIL -> taskFailed(it.error)
                     DownloadTaskerStatus.EXTERNAL_DOWNLOAD -> taskCancel()
                     DownloadTaskerStatus.STARTED -> taskStart(it)
                     DownloadTaskerStatus.DOWNLOAD_START -> taskRunning(it)
                     DownloadTaskerStatus.DOWNLOAD_RUNNING -> if (checkTimestamp(200))
                         taskRunning(it)
+
                     DownloadTaskerStatus.DOWNLOAD_STOP -> taskPause()
                     DownloadTaskerStatus.DOWNLOAD_COMPLETE -> taskComplete(it)
                     DownloadTaskerStatus.DOWNLOAD_CANCEL -> taskCancel()

@@ -19,8 +19,10 @@ import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.AppStatus
 import net.xzos.upgradeall.ui.home.MainActivity
 import net.xzos.upgradeall.utils.MiscellaneousUtils
+import net.xzos.upgradeall.utils.getNotificationManager
 
 
+@SuppressLint("MissingPermission")
 class UpdateNotification {
     init {
         createNotificationChannel()
@@ -50,7 +52,7 @@ class UpdateNotification {
 
     private fun finishedNotify() {
         val needUpdateAppList = AppManager.getAppList(AppStatus.APP_OUTDATED)
-        if (!needUpdateAppList.isEmpty())
+        if (needUpdateAppList.isNotEmpty())
             updateNotification(needUpdateAppList.size)
         else
             cancelNotification()
@@ -101,9 +103,7 @@ class UpdateNotification {
     }
 
     private fun createNotificationChannel() {
-        val notificationManager = context.getSystemService(
-            Context.NOTIFICATION_SERVICE
-        ) as NotificationManager
+        val notificationManager = getNotificationManager(context)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
             && notificationManager.getNotificationChannel(UPDATE_SERVICE_CHANNEL_ID) == null
         ) {
