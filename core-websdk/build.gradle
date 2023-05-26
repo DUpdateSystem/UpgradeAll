@@ -56,7 +56,7 @@ dependencies {
     // markdown support
     implementation 'org.jetbrains:markdown:0.4.1'
     // google play support
-    implementation('com.gitlab.AuroraOSS:gplayapi:0e224071')
+    implementation('com.gitlab.AuroraOSS:gplayapi:3.1.2')
     // BCrypt, for coolapk
     implementation 'org.mindrot:jbcrypt:0.4'
 }
