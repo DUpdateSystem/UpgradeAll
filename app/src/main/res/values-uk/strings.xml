@@ -71,7 +71,6 @@
     <string name="backup_running">Резервне копіювання</string>
     <string name="backup_stop">Резервне копіювання завершено</string>
     <string name="ui">UI</string>
-    <string name="enable_bottom_sheet">Плиточні кнопки меню</string>
     <string name="enable_simple_bottom_main">Прості кнопки на головній сторінці</string>
     <string name="follow_server_config">Слідувати конфігурації сервера</string>
     <string name="custom">Користувацький</string>

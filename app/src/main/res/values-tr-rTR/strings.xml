@@ -92,7 +92,6 @@
     <string name="backup_stop">Yedekleme tamamlandı</string>
     <string name="dialog_title_select_download_item">Lütfen öğe seçiniz</string>
     <string name="ui">Kullanıcı Arayüzü</string>
-    <string name="enable_bottom_sheet">alt sayfayı etkinleştir</string>
     <string name="enable_simple_bottom_main">ana sayfada basit alt kısmı göster</string>
     <string name="language">Dil</string>
     <string name="custom_language">Özel dil</string>

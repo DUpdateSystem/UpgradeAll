@@ -4,11 +4,6 @@
 
     <SwitchPreferenceCompat
         android:defaultValue="false"
-        android:title="@string/enable_bottom_sheet"
-        app:key="enable_bottom_sheet" />
-
-    <SwitchPreferenceCompat
-        android:defaultValue="false"
         android:title="@string/enable_simple_bottom_main"
         app:key="enable_simple_bottom_main" />
     <!-- 主页的 日志、设置、关于 按钮横向摆放 -->
