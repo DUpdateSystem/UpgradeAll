@@ -96,7 +96,6 @@
     <string name="auto_start_update">Actualización automática de datos al abrir</string>
     <string name="long_click_to_use_external_downloader">Mantenga presionado para usar el descargador externo</string>
     <string name="failed_to_add">Error al añadir</string>
-    <string name="enable_bottom_sheet">Botones de menú en mosaico</string>
     <string name="auto_update_hub_config">Configuraciones de hub de actualización automática</string>
     <string name="webdav_path_desc">Asegúrese de que la ruta WebDAV existe</string>
     <string name="home_module_magisk_module">Módulos Magisk</string>

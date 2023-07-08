@@ -97,7 +97,6 @@
     <string name="backup_stop">Backup completed</string>
     <string name="dialog_title_select_download_item">Please select download items</string>
     <string name="ui">UI</string>
-    <string name="enable_bottom_sheet">Tiled menu buttons</string>
     <string name="enable_simple_bottom_main">Simple Bottons on Home Page</string>
     <string name="language">Language</string>
     <string name="custom_language">Custom Language</string>

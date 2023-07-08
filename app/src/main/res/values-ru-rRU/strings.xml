@@ -92,7 +92,6 @@
     <string name="backup_stop">Backup complete</string>
     <string name="dialog_title_select_download_item">Please select item</string>
     <string name="ui">UI</string>
-    <string name="enable_bottom_sheet">enable bottom sheet</string>
     <string name="enable_simple_bottom_main">show simple bottom on main page</string>
     <string name="language">Язык</string>
     <string name="custom_language">Пользовательский язык</string>

@@ -92,7 +92,6 @@
     <string name="backup_stop">備份完成</string>
     <string name="dialog_title_select_download_item">選擇下載項</string>
     <string name="ui">介面</string>
-    <string name="enable_bottom_sheet">平鋪選單按鈕</string>
     <string name="enable_simple_bottom_main">在主頁以簡略圖示顯示按鈕</string>
     <string name="language">語言</string>
     <string name="custom_language">自定義語言</string>
