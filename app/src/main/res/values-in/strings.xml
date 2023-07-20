@@ -1,2 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="file_path">Lokasi berkas</string>
+    <string name="apk">APK (Android Package Kit/Paket Perangkat Android)</string>
+    <string name="global_setting">Setelan Utama</string>
+    <string name="use_global_setting">Gunakan Setelan Utama</string>
+    <string name="url">URL</string>
+    <string name="app">Aplikasi</string>
+    <string name="help">Bantuan</string>
+    <string name="update">Perbarui</string>
+    <string name="backup">Cadangkan</string>
+    <string name="restore">Pulihkan</string>
+    <string name="user_star">Bintang</string>
+    <string name="app_hub">Pusat Aplikasi</string>
+    <string name="edit">Ubah</string>
+    <string name="name">Nama</string>
+    <string name="delete">Hapus</string>
+    <string name="basic_info">Info Dasar</string>
+    <string name="versioning_check_setting">Setelan Kontrol Versi</string>
+    <string name="background_sync_time">Frekuensi Sinkron Latar Belakang (jam)</string>
+    <string name="magisk_module">Modul Magisk</string>
+    <string name="background_sync_time_desc">Jangka waktu pemeriksaan pembaruan latar belakang.
+\nAtur nilai 0 untuk menonaktifkan.</string>
+    <string name="install">Pasang</string>
+    <string name="data_expiration_time">Waktu kedaluwarsa cache data (menit)</string>
+    <string name="data_expiration_time_desc">Waktu kedaluwarsa cache data nomor versi yang diperoleh dari web.
+\nAtur nilai 0 untuk menonaktifkan (hanya debug).</string>
+    <string name="cloud_rules_repo_url">URL Aturan Repo Langganan</string>
+    <string name="user_download_path">Lokasi Unduhan Pengguna</string>
+    <string name="menu_search">Cari</string>
+    <string name="menu_search_hint">Mencari…</string>
+    <string name="install_success">Pemasangan berhasil</string>
+    <string name="download">Unduh</string>
+    <string name="install_failed">Pemasangan gagal</string>
+    <string name="auto_install">Otomatis Pasang</string>
+    <string name="installing">Memasang:</string>
+    <string name="install_apk_api">Metode Pemasangan APK</string>
+    <string name="download_max_task_num">Jumlah Maksimal Tugas yang Diunduh</string>
+    <string name="download_thread_num">Jumlah yang Diunduh</string>
+    <string name="clean_download_dir_desc">Menghapus direktori unduhan cache beserta berkas di dalamnya.</string>
+    <string name="save_successfully">Berhasil Tersimpan</string>
+    <string name="save_failed">Gagal menyimpan</string>
+    <string name="main_program">Program Utama</string>
+    <string name="update_server_url">URL Pembaruan Server</string>
+    <string name="clean_download_dir">Hapus Berkas Terunduh</string>
+    <string name="auto_delete_file">Otomatis Hapus Berkas</string>
+    <string name="auto_dump_download_file">Otomatis Buang Berkas Terunduh</string>
+    <string name="enable">Aktifkan</string>
+    <string name="long_click_to_use_external_downloader">Tekan lama untuk menggunakan pengunduh eksternal</string>
+    <string name="download_start">Mulai Unduh</string>
+    <string name="waiting_pre_process">Menunggu Pra-pemrosesan Selesai</string>
+    <string name="donate">Donasi</string>
+    <string name="download_complete">Selesai Mengunduh</string>
+    <string name="replace_string">String yang Diganti</string>
+    <string name="official_website">Situs Resmi</string>
+    <string name="show_download_status">Tampilkan Status Unduhan</string>
+    <string name="download_service_running">Layanan Unduhan Berjalan</string>
+    <string name="download_url_replace_rule">Penggantian Aturan untuk URL Unduhan</string>
+    <string name="about">Tentang</string>
+    <string name="match_rule">Aturan yang Sesuai</string>
+    <string name="app_base_hub">Pusat Aplikasi Dasar</string>
+    <string name="app_id">ID Aplikasi</string>
+</resources>
