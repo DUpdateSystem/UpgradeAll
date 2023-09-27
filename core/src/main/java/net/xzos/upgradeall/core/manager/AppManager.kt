@@ -7,6 +7,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
@@ -143,21 +145,24 @@ object AppManager : Informer<UpdateStatus, App>() {
                 }
             }
         }
+        val semaphore = Semaphore(10)
         coroutineScope {
             simpleMap.forEach { i ->
                 val (hub, list) = i
-                launch {
-                    val flashApp = DataGetter.getLatestUpdate(hub, list)
-                    if (flashApp.isEmpty())
-                        completeMap.getOrPut(hub) { mutableListOf() }.addAll(list)
-                    else {
-                        flashApp.forEach {
-                            checkUpdated(
-                                it, hub, appMap, appStatusMap, count, totalAppNum, statusFun
-                            )
-                            list.remove(it)
+                semaphore.withPermit {
+                    launch {
+                        val flashApp = DataGetter.getLatestUpdate(hub, list)
+                        if (flashApp.isEmpty())
+                            completeMap.getOrPut(hub) { mutableListOf() }.addAll(list)
+                        else {
+                            flashApp.forEach {
+                                checkUpdated(
+                                    it, hub, appMap, appStatusMap, count, totalAppNum, statusFun
+                                )
+                                list.remove(it)
+                            }
+                            list.forEach { completeMap.getOrPut(hub) { mutableListOf() }.add(it) }
                         }
-                        list.forEach { completeMap.getOrPut(hub) { mutableListOf() }.add(it) }
                     }
                 }
             }
