@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app">App</string>
+    <string name="help">Aiuto</string>
+    <string name="update">Aggiorna</string>
+    <string name="backup">Backup</string>
+    <string name="restore">Ripristina</string>
+    <string name="user_star">Preferita</string>
+    <string name="magisk_module">Modulo Magisk</string>
+    <string name="name">Nome</string>
+    <string name="basic_info">Info di Base</string>
+    <string name="versioning_check_setting">Impostazioni Controllo Versione</string>
+    <string name="menu_search_hint">Ricerca…</string>
+    <string name="download">Scarica</string>
+    <string name="install_success">Installazione Riuscita</string>
+    <string name="install_failed">Installazione Fallita</string>
+    <string name="installing">Installazione:</string>
+    <string name="install_apk_api">Metodo Installazione APK</string>
+    <string name="save_failed">Salvataggio Fallito</string>
+    <string name="main_program">Programma Principale</string>
+    <string name="delete">Cancella</string>
+    <string name="edit">Modifica</string>
+    <string name="enable">Attiva</string>
+    <string name="save_successfully">Salvataggio Riuscito</string>
+    <string name="install">Installa</string>
+    <string name="add_apps">Aggiungi App</string>
+    <string name="apps_logo">Icona App</string>
+</resources>
