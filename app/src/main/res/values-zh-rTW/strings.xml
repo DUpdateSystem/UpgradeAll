@@ -197,4 +197,7 @@
     <string name="url">網址</string>
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
+    <string name="data_expiration_time_desc">設定從網路獲得的應用版本資訊快取多久後過期。
+\n設為 0 則停用此功能，此選項主要用於偵錯。</string>
+    <string name="data_expiration_time">快取到期設定（以分為單位）</string>
 </resources>
