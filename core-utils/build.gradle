@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         minSdk 21
@@ -30,13 +30,13 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17
     }
-    buildToolsVersion '33.0.0'
+    buildToolsVersion '34.0.0'
     namespace 'net.xzos.upgradeall.core.utils'
 }
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.core:core-ktx:1.12.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -45,7 +45,7 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines_version"
 
     // Versioning
-    implementation 'org.apache.maven:maven-artifact:3.9.1'
+    implementation 'org.apache.maven:maven-artifact:3.9.5'
 
     // 字符串匹配；日志打印去除转义字符
     implementation 'org.apache.commons:commons-text:1.10.0'

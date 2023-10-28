@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         minSdk 21
@@ -30,7 +30,7 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17
     }
-    buildToolsVersion '33.0.0'
+    buildToolsVersion '34.0.0'
     namespace 'net.xzos.upgradeall.core.websdk'
 }
 
@@ -38,7 +38,7 @@ dependencies {
 
     implementation project(path: ':core-utils')
 
-    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.core:core-ktx:1.12.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -54,9 +54,9 @@ dependencies {
     // dom4j, xml support
     implementation 'org.dom4j:dom4j:2.1.4'
     // markdown support
-    implementation 'org.jetbrains:markdown:0.4.1'
+    implementation 'org.jetbrains:markdown:0.5.2'
     // google play support
-    implementation('com.gitlab.AuroraOSS:gplayapi:0e224071')
+    implementation 'com.gitlab.AuroraOSS:gplayapi:3.2.5'
     // BCrypt, for coolapk
     implementation 'org.mindrot:jbcrypt:0.4'
 }
