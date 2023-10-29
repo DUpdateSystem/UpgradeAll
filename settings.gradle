@@ -1,6 +1,7 @@
 pluginManagement {
     repositories {
         mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
 }
 include ':app'
@@ -12,3 +13,4 @@ include ':core-downloader'
 include ':core-installer'
 include ':core-android-utils'
 include ':app-backup'
+include ':core-getter'

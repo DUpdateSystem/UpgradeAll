@@ -74,4 +74,5 @@ dependencies {
 
     // OkHttp
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'
+    implementation project(path: ':core-getter')
 }
