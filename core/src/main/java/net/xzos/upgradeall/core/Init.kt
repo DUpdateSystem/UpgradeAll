@@ -24,8 +24,6 @@ fun initCore(
     context: Context,
     _coreConfig: CoreConfig,
 ) {
-    val a = NativeLib().stringFromJNI("initCore")
-    println(a)
     coreConfig = _coreConfig
     initSdkCache(CacheConfig(_coreConfig.data_expiration_time, _coreConfig.cache_dir))
     renewSdkApi(_coreConfig.update_server_url)

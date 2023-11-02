@@ -59,4 +59,6 @@ dependencies {
     implementation 'com.gitlab.AuroraOSS:gplayapi:3.2.5'
     // BCrypt, for coolapk
     implementation 'org.mindrot:jbcrypt:0.4'
+
+    implementation project(path: ':core-getter')
 }
