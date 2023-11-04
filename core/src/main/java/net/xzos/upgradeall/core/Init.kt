@@ -9,7 +9,6 @@ import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.utils.data_cache.CacheConfig
 import net.xzos.upgradeall.core.websdk.initSdkCache
 import net.xzos.upgradeall.core.websdk.renewSdkApi
-import net.xzos.upgradeall.getter.NativeLib
 
 
 @SuppressLint("StaticFieldLeak")

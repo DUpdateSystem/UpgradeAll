@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         applicationId "net.xzos.upgradeall"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 34
         versionCode 104
         versionName "0.13-beta.4"

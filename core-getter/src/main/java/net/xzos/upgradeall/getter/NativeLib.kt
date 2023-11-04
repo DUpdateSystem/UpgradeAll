@@ -6,8 +6,9 @@ class NativeLib {
      * A native method that is implemented by the 'getter' native library,
      * which is packaged with this application.
      */
-    external fun check_app_available(hub_uuid: String, id_map: Map<String, String>): Boolean
-    external fun get_app_releases(hub_uuid: String, id_map: Map<String, String>): String
+    external fun checkAppAvailable(hub_uuid: String, id_map: Map<String, String>): Boolean
+    external fun getAppLatestRelease(hub_uuid: String, id_map: Map<String, String>): String
+    external fun getAppReleases(hub_uuid: String, id_map: Map<String, String>): String
 
     companion object {
         // Used to load the 'getter' library on application startup.

@@ -18,8 +18,8 @@ internal class WebApi : OkhttpProxy() {
         private const val TAG = "WebApi"
         private val objectTag = ObjectTag(core, TAG)
 
-        private val releaseListType = object : TypeToken<ArrayList<ReleaseGson>>() {}.type
-        private val downloadListType = object : TypeToken<ArrayList<DownloadItem>>() {}.type
+        val releaseListType = object : TypeToken<ArrayList<ReleaseGson>>() {}.type
+        val downloadListType = object : TypeToken<ArrayList<DownloadItem>>() {}.type
     }
 
     fun getCloudConfig(url: String): CloudConfigList? {
