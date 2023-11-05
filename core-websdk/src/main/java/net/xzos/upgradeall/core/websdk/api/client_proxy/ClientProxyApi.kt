@@ -75,8 +75,7 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
     override fun getAppReleaseList(data: SingleRequestData): List<ReleaseGson>? {
         return runFun("getAppReleaseList") {
             try {
-                val a = getHub(data.hub.hubUuid).getReleases(data.hub, data.app)
-            a
+                getHub(data.hub.hubUuid).getReleases(data.hub, data.app)
             } catch (e: NoFunction) {
                 getterPort.getAppReleases(
                     data.hub.hubUuid,

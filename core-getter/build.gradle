@@ -7,6 +7,7 @@ plugins {
 android {
     namespace 'net.xzos.upgradeall.getter'
     compileSdk 34
+    ndkVersion "26.1.10909125"
 
     defaultConfig {
         minSdk 23
@@ -19,6 +20,28 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            cargo {
+                module = "./src/main/rust/api_proxy"
+                targets = ["x86_64", "arm64"]
+                libname = "api_proxy"
+                extraCargoBuildArguments = ["--release"]
+
+                features {
+                    all()
+                }
+            }
+        }
+
+        debug {
+            cargo {
+                module = "./src/main/rust/api_proxy"
+                targets = ["x86_64", "arm64"]
+                libname = "api_proxy"
+
+                features {
+                    all()
+                }
+            }
         }
     }
     compileOptions {
@@ -27,16 +50,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
-    }
-}
-
-cargo {
-    module = "./src/main/rust/api_proxy"
-    targets = ["x86_64", "arm64"]
-    libname = "api_proxy"
-
-    features {
-        all()
     }
 }
 

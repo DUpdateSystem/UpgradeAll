@@ -14,3 +14,7 @@ tokio = "1.33.0"
 
 [lib]
 crate-type = ["cdylib"]
+
+[profile.release]
+strip = true
+crate-type = ["rlib", "cdylib"]
