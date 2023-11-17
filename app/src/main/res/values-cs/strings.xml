@@ -1,2 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_hub">App Hub</string>
+    <string name="user_star">Hvězda</string>
+    <string name="edit">Upravit</string>
+    <string name="restore">Obnova</string>
+    <string name="update">Aktualizace</string>
+    <string name="name">Jméno</string>
+    <string name="help">Pomoc</string>
+    <string name="basic_info">Základní Info</string>
+    <string name="delete">Vymazat</string>
+    <string name="app">App</string>
+    <string name="backup">Záloha</string>
+    <string name="versioning_check_setting">Nastavení Kontroly Verze</string>
+    <string name="background_sync_time">Frekvence Synch. Na Pozadí (h)</string>
+    <string name="magisk_module">Magisk Moduly</string>
+</resources>
