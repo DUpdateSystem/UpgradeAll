@@ -197,4 +197,12 @@
     <string name="url">URL</string>
     <string name="app_base_hub">Temel APP Hub</string>
     <string name="app_id">Uygulama Kimliği</string>
+    <string name="official_website">Resmi Web Sitesi</string>
+    <string name="open_browser_failed">Tarayıcı açılamadı; nedeni bilinmiyor</string>
+    <string name="about">Hakkında</string>
+    <string name="data_expiration_time_desc">İnternetten elde edilen sürüm numarası verileri önbelleğinin sona erme süresi.
+\n0 değeri için devre dışı (yalnızca hata ayıklama).</string>
+    <string name="custom_include_version_number_field_regex">Zorunlu sürüm adı alanı için düzenli ifade</string>
+    <string name="donate">Bağış Yap</string>
+    <string name="data_expiration_time">Veri önbelleğinin sona erme süresi (dak)</string>
 </resources>
