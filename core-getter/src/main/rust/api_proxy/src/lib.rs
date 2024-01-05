@@ -1,11 +1,11 @@
 extern crate jni;
 mod utils;
 
-use jni::objects::{JClass, JObject, JString};
+use jni::objects::{JClass, JObject, JString, JByteArray};
 use jni::sys::jboolean;
 use jni::JNIEnv;
 
-use getter::provider::*;
+use getter::api::{check_app_available, get_latest_release, get_releases};
 use utils::*;
 
 #[no_mangle]
@@ -17,11 +17,15 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_checkAppAvailable<'l
     id_map: JObject<'local>,
 ) -> jboolean {
     if let Ok(hub_uuid) = convert_java_str_to_rust(&mut env, &hub_uuid) {
-        if let Ok(id_map) = convert_java_map_to_rust(&mut env, &id_map) {
+        if let Ok(id_map) = convert_java_bmap_to_rust(&mut env, &id_map) {
             if let Ok(runtime) = tokio::runtime::Runtime::new() {
-                if let Some(result) =
-                    runtime.block_on(async { check_app_available(&hub_uuid, &id_map).await })
-                {
+                if let Some(result) = runtime.block_on(async {
+                    let id_map = id_map
+                        .iter()
+                        .map(|(k, v)| (k.as_str(), v.as_str()))
+                        .collect();
+                    check_app_available(&hub_uuid, &id_map).await
+                }) {
                     return result as jboolean;
                 }
             }
@@ -30,7 +34,6 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_checkAppAvailable<'l
     false as jboolean
 }
 
-
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_getAppLatestRelease<'local>(
@@ -38,23 +41,23 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_getAppLatestRelease<
     _: JClass<'local>,
     hub_uuid: JString<'local>,
     id_map: JObject<'local>,
-) -> JString<'local> {
+) -> JByteArray<'local> {
     if let Ok(hub_uuid) = convert_java_str_to_rust(&mut env, &hub_uuid) {
-        if let Ok(id_map) = convert_java_map_to_rust(&mut env, &id_map) {
+        if let Ok(id_map) = convert_java_bmap_to_rust(&mut env, &id_map) {
             if let Ok(runtime) = tokio::runtime::Runtime::new() {
                 if let Some(result) = runtime.block_on(async {
-                    if let Some(release) = get_latest_release(&hub_uuid, &id_map).await {
-                        Some(serde_json::to_string(&release).unwrap_or_default())
-                    } else {
-                        None
-                    }
+                    let id_map = id_map
+                        .iter()
+                        .map(|(k, v)| (k.as_str(), v.as_str()))
+                        .collect();
+                    get_latest_release(&hub_uuid, &id_map).await
                 }) {
-                    return env.new_string(result).unwrap_or_default();
+                    return env.byte_array_from_slice(result.as_bytes()).unwrap_or_default();
                 }
             }
         };
     }
-    env.new_string("").unwrap_or_default()
+    env.new_byte_array(0).unwrap_or_default()
 }
 
 #[no_mangle]
@@ -64,21 +67,21 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_getAppReleases<'loca
     _: JClass<'local>,
     hub_uuid: JString<'local>,
     id_map: JObject<'local>,
-) -> JString<'local> {
+) -> JByteArray<'local> {
     if let Ok(hub_uuid) = convert_java_str_to_rust(&mut env, &hub_uuid) {
-        if let Ok(id_map) = convert_java_map_to_rust(&mut env, &id_map) {
+        if let Ok(id_map) = convert_java_bmap_to_rust(&mut env, &id_map) {
             if let Ok(runtime) = tokio::runtime::Runtime::new() {
                 if let Some(result) = runtime.block_on(async {
-                    if let Some(releases) = get_releases(&hub_uuid, &id_map).await {
-                        Some(serde_json::to_string(&releases).unwrap_or_default())
-                    } else {
-                        None
-                    }
+                    let id_map = id_map
+                        .iter()
+                        .map(|(k, v)| (k.as_str(), v.as_str()))
+                        .collect();
+                    get_releases(&hub_uuid, &id_map).await
                 }) {
-                    return env.new_string(result).unwrap_or_default();
+                    return env.byte_array_from_slice(result.as_bytes()).unwrap_or_default();
                 }
             }
         };
     }
-    env.new_string("").unwrap_or_default()
+    env.new_byte_array(0).unwrap_or_default()
 }

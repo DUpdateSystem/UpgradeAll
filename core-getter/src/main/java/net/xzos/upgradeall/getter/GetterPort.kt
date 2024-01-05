@@ -10,12 +10,12 @@ class GetterPort {
     }
 
     fun getAppLatestRelease(hub_uuid: String, id_map: Map<String, String>): String {
-        return nativeLib.getAppLatestRelease(hub_uuid, id_map)
+        return String(nativeLib.getAppLatestRelease(hub_uuid, id_map))
             .also { Log.e("GetterPort", "getAppLatestRelease: $it") }
     }
 
     fun getAppReleases(hub_uuid: String, id_map: Map<String, String>): String {
-        return nativeLib.getAppReleases(hub_uuid, id_map)
+        return String(nativeLib.getAppReleases(hub_uuid, id_map))
             .also { Log.e("GetterPort", "getAppReleases: $it") }
     }
 }

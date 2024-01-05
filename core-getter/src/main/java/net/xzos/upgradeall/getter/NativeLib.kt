@@ -7,8 +7,8 @@ class NativeLib {
      * which is packaged with this application.
      */
     external fun checkAppAvailable(hub_uuid: String, id_map: Map<String, String>): Boolean
-    external fun getAppLatestRelease(hub_uuid: String, id_map: Map<String, String>): String
-    external fun getAppReleases(hub_uuid: String, id_map: Map<String, String>): String
+    external fun getAppLatestRelease(hub_uuid: String, id_map: Map<String, String>): ByteArray
+    external fun getAppReleases(hub_uuid: String, id_map: Map<String, String>):  ByteArray
 
     companion object {
         // Used to load the 'getter' library on application startup.

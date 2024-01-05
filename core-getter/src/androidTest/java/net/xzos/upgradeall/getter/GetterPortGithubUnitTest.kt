@@ -25,11 +25,11 @@ class GetterPortGithubUnitTest {
 
     @Test
     fun get_app_latest_release() {
-        assert(nativeLib.getAppLatestRelease(hubUuid, idMap).isNotBlank())
+        assert(nativeLib.getAppLatestRelease(hubUuid, idMap).isNotEmpty())
     }
 
     @Test
     fun get_app_releases() {
-        assert(nativeLib.getAppReleases(hubUuid, idMap).isNotBlank())
+        assert(nativeLib.getAppReleases(hubUuid, idMap).isNotEmpty())
     }
 }
