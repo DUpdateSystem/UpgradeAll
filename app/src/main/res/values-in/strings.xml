@@ -120,4 +120,7 @@
     <string name="open_browser_failed">Browser gagal terbuka; alasan tidak diketahui</string>
     <string name="restore_from_webdav">Pulihkan dari WebDAV</string>
     <string name="save_file_failed">Gagal Menyimpan Berkas</string>
+    <string name="webdav_path">Lokasi File WebDAV</string>
+    <string name="webdav_path_desc">Pastikan lokasi WebDAV ada</string>
+    <string name="webdav_url">URL WebDAV</string>
 </resources>
