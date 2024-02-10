@@ -201,4 +201,5 @@
     <string name="official_website">官网</string>
     <string name="about">关于</string>
     <string name="donate">打赏</string>
+    <string name="custom_include_version_number_field_regex">包括版本名称在内强制字段的正则表达式</string>
 </resources>
