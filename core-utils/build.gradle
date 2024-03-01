@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         minSdk 21
-        targetSdk 33
+        targetSdk 34
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -45,10 +45,10 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines_version"
 
     // Versioning
-    implementation 'org.apache.maven:maven-artifact:3.9.5'
+    implementation 'org.apache.maven:maven-artifact:3.9.6'
 
     // 字符串匹配；日志打印去除转义字符
-    implementation 'org.apache.commons:commons-text:1.10.0'
+    implementation 'org.apache.commons:commons-text:1.11.0'
     // core library desugaring
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 }

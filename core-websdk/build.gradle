@@ -43,20 +43,20 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     // core library desugaring
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 
     // gson
     implementation 'com.google.code.gson:gson:2.10.1'
 
     // OkHttp
-    api 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'
-    implementation 'com.squareup.okhttp3:okhttp-urlconnection:5.0.0-alpha.11'
+    api 'com.squareup.okhttp3:okhttp:5.0.0-alpha.12'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:5.0.0-alpha.12'
     // dom4j, xml support
     implementation 'org.dom4j:dom4j:2.1.4'
     // markdown support
-    implementation 'org.jetbrains:markdown:0.5.2'
+    implementation 'org.jetbrains:markdown:0.6.1'
     // google play support
-    implementation 'com.gitlab.AuroraOSS:gplayapi:3.2.5'
+    implementation 'com.gitlab.AuroraOSS:gplayapi:3.2.9'
     // BCrypt, for coolapk
     implementation 'org.mindrot:jbcrypt:0.4'
 
