@@ -98,10 +98,6 @@
     static void checkNotNullParameter(java.lang.Object, java.lang.String);
 }
 
--dontwarn org.xmlpull.v1.XmlPullParser
--dontwarn org.xmlpull.v1.XmlSerializer
--keep class org.xmlpull.v1.* {*;}
-
 #Glide
 -keep public class * implements com.bumptech.glide.module.GlideModule
 -keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
