@@ -21,7 +21,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 34
         versionCode 104
-        versionName "0.20-alpha.1"
+        versionName "0.20-alpha.2"
         if (project.hasProperty('appVerName')) {
             versionName = "${versionName}_${appVerName}"
         }
