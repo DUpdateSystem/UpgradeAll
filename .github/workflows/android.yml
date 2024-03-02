@@ -41,7 +41,7 @@ jobs:
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r25c
+          ndk-version: r26c
           link-to-sdk: true
           local-cache: true
 
