@@ -44,6 +44,7 @@ jobs:
           ndk-version: r26c
           link-to-sdk: true
           local-cache: true
+      - uses: dtolnay/rust-toolchain@stable
 
       - name: Build with Gradle
         run: ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease assembleDebug
