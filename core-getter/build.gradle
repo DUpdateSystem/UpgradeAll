@@ -33,7 +33,10 @@ android {
 
 cargo {
     module = "./src/main/rust/api_proxy"
-    targets = ["x86_64", "arm64"]
+    targets = [
+            "x86_64",
+            "arm64"
+    ]
     libname = "api_proxy"
 
     features {
