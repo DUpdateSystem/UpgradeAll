@@ -41,7 +41,7 @@ jobs:
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r26c
+          ndk-version: 26.1.10909125
           link-to-sdk: true
           local-cache: true
       - uses: dtolnay/rust-toolchain@stable
