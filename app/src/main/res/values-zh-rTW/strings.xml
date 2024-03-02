@@ -13,9 +13,9 @@
     <string name="versioning_check_setting">版本控制設定</string>
     <string name="delete">刪除</string>
     <string name="edit">編輯</string>
-    <string name="background_sync_time">後臺資料更新時間(h)</string>
-    <string name="background_sync_time_desc">軟體在後臺檢查更新的週期
-\n若週期為0，則禁用後臺更新檢查</string>
+    <string name="background_sync_time">背景同步頻率（小時）</string>
+    <string name="background_sync_time_desc">背景更新檢查的時間間隔。
+\n設為 0 則停用。</string>
     <string name="cloud_rules_repo_url">Git 倉庫地址</string>
     <string name="update_server_url">升級服務 URL</string>
     <string name="menu_search">搜尋</string>
@@ -25,20 +25,20 @@
     <string name="install_success">安裝成功</string>
     <string name="install_failed">安裝失敗</string>
     <string name="auto_install">自動安裝</string>
-    <string name="installing">正在安裝</string>
+    <string name="installing">安裝中：</string>
     <string name="install_apk_api">APK 檔案安裝方式</string>
     <string name="user_download_path">使用者下載位置</string>
     <string name="download_thread_num">下載執行緒數</string>
     <string name="download_max_task_num">最大下載佇列數</string>
     <string name="clean_download_dir">清除下載檔案</string>
-    <string name="clean_download_dir_desc">刪除軟體的下載快取目錄及該目錄下的檔案</string>
+    <string name="clean_download_dir_desc">清除含有檔案的快取下載資料夾。</string>
     <string name="auto_delete_file">安裝完成後自動刪除檔案</string>
     <string name="auto_dump_download_file">自動轉儲已下載的檔案</string>
     <string name="enable">啟用</string>
     <string name="save_successfully">儲存成功</string>
     <string name="save_failed">儲存失敗</string>
     <string name="main_program">主程式</string>
-    <string name="add_something">請先新增軟體來源或下載軟體設定</string>
+    <string name="add_something">為了讓程式運行順暢，請加入您的應用程式設定資料。您也可以選擇從規則訂閱儲存庫中下載集中管理的配置資訊</string>
     <string name="clean_sort_log">清空目前分類的日誌</string>
     <string name="clean_all_log">清空全部日誌</string>
     <string name="clean_sort_log_alert_message">目前分類的日誌將遺失</string>
@@ -51,10 +51,10 @@
     <string name="please_grant_storage_perm">請授予儲存讀寫許可權</string>
     <string name="add_apps">新增</string>
     <string name="auto_update_hub_config">自動更新軟體來源設定</string>
-    <string name="auto_update_hub_config_desc">當進入雲端設定頁面時，檢查從雲端倉庫下載的軟體來源，並當有新版本時自動更新軟體來源設定</string>
+    <string name="auto_update_hub_config_desc">檢查規則訂閱儲存庫以取得 App Hub 的配置資訊，並在進入 App Hub 頁面時自動同步</string>
     <string name="auto_start_update">進入主頁時自動更新資料</string>
     <string name="auto_update_app_config">自動更新追蹤專案設定</string>
-    <string name="auto_update_app_config_desc">當進入雲端設定頁面時，檢查從雲端倉庫下載的追蹤專案，並當有新版本時自動更新追蹤專案設定</string>
+    <string name="auto_update_app_config_desc">在進入 App Hub 頁面時，自動同步應用程式的設定，請查看規則訂閱儲存庫</string>
     <string name="auto_update_setting">自動更新設定</string>
     <string name="long_click_to_use_external_downloader">長按以使用外部下載器下載</string>
     <string name="download_start">開始下載</string>
@@ -197,4 +197,12 @@
     <string name="url">網址</string>
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
+    <string name="data_expiration_time_desc">網路版本號資料快取的過期時間。
+\n值為 0 時停用（僅限除錯）。</string>
+    <string name="data_expiration_time">資料快取過期時間（分鐘）</string>
+    <string name="official_website">官方網站</string>
+    <string name="open_browser_failed">瀏覽器無法開啟；原因不明</string>
+    <string name="about">關於</string>
+    <string name="custom_include_version_number_field_regex">請在此欄位輸入正規表示式，以確保必須包含應用程式的版本名稱</string>
+    <string name="donate">贊助</string>
 </resources>

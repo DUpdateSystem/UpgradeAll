@@ -77,7 +77,7 @@
     <string name="system_installer">Системний інсталятор</string>
     <string name="plz_restart">Будь ласка, перезавантажте додаток</string>
     <string name="download_auto_retry_max_attempts">Максимальна кількість автоматичних повторних спроб</string>
-    <string name="external_downloader_package_name">Налаштування зовнішнього завантажувача</string>
+    <string name="external_downloader_package_name">Назва зовнішнього завантажувача</string>
     <string name="update_status_identifier">Оновити ідентифікатор стану</string>
     <string name="end">Кінець</string>
     <string name="update_info">Оновити дані</string>

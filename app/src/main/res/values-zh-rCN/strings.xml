@@ -201,4 +201,9 @@
     <string name="official_website">官网</string>
     <string name="about">关于</string>
     <string name="donate">打赏</string>
+    <string name="custom_include_version_number_field_regex">包括版本名称在内强制字段的正则表达式</string>
+    <string name="data_expiration_time_desc">从网络获取的版本号数据缓存的过期时间。
+\n值为 0 时禁用（仅限调试）。</string>
+    <string name="open_browser_failed">无法打开浏览器；原因未知</string>
+    <string name="data_expiration_time">数据缓存过期时间（分钟）</string>
 </resources>

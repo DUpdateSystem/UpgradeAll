@@ -189,4 +189,7 @@
     <string name="apk">APK</string>
     <string name="global_setting">Configuração global</string>
     <string name="use_global_setting">Usar configuração global</string>
+    <string name="official_website">Site oficial</string>
+    <string name="about">Sobre</string>
+    <string name="donate">Doação</string>
 </resources>
