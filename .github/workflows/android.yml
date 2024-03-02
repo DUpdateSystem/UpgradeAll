@@ -90,14 +90,14 @@ jobs:
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
       - name: Upload debug apk
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ !github.event.pull_request }}
         with:
           path: './app/build/outputs/apk/debug/*.apk'
           name: build_debug_${{ env.VERSION }}
 
       - name: Upload release apk
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ !github.event.pull_request }}
         with:
           path: ${{ steps.sign.outputs.signedReleaseFile }}
