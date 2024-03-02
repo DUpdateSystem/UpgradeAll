@@ -20,28 +20,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            cargo {
-                module = "./src/main/rust/api_proxy"
-                targets = ["x86_64", "arm64"]
-                libname = "api_proxy"
-                extraCargoBuildArguments = ["--release"]
-
-                features {
-                    all()
-                }
-            }
-        }
-
-        debug {
-            cargo {
-                module = "./src/main/rust/api_proxy"
-                targets = ["x86_64", "arm64"]
-                libname = "api_proxy"
-
-                features {
-                    all()
-                }
-            }
         }
     }
     compileOptions {
@@ -50,6 +28,16 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
+    }
+}
+
+cargo {
+    module = "./src/main/rust/api_proxy"
+    targets = ["x86_64", "arm64"]
+    libname = "api_proxy"
+
+    features {
+        all()
     }
 }
 
