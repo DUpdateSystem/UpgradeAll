@@ -37,7 +37,14 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-          
+
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r25c
+          link-to-sdk: true
+          local-cache: true
+
       - name: Build with Gradle
         run: ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease assembleDebug
         
