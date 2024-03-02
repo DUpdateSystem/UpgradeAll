@@ -47,6 +47,6 @@ object VersioningUtils {
          */
         val version0 = DefaultArtifactVersion(matchVersioning0)
         val version1 = DefaultArtifactVersion(matchVersioning1)
-        return version0.compareTo(version1).inv()
+        return version0.compareTo(version1)
     }
 }
