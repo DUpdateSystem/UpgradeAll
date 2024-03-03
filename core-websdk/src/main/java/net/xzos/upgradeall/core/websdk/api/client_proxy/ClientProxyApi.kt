@@ -28,7 +28,7 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
 //        Github(dataCache, okhttpProxy),
         CoolApk(dataCache, okhttpProxy),
         LsposedRepo(dataCache, okhttpProxy),
-        FDroid(dataCache, okhttpProxy),
+//        FDroid(dataCache, okhttpProxy),
         Gitlab(dataCache, okhttpProxy),
         GooglePlay(dataCache, okhttpProxy),
     ).associateBy({ it.uuid }, { it })
@@ -47,9 +47,11 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
             try {
                 getHub(data.hub.hubUuid).checkAppAvailable(data.hub, data.app)
             } catch (e: NoFunction) {
+                val hubMap = data.hub.auth + data.hub.other
                 getterPort.checkAppAvailable(
                     data.hub.hubUuid,
-                    data.app.appId.map { it.key to (it.value ?: "") }.toMap()
+                    data.app.appId.map { it.key to (it.value ?: "") }.toMap(),
+                    hubMap.map { it.key to (it.value ?: "") }.toMap(),
                 )
             }
         }
@@ -77,9 +79,11 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
             try {
                 getHub(data.hub.hubUuid).getReleases(data.hub, data.app)
             } catch (e: NoFunction) {
+                val hubMap = data.hub.auth + data.hub.other
                 getterPort.getAppReleases(
                     data.hub.hubUuid,
-                    data.app.appId.map { it.key to (it.value ?: "") }.toMap()
+                    data.app.appId.map { it.key to (it.value ?: "") }.toMap(),
+                    hubMap.map { it.key to (it.value ?: "") }.toMap(),
                 ).run {
                     Gson().fromJson(this, WebApi.releaseListType)
                 }
