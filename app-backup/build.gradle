@@ -46,7 +46,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 
     // WebDav
-    implementation ('com.github.thegrizzlylabs:sardine-android:0.8') {
+    implementation ('com.github.thegrizzlylabs:sardine-android:0.9') {
         exclude module: 'stax'
         exclude module: 'stax-api'
         exclude module: 'xpp3'

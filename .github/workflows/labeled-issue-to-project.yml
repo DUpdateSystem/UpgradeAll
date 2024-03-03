@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: labeled enhancement issue to project
-        uses: alex-page/github-project-automation-plus@v0.8.3
+        uses: alex-page/github-project-automation-plus@v0.9.0
         if: ${{ contains(github.event.issue.labels.*.name, 'enhancement') }}
         with:
           project: Distributed Update System 看板
@@ -16,7 +16,7 @@ jobs:
           repo-token: '${{ secrets.BOT_TOKEN }}'
 
       - name: labeled Solved issue to project
-        uses: alex-page/github-project-automation-plus@v0.8.3
+        uses: alex-page/github-project-automation-plus@v0.9.0
         if: ${{ contains(github.event.issue.labels.*.name, 'Solved') }}
         with:
           project: Distributed Update System 看板
@@ -24,7 +24,7 @@ jobs:
           repo-token: '${{ secrets.BOT_TOKEN }}'
 
       - name: labeled bug issue to project
-        uses: alex-page/github-project-automation-plus@v0.8.3
+        uses: alex-page/github-project-automation-plus@v0.9.0
         if: ${{ contains(github.event.issue.labels.*.name, 'bug') }}
         with:
           project: Distributed Update System 看板
