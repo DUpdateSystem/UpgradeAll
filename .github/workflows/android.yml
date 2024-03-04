@@ -37,31 +37,11 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
-      - name: Retrieve version
-        run: |
-          echo VERSION=$(git rev-parse --short HEAD) >> $GITHUB_ENV
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Cache NDK
-        id: cache-ndk
-        uses: actions/cache@v4
-        with:
-          path: /usr/local/lib/android/sdk/ndk/${{ env.NDK_VERSION }}
-          key: ndk-${{ env.NDK_VERSION }}
-
       - name: Install NDK
-        if: steps.cache-ndk.outputs.cache-hit != 'true'
         run: echo "y" | sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
-
-      - name: Save NDK
-        id: ndk-cache-save
-        uses: actions/cache/save@v4
-        if: steps.cache-ndk.outputs.cache-hit != 'true'
-        with:
-          path: /usr/local/lib/android/sdk/ndk/${{ env.NDK_VERSION }}
-          key: ndk-${{ env.NDK_VERSION }}
 
       - name: Install Cargo with aarch64-linux-android
         uses: dtolnay/rust-toolchain@stable
@@ -72,6 +52,10 @@ jobs:
         run: |
           rustup target add x86_64-linux-android
           rustup target add armv7-linux-androideabi
+
+      - name: Retrieve version
+        run: |
+          echo VERSION=$(git rev-parse --short HEAD) >> $GITHUB_ENV
 
       - name: Build with Gradle
         run: ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease assembleDebug
@@ -112,7 +96,6 @@ jobs:
         with:
           apk-path: ${{ steps.sign.outputs.signedReleaseFile }}
 
-
 #      - name: Upload mappings with App Center CLI
 #        if: ${{ !github.event.pull_request }}
 #        uses: zhaobozhen/AppCenter-Github-Action@1.0.1
@@ -120,23 +103,33 @@ jobs:
 #          command: appcenter crashes upload-mappings --mapping app/build/outputs/mapping/release/mapping.txt --version-name ${{ steps.apk-info.outputs.version-name }} --version-code ${{ steps.apk-info.outputs.version-code }} --app DUpdateSystem/UpgradeAll
 #          token: ${{secrets.APP_CENTER_TOKEN}}
 
+      - name: Generate Commit Message
+        run: |
+          COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
+          AUTHOR_NAME=$(git log -1 --pretty=format:%an)
+          REMOTE_URL=$(git remote get-url origin)
+          HOME_URL=$(echo $REMOTE_URL | sed -E "s|git@github.com:|https://github.com/|" | sed -E "s|\.git$||")
+          COMMIT_URL=$HOME_URL/commit/${{ env.VERSION }}
+
+          TELEGRAM_MESSAGE="New push to Github!
+          \`\`\`
+          $COMMIT_MESSAGE
+          \`\`\`by \`$AUTHOR_NAME\`
+          See commit detail [Here]($COMMIT_URL)
+          Snapshot apk is attached"
+
+          echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
+          echo "$TELEGRAM_MESSAGE" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Send commit to Telegram
         if: ${{ !github.event.pull_request }}
+        uses: xz-dev/TelegramFileUploader@v1
         env:
-          CHANNEL_ID: ${{ secrets.TELEGRAM_TO }}
           BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          RELEASE: ${{ github.workspace }}/${{ steps.sign.outputs.signedReleaseFile }}
-          COMMIT_MESSAGE: |+
-            New push to Github\!
-            ```
-            ${{ github.event.head_commit.message }}
-            ```by `${{ github.event.head_commit.author.name }}`
-            See commit detail [Here](${{ github.event.head_commit.url }})
-            Snapshot apk is attached
-        run: |
-          if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
-          OUTPUT="app/build/outputs/apk/debug/"
-          export Debug=$(find $OUTPUT -name "*.apk")
-          ESCAPED=`python3 -c 'import json,os,urllib.parse; msg = json.dumps(os.environ["COMMIT_MESSAGE"]); print(urllib.parse.quote(msg if len(msg) <= 1024 else json.dumps(os.environ["COMMIT_URL"])))'`
-          curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FRelease%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FDebug%22%2C%22parse_mode%22:%22MarkdownV2%22%2C%22caption%22:${ESCAPED}%7D%5D" -F Release="@$RELEASE" -F Debug="@$Debug"
-          fi
+          API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+        with:
+          to-who: ${{ secrets.TELEGRAM_TO }}
+          message: ${{ env.TELEGRAM_MESSAGE }}
+          files: /github/workspace/${{ steps.sign.outputs.signedReleaseFile }}
