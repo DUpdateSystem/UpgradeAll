@@ -68,8 +68,10 @@ jobs:
         with:
           targets: aarch64-linux-android
 
-      - name: Rust add x86_64-linux-android
-        run: rustup target add x86_64-linux-android
+      - name: Add Rust targe tarchitectures
+        run: |
+          rustup target add x86_64-linux-android
+          rustup target add armv7-linux-androideabi
 
       - name: Build with Gradle
         run: ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease assembleDebug
