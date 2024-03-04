@@ -16,5 +16,8 @@ tokio = "1.36.0"
 crate-type = ["cdylib"]
 
 [profile.release]
-strip = true
 crate-type = ["rlib", "cdylib"]
+strip = true
+opt-level = "s"
+lto = true
+codegen-units = 1

@@ -13,23 +13,24 @@ import org.junit.runner.RunWith
 class GetterPortGithubUnitTest {
     private val nativeLib = NativeLib()
     private val hubUuid = "fd9b2602-62c5-4d55-bd1e-0d6537714ca0"
-    private val idMap = mapOf(
+    private val appDataMap = mapOf(
         "owner" to "DUpdateSystem",
         "repo" to "UpgradeAll",
     )
+    private val hubDataMap = mapOf<String, String>()
 
     @Test
     fun check_app_available() {
-        assert(nativeLib.checkAppAvailable(hubUuid, idMap))
+        assert(nativeLib.checkAppAvailable(hubUuid, appDataMap, hubDataMap))
     }
 
     @Test
     fun get_app_latest_release() {
-        assert(nativeLib.getAppLatestRelease(hubUuid, idMap).isNotEmpty())
+        assert(nativeLib.getAppLatestRelease(hubUuid, appDataMap, hubDataMap).isNotEmpty())
     }
 
     @Test
     fun get_app_releases() {
-        assert(nativeLib.getAppReleases(hubUuid, idMap).isNotEmpty())
+        assert(nativeLib.getAppReleases(hubUuid, appDataMap, hubDataMap).isNotEmpty())
     }
 }

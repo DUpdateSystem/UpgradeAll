@@ -35,8 +35,10 @@ cargo {
     module = "./src/main/rust/api_proxy"
     targets = [
             "x86_64",
+            "arm",
             "arm64"
     ]
+    profile = 'release'
     libname = "api_proxy"
 
     features {
