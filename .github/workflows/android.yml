@@ -132,7 +132,7 @@ jobs:
 
       - name: Send commit to Telegram
         if: ${{ !github.event.pull_request }}
-        uses: xz-dev/TelegramFileUploader@v1
+        uses: xz-dev/TelegramFileUploader@v1.1.1
         env:
           BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           API_ID: ${{ secrets.TELEGRAM_API_ID }}
