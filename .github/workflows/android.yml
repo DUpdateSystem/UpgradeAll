@@ -103,6 +103,14 @@ jobs:
 #          command: appcenter crashes upload-mappings --mapping app/build/outputs/mapping/release/mapping.txt --version-name ${{ steps.apk-info.outputs.version-name }} --version-code ${{ steps.apk-info.outputs.version-code }} --app DUpdateSystem/UpgradeAll
 #          token: ${{secrets.APP_CENTER_TOKEN}}
 
+      - name: Find debug APK
+        run: |
+          if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
+            OUTPUT="app/build/outputs/apk/debug/"
+            DEBUG_APK=$(find $OUTPUT -name "*.apk")
+            echo "DEBUG_APK=$DEBUG_APK" >> $GITHUB_ENV
+          fi
+
       - name: Generate Commit Message
         run: |
           COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
@@ -132,4 +140,6 @@ jobs:
         with:
           to-who: ${{ secrets.TELEGRAM_TO }}
           message: ${{ env.TELEGRAM_MESSAGE }}
-          files: /github/workspace/${{ steps.sign.outputs.signedReleaseFile }}
+          files: |
+            /github/workspace/${{ steps.sign.outputs.signedReleaseFile }}
+            /github/workspace/${{ env.DEBUG_APK }}
