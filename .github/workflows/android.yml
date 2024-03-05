@@ -120,9 +120,8 @@ jobs:
           COMMIT_URL=$HOME_URL/commit/${{ env.VERSION }}
 
           TELEGRAM_MESSAGE="New push to Github!
-          \`\`\`
-          $COMMIT_MESSAGE
-          \`\`\`by \`$AUTHOR_NAME\`
+          \`\`\`$COMMIT_MESSAGE\`\`\`
+          by \`$AUTHOR_NAME\`
           See commit detail [Here]($COMMIT_URL)
           Snapshot apk is attached"
 
