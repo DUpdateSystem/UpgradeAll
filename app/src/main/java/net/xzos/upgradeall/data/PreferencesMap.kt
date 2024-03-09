@@ -17,6 +17,8 @@ import net.xzos.upgradeall.core.installer.installerapi.ApkShizukuInstaller
 import net.xzos.upgradeall.data.constants.DEFAULT_REPO_URL
 import net.xzos.upgradeall.server.update.UpdateServiceBroadcastReceiver
 import net.xzos.upgradeall.ui.home.MainActivity
+import net.xzos.upgradeall.utils.file.RUST_CACHE_DIR
+import net.xzos.upgradeall.utils.file.RUST_DATA_DIR
 import net.xzos.upgradeall.utils.file.SDK_CACHE_DIR
 import java.util.Locale
 
@@ -204,6 +206,8 @@ object PreferencesMap {
             update_server_url = update_server_url,
             cloud_rules_hub_url = cloud_rules_hub_url,
             applications_ignore_system_app = applications_ignore_system_app,
+            rust_cache_dir = RUST_CACHE_DIR,
+            rust_data_dir = RUST_DATA_DIR,
         )
         initCore(context, coreConfig)
         initDownload(

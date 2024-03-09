@@ -14,6 +14,8 @@ val PREFERENCES_FILE by lazy {
 private val CACHE_DIR = context.externalCacheDir!!
 val DOWNLOAD_CACHE_DIR by lazy { File(CACHE_DIR, "Download").getExistsFile(true) }
 val SDK_CACHE_DIR by lazy { File(CACHE_DIR, "SDK").getExistsFile(true) }
+val RUST_CACHE_DIR by lazy { File(CACHE_DIR, "core-getter/cache").getExistsFile(true) }
+val RUST_DATA_DIR by lazy { File(context.filesDir, "core-getter/data").getExistsFile(true) }
 val DOWNLOAD_EXTRA_CACHE_DIR by lazy {
     File(DOWNLOAD_CACHE_DIR, "ExtraCache").getExistsFile(true).apply {
         deleteChildRecursive()

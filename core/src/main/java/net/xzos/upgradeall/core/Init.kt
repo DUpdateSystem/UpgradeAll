@@ -7,6 +7,7 @@ import net.xzos.upgradeall.core.database.initDatabase
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.utils.data_cache.CacheConfig
+import net.xzos.upgradeall.core.websdk.initRustSdkApi
 import net.xzos.upgradeall.core.websdk.initSdkCache
 import net.xzos.upgradeall.core.websdk.renewSdkApi
 
@@ -25,6 +26,7 @@ fun initCore(
 ) {
     coreConfig = _coreConfig
     initSdkCache(CacheConfig(_coreConfig.data_expiration_time, _coreConfig.cache_dir))
+    initRustSdkApi(_coreConfig.rust_data_dir, _coreConfig.rust_cache_dir)
     renewSdkApi(_coreConfig.update_server_url)
     initObject(context)
 }

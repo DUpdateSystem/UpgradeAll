@@ -14,6 +14,7 @@ import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
+import net.xzos.upgradeall.core.websdk.getterPort
 import net.xzos.upgradeall.core.websdk.json.CloudConfigList
 import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.core.websdk.json.ReleaseGson
@@ -22,7 +23,6 @@ import net.xzos.upgradeall.getter.GetterPort
 internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
     private val okhttpProxy = OkhttpProxy()
     private val cloudConfig = CloudConfig(okhttpProxy)
-    private val getterPort = GetterPort()
 
     private val hubMap: Map<String, BaseHub> = listOf(
 //        Github(dataCache, okhttpProxy),

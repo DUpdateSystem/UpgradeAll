@@ -2,34 +2,35 @@ package net.xzos.upgradeall.getter
 
 import android.util.Log
 
-class GetterPort {
+class GetterPort(val config: Config) {
     private val nativeLib = NativeLib()
+
+    fun init(): Boolean {
+        val dataPath = config.dataDir.toString()
+        val cachePath = config.cacheDir.toString()
+        return nativeLib.init(dataPath, cachePath).also { Log.d("GetterPort", "checkInit: $it") }
+    }
+
     fun checkAppAvailable(
-        hub_uuid: String,
-        app_data: Map<String, String>,
-        hub_data: Map<String, String>
+        hub_uuid: String, app_data: Map<String, String>, hub_data: Map<String, String>
     ): Boolean {
-        return nativeLib.checkAppAvailable(hub_uuid, app_data, hub_data)
-            .also { Log.e("GetterPort", "checkAppAvailable: $it") }
+        return init() && nativeLib.checkAppAvailable(hub_uuid, app_data, hub_data)
+            .also { Log.d("GetterPort", "checkAppAvailable: $it") }
     }
 
     fun getAppLatestRelease(
-        hub_uuid: String,
-        app_data: Map<String, String>,
-        hub_data: Map<String, String>
+        hub_uuid: String, app_data: Map<String, String>, hub_data: Map<String, String>
     ): String {
-        return String(
-            nativeLib.getAppLatestRelease(hub_uuid, app_data, hub_data)
-                .also { Log.e("GetterPort", "getAppLatestRelease: $it") })
+        if (!init()) return String(ByteArray(0))
+        return String(nativeLib.getAppLatestRelease(hub_uuid, app_data, hub_data)
+            .also { Log.d("GetterPort", "getAppLatestRelease: $it") })
     }
 
     fun getAppReleases(
-        hub_uuid: String,
-        app_data: Map<String, String>,
-        hub_data: Map<String, String>
+        hub_uuid: String, app_data: Map<String, String>, hub_data: Map<String, String>
     ): String {
-        return String(
-            nativeLib.getAppReleases(hub_uuid, app_data, hub_data)
-                .also { Log.e("GetterPort", "getAppReleases: $it") })
+        if (!init()) return String(ByteArray(0))
+        return String(nativeLib.getAppReleases(hub_uuid, app_data, hub_data)
+            .also { Log.d("GetterPort", "getAppReleases: $it") })
     }
 }

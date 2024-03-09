@@ -13,4 +13,8 @@ class CoreConfig(
     internal val cloud_rules_hub_url: String?,
     // 应用市场模式下是否忽略系统应用
     internal val applications_ignore_system_app: Boolean,
+
+    // Rust SDK 本地文件地址
+    internal val rust_cache_dir: File,
+    internal val rust_data_dir: File,
 )

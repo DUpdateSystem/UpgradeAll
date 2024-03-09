@@ -1,3 +1,5 @@
+use std::path::Path;
+
 extern crate jni;
 mod utils;
 
@@ -5,8 +7,26 @@ use jni::objects::{JByteArray, JClass, JObject, JString};
 use jni::sys::jboolean;
 use jni::JNIEnv;
 
-use getter::api::{check_app_available, get_latest_release, get_releases};
+use getter::api::*;
 use utils::*;
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_init<'local>(
+    mut env: JNIEnv<'local>,
+    _: JClass<'local>,
+    data_path: JString<'local>,
+    cache_path: JString<'local>,
+) -> jboolean {
+    if let Ok(data_path) = convert_java_str_to_rust(&mut env, &data_path) {
+        let data_dir = Path::new(&data_path);
+        if let Ok(cache_path) = convert_java_str_to_rust(&mut env, &cache_path) {
+            let cache_dir = Path::new(&cache_path);
+            init(data_dir, cache_dir).unwrap();
+        }
+    }
+    true as jboolean
+}
 
 #[no_mangle]
 #[allow(non_snake_case)]
