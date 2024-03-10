@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class ReleaseGson(
     @SerializedName("version_number") val versionNumber: String,
-    @SerializedName("change_log") val changelog: String?,
+    @SerializedName("changelog") val changelog: String?,
     @SerializedName("assets") val assetGsonList: List<AssetGson>,
     @SerializedName("extra") val extra: Map<String, Any?>? = mapOf(),
 )
