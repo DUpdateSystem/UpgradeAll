@@ -26,7 +26,11 @@ fun initCore(
 ) {
     coreConfig = _coreConfig
     initSdkCache(CacheConfig(_coreConfig.data_expiration_time, _coreConfig.cache_dir))
-    initRustSdkApi(_coreConfig.rust_data_dir, _coreConfig.rust_cache_dir)
+    initRustSdkApi(
+        _coreConfig.rust_data_dir,
+        _coreConfig.rust_cache_dir,
+        _coreConfig.data_expiration_time.toLong(),
+    )
     renewSdkApi(_coreConfig.update_server_url)
     initObject(context)
 }

@@ -4,7 +4,7 @@ import net.xzos.upgradeall.core.utils.data_cache.CacheConfig
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.websdk.api.ServerApi
 import net.xzos.upgradeall.core.websdk.api.ServerApiProxy
-import net.xzos.upgradeall.getter.Config
+import net.xzos.upgradeall.getter.RustConfig
 import net.xzos.upgradeall.getter.GetterPort
 import java.io.File
 
@@ -22,9 +22,9 @@ fun initSdkCache(config: CacheConfig) {
     dataCacheManager = DataCacheManager(config)
 }
 
-fun initRustSdkApi(dataDir: File, cacheDir: File) {
+fun initRustSdkApi(dataDir: File, cacheDir: File, globalExpireTime: Long) {
     with(data) {
-        getterPort = GetterPort(Config(cacheDir, dataDir))
+        getterPort = GetterPort(RustConfig(cacheDir, dataDir, globalExpireTime))
     }
 }
 

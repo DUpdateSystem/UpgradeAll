@@ -12,9 +12,10 @@ import kotlin.io.path.createTempDirectory
  */
 @RunWith(AndroidJUnit4::class)
 class GetterPortGitlabUnitTest {
-    private val config = Config(
+    private val config = RustConfig(
         cacheDir = createTempDirectory().toFile(),
         dataDir = createTempDirectory().toFile(),
+        globalExpireTime = 60,
     )
     private val getterPort = GetterPort(config)
     private val hubUuid = "a84e2fbe-1478-4db5-80ae-75d00454c7eb"

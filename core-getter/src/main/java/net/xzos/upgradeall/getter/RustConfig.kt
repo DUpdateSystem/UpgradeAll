@@ -2,7 +2,8 @@ package net.xzos.upgradeall.getter
 
 import java.io.File
 
-class Config(
+class RustConfig(
     internal val cacheDir: File,
     internal val dataDir: File,
+    internal val globalExpireTime: Long,
 )

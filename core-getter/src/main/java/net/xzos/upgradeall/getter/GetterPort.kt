@@ -2,13 +2,15 @@ package net.xzos.upgradeall.getter
 
 import android.util.Log
 
-class GetterPort(val config: Config) {
+class GetterPort(val config: RustConfig) {
     private val nativeLib = NativeLib()
 
     fun init(): Boolean {
         val dataPath = config.dataDir.toString()
         val cachePath = config.cacheDir.toString()
-        return nativeLib.init(dataPath, cachePath).also { Log.d("GetterPort", "checkInit: $it") }
+        val globalExpireTime = config.globalExpireTime
+        return nativeLib.init(dataPath, cachePath, globalExpireTime)
+            .also { Log.d("GetterPort", "checkInit: $it") }
     }
 
     fun checkAppAvailable(

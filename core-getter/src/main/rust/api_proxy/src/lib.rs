@@ -4,7 +4,7 @@ extern crate jni;
 mod utils;
 
 use jni::objects::{JByteArray, JClass, JObject, JString};
-use jni::sys::jboolean;
+use jni::sys::{jboolean, jlong};
 use jni::JNIEnv;
 
 use getter::api::*;
@@ -17,12 +17,14 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_init<'local>(
     _: JClass<'local>,
     data_path: JString<'local>,
     cache_path: JString<'local>,
+    global_expire_time: jlong,
 ) -> jboolean {
     if let Ok(data_path) = convert_java_str_to_rust(&mut env, &data_path) {
         let data_dir = Path::new(&data_path);
         if let Ok(cache_path) = convert_java_str_to_rust(&mut env, &cache_path) {
             let cache_dir = Path::new(&cache_path);
-            init(data_dir, cache_dir).unwrap();
+            let global_expire_time = global_expire_time as u64;
+            init(data_dir, cache_dir, global_expire_time).unwrap();
         }
     }
     true as jboolean

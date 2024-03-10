@@ -6,7 +6,7 @@ class NativeLib {
      * A native method that is implemented by the 'getter' native library,
      * which is packaged with this application.
      */
-    external fun init(data_path: String, cache_path: String): Boolean
+    external fun init(data_path: String, cache_path: String, global_expire_time: Long): Boolean
 
     external fun checkAppAvailable(
         hub_uuid: String, app_data: Map<String, String>, hub_data: Map<String, String>
