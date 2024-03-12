@@ -3,7 +3,8 @@
       "dependencies"
     ],
     "extends": [
-      "config:base"
+      "config:base",
+      ":gitSignOff"
     ],
     "groupName": "all"
   }
