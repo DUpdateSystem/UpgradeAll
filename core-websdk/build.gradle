@@ -51,8 +51,6 @@ dependencies {
     // OkHttp
     api 'com.squareup.okhttp3:okhttp:5.0.0-alpha.12'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:5.0.0-alpha.12'
-    // dom4j, xml support
-    implementation 'org.dom4j:dom4j:2.1.4'
     // markdown support
     implementation 'org.jetbrains:markdown:0.6.1'
     // google play support

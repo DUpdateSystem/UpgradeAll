@@ -37,12 +37,12 @@ class DiscoverListViewHolder(private val binding: ItemDiscoverAppBinding)
         itemView.hubName.let {
             val hubChip = (layoutInflater.inflate(R.layout.single_chip_layout, chipGroup, false) as Chip).apply {
                 text = it
-                val iconRes = when (it) {
-                    "GitHub" -> R.drawable.ic_hub_github
-                    "Google Play" -> R.drawable.ic_hub_google_play
+                val iconRes = when (it.lowercase()) {
+                    "github" -> R.drawable.ic_hub_github
+                    "google play" -> R.drawable.ic_hub_google_play
                     "酷安" -> R.drawable.ic_hub_coolapk
-                    "Gitlab" -> R.drawable.ic_hub_gitlab
-                    "F-droid" -> R.drawable.ic_hub_fdroid
+                    "gitlab" -> R.drawable.ic_hub_gitlab
+                    "f-droid" -> R.drawable.ic_hub_fdroid
                     else -> R.drawable.ic_hub_website
                 }
                 setChipIconResource(iconRes)

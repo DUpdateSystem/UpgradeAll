@@ -163,3 +163,11 @@
 ##---------------Begin: proguard configuration for Firebase ----------
 -keep class com.google.firebase.** { *; }
 ##---------------End: proguard configuration for Firebase ----------
+
+##---------------Begin: proguard configuration for OkHttp (Maybe)  ----------
+-dontwarn org.slf4j.impl.StaticLoggerBinder
+##---------------End: proguard configuration for OkHttp  ----------
+
+##---------------Begin: proguard configuration for Rust JNI  ----------
+-keep class net.xzos.upgradeall.getter.NativeLib.** { *; }
+##---------------End: proguard configuration for Rust JNI ----------
