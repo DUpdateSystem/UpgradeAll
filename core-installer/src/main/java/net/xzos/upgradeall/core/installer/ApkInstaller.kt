@@ -3,6 +3,7 @@ package net.xzos.upgradeall.core.installer
 import android.content.Context
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.xzos.upgradeall.core.androidutils.getCurrentUserId
 import net.xzos.upgradeall.core.installer.installerapi.ApkRootInstall
 import net.xzos.upgradeall.core.installer.installerapi.ApkShizukuInstaller
 import net.xzos.upgradeall.core.installer.installerapi.ApkSystemInstaller
@@ -39,7 +40,7 @@ internal object ApkInstaller {
     ) {
         when (installMode) {
             "System" -> ApkSystemInstaller.install(file, context)
-            "Root" -> ApkRootInstall.install(file)
+            "Root" -> ApkRootInstall.install(file, userId = getCurrentUserId(context))
             "Shizuku" -> ApkShizukuInstaller.install(file, context)
             else -> ApkSystemInstaller.install(file, context)
         }
@@ -70,7 +71,11 @@ internal object ApkInstaller {
         }
         when (installMode) {
             "System" -> ApkSystemInstaller.multipleInstall(apkFilePathList, context)
-            "Root" -> ApkRootInstall.multipleInstall(apkFilePathList)
+            "Root" -> ApkRootInstall.multipleInstall(
+                apkFilePathList,
+                userId = getCurrentUserId(context)
+            )
+
             "Shizuku" -> ApkShizukuInstaller.multipleInstall(apkFilePathList, context)
             else -> ApkSystemInstaller.multipleInstall(apkFilePathList, context)
         }
@@ -79,7 +84,10 @@ internal object ApkInstaller {
         }
         when (installMode) {
             "System" -> ApkSystemInstaller.obbInstall(obbFilePathList)
-            "Root" -> ApkRootInstall.obbInstall(obbFilePathList)
+            "Root" -> ApkRootInstall.obbInstall(
+                obbFilePathList, userId = getCurrentUserId(context)
+            )
+
             else -> ApkSystemInstaller.obbInstall(obbFilePathList)
         }
     }

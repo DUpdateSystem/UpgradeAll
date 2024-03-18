@@ -101,3 +101,8 @@ fun requestPermission(
     return havePermission
 }
 
+fun getCurrentUserId(context: Context): Long {
+    val userManager = context.getSystemService(Context.USER_SERVICE) as android.os.UserManager
+    val handle = android.os.Process.myUserHandle()
+    return userManager.getSerialNumberForUser(handle)
+}
