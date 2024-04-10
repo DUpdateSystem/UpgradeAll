@@ -4,7 +4,8 @@ import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import net.xzos.upgradeall.BR
 
-class EnableObservable(enable: Boolean, private val changedFun: (enable:Boolean) -> Unit) : BaseObservable() {
+class EnableObservable(enable: Boolean, private val changedFun: (enable: Boolean) -> Unit) :
+    BaseObservable() {
 
     @get:Bindable
     var enable: Boolean = enable

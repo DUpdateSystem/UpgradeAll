@@ -34,7 +34,7 @@ jobs:
       - name: Install Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'oracle'
+          distribution: 'temurin'
           java-version: 21
 
       - name: Setup Android SDK
