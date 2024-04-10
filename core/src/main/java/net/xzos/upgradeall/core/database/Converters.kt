@@ -107,16 +107,34 @@ class Converters {
     @TypeConverter
     fun fromMapToString(dict: Map<String, String?>?): String? {
         return JSONObject().apply {
-            for ((k, v) in dict?.iterator()?: return null) {
+            for ((k, v) in dict?.iterator() ?: return null) {
+                put(k, v)
+            }
+        }.toString()
+    }
+
+    fun stringToMap(s: String?): Map<String, String> {
+        return mutableMapOf<String, String>().apply {
+            val jsonObject = JSONObject(s ?: return mutableMapOf())
+            for (k in jsonObject.keys()) {
+                this[k] = jsonObject.getString(k)
+            }
+        }
+    }
+
+    @TypeConverter
+    fun fromMutableMapToString(dict: MutableMap<String, String>?): String? {
+        return JSONObject().apply {
+            for ((k, v) in dict?.iterator() ?: return null) {
                 put(k, v)
             }
         }.toString()
     }
 
     @TypeConverter
-    fun stringToMap(s: String?): MutableMap<String, String?> {
-        return mutableMapOf<String, String?>().apply {
-            val jsonObject = JSONObject(s?: return mutableMapOf())
+    fun stringToMutableMap(s: String?): MutableMap<String, String> {
+        return mutableMapOf<String, String>().apply {
+            val jsonObject = JSONObject(s ?: return mutableMapOf())
             for (k in jsonObject.keys()) {
                 this[k] = jsonObject.getString(k)
             }
