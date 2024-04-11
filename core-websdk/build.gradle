@@ -52,9 +52,9 @@ dependencies {
     api 'com.squareup.okhttp3:okhttp:5.0.0-alpha.12'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:5.0.0-alpha.12'
     // markdown support
-    implementation 'org.jetbrains:markdown:0.6.1'
+    implementation 'org.jetbrains:markdown:0.7.0'
     // google play support
-    implementation 'com.gitlab.AuroraOSS:gplayapi:3.2.10'
+    implementation 'com.gitlab.AuroraOSS:gplayapi:3.2.11'
     // BCrypt, for coolapk
     implementation 'org.mindrot:jbcrypt:0.4'
 
