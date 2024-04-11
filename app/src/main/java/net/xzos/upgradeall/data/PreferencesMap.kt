@@ -30,11 +30,6 @@ object PreferencesMap {
         this.getContextFun = getContextFun
     }
 
-    private const val CHECKED_PRIVACY_POLICY_KEY = " checked_privacy_policy"
-    var checked_privacy_policy: Boolean
-        get() = prefs.getBoolean(CHECKED_PRIVACY_POLICY_KEY, false)
-        set(value) = prefs.edit().putBoolean(CHECKED_PRIVACY_POLICY_KEY, value).apply()
-
     private val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
 
     // 更新首选项

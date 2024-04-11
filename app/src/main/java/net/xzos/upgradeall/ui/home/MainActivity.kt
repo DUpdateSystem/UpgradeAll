@@ -49,9 +49,6 @@ class MainActivity : BaseActivity() {
         if (PreferencesMap.auto_start_update) checkUpdate()
         PreferencesMap.initByActivity(this)
 
-        if (!PreferencesMap.checked_privacy_policy)
-            startActivity(Intent(this, PrivacyPolicyActivity::class.java))
-
         // request notification permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val permission = Manifest.permission.POST_NOTIFICATIONS
