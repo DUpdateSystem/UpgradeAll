@@ -38,14 +38,12 @@ android {
     buildTypes {
         release {
             // minifyEnabled true
-            zipAlignEnabled true
             // shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [enableCrashReporting: "true", appName: "UpgradeAll"]
         }
         debug {
             minifyEnabled false
-            zipAlignEnabled true
             manifestPlaceholders = [enableCrashReporting: "false", appName: "UpgradeAll-β"]
             applicationIdSuffix ".debug"
         }
