@@ -28,9 +28,10 @@ fun getAndroidModuleInfoList(): List<AppInfo> {
     return getFileNameList(MODULE_FOLDER_PATH).mapNotNull { moduleId ->
         val modulePropFilePath = "/data/adb/modules/$moduleId/module.prop"
         val prop = getProp(modulePropFilePath) ?: return@mapNotNull null
+        val id = prop.getProperty("id") ?: return@mapNotNull null
         AppInfo(
-            prop.getProperty("name"),
-            mapOf(ANDROID_MAGISK_MODULE_TYPE to prop.getProperty("id"))
+            prop.getProperty("name", id),
+            mapOf(ANDROID_MAGISK_MODULE_TYPE to id)
         )
     }
 }
