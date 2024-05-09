@@ -19,4 +19,10 @@
 \nDésactivé pour la valeur 0(débogage uniquement).</string>
     <string name="app_hub">Centre d\'applis</string>
     <string name="magisk_module">Module Magisk</string>
+    <string name="install_apk_api">APK Installation Method</string>
+    <string name="auto_install">Auto Install</string>
+    <string name="installing">Installing:</string>
+    <string name="user_download_path">User Download Path</string>
+    <string name="download_thread_num">Download Thread Num</string>
+    <string name="download_max_task_num">Max Download Task Num</string>
 </resources>
