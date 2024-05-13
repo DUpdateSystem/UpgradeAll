@@ -38,6 +38,8 @@ allprojects {
         google()
         mavenCentral()
         maven { url "https://jitpack.io" }
+        // For https://gitlab.com/AuroraOSS/gplayapi
+        maven { url "https://gitlab.com/api/v4/projects/18497829/packages/maven"}
     }
 }
 
