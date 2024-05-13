@@ -3,6 +3,7 @@ package net.xzos.upgradeall.getter
 import android.util.Log
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient
 import com.googlecode.jsonrpc4j.ProxyUtil
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -27,9 +28,16 @@ class GetterPort(private val config: RustConfig) {
         }
     }
 
-    suspend fun isInit(): Boolean {
-        mutex.withLock {
-            return isInit
+    private fun isServiceRunning(): Boolean {
+        return ::service.isInitialized
+    }
+
+    suspend fun waitService(): Boolean {
+        return runBlocking {
+            while (!isServiceRunning()) {
+                delay(1000L)
+            }
+            return@runBlocking isServiceRunning()
         }
     }
 
@@ -46,6 +54,7 @@ class GetterPort(private val config: RustConfig) {
     fun init(): Boolean {
         return runBlocking {
             return@runBlocking mutex.withLock {
+                runBlocking { waitService() }
                 if (isInit) return@withLock true
                 val dataPath = config.dataDir.toString()
                 val cachePath = config.cacheDir.toString()
@@ -77,7 +86,12 @@ class GetterPort(private val config: RustConfig) {
         hubUuid: String, appData: Map<String, String>, hubData: Map<String, String>
     ): List<ReleaseGson>? {
         if (!init()) return null
-        return service.getAppReleases(hubUuid, appData, hubData)
-            .also { Log.d("GetterPort", "getAppReleases: $it") }
+        return try {
+            service.getAppReleases(hubUuid, appData, hubData)
+                .also { Log.d("GetterPort", "getAppReleases: $it") }
+        }catch (e: Throwable){
+            Log.e("GetterPort", "getAppReleases: $e")
+            null
+        }
     }
 }

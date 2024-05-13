@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.websdk.data.json
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 
@@ -11,11 +12,21 @@ import com.google.gson.annotations.SerializedName
  * info: {"name": "", "desc": "", "url": , "extra_map": ""}
  */
 data class AppConfigGson(
-    @SerializedName("base_version") val baseVersion: Int,
-    @SerializedName("config_version") val configVersion: Int,
-    @SerializedName("uuid") val uuid: String,
-    @SerializedName("base_hub_uuid") val baseHubUuid: String,
-    @SerializedName("info") val info: InfoBean,
+    @SerializedName("base_version")
+    @JsonProperty("base_version")
+    val baseVersion: Int,
+    @SerializedName("config_version")
+    @JsonProperty("config_version")
+    val configVersion: Int,
+    @SerializedName("uuid")
+    @JsonProperty("uuid")
+    val uuid: String,
+    @SerializedName("base_hub_uuid")
+    @JsonProperty("base_hub_uuid")
+    val baseHubUuid: String,
+    @SerializedName("info")
+    @JsonProperty("info")
+    val info: InfoBean,
 ) {
 
     /**
@@ -24,10 +35,18 @@ data class AppConfigGson(
      * desc:
      */
     data class InfoBean(
-        @SerializedName("name") val name: String,
-        @SerializedName("url") var url: String,
-        @SerializedName("desc") var desc: String?,
-        @SerializedName("extra_map") var extraMap: Map<String, String>,
+        @SerializedName("name")
+        @JsonProperty("name")
+        val name: String,
+        @SerializedName("url")
+        @JsonProperty("url")
+        var url: String,
+        @SerializedName("desc")
+        @JsonProperty("desc")
+        var desc: String?,
+        @SerializedName("extra_map")
+        @JsonProperty("extra_map")
+        var extraMap: Map<String, String>,
     )
 
     override fun toString(): String {
