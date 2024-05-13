@@ -1,8 +1,8 @@
 package net.xzos.upgradeall.ui.discover
 
 import androidx.activity.viewModels
-import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 import net.xzos.upgradeall.ui.base.list.HubListActivity
+import net.xzos.upgradeall.websdk.data.json.AppConfigGson
 
 
 class DiscoverActivity :

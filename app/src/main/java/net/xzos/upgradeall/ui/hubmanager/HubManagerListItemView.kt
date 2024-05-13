@@ -7,12 +7,12 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.websdk.json.HubConfigGson
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.ui.base.databinding.EnableObservable
 import net.xzos.upgradeall.ui.base.list.ActivityListItemView
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
+import net.xzos.upgradeall.websdk.data.json.HubConfigGson
 
 class HubManagerListItemView(
     name: String, val uuid: String
@@ -57,7 +57,7 @@ class HubManagerListItemView(
 
     companion object {
         fun getCloudHubItemCardView(
-            hubConfig: net.xzos.upgradeall.core.websdk.json.HubConfigGson,
+            hubConfig: HubConfigGson,
             context: Context
         ): HubManagerListItemView {
             val name = hubConfig.info.hubName

@@ -22,8 +22,6 @@ android {
         }
     }
     compileOptions {
-        // Flag to enable support for the new language APIs
-        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_19
         targetCompatibility JavaVersion.VERSION_19
     }
@@ -36,7 +34,7 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation "androidx.core:core-ktx:$android_ktx_version"
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -48,7 +46,5 @@ dependencies {
     implementation 'org.apache.maven:maven-artifact:3.9.6'
 
     // 字符串匹配；日志打印去除转义字符
-    implementation 'org.apache.commons:commons-text:1.11.0'
-    // core library desugaring
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    implementation 'org.apache.commons:commons-text:1.12.0'
 }

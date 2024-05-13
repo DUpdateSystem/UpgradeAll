@@ -10,7 +10,7 @@ import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.version.VersionInfo
 import net.xzos.upgradeall.core.utils.cleanBlankValue
-import net.xzos.upgradeall.core.websdk.json.AppConfigGson
+import net.xzos.upgradeall.websdk.data.json.AppConfigGson
 
 
 // 使用 data 保持 hashcode 相同

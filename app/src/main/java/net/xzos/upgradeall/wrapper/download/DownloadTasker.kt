@@ -14,10 +14,10 @@ import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.getServerApi
-import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.file.DOWNLOAD_EXTRA_CACHE_DIR
+import net.xzos.upgradeall.websdk.data.json.DownloadItem
 import java.io.File
 
 class DownloadTasker(

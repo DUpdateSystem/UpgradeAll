@@ -9,7 +9,7 @@ import net.xzos.upgradeall.core.module.app.data.DataGetter
 import net.xzos.upgradeall.core.module.app.data.VersionMap
 import net.xzos.upgradeall.core.module.app.version.Version
 import net.xzos.upgradeall.core.module.app.version.VersionInfo
-import net.xzos.upgradeall.core.websdk.json.AppConfigGson
+import net.xzos.upgradeall.websdk.data.json.AppConfigGson
 
 data class App(override val db: AppEntity) : AppDbWrapper() {
 

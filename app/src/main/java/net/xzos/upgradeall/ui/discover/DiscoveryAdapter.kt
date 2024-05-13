@@ -3,10 +3,10 @@ package net.xzos.upgradeall.ui.discover
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.websdk.json.AppConfigGson
 import net.xzos.upgradeall.databinding.ItemDiscoverAppBinding
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 import net.xzos.upgradeall.ui.discover.DiscoverListItemView.Companion.getCloudAppItemCardView
+import net.xzos.upgradeall.websdk.data.json.AppConfigGson
 
 class DiscoveryAdapter(
     override val handler: DiscoverListItemHandler

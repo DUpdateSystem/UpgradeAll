@@ -1,4 +1,4 @@
-package net.xzos.upgradeall.core.websdk.json
+package net.xzos.upgradeall.websdk.data.json
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName

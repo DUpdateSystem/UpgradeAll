@@ -12,9 +12,9 @@ import net.xzos.upgradeall.core.installer.getFileType
 import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.core.utils.oberver.Func
 import net.xzos.upgradeall.core.utils.oberver.FuncNoArg
-import net.xzos.upgradeall.core.websdk.json.DownloadItem
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.server.downloader.DownloadNotificationManager
+import net.xzos.upgradeall.websdk.data.json.DownloadItem
 
 fun DownloadItem.getDownloadInfoItem(defName: String): InputData {
     return InputData(name ?: defName, url, headers ?: emptyMap(), cookies ?: emptyMap())

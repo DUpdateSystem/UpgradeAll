@@ -15,9 +15,6 @@ import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
-import net.xzos.upgradeall.core.websdk.json.CloudConfigList
-import net.xzos.upgradeall.core.websdk.json.DownloadItem
-import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 
 internal class WebApiProxy(
     private val _host: String,
@@ -35,19 +32,19 @@ internal class WebApiProxy(
         } ?: _host
     private val requestDataMap = coroutinesMutableMapOf<String, HttpRequestData>()
 
-    override fun getCloudConfig(url: String): CloudConfigList? {
+    override fun getCloudConfig(url: String): net.xzos.upgradeall.websdk.data.json.CloudConfigList? {
         return webApi.getCloudConfig(url)
     }
 
     override fun checkAppAvailable(data: SingleRequestData): Boolean? = null
 
-    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson?>? {
+    override fun getAppUpdate(data: MultiRequestData): Map<AppData, net.xzos.upgradeall.websdk.data.json.ReleaseGson?>? {
         return data.appList.mapNotNull {
             getAppRelease(data.hub, it)?.firstOrNull()?.let { r -> it to r }
         }.toMap()
     }
 
-    private fun getAppRelease(hub: HubData, app: AppData): List<ReleaseGson>? {
+    private fun getAppRelease(hub: HubData, app: AppData): List<net.xzos.upgradeall.websdk.data.json.ReleaseGson>? {
         val appIdPath = getMapPath(app.appId + app.other)
         val hubUuid = hub.hubUuid
         val authHeader = getAuthHeaderDict(hub.auth)
@@ -61,7 +58,7 @@ internal class WebApiProxy(
         }
     }
 
-    override fun getAppReleaseList(data: SingleRequestData): List<ReleaseGson>? {
+    override fun getAppReleaseList(data: SingleRequestData): List<net.xzos.upgradeall.websdk.data.json.ReleaseGson>? {
         val appIdPath = getMapPath(data.app.appId + data.app.other)
         val hubUuid = data.hub.hubUuid
         val url = "http://$host/v1/app/${hubUuid}/${appIdPath}/releases"
@@ -78,7 +75,7 @@ internal class WebApiProxy(
     override fun getDownloadInfo(
         data: SingleRequestData,
         assetIndex: Pair<Int, Int>
-    ): List<DownloadItem>? {
+    ): List<net.xzos.upgradeall.websdk.data.json.DownloadItem>? {
         val appIdPath = getMapPath(data.app.appId + data.app.other)
         val hubUuid = data.hub.hubUuid
         val authHeader = getAuthHeaderDict(data.hub.auth)

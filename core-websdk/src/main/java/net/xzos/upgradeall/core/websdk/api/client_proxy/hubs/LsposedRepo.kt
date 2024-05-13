@@ -12,8 +12,6 @@ import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.HubData
-import net.xzos.upgradeall.core.websdk.json.AssetGson
-import net.xzos.upgradeall.core.websdk.json.ReleaseGson
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -25,16 +23,16 @@ class LsposedRepo(
         return getAppJson(app)?.length() != 0
     }
 
-    override fun getReleases(hub: HubData, app: AppData): List<ReleaseGson>? {
+    override fun getReleases(hub: HubData, app: AppData): List<net.xzos.upgradeall.websdk.data.json.ReleaseGson>? {
         val json = getAppJson(app) ?: return null
         val jsonArray = json.getOrNull("releases", json::getJSONArray) ?: return emptyList()
         return jsonArray.asSequence<JSONObject>().map {
-            ReleaseGson(
+            net.xzos.upgradeall.websdk.data.json.ReleaseGson(
                 versionNumber = it.getString("name"),
                 changelog = it.getOrNull("descriptionHTML"),
                 assetGsonList = it.getJSONArray("releaseAssets").asSequence<JSONObject>()
                     .map { asset ->
-                        AssetGson(
+                        net.xzos.upgradeall.websdk.data.json.AssetGson(
                             fileName = asset.getString("name"),
                             fileType = asset.getString("contentType"),
                             downloadUrl = asset.getString("downloadUrl")

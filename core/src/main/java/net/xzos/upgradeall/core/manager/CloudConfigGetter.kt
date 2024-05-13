@@ -15,9 +15,9 @@ import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.websdk.getServerApi
-import net.xzos.upgradeall.core.websdk.json.AppConfigGson
-import net.xzos.upgradeall.core.websdk.json.CloudConfigList
-import net.xzos.upgradeall.core.websdk.json.HubConfigGson
+import net.xzos.upgradeall.websdk.data.json.AppConfigGson
+import net.xzos.upgradeall.websdk.data.json.CloudConfigList
+import net.xzos.upgradeall.websdk.data.json.HubConfigGson
 
 
 object CloudConfigGetter {

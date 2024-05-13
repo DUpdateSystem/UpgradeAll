@@ -13,7 +13,7 @@ import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.getServerApi
-import net.xzos.upgradeall.core.websdk.json.ReleaseGson
+import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 class Hub(private val hubDatabase: HubEntity) {
     val name get() = hubDatabase.hubConfig.info.hubName

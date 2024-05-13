@@ -6,7 +6,7 @@ import net.xzos.upgradeall.core.module.app.version.VersionInfo
 import net.xzos.upgradeall.core.module.app.version.VersionWrapper
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableMap
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
-import net.xzos.upgradeall.core.websdk.json.ReleaseGson
+import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 class VersionMap private constructor() {
     private var ignoreVersionNumberRegex: String? = null

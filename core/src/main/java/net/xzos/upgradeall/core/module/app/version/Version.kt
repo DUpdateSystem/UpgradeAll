@@ -1,8 +1,8 @@
 package net.xzos.upgradeall.core.module.app.version
 
 import net.xzos.upgradeall.core.module.Hub
-import net.xzos.upgradeall.core.websdk.json.AssetGson
-import net.xzos.upgradeall.core.websdk.json.ReleaseGson
+import net.xzos.upgradeall.websdk.data.json.AssetGson
+import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 /**
  * 版本号数据的快照

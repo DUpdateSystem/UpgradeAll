@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.core.websdk.api.client_proxy
 
-import com.google.gson.Gson
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
@@ -8,16 +7,16 @@ import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.core.websdk.api.BaseApi
 import net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config.CloudConfig
-import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.*
-import net.xzos.upgradeall.core.websdk.api.web.WebApi
+import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.BaseHub
+import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.CoolApk
+import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.GooglePlay
+import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.LsposedRepo
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.getterPort
-import net.xzos.upgradeall.core.websdk.json.CloudConfigList
-import net.xzos.upgradeall.core.websdk.json.DownloadItem
-import net.xzos.upgradeall.core.websdk.json.ReleaseGson
+import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
     private val okhttpProxy = OkhttpProxy()
@@ -29,7 +28,7 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
         GooglePlay(dataCache, okhttpProxy),
     ).associateBy({ it.uuid }, { it })
 
-    override fun getCloudConfig(url: String): CloudConfigList? {
+    override fun getCloudConfig(url: String): net.xzos.upgradeall.websdk.data.json.CloudConfigList? {
         return try {
             cloudConfig.getCloudConfig(url)
         } catch (e: Throwable) {
@@ -72,25 +71,14 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
 
     override fun getAppReleaseList(data: SingleRequestData): List<ReleaseGson>? {
         return runFun("getAppReleaseList") {
-            try {
-                getHub(data.hub.hubUuid).getReleases(data.hub, data.app)
-            } catch (e: NoFunction) {
-                val hubMap = data.hub.auth + data.hub.other
-                getterPort.getAppReleases(
-                    data.hub.hubUuid,
-                    data.app.appId.map { it.key to (it.value ?: "") }.toMap(),
-                    hubMap.map { it.key to (it.value ?: "") }.toMap(),
-                ).run {
-                    Gson().fromJson(this, WebApi.releaseListType)
-                }
-            }
+            getHub(data.hub.hubUuid).getReleases(data.hub, data.app)
         }
     }
 
     override fun getDownloadInfo(
         data: SingleRequestData,
         assetIndex: Pair<Int, Int>
-    ): List<DownloadItem>? {
+    ): List<net.xzos.upgradeall.websdk.data.json.DownloadItem>? {
         val assets = getAppReleaseList(data)
             ?.get(assetIndex.first)?.assetGsonList?.get(assetIndex.second)
         return runFun("getDownloadInfo") {

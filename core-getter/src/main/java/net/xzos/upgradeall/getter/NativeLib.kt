@@ -1,24 +1,21 @@
 package net.xzos.upgradeall.getter
 
+class RunServerCallback(private val _callback: (String) -> Unit) {
+    fun callback(url: String) {
+        _callback(url)
+    }
+}
+
 class NativeLib {
 
     /**
      * A native method that is implemented by the 'getter' native library,
      * which is packaged with this application.
      */
-    external fun init(data_path: String, cache_path: String, global_expire_time: Long): Boolean
-
-    external fun checkAppAvailable(
-        hub_uuid: String, app_data: Map<String, String>, hub_data: Map<String, String>
-    ): Boolean
-
-    external fun getAppLatestRelease(
-        hub_uuid: String, app_data: Map<String, String>, hub_data: Map<String, String>
-    ): ByteArray
-
-    external fun getAppReleases(
-        hub_uuid: String, app_data: Map<String, String>, hub_data: Map<String, String>
-    ): ByteArray
+    external fun runServer(callback: RunServerCallback): String
+    fun runServerLambda(callback: (String) -> Unit): String {
+        return runServer(RunServerCallback(callback))
+    }
 
     companion object {
         // Used to load the 'getter' library on application startup.

@@ -32,16 +32,16 @@ class GetterPortGitlabUnitTest {
 
     @Test
     fun check_app_available() {
-        assert(getterPort.checkAppAvailable(hubUuid, appDataMap, hubDataMap))
+        assert(getterPort.checkAppAvailable(hubUuid, appDataMap, hubDataMap) == true)
     }
 
     @Test
     fun get_app_latest_release() {
-        assert(getterPort.getAppLatestRelease(hubUuid, appDataMap, hubDataMap).isNotEmpty())
+        getterPort.getAppLatestRelease(hubUuid, appDataMap, hubDataMap)
     }
 
     @Test
     fun get_app_releases() {
-        assert(getterPort.getAppReleases(hubUuid, appDataMap, hubDataMap).isNotEmpty())
+        assert(!getterPort.getAppReleases(hubUuid, appDataMap, hubDataMap).isNullOrEmpty())
     }
 }

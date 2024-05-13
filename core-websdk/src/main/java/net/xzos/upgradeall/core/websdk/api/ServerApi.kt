@@ -15,10 +15,7 @@ import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.cache.AppReleaseListEncoder
 import net.xzos.upgradeall.core.websdk.cache.BoolEncoder
 import net.xzos.upgradeall.core.websdk.cache.CloudConfigListEncoder
-import net.xzos.upgradeall.core.websdk.json.CloudConfigList
-import net.xzos.upgradeall.core.websdk.json.DownloadItem
-import net.xzos.upgradeall.core.websdk.json.ReleaseGson
-import net.xzos.upgradeall.core.websdk.json.isEmpty
+import net.xzos.upgradeall.websdk.data.json.isEmpty
 
 class ServerApi internal constructor(
     host: String, private val dataCache: DataCacheManager
@@ -37,7 +34,7 @@ class ServerApi internal constructor(
         webApiProxy.cancelRequest(hub, app)
     }
 
-    override fun getCloudConfig(url: String): CloudConfigList? {
+    override fun getCloudConfig(url: String): net.xzos.upgradeall.websdk.data.json.CloudConfigList? {
         val value = lockMap.runWith(url) {
             dataCache.get(it, SaveMode.MEMORY_AND_DISK, url, CloudConfigListEncoder) {
                 runBlocking {
@@ -57,7 +54,7 @@ class ServerApi internal constructor(
         }
     }
 
-    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson?>? {
+    override fun getAppUpdate(data: MultiRequestData): Map<AppData, net.xzos.upgradeall.websdk.data.json.ReleaseGson?>? {
         return lockMap.runWith(data) {
             val (cacheMap, mdata) = getAppUpdateCache(data)
             callOrBack(mdata, clientProxyApi::getAppUpdate, webApiProxy::getAppUpdate)?.also {
@@ -73,8 +70,8 @@ class ServerApi internal constructor(
         }
     }
 
-    private fun getAppUpdateCache(data: MultiRequestData): Pair<Map<AppData, ReleaseGson?>, MultiRequestData> {
-        val cacheMap = mutableMapOf<AppData, ReleaseGson?>()
+    private fun getAppUpdateCache(data: MultiRequestData): Pair<Map<AppData, net.xzos.upgradeall.websdk.data.json.ReleaseGson?>, MultiRequestData> {
+        val cacheMap = mutableMapOf<AppData, net.xzos.upgradeall.websdk.data.json.ReleaseGson?>()
         data.appList.forEach {
             val key = getCacheKey(data.hub, it)
             val cache = dataCache.get(SaveMode.DISK_ONLY, key, AppReleaseListEncoder)
@@ -86,7 +83,7 @@ class ServerApi internal constructor(
         return Pair(cacheMap, MultiRequestData(data.hub, data.appList.minus(cacheMap.keys)))
     }
 
-    override fun getAppReleaseList(data: SingleRequestData): List<ReleaseGson>? {
+    override fun getAppReleaseList(data: SingleRequestData): List<net.xzos.upgradeall.websdk.data.json.ReleaseGson>? {
         val key = data.getKey()
         return lockMap.runWith(key) {
             dataCache.get(it, SaveMode.DISK_ONLY, key, AppReleaseListEncoder) {
@@ -99,7 +96,7 @@ class ServerApi internal constructor(
 
     override fun getDownloadInfo(
         data: SingleRequestData, assetIndex: Pair<Int, Int>
-    ): List<DownloadItem> {
+    ): List<net.xzos.upgradeall.websdk.data.json.DownloadItem> {
         val downloadItemList = try {
             callOrBack(
                 data,
@@ -116,7 +113,7 @@ class ServerApi internal constructor(
             val asset = releaseList?.getOrNull(assetIndex.first)
                 ?.assetGsonList?.getOrNull(assetIndex.second) ?: return emptyList()
             listOf(
-                DownloadItem(
+                net.xzos.upgradeall.websdk.data.json.DownloadItem(
                     asset.fileName, asset.downloadUrl ?: return emptyList(),
                     emptyMap(), emptyMap()
                 )

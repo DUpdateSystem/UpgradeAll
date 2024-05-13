@@ -3,10 +3,10 @@ package net.xzos.upgradeall.core.database.table
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import net.xzos.upgradeall.core.websdk.json.HubConfigGson
 import net.xzos.upgradeall.core.manager.HubManager
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
+import net.xzos.upgradeall.websdk.data.json.HubConfigGson
 
 
 @Entity(tableName = "hub")
@@ -18,7 +18,9 @@ data class HubEntity(
     var ignoreAppIdList: CoroutinesMutableList<Map<String, String?>> = coroutinesMutableListOf(true),
     @ColumnInfo(name = "applications_mode") var _applicationsMode: Int = 0,
     @ColumnInfo(name = "user_ignore_app_id_list")
-    var userIgnoreAppIdList: CoroutinesMutableList<Map<String, String?>> = coroutinesMutableListOf(true),
+    var userIgnoreAppIdList: CoroutinesMutableList<Map<String, String?>> = coroutinesMutableListOf(
+        true
+    ),
     // 积分越低优先级越高
     @ColumnInfo(name = "sort_point") var __sortPoint: Int = getDefSortPoint(),
 ) {

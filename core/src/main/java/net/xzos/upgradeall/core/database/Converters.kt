@@ -3,10 +3,10 @@ package net.xzos.upgradeall.core.database
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import net.xzos.upgradeall.core.websdk.json.AppConfigGson
-import net.xzos.upgradeall.core.websdk.json.HubConfigGson
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesMutableList
 import net.xzos.upgradeall.core.utils.coroutines.toCoroutinesMutableList
+import net.xzos.upgradeall.websdk.data.json.AppConfigGson
+import net.xzos.upgradeall.websdk.data.json.HubConfigGson
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
