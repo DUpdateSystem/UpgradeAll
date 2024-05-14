@@ -46,6 +46,11 @@ android {
             minifyEnabled false
             manifestPlaceholders = [enableCrashReporting: "false", appName: "UpgradeAll-β"]
             applicationIdSuffix ".debug"
+            packaging {
+                jniLibs {
+                    keepDebugSymbols += "**/*.so"
+                }
+            }
         }
     }
     android.applicationVariants.configureEach { variant ->

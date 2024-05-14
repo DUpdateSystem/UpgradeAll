@@ -21,12 +21,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-
-        debug {
-            packagingOptions {
-                doNotStrip "**/*.so"
-            }
-        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -44,7 +38,7 @@ cargo {
             "arm",
             "arm64"
     ]
-    profile = 'release'
+    profile = 'debug'
     libname = "api_proxy"
 
     features {

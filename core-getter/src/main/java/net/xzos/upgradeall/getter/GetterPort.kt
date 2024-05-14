@@ -89,9 +89,14 @@ class GetterPort(private val config: RustConfig) {
         return try {
             service.getAppReleases(hubUuid, appData, hubData)
                 .also { Log.d("GetterPort", "getAppReleases: $it") }
-        }catch (e: Throwable){
+        } catch (e: Throwable) {
             Log.e("GetterPort", "getAppReleases: $e")
             null
         }
+    }
+
+    fun shutdownService() {
+        if (!init()) return
+        service.shutdown()
     }
 }

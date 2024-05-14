@@ -32,4 +32,7 @@ interface GetterService {
         @JsonRpcParam(value = "app_data") appData: Map<String, String>,
         @JsonRpcParam(value = "hub_data") hubData: Map<String, String>,
     ): List<ReleaseGson>
+
+    @JsonRpcMethod("shutdown")
+    fun shutdown()
 }
