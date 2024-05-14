@@ -57,8 +57,14 @@ jobs:
         run: |
           echo VERSION=$(git rev-parse --short HEAD) >> $GITHUB_ENV
 
-      - name: Build with Gradle
-        run: ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease assembleDebug
+      # Split due https://github.com/mozilla/rust-android-gradle/issues/38
+      - name: Build with Gradle (release)
+        run: ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+
+      - name: Build with Gradle (debug)
+        run: ./gradlew -PappVerName=${{ env.VERSION }} assembleDebug
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
 
