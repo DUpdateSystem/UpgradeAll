@@ -38,7 +38,7 @@ cargo {
             "arm",
             "arm64"
     ]
-    profile = 'debug'
+    profile = gradle.startParameter.taskNames.any{it.toLowerCase().contains("debug")} ? "debug" : "release"
     libname = "api_proxy"
 
     features {

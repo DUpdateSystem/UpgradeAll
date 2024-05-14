@@ -86,17 +86,11 @@ class GetterPort(private val config: RustConfig) {
         hubUuid: String, appData: Map<String, String>, hubData: Map<String, String>
     ): List<ReleaseGson>? {
         if (!init()) return null
-        return try {
-            service.getAppReleases(hubUuid, appData, hubData)
-                .also { Log.d("GetterPort", "getAppReleases: $it") }
-        } catch (e: Throwable) {
-            Log.e("GetterPort", "getAppReleases: $e")
-            null
-        }
+        return service.getAppReleases(hubUuid, appData, hubData)
+            .also { Log.d("GetterPort", "getAppReleases: $it") }
     }
 
     fun shutdownService() {
-        if (!init()) return
         service.shutdown()
     }
 }
