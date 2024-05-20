@@ -56,7 +56,7 @@
     <string name="custom_language">Lenguaje personalizado</string>
     <string name="shell">Comando SHELL</string>
     <string name="restore_from_webdav">Restaurar desde WebDAV</string>
-    <string name="restore_running">Restaurar</string>
+    <string name="restore_running">Restaurarando</string>
     <string name="system_installer">Instalador del sistema</string>
     <string name="more_url">Más URL</string>
     <string name="ok">De acuerdo</string>
@@ -149,7 +149,7 @@
     <string name="hub_tooltip_priority">Prioridad</string>
     <string name="version_number">Nombre de la versión</string>
     <string name="waiting">En espera</string>
-    <string name="downloading">Descargar</string>
+    <string name="downloading">Descargando</string>
     <string name="paused">En pausa</string>
     <string name="retry">Reintentar</string>
     <string name="attr_list">Lista de atributos</string>
