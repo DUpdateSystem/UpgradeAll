@@ -33,12 +33,14 @@ class GetterPort(private val config: RustConfig) {
     }
 
     suspend fun waitService(): Boolean {
-        return runBlocking {
-            while (!isServiceRunning()) {
-                delay(1000L)
-            }
-            return@runBlocking isServiceRunning()
+        while (true) {
+            if (isServiceRunning().apply {
+                    Log.d("GetterPort", "waitService: isServiceRunning $this")
+                }
+            ) break
+            delay(1000L)
         }
+        return isServiceRunning()
     }
 
     private fun initService(url: String) {
@@ -49,6 +51,18 @@ class GetterPort(private val config: RustConfig) {
             GetterService::class.java,
             client
         )
+    }
+
+    fun ping(): Boolean {
+        if (!init()) return false
+        return try {
+            service.ping()
+                .also { Log.d("GetterPort", "ping: $it") }
+                .isNotEmpty()
+        } catch (e: Exception) {
+            Log.e("GetterPort", "ping: $e")
+            false
+        }
     }
 
     fun init(): Boolean {

@@ -16,6 +16,17 @@ import kotlinx.coroutines.sync.withLock
 lateinit var GETTER_PORT: GetterPort
 private val mutex = Mutex()
 
+suspend fun runGetterServer(getterPort: GetterPort) {
+    GETTER_PORT = getterPort
+    GETTER_PORT.runService()
+}
+
+suspend fun waitGetterServer() {
+    while (!GETTER_PORT.waitService()) {
+        delay(1000L)
+    }
+}
+
 suspend fun runGetterWorker(context: Context, getterPort: GetterPort) {
     GETTER_PORT = getterPort
     val workRequest: WorkRequest =

@@ -5,6 +5,9 @@ import com.googlecode.jsonrpc4j.JsonRpcParam
 import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 interface GetterService {
+    @JsonRpcMethod("ping")
+    fun ping(): String
+
     @JsonRpcMethod("init")
     fun init(
         @JsonRpcParam(value = "data_path") dataPath: String,

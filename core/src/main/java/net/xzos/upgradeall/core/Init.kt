@@ -2,8 +2,10 @@ package net.xzos.upgradeall.core
 
 import android.annotation.SuppressLint
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.data.CoreConfig
 import net.xzos.upgradeall.core.database.initDatabase
 import net.xzos.upgradeall.core.manager.AppManager
@@ -13,6 +15,7 @@ import net.xzos.upgradeall.core.websdk.initRustSdkApi
 import net.xzos.upgradeall.core.websdk.initSdkCache
 import net.xzos.upgradeall.core.websdk.renewSdkApi
 import net.xzos.upgradeall.core.websdk.runGetterService
+import net.xzos.upgradeall.core.websdk.waitGetterService
 
 
 @SuppressLint("StaticFieldLeak")
@@ -34,8 +37,11 @@ fun initCore(
         _coreConfig.rust_cache_dir,
         _coreConfig.data_expiration_time.toLong(),
     )
-    GlobalScope.launch {
+    GlobalScope.launch(Dispatchers.IO) {
         runGetterService(context)
+    }
+    runBlocking(Dispatchers.IO) {
+        waitGetterService()
     }
     renewSdkApi(_coreConfig.update_server_url)
     initObject(context)
