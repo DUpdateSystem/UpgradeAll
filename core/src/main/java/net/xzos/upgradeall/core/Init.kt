@@ -5,7 +5,6 @@ import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.data.CoreConfig
 import net.xzos.upgradeall.core.database.initDatabase
 import net.xzos.upgradeall.core.manager.AppManager
@@ -15,8 +14,6 @@ import net.xzos.upgradeall.core.websdk.initRustSdkApi
 import net.xzos.upgradeall.core.websdk.initSdkCache
 import net.xzos.upgradeall.core.websdk.renewSdkApi
 import net.xzos.upgradeall.core.websdk.runGetterService
-import net.xzos.upgradeall.core.websdk.shutdownGetterService
-import net.xzos.upgradeall.core.websdk.waitGetterService
 
 
 @SuppressLint("StaticFieldLeak")
@@ -39,7 +36,7 @@ fun initCore(
         _coreConfig.data_expiration_time.toLong(),
     )
     GlobalScope.launch(Dispatchers.IO) {
-        runGetterService(context)
+        runGetterService()
     }
     renewSdkApi(_coreConfig.update_server_url)
     initObject(context)
@@ -52,10 +49,4 @@ private fun initObject(context: Context) {
     initDatabase(context)
     HubManager
     AppManager.initObject(context)
-}
-
-fun stopCore() {
-    runBlocking(Dispatchers.IO) {
-        shutdownGetterService()
-    }
 }

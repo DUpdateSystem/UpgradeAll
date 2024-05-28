@@ -13,7 +13,7 @@ import java.net.URL
 
 class GetterPort(private val config: RustConfig) {
     private lateinit var service: GetterService
-    private val mutex = Mutex(true)
+    private val mutex = Mutex()
     private var isInit = false
 
     fun runService() {
@@ -40,7 +40,6 @@ class GetterPort(private val config: RustConfig) {
             ) break
             delay(1000L)
         }
-        mutex.unlock()
         return isServiceRunning()
     }
 
@@ -69,6 +68,7 @@ class GetterPort(private val config: RustConfig) {
     fun init(): Boolean {
         return runBlocking {
             return@runBlocking mutex.withLock {
+                runBlocking { waitService() }
                 if (isInit) return@withLock true
                 val dataPath = config.dataDir.toString()
                 val cachePath = config.cacheDir.toString()
@@ -104,8 +104,7 @@ class GetterPort(private val config: RustConfig) {
             .also { Log.d("GetterPort", "getAppReleases: $it") }
     }
 
-    suspend fun shutdownService() {
+    fun shutdownService() {
         service.shutdown()
-        mutex.lock()
     }
 }

@@ -1,14 +1,12 @@
 package net.xzos.upgradeall.core.websdk
 
-import android.content.Context
 import net.xzos.upgradeall.core.utils.data_cache.CacheConfig
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.websdk.api.ServerApi
 import net.xzos.upgradeall.core.websdk.api.ServerApiProxy
 import net.xzos.upgradeall.getter.GetterPort
 import net.xzos.upgradeall.getter.RustConfig
-import net.xzos.upgradeall.getter.runGetterWorker
-import net.xzos.upgradeall.getter.waitGetterServer
+import net.xzos.upgradeall.getter.runGetterServer
 import java.io.File
 
 class Data(
@@ -31,15 +29,9 @@ fun initRustSdkApi(dataDir: File, cacheDir: File, globalExpireTime: Long) {
     }
 }
 
-suspend fun runGetterService(context: Context) {
-    runGetterWorker(context, getterPort)
+suspend fun runGetterService() {
+    runGetterServer(getterPort)
     getterPort.init()
-}
-
-suspend fun waitGetterService() = waitGetterServer()
-
-suspend fun shutdownGetterService() {
-    getterPort.shutdownService()
 }
 
 fun renewSdkApi(host: String) {

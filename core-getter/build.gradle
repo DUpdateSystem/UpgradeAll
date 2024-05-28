@@ -56,9 +56,6 @@ dependencies {
     // JSON RPC
     implementation 'com.github.briandilley.jsonrpc4j:jsonrpc4j:1.6'
     implementation project(":core-websdk:data")
-
-    // Worker
-    implementation "androidx.work:work-runtime-ktx:$work_version"
 }
 
 tasks.matching { it.name.matches(/merge.*JniLibFolders/) }.configureEach {
