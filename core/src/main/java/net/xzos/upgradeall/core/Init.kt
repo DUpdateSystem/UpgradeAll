@@ -15,6 +15,7 @@ import net.xzos.upgradeall.core.websdk.initRustSdkApi
 import net.xzos.upgradeall.core.websdk.initSdkCache
 import net.xzos.upgradeall.core.websdk.renewSdkApi
 import net.xzos.upgradeall.core.websdk.runGetterService
+import net.xzos.upgradeall.core.websdk.shutdownGetterService
 import net.xzos.upgradeall.core.websdk.waitGetterService
 
 
@@ -40,9 +41,6 @@ fun initCore(
     GlobalScope.launch(Dispatchers.IO) {
         runGetterService(context)
     }
-    runBlocking(Dispatchers.IO) {
-        waitGetterService()
-    }
     renewSdkApi(_coreConfig.update_server_url)
     initObject(context)
 }
@@ -54,4 +52,10 @@ private fun initObject(context: Context) {
     initDatabase(context)
     HubManager
     AppManager.initObject(context)
+}
+
+fun stopCore() {
+    runBlocking(Dispatchers.IO) {
+        shutdownGetterService()
+    }
 }

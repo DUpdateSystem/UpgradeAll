@@ -7,7 +7,8 @@ import net.xzos.upgradeall.core.websdk.api.ServerApi
 import net.xzos.upgradeall.core.websdk.api.ServerApiProxy
 import net.xzos.upgradeall.getter.GetterPort
 import net.xzos.upgradeall.getter.RustConfig
-import net.xzos.upgradeall.getter.runGetterServer
+import net.xzos.upgradeall.getter.runGetterWorker
+import net.xzos.upgradeall.getter.waitGetterServer
 import java.io.File
 
 class Data(
@@ -31,11 +32,15 @@ fun initRustSdkApi(dataDir: File, cacheDir: File, globalExpireTime: Long) {
 }
 
 suspend fun runGetterService(context: Context) {
-    runGetterServer(getterPort)
+    runGetterWorker(context, getterPort)
     getterPort.init()
 }
 
-suspend fun waitGetterService() = getterPort.waitService()
+suspend fun waitGetterService() = waitGetterServer()
+
+suspend fun shutdownGetterService() {
+    getterPort.shutdownService()
+}
 
 fun renewSdkApi(host: String) {
     with(data) {

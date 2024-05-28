@@ -5,6 +5,7 @@ import kotlinx.coroutines.launch
 import net.xzos.upgradeall.app.backup.initBackupContext
 import net.xzos.upgradeall.core.androidutils.initCoreContext
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
+import net.xzos.upgradeall.core.stopCore
 import net.xzos.upgradeall.data.PreferencesMap
 import net.xzos.upgradeall.utils.egg.egg
 import net.xzos.upgradeall.utils.file.refreshDataAndStatus
@@ -15,6 +16,10 @@ fun initCore() {
     PreferencesMap.sync()
     GlobalScope.launch { renewData() }
     egg()
+}
+
+fun shutdownCore() {
+    stopCore()
 }
 
 private fun initObject() {

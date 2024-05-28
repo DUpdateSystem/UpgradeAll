@@ -8,7 +8,6 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -22,9 +21,7 @@ suspend fun runGetterServer(getterPort: GetterPort) {
 }
 
 suspend fun waitGetterServer() {
-    while (!GETTER_PORT.waitService()) {
-        delay(1000L)
-    }
+    GETTER_PORT.waitService()
 }
 
 suspend fun runGetterWorker(context: Context, getterPort: GetterPort) {
@@ -36,9 +33,7 @@ suspend fun runGetterWorker(context: Context, getterPort: GetterPort) {
     WorkManager
         .getInstance(context)
         .enqueue(workRequest)
-    while (!GETTER_PORT.waitService()) {
-        delay(1000L)
-    }
+    waitGetterServer()
 }
 
 class GetterWorker(appContext: Context, workerParams: WorkerParameters) :
@@ -53,5 +48,15 @@ class GetterWorker(appContext: Context, workerParams: WorkerParameters) :
             }
         }
         return Result.success()
+    }
+
+    override fun onStopped() {
+        runBlocking {
+            mutex.withLock {
+                Log.d("GetterWorker", "onStopped(${id}): start")
+                GETTER_PORT.shutdownService()
+                Log.d("GetterWorker", "onStopped(${id}): stopped")
+            }
+        }
     }
 }
