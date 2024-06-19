@@ -9,10 +9,10 @@ import com.google.gson.annotations.SerializedName
  */
 data class CloudConfigList(
     @SerializedName("app_config_list")
-    @JsonProperty("app_list")
+    @JsonProperty("app_config_list")
     val appList: List<AppConfigGson> = listOf(),
     @SerializedName("hub_config_list")
-    @JsonProperty("hub_list")
+    @JsonProperty("hub_config_list")
     val hubList: List<HubConfigGson> = listOf()
 )
 

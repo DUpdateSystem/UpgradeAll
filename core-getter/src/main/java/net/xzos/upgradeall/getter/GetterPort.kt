@@ -7,6 +7,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.xzos.upgradeall.websdk.data.json.CloudConfigList
 import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 import java.net.URL
 
@@ -80,6 +81,10 @@ class GetterPort(private val config: RustConfig) {
         }
     }
 
+    fun shutdownService() {
+        service.shutdown()
+    }
+
     fun checkAppAvailable(
         hubUuid: String, appData: Map<String, String>, hubData: Map<String, String>
     ): Boolean? {
@@ -104,7 +109,9 @@ class GetterPort(private val config: RustConfig) {
             .also { Log.d("GetterPort", "getAppReleases: $it") }
     }
 
-    fun shutdownService() {
-        service.shutdown()
+    fun getCloudConfig(apiUrl: String): CloudConfigList? {
+        if (!init()) return null
+        return service.getCloudConfig(apiUrl)
+            .also { Log.d("GetterPort", "getCloudConfig: $it") }
     }
 }

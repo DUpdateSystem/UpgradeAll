@@ -6,7 +6,6 @@ import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.core.websdk.api.BaseApi
-import net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config.CloudConfig
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.BaseHub
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.CoolApk
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.GooglePlay
@@ -22,7 +21,6 @@ import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
     private val okhttpProxy = OkhttpProxy()
-    private val cloudConfig = CloudConfig(okhttpProxy)
 
     private val hubMap: Map<String, BaseHub> = listOf(
         CoolApk(dataCache, okhttpProxy),
@@ -32,7 +30,7 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
 
     override fun getCloudConfig(url: String): CloudConfigList? {
         return try {
-            cloudConfig.getCloudConfig(url)
+            getterPort.getCloudConfig(url)
         } catch (e: Throwable) {
             Log.e(logObjectTag, TAG, e.stackTraceToString())
             null

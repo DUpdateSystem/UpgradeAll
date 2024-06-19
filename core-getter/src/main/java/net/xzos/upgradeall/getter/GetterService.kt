@@ -2,6 +2,7 @@ package net.xzos.upgradeall.getter
 
 import com.googlecode.jsonrpc4j.JsonRpcMethod
 import com.googlecode.jsonrpc4j.JsonRpcParam
+import net.xzos.upgradeall.websdk.data.json.CloudConfigList
 import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 interface GetterService {
@@ -14,6 +15,9 @@ interface GetterService {
         @JsonRpcParam(value = "cache_path") cachePath: String,
         @JsonRpcParam(value = "global_expire_time") globalExpireTime: Long
     ): Boolean
+
+    @JsonRpcMethod("shutdown")
+    fun shutdown()
 
     @JsonRpcMethod("check_app_available")
     fun checkAppAvailable(
@@ -36,6 +40,8 @@ interface GetterService {
         @JsonRpcParam(value = "hub_data") hubData: Map<String, String>,
     ): List<ReleaseGson>
 
-    @JsonRpcMethod("shutdown")
-    fun shutdown()
+    @JsonRpcMethod("get_cloud_config")
+    fun getCloudConfig(
+        @JsonRpcParam(value = "url") url: String
+    ): CloudConfigList
 }

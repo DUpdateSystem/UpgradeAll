@@ -21,7 +21,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "int", "SHIZUKU_VERSION_CODE", "1"
         }
-        debug{
+        debug {
             buildConfigField "int", "SHIZUKU_VERSION_CODE", "1"
         }
     }
