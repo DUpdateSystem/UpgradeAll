@@ -9,15 +9,15 @@
     <string name="magisk_module">Magisk 模块</string>
     <string name="app_hub">软件源</string>
     <string name="name">名称</string>
-    <string name="basic_info">基础信息</string>
+    <string name="basic_info">基本信息</string>
     <string name="versioning_check_setting">版本控制设置</string>
     <string name="delete">删除</string>
     <string name="edit">编辑</string>
-    <string name="background_sync_time">后台数据刷新时间(h)</string>
+    <string name="background_sync_time">后台数据刷新时间（小时）</string>
     <string name="background_sync_time_desc">软件在后台检查更新的间隔。
 \n若值设为0，则禁用后台更新检查。</string>
     <string name="cloud_rules_repo_url">Git 仓库地址</string>
-    <string name="update_server_url">升级服务 URL</string>
+    <string name="update_server_url">更新服务器 URL</string>
     <string name="menu_search">搜索</string>
     <string name="menu_search_hint">搜索…</string>
     <string name="download">下载</string>
@@ -133,7 +133,7 @@
     <!-- APP Detail-->
     <string name="version_number">版本号</string>
     <string name="waiting">等待中</string>
-    <string name="queued">队列中</string>
+    <string name="queued">排队中</string>
     <string name="downloading">下载中</string>
     <string name="paused">暂停中</string>
     <string name="retry">重试</string>
