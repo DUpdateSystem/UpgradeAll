@@ -80,7 +80,7 @@ class MainActivity : BaseActivity() {
         }
         val moduleList: MutableList<HomeModuleBean> =
             PreferencesMap.home_bottom_queue.mapNotNull { idToBean(it) }.toMutableList()
-        if (!PreferencesMap.enable_simple_bottom_main) {
+        if (!PreferencesMap.enable_simple_button_main) {
             moduleList.addAll(listOf(
                 HomeModuleNonCardBean(R.drawable.ic_home_log, R.string.home_log) {
                     startActivity(Intent(this, LogActivity::class.java))

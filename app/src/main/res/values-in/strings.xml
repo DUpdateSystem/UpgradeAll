@@ -100,7 +100,7 @@
     <string name="backup_to_webdav">Cadangkan ke WebDAV</string>
     <string name="ui">UI (Tampilan)</string>
     <string name="language">Bahasa</string>
-    <string name="enable_simple_bottom_main">Tombol Sederhana di Beranda</string>
+    <string name="enable_simple_button_main">Tombol Sederhana di Beranda</string>
     <string name="custom_language">Bahasa Pilihan</string>
     <string name="follow_server_config">Ikuti Konfigurasi Server</string>
     <string name="hub_tooltip_priority">Prioritas</string>

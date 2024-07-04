@@ -92,7 +92,7 @@
     <string name="backup_stop">Cópia de segurança concluída</string>
     <string name="dialog_title_select_download_item">Por favor selecione o item</string>
     <string name="ui">Interface do usuário</string>
-    <string name="enable_simple_bottom_main">mostrar o fundo simples na página principal</string>
+    <string name="enable_simple_button_main">mostrar o fundo simples na página principal</string>
     <string name="language">Idioma</string>
     <string name="custom_language">Idioma personalizado</string>
     <string name="follow_server_config">Siga a configuração do servidor</string>

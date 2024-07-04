@@ -92,7 +92,7 @@
     <string name="backup_stop">备份完成</string>
     <string name="dialog_title_select_download_item">选择下载项</string>
     <string name="ui">界面</string>
-    <string name="enable_simple_bottom_main">在主页以简略图标显示按钮</string>
+    <string name="enable_simple_button_main">在主页以简略图标显示按钮</string>
     <string name="language">语言</string>
     <string name="custom_language">自定义语言</string>
     <string name="follow_server_config">跟随服务器配置</string>
