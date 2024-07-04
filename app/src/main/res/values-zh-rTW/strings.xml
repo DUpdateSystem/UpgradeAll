@@ -9,15 +9,15 @@
     <string name="magisk_module">Magisk 模組</string>
     <string name="app_hub">軟體來源</string>
     <string name="name">名稱</string>
-    <string name="basic_info">基礎資訊</string>
+    <string name="basic_info">基本資訊</string>
     <string name="versioning_check_setting">版本控制設定</string>
     <string name="delete">刪除</string>
     <string name="edit">編輯</string>
-    <string name="background_sync_time">背景同步頻率（小時）</string>
-    <string name="background_sync_time_desc">背景更新檢查的時間間隔。
+    <string name="background_sync_time">後台同步頻率（小時）</string>
+    <string name="background_sync_time_desc">後台更新檢查的時間間隔。
 \n設為 0 則停用。</string>
     <string name="cloud_rules_repo_url">Git 倉庫地址</string>
-    <string name="update_server_url">升級服務 URL</string>
+    <string name="update_server_url">更新伺服器 URL</string>
     <string name="menu_search">搜尋</string>
     <string name="menu_search_hint">搜尋…</string>
     <string name="download">下載</string>
@@ -71,7 +71,7 @@
     <string name="save_file_failed">檔案儲存失敗</string>
     <string name="select_browser">請選擇瀏覽器以開啟網頁</string>
     <string name="system_browser_error">你可能遇到了一個系統錯誤，正在嘗試呼叫其他方法開啟</string>
-    <string name="please_input_custom_url">請輸入自定義網址</string>
+    <string name="please_input_custom_url">請輸入自訂網址</string>
     <string name="same_as_server_config">跟隨伺服器設定</string>
     <string name="ignore_version">標記目前版本號</string>
     <string name="remove_ignore_version">取消標記該追蹤專案的目前版本號</string>
@@ -94,9 +94,9 @@
     <string name="ui">介面</string>
     <string name="enable_simple_button_main">在主頁以簡略圖示顯示按鈕</string>
     <string name="language">語言</string>
-    <string name="custom_language">自定義語言</string>
+    <string name="custom_language">自訂語言</string>
     <string name="follow_server_config">跟隨伺服器設定</string>
-    <string name="custom">自定義</string>
+    <string name="custom">自訂</string>
     <string name="system_installer">系統預設安裝器</string>
     <string name="plz_restart">請重啟應用程式</string>
     <string name="download_auto_retry_max_attempts">下載任務重試次數</string>
@@ -133,7 +133,7 @@
     <!-- APP Detail-->
     <string name="version_number">版本號</string>
     <string name="waiting">等待中</string>
-    <string name="queued">隊列中</string>
+    <string name="queued">排隊中</string>
     <string name="downloading">下載中</string>
     <string name="paused">暫停中</string>
     <string name="retry">重試</string>
@@ -154,7 +154,7 @@
     <string name="helper_text_cant_be_empty">不能為空</string>
     <string name="helper_text_attr_cant_be_empty">屬性列表不能為空</string>
     <string name="updating_setting">更新設定</string>
-    <string name="custom_invalid_version_number_field_regex">自定義無效版本號欄位的正規表示式</string>
+    <string name="custom_invalid_version_number_field_regex">自訂無效版本號欄位的正規表示式</string>
     <!-- File Manager -->
     <string name="pause">暫停</string>
     <string name="Continue">繼續</string>
@@ -162,7 +162,7 @@
     <string name="open_file">開啟檔案</string>
     <string name="drag">拖動</string>
     <!-- UI Setting -->
-    <string name="home_bottom_queue_setting">自定義主頁按鈕列表</string>
+    <string name="home_bottom_queue_setting">自訂主頁按鈕列表</string>
     <!-- UI Setting -->
     <string name="applications_setting">應用程式市場設定</string>
     <string name="ignore_system_app">忽略系統應用程式</string>
