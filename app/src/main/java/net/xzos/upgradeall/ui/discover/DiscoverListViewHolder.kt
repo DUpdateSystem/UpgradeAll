@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.ui.discover
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.google.android.material.chip.Chip
@@ -28,7 +29,7 @@ class DiscoverListViewHolder(private val binding: ItemDiscoverAppBinding)
                     R.string.magisk_module -> R.drawable.ic_home_magisk_module
                     R.string.shell -> R.drawable.ic_type_shell
                     R.string.shell_root -> R.drawable.ic_type_shell
-                    else -> 0
+                    else -> R.drawable.ic_url
                 }
                 setChipIconResource(iconRes)
             }

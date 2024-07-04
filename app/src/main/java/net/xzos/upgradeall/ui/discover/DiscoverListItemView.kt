@@ -3,6 +3,7 @@ package net.xzos.upgradeall.ui.discover
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.View
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R
@@ -43,7 +44,7 @@ class DiscoverListItemView(
             val name = appConfig.info.name
             val appUuid = appConfig.uuid
             val appId = appConfig.getAppId()
-            val packageId = appId?.getPackageId() ?: Pair("", "")
+            val packageId = appId?.getPackageId() ?: Pair(null, null)
             val type: Int = when (packageId.first) {
                 ANDROID_APP_TYPE -> R.string.android_app
                 ANDROID_MAGISK_MODULE_TYPE -> R.string.magisk_module
@@ -54,7 +55,7 @@ class DiscoverListItemView(
             val hubUuid = appConfig.baseHubUuid
             val hubName = CloudConfigGetter.getHubCloudConfig(hubUuid)?.info?.hubName ?: ""
             return DiscoverListItemView(name, type, hubName, appUuid).apply {
-                packageId.second.also { if (it.isNotBlank()) renewAppIcon(it, context) }
+                packageId.second.also { if (!it.isNullOrBlank()) renewAppIcon(it, context) }
             }
         }
     }
