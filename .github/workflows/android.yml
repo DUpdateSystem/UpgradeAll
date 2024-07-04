@@ -58,13 +58,14 @@ jobs:
           echo VERSION=$(git rev-parse --short HEAD) >> $GITHUB_ENV
 
       # Split due https://github.com/mozilla/rust-android-gradle/issues/38
-      - name: Build with Gradle (release)
-        run: ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease
+      - name: Build with Gradle (debug)
+        run: ./gradlew -PappVerName=${{ env.VERSION }} assembleDebug
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
 
-      - name: Build with Gradle (debug)
-        run: ./gradlew -PappVerName=${{ env.VERSION }} assembleDebug
+      - name: Build with Gradle (release)
+        if: ${{ !github.event.pull_request }}
+        run: ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
 
@@ -110,6 +111,7 @@ jobs:
 #          token: ${{secrets.APP_CENTER_TOKEN}}
 
       - name: Find debug APK
+        if: ${{ !github.event.pull_request }}
         run: |
           if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
             OUTPUT="app/build/outputs/apk/debug/"
@@ -118,6 +120,7 @@ jobs:
           fi
 
       - name: Generate Commit Message
+        if: ${{ !github.event.pull_request }}
         run: |
           COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
           AUTHOR_NAME=$(git log -1 --pretty=format:%an)
