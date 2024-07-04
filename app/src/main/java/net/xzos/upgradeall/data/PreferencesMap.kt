@@ -134,9 +134,9 @@ object PreferencesMap {
         }
 
     //UI
-    private const val ENABLE_SIMPLE_BOTTOM_MAIN = "enable_simple_bottom_main"
-    val enable_simple_bottom_main
-        get() = prefs.getBoolean(ENABLE_SIMPLE_BOTTOM_MAIN, false)
+    private const val ENABLE_SIMPLE_BUTTON_MAIN = "enable_simple_button_main"
+    val enable_simple_button_main
+        get() = prefs.getBoolean(ENABLE_SIMPLE_BUTTON_MAIN, false)
 
     private const val HOME_BOTTOM_QUEUE_CUSTOM_KEY = "HOME_BOTTOM_LIST"
     private var home_bottom_queue_string: String?

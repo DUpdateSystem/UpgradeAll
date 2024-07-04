@@ -65,7 +65,7 @@
     <string name="backup_to_file">Copia de seguridad en archivo</string>
     <string name="backup_to_webdav">Copia de seguridad en WebDAV</string>
     <string name="auto_update_hub_config_desc">Verifique el repositorio de suscripción de reglas para las configuraciones de Hub y sincronice automáticamente al ingresar a la página de App Hub</string>
-    <string name="enable_simple_bottom_main">Botones simples en la página de inicio</string>
+    <string name="enable_simple_button_main">Botones simples en la página de inicio</string>
     <string name="plz_restart">Reinicie la aplicación</string>
     <string name="restore_from_file">Restaurar desde archivo</string>
     <string name="home_settings">Config</string>

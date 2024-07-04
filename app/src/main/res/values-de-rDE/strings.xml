@@ -92,7 +92,7 @@
     <string name="backup_stop">Sicherung abgeschlossen</string>
     <string name="dialog_title_select_download_item">Bitte einen Eintrag auswählen</string>
     <string name="ui">Benutzeroberfläche</string>
-    <string name="enable_simple_bottom_main">zeigen einfache untere Seite auf der Startseite</string>
+    <string name="enable_simple_button_main">zeigen einfache untere Seite auf der Startseite</string>
     <string name="language">Sprache</string>
     <string name="custom_language">Benutzerdefinierte Sprache</string>
     <string name="follow_server_config">Server-Konfiguration folgen</string>
