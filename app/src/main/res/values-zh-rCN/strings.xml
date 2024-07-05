@@ -29,7 +29,7 @@
     <string name="install_apk_api">APK 文件安装方式</string>
     <string name="user_download_path">用户下载位置</string>
     <string name="download_thread_num">下载线程数</string>
-    <string name="download_max_task_num">最大下载队列数</string>
+    <string name="download_max_task_num">最大下载任务数</string>
     <string name="clean_download_dir">清除下载文件</string>
     <string name="clean_download_dir_desc">删除软件的下载缓存目录及该目录下的文件。</string>
     <string name="auto_delete_file">安装完成后自动删除文件</string>
