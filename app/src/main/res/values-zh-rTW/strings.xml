@@ -28,8 +28,8 @@
     <string name="installing">安裝中：</string>
     <string name="install_apk_api">APK 檔案安裝方式</string>
     <string name="user_download_path">使用者下載位置</string>
-    <string name="download_thread_num">下載執行緒數</string>
-    <string name="download_max_task_num">最大下載佇列數</string>
+    <string name="download_thread_num">同時下載</string>
+    <string name="download_max_task_num">最大下載任務數</string>
     <string name="clean_download_dir">清除下載檔案</string>
     <string name="clean_download_dir_desc">清除含有檔案的快取下載資料夾。</string>
     <string name="auto_delete_file">安裝完成後自動刪除檔案</string>
