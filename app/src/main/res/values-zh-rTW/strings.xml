@@ -22,7 +22,7 @@
     <string name="menu_search_hint">搜尋…</string>
     <string name="download">下載</string>
     <string name="install">安裝</string>
-    <string name="install_success">安裝成功</string>
+    <string name="install_success">安裝已成功</string>
     <string name="install_failed">安裝失敗</string>
     <string name="auto_install">自動安裝</string>
     <string name="installing">安裝中：</string>
