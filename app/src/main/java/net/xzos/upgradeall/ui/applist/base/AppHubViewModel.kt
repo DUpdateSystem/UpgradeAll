@@ -17,6 +17,7 @@ import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.ADD
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.CHANGE
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter.Companion.DEL
 import net.xzos.upgradeall.ui.data.livedata.AppViewModel
+import net.xzos.upgradeall.wrapper.core.switchIgnoreStatus
 import net.xzos.upgradeall.wrapper.core.upgrade
 
 
@@ -138,5 +139,12 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
                 }
             }
         }
+    }
+
+    fun ignoreAll() {
+        getLiveData().value?.first?.map { app ->
+            app.latestVersion?.switchIgnoreStatus(app)
+        }
+        loadData()
     }
 }

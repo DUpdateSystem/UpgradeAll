@@ -33,7 +33,10 @@ class UpdateAppHubListFragment :
         rootBinding.tvUpdateAll.setOnClickListener {
             viewModel.upgradeAll(it.context)
         }
-            rootBinding.fragmentHubList.listLayout.run {
+        rootBinding.tvIgnoreAll.setOnClickListener {
+            viewModel.ignoreAll()
+        }
+        rootBinding.fragmentHubList.listLayout.run {
             initView(rvList, srlContainer)
         }
         return rootBinding.root
