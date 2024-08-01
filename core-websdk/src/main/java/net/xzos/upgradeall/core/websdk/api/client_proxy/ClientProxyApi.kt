@@ -9,7 +9,6 @@ import net.xzos.upgradeall.core.websdk.api.BaseApi
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.BaseHub
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.CoolApk
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.GooglePlay
-import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.LsposedRepo
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
@@ -24,7 +23,6 @@ internal class ClientProxyApi(dataCache: DataCacheManager) : BaseApi {
 
     private val hubMap: Map<String, BaseHub> = listOf(
         CoolApk(dataCache, okhttpProxy),
-        LsposedRepo(dataCache, okhttpProxy),
         GooglePlay(dataCache, okhttpProxy),
     ).associateBy({ it.uuid }, { it })
 
