@@ -38,17 +38,17 @@ dependencies {
 
     implementation "androidx.core:core-ktx:$android_ktx_version"
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
     // gson
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.google.code.gson:gson:2.11.0'
 
     // OkHttp
     api 'com.squareup.okhttp3:okhttp:5.0.0-alpha.14'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:5.0.0-alpha.14'
     // markdown support
-    implementation 'org.jetbrains:markdown:0.7.2'
+    implementation 'org.jetbrains:markdown:0.7.3'
     // google play support
     implementation 'com.aurora:gplayapi:3.2.11'
     // BCrypt, for coolapk
