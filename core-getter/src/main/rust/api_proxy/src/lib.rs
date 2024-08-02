@@ -1,6 +1,7 @@
 extern crate jni;
 
 use getter::rpc::server::run_server_hanging;
+#[cfg(target_os = "android")]
 use getter::rustls_platform_verifier;
 use jni::objects::{JClass, JObject, JString, JValue};
 use jni::JNIEnv;
@@ -9,14 +10,15 @@ use std::thread;
 
 #[no_mangle]
 pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
-    mut env: JNIEnv<'local>,
+    env: JNIEnv<'local>,
     _: JClass<'local>,
-    context: JObject,
+    _context: JObject,
     callback: JObject<'local>,
 ) -> JString<'local> {
     // Initialize the certificate verifier for future use.
     // https://github.com/rustls/rustls-platform-verifier/tree/3edb4d278215a8603020351b8b519d907a26041f?tab=readme-ov-file#crate-initialization
-    match rustls_platform_verifier::android::init_hosted(&env, context) {
+    #[cfg(target_os = "android")]
+    match rustls_platform_verifier::android::init_hosted(&env, _context) {
         Ok(_) => {}
         Err(e) => {
             return env
