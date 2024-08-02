@@ -175,9 +175,9 @@ dependencies {
     // NO FREE
     if (!project.hasProperty('free')) {
         // Firebase
-        implementation 'com.google.firebase:firebase-perf:20.5.2'
-        implementation 'com.google.firebase:firebase-analytics:21.6.1'
-        implementation 'com.google.firebase:firebase-crashlytics:18.6.3'
+        implementation 'com.google.firebase:firebase-perf:21.0.1'
+        implementation 'com.google.firebase:firebase-analytics:22.0.2'
+        implementation 'com.google.firebase:firebase-crashlytics:19.0.3'
     }
     //Protobuf
     implementation 'com.google.protobuf:protobuf-java:4.27.3'
