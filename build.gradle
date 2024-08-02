@@ -54,6 +54,7 @@ allprojects {
         // For https://gitlab.com/AuroraOSS/gplayapi
         maven { url "https://gitlab.com/api/v4/projects/18497829/packages/maven"}
         // Getter Rust TLS
+        // Due https://stackoverflow.com/questions/75904120/how-can-i-use-repositories-in-my-android-modules-build-gradle-not-in-top-level
         maven {
             url = findRustlsPlatformVerifierProject()
             metadataSources.artifact()
