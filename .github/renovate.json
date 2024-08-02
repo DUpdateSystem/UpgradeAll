@@ -6,5 +6,11 @@
       "config:base",
       ":gitSignOff"
     ],
-    "groupName": "all"
+    "groupName": "all",
+    "packageRules": [
+      {
+        "matchPackageNames": ["jni"],
+        "enabled": false
+      }
+    ]
   }
