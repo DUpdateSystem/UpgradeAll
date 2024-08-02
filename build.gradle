@@ -33,6 +33,19 @@ plugins {
     id 'com.google.devtools.ksp' version '1.9.23-1.0.20' apply false
 }
 
+import groovy.json.JsonSlurper
+String findRustlsPlatformVerifierProject() {
+    var PATH_TO_DEPENDENT_CRATE = "./core-getter/src/main/rust/api_proxy"
+    def dependencyText = providers.exec {
+        // print now working directory
+        commandLine("cargo", "metadata", "--format-version", "1", "--manifest-path", "$PATH_TO_DEPENDENT_CRATE/Cargo.toml")
+    }.standardOutput.asText.get()
+
+    def dependencyJson = new JsonSlurper().parseText(dependencyText)
+    def manifestPath = file(dependencyJson.packages.find { it.name == "rustls-platform-verifier-android" }.manifest_path)
+    return new File(manifestPath.parentFile, "maven").path
+}
+
 allprojects {
     repositories {
         google()
@@ -40,6 +53,11 @@ allprojects {
         maven { url "https://jitpack.io" }
         // For https://gitlab.com/AuroraOSS/gplayapi
         maven { url "https://gitlab.com/api/v4/projects/18497829/packages/maven"}
+        // Getter Rust TLS
+        maven {
+            url = findRustlsPlatformVerifierProject()
+            metadataSources.artifact()
+        }
     }
 }
 

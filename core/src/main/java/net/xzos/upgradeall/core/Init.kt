@@ -36,7 +36,7 @@ fun initCore(
         _coreConfig.data_expiration_time.toLong(),
     )
     GlobalScope.launch(Dispatchers.IO) {
-        runGetterService()
+        runGetterService(context)
     }
     renewSdkApi(_coreConfig.update_server_url)
     initObject(context)

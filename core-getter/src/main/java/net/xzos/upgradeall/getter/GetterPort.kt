@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.getter
 
+import android.content.Context
 import android.util.Log
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient
 import com.googlecode.jsonrpc4j.ProxyUtil
@@ -17,8 +18,8 @@ class GetterPort(private val config: RustConfig) {
     private val mutex = Mutex()
     private var isInit = false
 
-    fun runService() {
-        NativeLib().runServerLambda {
+    fun runService(context: Context) {
+        NativeLib().runServerLambda(context) {
             initService(it)
         }.also {
             if (it.isEmpty()) {

@@ -1,6 +1,7 @@
 extern crate jni;
 
 use getter::rpc::server::run_server_hanging;
+use getter::rustls_platform_verifier;
 use jni::objects::{JClass, JObject, JString, JValue};
 use jni::JNIEnv;
 use std::sync::mpsc::channel;
@@ -10,8 +11,19 @@ use std::thread;
 pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
     mut env: JNIEnv<'local>,
     _: JClass<'local>,
+    context: JObject,
     callback: JObject<'local>,
 ) -> JString<'local> {
+    // Initialize the certificate verifier for future use.
+    // https://github.com/rustls/rustls-platform-verifier/tree/3edb4d278215a8603020351b8b519d907a26041f?tab=readme-ov-file#crate-initialization
+    match rustls_platform_verifier::android::init_hosted(&env, context) {
+        Ok(_) => {}
+        Err(e) => {
+            return env
+                .new_string(format!("Error initializing certificate verifier: {}", e))
+                .expect("Failed to create Java string");
+        }
+    }
     let (url_tx, url_rx) = channel();
     let (completion_tx, completion_rx) = channel::<Option<String>>();
     thread::spawn(move || {
@@ -59,7 +71,7 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
         callback,
         "callback",
         "(Ljava/lang/String;)V",
-        &[JValue::Object(&jurl)],
+        &[JValue::Object(*jurl)],
     );
 
     if let Err(e) = call_result {

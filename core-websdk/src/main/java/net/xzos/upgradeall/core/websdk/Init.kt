@@ -1,5 +1,6 @@
 package net.xzos.upgradeall.core.websdk
 
+import android.content.Context
 import net.xzos.upgradeall.core.utils.data_cache.CacheConfig
 import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.websdk.api.ServerApi
@@ -29,8 +30,8 @@ fun initRustSdkApi(dataDir: File, cacheDir: File, globalExpireTime: Long) {
     }
 }
 
-suspend fun runGetterService() {
-    runGetterServer(getterPort)
+suspend fun runGetterService(context: Context) {
+    runGetterServer(context, getterPort)
     getterPort.init()
 }
 
