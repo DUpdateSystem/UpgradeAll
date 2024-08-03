@@ -10,4 +10,6 @@
 -keep class org.xml.** { *; }
 -keep class org.xmlpull.** { *; }
 -keep class org.jaxen.** { *; }
+# GPlay Internal Exceptions
+-keep class com.aurora.gplayapi.exceptions.** { *; }
 ##---------------End: proguard configuration for dom4j ----------
