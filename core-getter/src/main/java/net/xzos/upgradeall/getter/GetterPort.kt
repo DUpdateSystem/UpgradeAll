@@ -2,15 +2,14 @@ package net.xzos.upgradeall.getter
 
 import android.content.Context
 import android.util.Log
-import com.googlecode.jsonrpc4j.JsonRpcHttpClient
-import com.googlecode.jsonrpc4j.ProxyUtil
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.xzos.upgradeall.getter.rpc.GetterService
+import net.xzos.upgradeall.getter.rpc.getClient
 import net.xzos.upgradeall.websdk.data.json.CloudConfigList
 import net.xzos.upgradeall.websdk.data.json.ReleaseGson
-import java.net.URL
 
 
 class GetterPort(private val config: RustConfig) {
@@ -20,7 +19,7 @@ class GetterPort(private val config: RustConfig) {
 
     fun runService(context: Context) {
         NativeLib().runServerLambda(context) {
-            initService(it)
+            service = getClient(it)
         }.also {
             if (it.isEmpty()) {
                 Log.d("GetterPort", "runService: success")
@@ -43,16 +42,6 @@ class GetterPort(private val config: RustConfig) {
             delay(1000L)
         }
         return isServiceRunning()
-    }
-
-    private fun initService(url: String) {
-        val client = JsonRpcHttpClient(URL(url))
-
-        this.service = ProxyUtil.createClientProxy(
-            javaClass.classLoader,
-            GetterService::class.java,
-            client
-        )
     }
 
     fun ping(): Boolean {

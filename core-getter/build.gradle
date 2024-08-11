@@ -53,10 +53,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
-    // JSON RPC
-    implementation 'com.github.briandilley.jsonrpc4j:jsonrpc4j:1.6'
-    implementation project(":core-websdk:data")
-
+    implementation project(':core-getter:rpc')
     // Rust TLS
     implementation "rustls:rustls-platform-verifier:latest.release"
 }

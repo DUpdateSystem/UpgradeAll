@@ -1,9 +1,12 @@
-package net.xzos.upgradeall.getter
+package net.xzos.upgradeall.getter.rpc
 
+import com.googlecode.jsonrpc4j.JsonRpcHttpClient
 import com.googlecode.jsonrpc4j.JsonRpcMethod
 import com.googlecode.jsonrpc4j.JsonRpcParam
+import com.googlecode.jsonrpc4j.ProxyUtil
 import net.xzos.upgradeall.websdk.data.json.CloudConfigList
 import net.xzos.upgradeall.websdk.data.json.ReleaseGson
+import java.net.URI
 
 interface GetterService {
     @JsonRpcMethod("ping")
@@ -45,3 +48,14 @@ interface GetterService {
         @JsonRpcParam(value = "url") url: String
     ): CloudConfigList
 }
+
+fun getClient(url: String): GetterService {
+    val client = JsonRpcHttpClient(URI(url).toURL())
+
+    return ProxyUtil.createClientProxy(
+        client.javaClass.classLoader,
+        GetterService::class.java,
+        client
+    )
+}
+
