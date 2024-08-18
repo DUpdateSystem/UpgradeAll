@@ -28,7 +28,7 @@
     <string name="installing">Installation:</string>
     <string name="install_apk_api">APK-Methode Installieren</string>
     <string name="user_download_path">Benutzer Downloadpfad</string>
-    <string name="download_thread_num">Download Strang Nummer</string>
+    <string name="download_thread_num"></string>
     <string name="download_max_task_num">Maximale Download-Aufgabenanzahl</string>
     <string name="clean_download_dir">Download-Datei löschen</string>
     <string name="clean_download_dir_desc">Lösche das Download-Cache-Verzeichnis und die Dateien im Verzeichnis.</string>
@@ -197,4 +197,7 @@
     <string name="url">URL</string>
     <string name="app_base_hub">Base APP Hub</string>
     <string name="app_id">APP ID</string>
+    <string name="official_website">Offizielle Website</string>
+    <string name="about">Über</string>
+    <string name="donate">Spenden</string>
 </resources>
