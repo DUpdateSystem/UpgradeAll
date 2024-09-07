@@ -32,11 +32,6 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         tools:targetApi="s">
         <activity
-            android:name=".ui.home.AboutActivity"
-            android:exported="false"
-            android:label="@string/about"
-            android:theme="@style/AppTheme" />
-        <activity
             android:name=".ui.restore.RestoreActivity"
             android:exported="false" />
 
@@ -91,6 +86,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.home.AboutActivity"
+            android:label="@string/about" />
         <activity
             android:name=".ui.hubmanager.HubManagerActivity"
             android:label="@string/app_hub" />
