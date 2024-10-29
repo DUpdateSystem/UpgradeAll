@@ -10,5 +10,5 @@ java {
 
 dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.1")
 }
