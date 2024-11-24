@@ -16,7 +16,7 @@ if (!project.hasProperty('free')) {
 }
 
 android {
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "net.xzos.upgradeall"
