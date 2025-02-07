@@ -40,6 +40,8 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - run: ls /usr/local/lib/android/sdk/build-tools/
+
       - name: Install NDK
         run: echo "y" | sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
 
