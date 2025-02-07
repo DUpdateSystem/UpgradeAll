@@ -10,7 +10,7 @@ use std::thread;
 
 #[no_mangle]
 pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
-    env: JNIEnv<'local>,
+    mut env: JNIEnv<'local>,
     _: JClass<'local>,
     _context: JObject,
     callback: JObject<'local>,
@@ -18,7 +18,7 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
     // Initialize the certificate verifier for future use.
     // https://github.com/rustls/rustls-platform-verifier/tree/3edb4d278215a8603020351b8b519d907a26041f?tab=readme-ov-file#crate-initialization
     #[cfg(target_os = "android")]
-    match rustls_platform_verifier::android::init_hosted(&env, _context) {
+    match rustls_platform_verifier::android::init_hosted(&mut env, _context) {
         Ok(_) => {}
         Err(e) => {
             return env
@@ -73,7 +73,7 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
         callback,
         "callback",
         "(Ljava/lang/String;)V",
-        &[JValue::Object(*jurl)],
+        &[JValue::Object(&jurl)],
     );
 
     if let Err(e) = call_result {

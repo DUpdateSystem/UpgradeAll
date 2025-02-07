@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-jni = "0.19"
+jni = "0.21"  # from rustls-platform-verifier-android, sync version
 getter = { path = "../getter", features = ["rustls-platform-verifier-android"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.115"
