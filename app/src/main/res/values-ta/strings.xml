@@ -50,12 +50,12 @@
     <string name="clean_log">தூய்மையான பதிவுகள்</string>
     <string name="background_image">பின்னணி படம்</string>
     <string name="apps_logo">பயன்பாட்டு படவுரு</string>
-    <string name="nothing_in_there">&lt;! [சி.டி.ஏ.டி.ஏ [இங்கே எதுவும் இல்லை. (&gt; ﹏ &lt;)]&gt;</string>
+    <string name="nothing_in_there"><![CDATA[இங்கே எதுவும் இல்லை.(>﹏ <)]]></string>
     <string name="please_grant_storage_perm">சேமிப்பகத்தைப் படிக்கவும் எழுதவும் இசைவு வழங்கவும்</string>
     <string name="add_apps">பயன்பாட்டைச் சேர்க்கவும்</string>
     <string name="auto_update_hub_config">ஆட்டோ புதுப்பிப்பு மைய கட்டமைப்புகள்</string>
     <string name="auto_update_hub_config_desc">பயன்பாட்டு மையப் பக்கத்தை உள்ளிடும்போது அப் உள்ளமைவுகளுக்கான விதி சந்தா ரெப்போவைச் சரிபார்க்கவும், தானாக ஒத்திசைக்கவும்</string>
-    <string name="auto_start_update">திறந்த தரவு தரவு</string>
+    <string name="auto_start_update">திறக்கும்போது தரவு தானாகப் புதுப்பி</string>
     <string name="auto_update_app_config">ஆட்டோ புதுப்பிப்பு பயன்பாட்டு கட்டமைப்பு</string>
     <string name="auto_update_app_config_desc">பயன்பாட்டு உள்ளமைவுகளுக்கான விதி சந்தா ரெப்போவைச் சரிபார்க்கவும், பயன்பாட்டு மையப் பக்கத்தை உள்ளிடும்போது தானாக ஒத்திசைக்கவும்</string>
     <string name="auto_update_setting">ஆட்டோ புதுப்பிப்பு அமைப்புகள்</string>
@@ -92,7 +92,7 @@
     <string name="webdav_password">WebDAV கடவுச்சொல்</string>
     <string name="restore_running">மீட்டமைத்தல்</string>
     <string name="restore_stop">மறுசீரமைப்பு முடிந்தது</string>
-    <string name="backup_running">காப்புப்பிரதி</string>
+    <string name="backup_running">காப்புப்பிரதி எடுத்தல்</string>
     <string name="backup_stop">காப்புப்பிரதி முடிந்தது</string>
     <string name="dialog_title_select_download_item">பதிவிறக்க உருப்படிகளைத் தேர்ந்தெடுக்கவும்</string>
     <string name="ui">இடைமுகம்</string>
@@ -113,7 +113,7 @@
     <string name="update_info">தரவைப் புதுப்பிக்கவும்</string>
     <string name="update_status_prompt">நிலை வரியில் புதுப்பிக்கவும்</string>
     <string name="waiting_check_update">புதுப்பிப்புகளைச் சரிபார்க்கிறது…</string>
-    <string name="example_update_overview" formatted="false">மொத்த பயன்பாடுகள்: %மற்றும், புதுப்பிப்புகள்</string>
+    <string name="example_update_overview" formatted="false">மொத்த பயன்பாடுகள்: %d, புதுப்பிப்புகள்: %d</string>
     <string name="home_checking_updates">புதுப்பிப்புகளைச் சரிபார்க்கிறது…</string>
     <string name="home_check_updates">புதுப்பிப்புகளை சரிபார்க்கவும்</string>
     <string name="home_module_discovery">கண்டுபிடி</string>
@@ -171,7 +171,7 @@
     <string name="update_progress">முன்னேற்றத்தைப் புதுப்பிக்கவும்</string>
     <string name="click_open_homepage">பயன்பாட்டு முகப்புப்பக்கத்தைத் திறக்க தட்டவும்</string>
     <string name="file_download">கோப்பு பதிவிறக்கம்</string>
-    <string name="download_paused">இடைநிறுத்தப்பட்டது</string>
+    <string name="download_paused">பதிவிறக்கம் இடைநிறுத்தப்பட்டது</string>
     <string name="download_failed_click_to_retry">பதிவிறக்கம் பணி தோல்வியடைந்தது, மீண்டும் முயற்சிக்கவும்</string>
     <string name="download_complete">பதிவிறக்கம் முடிந்தது</string>
     <string name="file_path">கோப்பு பாதை</string>
