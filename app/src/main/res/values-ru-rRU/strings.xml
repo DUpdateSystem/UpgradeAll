@@ -2,7 +2,7 @@
 <resources>
     <string name="app">Приложение</string>
     <string name="help">Помощь</string>
-    <string name="update">Обновления</string>
+    <string name="update">Обновить</string>
     <string name="backup">Резервное копирование</string>
     <string name="restore">Восстановить</string>
     <string name="user_star">Отметить звездочкой</string>
@@ -16,8 +16,8 @@
     <string name="background_sync_time">Время фоновой синхронизации (h)</string>
     <string name="background_sync_time_desc">Время проверки обновления.
 \nЕсли значение равно 0, то проверка фонового обновления будет отключена.</string>
-    <string name="cloud_rules_repo_url">Правила URL репозитория в облаке</string>
-    <string name="update_server_url">Обновить URL сервера</string>
+    <string name="cloud_rules_repo_url">Правила URL-адреса репозитория в облаке</string>
+    <string name="update_server_url">Обновить URL-адрес сервера</string>
     <string name="menu_search">Поиск</string>
     <string name="menu_search_hint">Поиск…</string>
     <string name="download">Скачать</string>
@@ -28,8 +28,8 @@
     <string name="installing">Установка:</string>
     <string name="install_apk_api">Метод установки приложений</string>
     <string name="user_download_path">Пользовательский путь загрузки</string>
-    <string name="download_thread_num">Номер загрузки потока</string>
-    <string name="download_max_task_num">Макс. количество загрузок задачи</string>
+    <string name="download_thread_num">Количество одновременных скачиваний</string>
+    <string name="download_max_task_num">Максимальное количество задач скачивания</string>
     <string name="clean_download_dir">Очистить загруженные файлы</string>
     <string name="clean_download_dir_desc">Удалить директорию кэша загрузок и файлы в каталоге.</string>
     <string name="auto_delete_file">Автоматическое удаление файлов</string>
@@ -47,7 +47,7 @@
     <string name="clean_log">Очистить журнал</string>
     <string name="background_image">Фоновое изображение</string>
     <string name="apps_logo">Логотип приложения</string>
-    <string name="nothing_in_there">Здесь ничего нет. (&gt;_&lt;)</string>
+    <string name="nothing_in_there"><![CDATA[Здесь ничего нет. (>_<)]]></string>
     <string name="please_grant_storage_perm">Пожалуйста, предоставьте этому приложению разрешение на чтение и запись памяти</string>
     <string name="add_apps">Добавить приложение</string>
     <string name="auto_update_hub_config">Auto Update Hub Config</string>
@@ -76,7 +76,7 @@
     <string name="ignore_version">Ignore current version</string>
     <string name="remove_ignore_version">Remove ignore of current version</string>
     <string name="local_backup">Локальная резервная копия</string>
-    <string name="backup_to_file">Резервное копирование</string>
+    <string name="backup_to_file">Резервное копирование в файл</string>
     <string name="restore_from_file">Восстановить из файла</string>
     <string name="cloud_backup">Облачное резервное копирование</string>
     <string name="backup_to_webdav">Резервное копирование в WebDAV</string>
@@ -88,7 +88,7 @@
     <string name="webdav_password">Пароль WebDAV</string>
     <string name="restore_running">restoring</string>
     <string name="restore_stop">Recovery complete</string>
-    <string name="backup_running">Резервное копирование</string>
+    <string name="backup_running">Выполняется резервное копирование</string>
     <string name="backup_stop">Backup complete</string>
     <string name="dialog_title_select_download_item">Please select item</string>
     <string name="ui">UI</string>
@@ -135,7 +135,7 @@
     <string name="waiting">Ожидание</string>
     <string name="queued">В очереди</string>
     <string name="downloading">Скачивание</string>
-    <string name="paused">Пауза</string>
+    <string name="paused">Приостановлено</string>
     <string name="retry">Повторить</string>
     <string name="change_hub_priority">Изменить приоритет Хаба</string>
     <string name="more_url">Больше URL</string>
