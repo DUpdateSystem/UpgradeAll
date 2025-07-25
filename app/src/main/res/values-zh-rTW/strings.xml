@@ -47,7 +47,7 @@
     <string name="clean_log">清空日誌</string>
     <string name="background_image">背景圖片</string>
     <string name="apps_logo">軟體圖示</string>
-    <string name="nothing_in_there">這裡好像什麼也沒有(&gt;﹏&lt;)</string>
+    <string name="nothing_in_there">&lt;![CDATA[這裡好像什麼也沒有(&gt;﹏&lt;)]] &gt;</string>
     <string name="please_grant_storage_perm">請授予儲存讀寫許可權</string>
     <string name="add_apps">新增</string>
     <string name="auto_update_hub_config">自動更新軟體來源設定</string>
