@@ -35,6 +35,9 @@ plugins {
 
 import groovy.json.JsonSlurper
 String findRustlsPlatformVerifierProject() {
+    // Temporarily disabled due to workspace conflicts
+    return ""
+    /*
     var PATH_TO_DEPENDENT_CRATE = "./core-getter/src/main/rust/api_proxy"
     def dependencyText = providers.exec {
         // print now working directory
@@ -44,6 +47,7 @@ String findRustlsPlatformVerifierProject() {
     def dependencyJson = new JsonSlurper().parseText(dependencyText)
     def manifestPath = file(dependencyJson.packages.find { it.name == "rustls-platform-verifier-android" }.manifest_path)
     return new File(manifestPath.parentFile, "maven").path
+    */
 }
 
 allprojects {

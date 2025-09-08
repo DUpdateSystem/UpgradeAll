@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp'
+    id 'org.jetbrains.kotlin.plugin.serialization' version "2.0.21"
 }
 
 android {
@@ -67,6 +68,9 @@ dependencies {
 
     // Gson
     implementation 'com.google.code.gson:gson:2.12.1'
+    
+    // Kotlinx Serialization
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3'
 
     // OkHttp
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.14'

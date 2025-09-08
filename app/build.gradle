@@ -5,6 +5,7 @@ plugins {
     id 'com.google.devtools.ksp'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.compose' version "2.0.21"
+    id 'org.jetbrains.kotlin.plugin.serialization' version "2.0.21"
 }
 
 // NO FREE
@@ -164,6 +165,11 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.6.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
+    androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0'
+    androidTestImplementation 'androidx.room:room-testing:2.6.1'
+    androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3'
 
     implementation project(':app-backup')
     implementation project(':core-android-utils')

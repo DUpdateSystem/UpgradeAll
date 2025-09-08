@@ -7,10 +7,14 @@ edition = "2021"
 
 [dependencies]
 jni = "0.21"  # from rustls-platform-verifier-android, sync version
-getter = { path = "../getter", features = ["rustls-platform-verifier-android"] }
+getter = { path = "../getter/packages/getter-lib" }
+getter-appmanager = { path = "../getter/packages/getter-appmanager" }
+getter-rpc = { path = "../getter/packages/getter-rpc" }
+rustls-platform-verifier = "0.6.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.115"
 tokio = "1.37.0"
+lazy_static = "1.4"
 
 [lib]
 crate-type = ["cdylib"]

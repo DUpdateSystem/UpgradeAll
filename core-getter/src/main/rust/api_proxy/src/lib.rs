@@ -1,8 +1,13 @@
 extern crate jni;
 
-use getter::rpc::server::run_server_hanging;
+mod app_manager;
+mod appmanager_jni;
+mod provider_jni_simple;
+
+// RPC server is not needed for AppManager JNI bindings
+// use getter_rpc::server::run_server_hanging;
 #[cfg(target_os = "android")]
-use getter::rustls_platform_verifier;
+use rustls_platform_verifier;
 use jni::objects::{JClass, JObject, JString, JValue};
 use jni::JNIEnv;
 use std::sync::mpsc::channel;
@@ -26,7 +31,7 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
                 .expect("Failed to create Java string");
         }
     }
-    let (url_tx, url_rx) = channel();
+    let (url_tx, url_rx) = channel::<String>();
     let (completion_tx, completion_rx) = channel::<Option<String>>();
     thread::spawn(move || {
         let runtime = match tokio::runtime::Runtime::new() {
@@ -38,30 +43,16 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
             }
         };
         runtime.block_on(async move {
-            let address = "127.0.0.1:0";
-            match run_server_hanging(address, |url| {
-                url_tx.send(url.to_string()).unwrap();
-                Ok(())
-            })
-            .await
-            {
-                Ok(_) => completion_tx.send(None).unwrap(), // No error, send completion signal
-                Err(e) => {
-                    let err_msg = format!("Error running server: {}", e);
-                    completion_tx.send(Some(err_msg)).unwrap();
-                }
-            }
+            // RPC server disabled for now - focusing on AppManager JNI
+            let err_msg = "RPC server is not implemented in this build".to_string();
+            completion_tx.send(Some(err_msg)).unwrap();
         });
     });
-    let url = match url_rx.recv() {
-        Ok(url) => url,
-        Err(e) => {
-            return env
-                .new_string(format!("Error receiving URL from server thread: {}", e))
-                .expect("Failed to create Java string");
-        }
-    };
-    let jurl = match env.new_string(url) {
+    
+    // Since RPC server is disabled, return a placeholder URL
+    let url = "http://localhost:0/disabled".to_string();
+    
+    let jurl = match env.new_string(&url) {
         Ok(jurl) => jurl,
         Err(e) => {
             return env

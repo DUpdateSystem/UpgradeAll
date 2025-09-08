@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import net.xzos.upgradeall.core.coreConfig
+import net.xzos.upgradeall.core.data.AppStatusInfo
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.isInit
@@ -275,5 +276,147 @@ object AppManager : Informer<UpdateStatus, App>() {
     suspend fun removeApp(app: App) {
         metaDatabase.appDao().delete(app.db)
         allAppList.remove(app)
+    }
+    
+    // ========== Native Rust AppManager Integration ==========
+    
+    /**
+     * Set star status for an app using native Rust implementation
+     */
+    suspend fun setAppStar(appId: String, star: Boolean): Boolean {
+        return try {
+            AppManagerNative.nativeSetStar(appId, star)
+        } catch (e: Exception) {
+            Log.e("AppManager", "Failed to set star status", e)
+            false
+        }
+    }
+    
+    /**
+     * Check if an app is starred using native Rust implementation
+     */
+    suspend fun isAppStarred(appId: String): Boolean {
+        return try {
+            AppManagerNative.nativeIsStarred(appId)
+        } catch (e: Exception) {
+            Log.e("AppManager", "Failed to check star status", e)
+            false
+        }
+    }
+    
+    /**
+     * Get all starred app IDs using native Rust implementation
+     */
+    suspend fun getStarredApps(): List<String> {
+        return try {
+            AppManagerNative.nativeGetStarredApps().toList()
+        } catch (e: Exception) {
+            Log.e("AppManager", "Failed to get starred apps", e)
+            emptyList()
+        }
+    }
+    
+    /**
+     * Set ignored version for an app using native Rust implementation
+     */
+    suspend fun setIgnoreVersion(appId: String, version: String): Boolean {
+        return try {
+            AppManagerNative.nativeSetIgnoreVersion(appId, version)
+        } catch (e: Exception) {
+            Log.e("AppManager", "Failed to set ignore version", e)
+            false
+        }
+    }
+    
+    /**
+     * Get ignored version for an app using native Rust implementation
+     */
+    suspend fun getIgnoreVersion(appId: String): String? {
+        return try {
+            val version = AppManagerNative.nativeGetIgnoreVersion(appId)
+            if (version.isEmpty()) null else version
+        } catch (e: Exception) {
+            Log.e("AppManager", "Failed to get ignore version", e)
+            null
+        }
+    }
+    
+    /**
+     * Check if a version is ignored using native Rust implementation
+     */
+    suspend fun isVersionIgnored(appId: String, version: String): Boolean {
+        return try {
+            AppManagerNative.nativeIsVersionIgnored(appId, version)
+        } catch (e: Exception) {
+            Log.e("AppManager", "Failed to check version ignore status", e)
+            false
+        }
+    }
+    
+    /**
+     * Ignore all current versions using native Rust implementation
+     */
+    suspend fun ignoreAllCurrentVersions(): Int {
+        return try {
+            AppManagerNative.nativeIgnoreAllCurrentVersions()
+        } catch (e: Exception) {
+            Log.e("AppManager", "Failed to ignore all current versions", e)
+            -1
+        }
+    }
+    
+    /**
+     * Get apps by type using native Rust implementation
+     */
+    suspend fun getAppsByType(appType: String): List<String> {
+        return try {
+            AppManagerNative.nativeGetAppsByType(appType).toList()
+        } catch (e: Exception) {
+            Log.e("AppManager", "Failed to get apps by type", e)
+            emptyList()
+        }
+    }
+    
+    /**
+     * Get apps by status using native Rust implementation
+     */
+    suspend fun getAppsByStatus(status: AppStatus): List<AppStatusInfo> {
+        return try {
+            val statusString = when (status) {
+                AppStatus.APP_PENDING -> AppStatusInfo.STATUS_PENDING
+                AppStatus.APP_INACTIVE -> AppStatusInfo.STATUS_INACTIVE
+                AppStatus.APP_LATEST -> AppStatusInfo.STATUS_LATEST
+                AppStatus.APP_OUTDATED -> AppStatusInfo.STATUS_OUTDATED
+                else -> AppStatusInfo.STATUS_PENDING
+            }
+            AppManagerNative.nativeGetAppsByStatus(statusString).toList()
+        } catch (e: Exception) {
+            Log.e("AppManager", "Failed to get apps by status", e)
+            emptyList()
+        }
+    }
+    
+    /**
+     * Get starred apps with their status using native Rust implementation
+     */
+    suspend fun getStarredAppsWithStatus(): List<AppStatusInfo> {
+        return try {
+            AppManagerNative.nativeGetStarredAppsWithStatus().toList()
+        } catch (e: Exception) {
+            Log.e("AppManager", "Failed to get starred apps with status", e)
+            emptyList()
+        }
+    }
+    
+    /**
+     * Get outdated apps excluding ignored versions using native Rust implementation
+     */
+    suspend fun getOutdatedAppsFiltered(): List<AppStatusInfo> {
+        return try {
+            AppManagerNative.nativeGetOutdatedAppsFiltered().toList()
+        } catch (e: Exception) {
+            Log.e("AppManager", "Failed to get filtered outdated apps", e)
+            emptyList()
+        }
     }
 }

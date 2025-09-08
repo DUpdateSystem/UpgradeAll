@@ -54,8 +54,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
     implementation project(':core-getter:rpc')
-    // Rust TLS
-    implementation "rustls:rustls-platform-verifier:latest.release"
+    // Rust TLS - temporarily disabled due to missing artifact
+    // implementation "rustls:rustls-platform-verifier:latest.release"
 }
 
 tasks.matching { it.name.matches(/merge.*JniLibFolders/) }.configureEach {
