@@ -5,9 +5,9 @@ buildscript {
         kotlin_version = '2.2.10'
         kotlin_coroutines_version = '1.10.2'
         kotlin_stdlib_version = '1.5.0'
-        android_ktx_version = "1.15.0"
-        work_version = '2.10.0'
-        agp_version = '8.8.2'
+        android_ktx_version = "1.17.0"
+        work_version = '2.10.3'
+        agp_version = '8.13.0'
     }
     repositories {
         google()
@@ -20,8 +20,8 @@ buildscript {
 
         // NO FREE
         if (!project.hasProperty('free')) {
-            classpath 'com.google.gms:google-services:4.4.2'
-            classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.3'
+            classpath 'com.google.gms:google-services:4.4.3'
+            classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.6'
             classpath 'com.google.firebase:perf-plugin:2.0.1'
         }
     }
