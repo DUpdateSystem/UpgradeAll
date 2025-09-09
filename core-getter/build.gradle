@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
-    id 'org.mozilla.rust-android-gradle.rust-android' version "0.9.6"
+    id 'RustJNIPlugin'
 }
 
 android {
@@ -31,19 +31,12 @@ android {
     }
 }
 
-cargo {
+
+rustJNI {
     module = "./src/main/rust/api_proxy"
-    targets = [
-            "x86_64",
-            "arm",
-            "arm64"
-    ]
+    targets = ["arm64-v8a", "armeabi-v7a", "x86_64", "x86"]
     profile = gradle.startParameter.taskNames.any{it.toLowerCase().contains("debug")} ? "debug" : "release"
     libname = "api_proxy"
-
-    features {
-        all()
-    }
 }
 
 dependencies {
@@ -58,7 +51,3 @@ dependencies {
     // implementation "rustls:rustls-platform-verifier:latest.release"
 }
 
-tasks.matching { it.name.matches(/merge.*JniLibFolders/) }.configureEach {
-    it.inputs.dir(new File(buildDir, "rustJniLibs/android"))
-    it.dependsOn("cargoBuild")
-}

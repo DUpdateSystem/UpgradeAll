@@ -205,7 +205,7 @@ open class Migration_8_9_10_Share(startVersion: Int, endVersion: Int) : Migratio
     }
 
     private fun appIdConverter(s: String): String? {
-        return when (s.toLowerCase(Locale.ENGLISH)) {
+        return when (s.lowercase(Locale.ENGLISH)) {
             "app_package" -> "android_app_package"
             "magisk_module" -> "android_magisk_module"
             "shell" -> "android_custom_shell"

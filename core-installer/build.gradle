@@ -6,6 +6,10 @@ plugins {
 
 android {
     compileSdk 34
+    
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         minSdk 21
@@ -32,7 +36,6 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_19
     }
-    buildToolsVersion '34.0.0'
     namespace 'net.xzos.upgradeall.core.installer'
 }
 

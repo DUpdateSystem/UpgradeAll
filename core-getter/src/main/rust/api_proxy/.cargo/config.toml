@@ -1,0 +1,7 @@
+[target.i686-linux-android]
+ar = "/home/xz/.local/share/Google/Android/Sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+linker = "/home/xz/.local/share/Google/Android/Sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
+
+[env]
+CC_i686_linux_android = "/home/xz/.local/share/Google/Android/Sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
+AR_i686_linux_android = "/home/xz/.local/share/Google/Android/Sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
