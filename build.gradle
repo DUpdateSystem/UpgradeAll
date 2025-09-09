@@ -59,10 +59,13 @@ allprojects {
         maven { url "https://gitlab.com/api/v4/projects/18497829/packages/maven"}
         // Getter Rust TLS
         // Due https://stackoverflow.com/questions/75904120/how-can-i-use-repositories-in-my-android-modules-build-gradle-not-in-top-level
+        // Temporarily disabled due to workspace conflicts
+        /*
         maven {
             url = findRustlsPlatformVerifierProject()
             metadataSources.artifact()
         }
+        */
     }
 }
 
