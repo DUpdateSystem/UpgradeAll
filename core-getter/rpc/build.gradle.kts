@@ -9,6 +9,6 @@ java {
 }
 dependencies {
     // JSON RPC
-    implementation("com.github.briandilley.jsonrpc4j:jsonrpc4j:1.6")
+    implementation("com.github.briandilley.jsonrpc4j:jsonrpc4j:1.7")
     api(project(":core-websdk:data"))
 }

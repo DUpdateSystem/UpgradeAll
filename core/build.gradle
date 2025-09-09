@@ -48,8 +48,8 @@ dependencies {
     implementation project(path: ':core-android-utils')
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
 
 
     // Kotlin
@@ -58,19 +58,19 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     // database
-    def room_version = '2.6.1'
+    def room_version = '2.7.2'
     api "androidx.room:room-runtime:$room_version"
-    ksp 'org.xerial:sqlite-jdbc:3.49.1.0' //Work around on Apple Silicon
+    ksp 'org.xerial:sqlite-jdbc:3.50.3.0' //Work around on Apple Silicon
     ksp "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     // Test helpers
     testImplementation "androidx.room:room-testing:$room_version"
 
     // Gson
-    implementation 'com.google.code.gson:gson:2.12.1'
+    implementation 'com.google.code.gson:gson:2.13.1'
     
     // Kotlinx Serialization
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0'
 
     // OkHttp
     implementation 'com.squareup.okhttp3:okhttp:5.1.0'
