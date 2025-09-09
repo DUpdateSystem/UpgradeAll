@@ -45,8 +45,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.12.1'
 
     // OkHttp
-    api 'com.squareup.okhttp3:okhttp:5.0.0-alpha.14'
-    implementation 'com.squareup.okhttp3:okhttp-urlconnection:5.0.0-alpha.14'
+    api 'com.squareup.okhttp3:okhttp:5.1.0'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:5.1.0'
     // markdown support
     implementation 'org.jetbrains:markdown:0.7.3'
     // google play support
