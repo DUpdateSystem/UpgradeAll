@@ -68,6 +68,28 @@ jobs:
         run: ./gradlew -PappVerName=${{ env.VERSION }} assembleDebug
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      
+      # Run smoke test on Android emulator
+      - name: Run Smoke Test
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          target: google_apis
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            echo "Installing APK..."
+            APK_PATH=$(find app/build/outputs/apk/debug -name "*.apk" | head -1)
+            adb install -r "$APK_PATH"
+            
+            echo "Running smoke test..."
+            ./gradlew connectedDebugAndroidTest \
+              -Pandroid.testInstrumentationRunnerArguments.class=net.xzos.upgradeall.SimpleGetterTest \
+              --stacktrace
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
 
       - name: Build with Gradle (release)
         if: ${{ !github.event.pull_request }}

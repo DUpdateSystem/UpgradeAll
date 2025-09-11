@@ -4,14 +4,14 @@ mod app_manager;
 mod appmanager_jni;
 mod provider_jni_simple;
 
-// RPC server is not needed for AppManager JNI bindings
-// use getter_rpc::server::run_server_hanging;
+use getter_rpc::server::GetterRpcServer;
 #[cfg(target_os = "android")]
 use rustls_platform_verifier;
 use jni::objects::{JClass, JObject, JString, JValue};
 use jni::JNIEnv;
 use std::sync::mpsc::channel;
 use std::thread;
+use std::net::SocketAddr;
 
 #[no_mangle]
 pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
@@ -43,14 +43,50 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
             }
         };
         runtime.block_on(async move {
-            // RPC server disabled for now - focusing on AppManager JNI
-            let err_msg = "RPC server is not implemented in this build".to_string();
-            completion_tx.send(Some(err_msg)).unwrap();
+            // Use port 0 to let the system assign a random available port
+            let addr: SocketAddr = "127.0.0.1:0".parse().unwrap();
+            
+            // Bind first to get the actual port
+            match tokio::net::TcpListener::bind(addr).await {
+                Ok(listener) => {
+                    let actual_addr = listener.local_addr().unwrap();
+                    let actual_port = actual_addr.port();
+                    let url = format!("http://localhost:{}", actual_port);
+                    
+                    // Send the URL with the actual port back
+                    url_tx.send(url.clone()).unwrap();
+                    
+                    // Now convert to std listener and start the RPC server
+                    drop(listener); // Release the tokio listener
+                    
+                    // Create and start the RPC server
+                    let server = GetterRpcServer::new();
+                    
+                    // Re-bind with the actual address we got
+                    if let Err(e) = server.start(actual_addr).await {
+                        completion_tx.send(Some(format!("RPC server error: {}", e))).unwrap();
+                    } else {
+                        completion_tx.send(None).unwrap();
+                    }
+                }
+                Err(e) => {
+                    // If binding fails, send a valid URL to avoid crash
+                    url_tx.send("http://localhost:8080/error".to_string()).unwrap();
+                    completion_tx.send(Some(format!("Failed to bind RPC server: {}", e))).unwrap();
+                }
+            }
         });
     });
     
-    // Since RPC server is disabled, return a placeholder URL
-    let url = "http://localhost:0/disabled".to_string();
+    // Wait for the server to start and get the actual URL
+    let url = match url_rx.recv() {
+        Ok(url) => url,
+        Err(e) => {
+            return env
+                .new_string(format!("Error receiving URL from server thread: {}", e))
+                .expect("Failed to create Java string");
+        }
+    };
     
     let jurl = match env.new_string(&url) {
         Ok(jurl) => jurl,
