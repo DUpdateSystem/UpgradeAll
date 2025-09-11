@@ -57,7 +57,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     // database
-    def room_version = '2.7.2'
+    def room_version = '2.8.0'
     api "androidx.room:room-runtime:$room_version"
     ksp 'org.xerial:sqlite-jdbc:3.50.3.0' //Work around on Apple Silicon
     ksp "androidx.room:room-compiler:$room_version"
@@ -66,7 +66,7 @@ dependencies {
     testImplementation "androidx.room:room-testing:$room_version"
 
     // Gson
-    implementation 'com.google.code.gson:gson:2.13.1'
+    implementation 'com.google.code.gson:gson:2.13.2'
     
     // Kotlinx Serialization
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0'

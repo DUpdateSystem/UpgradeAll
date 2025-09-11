@@ -8,5 +8,5 @@ repositories {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:8.9.1")
+    implementation("com.android.tools.build:gradle:8.13.0")
 }
