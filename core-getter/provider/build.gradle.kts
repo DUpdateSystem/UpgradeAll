@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "net.xzos.upgradeall.getter.provider"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 21

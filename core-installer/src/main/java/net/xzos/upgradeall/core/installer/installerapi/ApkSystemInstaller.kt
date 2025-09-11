@@ -112,12 +112,21 @@ object ApkSystemInstaller {
     private fun doCommitSession(session: PackageInstaller.Session, context: Context) {
         try {
             val callbackIntent = Intent(context, ApkInstallerService::class.java)
-            val pendingIntent = PendingIntent.getService(
-                context,
-                0,
-                callbackIntent,
-                net.xzos.upgradeall.core.androidutils.FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE
-            )
+            val pendingIntent = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                PendingIntent.getService(
+                    context,
+                    0,
+                    callbackIntent,
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            } else {
+                PendingIntent.getService(
+                    context,
+                    0,
+                    callbackIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                )
+            }
             session.commit(pendingIntent.intentSender)
             session.close()
             Log.d(logObjectTag, TAG, "doCommitSession: install request sent")

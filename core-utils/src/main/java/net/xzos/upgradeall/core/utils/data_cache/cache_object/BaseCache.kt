@@ -1,18 +1,16 @@
 package net.xzos.upgradeall.core.utils.data_cache.cache_object
 
-import java.time.Instant
-
 abstract class BaseCache<B>(
     val key: String
 ) {
     abstract val store: BaseStore<B>
 
     fun checkValid(dataCacheTimeSec: Int): Boolean {
-        return (Instant.now().epochSecond - store.getTime() <= dataCacheTimeSec)
+        return (System.currentTimeMillis() / 1000 - store.getTime() <= dataCacheTimeSec)
     }
 
     private fun renewTime() {
-        store.setTime(Instant.now().epochSecond)
+        store.setTime(System.currentTimeMillis() / 1000)
     }
 
     fun <T> write(any: T?, encoder: Encoder<T, B>) {

@@ -98,7 +98,7 @@ object SqlToConfigMigration {
                 hubs = hubs,
                 metadata = mapOf(
                     "source" to "UpgradeAll Android",
-                    "migrationDate" to java.time.LocalDateTime.now().toString()
+                    "migrationDate" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US).format(java.util.Date())
                 )
             )
             

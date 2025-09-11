@@ -5,8 +5,9 @@ import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
 import java.net.URI
-import java.time.Instant
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 fun String.mdToHtml(): String {
     val flavour = CommonMarkFlavourDescriptor()
@@ -15,7 +16,23 @@ fun String.mdToHtml(): String {
 }
 
 fun String.tryGetTimestamp(): Long {
-    return Instant.from(DateTimeFormatter.ISO_INSTANT.parse(this)).epochSecond
+    // Use SimpleDateFormat for API < 26 compatibility
+    val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
+    return try {
+        format.parse(this)?.time?.div(1000) ?: 0L
+    } catch (e: Exception) {
+        // Try with milliseconds format
+        val formatWithMs = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        try {
+            formatWithMs.parse(this)?.time?.div(1000) ?: 0L
+        } catch (e2: Exception) {
+            0L
+        }
+    }
 }
 
 fun net.xzos.upgradeall.websdk.data.json.ReleaseGson.versionCode(value: Number?) = value?.let {

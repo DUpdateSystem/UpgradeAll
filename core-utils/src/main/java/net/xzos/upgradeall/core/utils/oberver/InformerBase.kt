@@ -58,10 +58,20 @@ abstract class InformerBase<E : Any?> {
         this.getOrPut(k) { coroutinesMutableListOf(true) }
 
     protected fun CoroutinesMutableList<Observer<E?>>.remove(func: Func<E>) {
-        this.removeIf { it.func == func }
+        val iterator = this.iterator()
+        while (iterator.hasNext()) {
+            if (iterator.next().func == func) {
+                iterator.remove()
+            }
+        }
     }
 
     protected fun CoroutinesMutableList<Observer<E?>>.remove(func: FuncNoArg) {
-        this.removeIf { it.func == func }
+        val iterator = this.iterator()
+        while (iterator.hasNext()) {
+            if (iterator.next().func == func) {
+                iterator.remove()
+            }
+        }
     }
 }

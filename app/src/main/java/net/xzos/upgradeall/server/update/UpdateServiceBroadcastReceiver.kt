@@ -26,7 +26,11 @@ class UpdateServiceBroadcastReceiver : BroadcastReceiver() {
                 Intent(context, UpdateServiceBroadcastReceiver::class.java).apply {
                     action = ACTION_SNOOZE
                 },
-                PendingIntent.FLAG_UPDATE_CURRENT or FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                } else {
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                }
             )
             val alarmManager = (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
             alarmManager.setInexactRepeating(

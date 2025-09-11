@@ -254,18 +254,27 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
 
     private fun getSnoozePendingIntent(extraIdentifierDownloadControlId: Int): PendingIntent {
         val snoozeIntent = getSnoozeIntent(extraIdentifierDownloadControlId)
-        val flags =
-            if (extraIdentifierDownloadControlId == DownloadBroadcastReceiver.INSTALL_APK ||
+        val flags = if (extraIdentifierDownloadControlId == DownloadBroadcastReceiver.INSTALL_APK ||
                 extraIdentifierDownloadControlId == DownloadBroadcastReceiver.OPEN_FILE
-            )
+            ) {
             // 保存文件/安装按钮可多次点击
-                0
-            else PendingIntent.FLAG_ONE_SHOT
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+        } else {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            } else {
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_UPDATE_CURRENT
+            }
+        }
         return PendingIntent.getBroadcast(
             context,
             getPendingIntentIndex(),
             snoozeIntent,
-            flags or FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE
+            flags
         )
     }
 

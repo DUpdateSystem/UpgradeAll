@@ -39,7 +39,7 @@ private fun getAndroidAppVersion(packageName: String, context: Context): AppVers
     return try {
         val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
         AppVersionInfo(
-            packageInfo.versionName, mapOf(
+            packageInfo.versionName ?: "", mapOf(
                 VERSION_CODE to
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                             packageInfo.longVersionCode
