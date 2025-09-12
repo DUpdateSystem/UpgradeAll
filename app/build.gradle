@@ -190,13 +190,13 @@ dependencies {
         implementation 'com.google.firebase:firebase-crashlytics:20.0.1'
     }
     //Protobuf
-    implementation 'com.google.protobuf:protobuf-java:4.32.0'
+    implementation 'com.google.protobuf:protobuf-java:4.32.1'
 }
 
 // fix different protobuf versions of gplayapi and firebase
 configurations.all {
     resolutionStrategy {
-        force 'com.google.protobuf:protobuf-java:4.32.0'
+        force 'com.google.protobuf:protobuf-java:4.32.1'
     }
     exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
     exclude group: 'com.google.firebase', module: 'protolite-well-known-types'
