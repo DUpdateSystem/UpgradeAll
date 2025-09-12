@@ -1,8 +1,7 @@
 name: Android CI
-
 on:
   push:
-    branches: 
+    branches:
       - master
     paths-ignore:
       - 'source/**'
@@ -10,100 +9,82 @@ on:
       - '.**'
       - 'fastlane/**'
   pull_request:
-      paths-ignore:
+    paths-ignore:
       - 'source/**'
       - '**.md'
       - '.**'
       - 'fastlane/**'
   workflow_dispatch:
-
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     env:
       NDK_VERSION: 26.3.11579264
-
     steps:
       - name: Setup Repo
         uses: actions/checkout@v5
         with:
           submodules: 'true'
           fetch-depth: 0
-
       - name: Install Java
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 21
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-
       - name: Install NDK
         run: echo "y" | sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
-
       - name: Install Cargo with aarch64-linux-android
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android
-
       - name: Add Rust target architectures
         run: |
           rustup target add i686-linux-android
           rustup target add x86_64-linux-android
           rustup target add armv7-linux-androideabi
-
       - name: Retrieve version
         run: |
           echo VERSION=$(git rev-parse --short HEAD) >> $GITHUB_ENV
-
       - name: Run Unit Tests
         run: ./gradlew test
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-
       # Split due https://github.com/mozilla/rust-android-gradle/issues/38
       - name: Build with Gradle (debug)
         run: ./gradlew -PappVerName=${{ env.VERSION }} assembleDebug
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
       
-      # Run smoke test on Android emulator
+      # Run smoke test on Android emulator with minimal configuration
       - name: Run Smoke Test
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 33
-          arch: x86_64
-          target: google_apis
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: true
+          api-level: 29
+          arch: x86
           script: |
             echo "Installing APK..."
-            APK_PATH=$(find app/build/outputs/apk/debug -name "*.apk" | head -1)
-            adb install -r "$APK_PATH"
+            adb install -r app/build/outputs/apk/debug/*.apk
             
             echo "Running smoke test..."
             ./gradlew connectedDebugAndroidTest \
-              -Pandroid.testInstrumentationRunnerArguments.class=net.xzos.upgradeall.SimpleGetterTest \
-              --stacktrace
+              -Pandroid.testInstrumentationRunnerArguments.class=net.xzos.upgradeall.SimpleGetterTest
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-
+      
       - name: Build with Gradle (release)
         if: ${{ !github.event.pull_request }}
         run: ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-
       - name: Setup build tool version variable
         shell: bash
         run: |
           BUILD_TOOL_VERSION=$(ls /usr/local/lib/android/sdk/build-tools/ | tail -n 1)
           echo "BUILD_TOOL_VERSION=$BUILD_TOOL_VERSION" >> $GITHUB_ENV
           echo Last build tool version is: $BUILD_TOOL_VERSION
-
       - name: Sign Android release
         if: ${{ !github.event.pull_request }}
         id: sign
@@ -116,35 +97,30 @@ jobs:
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
-
       - name: Upload debug apk
         uses: actions/upload-artifact@v4
         if: ${{ !github.event.pull_request }}
         with:
           path: './app/build/outputs/apk/debug/*.apk'
           name: build_debug_${{ env.VERSION }}
-
       - name: Upload release apk
         uses: actions/upload-artifact@v4
         if: ${{ !github.event.pull_request }}
         with:
           path: ${{ steps.sign.outputs.signedReleaseFile }}
           name: build_release_${{ env.VERSION }}
-
       - name: Get apk info
         if: ${{ !github.event.pull_request }}
         id: apk-info
         uses: hkusu/apk-info-action@v1
         with:
           apk-path: ${{ steps.sign.outputs.signedReleaseFile }}
-
-#      - name: Upload mappings with App Center CLI
-#        if: ${{ !github.event.pull_request }}
-#        uses: zhaobozhen/AppCenter-Github-Action@1.0.1
-#        with:
-#          command: appcenter crashes upload-mappings --mapping app/build/outputs/mapping/release/mapping.txt --version-name ${{ steps.apk-info.outputs.version-name }} --version-code ${{ steps.apk-info.outputs.version-code }} --app DUpdateSystem/UpgradeAll
-#          token: ${{secrets.APP_CENTER_TOKEN}}
-
+          #      - name: Upload mappings with App Center CLI
+          #        if: ${{ !github.event.pull_request }}
+          #        uses: zhaobozhen/AppCenter-Github-Action@1.0.1
+          #        with:
+          #          command: appcenter crashes upload-mappings --mapping app/build/outputs/mapping/release/mapping.txt --version-name ${{ steps.apk-info.outputs.version-name }} --version-code ${{ steps.apk-info.outputs.version-code }} --app DUpdateSystem/UpgradeAll
+          #          token: ${{secrets.APP_CENTER_TOKEN}}
       - name: Find debug APK
         if: ${{ !github.event.pull_request }}
         run: |
@@ -153,7 +129,6 @@ jobs:
             DEBUG_APK=$(find $OUTPUT -name "*.apk")
             echo "DEBUG_APK=$DEBUG_APK" >> $GITHUB_ENV
           fi
-
       - name: Generate Commit Message
         if: ${{ !github.event.pull_request }}
         run: |
@@ -172,7 +147,6 @@ jobs:
           echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
           echo "$TELEGRAM_MESSAGE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-
       - name: Send commit to Telegram
         if: ${{ !github.event.pull_request }}
         uses: xz-dev/TelegramFileUploader@v1.1.1
@@ -186,7 +160,6 @@ jobs:
           files: |
             /github/workspace/${{ steps.sign.outputs.signedReleaseFile }}
             /github/workspace/${{ env.DEBUG_APK }}
-
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@main
         with:
