@@ -69,8 +69,7 @@ jobs:
             adb install -r app/build/outputs/apk/debug/*.apk
             
             echo "Running smoke test..."
-            ./gradlew connectedDebugAndroidTest \
-              -Pandroid.testInstrumentationRunnerArguments.class=net.xzos.upgradeall.SimpleGetterTest
+            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=net.xzos.upgradeall.SimpleGetterTest
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
       
