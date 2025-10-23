@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        kotlin_version = '2.2.20'
+        kotlin_version = '2.2.21'
         kotlin_coroutines_version = '1.10.2'
         kotlin_stdlib_version = '1.5.0'
         android_ktx_version = "1.17.0"
