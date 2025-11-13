@@ -13,11 +13,33 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- To support media file access on devices that run Android 9 (API level 28) or lower.
+         Storage Access Framework (SAF) doesn't require these permissions. -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
     <uses-permission android:name="net.xzos.upgradeAll.permission.ACCESS_RECEIVER_STATE" />
+
+    <!-- Package visibility queries for Android 11+ (API 30+)
+         Required to interact with document picker activities for file backup/restore -->
+    <queries>
+        <!-- Required for ACTION_OPEN_DOCUMENT (file picker for opening files) -->
+        <intent>
+            <action android:name="android.intent.action.OPEN_DOCUMENT" />
+            <category android:name="android.intent.category.OPENABLE" />
+            <data android:mimeType="*/*" />
+        </intent>
+
+        <!-- Required for ACTION_CREATE_DOCUMENT (file picker for saving files) -->
+        <intent>
+            <action android:name="android.intent.action.CREATE_DOCUMENT" />
+            <category android:name="android.intent.category.OPENABLE" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
 
     <application
         android:name=".application.MyApplication"

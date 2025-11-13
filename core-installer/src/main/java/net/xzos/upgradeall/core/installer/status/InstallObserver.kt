@@ -33,5 +33,5 @@ internal object InstallObserver : InformerNoArg<(PackageInfoData)>() {
         removeObserver(key)
     }
 
-    private fun PackageInfo.observeKey() = PackageInfoData(packageName, versionName)
+    private fun PackageInfo.observeKey() = PackageInfoData(packageName, versionName ?: "")
 }

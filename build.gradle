@@ -1,13 +1,16 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+import groovy.json.JsonSlurper
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 buildscript {
     ext {
-        kotlin_version = '2.0.21'
-        kotlin_coroutines_version = '1.9.0'
+        kotlin_version = '2.2.21'
+        kotlin_coroutines_version = '1.10.2'
         kotlin_stdlib_version = '1.5.0'
-        android_ktx_version = "1.15.0"
-        work_version = '2.10.0'
-        agp_version = '8.8.2'
+        android_ktx_version = '1.17.0'
+        work_version = '2.11.0'
+        agp_version = '8.13.0'
     }
     repositories {
         google()
@@ -30,10 +33,9 @@ buildscript {
 plugins {
     id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
     id 'org.jetbrains.kotlin.android' version "$kotlin_version" apply false
-    id 'com.google.devtools.ksp' version '2.0.21-1.0.28' apply false
+    id 'com.google.devtools.ksp' version '2.2.21-2.0.4' apply false
 }
 
-import groovy.json.JsonSlurper
 String findRustlsPlatformVerifierProject() {
     var PATH_TO_DEPENDENT_CRATE = "./core-getter/src/main/rust/api_proxy"
     def dependencyText = providers.exec {
@@ -52,7 +54,7 @@ allprojects {
         mavenCentral()
         maven { url "https://jitpack.io" }
         // For https://gitlab.com/AuroraOSS/gplayapi
-        maven { url "https://gitlab.com/api/v4/projects/18497829/packages/maven"}
+        maven { url "https://gitlab.com/api/v4/projects/18497829/packages/maven" }
         // Getter Rust TLS
         // Due https://stackoverflow.com/questions/75904120/how-can-i-use-repositories-in-my-android-modules-build-gradle-not-in-top-level
         maven {
@@ -62,15 +64,9 @@ allprojects {
     }
 }
 
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_19
-    }
-}
-
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_19
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
     }
 }
 

@@ -9,6 +9,6 @@ java {
 }
 
 dependencies {
-    implementation("com.google.code.gson:gson:2.12.1")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.1")
+    implementation("com.google.code.gson:gson:2.13.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
 }

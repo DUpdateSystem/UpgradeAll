@@ -22,7 +22,10 @@ object RestoreManager : InformerNoTag<RestoreStatus>() {
     private val logObjectTag = ObjectTag("app-backup", TAG)
 
     suspend fun parseZip(zipFileByteArray: ByteArray) {
-        parseZipBytes(zipFileByteArray) { name, bytes ->
+        // Whitelist of allowed backup file paths (supports both legacy and new formats)
+        val allowedPaths = setOf(dbFile.name, prefsFile.name)
+
+        parseZipBytes(zipFileByteArray, allowedPaths) { name, bytes ->
             runBlocking { parseData(name, bytes) }
             false
         }
@@ -30,8 +33,8 @@ object RestoreManager : InformerNoTag<RestoreStatus>() {
 
     private suspend fun parseData(name: String, bytes: ByteArray) {
         when (name) {
-            "/${dbFile.name}" -> restoreDatabase(bytes)
-            "/${prefsFile.name}" -> {
+            dbFile.name -> restoreDatabase(bytes)
+            prefsFile.name -> {
                 val text = bytes.toString(Charsets.UTF_8)
                 prefsFile.writeText(text)
                 notifyChanged(
@@ -42,6 +45,7 @@ object RestoreManager : InformerNoTag<RestoreStatus>() {
                     )
                 )
             }
+
             else -> {
                 Log.e(logObjectTag, TAG, "ignore file: $name")
                 notifyChanged(

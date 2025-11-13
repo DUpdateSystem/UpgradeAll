@@ -9,8 +9,8 @@ import android.os.Build
 import android.text.SpannableStringBuilder
 import android.view.View
 import android.view.Window
-import android.view.WindowManager
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.WindowCompat
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.utils.getAppName
 import net.xzos.upgradeall.utils.egg.setAppEggTitleSuffix
@@ -76,19 +76,20 @@ object UxUtils {
     }
 
     fun setSystemBarStyle(window: Window, needLightStatusBar: Boolean = true) {
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        // Enable edge-to-edge display
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        if (!isDarkMode()) {
-            window.decorView.systemUiVisibility =
-                window.decorView.systemUiVisibility or WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
+        // Use WindowInsetsControllerCompat for compatibility
+        val insetsController = WindowCompat.getInsetsController(window, window.decorView)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && needLightStatusBar) {
-                window.decorView.systemUiVisibility = (
-                        window.decorView.systemUiVisibility
-                                or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
-            }
+        if (!isDarkMode() && needLightStatusBar) {
+            // Set light status bar (dark icons/text)
+            insetsController.isAppearanceLightStatusBars = true
+            insetsController.isAppearanceLightNavigationBars = true
+        } else {
+            // Set dark status bar (light icons/text)
+            insetsController.isAppearanceLightStatusBars = false
+            insetsController.isAppearanceLightNavigationBars = false
         }
     }
 }

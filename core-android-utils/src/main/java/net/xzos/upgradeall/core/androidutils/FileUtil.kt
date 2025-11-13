@@ -2,13 +2,11 @@ package net.xzos.upgradeall.core.androidutils
 
 import android.Manifest
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.provider.DocumentsContract.EXTRA_INITIAL_URI
 import android.webkit.MimeTypeMap
 import androidx.annotation.StringRes
 import androidx.documentfile.provider.DocumentFile
@@ -32,13 +30,6 @@ fun getProp(path: String): Properties? {
     } catch (e: Throwable) {
         null
     }
-}
-
-fun performFileSearch(activity: Activity, READ_REQUEST_CODE: Int, mimeType: String) {
-    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-    intent.addCategory(Intent.CATEGORY_OPENABLE)
-    intent.type = mimeType
-    activity.startActivityForResult(intent, READ_REQUEST_CODE)
 }
 
 /**
@@ -72,47 +63,6 @@ fun dumpFile(file: File, treeFile: DocumentFile, context: Context): DocumentFile
     val newFile = treeFile.createFile(file.getMimeType(context), file.name) ?: return null
     writeToUri(newFile.uri, context, byteArray = file.readBytes())
     return newFile
-}
-
-/**
- * 通过文件存储框架新建并获取文件
- */
-fun createFile(
-    activity: Activity,
-    WRITE_REQUEST_CODE: Int,
-    mimeType: String?,
-    fileName: String
-) {
-    val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-
-    intent.addCategory(Intent.CATEGORY_OPENABLE)
-
-    if (mimeType != null)
-        intent.type = mimeType
-    intent.putExtra(Intent.EXTRA_TITLE, fileName)
-    try {
-        activity.startActivityForResult(intent, WRITE_REQUEST_CODE)
-    } catch (e: ActivityNotFoundException) {
-        Log.e(logObjectTag, TAG, "你的手机暂不支持该功能. error: ${e.msg()}")
-        throw e
-    }
-}
-
-/**
- * 通过文件存储框架获取文件夹
- */
-fun getFolder(activity: Activity, OPEN_REQUEST_CODE: Int, initialPath: String?) {
-    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-    if (initialPath != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val file = DocumentFile.fromFile(File(initialPath))
-        intent.putExtra(EXTRA_INITIAL_URI, file.uri)
-    }
-    try {
-        activity.startActivityForResult(intent, OPEN_REQUEST_CODE)
-    } catch (e: ActivityNotFoundException) {
-        Log.e(logObjectTag, TAG, "你的手机暂不支持该功能. error: ${e.msg()}")
-        throw e
-    }
 }
 
 /**
@@ -219,6 +169,13 @@ fun requestFilePermission(
     PERMISSIONS_REQUEST_READ_CONTACTS: Int,
     @StringRes tipResId: Int
 ): Boolean {
+    // Storage Access Framework (SAF) doesn't require any storage permissions.
+    // Only Android 9 (API 28) and lower need READ_EXTERNAL_STORAGE for legacy file access.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        return true
+    }
+
+    // Android 9 (API 28) and lower still need traditional storage permission
     return requestPermission(
         activity, Manifest.permission.READ_EXTERNAL_STORAGE,
         PERMISSIONS_REQUEST_READ_CONTACTS, tipResId
