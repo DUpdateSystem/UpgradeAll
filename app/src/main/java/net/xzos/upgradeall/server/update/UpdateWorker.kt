@@ -20,7 +20,17 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) :
         return withContext(Dispatchers.IO) {
             val notificationId = UpdateNotification.UPDATE_SERVER_RUNNING_NOTIFICATION_ID
             val notification = updateNotification.startUpdateNotification(notificationId)
-            setForeground(createForegroundInfo(notificationId, notification))
+
+            // Try to set foreground service, but continue if it fails due to Android 12+ restrictions
+            try {
+                setForeground(createForegroundInfo(notificationId, notification))
+            } catch (e: IllegalStateException) {
+                // ForegroundServiceStartNotAllowedException is a subclass of IllegalStateException
+                // This can happen on Android 12+ when app is in background
+                // Log and continue with background execution
+                android.util.Log.w("UpdateWorker", "Cannot start foreground service, continuing in background", e)
+            }
+
             doUpdateWork(updateNotification)
             finishNotify(updateNotification)
             Result.success()
