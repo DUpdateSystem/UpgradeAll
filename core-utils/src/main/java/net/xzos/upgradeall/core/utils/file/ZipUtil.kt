@@ -65,7 +65,6 @@ class ZipFile {
     }
 }
 
-@Suppress("NewApi")
 fun parseZipBytes(
     zipFileByteArray: ByteArray,
     allowedPaths: Set<String>? = null,
