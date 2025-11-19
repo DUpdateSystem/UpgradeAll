@@ -7,7 +7,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == 'io.github.MatrixDev.android-rust') {
-                useModule("com.github.xz-dev:GradleAndroidRustPlugin:d401fd68f2866e5aa395c042e7095812d40dc465")
+                useModule("com.github.xz-dev:GradleAndroidRustPlugin:7494b71b357cbfe48241f4da76a551ea44cbd1fa")
             }
         }
     }

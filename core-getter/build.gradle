@@ -3,8 +3,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
-    // Using JitPack version with Gradle 9 compatibility fixes
-    id 'io.github.MatrixDev.android-rust' version 'd401fd68f2866e5aa395c042e7095812d40dc465'
+    // Using JitPack version with Gradle 9 compatibility and Android Studio deployment fixes
+    id 'io.github.MatrixDev.android-rust' version '7494b71b357cbfe48241f4da76a551ea44cbd1fa'
 }
 
 android {
