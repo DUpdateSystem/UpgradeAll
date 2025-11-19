@@ -31,9 +31,10 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
-    id 'org.jetbrains.kotlin.android' version "$kotlin_version" apply false
-    id 'com.google.devtools.ksp' version '2.3.2' apply false
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.android.rust) apply false
 }
 
 String findRustlsPlatformVerifierProject() {

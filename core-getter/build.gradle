@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
-    id 'org.mozilla.rust-android-gradle.rust-android' version "0.9.6"
+    alias(libs.plugins.android.rust)
 }
 
 android {
@@ -35,18 +35,21 @@ android {
     }
 }
 
-cargo {
-    module = "./src/main/rust/api_proxy"
-    targets = [
-            "x86_64",
-            "arm",
-            "arm64"
-    ]
-    profile = gradle.startParameter.taskNames.any{it.toLowerCase().contains("debug")} ? "debug" : "release"
-    libname = "api_proxy"
+androidRust {
+    minimumSupportedRustVersion = "1.62.1"
 
-    features {
-        all()
+    module("api_proxy") { moduleConfig ->
+        moduleConfig.path = file("./src/main/rust/api_proxy")
+        moduleConfig.targets = ["x86_64", "arm", "arm64"]
+
+        moduleConfig.buildType("debug") {
+            it.profile = "dev"
+        }
+
+        moduleConfig.buildType("release") {
+            it.profile = "release"
+            it.runTests = true
+        }
     }
 }
 
@@ -60,9 +63,4 @@ dependencies {
     implementation project(':core-getter:rpc')
     // Rust TLS
     implementation "rustls:rustls-platform-verifier:latest.release"
-}
-
-tasks.matching { it.name.matches(/merge.*JniLibFolders/) }.configureEach {
-    it.inputs.dir(new File(buildDir, "rustJniLibs/android"))
-    it.dependsOn("cargoBuild")
 }

@@ -1,0 +1,37 @@
+[versions]
+# Build Tools
+agp = "8.13.1"
+kotlin = "2.2.21"
+ksp = "2.2.21-2.0.4"
+androidRust = "0.4.0"
+
+# Kotlin Libraries
+kotlinCoroutines = "1.10.2"
+kotlinStdlib = "1.5.0"
+
+# AndroidX
+androidxKtx = "1.17.0"
+work = "2.11.0"
+
+# Firebase (NO FREE)
+googleServices = "4.4.2"
+firebaseCrashlytics = "3.0.3"
+firebasePerf = "1.4.2"
+
+[plugins]
+# Android
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+
+# Kotlin
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+# Rust
+android-rust = { id = "io.github.MatrixDev.android-rust", version.ref = "androidRust" }
+
+# Firebase (NO FREE)
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
+firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerf" }
