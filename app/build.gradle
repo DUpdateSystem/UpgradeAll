@@ -186,7 +186,7 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-java:4.33.1'
 }
 // fix different protobuf versions of gplayapi and firebase
-configurations {
-    all*.exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
-    all*.exclude group: 'com.google.firebase', module: 'protolite-well-known-types'
+configurations.all {
+    exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
+    exclude group: 'com.google.firebase', module: 'protolite-well-known-types'
 }
