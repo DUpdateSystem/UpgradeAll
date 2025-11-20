@@ -22,7 +22,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     env:
-      NDK_VERSION: 26.3.11579264
+      NDK_VERSION: 29.0.14206865
 
     steps:
       - name: Setup Repo
