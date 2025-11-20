@@ -2,14 +2,6 @@ pluginManagement {
     repositories {
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
-        maven { url "https://jitpack.io" }
-    }
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == 'io.github.MatrixDev.android-rust') {
-                useModule("com.github.xz-dev:GradleAndroidRustPlugin:7494b71b357cbfe48241f4da76a551ea44cbd1fa")
-            }
-        }
     }
 }
 

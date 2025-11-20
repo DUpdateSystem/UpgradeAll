@@ -3,7 +3,7 @@
 agp = "8.13.1"
 kotlin = "2.2.21"
 ksp = "2.3.2"
-androidRust = "0.4.0"
+androidRust = "0.5.0"
 
 # Kotlin Libraries
 kotlinCoroutines = "1.10.2"
