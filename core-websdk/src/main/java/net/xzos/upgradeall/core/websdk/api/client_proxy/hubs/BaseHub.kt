@@ -4,6 +4,9 @@ import net.xzos.upgradeall.core.utils.data_cache.DataCacheManager
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.HubData
+import net.xzos.upgradeall.websdk.data.json.AssetGson
+import net.xzos.upgradeall.websdk.data.json.DownloadItem
+import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 abstract class BaseHub(
     protected val dataCache: DataCacheManager, protected val okhttpProxy: OkhttpProxy
@@ -12,15 +15,15 @@ abstract class BaseHub(
 
     abstract fun checkAppAvailable(hub: HubData, app: AppData): Boolean?
 
-    open fun getUpdate(hub: HubData, appList: Collection<AppData>): Map<AppData, net.xzos.upgradeall.websdk.data.json.ReleaseGson?>? =
+    open fun getUpdate(hub: HubData, appList: Collection<AppData>): Map<AppData, ReleaseGson?>? =
         null
 
-    abstract fun getReleases(hub: HubData, app: AppData): List<net.xzos.upgradeall.websdk.data.json.ReleaseGson>?
+    abstract fun getReleases(hub: HubData, app: AppData): List<ReleaseGson>?
 
     open fun getDownload(
         hub: HubData, app: AppData,
-        assetIndex: List<Int>, assetGson: net.xzos.upgradeall.websdk.data.json.AssetGson?
-    ): List<net.xzos.upgradeall.websdk.data.json.DownloadItem>? {
+        assetIndex: List<Int>, assetGson: AssetGson?
+    ): List<DownloadItem>? {
         return null
     }
 }

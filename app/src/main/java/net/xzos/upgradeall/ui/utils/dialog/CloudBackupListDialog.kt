@@ -17,7 +17,6 @@ class CloudBackupListDialog private constructor(
         super.onCreate(savedInstanceState)
         binding = ListContentBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        super.onCreate(savedInstanceState)
         val list = binding.list
         list.setOnItemClickListener { _, _, position, _ ->
             clickFun(position)

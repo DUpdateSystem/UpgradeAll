@@ -60,7 +60,7 @@ fun <E> list1ToList2(list1t: List<E>, list2t: List<E>): List<ListOperationStepBa
         for (i in list1.indices) {
             val item = list1[i]
             if (list1[i] != list2[i]) {
-                val newIndex = listItemIndex[item]!!.removeFirst()
+                val newIndex = listItemIndex[item]!!.removeAt(0)
                 list1[i] = list1[newIndex].also { list1[newIndex] = list1[i] }
                 addItemMap[item]?.let { list ->
                     list.remove(i)

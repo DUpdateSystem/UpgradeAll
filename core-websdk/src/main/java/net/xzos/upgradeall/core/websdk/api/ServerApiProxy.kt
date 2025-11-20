@@ -3,13 +3,16 @@ package net.xzos.upgradeall.core.websdk.api
 import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.MultiRequestData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
+import net.xzos.upgradeall.websdk.data.json.CloudConfigList
+import net.xzos.upgradeall.websdk.data.json.DownloadItem
+import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 class ServerApiProxy internal constructor(
     private val getServerApi: () -> ServerApi?
 ) : BaseApi {
     private val serverApi get() = getServerApi()
 
-    override fun getCloudConfig(url: String): net.xzos.upgradeall.websdk.data.json.CloudConfigList? {
+    override fun getCloudConfig(url: String): CloudConfigList? {
         return serverApi?.getCloudConfig(url)
     }
 
@@ -17,18 +20,18 @@ class ServerApiProxy internal constructor(
         return serverApi?.checkAppAvailable(data)
     }
 
-    override fun getAppUpdate(data: MultiRequestData): Map<AppData, net.xzos.upgradeall.websdk.data.json.ReleaseGson?>? {
+    override fun getAppUpdate(data: MultiRequestData): Map<AppData, ReleaseGson?>? {
         return serverApi?.getAppUpdate(data)
     }
 
-    override fun getAppReleaseList(data: SingleRequestData): List<net.xzos.upgradeall.websdk.data.json.ReleaseGson>? {
+    override fun getAppReleaseList(data: SingleRequestData): List<ReleaseGson>? {
         return serverApi?.getAppReleaseList(data)
     }
 
     override fun getDownloadInfo(
         data: SingleRequestData,
         assetIndex: Pair<Int, Int>
-    ): List<net.xzos.upgradeall.websdk.data.json.DownloadItem>? {
+    ): List<DownloadItem>? {
         return serverApi?.getDownloadInfo(data, assetIndex)
     }
 }

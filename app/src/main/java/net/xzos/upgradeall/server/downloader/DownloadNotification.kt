@@ -13,7 +13,7 @@ import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.sync.Mutex
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.androidutils.FlagDelegate
+import net.xzos.upgradeall.core.androidutils.withImmutableFlag
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.coroutines.runWithLock
@@ -265,7 +265,7 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
             context,
             getPendingIntentIndex(),
             snoozeIntent,
-            flags or FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE
+            flags.withImmutableFlag()
         )
     }
 

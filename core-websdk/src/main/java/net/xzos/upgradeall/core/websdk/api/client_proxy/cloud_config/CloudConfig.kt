@@ -4,7 +4,9 @@ import net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config.migration.a
 import net.xzos.upgradeall.core.websdk.api.client_proxy.cloud_config.migration.hub5to6
 import net.xzos.upgradeall.core.websdk.api.web.http.HttpRequestData
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
+import net.xzos.upgradeall.websdk.data.json.AppConfigGson
 import net.xzos.upgradeall.websdk.data.json.CloudConfigList
+import net.xzos.upgradeall.websdk.data.json.HubConfigGson
 import org.json.JSONObject
 
 internal class CloudConfig(private val okHttpApi: OkhttpProxy) {
@@ -14,8 +16,8 @@ internal class CloudConfig(private val okHttpApi: OkhttpProxy) {
         val json = JSONObject(str)
         val appJsonList = json.getJSONArray("app_config_list")
         val hubJsonList = json.getJSONArray("hub_config_list")
-        val appList = mutableListOf<net.xzos.upgradeall.websdk.data.json.AppConfigGson>()
-        val hubList = mutableListOf<net.xzos.upgradeall.websdk.data.json.HubConfigGson>()
+        val appList = mutableListOf<AppConfigGson>()
+        val hubList = mutableListOf<HubConfigGson>()
         for (i in 0 until appJsonList.length()) {
             val appJson = appJsonList.getJSONObject(i)
             app1to2(appJson)?.let { appList.add(it) }

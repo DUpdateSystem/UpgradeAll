@@ -118,7 +118,7 @@
     <string name="home_module_file_management">Dosya yönetimi</string>
     <string name="home_module_apps">Uygulamalar</string>
     <string name="home_module_magisk_module">Magisk modülleri</string>
-    <string name="home_format_items_need_update">izleme öğelerinin güncellenmesi gerekiyor</string>
+    <string name="home_format_items_need_update">%d izleme öğelerinin güncellenmesi gerekiyor</string>
     <string name="home_log">Kayıtlar</string>
     <string name="home_settings">Ayarlar</string>
     <string name="home_about">Hakkında</string>

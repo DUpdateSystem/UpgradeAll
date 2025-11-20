@@ -17,6 +17,9 @@ import net.xzos.upgradeall.core.websdk.api.web.http.OkHttpApi
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.HubData
+import net.xzos.upgradeall.websdk.data.json.AssetGson
+import net.xzos.upgradeall.websdk.data.json.DownloadItem
+import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 import okhttp3.Request
 import org.json.JSONObject
 import org.mindrot.jbcrypt.BCrypt
@@ -35,7 +38,7 @@ internal class CoolApk(
         return OkHttpApi.call(request).execute().code != 404
     }
 
-    override fun getReleases(hub: HubData, app: AppData): List<net.xzos.upgradeall.websdk.data.json.ReleaseGson>? {
+    override fun getReleases(hub: HubData, app: AppData): List<ReleaseGson>? {
         val appPackage = app.appId[ANDROID_APP_TYPE] ?: return emptyList()
 
         // get latest
@@ -46,9 +49,9 @@ internal class CoolApk(
         val detail = json.getOrNull("data", json::getJSONObject) ?: return null
         val aid = detail.getString("id")
         val latestVersionNumber = detail.getString("apkversionname")
-        val releaseList = mutableListOf<net.xzos.upgradeall.websdk.data.json.ReleaseGson>()
+        val releaseList = mutableListOf<ReleaseGson>()
         releaseList.add(
-            net.xzos.upgradeall.websdk.data.json.ReleaseGson(
+            ReleaseGson(
                 versionNumber = latestVersionNumber,
                 extra = mapOf(VERSION_CODE to detail.getLong("apkversioncode")),
                 changelog = detail.getString("changelog"),
@@ -69,7 +72,7 @@ internal class CoolApk(
             val versionName = historyJson.getString("versionName")
             val versionId = historyJson.getString("versionId")
             releaseList.add(
-                net.xzos.upgradeall.websdk.data.json.ReleaseGson(
+                ReleaseGson(
                     versionNumber = versionName,
                     changelog = null,
                     assetGsonList = getHistoryDownloadUrl(
@@ -83,7 +86,7 @@ internal class CoolApk(
         return releaseList
     }
 
-    private fun getLatestAsset(appPackage: String, aid: String, versionName: String): net.xzos.upgradeall.websdk.data.json.AssetGson? {
+    private fun getLatestAsset(appPackage: String, aid: String, versionName: String): AssetGson? {
         val url = "$apiUrl/v6/apk/download?pn=$appPackage&aid=$aid"
         val request = httpRedirects(url) ?: return null
         return getAsset(request, appPackage, versionName)
@@ -91,7 +94,7 @@ internal class CoolApk(
 
     private fun getHistoryDownloadUrl(
         appPackage: String, aid: String, versionId: String, versionName: String
-    ): net.xzos.upgradeall.websdk.data.json.AssetGson? {
+    ): AssetGson? {
         @Suppress("SameParameterValue") val url =
             "$apiUrl/v6/apk/downloadHistory?pn=$appPackage&aid=$aid&versionId=$versionId&downloadFrom=coolapk"
         val request = httpRedirects(url) ?: return null
@@ -100,8 +103,8 @@ internal class CoolApk(
 
     override fun getDownload(
         hub: HubData, app: AppData,
-        assetIndex: List<Int>, assetGson: net.xzos.upgradeall.websdk.data.json.AssetGson?
-    ): List<net.xzos.upgradeall.websdk.data.json.DownloadItem>? {
+        assetIndex: List<Int>, assetGson: AssetGson?
+    ): List<DownloadItem>? {
         val request = assetGson?.downloadUrl?.let { httpRedirects(it) }
         if (request?.headers?.get("Content-Type")?.split(";")?.get(0) != APK_CONTENT_TYPE) {
             Log.i(logObjectTag, TAG, "getDownload: 返回非安装包数据")
@@ -109,14 +112,14 @@ internal class CoolApk(
                 getReleases(hub, app)?.get(assetIndex[0])?.assetGsonList?.get(assetIndex[1])
                     ?: return null
             return listOf(
-                net.xzos.upgradeall.websdk.data.json.DownloadItem(
+                DownloadItem(
                     newAssets.fileName, newAssets.downloadUrl ?: return null, null, null
                 )
             )
         } else {
             Log.i(logObjectTag, TAG, "getDownload: 网址验证正确")
             return listOf(
-                net.xzos.upgradeall.websdk.data.json.DownloadItem(
+                DownloadItem(
                     assetGson.fileName,
                     request.url.toString(),
                     null,
@@ -127,7 +130,7 @@ internal class CoolApk(
     }
 
     private fun getAsset(request: Request, appPackage: String, versionName: String) =
-        net.xzos.upgradeall.websdk.data.json.AssetGson(
+        AssetGson(
             fileName = "${appPackage}_$versionName.apk",
             fileType = request.headers["Content-Type"]?.split(";")?.get(0),
             downloadUrl = request.url.toString()

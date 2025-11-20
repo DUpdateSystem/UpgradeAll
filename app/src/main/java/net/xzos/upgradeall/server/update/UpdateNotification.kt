@@ -14,7 +14,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.androidutils.FlagDelegate
+import net.xzos.upgradeall.core.androidutils.withImmutableFlag
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.AppStatus
 import net.xzos.upgradeall.ui.home.MainActivity
@@ -151,7 +151,7 @@ class UpdateNotification {
                 addNextIntentWithParentStack(Intent(context, MainActivity::class.java))
                 getPendingIntent(
                     0,
-                    PendingIntent.FLAG_UPDATE_CURRENT or FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE
+                    PendingIntent.FLAG_UPDATE_CURRENT.withImmutableFlag()
                 )
             }
 

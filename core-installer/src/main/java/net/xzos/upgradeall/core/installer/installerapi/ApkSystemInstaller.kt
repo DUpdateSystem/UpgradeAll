@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.net.Uri
 import android.os.Build
+import net.xzos.upgradeall.core.androidutils.withImmutableFlag
 import net.xzos.upgradeall.core.installer.getApkUri
 import net.xzos.upgradeall.core.installer.service.ApkInstallerService
 import net.xzos.upgradeall.core.utils.log.Log
@@ -116,7 +117,7 @@ object ApkSystemInstaller {
                 context,
                 0,
                 callbackIntent,
-                net.xzos.upgradeall.core.androidutils.FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT.withImmutableFlag()
             )
             session.commit(pendingIntent.intentSender)
             session.close()

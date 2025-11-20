@@ -7,7 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
 import net.xzos.upgradeall.application.MyApplication
-import net.xzos.upgradeall.core.androidutils.FlagDelegate
+import net.xzos.upgradeall.core.androidutils.withImmutableFlag
 
 class UpdateServiceBroadcastReceiver : BroadcastReceiver() {
 
@@ -26,7 +26,7 @@ class UpdateServiceBroadcastReceiver : BroadcastReceiver() {
                 Intent(context, UpdateServiceBroadcastReceiver::class.java).apply {
                     action = ACTION_SNOOZE
                 },
-                PendingIntent.FLAG_UPDATE_CURRENT or FlagDelegate.PENDING_INTENT_FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT.withImmutableFlag()
             )
             val alarmManager = (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
             alarmManager.setInexactRepeating(

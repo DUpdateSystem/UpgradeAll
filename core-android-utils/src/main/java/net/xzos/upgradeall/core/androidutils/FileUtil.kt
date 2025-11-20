@@ -49,9 +49,7 @@ private fun getDocumentFile(context: Context, treeUri: Uri): DocumentFile? {
  * 申请文件树读写权限
  */
 fun takePersistableUriPermission(context: Context, treeUri: Uri) {
-    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-    val takeFlags: Int = intent.flags and
-            (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+    val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
     // Check for the freshest data.
     context.contentResolver.takePersistableUriPermission(treeUri, takeFlags)
 }

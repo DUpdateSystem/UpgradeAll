@@ -24,7 +24,9 @@ import net.xzos.upgradeall.core.websdk.api.web.http.OkHttpApi
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.HubData
+import net.xzos.upgradeall.websdk.data.json.AssetGson
 import net.xzos.upgradeall.websdk.data.json.DownloadItem
+import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 class GooglePlay(
     dataCache: DataCacheManager, okhttpProxy: OkhttpProxy
@@ -72,7 +74,7 @@ class GooglePlay(
 
     override fun getReleases(
         hub: HubData, app: AppData
-    ): List<net.xzos.upgradeall.websdk.data.json.ReleaseGson>? {
+    ): List<ReleaseGson>? {
         val appPackage = app.appId[ANDROID_APP_TYPE] ?: return emptyList()
         Log.i(logObjectTag, TAG, "getRelease: package: $appPackage")
         val authJson = getAuthJson(hub) ?: return null
@@ -88,10 +90,10 @@ class GooglePlay(
             throw e
         }
         Log.i(logObjectTag, TAG, "getRelease: appInfo: ${appDetail.appInfo.appInfoMap}")
-        return listOf(net.xzos.upgradeall.websdk.data.json.ReleaseGson(versionNumber = appDetail.versionName,
+        return listOf(ReleaseGson(versionNumber = appDetail.versionName,
             changelog = appDetail.changes,
             assetGsonList = appDetail.fileList.map {
-                net.xzos.upgradeall.websdk.data.json.AssetGson(
+                AssetGson(
                     fileName = it.name,
                     fileType = APK_CONTENT_TYPE,
                     downloadUrl = it.url,
@@ -104,7 +106,7 @@ class GooglePlay(
         hub: HubData,
         app: AppData,
         assetIndex: List<Int>,
-        assetGson: net.xzos.upgradeall.websdk.data.json.AssetGson?
+        assetGson: AssetGson?
     ): List<DownloadItem>? {
         val appPackage = app.appId[ANDROID_APP_TYPE] ?: return emptyList()
         val authJson = getAuthJson(hub) ?: return null
