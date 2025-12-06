@@ -187,7 +187,7 @@ dependencies {
         implementation 'com.google.firebase:firebase-crashlytics:20.0.3'
     }
     //Protobuf
-    implementation 'com.google.protobuf:protobuf-java:4.33.1'
+    implementation 'com.google.protobuf:protobuf-java:4.33.2'
 }
 // fix different protobuf versions of gplayapi and firebase
 configurations.all {
