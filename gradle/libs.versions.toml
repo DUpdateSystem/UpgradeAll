@@ -1,7 +1,7 @@
 [versions]
 # Build Tools
 agp = "8.13.1"
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 ksp = "2.3.3"
 androidRust = "0.5.0"
 
