@@ -1,11 +1,11 @@
 package net.xzos.upgradeall.utils
 
 import android.app.ActivityManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
@@ -20,6 +20,7 @@ import net.xzos.upgradeall.core.utils.log.msg
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import androidx.core.net.toUri
 
 
 object MiscellaneousUtils {
@@ -36,16 +37,19 @@ object MiscellaneousUtils {
     }
 
     fun accessByBrowser(url: String, context: Context, packageName: String? = null) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+        val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
             if (context == MyApplication.context)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            packageName?.let {
+                ComponentName.unflattenFromString(it)?.let { cn ->
+                    component = cn
+                } ?: setPackage(it)
+            }
         }
         if (packageName == null) {
             launchChooser(intent, context)
         } else {
-            sendIntent(intent.apply {
-                setPackage(packageName)
-            }, context)
+            sendIntent(intent, context)
         }
     }
 
