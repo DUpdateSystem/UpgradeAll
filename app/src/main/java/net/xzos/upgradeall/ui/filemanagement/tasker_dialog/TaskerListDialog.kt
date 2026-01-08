@@ -11,8 +11,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import net.xzos.upgradeall.R
-import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskWrapper
 import net.xzos.upgradeall.databinding.DialogFileTaskerBinding
+import net.xzos.upgradeall.getter.rpc.RustTaskWrapper
 import net.xzos.upgradeall.ui.base.list.HubListPart
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItem
 import net.xzos.upgradeall.ui.filemanagement.tasker_dialog.list.TaskerItemHolder
@@ -21,7 +21,7 @@ import net.xzos.upgradeall.wrapper.download.DownloadTasker
 
 
 class TaskerListDialog private constructor(private val fileTasker: DownloadTasker) :
-    BottomSheetDialogFragment(), HubListPart<TaskWrapper, TaskerItem, TaskerItemHolder> {
+    BottomSheetDialogFragment(), HubListPart<RustTaskWrapper, TaskerItem, TaskerItemHolder> {
 
     override val adapter = TaskerListAdapter()
 

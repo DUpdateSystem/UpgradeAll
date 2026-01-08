@@ -6,8 +6,8 @@ import androidx.databinding.ObservableBoolean
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskWrapper
 import net.xzos.upgradeall.core.installer.FileType
+import net.xzos.upgradeall.getter.rpc.RustTaskWrapper
 import net.xzos.upgradeall.ui.base.recycleview.ListContainerViewModel
 import net.xzos.upgradeall.utils.ObservableViewModel
 import net.xzos.upgradeall.utils.mutableLiveDataOf
@@ -34,7 +34,7 @@ class FileTaskerViewModel : ObservableViewModel() {
         }
     }
     val downloadList by lazy {
-        mutableLiveDataOf<MutableList<TaskWrapper>>().apply {
+        mutableLiveDataOf<MutableList<RustTaskWrapper>>().apply {
             value = mutableListOf()
         }
     }
@@ -81,7 +81,7 @@ class FileTaskerViewModel : ObservableViewModel() {
 
     private fun flashActive() {
         resetView()
-        downloadList.setList(runBlocking { fileTasker.downloader?.getTaskList() ?: listOf() })
+        downloadList.setList(runBlocking { fileTasker.rustDownloader?.getTaskList() ?: listOf() })
     }
 
     private fun resetView() {
@@ -120,25 +120,25 @@ class FileTaskerViewModel : ObservableViewModel() {
     }
 
     fun onPause() {
-        fileTasker.downloader?.pause()
+        fileTasker.rustDownloader?.pause()
     }
 
     fun onResume() {
-        fileTasker.downloader?.resume()
+        fileTasker.rustDownloader?.resume()
     }
 
     fun onRetry() {
-        fileTasker.downloader?.retry()
+        fileTasker.rustDownloader?.retry()
     }
 
     fun onDelete() {
-        fileTasker.downloader?.cancel()
+        fileTasker.rustDownloader?.cancel()
     }
 }
 
 class FileTaskerListViewModel(
     application: Application
-) : ListContainerViewModel<TaskWrapper>(application) {
-    lateinit var getDownload: () -> List<TaskWrapper>
-    override suspend fun doLoadData(): List<TaskWrapper> = getDownload()
+) : ListContainerViewModel<RustTaskWrapper>(application) {
+    lateinit var getDownload: () -> List<RustTaskWrapper>
+    override suspend fun doLoadData(): List<RustTaskWrapper> = getDownload()
 }

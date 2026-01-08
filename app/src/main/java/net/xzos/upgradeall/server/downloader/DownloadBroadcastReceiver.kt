@@ -15,7 +15,7 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val fileTaskerId = intent.getStringExtra(EXTRA_IDENTIFIER_FILE_TASKER_ID) ?: return
         val fileTasker = DownloadTaskerManager.getFileTasker(fileTaskerId) ?: return
-        val downloader = fileTasker.downloader ?: return
+        val downloader = fileTasker.rustDownloader ?: return
         val notification = DownloadNotificationManager.getNotification(fileTasker) ?: return
         when (intent.getIntExtra(EXTRA_IDENTIFIER_FILE_TASKER_CONTROL, -1)) {
             DOWNLOAD_RETRY -> downloader.retry()

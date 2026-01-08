@@ -61,6 +61,6 @@ dependencies {
     // BCrypt, for coolapk
     implementation 'org.mindrot:jbcrypt:0.4'
 
-    implementation project(':core-getter')
+    api project(':core-getter')
     api project(':core-websdk:data')
 }

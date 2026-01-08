@@ -60,7 +60,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
 
-    implementation project(':core-getter:rpc')
+    api project(':core-getter:rpc')
     // Rust TLS
     implementation "rustls:rustls-platform-verifier:latest.release"
 }

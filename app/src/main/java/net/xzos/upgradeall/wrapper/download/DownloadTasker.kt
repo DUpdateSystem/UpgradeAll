@@ -2,9 +2,7 @@ package net.xzos.upgradeall.wrapper.download
 
 import android.content.Context
 import net.xzos.upgradeall.core.database.table.extra_hub.ExtraHubEntityManager
-import net.xzos.upgradeall.core.downloader.filedownloader.item.Downloader
 import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskSnap
-import net.xzos.upgradeall.core.downloader.filedownloader.item.data.InputData
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.version.AssetWrapper
@@ -14,11 +12,16 @@ import net.xzos.upgradeall.core.websdk.base_model.AppData
 import net.xzos.upgradeall.core.websdk.base_model.HubData
 import net.xzos.upgradeall.core.websdk.base_model.SingleRequestData
 import net.xzos.upgradeall.core.websdk.getServerApi
+import net.xzos.upgradeall.core.websdk.getterPort
 import net.xzos.upgradeall.data.PreferencesMap
+import net.xzos.upgradeall.getter.rpc.DownloaderHelper
+import net.xzos.upgradeall.getter.rpc.RustDownloaderAdapter
+import net.xzos.upgradeall.getter.rpc.toRustInputData
 import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.file.DOWNLOAD_EXTRA_CACHE_DIR
 import net.xzos.upgradeall.websdk.data.json.DownloadItem
 import java.io.File
+import kotlinx.coroutines.GlobalScope
 
 class DownloadTasker(
     val app: App, private val wrapper: AssetWrapper
@@ -29,7 +32,7 @@ class DownloadTasker(
     var snap: DownloadTaskerSnap? = null
         private set
 
-    var downloader: Downloader? = null
+    var rustDownloader: RustDownloaderAdapter? = null
         private set
     private var _fileType: FileType? = null
     val fileType: FileType
@@ -39,8 +42,27 @@ class DownloadTasker(
 
     var downloadInfoList: List<DownloadItem> = emptyList()
 
-    private fun getDownloadSnapList() =
-        downloader?.getTaskList()?.map { it.snap } ?: listOf()
+    private fun getDownloadSnapList(): List<TaskSnap> {
+        return rustDownloader?.getTaskList()?.map { rustTask ->
+            TaskSnap(
+                status = rustTask.snap.status.toOldStatus(),
+                downloadSize = rustTask.snap.downloadSize,
+                totalSize = rustTask.snap.totalSize
+            )
+        } ?: listOf()
+    }
+
+    private fun net.xzos.upgradeall.getter.rpc.RustDownloadStatus.toOldStatus(): net.xzos.upgradeall.core.downloader.filedownloader.item.Status {
+        return when (this) {
+            net.xzos.upgradeall.getter.rpc.RustDownloadStatus.NONE -> net.xzos.upgradeall.core.downloader.filedownloader.item.Status.NONE
+            net.xzos.upgradeall.getter.rpc.RustDownloadStatus.START -> net.xzos.upgradeall.core.downloader.filedownloader.item.Status.START
+            net.xzos.upgradeall.getter.rpc.RustDownloadStatus.RUNNING -> net.xzos.upgradeall.core.downloader.filedownloader.item.Status.RUNNING
+            net.xzos.upgradeall.getter.rpc.RustDownloadStatus.STOP -> net.xzos.upgradeall.core.downloader.filedownloader.item.Status.STOP
+            net.xzos.upgradeall.getter.rpc.RustDownloadStatus.COMPLETE -> net.xzos.upgradeall.core.downloader.filedownloader.item.Status.COMPLETE
+            net.xzos.upgradeall.getter.rpc.RustDownloadStatus.CANCEL -> net.xzos.upgradeall.core.downloader.filedownloader.item.Status.CANCEL
+            net.xzos.upgradeall.getter.rpc.RustDownloadStatus.FAIL -> net.xzos.upgradeall.core.downloader.filedownloader.item.Status.FAIL
+        }
+    }
 
     private fun getFileTaskerSnap(
         status: DownloadTaskerStatus? = null,
@@ -85,29 +107,41 @@ class DownloadTasker(
             }
             changed(getFileTaskerSnap(DownloadTaskerStatus.EXTERNAL_DOWNLOAD))
         } else {
-            downloader = setDownload(
-                downloadInfoList.map { it.getDownloadInfoItem(name) },
+            rustDownloader = setRustDownload(
+                downloadInfoList,
                 DOWNLOAD_EXTRA_CACHE_DIR
             ).apply {
-                startDownloader(this)
+                startRustDownloader(this)
             }
         }
     }
 
-    private fun setDownload(dataList: List<InputData>, dir: File): Downloader {
-        return Downloader(dir).apply {
-            dataList.forEach { addTask(it) }
+    private fun setRustDownload(downloadList: List<DownloadItem>, dir: File): RustDownloaderAdapter {
+        return DownloaderHelper.createRustDownloader(
+            getterPort.getService(),
+            dir,
+            GlobalScope
+        ).apply {
+            downloadList.forEach { addTask(it.toRustInputData(name)) }
         }.also { d ->
-            d.observe {
-                changed(getFileTaskerSnap(it.taskStatus()))
+            d.observe { status ->
+                val snap = getFileTaskerSnap(status.taskStatus())
+                // Attach error message if failed
+                if (status == net.xzos.upgradeall.getter.rpc.RustDownloadStatus.FAIL) {
+                    val errorMsg = d.getTaskList()
+                        .mapNotNull { it.snap.error }
+                        .firstOrNull()
+                    errorMsg?.let { snap.msg(it) }
+                }
+                changed(snap)
             }
         }
     }
 
-    private suspend fun startDownloader(downloader: Downloader) {
+    private suspend fun startRustDownloader(downloader: RustDownloaderAdapter) {
         changed(getFileTaskerSnap(DownloadTaskerStatus.WAIT_START))
         downloader.start(
-            { changed(getFileTaskerSnap(DownloadTaskerStatus.STARTED).msg("${app.name}$downloader")) },
+            { changed(getFileTaskerSnap(DownloadTaskerStatus.STARTED).msg("${app.name}")) },
             { changed(getFileTaskerSnap(DownloadTaskerStatus.START_FAIL).error(it)) }
         )
     }
@@ -118,4 +152,4 @@ class DownloadTasker(
     }
 }
 
-fun DownloadTasker.defName() = downloader?.getTaskList()?.first()?.file?.name ?: app.name
+fun DownloadTasker.defName() = rustDownloader?.getTaskList()?.first()?.file?.name ?: app.name

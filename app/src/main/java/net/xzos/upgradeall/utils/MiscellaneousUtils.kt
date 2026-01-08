@@ -55,9 +55,10 @@ object MiscellaneousUtils {
 
     private fun launchChooser(intent: Intent, context: Context) {
         try {
-            context.startActivity(
-                Intent.createChooser(intent, context.getString(R.string.select_browser))
-            )
+            val chooserIntent = Intent.createChooser(intent, context.getString(R.string.select_browser)).also {
+                it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(chooserIntent)
         } catch (e: Exception) {
             ToastUtil.showText(
                 context, R.string.system_browser_error, duration = Toast.LENGTH_LONG

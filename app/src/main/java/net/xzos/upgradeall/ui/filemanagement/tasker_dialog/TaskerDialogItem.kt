@@ -7,7 +7,7 @@ import net.xzos.upgradeall.ui.filemanagement.DownloadTaskerNumUtil
 import net.xzos.upgradeall.wrapper.download.DownloadTasker
 
 class TaskerDialogItem(val fileTasker: DownloadTasker) : ListItemView {
-    private val numUtil = DownloadTaskerNumUtil(fileTasker.downloader)
+    private val numUtil = DownloadTaskerNumUtil(fileTasker.rustDownloader)
     val suspendable: Boolean = numUtil.getDownloadingNum() > 0
     val continuable: Boolean = numUtil.getPauseNum() > 0
     val retryable: Boolean = numUtil.getFailedNum() > 0

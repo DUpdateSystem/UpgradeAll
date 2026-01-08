@@ -12,4 +12,13 @@ dependencies {
     // JSON RPC
     implementation("com.github.briandilley.jsonrpc4j:jsonrpc4j:1.7")
     api(project(":core-websdk:data"))
+
+    // Gson for serialization
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    // Jackson annotations (for jsonrpc4j compatibility)
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.2")
+
+    // Kotlin Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 }

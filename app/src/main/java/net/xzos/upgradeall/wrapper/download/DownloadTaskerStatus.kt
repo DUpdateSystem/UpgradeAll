@@ -4,6 +4,7 @@ import net.xzos.upgradeall.core.downloader.filedownloader.item.Status
 import net.xzos.upgradeall.core.downloader.filedownloader.item.TaskSnap
 import net.xzos.upgradeall.core.downloader.filedownloader.item.progress
 import net.xzos.upgradeall.core.utils.oberver.Tag
+import net.xzos.upgradeall.getter.rpc.RustDownloadStatus
 
 enum class DownloadTaskerStatus(val msg: String) : Tag {
     NONE("NONE"),
@@ -32,6 +33,16 @@ fun Status.taskStatus() = when (this) {
     Status.COMPLETE -> DownloadTaskerStatus.DOWNLOAD_COMPLETE
     Status.CANCEL -> DownloadTaskerStatus.DOWNLOAD_CANCEL
     Status.FAIL -> DownloadTaskerStatus.DOWNLOAD_FAIL
+    else -> DownloadTaskerStatus.NONE
+}
+
+fun RustDownloadStatus.taskStatus() = when (this) {
+    RustDownloadStatus.START -> DownloadTaskerStatus.DOWNLOAD_START
+    RustDownloadStatus.RUNNING -> DownloadTaskerStatus.DOWNLOAD_RUNNING
+    RustDownloadStatus.STOP -> DownloadTaskerStatus.DOWNLOAD_STOP
+    RustDownloadStatus.COMPLETE -> DownloadTaskerStatus.DOWNLOAD_COMPLETE
+    RustDownloadStatus.CANCEL -> DownloadTaskerStatus.DOWNLOAD_CANCEL
+    RustDownloadStatus.FAIL -> DownloadTaskerStatus.DOWNLOAD_FAIL
     else -> DownloadTaskerStatus.NONE
 }
 

@@ -20,7 +20,7 @@ fun DownloadItem.getDownloadInfoItem(defName: String): InputData {
     return InputData(name ?: defName, url, headers ?: emptyMap(), cookies ?: emptyMap())
 }
 
-fun DownloadTasker.getFileList() = downloader?.getTaskList()?.map { it.file } ?: listOf()
+fun DownloadTasker.getFileList() = rustDownloader?.getTaskList()?.map { it.file } ?: listOf()
 
 fun DownloadTasker.getFileType() =
     getFileType(getFileList(), context)
@@ -45,6 +45,6 @@ suspend fun DownloadTasker.install(
     }, {
         DownloadNotificationManager.getNotification(this)?.cancelNotification()
         ToastUtil.showText(context, R.string.install_success)
-        if (PreferencesMap.auto_delete_file) downloader?.cancel()
+        if (PreferencesMap.auto_delete_file) rustDownloader?.cancel()
     })
 }

@@ -17,6 +17,8 @@ import net.xzos.upgradeall.core.androidutils.withImmutableFlag
 import net.xzos.upgradeall.core.installer.FileType
 import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.coroutines.runWithLock
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.msg
 import net.xzos.upgradeall.utils.getNotificationManager
 import net.xzos.upgradeall.wrapper.download.*
@@ -69,7 +71,7 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
                     DownloadTaskerStatus.DOWNLOAD_STOP -> taskPause()
                     DownloadTaskerStatus.DOWNLOAD_COMPLETE -> taskComplete(it)
                     DownloadTaskerStatus.DOWNLOAD_CANCEL -> taskCancel()
-                    DownloadTaskerStatus.DOWNLOAD_FAIL -> taskFail()
+                    DownloadTaskerStatus.DOWNLOAD_FAIL -> taskFail(it.msg)
                     DownloadTaskerStatus.NONE -> {}
                     DownloadTaskerStatus.INFO_COMPLETE -> {}
                     DownloadTaskerStatus.INFO_FAILED -> {}
@@ -166,11 +168,22 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
         cancelNotification()
     }
 
-    private fun taskFail() {
+    private fun taskFail(errorMsg: String = "") {
         val delTaskSnoozePendingIntent =
             getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_CANCEL)
+        val displayText = if (errorMsg.isNotEmpty()) {
+            errorMsg
+        } else {
+            getString(R.string.download_failed_click_to_retry)
+        }
+        // Log error for debugging
+        Log.e(
+            ObjectTag(ObjectTag.downloader, downloadTasker.name),
+            TAG,
+            "Download failed: $displayText"
+        )
         builder.clearActions()
-            .setContentText(getString(R.string.download_failed_click_to_retry))
+            .setContentText(displayText)
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
             .setProgress(0, 0, false)
             .setContentIntent(getSnoozePendingIntent(DownloadBroadcastReceiver.DOWNLOAD_RETRY))
@@ -286,6 +299,7 @@ class DownloadNotification(private val downloadTasker: DownloadTasker) {
     }
 
     companion object {
+        private const val TAG = "DownloadNotification"
         private const val DOWNLOAD_CHANNEL_ID = "DownloadNotification"
         private const val PROGRESS_MAX = 100
         private val context get() = MyApplication.context

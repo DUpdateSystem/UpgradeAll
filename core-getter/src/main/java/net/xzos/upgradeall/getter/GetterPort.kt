@@ -33,6 +33,13 @@ class GetterPort(private val config: RustConfig) {
         return ::service.isInitialized
     }
 
+    fun getService(): GetterService {
+        if (!isServiceRunning()) {
+            throw IllegalStateException("GetterService is not initialized. Call runService() first.")
+        }
+        return service
+    }
+
     suspend fun waitService(): Boolean {
         while (true) {
             if (isServiceRunning().apply {

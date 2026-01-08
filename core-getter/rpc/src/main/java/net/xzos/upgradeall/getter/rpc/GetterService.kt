@@ -47,6 +47,44 @@ interface GetterService {
     fun getCloudConfig(
         @JsonRpcParam(value = "url") url: String
     ): CloudConfigList
+
+    // ========================================================================
+    // Downloader RPC Methods
+    // ========================================================================
+
+    @JsonRpcMethod("download_submit")
+    fun downloadSubmit(
+        @JsonRpcParam(value = "url") url: String,
+        @JsonRpcParam(value = "dest_path") destPath: String,
+        @JsonRpcParam(value = "headers") headers: Map<String, String>? = null,
+        @JsonRpcParam(value = "cookies") cookies: Map<String, String>? = null
+    ): TaskIdResponse
+
+    @JsonRpcMethod("download_get_status")
+    fun downloadGetStatus(
+        @JsonRpcParam(value = "task_id") taskId: String
+    ): TaskInfo
+
+    @JsonRpcMethod("download_wait_for_change")
+    fun downloadWaitForChange(
+        @JsonRpcParam(value = "task_id") taskId: String,
+        @JsonRpcParam(value = "timeout_seconds") timeoutSeconds: Long
+    ): TaskInfo
+
+    @JsonRpcMethod("download_cancel")
+    fun downloadCancel(
+        @JsonRpcParam(value = "task_id") taskId: String
+    ): Boolean
+
+    @JsonRpcMethod("download_pause")
+    fun downloadPause(
+        @JsonRpcParam(value = "task_id") taskId: String
+    ): Boolean
+
+    @JsonRpcMethod("download_resume")
+    fun downloadResume(
+        @JsonRpcParam(value = "task_id") taskId: String
+    ): Boolean
 }
 
 fun getClient(url: String): GetterService {
