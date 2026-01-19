@@ -17,7 +17,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 
     // Jackson annotations (for jsonrpc4j compatibility)
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.2")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
 
     // Kotlin Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
