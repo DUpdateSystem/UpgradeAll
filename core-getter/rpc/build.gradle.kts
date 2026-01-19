@@ -20,5 +20,5 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
 
     // Kotlin Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 }
