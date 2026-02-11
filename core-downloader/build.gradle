@@ -50,7 +50,7 @@ dependencies {
     implementation 'androidx.documentfile:documentfile:1.1.0'
 
     // Ktor
-    def ktor_version = '3.4.0'
+    def ktor_version = '3.3.3'
     implementation "io.ktor:ktor-client-core:$ktor_version"
     implementation "io.ktor:ktor-client-cio:$ktor_version"
 }

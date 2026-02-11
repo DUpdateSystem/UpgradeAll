@@ -87,7 +87,10 @@ interface GetterService {
     ): Boolean
 }
 
-fun getClient(url: String): GetterService {
+/**
+ * Create HTTP-based GetterService client (for backward compatibility and testing)
+ */
+fun getHttpClient(url: String): GetterService {
     val client = JsonRpcHttpClient(URI(url).toURL())
 
     return ProxyUtil.createClientProxy(
@@ -96,4 +99,17 @@ fun getClient(url: String): GetterService {
         client
     )
 }
+
+/**
+ * Create WebSocket-based SuspendGetterService client (primary implementation)
+ */
+fun getWsClient(url: String): SuspendGetterService {
+    val wsUrl = url.replace("http://", "ws://").replace("https://", "wss://")
+    return WsGetterService(WsRpcClient(wsUrl))
+}
+
+/**
+ * Default client factory - uses WebSocket for better performance
+ */
+fun getClient(url: String): GetterService = getHttpClient(url)
 

@@ -14,11 +14,17 @@ dependencies {
     api(project(":core-websdk:data"))
 
     // Gson for serialization
-    implementation("com.google.code.gson:gson:2.13.2")
+    implementation("com.google.code.gson:gson:2.10.1")
 
     // Jackson annotations (for jsonrpc4j compatibility)
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.2")
 
     // Kotlin Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+
+    // Ktor WebSocket client (for WebSocket JSON-RPC)
+    val ktorVersion = "3.3.3"
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-websockets:$ktorVersion")
 }
