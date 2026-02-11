@@ -45,7 +45,5 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
 
-    // JSON RPC
-    implementation("com.github.briandilley.jsonrpc4j:jsonrpc4j:1.7")
     implementation(project(":core-websdk:data"))
 }

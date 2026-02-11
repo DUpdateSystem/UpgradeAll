@@ -7,28 +7,20 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.getter.rpc.GetterService
-import net.xzos.upgradeall.getter.rpc.SuspendGetterService
-import net.xzos.upgradeall.getter.rpc.getHttpClient
-import net.xzos.upgradeall.getter.rpc.getWsClient
+import net.xzos.upgradeall.getter.rpc.getClient
 import net.xzos.upgradeall.websdk.data.json.CloudConfigList
 import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 
 class GetterPort(private val config: RustConfig) {
-    // WebSocket client (primary, for all non-download operations)
-    private lateinit var wsService: SuspendGetterService
-    
-    // HTTP client (backup, for RustDownloader compatibility)
-    private lateinit var httpService: GetterService
+    private lateinit var service: GetterService
     
     private val mutex = Mutex()
     private var isInit = false
 
     fun runService(context: Context) {
         NativeLib().runServerLambda(context) { url ->
-            // Create both WS and HTTP clients
-            wsService = getWsClient(url)
-            httpService = getHttpClient(url)
+            service = getClient(url)
         }.also {
             if (it.isEmpty()) {
                 Log.d("GetterPort", "runService: success")
@@ -39,27 +31,17 @@ class GetterPort(private val config: RustConfig) {
     }
 
     private fun isServiceRunning(): Boolean {
-        return ::wsService.isInitialized && ::httpService.isInitialized
+        return ::service.isInitialized
     }
 
     /**
-     * Get HTTP-based service (for RustDownloader compatibility)
+     * Get the GetterService instance
      */
     fun getService(): GetterService {
         if (!isServiceRunning()) {
             throw IllegalStateException("GetterService is not initialized. Call runService() first.")
         }
-        return httpService
-    }
-
-    /**
-     * Get suspend-based WebSocket service (for future use)
-     */
-    fun getSuspendService(): SuspendGetterService {
-        if (!isServiceRunning()) {
-            throw IllegalStateException("SuspendGetterService is not initialized. Call runService() first.")
-        }
-        return wsService
+        return service
     }
 
     suspend fun waitService(): Boolean {
@@ -83,7 +65,7 @@ class GetterPort(private val config: RustConfig) {
             val dataPath = config.dataDir.toString()
             val cachePath = config.cacheDir.toString()
             val globalExpireTime = config.globalExpireTime
-            return@withLock wsService.init(dataPath, cachePath, globalExpireTime)
+            return@withLock service.init(dataPath, cachePath, globalExpireTime)
                 .apply { isInit = this }
                 .also { Log.d("GetterPort", "initInternal: $it") }
         }
@@ -93,7 +75,7 @@ class GetterPort(private val config: RustConfig) {
         if (!init()) return false
         return try {
             runBlocking {
-                wsService.ping()
+                service.ping()
                     .also { Log.d("GetterPort", "ping: $it") }
                     .isNotEmpty()
             }
@@ -109,7 +91,7 @@ class GetterPort(private val config: RustConfig) {
 
     fun shutdownService() {
         runBlocking {
-            wsService.shutdown()
+            service.shutdown()
         }
     }
 
@@ -118,7 +100,7 @@ class GetterPort(private val config: RustConfig) {
     ): Boolean? {
         if (!init()) return null
         return runBlocking {
-            wsService.checkAppAvailable(hubUuid, appData, hubData)
+            service.checkAppAvailable(hubUuid, appData, hubData)
                 .also { Log.d("GetterPort", "checkAppAvailable: $it") }
         }
     }
@@ -128,7 +110,7 @@ class GetterPort(private val config: RustConfig) {
     ): ReleaseGson? {
         if (!init()) return null
         return runBlocking {
-            wsService.getAppLatestRelease(hubUuid, appData, hubData)
+            service.getAppLatestRelease(hubUuid, appData, hubData)
                 .also { Log.d("GetterPort", "getAppLatestRelease: $it") }
         }
     }
@@ -138,7 +120,7 @@ class GetterPort(private val config: RustConfig) {
     ): List<ReleaseGson>? {
         if (!init()) return null
         return runBlocking {
-            wsService.getAppReleases(hubUuid, appData, hubData)
+            service.getAppReleases(hubUuid, appData, hubData)
                 .also { Log.d("GetterPort", "getAppReleases: $it") }
         }
     }
@@ -146,7 +128,7 @@ class GetterPort(private val config: RustConfig) {
     fun getCloudConfig(apiUrl: String): CloudConfigList? {
         if (!init()) return null
         return runBlocking {
-            wsService.getCloudConfig(apiUrl)
+            service.getCloudConfig(apiUrl)
                 .also { Log.d("GetterPort", "getCloudConfig: $it") }
         }
     }

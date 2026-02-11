@@ -41,9 +41,7 @@ class RustDownloader(
                 _status.value = RustDownloadStatus.START
 
                 // Submit download task
-                val response = withContext(Dispatchers.IO) {
-                    getterService.downloadSubmit(url, destPath, headers, cookies)
-                }
+                val response = getterService.downloadSubmit(url, destPath, headers, cookies)
                 taskId = response.taskId
 
                 // Start polling for updates
@@ -65,9 +63,7 @@ class RustDownloader(
         scope.launch {
             try {
                 taskId?.let {
-                    withContext(Dispatchers.IO) {
-                        getterService.downloadCancel(it)
-                    }
+                    getterService.downloadCancel(it)
                     _status.value = RustDownloadStatus.CANCEL
                 }
                 stopPolling()
@@ -84,9 +80,7 @@ class RustDownloader(
         scope.launch {
             try {
                 taskId?.let {
-                    withContext(Dispatchers.IO) {
-                        getterService.downloadPause(it)
-                    }
+                    getterService.downloadPause(it)
                     _status.value = RustDownloadStatus.STOP
                 }
             } catch (e: Exception) {
@@ -102,9 +96,7 @@ class RustDownloader(
         scope.launch {
             try {
                 taskId?.let {
-                    withContext(Dispatchers.IO) {
-                        getterService.downloadResume(it)
-                    }
+                    getterService.downloadResume(it)
                     _status.value = RustDownloadStatus.RUNNING
                     // Restart polling to track resumed download
                     startPolling()
@@ -141,9 +133,7 @@ class RustDownloader(
             while (isActive) {
                 try {
                     // Use long polling to wait for state changes
-                    val taskInfo = withContext(Dispatchers.IO) {
-                        getterService.downloadWaitForChange(currentTaskId, 30)
-                    }
+                    val taskInfo = getterService.downloadWaitForChange(currentTaskId, 30)
 
                     updateFromTaskInfo(taskInfo)
 
@@ -156,9 +146,7 @@ class RustDownloader(
                 } catch (e: Exception) {
                     // On error, try regular status check
                     try {
-                        val taskInfo = withContext(Dispatchers.IO) {
-                            getterService.downloadGetStatus(currentTaskId)
-                        }
+                        val taskInfo = getterService.downloadGetStatus(currentTaskId)
                         updateFromTaskInfo(taskInfo)
 
                         if (isTerminalState(taskInfo.state)) {

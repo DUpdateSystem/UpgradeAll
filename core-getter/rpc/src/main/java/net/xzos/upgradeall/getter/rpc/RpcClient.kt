@@ -3,6 +3,7 @@ package net.xzos.upgradeall.getter.rpc
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.websocket.*
@@ -21,7 +22,7 @@ import kotlin.time.Duration.Companion.seconds
  * This client maintains a persistent WebSocket connection and handles concurrent
  * JSON-RPC requests by matching request IDs with responses.
  */
-class WsRpcClient(private val url: String) {
+class RpcClient(private val url: String) {
     private val gson = Gson()
     private val requestId = AtomicLong(1)
     
@@ -273,3 +274,15 @@ class WsRpcClient(private val url: String) {
         }
     }
 }
+
+/**
+ * JSON-RPC exception thrown when RPC call fails
+ */
+class RpcException(message: String, val data: String? = null) : RuntimeException(
+    if (data != null) "$message: $data" else message
+)
+
+/**
+ * Type token helper for generic types with Gson
+ */
+inline fun <reified T> typeOf(): Type = object : TypeToken<T>() {}.type

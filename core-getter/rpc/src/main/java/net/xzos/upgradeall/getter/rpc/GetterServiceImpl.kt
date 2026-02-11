@@ -1,16 +1,15 @@
 package net.xzos.upgradeall.getter.rpc
 
-import com.google.gson.reflect.TypeToken
 import net.xzos.upgradeall.websdk.data.json.CloudConfigList
 import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 /**
- * WebSocket-based implementation of SuspendGetterService.
+ * WebSocket-based implementation of GetterService.
  * 
- * Uses WsRpcClient internally to communicate with the Rust getter server
+ * Uses RpcClient internally to communicate with the Rust getter server
  * over a persistent WebSocket connection.
  */
-class WsGetterService(private val client: WsRpcClient) : SuspendGetterService {
+class GetterServiceImpl(private val client: RpcClient) : GetterService {
     
     override suspend fun ping(): String {
         return client.invoke("ping", typeOf<String>())

@@ -11,11 +11,6 @@
       {
         "matchPackageNames": ["jni"],
         "enabled": false
-      },
-      {
-        "matchPackageNames": ["com.github.briandilley.jsonrpc4j:jsonrpc4j"],
-        "matchNewValue": "1.6.0",
-        "enabled": false
       }
     ]
   }
