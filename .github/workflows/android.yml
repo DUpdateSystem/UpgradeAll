@@ -41,7 +41,10 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install NDK
-        run: echo "y" | sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
+        id: setup-ndk
+        run: |
+          echo "y" | sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
+          echo "ndk-path=$ANDROID_SDK_ROOT/ndk/${{ env.NDK_VERSION }}" >> $GITHUB_OUTPUT
 
       - name: Install Cargo with aarch64-linux-android
         uses: dtolnay/rust-toolchain@stable
@@ -147,7 +150,7 @@ jobs:
 
       - name: Send commit to Telegram
         if: ${{ !github.event.pull_request }}
-        uses: xz-dev/TelegramFileUploader@v1.2.1
+        uses: xz-dev/TelegramFileUploader@v1.2.0
         env:
           BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           API_ID: ${{ secrets.TELEGRAM_API_ID }}
