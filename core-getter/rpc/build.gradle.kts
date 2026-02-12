@@ -15,7 +15,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 
     // Kotlin Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
     // Ktor WebSocket client for JSON-RPC
     val ktorVersion = "3.3.3"
