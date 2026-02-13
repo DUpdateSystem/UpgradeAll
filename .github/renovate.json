@@ -1,19 +1,21 @@
 {
-    "labels": [
-      "dependencies"
-    ],
-    "extends": [
-      "config:base",
-      ":gitSignOff"
-    ],
-    "groupName": "all",
-    "git-submodules": {
-      "enabled": true
-    },
-    "packageRules": [
-      {
-        "matchPackageNames": ["jni"],
-        "enabled": false
-      }
-    ]
-  }
+  "labels": [
+    "dependencies"
+  ],
+  "extends": [
+    "config:recommended",
+    ":gitSignOff"
+  ],
+  "groupName": "all",
+  "git-submodules": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "jni"
+      ],
+      "enabled": false
+    }
+  ]
+}
