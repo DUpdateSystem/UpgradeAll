@@ -7,6 +7,9 @@
       ":gitSignOff"
     ],
     "groupName": "all",
+    "git-submodules": {
+      "enabled": true
+    },
     "packageRules": [
       {
         "matchPackageNames": ["jni"],
