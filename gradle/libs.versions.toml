@@ -3,7 +3,7 @@
 agp = "9.0.0"
 kotlin = "2.3.10"
 ksp = "2.3.5"
-androidRust = "afc2ea0"
+androidRust = "0.5.0"
 
 # Kotlin Libraries
 kotlinCoroutines = "1.10.2"
@@ -32,7 +32,7 @@ firebaseCrashlyticsPlugin = "3.0.6"
 firebasePerfPlugin = "2.0.2"
 firebasePerf = "22.0.4"
 firebaseAnalytics = "23.0.0"
-firebaseCrashlytics = "20.0.3"
+firebaseCrashlytics = "20.0.4"
 material = "1.13.0"
 protobuf = "4.33.5"
 
@@ -95,7 +95,7 @@ androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fr
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
-androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version = "1.1.0" }
+androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version = "1.2.0" }
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 
 # Room
