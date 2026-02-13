@@ -12,7 +12,6 @@ android {
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 36
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -40,6 +39,12 @@ android {
         }
     }
     namespace 'net.xzos.upgradeall.core'
+    lint {
+        targetSdk 36
+    }
+    testOptions {
+        targetSdk 36
+    }
 
 }
 
@@ -62,7 +67,7 @@ dependencies {
     // database
     def room_version = '2.8.4'
     api "androidx.room:room-runtime:$room_version"
-    ksp 'org.xerial:sqlite-jdbc:3.51.1.0' //Work around on Apple Silicon
+    ksp 'org.xerial:sqlite-jdbc:3.51.2.0' //Work around on Apple Silicon
     ksp "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     // Test helpers
