@@ -165,7 +165,7 @@ val Context.isOrientationPortrait: Boolean
     get() = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
 val Context.isLightTheme: Boolean
-    get() = getBooleanByAttr(R.attr.isLightTheme)
+    get() = getBooleanByAttr(androidx.appcompat.R.attr.isLightTheme)
 
 val Context.layoutInflater: LayoutInflater
     get() = LayoutInflater.from(this)

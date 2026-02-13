@@ -1,7 +1,9 @@
 package net.xzos.upgradeall.app.backup.manager
 
 import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.app.backup.manager.data.WebDavConfig
@@ -27,7 +29,7 @@ class CloudBackupManager(private val webDavConfig: WebDavConfig) {
     }
 
     fun backup(startFunc: () -> Unit, stopFunc: () -> Unit, errorFunc: (Throwable) -> Unit) {
-        GlobalScope.launch {
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             doBackup(startFunc, stopFunc, errorFunc)
         }
     }

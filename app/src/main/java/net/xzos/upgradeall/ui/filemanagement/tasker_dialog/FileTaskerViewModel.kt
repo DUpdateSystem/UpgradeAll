@@ -3,7 +3,7 @@ package net.xzos.upgradeall.ui.filemanagement.tasker_dialog
 import android.app.Application
 import android.content.Context
 import androidx.databinding.ObservableBoolean
-import kotlinx.coroutines.GlobalScope
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.xzos.upgradeall.core.installer.FileType
@@ -111,7 +111,7 @@ class FileTaskerViewModel : ObservableViewModel() {
     }
 
     fun onInstall(context: Context) {
-        GlobalScope.launch {
+        viewModelScope.launch {
             fileTasker.install(context)
         }
     }

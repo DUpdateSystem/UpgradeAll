@@ -10,7 +10,7 @@ import java.io.File
 class RustDownloaderAdapter(
     private val downloadDir: File,
     private val getterService: GetterService,
-    private val scope: CoroutineScope = GlobalScope
+    private val scope: CoroutineScope
 ) {
     val id by lazy { hashCode() }
 

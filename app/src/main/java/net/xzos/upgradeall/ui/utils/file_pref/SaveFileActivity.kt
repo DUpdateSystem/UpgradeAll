@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.androidutils.ToastUtil
 import net.xzos.upgradeall.core.androidutils.writeToUri
@@ -11,10 +12,10 @@ import net.xzos.upgradeall.core.utils.log.ObjectTag
 
 class SaveFileActivity : FilePrefActivity() {
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        super.onActivityResult(requestCode, resultCode, resultData)
-        if (resultCode == Activity.RESULT_OK && resultData != null) {
-            val uri = resultData.data
+    override fun onActivityResultOkCallback(resultData: ActivityResult) {
+        val data = resultData.data
+        if (data != null) {
+            val uri = data.data
             if (uri != null) {
                 val textResId =
                     if (writeToUri(uri, this, byteArray = bytes))
@@ -24,7 +25,6 @@ class SaveFileActivity : FilePrefActivity() {
                 ToastUtil.showText(this, textResId, Toast.LENGTH_LONG)
             }
         }
-        finish()
     }
 
     override fun buildIntent(): Intent {
@@ -41,8 +41,6 @@ class SaveFileActivity : FilePrefActivity() {
     companion object {
         private const val TAG = "SaveFileActivity"
         private val logObjectTag = ObjectTag("UI", TAG)
-
-        private const val WRITE_REQUEST_CODE = 2
 
         private var isSuccess = false
 

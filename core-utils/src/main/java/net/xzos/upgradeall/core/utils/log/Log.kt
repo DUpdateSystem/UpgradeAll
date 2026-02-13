@@ -1,6 +1,8 @@
 package net.xzos.upgradeall.core.utils.log
 
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -37,6 +39,7 @@ object Log {
      */
     private var LEVEL = VERBOSE
 
+    private val logScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     internal val logMap =
             coroutinesMutableMapOf<ObjectTag, CoroutinesMutableList<LogItemData>>(true)
     private val mutex = Mutex()
@@ -52,7 +55,7 @@ object Log {
      * 向日志 Map 中添加日志内容
      */
     private fun addLogMessage(logItemData: LogItemData) {
-        GlobalScope.launch {
+        logScope.launch {
             mutex.withLock {
                 val logObjectTag = logItemData.logObjectTag
                 (logMap[logObjectTag] ?: coroutinesMutableListOf<LogItemData>().also {

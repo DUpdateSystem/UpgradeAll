@@ -2,8 +2,8 @@ package net.xzos.upgradeall.ui.applist.base
 
 import android.app.Application
 import android.content.Context
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.module.AppStatus
@@ -132,7 +132,7 @@ class AppHubViewModel(application: Application) : ListContainerViewModel<App>(ap
     }
 
     fun upgradeAll(context: Context) {
-        GlobalScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
             getLiveData().value?.first?.map { app ->
                 launch {
                     app.upgrade(context)

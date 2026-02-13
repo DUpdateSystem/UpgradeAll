@@ -1,7 +1,8 @@
 package net.xzos.upgradeall.getter.rpc
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import java.io.File
 
 /**
@@ -14,7 +15,7 @@ object DownloaderHelper {
     fun createRustDownloader(
         getterService: GetterService,
         downloadDir: File,
-        scope: CoroutineScope = GlobalScope
+        scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     ): RustDownloaderAdapter {
         downloadDir.mkdirs()
         return RustDownloaderAdapter(downloadDir, getterService, scope)

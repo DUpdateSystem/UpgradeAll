@@ -1,6 +1,7 @@
 package net.xzos.upgradeall.core.androidutils.app_info
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import net.xzos.upgradeall.core.androidutils.androidContext
 import net.xzos.upgradeall.core.androidutils.getProp
@@ -37,7 +38,12 @@ private fun ShellResult.toVersionInfo() = AppVersionInfo(getOutputString())
 private fun getAndroidAppVersion(packageName: String, context: Context): AppVersionInfo? {
     // 获取软件版本
     return try {
-        val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
+        val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+        } else {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageInfo(packageName, 0)
+        }
         AppVersionInfo(
             packageInfo.versionName ?: "", mapOf(
                 VERSION_CODE to

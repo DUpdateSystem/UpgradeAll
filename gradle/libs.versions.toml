@@ -1,22 +1,175 @@
 [versions]
 # Build Tools
-agp = "8.13.1"
-kotlin = "2.3.0"
+agp = "9.0.0"
+kotlin = "2.3.10"
 ksp = "2.3.5"
-androidRust = "0.5.0"
+androidRust = "0.6.0"
 
 # Kotlin Libraries
 kotlinCoroutines = "1.10.2"
-kotlinStdlib = "1.5.0"
 
 # AndroidX
 androidxKtx = "1.17.0"
-work = "2.11.0"
+appcompat = "1.7.1"
+constraintlayout = "2.2.1"
+preference = "1.2.1"
+lifecycle = "2.10.0"
+recyclerview = "1.4.0"
+drawerlayout = "1.2.0"
+viewpager2 = "1.1.0"
+activity = "1.12.4"
+fragment = "1.8.9"
+navigation = "2.9.7"
+work = "2.11.1"
+cardview = "1.0.0"
+documentfile = "1.1.0"
+room = "2.8.4"
+composeBom = "2026.02.00"
 
-# Firebase (NO FREE)
-googleServices = "4.4.2"
-firebaseCrashlytics = "3.0.3"
-firebasePerf = "1.4.2"
+# Google / Firebase (NO FREE)
+googleServices = "4.4.4"
+firebaseCrashlyticsPlugin = "3.0.6"
+firebasePerfPlugin = "2.0.2"
+firebasePerf = "22.0.4"
+firebaseAnalytics = "23.0.0"
+firebaseCrashlytics = "20.0.3"
+material = "1.13.0"
+protobuf = "4.33.5"
+
+# Networking
+okhttp = "5.3.2"
+ktor = "3.4.0"
+
+# Serialization
+gson = "2.13.2"
+jacksonDatabind = "2.21.0"
+
+# Image Loading
+glide = "5.0.5"
+
+# Other Libraries
+desugarJdkLibs = "2.1.5"
+localization = "1.2.11"
+once = "1.3.1"
+materialFabSpeedDial = "2.0.0"
+vectorChildFinder = "1.0.0"
+rikkaxInsets = "1.3.0"
+rikkaxLayoutinflater = "1.3.0"
+baseRecyclerViewAdapterHelper = "3.0.12"
+lunarJava = "1.7.6"
+shizuku = "13.1.5"
+hiddenApiBypass = "6.1"
+markdown = "0.7.3"
+gplayapi = "3.3.1"
+jbcrypt = "0.4"
+sardineAndroid = "0.9"
+sqliteJdbc = "3.51.2.0"
+mavenArtifact = "3.9.12"
+commonsText = "1.15.0"
+toastcompat = "1.1.0"
+
+# Testing
+junit = "4.13.2"
+androidxTestRunner = "1.7.0"
+androidxTestExtJunit = "1.3.0"
+espresso = "3.7.0"
+
+[libraries]
+# Desugaring
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
+
+# AndroidX
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidxKtx" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preference" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
+androidx-drawerlayout = { module = "androidx.drawerlayout:drawerlayout", version.ref = "drawerlayout" }
+androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
+androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment" }
+androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigation" }
+androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
+androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version = "1.1.0" }
+androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
+
+# Room
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
+
+# Compose
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+androidx-compose-ui = { module = "androidx.compose.ui:ui" }
+androidx-compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-compose-ui-viewbinding = { module = "androidx.compose.ui:ui-viewbinding" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+
+# Kotlin
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinCoroutines" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
+
+# Networking
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+okhttp-urlconnection = { module = "com.squareup.okhttp3:okhttp-urlconnection", version.ref = "okhttp" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
+
+# Serialization
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksonDatabind" }
+
+# Google / Firebase
+material = { module = "com.google.android.material:material", version.ref = "material" }
+protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
+firebase-perf = { module = "com.google.firebase:firebase-perf", version.ref = "firebasePerf" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics", version.ref = "firebaseAnalytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics", version.ref = "firebaseCrashlytics" }
+
+# Image Loading
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide" }
+
+# UI Libraries
+materialFabSpeedDial = { module = "com.github.kobakei:MaterialFabSpeedDial", version.ref = "materialFabSpeedDial" }
+vectorChildFinder = { module = "com.github.devsideal:VectorChildFinder", version.ref = "vectorChildFinder" }
+rikkax-insets = { module = "dev.rikka.rikkax.insets:insets", version.ref = "rikkaxInsets" }
+rikkax-layoutinflater = { module = "dev.rikka.rikkax.layoutinflater:layoutinflater", version.ref = "rikkaxLayoutinflater" }
+baseRecyclerViewAdapterHelper = { module = "com.github.CymChad:BaseRecyclerViewAdapterHelper", version.ref = "baseRecyclerViewAdapterHelper" }
+
+# Other Libraries
+localization = { module = "com.akexorcist:localization", version.ref = "localization" }
+once = { module = "com.jonathanfinerty.once:once", version.ref = "once" }
+lunar-java = { module = "com.github.6tail:lunar-java", version.ref = "lunarJava" }
+shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
+shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
+hiddenapibypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenApiBypass" }
+markdown = { module = "org.jetbrains:markdown", version.ref = "markdown" }
+gplayapi = { module = "com.aurora:gplayapi", version.ref = "gplayapi" }
+jbcrypt = { module = "org.mindrot:jbcrypt", version.ref = "jbcrypt" }
+sardine-android = { module = "com.github.thegrizzlylabs:sardine-android", version.ref = "sardineAndroid" }
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbc" }
+maven-artifact = { module = "org.apache.maven:maven-artifact", version.ref = "mavenArtifact" }
+commons-text = { module = "org.apache.commons:commons-text", version.ref = "commonsText" }
+toastcompat = { module = "me.drakeet.support:toastcompat", version.ref = "toastcompat" }
+
+# Testing
+junit = { module = "junit:junit", version.ref = "junit" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
+androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidxTestExtJunit" }
+androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
 
 [plugins]
 # Android
@@ -25,13 +178,14 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 
 # Kotlin
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "agp" }
 
 # Rust
 android-rust = { id = "io.github.MatrixDev.android-rust", version.ref = "androidRust" }
 
 # Firebase (NO FREE)
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
-firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerf" }
+firebase-crashlytics-plugin = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
+firebase-perf-plugin = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfPlugin" }

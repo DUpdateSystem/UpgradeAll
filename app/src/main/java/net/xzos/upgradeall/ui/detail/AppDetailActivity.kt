@@ -90,7 +90,7 @@ class AppDetailActivity : AppBarActivity() {
     override fun getAppBar(): Toolbar = binding.toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        bundleApp?.run { app = this } ?: onBackPressed()
+        bundleApp?.run { app = this } ?: finish()
         super.onCreate(savedInstanceState)
         getAppBar().showOverflowMenu()
     }

@@ -3,7 +3,6 @@ package net.xzos.upgradeall.data
 import android.app.Activity
 import android.content.Context
 import androidx.preference.PreferenceManager
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
@@ -175,7 +174,7 @@ object PreferencesMap {
     }
 
     fun async() {
-        GlobalScope.launch {
+        net.xzos.upgradeall.application.MyApplication.applicationScope.launch {
             sync()
         }
     }

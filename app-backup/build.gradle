@@ -1,9 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.android.library)
 }
 
 android {
@@ -18,7 +16,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -31,12 +29,12 @@ android {
             jvmTarget = JvmTarget.JVM_21
         }
     }
-    namespace 'net.xzos.upgradeall.app.backup'
+    namespace = 'net.xzos.upgradeall.app.backup'
     lint {
-        targetSdk 36
+        targetSdk = 36
     }
     testOptions {
-        targetSdk 36
+        targetSdk = 36
     }
 }
 
@@ -45,16 +43,16 @@ dependencies {
     implementation project(path: ':core')  // 数据库结构
     implementation project(path: ':core-utils')
 
-    implementation "androidx.core:core-ktx:$android_ktx_version"
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
+    implementation libs.androidx.core.ktx
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.espresso.core
 
     // Gson
-    implementation 'com.google.code.gson:gson:2.13.2'
+    implementation libs.gson
 
     // WebDav
-    implementation ('com.github.thegrizzlylabs:sardine-android:0.9') {
+    implementation (libs.sardine.android) {
         exclude module: 'stax'
         exclude module: 'stax-api'
         exclude module: 'xpp3'

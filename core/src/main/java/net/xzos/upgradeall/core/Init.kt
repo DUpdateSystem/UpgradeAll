@@ -2,8 +2,9 @@ package net.xzos.upgradeall.core
 
 import android.annotation.SuppressLint
 import android.content.Context
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.data.CoreConfig
 import net.xzos.upgradeall.core.database.initDatabase
@@ -35,7 +36,7 @@ fun initCore(
         _coreConfig.rust_cache_dir,
         _coreConfig.data_expiration_time.toLong(),
     )
-    GlobalScope.launch(Dispatchers.IO) {
+    CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
         runGetterService(context)
     }
     renewSdkApi(_coreConfig.update_server_url)

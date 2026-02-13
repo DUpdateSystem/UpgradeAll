@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.wrapper.download
 
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.data.PreferencesMap
 
@@ -27,7 +27,7 @@ object DownloadTaskerManager {
                     DownloadTaskerStatus.DOWNLOAD_STOP -> {}
                     DownloadTaskerStatus.DOWNLOAD_COMPLETE -> {
                         if (PreferencesMap.auto_install)
-                            GlobalScope.launch { downloadTasker.install() }
+                            MyApplication.applicationScope.launch { downloadTasker.install() }
                     }
                     DownloadTaskerStatus.DOWNLOAD_CANCEL -> removeFileTasker(downloadTasker)
                     DownloadTaskerStatus.DOWNLOAD_FAIL -> {}

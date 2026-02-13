@@ -9,7 +9,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.tabs.TabLayoutMediator
 import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu
-import kotlinx.coroutines.GlobalScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.utils.log.Log
@@ -101,7 +101,7 @@ class LogActivity : AppBarActivity() {
                     }
                     if (logString != null) {
                         Log.d(objectTag, TAG, "已获取日志")
-                        GlobalScope.launch {
+                        lifecycleScope.launch {
                             SaveFileActivity.newInstance(
                                 "Log.txt", "text/plain",
                                 logString.toByteArray(), this@LogActivity
@@ -113,7 +113,7 @@ class LogActivity : AppBarActivity() {
                 return true
             }
             android.R.id.home -> {
-                onBackPressed()
+                finish()
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -122,7 +122,7 @@ class LogActivity : AppBarActivity() {
 
     private fun setFab() {
         val liveDataLogSortList = LogLiveData.sortList
-        liveDataLogSortList.observe(this, { logSortList ->
+        liveDataLogSortList.observe(this) { logSortList ->
             val menu = FabSpeedDialMenu(this)
             for (logSort in logSortList) {
                 if (logSort == "Core") {
@@ -136,7 +136,7 @@ class LogActivity : AppBarActivity() {
                 logSort = logSortList.toList()[integer - 1]
                 setViewPage(logSort)
             }
-        })
+        }
     }
 
     private fun setViewPage(sort: String) {

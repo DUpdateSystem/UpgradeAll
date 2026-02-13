@@ -52,7 +52,7 @@ class AppSettingActivity : AppBarActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> onBackPressed()
+            android.R.id.home -> finish()
             R.id.parse_attr_from_url -> showUrlDialog()
             else -> return super.onOptionsItemSelected(item)
         }

@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.application
 
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.app.backup.initBackupContext
 import net.xzos.upgradeall.core.androidutils.initCoreContext
@@ -13,7 +12,7 @@ fun initCore() {
     refreshDataAndStatus()
     initObject()
     PreferencesMap.sync()
-    GlobalScope.launch { renewData() }
+    MyApplication.applicationScope.launch { renewData() }
     egg()
 }
 

@@ -5,24 +5,27 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.view.View
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.devs.vectorchildfinder.VectorChildFinder
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.androidutils.app_info.getPackageId
 import java.io.File
-import java.util.concurrent.Executors
+
 
 
 object IconPalette {
-    private val coroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    private val iconScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val context = MyApplication.context
 
     val fabAddIcon = getPlus(getColorInt(R.color.light_gray))
@@ -37,14 +40,7 @@ object IconPalette {
 
     val editIcon = getEdit(getColorInt(R.color.text_lowest_priority_color))
 
-    @Suppress("DEPRECATION")
-    fun getColorInt(colorRes: Int) = run {
-        return@run if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            context.getColor(colorRes)
-        else
-            context.resources.getColor(colorRes)
-
-    }
+    fun getColorInt(colorRes: Int) = ContextCompat.getColor(context, colorRes)
 
     private fun getPlus(bodyColor: Int) =
             changeDrawableColor(bodyColor, null, R.drawable.ic_plus)
@@ -80,7 +76,7 @@ object IconPalette {
             file: File? = null,
             hubIconDrawableId: Int? = null
     ) {
-        GlobalScope.launch(coroutineDispatcher) {
+        iconScope.launch {
             loadIconView(iconImageView,
                     IconInfo(url = hubIconUrl,
                             drawable = ContextCompat.getDrawable(
@@ -95,7 +91,7 @@ object IconPalette {
             iconImageView: ImageView,
             hubIconUrl: String? = null
     ) {
-        GlobalScope.launch(coroutineDispatcher) {
+        iconScope.launch {
             loadIconView(iconImageView, IconInfo(url = hubIconUrl,
                     drawable = ContextCompat.getDrawable(context, R.drawable.ic_application)
             ))
@@ -107,7 +103,7 @@ object IconPalette {
             iconInfo: IconInfo? = null,
             app: App? = null
     ) {
-        GlobalScope.launch(coroutineDispatcher) {
+        iconScope.launch {
             loadIconView(iconImageView,
                     (iconInfo ?: IconInfo(
                             app_package = app?.appId?.getPackageId()?.second

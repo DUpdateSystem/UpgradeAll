@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import androidx.preference.Preference
-import kotlinx.coroutines.GlobalScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.androidutils.ToastUtil
@@ -40,7 +40,7 @@ class UISettingFragment : PrefFragment(R.xml.preferences_ui),
     private fun setHomeBottomList() {
         val customHomeListPreference: Preference = findPreference("CUSTOM_HOME_BOTTOM_LIST")!!
         customHomeListPreference.setOnPreferenceClickListener {
-            GlobalScope.launch {
+            lifecycleScope.launch {
                 val homeBottomMap = PreferencesMap.home_bottom_map
                 val dataList = SelectListDialog.showDialog(
                     homeBottomMap.mapNotNull { item ->

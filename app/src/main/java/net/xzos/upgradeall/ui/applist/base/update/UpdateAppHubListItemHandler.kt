@@ -2,7 +2,7 @@ package net.xzos.upgradeall.ui.applist.base.update
 
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.core.module.app.App
@@ -10,9 +10,9 @@ import net.xzos.upgradeall.ui.applist.base.AppHubListItemHandler
 import net.xzos.upgradeall.wrapper.core.switchIgnoreStatus
 import net.xzos.upgradeall.wrapper.core.upgrade
 
-class UpdateAppHubListItemHandler : AppHubListItemHandler() {
+class UpdateAppHubListItemHandler(private val scope: CoroutineScope) : AppHubListItemHandler() {
     fun clickDownload(app: App, view: View) {
-        GlobalScope.launch {
+        scope.launch {
             app.upgrade(view.context)
         }
     }

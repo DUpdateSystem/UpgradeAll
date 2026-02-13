@@ -5,8 +5,8 @@ import android.view.View
 import androidx.preference.Preference
 import androidx.preference.SeekBarPreference
 import androidx.preference.SwitchPreferenceCompat
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
@@ -32,7 +32,7 @@ class DownloaderFragment : PrefFragment(R.xml.preferences_downloader) {
         val downloadPathPreference: Preference = findPreference("SELECT_DOWNLOAD_PATH")!!
         downloadPathPreference.summary = PreferencesMap.user_download_path
         downloadPathPreference.setOnPreferenceClickListener { preference ->
-            GlobalScope.launch {
+            lifecycleScope.launch {
                 context?.run {
                     val treeUri = SelectDirActivity.newInstance(this) ?: return@launch
                     PreferencesMap.user_download_path = treeUri.toString()
@@ -49,7 +49,7 @@ class DownloaderFragment : PrefFragment(R.xml.preferences_downloader) {
     private fun setCleanDownloadPath() {
         val junkPreference: Preference = findPreference("CLEAN_DOWNLOAD_DIR")!!
         junkPreference.setOnPreferenceClickListener {
-            GlobalScope.launch {
+            lifecycleScope.launch {
                 DOWNLOAD_CACHE_DIR.delete()
             }
             false

@@ -7,9 +7,10 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.core.downloader.filedownloader.item.data.TaskData
 import net.xzos.upgradeall.core.downloader.filedownloader.item.data.file
@@ -105,7 +106,7 @@ internal class DownloadWorker(
     }
 
     private fun launchDownloader() {
-        job = GlobalScope.launch(Dispatchers.IO) {
+        job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
                 startDownload()
             } catch (e: Throwable) {

@@ -1,6 +1,6 @@
 plugins {
     id("java-library")
-    id("org.jetbrains.kotlin.jvm")
+    alias(libs.plugins.kotlin.jvm)
 }
 
 java {
@@ -9,6 +9,6 @@ java {
 }
 
 dependencies {
-    implementation("com.google.code.gson:gson:2.13.2")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.0")
+    implementation(libs.gson)
+    implementation(libs.jackson.databind)
 }

@@ -21,7 +21,9 @@ import net.xzos.upgradeall.utils.MiscellaneousUtils
 import net.xzos.upgradeall.utils.file.DOWNLOAD_EXTRA_CACHE_DIR
 import net.xzos.upgradeall.websdk.data.json.DownloadItem
 import java.io.File
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 class DownloadTasker(
     val app: App, private val wrapper: AssetWrapper
@@ -120,7 +122,7 @@ class DownloadTasker(
         return DownloaderHelper.createRustDownloader(
             getterPort.getService(),
             dir,
-            GlobalScope
+            CoroutineScope(SupervisorJob() + Dispatchers.IO)
         ).apply {
             downloadList.forEach { addTask(it.toRustInputData(name)) }
         }.also { d ->

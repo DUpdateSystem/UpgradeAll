@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.wrapper.download.DownloadTaskerManager
@@ -23,7 +22,7 @@ class DownloadBroadcastReceiver : BroadcastReceiver() {
             DOWNLOAD_CONTINUE -> downloader.resume()
             DOWNLOAD_CANCEL -> downloader.cancel()
             NOTIFY_CANCEL -> notification.cancelNotification()
-            INSTALL_APK -> GlobalScope.launch {
+            INSTALL_APK -> MyApplication.applicationScope.launch {
                 fileTasker.install()
             }
             OPEN_FILE -> Log.i("Download", "open file: TODO")

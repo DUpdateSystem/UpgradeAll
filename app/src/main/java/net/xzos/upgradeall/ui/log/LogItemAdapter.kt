@@ -19,9 +19,9 @@ class LogItemAdapter(mLogList: LiveData<List<String>>, owner: LifecycleOwner) : 
         mLogList.value?.let {
             renewLogMessage(it)
         }
-        mLogList.observe(owner, { logList ->
+        mLogList.observe(owner) { logList ->
             renewLogMessage(logList)
-        })
+        }
     }
 
     private fun renewLogMessage(stringList: List<String>) {

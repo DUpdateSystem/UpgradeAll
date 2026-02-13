@@ -1,12 +1,10 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
-    id 'com.google.devtools.ksp'
-    id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.kotlin.plugin.compose' version "2.3.0"
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.legacy.kapt)
+    alias(libs.plugins.kotlin.compose)
 }
 
 // NO FREE
@@ -24,8 +22,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdk = 23
         targetSdk = 36
-        versionCode 105
-        versionName "0.20-alpha.4"
+        versionCode = 105
+        versionName = "0.20-alpha.4"
         if (project.hasProperty('appVerName')) {
             versionName = "${versionName}_${appVerName}"
         }
@@ -35,7 +33,7 @@ android {
             arg("room.incremental", "true")
         }
         vectorDrawables {
-            useSupportLibrary true
+            useSupportLibrary = true
         }
     }
     buildTypes {
@@ -46,7 +44,7 @@ android {
             manifestPlaceholders = [enableCrashReporting: "true", appName: "UpgradeAll"]
         }
         debug {
-            minifyEnabled false
+            minifyEnabled = false
             manifestPlaceholders = [enableCrashReporting: "false", appName: "UpgradeAll-β"]
             applicationIdSuffix ".debug"
             packaging {
@@ -56,121 +54,125 @@ android {
             }
         }
     }
-    android.applicationVariants.configureEach { variant ->
-        variant.outputs.configureEach {
-            if (variant.buildType.name == 'release') {
-                outputFileName = "UpgradeAll_${versionName}.apk"
-            }
-            if (variant.buildType.name == 'debug') {
-                outputFileName = "UpgradeAll_${versionName}-debug.apk"
-            }
-        }
-    }
+    // APK output file naming is configured via androidComponents block below
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_21
         targetCompatibility JavaVersion.VERSION_21
-        coreLibraryDesugaringEnabled true
+        coreLibraryDesugaringEnabled = true
     }
 
     kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_21
-            freeCompilerArgs = ["-Xopt-in=kotlin.RequiresOptIn", "-XXLanguage:+InlineClasses"]
+            freeCompilerArgs = ["-opt-in=kotlin.RequiresOptIn"]
         }
     }
 
     buildFeatures {
-        // 视图绑定
-        dataBinding true
-        viewBinding true
+        dataBinding = true
+        viewBinding = true
     }
 
-    dependenciesInfo.includeInApk false
+    dependenciesInfo.includeInApk = false
     lint {
-        abortOnError true
-        checkReleaseBuilds false
+        abortOnError = true
+        checkReleaseBuilds = false
     }
-    namespace 'net.xzos.upgradeall'
+    namespace = 'net.xzos.upgradeall'
 
-    packagingOptions {
+    packaging {
         resources {
             pickFirsts += 'META-INF/DEPENDENCIES'
         }
     }
 }
 
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.forEach { output ->
+            def appVersion = android.defaultConfig.versionName
+            if (project.hasProperty('appVerName')) {
+                appVersion = "${appVersion}_${project.property('appVerName')}"
+            }
+            if (variant.buildType == 'release') {
+                output.outputFileName.set("UpgradeAll_${appVersion}.apk")
+            } else if (variant.buildType == 'debug') {
+                output.outputFileName.set("UpgradeAll_${appVersion}-debug.apk")
+            }
+        }
+    }
+}
+
 dependencies {
     // Core library desugaring for Java 8+ API support on older Android versions
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+    coreLibraryDesugaring libs.desugar.jdk.libs
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0'
-    implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation "androidx.drawerlayout:drawerlayout:1.2.0"
-    implementation 'androidx.viewpager2:viewpager2:1.1.0'
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.constraintlayout
+    implementation libs.androidx.preference.ktx
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.drawerlayout
+    implementation libs.androidx.viewpager2
+    implementation libs.androidx.swiperefreshlayout
+    implementation libs.androidx.documentfile
 
-    implementation 'androidx.activity:activity-ktx:1.12.4'
-    implementation 'androidx.fragment:fragment-ktx:1.8.9'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.7'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.9.7'
+    implementation libs.androidx.activity.ktx
+    implementation libs.androidx.fragment.ktx
+    implementation libs.androidx.navigation.fragment.ktx
+    implementation libs.androidx.navigation.ui.ktx
 
     // Kotlin
-    implementation "androidx.core:core-ktx:$android_ktx_version"
-    //noinspection DifferentStdlibGradleVersion
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.10.0'
-    implementation 'androidx.activity:activity-compose:1.12.4'
-    implementation 'androidx.compose.ui:ui-viewbinding:1.10.3'
-    implementation platform('androidx.compose:compose-bom:2026.02.00')
-    implementation 'androidx.compose.ui:ui:1.10.3'
-    implementation 'androidx.compose.ui:ui-graphics:1.10.3'
-    implementation 'androidx.compose.ui:ui-tooling-preview:1.10.3'
-    implementation 'androidx.compose.material3:material3:1.4.0'
-    androidTestImplementation platform('androidx.compose:compose-bom:2026.02.00')
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.10.3'
+    implementation libs.androidx.core.ktx
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.coroutines.android
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.activity.compose
+    implementation libs.androidx.compose.ui.viewbinding
 
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.4.9'
-    debugImplementation 'androidx.compose.ui:ui-tooling:1.10.3'
-    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.10.3'
+    // Compose (versions managed by BOM)
+    implementation platform(libs.androidx.compose.bom)
+    implementation libs.androidx.compose.ui
+    implementation libs.androidx.compose.ui.graphics
+    implementation libs.androidx.compose.ui.tooling.preview
+    implementation libs.androidx.compose.material3
+    androidTestImplementation platform(libs.androidx.compose.bom)
+    androidTestImplementation libs.androidx.compose.ui.test.junit4
+    debugImplementation libs.androidx.compose.ui.tooling
+    debugImplementation libs.androidx.compose.ui.test.manifest
 
     // WorkManager
-    implementation "androidx.work:work-runtime-ktx:$work_version"
+    implementation libs.androidx.work.runtime.ktx
 
     // Localization
-    implementation 'com.akexorcist:localization:1.2.11'
+    implementation libs.localization
 
-    // 数据处理
-    implementation 'com.jonathanfinerty.once:once:1.3.1'
+    implementation libs.once
 
-    // 图片加载
-    implementation 'com.github.bumptech.glide:glide:5.0.5'
-    ksp 'com.github.bumptech.glide:ksp:5.0.5'
+    // Image loading
+    implementation libs.glide
+    ksp libs.glide.ksp
 
-    // 界面设计
-    // Google MD 库
-    implementation 'com.google.android.material:material:1.13.0'
-    implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.github.kobakei:MaterialFabSpeedDial:2.0.0'
-    // svg 单个 path 颜色切换
-    implementation 'com.github.devsideal:VectorChildFinder:1.0.0'
-    implementation 'dev.rikka.rikkax.insets:insets:1.3.0'
-    implementation 'dev.rikka.rikkax.layoutinflater:layoutinflater:1.3.0'
+    // Material Design
+    implementation libs.material
+    implementation libs.androidx.cardview
+    implementation libs.materialFabSpeedDial
+    implementation(libs.vectorChildFinder) {
+        exclude group: 'com.android.support'
+    }
+    implementation libs.rikkax.insets
+    implementation libs.rikkax.layoutinflater
 
-    //RecyclerView
-    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.12'
+    // RecyclerView
+    implementation libs.baseRecyclerViewAdapterHelper
 
-    // 日历
-    implementation 'com.github.6tail:lunar-java:1.7.6'
+    // Calendar
+    implementation libs.lunar.java
 
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test:runner:1.7.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.espresso.core
 
     implementation project(':app-backup')
     implementation project(':core-android-utils')
@@ -182,12 +184,12 @@ dependencies {
     // NO FREE
     if (!project.hasProperty('free')) {
         // Firebase
-        implementation 'com.google.firebase:firebase-perf:22.0.4'
-        implementation 'com.google.firebase:firebase-analytics:23.0.0'
-        implementation 'com.google.firebase:firebase-crashlytics:20.0.3'
+        implementation libs.firebase.perf
+        implementation libs.firebase.analytics
+        implementation libs.firebase.crashlytics
     }
-    //Protobuf
-    implementation 'com.google.protobuf:protobuf-java:4.33.5'
+    // Protobuf
+    implementation libs.protobuf.java
 }
 // fix different protobuf versions of gplayapi and firebase
 configurations.all {

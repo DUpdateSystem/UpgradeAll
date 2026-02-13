@@ -13,10 +13,10 @@ class LogTabSectionsPagerAdapter(owner: LifecycleOwner, fragmentActivity: Fragme
 
     init {
         val liveDataLogObjectTagList = LogLiveData.getObjectTagListBySort(logSort)
-        liveDataLogObjectTagList.observe(owner, { logObjectList ->
+        liveDataLogObjectTagList.observe(owner) { logObjectList ->
             mLogObjectList = logObjectList
             notifyDataSetChanged()
-        })
+        }
     }
 
     fun getPageTitle(position: Int): CharSequence {

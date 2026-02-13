@@ -1,6 +1,6 @@
 plugins {
     id("java-library")
-    id("org.jetbrains.kotlin.jvm")
+    alias(libs.plugins.kotlin.jvm)
 }
 
 java {
@@ -12,14 +12,13 @@ dependencies {
     api(project(":core-websdk:data"))
 
     // Gson for serialization
-    implementation("com.google.code.gson:gson:2.13.2")
+    implementation(libs.gson)
 
     // Kotlin Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation(libs.kotlinx.coroutines.core)
 
     // Ktor WebSocket client for JSON-RPC
-    val ktorVersion = "3.4.0"
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-client-websockets:$ktorVersion")
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.websockets)
 }

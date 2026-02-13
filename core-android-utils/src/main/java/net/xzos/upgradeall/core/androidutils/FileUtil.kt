@@ -162,6 +162,17 @@ fun writeToUri(
     return writeSuccess
 }
 
+fun hasFilePermission(activity: Activity): Boolean {
+    // Storage Access Framework (SAF) doesn't require any storage permissions.
+    // Only Android 9 (API 28) and lower need READ_EXTERNAL_STORAGE for legacy file access.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        return true
+    }
+    return androidx.core.content.ContextCompat.checkSelfPermission(
+        activity, Manifest.permission.WRITE_EXTERNAL_STORAGE
+    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+}
+
 fun requestFilePermission(
     activity: Activity,
     PERMISSIONS_REQUEST_READ_CONTACTS: Int,

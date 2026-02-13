@@ -3,19 +3,18 @@ package net.xzos.upgradeall.ui.utils.file_pref
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.androidutils.ToastUtil
-import net.xzos.upgradeall.core.androidutils.requestFilePermission
+import net.xzos.upgradeall.core.androidutils.hasFilePermission
 import net.xzos.upgradeall.core.utils.coroutines.wait
 
 abstract class FilePrefActivity : AppCompatActivity() {
@@ -24,6 +23,16 @@ abstract class FilePrefActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { resultData ->
             onActivityResultCallback(resultData)
             finish()
+        }
+
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                checkPermissionAndSelectFile()
+            } else {
+                ToastUtil.showText(this, R.string.please_grant_storage_perm, Toast.LENGTH_LONG)
+                finish()
+            }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,13 +57,10 @@ abstract class FilePrefActivity : AppCompatActivity() {
     }
 
     private fun checkPermissionAndSelectFile() {
-        if (requestFilePermission(
-                this,
-                PERMISSIONS_REQUEST_WRITE_CONTACTS,
-                R.string.please_grant_storage_perm
-            )
-        ) {
+        if (hasFilePermission(this)) {
             selectFile()
+        } else {
+            permissionLauncher.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
     }
 
@@ -64,24 +70,7 @@ abstract class FilePrefActivity : AppCompatActivity() {
 
     abstract fun buildIntent(): Intent
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>, grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSIONS_REQUEST_WRITE_CONTACTS) {
-            if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                ToastUtil.showText(this, R.string.please_grant_storage_perm, Toast.LENGTH_LONG)
-                finish()
-            } else {
-                checkPermissionAndSelectFile()
-            }
-        }
-    }
-
     companion object {
-        private const val PERMISSIONS_REQUEST_WRITE_CONTACTS = 1
-
         private val mutex = Mutex()
 
         suspend fun startActivity(context: Context, cls: Class<*>) {

@@ -7,8 +7,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.R
@@ -49,7 +49,7 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
     private fun setLocalBackup() {
         val backupPreference: Preference = findPreference("BACKUP")!!
         backupPreference.setOnPreferenceClickListener {
-            GlobalScope.launch {
+            lifecycleScope.launch {
                 ToastUtil.showText(requireContext(), R.string.backup_running)
                 val backupFileBytes = BackupManager.mkZipFileBytes()
                 if (backupFileBytes != null) {
@@ -67,7 +67,7 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
 
         val restorePreference: Preference = findPreference("RESTORE")!!
         restorePreference.setOnPreferenceClickListener {
-            GlobalScope.launch {
+            lifecycleScope.launch {
                 SelectFileActivity.newInstance(requireContext(), "application/zip")?.let { bytes ->
                     ToastUtil.showText(requireContext(), R.string.restore_running)
                     launch { RestoreManager.parseZip(bytes) }
@@ -100,12 +100,12 @@ class BackupFragment : PrefFragment(R.xml.preferences_backup) {
             false
         }
         restorePreference.setOnPreferenceClickListener {
-            GlobalScope.launch {
+            lifecycleScope.launch {
                 val cloudBackupManager = getCloudBackupManager()
                 val fileNameList = cloudBackupManager.getBackupFileList() ?: return@launch
                 withContext(Dispatchers.Main) {
                     CloudBackupListDialog.show(requireContext(), fileNameList, fun(position) {
-                        GlobalScope.launch {
+                        lifecycleScope.launch {
                             cloudBackupManager.restoreBackup(
                                 fileNameList[position],
                                 { ToastUtil.showText(requireContext(), R.string.restore_running) },

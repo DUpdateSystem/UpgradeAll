@@ -17,7 +17,7 @@ class RustDownloader(
     private val destPath: String,
     private val headers: Map<String, String>? = null,
     private val cookies: Map<String, String>? = null,
-    private val scope: CoroutineScope = GlobalScope
+    private val scope: CoroutineScope
 ) {
     private var taskId: String? = null
     private val _status = MutableStateFlow(RustDownloadStatus.NONE)
@@ -238,7 +238,7 @@ class RustDownloaderBuilder(private val getterService: GetterService) {
     private var destPath: String = ""
     private var headers: Map<String, String>? = null
     private var cookies: Map<String, String>? = null
-    private var scope: CoroutineScope = GlobalScope
+    private var scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     fun url(url: String) = apply { this.url = url }
     fun destPath(path: String) = apply { this.destPath = path }
