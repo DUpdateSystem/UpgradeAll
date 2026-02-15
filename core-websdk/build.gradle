@@ -64,6 +64,10 @@ dependencies {
     // BCrypt, for coolapk
     implementation libs.jbcrypt
 
+    // Ktor HTTP server for Kotlin hub JSON-RPC callbacks
+    implementation libs.ktor.server.core
+    implementation libs.ktor.server.cio
+
     api project(':core-getter')
     api project(':core-websdk:data')
 }

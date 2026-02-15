@@ -1,11 +1,12 @@
 package net.xzos.upgradeall.getter.rpc
 
 import net.xzos.upgradeall.websdk.data.json.CloudConfigList
+import net.xzos.upgradeall.websdk.data.json.DownloadItem
 import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
 /**
  * Suspend-based GetterService interface for Rust getter RPC.
- * 
+ *
  * All methods are suspend functions, enabling efficient async/await patterns
  * over a persistent WebSocket connection.
  */
@@ -15,7 +16,7 @@ interface GetterService {
     suspend fun init(
         dataPath: String,
         cachePath: String,
-        globalExpireTime: Long
+        globalExpireTime: Long,
     ): Boolean
 
     suspend fun shutdown()
@@ -38,9 +39,27 @@ interface GetterService {
         hubData: Map<String, String>,
     ): List<ReleaseGson>
 
-    suspend fun getCloudConfig(
-        url: String
-    ): CloudConfigList
+    suspend fun getCloudConfig(url: String): CloudConfigList
+
+    // ========================================================================
+    // Provider Registration
+    // ========================================================================
+
+    suspend fun registerProvider(
+        hubUuid: String,
+        url: String,
+    ): Boolean
+
+    // ========================================================================
+    // Download Info
+    // ========================================================================
+
+    suspend fun getDownloadInfo(
+        hubUuid: String,
+        appData: Map<String, String>,
+        hubData: Map<String, String>,
+        assetIndex: List<Int>,
+    ): List<DownloadItem>
 
     // ========================================================================
     // Downloader RPC Methods
@@ -50,29 +69,21 @@ interface GetterService {
         url: String,
         destPath: String,
         headers: Map<String, String>? = null,
-        cookies: Map<String, String>? = null
+        cookies: Map<String, String>? = null,
     ): TaskIdResponse
 
-    suspend fun downloadGetStatus(
-        taskId: String
-    ): TaskInfo
+    suspend fun downloadGetStatus(taskId: String): TaskInfo
 
     suspend fun downloadWaitForChange(
         taskId: String,
-        timeoutSeconds: Long
+        timeoutSeconds: Long,
     ): TaskInfo
 
-    suspend fun downloadCancel(
-        taskId: String
-    ): Boolean
+    suspend fun downloadCancel(taskId: String): Boolean
 
-    suspend fun downloadPause(
-        taskId: String
-    ): Boolean
+    suspend fun downloadPause(taskId: String): Boolean
 
-    suspend fun downloadResume(
-        taskId: String
-    ): Boolean
+    suspend fun downloadResume(taskId: String): Boolean
 }
 
 /**

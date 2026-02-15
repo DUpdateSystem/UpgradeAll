@@ -9,30 +9,31 @@ import kotlinx.coroutines.sync.withLock
 import net.xzos.upgradeall.getter.rpc.GetterService
 import net.xzos.upgradeall.getter.rpc.getClient
 import net.xzos.upgradeall.websdk.data.json.CloudConfigList
+import net.xzos.upgradeall.websdk.data.json.DownloadItem
 import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 
-
-class GetterPort(private val config: RustConfig) {
+class GetterPort(
+    private val config: RustConfig,
+) {
     private lateinit var service: GetterService
-    
+
     private val mutex = Mutex()
     private var isInit = false
 
     fun runService(context: Context) {
-        NativeLib().runServerLambda(context) { url ->
-            service = getClient(url)
-        }.also {
-            if (it.isEmpty()) {
-                Log.d("GetterPort", "runService: success")
-            } else {
-                Log.e("GetterPort", "runService(error): $it")
+        NativeLib()
+            .runServerLambda(context) { url ->
+                service = getClient(url)
+            }.also {
+                if (it.isEmpty()) {
+                    Log.d("GetterPort", "runService: success")
+                } else {
+                    Log.e("GetterPort", "runService(error): $it")
+                }
             }
-        }
     }
 
-    private fun isServiceRunning(): Boolean {
-        return ::service.isInitialized
-    }
+    private fun isServiceRunning(): Boolean = ::service.isInitialized
 
     /**
      * Get the GetterService instance
@@ -49,7 +50,9 @@ class GetterPort(private val config: RustConfig) {
             if (isServiceRunning().apply {
                     Log.d("GetterPort", "waitService: isServiceRunning $this")
                 }
-            ) break
+            ) {
+                break
+            }
             delay(1000L)
         }
         return isServiceRunning()
@@ -65,7 +68,8 @@ class GetterPort(private val config: RustConfig) {
             val dataPath = config.dataDir.toString()
             val cachePath = config.cacheDir.toString()
             val globalExpireTime = config.globalExpireTime
-            return@withLock service.init(dataPath, cachePath, globalExpireTime)
+            return@withLock service
+                .init(dataPath, cachePath, globalExpireTime)
                 .apply { isInit = this }
                 .also { Log.d("GetterPort", "initInternal: $it") }
         }
@@ -75,7 +79,8 @@ class GetterPort(private val config: RustConfig) {
         if (!init()) return false
         return try {
             runBlocking {
-                service.ping()
+                service
+                    .ping()
                     .also { Log.d("GetterPort", "ping: $it") }
                     .isNotEmpty()
             }
@@ -85,9 +90,7 @@ class GetterPort(private val config: RustConfig) {
         }
     }
 
-    fun init(): Boolean {
-        return runBlocking { initInternal() }
-    }
+    fun init(): Boolean = runBlocking { initInternal() }
 
     fun shutdownService() {
         runBlocking {
@@ -96,31 +99,40 @@ class GetterPort(private val config: RustConfig) {
     }
 
     fun checkAppAvailable(
-        hubUuid: String, appData: Map<String, String>, hubData: Map<String, String>
+        hubUuid: String,
+        appData: Map<String, String>,
+        hubData: Map<String, String>,
     ): Boolean? {
         if (!init()) return null
         return runBlocking {
-            service.checkAppAvailable(hubUuid, appData, hubData)
+            service
+                .checkAppAvailable(hubUuid, appData, hubData)
                 .also { Log.d("GetterPort", "checkAppAvailable: $it") }
         }
     }
 
     fun getAppLatestRelease(
-        hubUuid: String, appData: Map<String, String>, hubData: Map<String, String>
+        hubUuid: String,
+        appData: Map<String, String>,
+        hubData: Map<String, String>,
     ): ReleaseGson? {
         if (!init()) return null
         return runBlocking {
-            service.getAppLatestRelease(hubUuid, appData, hubData)
+            service
+                .getAppLatestRelease(hubUuid, appData, hubData)
                 .also { Log.d("GetterPort", "getAppLatestRelease: $it") }
         }
     }
 
     fun getAppReleases(
-        hubUuid: String, appData: Map<String, String>, hubData: Map<String, String>
+        hubUuid: String,
+        appData: Map<String, String>,
+        hubData: Map<String, String>,
     ): List<ReleaseGson>? {
         if (!init()) return null
         return runBlocking {
-            service.getAppReleases(hubUuid, appData, hubData)
+            service
+                .getAppReleases(hubUuid, appData, hubData)
                 .also { Log.d("GetterPort", "getAppReleases: $it") }
         }
     }
@@ -128,8 +140,35 @@ class GetterPort(private val config: RustConfig) {
     fun getCloudConfig(apiUrl: String): CloudConfigList? {
         if (!init()) return null
         return runBlocking {
-            service.getCloudConfig(apiUrl)
+            service
+                .getCloudConfig(apiUrl)
                 .also { Log.d("GetterPort", "getCloudConfig: $it") }
+        }
+    }
+
+    fun registerProvider(
+        hubUuid: String,
+        url: String,
+    ): Boolean? {
+        if (!init()) return null
+        return runBlocking {
+            service
+                .registerProvider(hubUuid, url)
+                .also { Log.d("GetterPort", "registerProvider: uuid=$hubUuid url=$url result=$it") }
+        }
+    }
+
+    fun getDownloadInfo(
+        hubUuid: String,
+        appData: Map<String, String>,
+        hubData: Map<String, String>,
+        assetIndex: List<Int>,
+    ): List<DownloadItem>? {
+        if (!init()) return null
+        return runBlocking {
+            service
+                .getDownloadInfo(hubUuid, appData, hubData, assetIndex)
+                .also { Log.d("GetterPort", "getDownloadInfo: $it") }
         }
     }
 }
