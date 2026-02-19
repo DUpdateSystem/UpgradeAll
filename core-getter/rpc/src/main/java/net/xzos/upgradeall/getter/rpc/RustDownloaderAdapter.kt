@@ -27,7 +27,8 @@ class RustDownloaderAdapter(
                 url = inputData.url,
                 destPath = destFile.absolutePath,
                 headers = inputData.headers,
-                cookies = inputData.cookies
+                cookies = inputData.cookies,
+                hubUuid = inputData.hubUuid
             )
         )
     }
@@ -87,6 +88,8 @@ class RustDownloaderAdapter(
                 taskData.headers?.let { builder.headers(it) }
                 // Add cookies if present
                 taskData.cookies?.let { builder.cookies(it) }
+                // Add hubUuid if present
+                taskData.hubUuid?.let { builder.hubUuid(it) }
 
                 val downloader = builder.build()
 
@@ -180,12 +183,14 @@ data class RustTaskData(
     val url: String,
     val destPath: String,
     val headers: Map<String, String> = emptyMap(),
-    val cookies: Map<String, String> = emptyMap()
+    val cookies: Map<String, String> = emptyMap(),
+    val hubUuid: String? = null
 )
 
 data class RustInputData(
     val name: String,
     val url: String,
     val headers: Map<String, String> = emptyMap(),
-    val cookies: Map<String, String> = emptyMap()
+    val cookies: Map<String, String> = emptyMap(),
+    val hubUuid: String? = null
 )

@@ -125,6 +125,7 @@ class GetterServiceImpl(
         destPath: String,
         headers: Map<String, String>?,
         cookies: Map<String, String>?,
+        hubUuid: String?,
     ): TaskIdResponse {
         val params =
             mutableMapOf<String, Any?>(
@@ -133,6 +134,7 @@ class GetterServiceImpl(
             )
         if (headers != null) params["headers"] = headers
         if (cookies != null) params["cookies"] = cookies
+        if (hubUuid != null) params["hub_uuid"] = hubUuid
 
         return client.invoke("download_submit", params, typeOf<TaskIdResponse>())
     }
@@ -169,6 +171,27 @@ class GetterServiceImpl(
     override suspend fun downloadResume(taskId: String): Boolean {
         val params = mapOf("task_id" to taskId)
         return client.invoke("download_resume", params, typeOf<Boolean>())
+    }
+
+    // ========================================================================
+    // External Downloader Registration
+    // ========================================================================
+
+    override suspend fun registerDownloader(
+        hubUuid: String,
+        rpcUrl: String,
+    ): Boolean {
+        val params =
+            mapOf(
+                "hub_uuid" to hubUuid,
+                "rpc_url" to rpcUrl,
+            )
+        return client.invoke("register_downloader", params, typeOf<Boolean>())
+    }
+
+    override suspend fun unregisterDownloader(hubUuid: String): Boolean {
+        val params = mapOf("hub_uuid" to hubUuid)
+        return client.invoke("unregister_downloader", params, typeOf<Boolean>())
     }
 
     /**

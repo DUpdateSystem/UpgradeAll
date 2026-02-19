@@ -113,7 +113,7 @@ internal class CoolApk(
                     ?: return null
             return listOf(
                 DownloadItem(
-                    newAssets.fileName, newAssets.downloadUrl ?: return null, null, null
+                    newAssets.fileName, newAssets.downloadUrl ?: return null, headerMap, null
                 )
             )
         } else {
@@ -122,7 +122,7 @@ internal class CoolApk(
                 DownloadItem(
                     assetGson.fileName,
                     request.url.toString(),
-                    null,
+                    headerMap,
                     null
                 )
             )

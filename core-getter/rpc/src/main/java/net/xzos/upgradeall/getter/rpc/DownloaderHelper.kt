@@ -25,11 +25,15 @@ object DownloaderHelper {
 /**
  * Convert DownloadItem to RustInputData
  */
-fun net.xzos.upgradeall.websdk.data.json.DownloadItem.toRustInputData(filename: String): RustInputData {
+fun net.xzos.upgradeall.websdk.data.json.DownloadItem.toRustInputData(
+    filename: String,
+    hubUuid: String? = null
+): RustInputData {
     return RustInputData(
         name = filename,
         url = this.url,
         headers = this.headers ?: emptyMap(),
-        cookies = this.cookies ?: emptyMap()
+        cookies = this.cookies ?: emptyMap(),
+        hubUuid = hubUuid
     )
 }

@@ -8,6 +8,8 @@ import net.xzos.upgradeall.core.websdk.api.ServerApiProxy
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.CoolApk
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.GooglePlay
 import net.xzos.upgradeall.core.websdk.api.client_proxy.rpc.KotlinHubRpcServer
+import net.xzos.upgradeall.core.websdk.api.client_proxy.rpc.KotlinDownloaderRpcServer
+import net.xzos.upgradeall.core.websdk.api.client_proxy.rpc.GooglePlayDownloaderImpl
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.getter.GetterPort
 import net.xzos.upgradeall.getter.RustConfig
@@ -25,6 +27,8 @@ val getterPort get() = data.getterPort!!
 lateinit var dataCacheManager: DataCacheManager
 
 private var kotlinHubRpcServer: KotlinHubRpcServer? = null
+private var kotlinDownloaderRpcServer: KotlinDownloaderRpcServer? = null
+private var googlePlayDownloaderImpl: GooglePlayDownloaderImpl? = null
 
 fun initSdkCache(config: CacheConfig) {
     dataCacheManager = DataCacheManager(config)
@@ -59,6 +63,17 @@ suspend fun runGetterService(context: Context) {
     server.getHubUuids().forEach { uuid ->
         getterPort.registerProvider(uuid, kotlinRpcUrl)
     }
+
+    // Start Google Play Downloader RPC Server and register it with Rust getter
+    val googlePlayDownloader = GooglePlayDownloaderImpl(getterPort.getService())
+    googlePlayDownloaderImpl = googlePlayDownloader
+    val downloaderServer = KotlinDownloaderRpcServer(googlePlayDownloader)
+    val downloaderRpcUrl = downloaderServer.start()
+    kotlinDownloaderRpcServer = downloaderServer
+
+    // Register Google Play downloader with the Rust getter via JSON-RPC
+    // UUID matches GooglePlay hub UUID
+    getterPort.registerDownloader("65c2f60c-7d08-48b8-b4ba-ac6ee924f6fa", downloaderRpcUrl)
 }
 
 fun renewSdkApi(host: String) {

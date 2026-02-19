@@ -124,7 +124,7 @@ class DownloadTasker(
             dir,
             CoroutineScope(SupervisorJob() + Dispatchers.IO)
         ).apply {
-            downloadList.forEach { addTask(it.toRustInputData(name)) }
+            downloadList.forEach { addTask(it.toRustInputData(name, wrapper.hub.uuid)) }
         }.also { d ->
             d.observe { status ->
                 val snap = getFileTaskerSnap(status.taskStatus())

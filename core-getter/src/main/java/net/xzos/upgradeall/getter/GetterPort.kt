@@ -158,6 +158,18 @@ class GetterPort(
         }
     }
 
+    fun registerDownloader(
+        hubUuid: String,
+        rpcUrl: String,
+    ): Boolean? {
+        if (!init()) return null
+        return runBlocking {
+            service
+                .registerDownloader(hubUuid, rpcUrl)
+                .also { Log.d("GetterPort", "registerDownloader: uuid=$hubUuid url=$rpcUrl result=$it") }
+        }
+    }
+
     fun getDownloadInfo(
         hubUuid: String,
         appData: Map<String, String>,

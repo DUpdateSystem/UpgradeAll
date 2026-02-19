@@ -70,6 +70,7 @@ interface GetterService {
         destPath: String,
         headers: Map<String, String>? = null,
         cookies: Map<String, String>? = null,
+        hubUuid: String? = null,
     ): TaskIdResponse
 
     suspend fun downloadGetStatus(taskId: String): TaskInfo
@@ -84,6 +85,17 @@ interface GetterService {
     suspend fun downloadPause(taskId: String): Boolean
 
     suspend fun downloadResume(taskId: String): Boolean
+
+    // ========================================================================
+    // External Downloader Registration
+    // ========================================================================
+
+    suspend fun registerDownloader(
+        hubUuid: String,
+        rpcUrl: String,
+    ): Boolean
+
+    suspend fun unregisterDownloader(hubUuid: String): Boolean
 }
 
 /**

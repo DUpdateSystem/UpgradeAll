@@ -17,6 +17,7 @@ class RustDownloader(
     private val destPath: String,
     private val headers: Map<String, String>? = null,
     private val cookies: Map<String, String>? = null,
+    private val hubUuid: String? = null,
     private val scope: CoroutineScope
 ) {
     private var taskId: String? = null
@@ -41,7 +42,7 @@ class RustDownloader(
                 _status.value = RustDownloadStatus.START
 
                 // Submit download task
-                val response = getterService.downloadSubmit(url, destPath, headers, cookies)
+                val response = getterService.downloadSubmit(url, destPath, headers, cookies, hubUuid)
                 taskId = response.taskId
 
                 // Start polling for updates
@@ -238,12 +239,14 @@ class RustDownloaderBuilder(private val getterService: GetterService) {
     private var destPath: String = ""
     private var headers: Map<String, String>? = null
     private var cookies: Map<String, String>? = null
+    private var hubUuid: String? = null
     private var scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     fun url(url: String) = apply { this.url = url }
     fun destPath(path: String) = apply { this.destPath = path }
     fun headers(headers: Map<String, String>) = apply { this.headers = headers }
     fun cookies(cookies: Map<String, String>) = apply { this.cookies = cookies }
+    fun hubUuid(hubUuid: String?) = apply { this.hubUuid = hubUuid }
     fun scope(scope: CoroutineScope) = apply { this.scope = scope }
 
     fun build(): RustDownloader {
@@ -253,6 +256,6 @@ class RustDownloaderBuilder(private val getterService: GetterService) {
         // Ensure parent directory exists
         File(destPath).parentFile?.mkdirs()
 
-        return RustDownloader(getterService, url, destPath, headers, cookies, scope)
+        return RustDownloader(getterService, url, destPath, headers, cookies, hubUuid, scope)
     }
 }
