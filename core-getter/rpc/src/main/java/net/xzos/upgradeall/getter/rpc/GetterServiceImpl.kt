@@ -76,7 +76,7 @@ class GetterServiceImpl(
     }
 
     override suspend fun getCloudConfig(url: String): CloudConfigList {
-        val params = mapOf("url" to url)
+        val params = mapOf("api_url" to url)
         return client.invoke("get_cloud_config", params, typeOf<CloudConfigList>())
     }
 
