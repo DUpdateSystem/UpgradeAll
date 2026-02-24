@@ -74,7 +74,21 @@ internal class ClientProxyApi : BaseApi {
         try {
             func()
         } catch (e: Throwable) {
-            Log.e(logObjectTag, TAG, "$funcName: ${e.msg()}")
+            // RpcException.code == -32001 means "no result" (hub doesn't support this app) —
+            // this is expected during batch renew; log at debug level to avoid noise.
+            val rpcCode =
+                try {
+                    val f = e.javaClass.getDeclaredField("code")
+                    f.isAccessible = true
+                    f.getInt(e)
+                } catch (ignored: Throwable) {
+                    0
+                }
+            if (rpcCode == -32001) {
+                Log.d(logObjectTag, TAG, "$funcName: no result — ${e.message}")
+            } else {
+                Log.w(logObjectTag, TAG, "$funcName: ${e.msg()}")
+            }
             null
         }
 

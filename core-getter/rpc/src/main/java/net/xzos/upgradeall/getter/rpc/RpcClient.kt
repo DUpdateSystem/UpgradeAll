@@ -1,7 +1,6 @@
 package net.xzos.upgradeall.getter.rpc
 
 import com.google.gson.Gson
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import io.ktor.client.*
@@ -18,74 +17,78 @@ import kotlin.time.Duration.Companion.seconds
 
 /**
  * WebSocket-based JSON-RPC 2.0 client using Ktor.
- * 
+ *
  * This client maintains a persistent WebSocket connection and handles concurrent
  * JSON-RPC requests by matching request IDs with responses.
  */
-class RpcClient(private val url: String) {
+class RpcClient(
+    private val url: String,
+) {
     private val gson = Gson()
     private val requestId = AtomicLong(1)
-    
-    private val client = HttpClient(CIO) {
-        install(WebSockets) {
-            pingInterval = 30.seconds
+
+    private val client =
+        HttpClient(CIO) {
+            install(WebSockets) {
+                pingInterval = 30.seconds
+            }
         }
-    }
-    
+
     private var sessionJob: Job? = null
     private var session: DefaultClientWebSocketSession? = null
     private val pendingRequests = ConcurrentHashMap<Long, CompletableDeferred<JsonObject>>()
     private val sessionMutex = Mutex()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    
+
     @Volatile
     private var isConnected = false
-    
+
     /**
      * Ensure WebSocket connection is established
      */
     private suspend fun ensureConnected() {
         sessionMutex.withLock {
             if (isConnected && session != null) return@withLock
-            
+
             // Close old session if exists
             session?.close()
             sessionJob?.cancel()
-            
+
             // Parse URL (format: "ws://host:port" or "http://host:port")
             val wsUrl = url.replace("http://", "ws://").replace("https://", "wss://")
-            
+
             try {
-                sessionJob = scope.launch {
-                    client.webSocket(wsUrl) {
-                        session = this
-                        isConnected = true
-                        
-                        // Start message receiver loop
-                        for (frame in incoming) {
-                            if (frame is Frame.Text) {
-                                val text = frame.readText()
-                                handleResponse(text)
+                sessionJob =
+                    scope.launch {
+                        client.webSocket(wsUrl) {
+                            session = this
+                            isConnected = true
+
+                            // Start message receiver loop
+                            for (frame in incoming) {
+                                if (frame is Frame.Text) {
+                                    val text = frame.readText()
+                                    handleResponse(text)
+                                }
                             }
                         }
+                        // Connection closed
+                        isConnected = false
+                        session = null
+
+                        // Fail all pending requests
+                        val exception = RpcException("WebSocket connection closed")
+                        pendingRequests.values.forEach { it.completeExceptionally(exception) }
+                        pendingRequests.clear()
                     }
-                    // Connection closed
-                    isConnected = false
-                    session = null
-                    
-                    // Fail all pending requests
-                    val exception = RpcException("WebSocket connection closed")
-                    pendingRequests.values.forEach { it.completeExceptionally(exception) }
-                    pendingRequests.clear()
-                }
-                
+
                 // Wait for connection to be established
                 var attempts = 0
                 while (!isConnected && attempts < 50) {
                     delay(100)
                     attempts++
                 }
-                
+
                 if (!isConnected) {
                     throw RpcException("Failed to connect to WebSocket server")
                 }
@@ -96,24 +99,25 @@ class RpcClient(private val url: String) {
             }
         }
     }
-    
+
     /**
      * Handle incoming JSON-RPC response
      */
     private fun handleResponse(text: String) {
         try {
             val response = gson.fromJson(text, JsonObject::class.java)
-            
+
             if (response.has("id") && !response.get("id").isJsonNull) {
                 val id = response.get("id").asLong
                 val deferred = pendingRequests.remove(id)
-                
+
                 if (deferred != null) {
                     if (response.has("error") && !response.get("error").isJsonNull) {
                         val error = response.getAsJsonObject("error")
                         val message = error.get("message")?.asString ?: "Unknown error"
                         val data = error.get("data")?.asString
-                        deferred.completeExceptionally(RpcException(message, data))
+                        val code = error.get("code")?.asInt ?: 0
+                        deferred.completeExceptionally(RpcException(message, data, code))
                     } else {
                         deferred.complete(response)
                     }
@@ -123,34 +127,41 @@ class RpcClient(private val url: String) {
             // Ignore malformed responses
         }
     }
-    
+
     /**
      * Invoke a JSON-RPC method with named parameters
      */
-    suspend fun <T> invoke(method: String, params: Map<String, Any?>, resultType: Type, timeoutMillis: Long = 60_000): T {
+    suspend fun <T> invoke(
+        method: String,
+        params: Map<String, Any?>,
+        resultType: Type,
+        timeoutMillis: Long = 60_000,
+    ): T {
         ensureConnected()
-        
+
         val id = requestId.getAndIncrement()
-        val request = JsonObject().apply {
-            addProperty("jsonrpc", "2.0")
-            addProperty("method", method)
-            addProperty("id", id)
-            add("params", gson.toJsonTree(params))
-        }
-        
+        val request =
+            JsonObject().apply {
+                addProperty("jsonrpc", "2.0")
+                addProperty("method", method)
+                addProperty("id", id)
+                add("params", gson.toJsonTree(params))
+            }
+
         val deferred = CompletableDeferred<JsonObject>()
         pendingRequests[id] = deferred
-        
+
         return try {
             // Send request
             session?.send(Frame.Text(request.toString()))
                 ?: throw RpcException("WebSocket session is null")
-            
+
             // Wait for response with timeout
-            val response = withTimeout(timeoutMillis) {
-                deferred.await()
-            }
-            
+            val response =
+                withTimeout(timeoutMillis) {
+                    deferred.await()
+                }
+
             // Parse result
             val result = response.get("result")
             @Suppress("UNCHECKED_CAST")
@@ -165,33 +176,39 @@ class RpcClient(private val url: String) {
             throw RpcException("Request failed: ${e.message}", e.toString())
         }
     }
-    
+
     /**
      * Invoke a JSON-RPC method without parameters
      */
-    suspend fun <T> invoke(method: String, resultType: Type, timeoutMillis: Long = 60_000): T {
+    suspend fun <T> invoke(
+        method: String,
+        resultType: Type,
+        timeoutMillis: Long = 60_000,
+    ): T {
         ensureConnected()
-        
+
         val id = requestId.getAndIncrement()
-        val request = JsonObject().apply {
-            addProperty("jsonrpc", "2.0")
-            addProperty("method", method)
-            addProperty("id", id)
-        }
-        
+        val request =
+            JsonObject().apply {
+                addProperty("jsonrpc", "2.0")
+                addProperty("method", method)
+                addProperty("id", id)
+            }
+
         val deferred = CompletableDeferred<JsonObject>()
         pendingRequests[id] = deferred
-        
+
         return try {
             // Send request
             session?.send(Frame.Text(request.toString()))
                 ?: throw RpcException("WebSocket session is null")
-            
+
             // Wait for response with timeout
-            val response = withTimeout(timeoutMillis) {
-                deferred.await()
-            }
-            
+            val response =
+                withTimeout(timeoutMillis) {
+                    deferred.await()
+                }
+
             // Parse result
             val result = response.get("result")
             @Suppress("UNCHECKED_CAST")
@@ -206,36 +223,42 @@ class RpcClient(private val url: String) {
             throw RpcException("Request failed: ${e.message}", e.toString())
         }
     }
-    
+
     /**
      * Invoke a JSON-RPC method that returns nothing
      */
-    suspend fun invokeVoid(method: String, params: Map<String, Any?> = emptyMap(), timeoutMillis: Long = 60_000) {
+    suspend fun invokeVoid(
+        method: String,
+        params: Map<String, Any?> = emptyMap(),
+        timeoutMillis: Long = 60_000,
+    ) {
         ensureConnected()
-        
+
         val id = requestId.getAndIncrement()
-        val request = JsonObject().apply {
-            addProperty("jsonrpc", "2.0")
-            addProperty("method", method)
-            addProperty("id", id)
-            if (params.isNotEmpty()) {
-                add("params", gson.toJsonTree(params))
+        val request =
+            JsonObject().apply {
+                addProperty("jsonrpc", "2.0")
+                addProperty("method", method)
+                addProperty("id", id)
+                if (params.isNotEmpty()) {
+                    add("params", gson.toJsonTree(params))
+                }
             }
-        }
-        
+
         val deferred = CompletableDeferred<JsonObject>()
         pendingRequests[id] = deferred
-        
+
         try {
             // Send request
             session?.send(Frame.Text(request.toString()))
                 ?: throw RpcException("WebSocket session is null")
-            
+
             // Wait for response with timeout
-            val response = withTimeout(timeoutMillis) {
-                deferred.await()
-            }
-            
+            val response =
+                withTimeout(timeoutMillis) {
+                    deferred.await()
+                }
+
             // Check for errors
             if (response.has("error") && !response.get("error").isJsonNull) {
                 val error = response.getAsJsonObject("error")
@@ -253,7 +276,7 @@ class RpcClient(private val url: String) {
             throw RpcException("Request failed: ${e.message}", e.toString())
         }
     }
-    
+
     /**
      * Close the WebSocket connection
      */
@@ -266,7 +289,7 @@ class RpcClient(private val url: String) {
             sessionJob = null
             scope.cancel()
             client.close()
-            
+
             // Fail all pending requests
             val exception = RpcException("Client closed")
             pendingRequests.values.forEach { it.completeExceptionally(exception) }
@@ -276,11 +299,21 @@ class RpcClient(private val url: String) {
 }
 
 /**
- * JSON-RPC exception thrown when RPC call fails
+ * JSON-RPC exception thrown when RPC call fails.
+ *
+ * [code] mirrors the JSON-RPC error code:
+ *   -32001  = no result / app not found (expected, not a bug)
+ *   -32600  = invalid request
+ *   -32601  = method not found
+ *   -32602  = invalid params
+ *   -32603  = internal error
+ *   -32700  = parse error
  */
-class RpcException(message: String, val data: String? = null) : RuntimeException(
-    if (data != null) "$message: $data" else message
-)
+class RpcException(
+    message: String,
+    val data: String? = null,
+    val code: Int = 0,
+) : RuntimeException(if (data != null) "$message: $data" else message)
 
 /**
  * Type token helper for generic types with Gson
