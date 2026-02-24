@@ -7,9 +7,9 @@ import net.xzos.upgradeall.core.websdk.api.ServerApi
 import net.xzos.upgradeall.core.websdk.api.ServerApiProxy
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.CoolApk
 import net.xzos.upgradeall.core.websdk.api.client_proxy.hubs.GooglePlay
-import net.xzos.upgradeall.core.websdk.api.client_proxy.rpc.KotlinHubRpcServer
-import net.xzos.upgradeall.core.websdk.api.client_proxy.rpc.KotlinDownloaderRpcServer
 import net.xzos.upgradeall.core.websdk.api.client_proxy.rpc.GooglePlayDownloaderImpl
+import net.xzos.upgradeall.core.websdk.api.client_proxy.rpc.KotlinDownloaderRpcServer
+import net.xzos.upgradeall.core.websdk.api.client_proxy.rpc.KotlinHubRpcServer
 import net.xzos.upgradeall.core.websdk.api.web.proxy.OkhttpProxy
 import net.xzos.upgradeall.getter.GetterPort
 import net.xzos.upgradeall.getter.RustConfig
@@ -44,7 +44,19 @@ fun initRustSdkApi(
     }
 }
 
-suspend fun runGetterService(context: Context) {
+/**
+ * @param getLocalVersion  Optional lambda injected by the app layer to resolve installed version.
+ *                         Receives app_id map, returns version string or null.
+ * @param getInstalledApps Optional lambda injected by the app layer to list installed apps.
+ *                         Receives ignoreSystem flag, returns list of app maps matching AppRecord schema.
+ * @param onManagerEvent   Optional lambda called when Rust fires an on_manager_event notification.
+ */
+suspend fun runGetterService(
+    context: Context,
+    getLocalVersion: ((appId: Map<String, String?>) -> String?)? = null,
+    getInstalledApps: ((ignoreSystem: Boolean) -> List<Map<String, Any?>>)? = null,
+    onManagerEvent: ((event: com.google.gson.JsonObject) -> Unit)? = null,
+) {
     runGetterServer(context, getterPort)
     getterPort.init()
 
@@ -55,7 +67,13 @@ suspend fun runGetterService(context: Context) {
             "65c2f60c-7d08-48b8-b4ba-ac6ee924f6fa" to GooglePlay(dataCacheManager, okhttpProxy),
             "1c010cc9-cff8-4461-8993-a86cd190d377" to CoolApk(dataCacheManager, okhttpProxy),
         )
-    val server = KotlinHubRpcServer(hubs)
+    val server =
+        KotlinHubRpcServer(
+            hubs = hubs,
+            getLocalVersion = getLocalVersion,
+            getInstalledApps = getInstalledApps,
+            onManagerEvent = onManagerEvent,
+        )
     val kotlinRpcUrl = server.start()
     kotlinHubRpcServer = server
 
@@ -63,6 +81,11 @@ suspend fun runGetterService(context: Context) {
     server.getHubUuids().forEach { uuid ->
         getterPort.registerProvider(uuid, kotlinRpcUrl)
     }
+
+    // Register Android API callback and notification callback with Rust
+    val service = getterPort.getService()
+    service.registerAndroidApi(kotlinRpcUrl)
+    service.registerNotification(kotlinRpcUrl)
 
     // Start Google Play Downloader RPC Server and register it with Rust getter
     val googlePlayDownloader = GooglePlayDownloaderImpl(getterPort.getService())

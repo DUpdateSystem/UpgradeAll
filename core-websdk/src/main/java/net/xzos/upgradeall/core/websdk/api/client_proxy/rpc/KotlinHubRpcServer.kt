@@ -25,16 +25,42 @@ import net.xzos.upgradeall.websdk.data.json.ReleaseGson
  * Lightweight HTTP JSON-RPC 2.0 server that exposes Kotlin-based hub implementations
  * (GooglePlay, CoolApk, etc.) so the Rust getter can invoke them via OutsideProvider.
  *
+ * Also handles Android API callbacks from Rust:
+ * - get_local_version: app_id -> String?
+ * - get_installed_apps: ignore_system -> List<AppRecord>
+ * - on_manager_event: event -> (notification to UI)
+ *
  * Binds to 127.0.0.1 on a random port (local-only).
  *
- * Supported RPC methods:
+ * Supported RPC methods (hub provider):
  * - check_app_available: hub_uuid, app_data, hub_data -> bool
  * - get_latest_release:  hub_uuid, app_data, hub_data -> ReleaseGson
  * - get_releases:        hub_uuid, app_data, hub_data -> List of ReleaseGson
  * - get_download:        hub_uuid, app_data, hub_data, asset_index -> List of DownloadItem
+ *
+ * Android API callbacks (registered via register_android_api / register_notification):
+ * - get_local_version:   app_id -> String?
+ * - get_installed_apps:  ignore_system -> List<AppRecord>
+ * - on_manager_event:    event -> void (fire-and-forget)
  */
 class KotlinHubRpcServer(
     private val hubs: Map<String, BaseHub>,
+    /**
+     * Returns the locally-installed version string for the given app_id map,
+     * or null if not installed. Injected by the caller to avoid core-layer dependency.
+     */
+    private val getLocalVersion: ((appId: Map<String, String?>) -> String?)? = null,
+    /**
+     * Returns a list of installed app records (as JSON-serialisable maps).
+     * Each map must match the Rust AppRecord schema: { id, name, app_id, ... }.
+     * Injected by the caller to avoid core-layer dependency.
+     */
+    private val getInstalledApps: ((ignoreSystem: Boolean) -> List<Map<String, Any?>>)? = null,
+    /**
+     * Called whenever Rust fires an on_manager_event notification.
+     * The event is delivered as a raw JSON object for the UI layer to handle.
+     */
+    private val onManagerEvent: ((event: JsonObject) -> Unit)? = null,
 ) {
     private var stopAction: (() -> Unit)? = null
     private val gson = Gson()
@@ -103,6 +129,9 @@ class KotlinHubRpcServer(
                 "get_latest_release" -> handleGetLatestRelease(id, params)
                 "get_releases" -> handleGetReleases(id, params)
                 "get_download" -> handleGetDownload(id, params)
+                "get_local_version" -> handleGetLocalVersion(id, params)
+                "get_installed_apps" -> handleGetInstalledApps(id, params)
+                "on_manager_event" -> handleOnManagerEvent(id, params)
                 else -> jsonRpcError(id, -32601, "Method not found: $method")
             }
         } catch (e: Throwable) {
@@ -174,6 +203,46 @@ class KotlinHubRpcServer(
 
         val downloads = hub.getDownload(hubData, appData, assetIndex, asset) ?: emptyList()
         return jsonRpcSuccess(id, gson.toJsonTree(downloads))
+    }
+
+    // ========================================================================
+    // Android API Callback Handlers
+    // ========================================================================
+
+    private fun handleGetLocalVersion(
+        id: JsonElement?,
+        params: JsonObject,
+    ): String {
+        val appIdJson =
+            params.getAsJsonObject("app_id")
+                ?: return jsonRpcError(id, -32602, "Missing app_id")
+        val appId: Map<String, String?> =
+            appIdJson.entrySet().associate { (k, v) ->
+                k to if (v.isJsonNull) null else v.asString
+            }
+        val version = getLocalVersion?.invoke(appId)
+        return jsonRpcSuccess(id, gson.toJsonTree(version))
+    }
+
+    private fun handleGetInstalledApps(
+        id: JsonElement?,
+        params: JsonObject,
+    ): String {
+        val ignoreSystem = params.get("ignore_system")?.asBoolean ?: true
+        val apps = getInstalledApps?.invoke(ignoreSystem) ?: emptyList()
+        return jsonRpcSuccess(id, gson.toJsonTree(apps))
+    }
+
+    private fun handleOnManagerEvent(
+        id: JsonElement?,
+        params: JsonObject,
+    ): String {
+        try {
+            onManagerEvent?.invoke(params)
+        } catch (e: Throwable) {
+            Log.e(logObjectTag, TAG, "on_manager_event handler failed: ${e.message}")
+        }
+        return jsonRpcSuccess(id, gson.toJsonTree(true))
     }
 
     // ========================================================================

@@ -143,6 +143,42 @@ interface GetterService {
     suspend fun managerSaveExtraHub(record: ExtraHubRecord): Boolean
 
     suspend fun managerDeleteExtraHub(id: String): Boolean
+
+    // ========================================================================
+    // Extra App
+    // ========================================================================
+
+    suspend fun managerGetExtraAppByAppId(appId: Map<String, String?>): ExtraAppRecord?
+
+    suspend fun managerSaveExtraApp(record: ExtraAppRecord): Boolean
+
+    suspend fun managerDeleteExtraApp(id: String): Boolean
+
+    // ========================================================================
+    // Android API / Notification Registration
+    // ========================================================================
+
+    suspend fun registerAndroidApi(url: String): Boolean
+
+    suspend fun registerNotification(url: String): Boolean
+
+    // ========================================================================
+    // Cloud Config Manager
+    // ========================================================================
+
+    suspend fun cloudConfigInit(apiUrl: String): Boolean
+
+    suspend fun cloudConfigRenew(): Boolean
+
+    suspend fun cloudConfigGetAppList(): List<AppConfig>
+
+    suspend fun cloudConfigGetHubList(): List<HubConfig>
+
+    suspend fun cloudConfigApplyApp(uuid: String): Boolean
+
+    suspend fun cloudConfigApplyHub(uuid: String): Boolean
+
+    suspend fun cloudConfigRenewAll(): Boolean
 }
 
 /**

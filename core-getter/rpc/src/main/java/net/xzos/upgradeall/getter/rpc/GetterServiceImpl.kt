@@ -260,6 +260,50 @@ class GetterServiceImpl(
     override suspend fun managerDeleteExtraHub(id: String): Boolean =
         client.invoke("manager_delete_extra_hub", mapOf("id" to id), typeOf<Boolean>())
 
+    // ========================================================================
+    // Extra App
+    // ========================================================================
+
+    override suspend fun managerGetExtraAppByAppId(appId: Map<String, String?>): ExtraAppRecord? =
+        client.invoke("manager_get_extra_app_by_app_id", mapOf("app_id" to appId), typeOf<ExtraAppRecord?>())
+
+    override suspend fun managerSaveExtraApp(record: ExtraAppRecord): Boolean =
+        client.invoke("manager_save_extra_app", mapOf("record" to record), typeOf<Boolean>())
+
+    override suspend fun managerDeleteExtraApp(id: String): Boolean =
+        client.invoke("manager_delete_extra_app", mapOf("id" to id), typeOf<Boolean>())
+
+    // ========================================================================
+    // Android API / Notification Registration
+    // ========================================================================
+
+    override suspend fun registerAndroidApi(url: String): Boolean =
+        client.invoke("register_android_api", mapOf("url" to url), typeOf<Boolean>())
+
+    override suspend fun registerNotification(url: String): Boolean =
+        client.invoke("register_notification", mapOf("url" to url), typeOf<Boolean>())
+
+    // ========================================================================
+    // Cloud Config Manager
+    // ========================================================================
+
+    override suspend fun cloudConfigInit(apiUrl: String): Boolean =
+        client.invoke("cloud_config_init", mapOf("api_url" to apiUrl), typeOf<Boolean>())
+
+    override suspend fun cloudConfigRenew(): Boolean = client.invoke("cloud_config_renew", typeOf<Boolean>())
+
+    override suspend fun cloudConfigGetAppList(): List<AppConfig> = client.invoke("cloud_config_get_app_list", typeOf<List<AppConfig>>())
+
+    override suspend fun cloudConfigGetHubList(): List<HubConfig> = client.invoke("cloud_config_get_hub_list", typeOf<List<HubConfig>>())
+
+    override suspend fun cloudConfigApplyApp(uuid: String): Boolean =
+        client.invoke("cloud_config_apply_app", mapOf("uuid" to uuid), typeOf<Boolean>())
+
+    override suspend fun cloudConfigApplyHub(uuid: String): Boolean =
+        client.invoke("cloud_config_apply_hub", mapOf("uuid" to uuid), typeOf<Boolean>())
+
+    override suspend fun cloudConfigRenewAll(): Boolean = client.invoke("cloud_config_renew_all", typeOf<Boolean>())
+
     /**
      * Close the underlying WebSocket connection
      */

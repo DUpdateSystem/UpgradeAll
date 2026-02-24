@@ -96,3 +96,26 @@ data class ExtraHubRecord(
     @SerializedName("url_replace_search") val urlReplaceSearch: String? = null,
     @SerializedName("url_replace_string") val urlReplaceString: String? = null,
 )
+
+data class ExtraAppRecord(
+    @SerializedName("id") val id: String = "",
+    @SerializedName("app_id") val appId: Map<String, String?> = emptyMap(),
+    @SerializedName("mark_version_number") val markVersionNumber: String? = null,
+)
+
+// ============================================================================
+// Manager Events (mirrors Rust ManagerEvent enum)
+// ============================================================================
+
+data class ManagerEvent(
+    @SerializedName("type") val type: String = "",
+    // AppStatusChanged fields
+    @SerializedName("record_id") val recordId: String? = null,
+    @SerializedName("old_status") val oldStatus: AppStatus? = null,
+    @SerializedName("new_status") val newStatus: AppStatus? = null,
+    // RenewProgress fields
+    @SerializedName("done") val done: Int? = null,
+    @SerializedName("total") val total: Int? = null,
+    // AppAdded / AppDatabaseChanged fields
+    @SerializedName("record") val record: AppRecord? = null,
+)
