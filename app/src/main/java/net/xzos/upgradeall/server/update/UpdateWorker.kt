@@ -53,6 +53,9 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) :
         }
 
         suspend fun doUpdateWork(updateNotification: UpdateNotification) {
+            // Wait for GetterService to be ready before calling RPC.
+            // getterPort.waitService() polls until the WebSocket connection is established.
+            getterPort.waitService()
             AppManager.setRenewProgressFun(updateNotification.renewStatusFun)
             getterPort.getService().managerRenewAll()
             AppManager.setRenewProgressFun(null)
