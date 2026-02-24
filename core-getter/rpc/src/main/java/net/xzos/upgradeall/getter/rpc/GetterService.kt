@@ -96,6 +96,53 @@ interface GetterService {
     ): Boolean
 
     suspend fun unregisterDownloader(hubUuid: String): Boolean
+
+    // ========================================================================
+    // App Manager
+    // ========================================================================
+
+    suspend fun managerGetApps(): List<AppRecord>
+
+    suspend fun managerSaveApp(record: AppRecord): AppRecord
+
+    suspend fun managerDeleteApp(recordId: String): Boolean
+
+    suspend fun managerGetAppStatus(recordId: String): AppStatus
+
+    suspend fun managerSetVirtualApps(apps: List<AppRecord>): Boolean
+
+    suspend fun managerRenewAll(): Boolean
+
+    // ========================================================================
+    // Hub Manager
+    // ========================================================================
+
+    suspend fun managerGetHubs(): List<HubRecord>
+
+    suspend fun managerSaveHub(record: HubRecord): Boolean
+
+    suspend fun managerDeleteHub(hubUuid: String): Boolean
+
+    suspend fun managerHubIgnoreApp(
+        hubUuid: String,
+        appId: Map<String, String?>,
+        ignore: Boolean,
+    ): Boolean
+
+    suspend fun managerSetApplicationsMode(
+        hubUuid: String,
+        enable: Boolean,
+    ): Boolean
+
+    // ========================================================================
+    // Extra Hub
+    // ========================================================================
+
+    suspend fun managerGetExtraHubs(): List<ExtraHubRecord>
+
+    suspend fun managerSaveExtraHub(record: ExtraHubRecord): Boolean
+
+    suspend fun managerDeleteExtraHub(id: String): Boolean
 }
 
 /**

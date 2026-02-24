@@ -194,6 +194,72 @@ class GetterServiceImpl(
         return client.invoke("unregister_downloader", params, typeOf<Boolean>())
     }
 
+    // ========================================================================
+    // App Manager
+    // ========================================================================
+
+    override suspend fun managerGetApps(): List<AppRecord> = client.invoke("manager_get_apps", typeOf<List<AppRecord>>())
+
+    override suspend fun managerSaveApp(record: AppRecord): AppRecord =
+        client.invoke("manager_save_app", mapOf("record" to record), typeOf<AppRecord>())
+
+    override suspend fun managerDeleteApp(recordId: String): Boolean =
+        client.invoke("manager_delete_app", mapOf("record_id" to recordId), typeOf<Boolean>())
+
+    override suspend fun managerGetAppStatus(recordId: String): AppStatus =
+        client.invoke("manager_get_app_status", mapOf("record_id" to recordId), typeOf<AppStatus>())
+
+    override suspend fun managerSetVirtualApps(apps: List<AppRecord>): Boolean =
+        client.invoke("manager_set_virtual_apps", mapOf("apps" to apps), typeOf<Boolean>())
+
+    override suspend fun managerRenewAll(): Boolean = client.invoke("manager_renew_all", typeOf<Boolean>())
+
+    // ========================================================================
+    // Hub Manager
+    // ========================================================================
+
+    override suspend fun managerGetHubs(): List<HubRecord> = client.invoke("manager_get_hubs", typeOf<List<HubRecord>>())
+
+    override suspend fun managerSaveHub(record: HubRecord): Boolean =
+        client.invoke("manager_save_hub", mapOf("record" to record), typeOf<Boolean>())
+
+    override suspend fun managerDeleteHub(hubUuid: String): Boolean =
+        client.invoke("manager_delete_hub", mapOf("hub_uuid" to hubUuid), typeOf<Boolean>())
+
+    override suspend fun managerHubIgnoreApp(
+        hubUuid: String,
+        appId: Map<String, String?>,
+        ignore: Boolean,
+    ): Boolean =
+        client.invoke(
+            "manager_hub_ignore_app",
+            mapOf("hub_uuid" to hubUuid, "app_id" to appId, "ignore" to ignore),
+            typeOf<Boolean>(),
+        )
+
+    override suspend fun managerSetApplicationsMode(
+        hubUuid: String,
+        enable: Boolean,
+    ): Boolean =
+        client.invoke(
+            "manager_set_applications_mode",
+            mapOf("hub_uuid" to hubUuid, "enable" to enable),
+            typeOf<Boolean>(),
+        )
+
+    // ========================================================================
+    // Extra Hub
+    // ========================================================================
+
+    override suspend fun managerGetExtraHubs(): List<ExtraHubRecord> =
+        client.invoke("manager_get_extra_hubs", typeOf<List<ExtraHubRecord>>())
+
+    override suspend fun managerSaveExtraHub(record: ExtraHubRecord): Boolean =
+        client.invoke("manager_save_extra_hub", mapOf("record" to record), typeOf<Boolean>())
+
+    override suspend fun managerDeleteExtraHub(id: String): Boolean =
+        client.invoke("manager_delete_extra_hub", mapOf("id" to id), typeOf<Boolean>())
+
     /**
      * Close the underlying WebSocket connection
      */
