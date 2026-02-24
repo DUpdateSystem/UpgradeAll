@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="8dp"
+    android:paddingEnd="4dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <!-- Key: AutoComplete dropdown -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/auth_key_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:hint="@string/auth_key_hint"
+        android:layout_marginEnd="4dp">
+
+        <AutoCompleteTextView
+            android:id="@+id/auth_key_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:completionThreshold="0"
+            android:inputType="text"
+            android:singleLine="true" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Value: password field with eye toggle -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/auth_value_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:hint="@string/auth_value_hint"
+        android:layout_marginEnd="4dp"
+        app:endIconMode="password_toggle"
+        app:passwordToggleEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/auth_value_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:singleLine="true" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Delete row button -->
+    <ImageButton
+        android:id="@+id/auth_delete_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/delete"
+        android:src="@android:drawable/ic_menu_close_clear_cancel" />
+
+</LinearLayout>

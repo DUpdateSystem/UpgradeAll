@@ -41,6 +41,7 @@ data class HubConfig(
     @SerializedName("uuid") val uuid: String = "",
     @SerializedName("info") val info: HubConfigInfo = HubConfigInfo(),
     @SerializedName("api_keywords") val apiKeywords: List<String> = emptyList(),
+    @SerializedName("auth_keywords") val authKeywords: List<String> = emptyList(),
     @SerializedName("app_url_templates") val appUrlTemplates: List<String> = emptyList(),
     @SerializedName("target_check_api") val targetCheckApi: String? = null,
 )

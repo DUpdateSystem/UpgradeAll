@@ -126,6 +126,8 @@ interface GetterService {
 
     suspend fun managerDeleteHub(hubUuid: String): Boolean
 
+    suspend fun managerUpdateHubAuth(hubUuid: String, auth: Map<String, String>): Boolean
+
     suspend fun managerHubIgnoreApp(
         hubUuid: String,
         appId: Map<String, String?>,

@@ -229,6 +229,13 @@ class GetterServiceImpl(
     override suspend fun managerDeleteHub(hubUuid: String): Boolean =
         client.invoke("manager_delete_hub", mapOf("hub_uuid" to hubUuid), typeOf<Boolean>())
 
+    override suspend fun managerUpdateHubAuth(hubUuid: String, auth: Map<String, String>): Boolean =
+        client.invoke(
+            "manager_update_hub_auth",
+            mapOf("hub_uuid" to hubUuid, "auth" to auth),
+            typeOf<Boolean>(),
+        )
+
     override suspend fun managerHubIgnoreApp(
         hubUuid: String,
         appId: Map<String, String?>,

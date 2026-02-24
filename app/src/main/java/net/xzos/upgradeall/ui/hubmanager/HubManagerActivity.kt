@@ -16,7 +16,7 @@ class HubManagerActivity : HubListActivity<HubManagerListItemView, HubManagerLis
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.title == getString(R.string.global_setting)) {
-            HubSettingDialog(null).show(this)
+            HubSettingDialog.newInstance(null).show(supportFragmentManager, HubSettingDialog.TAG)
         }
         return super.onOptionsItemSelected(item)
     }

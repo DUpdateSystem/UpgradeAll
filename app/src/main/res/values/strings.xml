@@ -200,6 +200,12 @@
     <!-- Installable File Type -->
     <string name="apk">APK</string>
     <!-- Hub Setting -->
+    <string name="hub_settings">Hub Settings</string>
+    <string name="authentication">Authentication</string>
+    <string name="auth_key_hint">Key</string>
+    <string name="auth_value_hint">Value</string>
+    <string name="add">Add</string>
+    <string name="save">Save</string>
     <string name="global_setting">Global Settings</string>
     <string name="use_global_setting">Use Global Settings</string>
     <string name="download_url_replace_rule">Rule Replacement for Download URL </string>

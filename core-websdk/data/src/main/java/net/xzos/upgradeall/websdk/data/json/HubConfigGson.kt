@@ -29,6 +29,9 @@ data class HubConfigGson(
     @SerializedName("api_keywords")
     @JsonProperty("api_keywords")
     val apiKeywords: List<String> = listOf(),
+    @SerializedName("auth_keywords")
+    @JsonProperty("auth_keywords")
+    val authKeywords: List<String> = listOf(),
     @SerializedName("app_url_templates")
     @JsonProperty("app_url_templates")
     val appUrlTemplates: List<String> = listOf(),
