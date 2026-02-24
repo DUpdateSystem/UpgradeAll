@@ -92,6 +92,8 @@ object CloudConfigGetter {
             if (ok) {
                 notifyFun(GetStatus.SUCCESS_SAVE_HUB_DATA)
                 notifyFun(GetStatus.SUCCESS)
+                // Recheck apps that may have become invalid after hub config change.
+                service().managerCheckInvalidApplications()
             } else {
                 notifyFun(GetStatus.FAILED_SAVE_HUB_DATA)
                 notifyFun(GetStatus.FAILED)
@@ -138,20 +140,11 @@ object CloudConfigGetter {
     }
 
     /** Bulk-update all installed apps and hubs whose cloud config version has increased. */
-    suspend fun renewAllAppConfigFromCloud() {
+    suspend fun renewAllFromCloud() {
         try {
             service().cloudConfigRenewAll()
         } catch (e: Exception) {
-            Log.e(logObjectTag, TAG, "renewAllAppConfigFromCloud failed: $e")
-        }
-    }
-
-    /** Bulk-update all installed hub configs from cloud. */
-    suspend fun renewAllHubConfigFromCloud() {
-        try {
-            service().cloudConfigRenewAll()
-        } catch (e: Exception) {
-            Log.e(logObjectTag, TAG, "renewAllHubConfigFromCloud failed: $e")
+            Log.e(logObjectTag, TAG, "renewAllFromCloud failed: $e")
         }
     }
 }

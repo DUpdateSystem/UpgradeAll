@@ -35,15 +35,6 @@ object HubManager {
         ExtraHubEntityManager.deleteExtraHub(hubUuid)
     }
 
-    suspend fun checkInvalidApplications() {
-        hubMap.values.forEach { hub ->
-            val available = hub.applicationsModeAvailable()
-            if (hub.isEnableApplicationsMode() && !available) {
-                hub.setApplicationsMode(available)
-            }
-        }
-    }
-
     fun isEnableApplicationsMode(): Boolean {
         return hubMap.values.any {
             it.isEnableApplicationsMode()

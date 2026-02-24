@@ -1,6 +1,5 @@
 package net.xzos.upgradeall.ui.discover
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.google.android.material.chip.Chip

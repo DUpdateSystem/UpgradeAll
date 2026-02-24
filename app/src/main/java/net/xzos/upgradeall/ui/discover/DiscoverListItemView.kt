@@ -3,7 +3,6 @@ package net.xzos.upgradeall.ui.discover
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
-import android.util.Log
 import android.view.View
 import androidx.databinding.ObservableField
 import net.xzos.upgradeall.R

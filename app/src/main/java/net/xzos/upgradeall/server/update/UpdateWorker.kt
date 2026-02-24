@@ -10,6 +10,7 @@ import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.manager.AppManager
+import net.xzos.upgradeall.core.websdk.getterPort
 
 class UpdateWorker(context: Context, workerParameters: WorkerParameters) :
     CoroutineWorker(context, workerParameters) {
@@ -52,10 +53,9 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) :
         }
 
         suspend fun doUpdateWork(updateNotification: UpdateNotification) {
-            AppManager.renewApp(
-                updateNotification.renewStatusFun,
-                updateNotification.recheckStatusFun
-            )
+            AppManager.setRenewProgressFun(updateNotification.renewStatusFun)
+            getterPort.getService().managerRenewAll()
+            AppManager.setRenewProgressFun(null)
         }
 
         fun finishNotify(updateNotification: UpdateNotification) {

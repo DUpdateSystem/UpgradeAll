@@ -2,6 +2,7 @@ package net.xzos.upgradeall.core
 
 import android.annotation.SuppressLint
 import android.content.Context
+import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,7 +39,24 @@ fun initCore(
     )
     initObject(context)
     CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-        runGetterService(context)
+        runGetterService(
+            context,
+            onManagerEvent = { event ->
+                when (event.get("type")?.asString) {
+                    "renew_progress" -> AppManager.notifyRenewProgress(
+                        event.get("done")?.asInt ?: return@runGetterService,
+                        event.get("total")?.asInt ?: return@runGetterService,
+                    )
+                    "app_status_changed" -> {
+                        val appIdObj = event.getAsJsonObject("app_id") ?: return@runGetterService
+                        val appId: Map<String, String?> = appIdObj.entrySet().associate { (k, v) ->
+                            k to if (v.isJsonNull) null else v.asString
+                        }
+                        AppManager.notifyAppStatusChanged(appId)
+                    }
+                }
+            }
+        )
         // Migrate Room data to Rust JSONL on first launch after upgrade.
         // runGetterService() completes only after the Rust service is ready,
         // so the getter port is safe to use here.

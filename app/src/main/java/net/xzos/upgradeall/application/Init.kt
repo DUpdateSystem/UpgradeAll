@@ -27,10 +27,7 @@ private fun initContext() {
 }
 
 private suspend fun renewData() {
-    if (PreferencesMap.auto_update_hub_config) {
-        CloudConfigGetter.renewAllHubConfigFromCloud()
-    }
-    if (PreferencesMap.auto_update_app_config) {
-        CloudConfigGetter.renewAllAppConfigFromCloud()
+    if (PreferencesMap.auto_update_hub_config || PreferencesMap.auto_update_app_config) {
+        CloudConfigGetter.renewAllFromCloud()
     }
 }

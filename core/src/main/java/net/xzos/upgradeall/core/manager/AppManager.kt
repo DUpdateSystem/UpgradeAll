@@ -2,12 +2,7 @@ package net.xzos.upgradeall.core.manager
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
@@ -17,9 +12,7 @@ import net.xzos.upgradeall.core.module.AppStatus
 import net.xzos.upgradeall.core.module.Hub
 import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.module.app.data.DataGetter
-import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
-import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.getInstalledAppList
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
@@ -47,6 +40,28 @@ object AppManager : Informer<UpdateStatus, App>() {
      * 获取全部 App 实体列表
      */
     private val allAppList = coroutinesMutableListOf<App>(true)
+
+    // -------------------------------------------------------------------------
+    // Rust renew pipeline callbacks
+    // -------------------------------------------------------------------------
+
+    @Volatile private var currentRenewProgressFun: ((done: Int, total: Int) -> Unit)? = null
+
+    fun setRenewProgressFun(f: ((Int, Int) -> Unit)?) {
+        currentRenewProgressFun = f
+    }
+
+    /** Called by core/Init.kt when Rust fires a renew_progress event. */
+    fun notifyRenewProgress(done: Int, total: Int) {
+        currentRenewProgressFun?.invoke(done, total)
+    }
+
+    /** Called by core/Init.kt when Rust fires an app_status_changed event. */
+    fun notifyAppStatusChanged(appId: Map<String, String?>) {
+        val app = allAppList.firstOrNull { it.appId == appId } ?: return
+        notifyChanged(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, app)
+        notifyChanged(UpdateStatus.APP_UPDATE_STATUS_CHANGED_NOTIFY, app)
+    }
 
     private val inactiveAppList: Set<App>
         get() = getAppList(AppStatus.APP_INACTIVE)
@@ -108,114 +123,6 @@ object AppManager : Informer<UpdateStatus, App>() {
      * 获取全部 App 实体列表，按照 App 类型过滤
      */
     fun getAppList(appType: String): Set<App> = allAppList.filter { it.appId.containsKey(appType) }.toSet()
-
-    /**
-     * 刷新 App 的版本数据
-     * @param renewStatusFun 每刷新一个 App 数据，回调一次，以返回正在刷新中的 App 数量
-     */
-    suspend fun renewApp(
-        renewStatusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null,
-        renewInactiveStatusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null,
-    ): Int {
-        val appList = getUnsortedAppList()
-        renewAppList(appList, renewStatusFun)
-        renewAppList(inactiveAppList, renewInactiveStatusFun)
-        return appList.size
-    }
-
-    private suspend fun renewAppList(
-        appList: Collection<App>,
-        statusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)? = null,
-    ): Collection<App> {
-        val count = CoroutinesCount(appList.size)
-        val totalAppNum = appList.size
-        Log.d(logObjectTag, TAG, "renew start: $totalAppNum apps")
-        val simpleMap = coroutinesMutableMapOf<Hub, MutableList<App>>(true)
-        val completeMap = coroutinesMutableMapOf<Hub, MutableList<App>>(true)
-        val appMap = coroutinesMutableMapOf<App, MutableList<Hub>>(true)
-        val appStatusMap = coroutinesMutableMapOf<App, AppStatus>(true)
-        coroutineScope {
-            appList.forEach {
-                launch {
-                    notifyChanged(UpdateStatus.APP_START_UPDATE_NOTIFY, it)
-                    appStatusMap[it] = it.releaseStatus
-                    it.hubEnableList.forEach { hub ->
-                        val map = if (it.needCompleteVersion) completeMap else simpleMap
-                        map.getOrPut(hub) { mutableListOf() }.add(it)
-                    }
-                    appMap[it] = it.hubEnableList.toMutableList()
-                }
-            }
-        }
-        val semaphore = Semaphore(10)
-        coroutineScope {
-            simpleMap.forEach { i ->
-                val (hub, list) = i
-                semaphore.withPermit {
-                    launch {
-                        val flashApp = DataGetter.getLatestUpdate(hub, list)
-                        if (flashApp.isEmpty()) {
-                            completeMap.getOrPut(hub) { mutableListOf() }.addAll(list)
-                        } else {
-                            flashApp.forEach {
-                                checkUpdated(
-                                    it,
-                                    hub,
-                                    appMap,
-                                    appStatusMap,
-                                    count,
-                                    totalAppNum,
-                                    statusFun,
-                                )
-                                list.remove(it)
-                            }
-                            list.forEach { completeMap.getOrPut(hub) { mutableListOf() }.add(it) }
-                        }
-                    }
-                }
-            }
-        }
-
-        coroutineScope {
-            completeMap.forEach { i ->
-                val (hub, list) = i
-                list.forEach {
-                    launch(Dispatchers.IO) {
-                        renewApp(it, hub)
-                        checkUpdated(it, hub, appMap, appStatusMap, count, totalAppNum, statusFun)
-                    }
-                }
-            }
-        }
-        Log.d(logObjectTag, TAG, "renew finish: $totalAppNum apps")
-        return appList
-    }
-
-    private fun checkUpdated(
-        app: App,
-        hub: Hub,
-        map: MutableMap<App, MutableList<Hub>>,
-        appStatusMap: MutableMap<App, AppStatus>,
-        count: CoroutinesCount,
-        totalAppNum: Int,
-        statusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)?,
-    ) {
-        val list = map[app] ?: return
-        if (list.contains(hub)) {
-            if (list.size == 1) {
-                map.remove(app)
-                notifyChanged(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, app)
-                if (appStatusMap[app] != app.releaseStatus) {
-                    notifyChanged(UpdateStatus.APP_UPDATE_STATUS_CHANGED_NOTIFY, app)
-                }
-                count.down()
-                Log.d(logObjectTag, TAG, "app done: ${app.appId}, remaining: ${count.count}/$totalAppNum")
-                statusFun?.run { this(count.count, totalAppNum) }
-            } else {
-                list.remove(hub)
-            }
-        }
-    }
 
     /**
      * 刷新指定 App 项的版本数据
