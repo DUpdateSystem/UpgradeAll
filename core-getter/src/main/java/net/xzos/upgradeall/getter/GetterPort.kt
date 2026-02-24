@@ -1,11 +1,13 @@
 package net.xzos.upgradeall.getter
 
 import android.content.Context
-import android.util.Log
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.getter.rpc.GetterService
 import net.xzos.upgradeall.getter.rpc.getClient
 import net.xzos.upgradeall.websdk.data.json.CloudConfigList
@@ -26,9 +28,9 @@ class GetterPort(
                 service = getClient(url)
             }.also {
                 if (it.isEmpty()) {
-                    Log.d("GetterPort", "runService: success")
+                    Log.d(logObjectTag, TAG, "runService: success")
                 } else {
-                    Log.e("GetterPort", "runService(error): $it")
+                    Log.e(logObjectTag, TAG, "runService error: $it")
                 }
             }
     }
@@ -47,15 +49,11 @@ class GetterPort(
 
     suspend fun waitService(): Boolean {
         while (true) {
-            if (isServiceRunning().apply {
-                    Log.d("GetterPort", "waitService: isServiceRunning $this")
-                }
-            ) {
-                break
-            }
+            if (isServiceRunning()) break
+            Log.d(logObjectTag, TAG, "waitService: not ready, retrying...")
             delay(1000L)
         }
-        return isServiceRunning()
+        return true
     }
 
     /**
@@ -71,7 +69,7 @@ class GetterPort(
             return@withLock service
                 .init(dataPath, cachePath, globalExpireTime)
                 .apply { isInit = this }
-                .also { Log.d("GetterPort", "initInternal: $it") }
+                .also { Log.i(logObjectTag, TAG, "init: $it") }
         }
     }
 
@@ -81,11 +79,11 @@ class GetterPort(
             runBlocking {
                 service
                     .ping()
-                    .also { Log.d("GetterPort", "ping: $it") }
                     .isNotEmpty()
+                    .also { Log.d(logObjectTag, TAG, "ping: $it") }
             }
         } catch (e: Exception) {
-            Log.e("GetterPort", "ping: $e")
+            Log.e(logObjectTag, TAG, "ping failed: $e")
             false
         }
     }
@@ -107,7 +105,7 @@ class GetterPort(
         return runBlocking {
             service
                 .checkAppAvailable(hubUuid, appData, hubData)
-                .also { Log.d("GetterPort", "checkAppAvailable: $it") }
+                .also { Log.d(logObjectTag, TAG, "checkAppAvailable[$hubUuid]: $it") }
         }
     }
 
@@ -120,7 +118,7 @@ class GetterPort(
         return runBlocking {
             service
                 .getAppLatestRelease(hubUuid, appData, hubData)
-                .also { Log.d("GetterPort", "getAppLatestRelease: $it") }
+                .also { Log.d(logObjectTag, TAG, "getAppLatestRelease[$hubUuid]: ${it.versionNumber}") }
         }
     }
 
@@ -133,7 +131,7 @@ class GetterPort(
         return runBlocking {
             service
                 .getAppReleases(hubUuid, appData, hubData)
-                .also { Log.d("GetterPort", "getAppReleases: $it") }
+                .also { Log.d(logObjectTag, TAG, "getAppReleases[$hubUuid]: ${it.size} releases") }
         }
     }
 
@@ -142,7 +140,7 @@ class GetterPort(
         return runBlocking {
             service
                 .getCloudConfig(apiUrl)
-                .also { Log.d("GetterPort", "getCloudConfig: $it") }
+                .also { Log.d(logObjectTag, TAG, "getCloudConfig: ${it.appList.size} apps, ${it.hubList.size} hubs") }
         }
     }
 
@@ -154,7 +152,7 @@ class GetterPort(
         return runBlocking {
             service
                 .registerProvider(hubUuid, url)
-                .also { Log.d("GetterPort", "registerProvider: uuid=$hubUuid url=$url result=$it") }
+                .also { Log.i(logObjectTag, TAG, "registerProvider: uuid=$hubUuid url=$url result=$it") }
         }
     }
 
@@ -166,7 +164,7 @@ class GetterPort(
         return runBlocking {
             service
                 .registerDownloader(hubUuid, rpcUrl)
-                .also { Log.d("GetterPort", "registerDownloader: uuid=$hubUuid url=$rpcUrl result=$it") }
+                .also { Log.i(logObjectTag, TAG, "registerDownloader: uuid=$hubUuid result=$it") }
         }
     }
 
@@ -180,7 +178,12 @@ class GetterPort(
         return runBlocking {
             service
                 .getDownloadInfo(hubUuid, appData, hubData, assetIndex)
-                .also { Log.d("GetterPort", "getDownloadInfo: $it") }
+                .also { Log.d(logObjectTag, TAG, "getDownloadInfo[$hubUuid]: ${it.size} items") }
         }
+    }
+
+    companion object {
+        private const val TAG = "GetterPort"
+        private val logObjectTag = ObjectTag(core, TAG)
     }
 }

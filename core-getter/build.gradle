@@ -60,6 +60,7 @@ dependencies {
     androidTestImplementation libs.androidx.test.espresso.core
 
     api project(':core-getter:rpc')
+    implementation project(':core-utils')
     // Rust TLS
     implementation "rustls:rustls-platform-verifier:latest.release"
 }

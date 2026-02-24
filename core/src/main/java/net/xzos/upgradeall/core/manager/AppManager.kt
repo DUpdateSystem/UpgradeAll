@@ -2,7 +2,6 @@ package net.xzos.upgradeall.core.manager
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -22,10 +21,12 @@ import net.xzos.upgradeall.core.utils.coroutines.CoroutinesCount
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableListOf
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.core.utils.getInstalledAppList
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.utils.oberver.Informer
 import net.xzos.upgradeall.core.utils.oberver.Tag
 import net.xzos.upgradeall.core.utils.registerAppReceiver
-
 
 enum class UpdateStatus : Tag {
     APP_START_UPDATE_NOTIFY,
@@ -39,6 +40,8 @@ enum class UpdateStatus : Tag {
 }
 
 object AppManager : Informer<UpdateStatus, App>() {
+    private const val TAG = "AppManager"
+    private val logObjectTag = ObjectTag(core, TAG)
 
     /**
      * 获取全部 App 实体列表
@@ -55,7 +58,8 @@ object AppManager : Informer<UpdateStatus, App>() {
             }
 
     private fun getUnsortedAppList(predicate: ((App) -> Boolean) = { true }): Set<App> =
-        allAppList.filter { (it.releaseStatus != AppStatus.APP_INACTIVE) && predicate(it) }
+        allAppList
+            .filter { (it.releaseStatus != AppStatus.APP_INACTIVE) && predicate(it) }
             .toSet()
 
     fun initObject(context: Context) {
@@ -68,7 +72,8 @@ object AppManager : Informer<UpdateStatus, App>() {
             allAppList.add(App(database))
         }
         getInstalledAppList(
-            context, coreConfig.applications_ignore_system_app
+            context,
+            coreConfig.applications_ignore_system_app,
         ).forEach { database ->
             allAppList.add(App(database))
         }
@@ -84,9 +89,7 @@ object AppManager : Informer<UpdateStatus, App>() {
         return list
     }
 
-    fun getAppList(key: AppStatus): Set<App> {
-        return allAppList.filter { it.releaseStatus == key }.toSet()
-    }
+    fun getAppList(key: AppStatus): Set<App> = allAppList.filter { it.releaseStatus == key }.toSet()
 
     /**
      * 按照更新状态{@link Updater}排序的列表
@@ -94,8 +97,9 @@ object AppManager : Informer<UpdateStatus, App>() {
      */
     fun getAppByUuid(uuid: String): App? {
         allAppList.forEach {
-            if (uuid == it.cloudConfig?.uuid)
+            if (uuid == it.cloudConfig?.uuid) {
                 return it
+            }
         }
         return null
     }
@@ -103,9 +107,7 @@ object AppManager : Informer<UpdateStatus, App>() {
     /**
      * 获取全部 App 实体列表，按照 App 类型过滤
      */
-    fun getAppList(appType: String): Set<App> {
-        return allAppList.filter{ it.appId.containsKey(appType) }.toSet()
-    }
+    fun getAppList(appType: String): Set<App> = allAppList.filter { it.appId.containsKey(appType) }.toSet()
 
     /**
      * 刷新 App 的版本数据
@@ -127,7 +129,7 @@ object AppManager : Informer<UpdateStatus, App>() {
     ): Collection<App> {
         val count = CoroutinesCount(appList.size)
         val totalAppNum = appList.size
-        Log.w("update record", "renew size start: $totalAppNum")
+        Log.d(logObjectTag, TAG, "renew start: $totalAppNum apps")
         val simpleMap = coroutinesMutableMapOf<Hub, MutableList<App>>(true)
         val completeMap = coroutinesMutableMapOf<Hub, MutableList<App>>(true)
         val appMap = coroutinesMutableMapOf<App, MutableList<Hub>>(true)
@@ -152,12 +154,18 @@ object AppManager : Informer<UpdateStatus, App>() {
                 semaphore.withPermit {
                     launch {
                         val flashApp = DataGetter.getLatestUpdate(hub, list)
-                        if (flashApp.isEmpty())
+                        if (flashApp.isEmpty()) {
                             completeMap.getOrPut(hub) { mutableListOf() }.addAll(list)
-                        else {
+                        } else {
                             flashApp.forEach {
                                 checkUpdated(
-                                    it, hub, appMap, appStatusMap, count, totalAppNum, statusFun
+                                    it,
+                                    hub,
+                                    appMap,
+                                    appStatusMap,
+                                    count,
+                                    totalAppNum,
+                                    statusFun,
                                 )
                                 list.remove(it)
                             }
@@ -179,13 +187,17 @@ object AppManager : Informer<UpdateStatus, App>() {
                 }
             }
         }
-        Log.w("update record", "renew size finish: $totalAppNum")
+        Log.d(logObjectTag, TAG, "renew finish: $totalAppNum apps")
         return appList
     }
 
     private fun checkUpdated(
-        app: App, hub: Hub, map: MutableMap<App, MutableList<Hub>>,
-        appStatusMap: MutableMap<App, AppStatus>, count: CoroutinesCount, totalAppNum: Int,
+        app: App,
+        hub: Hub,
+        map: MutableMap<App, MutableList<Hub>>,
+        appStatusMap: MutableMap<App, AppStatus>,
+        count: CoroutinesCount,
+        totalAppNum: Int,
         statusFun: ((renewingAppNum: Int, totalAppNum: Int) -> Unit)?,
     ) {
         val list = map[app] ?: return
@@ -193,10 +205,11 @@ object AppManager : Informer<UpdateStatus, App>() {
             if (list.size == 1) {
                 map.remove(app)
                 notifyChanged(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, app)
-                if (appStatusMap[app] != app.releaseStatus)
+                if (appStatusMap[app] != app.releaseStatus) {
                     notifyChanged(UpdateStatus.APP_UPDATE_STATUS_CHANGED_NOTIFY, app)
+                }
                 count.down()
-                Log.w("update record", "count: ${count.count}, app: ${app.appId}")
+                Log.d(logObjectTag, TAG, "app done: ${app.appId}, remaining: ${count.count}/$totalAppNum")
                 statusFun?.run { this(count.count, totalAppNum) }
             } else {
                 list.remove(hub)
@@ -214,22 +227,27 @@ object AppManager : Informer<UpdateStatus, App>() {
         notifyChanged(UpdateStatus.APP_FINISH_UPDATE_NOTIFY, app)
     }
 
-    fun renewApp(app: App, hub: Hub) {
+    fun renewApp(
+        app: App,
+        hub: Hub,
+    ) {
         DataGetter.getLatestVersion(app, hub)
     }
 
     private fun getAppByDatabase(appEntity: AppEntity): App? {
         allAppList.forEach {
-            if (it.db == appEntity)
+            if (it.db == appEntity) {
                 return it
+            }
         }
         return null
     }
 
     fun getAppById(appId: Map<String, String?>): App? {
         allAppList.forEach {
-            if (appId == it.appId)
+            if (appId == it.appId) {
                 return it
+            }
         }
         return null
     }
@@ -245,10 +263,11 @@ object AppManager : Informer<UpdateStatus, App>() {
     private suspend fun addAppEntity(appEntity: AppEntity): AppEntity? {
         val appDao = metaDatabase.appDao()
         return try {
-            if (appEntity.isInit())
+            if (appEntity.isInit()) {
                 appDao.update(appEntity)
-            else
+            } else {
                 appDao.insert(appEntity)
+            }
             appEntity
             // TODO: 错误类型判断，并给出 null 返回值
         } catch (ignore: SQLiteConstraintException) {
@@ -258,12 +277,16 @@ object AppManager : Informer<UpdateStatus, App>() {
 
     private fun updateApp(appDatabase: AppEntity): App {
         val oldApp = getAppByDatabase(appDatabase) ?: getAppById(appDatabase.appId)
-        val changedTag = if (oldApp != null)
-            UpdateStatus.APP_DATABASE_CHANGED_NOTIFY
-        else UpdateStatus.APP_ADDED_NOTIFY
-        val app = oldApp ?: App(appDatabase).apply {
-            allAppList.add(this)
-        }
+        val changedTag =
+            if (oldApp != null) {
+                UpdateStatus.APP_DATABASE_CHANGED_NOTIFY
+            } else {
+                UpdateStatus.APP_ADDED_NOTIFY
+            }
+        val app =
+            oldApp ?: App(appDatabase).apply {
+                allAppList.add(this)
+            }
         renewApp(app)
         notifyChanged(changedTag, app)
         return app

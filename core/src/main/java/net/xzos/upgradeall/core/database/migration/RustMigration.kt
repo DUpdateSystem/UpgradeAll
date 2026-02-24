@@ -1,10 +1,12 @@
 package net.xzos.upgradeall.core.database.migration
 
-import android.util.Log
 import net.xzos.upgradeall.core.database.metaDatabase
 import net.xzos.upgradeall.core.database.table.AppEntity
 import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.database.table.extra_hub.ExtraHubEntity
+import net.xzos.upgradeall.core.utils.log.Log
+import net.xzos.upgradeall.core.utils.log.ObjectTag
+import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.websdk.getterPort
 import net.xzos.upgradeall.getter.AppManagerProxy
 import net.xzos.upgradeall.getter.ExtraHubProxy
@@ -19,6 +21,7 @@ import net.xzos.upgradeall.getter.rpc.HubRecord
 import java.io.File
 
 private const val TAG = "RustMigration"
+private val logObjectTag = ObjectTag(core, TAG)
 
 /**
  * Migrates data from the Room/SQLite database to the Rust JSONL store.
@@ -29,7 +32,7 @@ private const val TAG = "RustMigration"
 suspend fun migrateRoomToRust(rustDataDir: File) {
     val appsFile = File(rustDataDir, "apps.jsonl")
     if (appsFile.exists() && appsFile.length() > 0) {
-        Log.d(TAG, "JSONL store already populated, skipping migration")
+        Log.d(logObjectTag, TAG, "JSONL store already populated, skipping migration")
         return
     }
 
@@ -43,11 +46,11 @@ suspend fun migrateRoomToRust(rustDataDir: File) {
         }
 
     if (apps.isEmpty() && hubs.isEmpty()) {
-        Log.d(TAG, "Room DB is empty, nothing to migrate")
+        Log.d(logObjectTag, TAG, "Room DB is empty, nothing to migrate")
         return
     }
 
-    Log.i(TAG, "Starting Room -> Rust migration: ${apps.size} apps, ${hubs.size} hubs")
+    Log.i(logObjectTag, TAG, "Starting Room -> Rust migration: ${apps.size} apps, ${hubs.size} hubs")
 
     val service = getterPort.getService()
     val appProxy = AppManagerProxy(service)
@@ -57,22 +60,22 @@ suspend fun migrateRoomToRust(rustDataDir: File) {
     hubs.forEach { entity ->
         val record = entity.toHubRecord()
         val ok = hubProxy.saveHub(record)
-        if (!ok) Log.w(TAG, "Failed to migrate hub: ${entity.uuid}")
+        if (!ok) Log.w(logObjectTag, TAG, "Failed to migrate hub: ${entity.uuid}")
     }
 
     extraHubs.forEach { entity ->
         val record = entity.toExtraHubRecord()
         val ok = extraHubProxy.saveExtraHub(record)
-        if (!ok) Log.w(TAG, "Failed to migrate extra_hub: ${entity.id}")
+        if (!ok) Log.w(logObjectTag, TAG, "Failed to migrate extra_hub: ${entity.id}")
     }
 
     apps.forEach { entity ->
         val record = entity.toAppRecord()
         val saved = appProxy.saveApp(record)
-        if (saved.id.isEmpty()) Log.w(TAG, "Failed to migrate app: ${entity.name}")
+        if (saved.id.isEmpty()) Log.w(logObjectTag, TAG, "Failed to migrate app: ${entity.name}")
     }
 
-    Log.i(TAG, "Migration complete")
+    Log.i(logObjectTag, TAG, "Migration complete")
 }
 
 // ---------------------------------------------------------------------------
