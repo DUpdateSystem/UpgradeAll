@@ -113,6 +113,9 @@ interface GetterService {
 
     suspend fun managerRenewAll(): Boolean
 
+    /** Return record IDs of saved apps whose configured hub UUIDs are all unknown. */
+    suspend fun managerCheckInvalidApplications(): List<String>
+
     // ========================================================================
     // Hub Manager
     // ========================================================================

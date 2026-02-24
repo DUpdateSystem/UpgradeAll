@@ -214,6 +214,9 @@ class GetterServiceImpl(
 
     override suspend fun managerRenewAll(): Boolean = client.invoke("manager_renew_all", typeOf<Boolean>())
 
+    override suspend fun managerCheckInvalidApplications(): List<String> =
+        client.invoke("manager_check_invalid_applications", typeOf<List<String>>())
+
     // ========================================================================
     // Hub Manager
     // ========================================================================
