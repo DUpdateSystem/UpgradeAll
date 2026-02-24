@@ -1,164 +1,172 @@
 package net.xzos.upgradeall.core.manager
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.coreConfig
-import net.xzos.upgradeall.core.database.dao.HubDao
-import net.xzos.upgradeall.core.database.metaDatabase
-import net.xzos.upgradeall.core.database.table.AppEntity
-import net.xzos.upgradeall.core.database.table.HubEntity
-import net.xzos.upgradeall.core.database.table.setSortHubUuidList
-import net.xzos.upgradeall.core.module.app.App
 import net.xzos.upgradeall.core.utils.AutoTemplate
+import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
-import net.xzos.upgradeall.core.websdk.getServerApi
-import net.xzos.upgradeall.websdk.data.json.AppConfigGson
-import net.xzos.upgradeall.websdk.data.json.CloudConfigList
-import net.xzos.upgradeall.websdk.data.json.HubConfigGson
+import net.xzos.upgradeall.core.websdk.getterPort
+import net.xzos.upgradeall.getter.rpc.AppConfig
+import net.xzos.upgradeall.getter.rpc.HubConfig
 
-
+/**
+ * Cloud config manager — now a thin RPC proxy over the Rust CloudConfigGetter.
+ *
+ * All heavy logic (fetching, parsing, applying configs, solving hub dependencies,
+ * bulk renewal) runs inside Rust. Kotlin is only responsible for:
+ *  - supplying the API URL from coreConfig
+ *  - forwarding calls to the Rust getter via GetterService RPC
+ *  - caching the last-known app/hub list in memory for synchronous lookups
+ *  - mapping the Boolean RPC result back to GetStatus for legacy UI callbacks
+ */
 object CloudConfigGetter {
     private const val TAG = "CloudConfigGetter"
-    private val objectTag = ObjectTag(core, TAG)
+    private val logObjectTag = ObjectTag(core, TAG)
 
-    private val appCloudRulesHubUrl: String? get() = coreConfig.cloud_rules_hub_url
-    private var cloudConfig: CloudConfigList? = null
     private val renewMutex = Mutex()
 
+    /** In-memory cache populated by renew(). */
+    @Volatile private var cachedAppList: List<AppConfig> = emptyList()
+    @Volatile private var cachedHubList: List<HubConfig> = emptyList()
+
+    private val apiUrl: String
+        get() {
+            val custom = coreConfig.cloud_rules_hub_url
+            return if (custom.isNullOrBlank())
+                "http://${coreConfig.update_server_url}/v1/rules/download/dev"
+            else custom
+        }
+
+    private fun service() = getterPort.getService()
+
+    // =========================================================================
+    // Public API (mirrors the old CloudConfigGetter interface)
+    // =========================================================================
+
+    /**
+     * Download and cache the latest cloud config list from Rust.
+     * Initialises the Rust CloudConfigGetter with the current API URL first.
+     */
     suspend fun renew() {
-        withContext(Dispatchers.IO) {
-            renewMutex.withLock {
-                cloudConfig = getCloudConfigFromWeb(appCloudRulesHubUrl) ?: cloudConfig
+        renewMutex.withLock {
+            try {
+                service().cloudConfigInit(apiUrl)
+                service().cloudConfigRenew()
+                // Refresh in-memory caches
+                cachedAppList = service().cloudConfigGetAppList()
+                cachedHubList = service().cloudConfigGetHubList()
+                Log.d(logObjectTag, TAG, "renew: ${cachedAppList.size} apps, ${cachedHubList.size} hubs")
+            } catch (e: Exception) {
+                Log.e(logObjectTag, TAG, "renew failed: $e")
             }
         }
     }
 
-    val appConfigList: List<AppConfigGson>?
-        get() = cloudConfig?.appList
+    val appConfigList: List<AppConfig>? get() = cachedAppList.ifEmpty { null }
+    val hubConfigList: List<HubConfig>? get() = cachedHubList.ifEmpty { null }
 
-    val hubConfigList: List<HubConfigGson>?
-        get() = cloudConfig?.hubList
+    fun getAppCloudConfig(appUuid: String?): AppConfig? =
+        cachedAppList.firstOrNull { it.uuid == appUuid }
 
-    private fun getCloudConfigFromWeb(url: String?): CloudConfigList? {
-        val key = if (url.isNullOrBlank())
-            "http://${coreConfig.update_server_url}/v1/rules/download/dev"
-        else url
-        return getServerApi().getCloudConfig(key)
-    }
-
-    fun getAppCloudConfig(appUuid: String?): AppConfigGson? {
-        val appConfigList = this.appConfigList ?: return null
-        for (appConfigGson in appConfigList) {
-            if (appConfigGson.uuid == appUuid)
-                return appConfigGson
-        }
-        return null
-    }
-
-    fun getHubCloudConfig(hubUuid: String?): HubConfigGson? {
-        val hubConfigList = this.hubConfigList ?: return null
-        for (hubConfigGson in hubConfigList) {
-            if (hubConfigGson.uuid == hubUuid)
-                return hubConfigGson
-        }
-        return null
-    }
+    fun getHubCloudConfig(hubUuid: String?): HubConfig? =
+        cachedHubList.firstOrNull { it.uuid == hubUuid }
 
     /**
-     * 下载软件源云配置
-     * @see GetStatus.SUCCESS_GET_HUB_DATA 获取 HubConfig 成功
-     * @see GetStatus.SUCCESS 添加数据库成功
-     * @see GetStatus.FAILED_GET_HUB_DATA 获取 HubConfig 失败
-     * @see GetStatus.FAILED 添加数据库失败
+     * Download and apply a cloud hub config by UUID.
+     * Returns true on success.
      */
-    suspend fun downloadCloudHubConfig(hubUuid: String?, notifyFun: (GetStatus) -> Unit): Boolean {
-        getHubCloudConfig(hubUuid)?.run {
+    suspend fun downloadCloudHubConfig(
+        hubUuid: String?,
+        notifyFun: (GetStatus) -> Unit,
+    ): Boolean {
+        if (hubUuid == null) {
+            notifyFun(GetStatus.FAILED_GET_HUB_DATA)
+            notifyFun(GetStatus.FAILED)
+            return false
+        }
+        return try {
             notifyFun(GetStatus.SUCCESS_GET_HUB_DATA)
-            if (HubManager.updateHub(this.toHubEntity())) {
+            val ok = service().cloudConfigApplyHub(hubUuid)
+            if (ok) {
                 notifyFun(GetStatus.SUCCESS_SAVE_HUB_DATA)
                 notifyFun(GetStatus.SUCCESS)
-                return true
             } else {
                 notifyFun(GetStatus.FAILED_SAVE_HUB_DATA)
                 notifyFun(GetStatus.FAILED)
             }
-        } ?: notifyFun(GetStatus.FAILED_GET_HUB_DATA)
-        HubManager.checkInvalidApplications()
-        return false
+            ok
+        } catch (e: Exception) {
+            Log.e(logObjectTag, TAG, "downloadCloudHubConfig failed: $e")
+            notifyFun(GetStatus.FAILED_GET_HUB_DATA)
+            notifyFun(GetStatus.FAILED)
+            false
+        }
     }
 
     /**
-     * 返回 App 添加数据库成功, NULL 添加数据库失败
-     * @return App
+     * Download and apply a cloud app config by UUID (including hub dependency).
+     * Returns true on success.
      */
-    suspend fun downloadCloudAppConfig(appUuid: String?, notifyFun: (GetStatus) -> Unit): App? {
-        getAppCloudConfig(appUuid)?.also {
+    suspend fun downloadCloudAppConfig(
+        appUuid: String?,
+        notifyFun: (GetStatus) -> Unit,
+    ): Boolean {
+        if (appUuid == null) {
+            notifyFun(GetStatus.FAILED_GET_APP_DATA)
+            notifyFun(GetStatus.FAILED)
+            return false
+        }
+        return try {
             notifyFun(GetStatus.SUCCESS_GET_APP_DATA)
-            if (solveHubDependency(it.baseHubUuid, notifyFun)) {
-                it.toAppEntity()?.apply {
-                    // 添加数据库
-                    val app = AppManager.saveApp(this)
-                    if (app != null) {
-                        notifyFun(GetStatus.SUCCESS_SAVE_APP_DATA)
-                        notifyFun(GetStatus.SUCCESS)
-                        return app
-                    } else {
-                        notifyFun(GetStatus.FAILED_SAVE_APP_DATA)
-                        notifyFun(GetStatus.FAILED)
-                    }
-                } ?: notifyFun(GetStatus.FAILED_GET_APP_DATA)
-            } else notifyFun(GetStatus.FAILED_GET_HUB_DATA)
-        } ?: notifyFun(GetStatus.FAILED_GET_APP_DATA)
-        return null
+            val ok = service().cloudConfigApplyApp(appUuid)
+            if (ok) {
+                notifyFun(GetStatus.SUCCESS_SAVE_APP_DATA)
+                notifyFun(GetStatus.SUCCESS)
+            } else {
+                notifyFun(GetStatus.FAILED_SAVE_APP_DATA)
+                notifyFun(GetStatus.FAILED)
+            }
+            ok
+        } catch (e: Exception) {
+            Log.e(logObjectTag, TAG, "downloadCloudAppConfig failed: $e")
+            notifyFun(GetStatus.FAILED_GET_APP_DATA)
+            notifyFun(GetStatus.FAILED)
+            false
+        }
     }
 
-    private suspend fun solveHubDependency(
-        hubUuid: String, notifyFun: (GetStatus) -> Unit
-    ): Boolean {
-        return if (HubManager.getHub(hubUuid) == null)
-            downloadCloudHubConfig(hubUuid, notifyFun)
-        else
-            renewHubConfig(hubUuid)
-    }
-
+    /** Bulk-update all installed apps and hubs whose cloud config version has increased. */
     suspend fun renewAllAppConfigFromCloud() {
-        renew()
-        val appConfigList = appConfigList ?: return
-        val appDatabaseMap = metaDatabase.appDao().loadAll()
-            .filter { it.cloudConfig != null }
-            .associateBy({ it.cloudConfig!!.uuid }, { it })
-        for (appConfig in appConfigList) {
-            val appUuid = appConfig.uuid
-            val appDatabase = appDatabaseMap[appUuid] ?: return
-            val cloudAppVersion = appConfig.configVersion
-            val localAppVersion = appDatabase.cloudConfig!!.configVersion
-            if (cloudAppVersion > localAppVersion)
-                downloadCloudAppConfig(appUuid) {}
+        try {
+            service().cloudConfigRenewAll()
+        } catch (e: Exception) {
+            Log.e(logObjectTag, TAG, "renewAllAppConfigFromCloud failed: $e")
         }
     }
 
+    /** Bulk-update all installed hub configs from cloud. */
     suspend fun renewAllHubConfigFromCloud() {
-        renew()
-        val hubDao = metaDatabase.hubDao()
-        hubConfigList?.forEach {
-            renewHubConfig(it.uuid, hubDao)
+        try {
+            service().cloudConfigRenewAll()
+        } catch (e: Exception) {
+            Log.e(logObjectTag, TAG, "renewAllHubConfigFromCloud failed: $e")
         }
     }
+}
 
-    private suspend fun renewHubConfig(
-        hubUuid: String,
-        hubDao: HubDao = metaDatabase.hubDao()
-    ): Boolean {
-        val hubDatabase = hubDao.loadByUuid(hubUuid) ?: return false
-        val cloudHubVersion = getHubCloudConfig(hubUuid)?.configVersion ?: return false
-        val localHubVersion = hubDatabase.hubConfig.configVersion
-        return if (cloudHubVersion > localHubVersion)
-            downloadCloudHubConfig(hubUuid) {}
-        else true
-    }
+/**
+ * Compute the app_id map for a cloud AppConfig.
+ *
+ * Mirrors the old AppConfigGson.getAppId() logic:
+ * 1. Extract from info.url using the hub's appUrlTemplates.
+ * 2. Merge info.extraMap (extra_map wins on key conflicts).
+ */
+fun AppConfig.getAppId(): Map<String, String>? {
+    val hubConfig = CloudConfigGetter.getHubCloudConfig(baseHubUuid) ?: return null
+    val fromUrl = AutoTemplate.urlToAppId(info.url, hubConfig.appUrlTemplates) ?: emptyMap()
+    return fromUrl + info.extraMap
 }
 
 enum class GetStatus(val value: Int) {
@@ -173,36 +181,4 @@ enum class GetStatus(val value: Int) {
     FAILED_GET_HUB_DATA(-3),
     FAILED_SAVE_APP_DATA(-4),
     FAILED_SAVE_HUB_DATA(-5);
-}
-
-suspend fun HubConfigGson.toHubEntity(): HubEntity {
-    return metaDatabase.hubDao().loadByUuid(this.uuid)?.also {
-        it.hubConfig = this
-    } ?: HubEntity(this.uuid, this, mutableMapOf())
-}
-
-
-fun AppConfigGson.getAppId(): Map<String, String>? {
-    val hubConfig = CloudConfigGetter.getHubCloudConfig(baseHubUuid) ?: return null
-    return info.extraMap.plus(
-        AutoTemplate.urlToAppId(info.url, hubConfig.appUrlTemplates) ?: mapOf()
-    )
-}
-
-suspend fun AppConfigGson.toAppEntity(): AppEntity? {
-    val appId = this.getAppId() ?: return null
-    val appDatabaseList = metaDatabase.appDao().loadAll()
-    val appUuid = uuid
-    for (appDatabase in appDatabaseList) {
-        if (appDatabase.cloudConfig?.uuid == appUuid) {
-            appDatabase.name = info.name
-            appDatabase.cloudConfig = this
-            val baseHubUuid = (appDatabase.getSortHubUuidList() + baseHubUuid).toSet()
-            appDatabase.setSortHubUuidList(baseHubUuid)
-            return appDatabase
-        }
-    }
-    return AppEntity(info.name, appId, cloudConfig = this).apply {
-        setSortHubUuidList(listOf(baseHubUuid))
-    }
 }

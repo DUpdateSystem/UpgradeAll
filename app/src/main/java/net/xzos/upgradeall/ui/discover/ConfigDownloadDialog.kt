@@ -16,6 +16,7 @@ import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.manager.CloudConfigGetter
 import net.xzos.upgradeall.core.manager.GetStatus
 import net.xzos.upgradeall.core.manager.getAppId
+import net.xzos.upgradeall.getter.rpc.AppConfig
 import net.xzos.upgradeall.databinding.DialogDiscoverAppInfoBinding
 
 class ConfigDownloadDialog(

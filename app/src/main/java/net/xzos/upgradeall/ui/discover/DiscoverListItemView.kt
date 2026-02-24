@@ -15,9 +15,9 @@ import net.xzos.upgradeall.core.utils.constant.ANDROID_APP_TYPE
 import net.xzos.upgradeall.core.utils.constant.ANDROID_CUSTOM_SHELL
 import net.xzos.upgradeall.core.utils.constant.ANDROID_CUSTOM_SHELL_ROOT
 import net.xzos.upgradeall.core.utils.constant.ANDROID_MAGISK_MODULE_TYPE
+import net.xzos.upgradeall.getter.rpc.AppConfig
 import net.xzos.upgradeall.ui.base.list.ActivityListItemView
 import net.xzos.upgradeall.ui.base.list.BaseAppIconItem
-import net.xzos.upgradeall.websdk.data.json.AppConfigGson
 
 class DiscoverListItemView(
     name: String,
@@ -38,7 +38,7 @@ class DiscoverListItemView(
 
     companion object {
         fun getCloudAppItemCardView(
-            appConfig: AppConfigGson,
+            appConfig: AppConfig,
             context: Context
         ): DiscoverListItemView {
             val name = appConfig.info.name

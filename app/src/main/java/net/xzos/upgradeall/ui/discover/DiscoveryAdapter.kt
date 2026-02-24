@@ -6,11 +6,11 @@ import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.databinding.ItemDiscoverAppBinding
 import net.xzos.upgradeall.ui.base.recycleview.RecyclerViewAdapter
 import net.xzos.upgradeall.ui.discover.DiscoverListItemView.Companion.getCloudAppItemCardView
-import net.xzos.upgradeall.websdk.data.json.AppConfigGson
+import net.xzos.upgradeall.getter.rpc.AppConfig
 
 class DiscoveryAdapter(
     override val handler: DiscoverListItemHandler
-) : RecyclerViewAdapter<AppConfigGson, DiscoverListItemView, DiscoverListItemHandler, DiscoverListViewHolder>(
+) : RecyclerViewAdapter<AppConfig, DiscoverListItemView, DiscoverListItemHandler, DiscoverListViewHolder>(
     { getCloudAppItemCardView(it, MyApplication.context) }
 ) {
 
