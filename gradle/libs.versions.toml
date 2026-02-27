@@ -2,7 +2,7 @@
 # Build Tools
 agp = "9.0.1"
 kotlin = "2.3.10"
-ksp = "2.3.5"
+ksp = "2.3.6"
 androidRust = "0.6.0"
 
 # Kotlin Libraries
