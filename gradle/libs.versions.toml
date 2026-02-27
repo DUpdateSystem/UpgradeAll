@@ -34,7 +34,7 @@ firebasePerf = "22.0.4"
 firebaseAnalytics = "23.0.0"
 firebaseCrashlytics = "20.0.4"
 material = "1.13.0"
-protobuf = "4.33.5"
+protobuf = "4.34.0"
 
 # Networking
 okhttp = "5.3.2"
