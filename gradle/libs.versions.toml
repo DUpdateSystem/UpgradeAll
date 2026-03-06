@@ -1,6 +1,6 @@
 [versions]
 # Build Tools
-agp = "9.0.1"
+agp = "9.1.0"
 kotlin = "2.3.10"
 ksp = "2.3.5"
 androidRust = "0.6.0"
@@ -24,7 +24,7 @@ work = "2.11.1"
 cardview = "1.0.0"
 documentfile = "1.1.0"
 room = "2.8.4"
-composeBom = "2026.02.00"
+composeBom = "2026.02.01"
 
 # Google / Firebase (NO FREE)
 googleServices = "4.4.4"
@@ -64,7 +64,7 @@ gplayapi = "3.3.1"
 jbcrypt = "0.4"
 sardineAndroid = "0.9"
 sqliteJdbc = "3.51.2.0"
-mavenArtifact = "3.9.12"
+mavenArtifact = "3.9.13"
 commonsText = "1.15.0"
 toastcompat = "1.1.0"
 
