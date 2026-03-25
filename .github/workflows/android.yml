@@ -38,7 +38,7 @@ jobs:
           java-version: 21
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Install NDK
         run: echo "y" | sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
