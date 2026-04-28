@@ -1,6 +1,6 @@
 [versions]
 # Build Tools
-agp = "9.0.1"
+agp = "9.2.0"
 kotlin = "2.3.10"
 ksp = "2.3.5"
 androidRust = "0.6.0"
@@ -9,7 +9,7 @@ androidRust = "0.6.0"
 kotlinCoroutines = "1.10.2"
 
 # AndroidX
-androidxKtx = "1.17.0"
+androidxKtx = "1.18.0"
 appcompat = "1.7.1"
 constraintlayout = "2.2.1"
 preference = "1.2.1"
@@ -17,22 +17,22 @@ lifecycle = "2.10.0"
 recyclerview = "1.4.0"
 drawerlayout = "1.2.0"
 viewpager2 = "1.1.0"
-activity = "1.12.4"
+activity = "1.13.0"
 fragment = "1.8.9"
-navigation = "2.9.7"
-work = "2.11.1"
+navigation = "2.9.8"
+work = "2.11.2"
 cardview = "1.0.0"
 documentfile = "1.1.0"
 room = "2.8.4"
-composeBom = "2026.02.00"
+composeBom = "2026.04.01"
 
 # Google / Firebase (NO FREE)
 googleServices = "4.4.4"
-firebaseCrashlyticsPlugin = "3.0.6"
+firebaseCrashlyticsPlugin = "3.0.7"
 firebasePerfPlugin = "2.0.2"
-firebasePerf = "22.0.4"
-firebaseAnalytics = "23.0.0"
-firebaseCrashlytics = "20.0.4"
+firebasePerf = "22.0.5"
+firebaseAnalytics = "23.2.0"
+firebaseCrashlytics = "20.0.5"
 material = "1.13.0"
 protobuf = "4.33.5"
 
@@ -41,11 +41,11 @@ okhttp = "5.3.2"
 ktor = "3.4.0"
 
 # Serialization
-gson = "2.13.2"
+gson = "2.14.0"
 jacksonDatabind = "2.21.0"
 
 # Image Loading
-glide = "5.0.5"
+glide = "5.0.7"
 
 # Other Libraries
 desugarJdkLibs = "2.1.5"
@@ -63,8 +63,8 @@ markdown = "0.7.3"
 gplayapi = "3.3.1"
 jbcrypt = "0.4"
 sardineAndroid = "0.9"
-sqliteJdbc = "3.51.2.0"
-mavenArtifact = "3.9.12"
+sqliteJdbc = "3.53.0.0"
+mavenArtifact = "3.9.15"
 commonsText = "1.15.0"
 toastcompat = "1.1.0"
 
