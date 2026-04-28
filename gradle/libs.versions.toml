@@ -42,7 +42,7 @@ ktor = "3.4.0"
 
 # Serialization
 gson = "2.13.2"
-jacksonDatabind = "2.21.0"
+jacksonDatabind = "2.21.3"
 
 # Image Loading
 glide = "5.0.5"
