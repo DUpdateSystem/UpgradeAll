@@ -404,19 +404,36 @@ local        = user-authored, highest priority, never overwritten silently
 local_autogen = generated fallback, safe to regenerate/clean after preview
 ```
 
-Tasks:
+User-confirmed decisions:
+
+- getter creates/uses canonical `<data-dir>/repositories/local_autogen`.
+- any registered repository with priority higher than `local_autogen` suppresses generation for a package id.
+- autogen apply/cleanup are getter-managed; if a generated file has been edited, getter preserves it into `local` before regenerating/deleting.
+- applying installed autogen also tracks accepted packages because user confirmation means the user wants update tracking.
+
+Status: first getter-owned CLI/core slice in progress. Implemented pure autogen planning, installed preview/apply, cleanup preview/apply, deterministic package Lua generation, manifest-managed cleanup, higher-priority coverage skips, local preservation for edited autogen files, guarded cleanup against stale/tampered previews, and preservation of existing tracked user state during autogen apply. Flutter/Android inventory collection and UX remain future adapter work.
+
+Completed tasks:
 
 1. Define autogen output path and deterministic package file naming.
-2. Generate Lua package stubs for installed apps not covered by official/local repos.
+2. Generate Lua package stubs for installed apps not covered by higher-priority repos.
 3. Add preview report before writing.
 4. Add cleanup preview for missing generated apps.
-5. Add invalidation rules when installed apps or repo metadata changes.
+5. Track accepted generated packages in getter storage without clobbering existing user state.
+6. Preserve edited generated files into `local` before autogen rewrite/delete.
+7. Guard cleanup deletion by current autogen manifest, repository id, and generated-package resolution.
 
-Acceptance:
+Remaining tasks:
 
-- BDD for preview/confirm/cancel cleanup UX.
-- TDD for deterministic Lua generation and no overwrite of `local`.
-- Yellow/free-network warning tagging remains getter-driven metadata, not hardcoded UI behavior.
+1. Android adapter supplies real installed inventory DTO.
+2. Flutter confirmation UX consumes getter preview/apply DTOs.
+3. Cache invalidation hooks beyond file-hash-based repository reload need to be expanded when evaluated/provider caches become active.
+
+Acceptance progress:
+
+- BDD for preview/confirm cleanup UX: done for CLI slice.
+- TDD for deterministic Lua generation and no overwrite of `local`: done for core/CLI slice.
+- Yellow/free-network warning tagging remains getter-driven metadata, not hardcoded UI behavior: not needed for installed-target-only stubs in this slice.
 
 ### Phase C: repository tooling and diagnostics
 

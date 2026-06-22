@@ -21,6 +21,10 @@ getter --data-dir <path> repo eval <repo-id>
 getter --data-dir <path> repo validate <path>
 getter --data-dir <path> package eval <package-id> [--repo <repo-id>]
 getter --data-dir <path> storage validate
+getter --data-dir <path> autogen installed preview --inventory <installed.json>
+getter --data-dir <path> autogen installed apply --preview <preview.json> (--accept-all|--accept <package-id>...)
+getter --data-dir <path> autogen cleanup preview --inventory <installed.json>
+getter --data-dir <path> autogen cleanup apply --preview <preview.json> (--accept-all|--accept <package-id>...)
 getter --data-dir <path> legacy import-room-bundle <bundle.json>
 getter --data-dir <path> legacy import-room-db <db.sqlite>
 getter --data-dir <path> legacy report-list
@@ -87,6 +91,8 @@ It maps `apps[]` into getter tracked package state in `main.db`, writes a saniti
 `legacy import-room-db <db.sqlite>` is the first direct Room database import slice. It opens a copied/checkpointed legacy SQLite database read-only, requires `PRAGMA user_version = 17`, reads `app` and `extra_app` rows, maps known legacy app-id keys to readable package ids (`android/<packageName>` and `magisk/<moduleId>`), writes tracked package state and the `legacy-room-v17` migration record in one transaction, and emits sanitized report counts/warnings. Unsupported DB versions use `migration.unsupported_db`; unreadable or malformed DBs use `migration.invalid_db`. A DB with a mix of valid and invalid app rows imports valid rows and reports skipped-row warnings; a DB with app rows but zero importable app rows is treated as `migration.invalid_db` so migration completion is not recorded silently. This command does not import legacy `hub` as a new domain model; current hub/extra_hub rows are counted/dropped with warnings until a later accepted mapping exists.
 
 `legacy report-list` returns sanitized migration report summaries through the same JSON envelope so app/test adapters do not need to inspect getter's data-directory layout directly.
+
+The first installed-app autogen slice accepts an Android/platform-provided inventory DTO, computes generated fallback packages in Rust, previews before writing, and applies only after explicit `--accept-all` or `--accept <package-id>` confirmation. Getter owns the canonical repository path `<data-dir>/repositories/local_autogen`, fixed repo id `local_autogen`, default priority `-1`, deterministic package file path `packages/<kind>/<name>.lua`, and `autogen-manifest.json`. Candidates are skipped when any registered repository with priority higher than `local_autogen` already provides that package id. Applying installed autogen writes/registers `local_autogen` package files and tracks accepted packages in `main.db` when they are not already resolved; existing user state (`enabled`, `favorite`, `ignored_version`) and existing non-missing resolution metadata are preserved. Cleanup preview/apply only targets manifest-managed `local_autogen` packages missing from the current installed inventory. Cleanup refuses stale/tampered previews that do not match the current manifest and deletes tracked state only for rows still owned by `local_autogen` generated packages. If an existing autogen file was modified, getter preserves that content into the user-authored `local` repo before regenerating or deleting the managed autogen file.
 
 `repo validate <path>` validates a repository path offline without requiring it to be registered first. It returns `valid`, `diagnostics`, `package_count`, and `network_required = false`; diagnostics are getter-owned structured records with stable codes, message, severity, source path, and optional package id/field.
 
