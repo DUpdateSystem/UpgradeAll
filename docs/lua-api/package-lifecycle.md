@@ -64,3 +64,46 @@ return {
 ## post_update
 
 Optional post-update hook. Most persistent state changes should remain in Rust core, not Lua.
+
+## Offline validation
+
+`getter --data-dir <path> repo validate <repo-path>` validates repository layout and package schema without network access. The command evaluates local package Lua files with the same constrained `lib/` module loading used by `repo eval`/`package eval`, then returns a getter-owned diagnostic report:
+
+```json
+{
+  "valid": false,
+  "network_required": false,
+  "package_count": 0,
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "package.schema",
+      "message": "required string field 'name' is missing",
+      "package_id": "android/org.fdroid.fdroid",
+      "location": {
+        "path": "repo/packages/android/org.fdroid.fdroid.lua"
+      }
+    }
+  ]
+}
+```
+
+Initial stable diagnostic codes include:
+
+- `repository.read_repo_toml`
+- `repository.parse_repo_toml`
+- `repository.invalid_id`
+- `repository.unsupported_api_version`
+- `repository.missing_directory`
+- `repository.read_packages_dir`
+- `repository.invalid_package_path`
+- `repository.invalid_package_id`
+- `repository.hash_package_file`
+- `package.read_file`
+- `package.lua_runtime`
+- `package.not_a_table`
+- `package.unsupported_value`
+- `package.schema`
+- `package.domain`
+
+The validation command is intentionally offline. Provider/network validation belongs to later provider/update workflow commands, not repository schema validation.

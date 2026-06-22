@@ -16,7 +16,7 @@ Start here:
 6. `architecture/adr/0005-lua-package-api.md` — Lua package API and Rust validation boundary.
 7. `architecture/adr/0006-package-centric-cli-command-contract.md` — getter CLI automation contract.
 8. `architecture/adr/0007-flutter-getter-bridge-contract.md` — Flutter/getter DTO and bridge contract.
-9. `lua-api/` — practical Lua package authoring docs.
+9. `lua-api/` — practical Lua package authoring docs, including offline `repo validate` diagnostics.
 10. `migration/legacy-room-mapping.md` — old data mapping rules.
 11. `app/flutter-ui-feature-parity-and-testing.md` — Flutter feature parity and BDD/TDD test boundary.
 12. `implementation/coding-agent-handoff.md` — coding-agent / pi-agent handoff instructions.
