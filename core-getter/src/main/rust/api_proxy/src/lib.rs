@@ -26,35 +26,39 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
                 .expect("Failed to create Java string");
         }
     }
-    let (url_tx, url_rx) = channel();
-    let (completion_tx, completion_rx) = channel::<Option<String>>();
+    let (startup_tx, startup_rx) = channel::<Result<String, String>>();
     thread::spawn(move || {
         let runtime = match tokio::runtime::Runtime::new() {
             Ok(rt) => rt,
             Err(e) => {
-                let err_msg = format!("Error creating Tokio runtime: {}", e);
-                completion_tx.send(Some(err_msg)).unwrap();
+                let _ = startup_tx.send(Err(format!("Error creating Tokio runtime: {}", e)));
                 return;
             }
         };
         runtime.block_on(async move {
             let address = "127.0.0.1:0";
-            match run_server_hanging(address, |url| {
-                url_tx.send(url.to_string()).unwrap();
+            let startup_error_tx = startup_tx.clone();
+            if let Err(e) = run_server_hanging(address, move |url| {
+                startup_tx
+                    .send(Ok(url.to_string()))
+                    .map_err(|_| getter::rpc::server::RpcServerError::StartupCallback)?;
                 Ok(())
             })
             .await
             {
-                Ok(_) => completion_tx.send(None).unwrap(), // No error, send completion signal
-                Err(e) => {
-                    let err_msg = format!("Error running server: {}", e);
-                    completion_tx.send(Some(err_msg)).unwrap();
-                }
+                // If startup failed before the URL callback, report it to JNI.
+                // If startup succeeded, NativeLib.runServer has already returned
+                // to Kotlin and the placeholder server intentionally lives for
+                // the lifetime of this background thread.
+                let _ = startup_error_tx.send(Err(format!("Error running server: {}", e)));
             }
         });
     });
-    let url = match url_rx.recv() {
-        Ok(url) => url,
+    let url = match startup_rx.recv() {
+        Ok(Ok(url)) => url,
+        Ok(Err(error)) => {
+            return env.new_string(error).expect("Failed to create Java string");
+        }
         Err(e) => {
             return env
                 .new_string(format!("Error receiving URL from server thread: {}", e))
@@ -82,18 +86,5 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
             .expect("Failed to create Java string");
     }
 
-    let error = match completion_rx.recv() {
-        Ok(error) => error,
-        Err(e) => {
-            return env
-                .new_string(format!("Error receiving error from server thread: {}", e))
-                .expect("Failed to create Java string");
-        }
-    };
-    match error {
-        None => env.new_string("").expect("Failed to create Java string"),
-        Some(error) => env
-            .new_string(format!("Error running server: {}", error))
-            .expect("Failed to create Java string"),
-    }
+    env.new_string("").expect("Failed to create Java string")
 }
