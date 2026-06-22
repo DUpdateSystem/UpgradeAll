@@ -55,9 +55,17 @@ Normal installed-app autogen writes to `local_autogen`, but legacy migration is 
 - Legacy settings whose meaning no longer exists.
 - Exotic URL replacement rules that cannot be safely mapped.
 
-## Implemented CLI bridge-bundle slice
+## Implemented direct DB and bridge-bundle slices
 
-The current Rust CLI implementation does not read Android Room files directly yet. It accepts a JSON bridge bundle for deterministic host-side tests:
+The Rust CLI now has a direct SQLite import slice for copied/checkpointed Room v17 databases:
+
+```text
+getter --data-dir <path> legacy import-room-db <db.sqlite>
+```
+
+The direct importer opens the DB read-only, requires `PRAGMA user_version = 17`, reads legacy `app` and `extra_app` rows, maps known app-id keys to `android/<packageName>` or `magisk/<moduleId>`, writes getter tracked package state plus the `legacy-room-v17` migration record in one transaction, and emits sanitized report counts/warnings. Current `hub` and `extra_hub` rows are not imported as top-level objects; they are counted/dropped with warnings until a later accepted mapping exists. Android/platform code is still responsible for producing a WAL/SHM-consistent copied DB file before invoking getter.
+
+The host-side CLI also keeps the deterministic JSON bridge bundle for tests and non-Android fixtures:
 
 ```json
 {
@@ -76,8 +84,8 @@ The current Rust CLI implementation does not read Android Room files directly ye
 }
 ```
 
-This slice maps `apps[]` into getter tracked package state in `main.db`, writes a sanitized report under `migration-reports/`, and records `legacy-room-v17` completion. Unsupported bundle formats/versions still fail with a sanitized recovery report.
+Both slices map app state into getter tracked package state in `main.db`, write sanitized reports under `migration-reports/`, and record `legacy-room-v17` completion. Unsupported bundle formats/versions and unsupported/malformed databases fail with sanitized recovery reports.
 
 ## Failure behavior
 
-A single unmapped app must not block the whole app. Global migration failure should lead to a migration/recovery page. A per-app mapping failure should be visible on that app or diagnostics page.
+A single unmapped app must not block the whole app. Global migration failure should lead to a migration/recovery page. A per-app mapping failure should be visible on that app or diagnostics page. The direct DB importer treats malformed optional rows and mixed valid/invalid app rows as warnings, but unreadable DBs, unsupported `user_version`, missing required `app` table, and databases with app rows but zero importable app rows are global failures.

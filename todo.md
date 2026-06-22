@@ -363,24 +363,35 @@ Important boundary note:
 
 Goal: replace bridge-only JSON import with the Android upgrade path.
 
-Tasks:
+Status: first getter-owned direct DB slice completed. The getter CLI now supports `legacy import-room-db <db.sqlite>` for copied/checkpointed Room v17 SQLite files. It reads `app` and `extra_app`, maps known legacy app-id keys, writes `tracked_packages` plus `legacy-room-v17` in one transaction, prevents rerun, emits sanitized reports, and documents dropped hub/extra_hub fields. Android-side WAL/SHM copy/checkpoint and Flutter migration UX remain future work.
 
-1. Android migrator copies old DB plus `-wal` and `-shm` safely.
-2. Opens/canonicalizes old Room schema to latest supported legacy version.
-3. Exports a typed bundle including all durable tables:
-   - `app`
-   - `hub`
-   - `extra_app`
-   - `extra_hub`
-4. Rust imports the bundle into `main.db` in one transaction.
-5. Migration record prevents rerun.
-6. Report is sanitized and visible in Flutter migration page.
+Completed tasks:
 
-Acceptance:
+1. Rust direct importer opens copied legacy Room DB read-only and requires `PRAGMA user_version = 17`.
+2. Rust reads durable `app` and `extra_app` fields needed for tracked package/user state.
+3. Rust imports into `main.db` in one transaction.
+4. Migration record prevents rerun.
+5. Reports are sanitized and visible through `legacy report-list`.
+6. Dropped `hub`/`extra_hub` fields are documented in `docs/migration/legacy-room-mapping.md`.
 
-- Fixtures for fresh install, supported old DB, WAL/SHM pending writes, malformed optional JSON, partial prior migration.
-- Per-app failures become warnings; global unreadable DB becomes recovery state, not crash.
-- Dropped fields are documented in `docs/migration/legacy-room-mapping.md`.
+Remaining tasks:
+
+1. Android migrator copies old DB plus `-wal` and `-shm` safely before invoking getter.
+2. Android/platform adapter opens/checkpoints/canonicalizes old Room schema to latest supported legacy version.
+3. Extend accepted mapping if future ADR accepts direct `hub`/`extra_hub` semantics.
+4. Flutter migration page starts the adapter flow and renders getter reports.
+
+Acceptance progress:
+
+- Supported old DB fixture: done.
+- Malformed/unsupported DB recovery reports: done.
+- Partial prior migration/idempotence: done across direct DB and bridge bundle paths.
+- Malformed optional JSON becomes warning: covered in Rust storage tests for `extra_app`.
+- Mixed valid/invalid app rows import valid rows and warn: done.
+- DBs with app rows but zero importable rows fail with recovery report: done.
+- Report sanitization for dropped `hub`/`extra_hub` secrets and URL rewrite data: done.
+- WAL/SHM pending writes: pending Android adapter slice.
+- Per-app failures become warnings; global unreadable DB becomes recovery state, not crash: done for the getter-owned direct importer.
 
 ### Phase B: `local_autogen` generation
 

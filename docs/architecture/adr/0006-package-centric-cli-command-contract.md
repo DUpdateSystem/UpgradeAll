@@ -22,6 +22,7 @@ getter --data-dir <path> repo validate <path>
 getter --data-dir <path> package eval <package-id> [--repo <repo-id>]
 getter --data-dir <path> storage validate
 getter --data-dir <path> legacy import-room-bundle <bundle.json>
+getter --data-dir <path> legacy import-room-db <db.sqlite>
 getter --data-dir <path> legacy report-list
 getter --data-dir <path> hub list   # temporary compatibility only
 ```
@@ -83,6 +84,8 @@ The first supported `legacy import-room-bundle` slice accepts a JSON bridge bund
 
 It maps `apps[]` into getter tracked package state in `main.db`, writes a sanitized report under `migration-reports/`, and records `legacy-room-v17` migration completion. Malformed JSON uses `migration.invalid_bundle`; wrong format/version uses `migration.unsupported_bundle`.
 
+`legacy import-room-db <db.sqlite>` is the first direct Room database import slice. It opens a copied/checkpointed legacy SQLite database read-only, requires `PRAGMA user_version = 17`, reads `app` and `extra_app` rows, maps known legacy app-id keys to readable package ids (`android/<packageName>` and `magisk/<moduleId>`), writes tracked package state and the `legacy-room-v17` migration record in one transaction, and emits sanitized report counts/warnings. Unsupported DB versions use `migration.unsupported_db`; unreadable or malformed DBs use `migration.invalid_db`. A DB with a mix of valid and invalid app rows imports valid rows and reports skipped-row warnings; a DB with app rows but zero importable app rows is treated as `migration.invalid_db` so migration completion is not recorded silently. This command does not import legacy `hub` as a new domain model; current hub/extra_hub rows are counted/dropped with warnings until a later accepted mapping exists.
+
 `legacy report-list` returns sanitized migration report summaries through the same JSON envelope so app/test adapters do not need to inspect getter's data-directory layout directly.
 
 `repo validate <path>` validates a repository path offline without requiring it to be registered first. It returns `valid`, `diagnostics`, `package_count`, and `network_required = false`; diagnostics are getter-owned structured records with stable codes, message, severity, source path, and optional package id/field.
@@ -122,5 +125,5 @@ Costs:
 
 - No old hub-app model revival.
 - No live network provider behavior in the initial CLI smoke slice.
-- No direct Android Room database reader in the JSON bridge-bundle slice.
+- No Android/platform DB copy or WAL checkpoint implementation in the CLI contract itself; platform adapters prepare a consistent DB file and getter owns import semantics.
 - No Flutter UI behavior in CLI tests.
