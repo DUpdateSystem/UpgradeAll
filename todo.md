@@ -1,9 +1,11 @@
 # UpgradeAll rewrite next-step audit and plan
 
 Date: 2026-06-22 14:36 CST
+Completion update: 2026-06-22 15:15 CST
 Repo: `DUpdateSystem/UpgradeAll`
 Branch checked: `rewrite/flutter-getter-spine`
 Superproject HEAD checked before this document: `80e1eb60 fix(app): use Flutter-compatible AGP`
+Superproject HEAD after completing the immediate CI fix: `a1c43f43 fix(app): use Flutter-compatible Kotlin plugin`
 Getter submodule checked: `core-getter/src/main/rust/getter` -> `3b7613d709b405cb7229f2fbbf546c2d29ee96e6`
 
 This document is the canonical next-step plan after reviewing:
@@ -24,6 +26,13 @@ This document is the canonical next-step plan after reviewing:
 
 There is no major architecture drift from the original rewrite plan.
 
+Completion update: the immediate CI blocker described in this document has been fixed. The Kotlin Gradle Plugin was upgraded to `2.0.0`, the fix was pushed in `a1c43f43`, and both UpgradeAll PR checks are now green:
+
+```text
+Android CI / Build: success
+UpgradeAll Rewrite Validation / Rewrite validation: success
+```
+
 The completed work is broadly aligned with the intended direction:
 
 ```text
@@ -37,9 +46,7 @@ SQLite main.db + cache.db
   -> durable state split from rebuildable cache
 ```
 
-The important caveat is that the branch is not merge-ready yet because UpgradeAll rewrite validation CI is red. The immediate blocker is Flutter/Kotlin Gradle Plugin compatibility, not a design issue.
-
-The second caveat is process discipline: the Flutter shell has been created, but it must stay a shell until the real getter bridge is designed and wired. Do not add more product UI behavior that duplicates getter logic.
+The earlier caveat that the branch was not merge-ready because rewrite validation CI was red is now resolved. The remaining caveat is process discipline: the Flutter shell has been created, but it must stay a shell until the real getter bridge is designed and wired. Do not add more product UI behavior that duplicates getter logic.
 
 ## 2. Current state evidence
 
@@ -47,14 +54,16 @@ The second caveat is process discipline: the Flutter shell has been created, but
 
 ```text
 branch: rewrite/flutter-getter-spine
-HEAD:   80e1eb60bed05eaac7875c477d377ed046111f19
+HEAD after completing the immediate CI fix: a1c43f43505924ce55095d8f342d699d4d470a2a
 PR:     https://github.com/DUpdateSystem/UpgradeAll/pull/514
-status before this todo.md: only untracked todo-next-step.md
+status after cleanup should be clean except this document update until committed
 ```
 
 Recent superproject commits:
 
 ```text
+a1c43f43 fix(app): use Flutter-compatible Kotlin plugin
+384aee6c docs: add rewrite next-step audit plan
 80e1eb60 fix(app): use Flutter-compatible AGP
 35e6c3d1 ci: restrict Telegram notifications to master pushes
 3201d92d fix(app): use Flutter-compatible Gradle wrapper
@@ -93,17 +102,24 @@ clippy-sarif: skipped as expected
 
 ### UpgradeAll CI state
 
-At review time:
+At review time the state was:
 
 ```text
 Android CI: success
 UpgradeAll Rewrite Validation: failure
 ```
 
-Latest failure in rewrite validation:
+The failure in rewrite validation was:
 
 ```text
 Error: Your project's Kotlin version (1.9.22) is lower than Flutter's minimum supported version of 2.0.0. Please upgrade your Kotlin version.
+```
+
+Completion update: the Kotlin compatibility fix was committed and pushed, and the current PR checks are now:
+
+```text
+Android CI / Build: success
+UpgradeAll Rewrite Validation / Rewrite validation: success
 ```
 
 Relevant files:
@@ -114,11 +130,11 @@ app_flutter/android/settings.gradle
 app_flutter/android/app/build.gradle
 ```
 
-Current Kotlin source:
+Current Kotlin source after the fix:
 
 ```groovy
 // app_flutter/android/build.gradle
-ext.kotlin_version = '1.9.22'
+ext.kotlin_version = '2.0.0'
 ```
 
 Also observed from the failed CI log:
@@ -144,22 +160,19 @@ Do not jump to AGP 9 as part of the immediate fix unless the minimal Kotlin fix 
 | ExtraApp preservation | Do not repeat old bug of skipping `extra_app` state | Current mapping preserves `ignored_version` and `favorite` from extra app slice | Aligned for current slice |
 | Flutter UI | Flutter owns UI/platform only | `FakeGetterAdapter`, route keys, placeholder pages; no real product logic | Acceptable shell; freeze scope until bridge |
 | Mixed TDD/BDD | TDD for Rust/domain, BDD for user-facing/integration | Rust unit tests + CLI BDD + Flutter widget tests | Aligned |
-| Verification | `just verify` should be the main gate | `just verify` exists and is used by workflow | Aligned, but currently red in CI |
+| Verification | `just verify` should be the main gate | `just verify` exists, passes locally, and passes in the rewrite validation workflow | Aligned |
 
 ## 4. Deviations / risks to control
 
-### 4.1 CI is red due Kotlin Gradle Plugin
+### 4.1 Resolved Kotlin Gradle Plugin CI blocker
 
-This is the immediate blocker. Do not continue feature work before making rewrite validation green.
-
-Current issue:
+The immediate CI blocker has been resolved. The fix was intentionally minimal:
 
 ```text
-app_flutter/android/build.gradle: ext.kotlin_version = '1.9.22'
-Flutter stable in CI requires Kotlin >= 2.0.0
+app_flutter/android/build.gradle: ext.kotlin_version = '2.0.0'
 ```
 
-This is not an architecture deviation. It is a build compatibility issue.
+This clears Flutter stable's Kotlin >= 2.0.0 dependency validation without changing architecture or feature scope.
 
 ### 4.2 Flutter shell exists before real bridge
 
@@ -206,37 +219,23 @@ Still missing:
 
 This is acceptable now, but must be called out in PR notes.
 
-### 4.5 Plain non-interactive SSH shell did not expose Flutter
+### 4.5 Validation environment note
 
-From this review shell, `flutter` was not found when running a simple SSH command. CI installs Flutter and previous local validation may have used a different shell/toolchain environment.
-
-Before claiming local validation on genx, the next agent must either:
-
-1. run from the environment where Flutter is actually on PATH, or
-2. locate/source the Flutter installation explicitly, or
-3. rely on GitHub Actions and report that local Flutter was unavailable.
-
-Do not claim `just verify` passed locally unless the command actually ran in the current environment.
-
-## 5. Immediate next plan: make rewrite validation CI green
-
-This must be the next implementation task.
-
-### Objective
-
-Make `UpgradeAll Rewrite Validation` pass for PR #514 without changing architecture or adding feature scope.
-
-### Files likely touched
+The Kotlin fix was validated in the active agent environment with:
 
 ```text
-app_flutter/android/build.gradle
-app_flutter/android/settings.gradle
-app_flutter/android/app/build.gradle
+cd app_flutter && flutter build apk --debug
+just verify
+./gradlew --no-daemon ':core-getter:buildDebugApi_proxyRust[armeabi-v7a]'
 ```
 
-### Step 1: try the minimal Kotlin fix first
+CI also validated the branch with Java 21 and the current Flutter stable action. Future agents should still report the actual local toolchain used when claiming local validation, because Flutter stable's minimum Gradle/AGP/Kotlin checks can move over time.
 
-Edit:
+## 5. Completed immediate plan: make rewrite validation CI green
+
+Status: completed in `a1c43f43 fix(app): use Flutter-compatible Kotlin plugin`.
+
+What changed:
 
 ```diff
 // app_flutter/android/build.gradle
@@ -244,141 +243,68 @@ Edit:
 + ext.kotlin_version = '2.0.0'
 ```
 
-Do not change AGP or Gradle wrapper in the same commit unless the Kotlin-only fix fails. Keeping the diff small makes the failure mode obvious.
+Why this was enough:
 
-### Step 2: run focused local checks
+- The latest failing Rewrite Validation log reported only Flutter's Kotlin Gradle Plugin minimum-version gate.
+- The existing Flutter Android template remained coherent with the minimal `buildscript` Kotlin classpath bump.
+- No architecture, feature, AGP, or Gradle wrapper scope was expanded in this fix.
 
-Preferred local commands:
+Validation completed after the fix:
 
-```bash
-cd ~/Code/DUpdateSystem/UpgradeAll
-cd app_flutter
-flutter build apk --debug
-cd ..
+```text
+cd app_flutter && flutter build apk --debug
 just verify
+./gradlew --no-daemon ':core-getter:buildDebugApi_proxyRust[armeabi-v7a]'
 ```
 
-If `flutter` is not on PATH in the current SSH shell, first locate or source the Flutter environment. If that is not practical, push the minimal change and use GitHub Actions as the verification source, but report that local Flutter was unavailable.
-
-Do not commit a workaround that uses:
+GitHub Actions on PR #514 after the fix:
 
 ```text
---android-skip-build-dependency-validation
+Android CI / Build: success
+UpgradeAll Rewrite Validation / Rewrite validation: success
 ```
 
-That flag is diagnostic only, not the real fix.
+No committed workaround uses `--android-skip-build-dependency-validation`.
 
-### Step 3: if minimal fix fails, modernize Kotlin plugin declaration
+## 6. Completed PR stabilization checklist
 
-If Flutter/Gradle still complains after `ext.kotlin_version = '2.0.0'`, switch to the modern plugin DSL.
-
-Likely shape:
-
-```groovy
-// app_flutter/android/settings.gradle
-plugins {
-    id "dev.flutter.flutter-plugin-loader" version "1.0.0"
-    id "com.android.application" version "8.6.0" apply false
-    id "org.jetbrains.kotlin.android" version "2.0.0" apply false
-}
-```
-
-Then update:
-
-```diff
-// app_flutter/android/app/build.gradle
- plugins {
-     id "com.android.application"
--    id "kotlin-android"
-+    id "org.jetbrains.kotlin.android"
-     id "dev.flutter.flutter-gradle-plugin"
- }
-```
-
-If this works, remove obsolete top-level `buildscript` Kotlin classpath only after verifying the Flutter template still builds.
-
-### Step 4: commit and push the CI fix
-
-```bash
-git status --short --branch --untracked-files=all
-git add app_flutter/android/build.gradle app_flutter/android/settings.gradle app_flutter/android/app/build.gradle
-git commit --no-gpg-sign -m "fix(app): use Flutter-compatible Kotlin plugin"
-git push
-```
-
-### Step 5: watch CI
-
-```bash
-gh run list --repo DUpdateSystem/UpgradeAll --branch rewrite/flutter-getter-spine --limit 10
-gh pr checks 514 --repo DUpdateSystem/UpgradeAll
-```
-
-If PR checks still do not attach automatically, manually dispatch both branch workflows:
-
-```bash
-gh workflow run upgradeall-rewrite-validation.yml --repo DUpdateSystem/UpgradeAll --ref rewrite/flutter-getter-spine
-gh workflow run android.yml --repo DUpdateSystem/UpgradeAll --ref rewrite/flutter-getter-spine
-```
-
-Acceptance:
+### 6.1 Submodule integrity confirmed
 
 ```text
-Android CI: success
-UpgradeAll Rewrite Validation: success
-Getter PR #54 checks: still green
+160000 3b7613d709b405cb7229f2fbbf546c2d29ee96e6 0 core-getter/src/main/rust/getter
+3b7613d709b405cb7229f2fbbf546c2d29ee96e6 core-getter/src/main/rust/getter (heads/rewrite/package-cli-spine)
 ```
 
-## 6. After CI is green: PR stabilization checklist
+The getter remains a real `160000` gitlink and is not vendored into the UpgradeAll superproject.
 
-Do this before any new feature work.
+### 6.2 Local scratch notes cleaned
 
-### 6.1 Confirm submodule integrity
-
-```bash
-git ls-files -s core-getter/src/main/rust/getter
-git submodule status core-getter/src/main/rust/getter
-```
-
-Expected:
+Temporary local scratch/review artifacts were removed after their useful content was folded into this tracked `todo.md`:
 
 ```text
-core-getter/src/main/rust/getter remains mode 160000
-submodule points to getter branch commit 3b7613d or later pushed getter commit
+todo-next-step.md
+subagent-artifacts/review-kotlin-todo.md
 ```
 
-### 6.2 Clean or consciously leave local notes
+### 6.3 PR descriptions updated
 
-Current local note:
-
-```text
-?? todo-next-step.md
-```
-
-Decide explicitly:
-
-- keep it untracked as scratch, or
-- delete it, or
-- replace it with this committed `todo.md`.
-
-Do not accidentally include machine-local scratch files in feature commits.
-
-### 6.3 Update PR descriptions
-
-UpgradeAll PR #514 should say clearly:
+UpgradeAll PR #514 now states:
 
 - this is a rewrite spine, not a product-complete release
 - docs/ADR/AGENTS were added
-- getter is a submodule and points to getter PR #54
+- getter is a submodule and points to getter PR #54 / `3b7613d709b405cb7229f2fbbf546c2d29ee96e6`
 - Flutter shell is intentionally fake-adapter only
-- current validation commands
-- known deferred work: real bridge, direct Room migration, local_autogen, provider/downloader/update lifecycle
+- Gradle/AGP/Kotlin compatibility fixes are included
+- current CI validation is green
+- deferred work includes real bridge, direct Room migration, `local_autogen`, provider/downloader/update lifecycle
 
-Getter PR #54 should say clearly:
+Getter PR #54 now states:
 
 - package-centric CLI/core rewrite
-- old hub-app model is not coming back
+- old hub-app model is not restored
 - old provider/downloader/RPC behavior is deferred, not silently retained
-- CI is green except skipped optional SARIF
+- Android JNI/API proxy consumers can depend on getter without pulling Lua/domain dependencies
+- checks are green except optional SARIF skip
 
 ## 7. Next architecture gate: real Flutter-to-getter bridge
 
