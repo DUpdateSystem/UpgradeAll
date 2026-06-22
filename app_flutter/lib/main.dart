@@ -1,0 +1,411 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const UpgradeAllApp());
+}
+
+@visibleForTesting
+class AppKeys {
+  static const homeRoute = ValueKey<String>('route.home');
+  static const appsRoute = ValueKey<String>('route.apps');
+  static const appDetailRoute = ValueKey<String>('route.app_detail');
+  static const repositoriesRoute = ValueKey<String>('route.repositories');
+  static const downloadsRoute = ValueKey<String>('route.downloads');
+  static const logsRoute = ValueKey<String>('route.logs');
+  static const settingsRoute = ValueKey<String>('route.settings');
+  static const migrationRoute = ValueKey<String>('route.migration');
+
+  static const openApps = ValueKey<String>('action.open_apps');
+  static const openRepositories = ValueKey<String>('action.open_repositories');
+  static const openDownloads = ValueKey<String>('action.open_downloads');
+  static const openLogs = ValueKey<String>('action.open_logs');
+  static const openSettings = ValueKey<String>('action.open_settings');
+  static const openMigration = ValueKey<String>('action.open_migration');
+  static const openFirstApp = ValueKey<String>('action.open_first_app');
+
+  static const updateSummary = ValueKey<String>('state.update_summary');
+  static const getterStatus = ValueKey<String>('state.getter_status');
+  static const appsList = ValueKey<String>('state.apps_list');
+  static const repositoriesList = ValueKey<String>('state.repositories_list');
+  static const downloadsEmpty = ValueKey<String>('state.downloads_empty');
+  static const logsEmpty = ValueKey<String>('state.logs_empty');
+  static const settingsShell = ValueKey<String>('state.settings_shell');
+  static const migrationReady = ValueKey<String>('state.migration_ready');
+
+  static ValueKey<String> appRow(String packageId) =>
+      ValueKey<String>('state.app.$packageId');
+  static ValueKey<String> repoRow(String repositoryId) =>
+      ValueKey<String>('state.repository.$repositoryId');
+}
+
+class UpgradeAllApp extends StatelessWidget {
+  const UpgradeAllApp({super.key, this.getter = const FakeGetterAdapter()});
+
+  final GetterAdapter getter;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'UpgradeAll',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      routes: <String, WidgetBuilder>{
+        '/': (context) => HomePage(getter: getter),
+        '/apps': (context) => AppsPage(getter: getter),
+        '/repositories': (context) => RepositoriesPage(getter: getter),
+        '/downloads': (context) => const DownloadsPage(),
+        '/logs': (context) => const LogsPage(),
+        '/settings': (context) => const SettingsPage(),
+        '/migration': (context) => const MigrationPage(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/apps/detail') {
+          final app = settings.arguments! as AppSummary;
+          return MaterialPageRoute<void>(
+            builder: (context) => AppDetailPage(app: app),
+            settings: settings,
+          );
+        }
+        return null;
+      },
+    );
+  }
+}
+
+abstract interface class GetterAdapter {
+  GetterSnapshot loadSnapshot();
+}
+
+class FakeGetterAdapter implements GetterAdapter {
+  const FakeGetterAdapter();
+
+  @override
+  GetterSnapshot loadSnapshot() {
+    return const GetterSnapshot(
+      status: 'Fake getter ready',
+      updateCount: 0,
+      apps: <AppSummary>[
+        AppSummary(
+          id: 'android/org.fdroid.fdroid',
+          name: 'F-Droid',
+          installedVersion: '1.20.0',
+          latestVersion: '1.20.0',
+          hasFreeNetworkWarning: true,
+        ),
+      ],
+      repositories: <RepositorySummary>[
+        RepositorySummary(id: 'local', priority: 100),
+        RepositorySummary(id: 'official', priority: 0),
+        RepositorySummary(id: 'local_autogen', priority: -1),
+      ],
+    );
+  }
+}
+
+class GetterSnapshot {
+  const GetterSnapshot({
+    required this.status,
+    required this.updateCount,
+    required this.apps,
+    required this.repositories,
+  });
+
+  final String status;
+  final int updateCount;
+  final List<AppSummary> apps;
+  final List<RepositorySummary> repositories;
+}
+
+class AppSummary {
+  const AppSummary({
+    required this.id,
+    required this.name,
+    required this.installedVersion,
+    required this.latestVersion,
+    required this.hasFreeNetworkWarning,
+  });
+
+  final String id;
+  final String name;
+  final String installedVersion;
+  final String latestVersion;
+  final bool hasFreeNetworkWarning;
+}
+
+class RepositorySummary {
+  const RepositorySummary({required this.id, required this.priority});
+
+  final String id;
+  final int priority;
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key, required this.getter});
+
+  final GetterAdapter getter;
+
+  @override
+  Widget build(BuildContext context) {
+    final snapshot = getter.loadSnapshot();
+    return Scaffold(
+      key: AppKeys.homeRoute,
+      appBar: AppBar(title: const Text('UpgradeAll')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: <Widget>[
+          Card(
+            key: AppKeys.updateSummary,
+            child: ListTile(
+              title: const Text('Updates'),
+              subtitle: Text('${snapshot.updateCount} updates available'),
+            ),
+          ),
+          Card(
+            key: AppKeys.getterStatus,
+            child: ListTile(
+              title: const Text('Getter core'),
+              subtitle: Text(snapshot.status),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const _RouteButton(
+            key: AppKeys.openApps,
+            icon: Icons.apps,
+            label: 'Apps',
+            routeName: '/apps',
+          ),
+          const _RouteButton(
+            key: AppKeys.openRepositories,
+            icon: Icons.source,
+            label: 'Repositories',
+            routeName: '/repositories',
+          ),
+          const _RouteButton(
+            key: AppKeys.openDownloads,
+            icon: Icons.download,
+            label: 'Downloads',
+            routeName: '/downloads',
+          ),
+          const _RouteButton(
+            key: AppKeys.openLogs,
+            icon: Icons.receipt_long,
+            label: 'Logs',
+            routeName: '/logs',
+          ),
+          const _RouteButton(
+            key: AppKeys.openSettings,
+            icon: Icons.settings,
+            label: 'Settings',
+            routeName: '/settings',
+          ),
+          const _RouteButton(
+            key: AppKeys.openMigration,
+            icon: Icons.move_down,
+            label: 'Legacy migration',
+            routeName: '/migration',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AppsPage extends StatelessWidget {
+  const AppsPage({super.key, required this.getter});
+
+  final GetterAdapter getter;
+
+  @override
+  Widget build(BuildContext context) {
+    final apps = getter.loadSnapshot().apps;
+    return Scaffold(
+      key: AppKeys.appsRoute,
+      appBar: AppBar(title: const Text('Apps')),
+      body: ListView.builder(
+        key: AppKeys.appsList,
+        itemCount: apps.length,
+        itemBuilder: (context, index) {
+          final app = apps[index];
+          return ListTile(
+            key: AppKeys.appRow(app.id),
+            title: Text(app.name),
+            subtitle: Text('${app.id} • ${app.installedVersion}'),
+            trailing: app.hasFreeNetworkWarning
+                ? const Chip(
+                    label: Text('Network'),
+                    backgroundColor: Colors.amber,
+                  )
+                : null,
+            onTap: () {
+              Navigator.of(context).pushNamed('/apps/detail', arguments: app);
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class AppDetailPage extends StatelessWidget {
+  const AppDetailPage({super.key, required this.app});
+
+  final AppSummary app;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: AppKeys.appDetailRoute,
+      appBar: AppBar(title: Text(app.name)),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: <Widget>[
+          Text(app.id, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 12),
+          Text('Installed: ${app.installedVersion}'),
+          Text('Latest: ${app.latestVersion}'),
+          if (app.hasFreeNetworkWarning)
+            const Padding(
+              padding: EdgeInsets.only(top: 12),
+              child: Chip(
+                label: Text('Network access required'),
+                backgroundColor: Colors.amber,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class RepositoriesPage extends StatelessWidget {
+  const RepositoriesPage({super.key, required this.getter});
+
+  final GetterAdapter getter;
+
+  @override
+  Widget build(BuildContext context) {
+    final repositories = getter.loadSnapshot().repositories;
+    return Scaffold(
+      key: AppKeys.repositoriesRoute,
+      appBar: AppBar(title: const Text('Repositories')),
+      body: ListView.builder(
+        key: AppKeys.repositoriesList,
+        itemCount: repositories.length,
+        itemBuilder: (context, index) {
+          final repository = repositories[index];
+          return ListTile(
+            key: AppKeys.repoRow(repository.id),
+            title: Text(repository.id),
+            subtitle: Text('Priority ${repository.priority}'),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class DownloadsPage extends StatelessWidget {
+  const DownloadsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const _PlaceholderPage(
+      key: AppKeys.downloadsRoute,
+      title: 'Downloads',
+      stateKey: AppKeys.downloadsEmpty,
+      message: 'No download tasks yet',
+    );
+  }
+}
+
+class LogsPage extends StatelessWidget {
+  const LogsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const _PlaceholderPage(
+      key: AppKeys.logsRoute,
+      title: 'Logs',
+      stateKey: AppKeys.logsEmpty,
+      message: 'No getter events yet',
+    );
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const _PlaceholderPage(
+      key: AppKeys.settingsRoute,
+      title: 'Settings',
+      stateKey: AppKeys.settingsShell,
+      message: 'Settings shell ready',
+    );
+  }
+}
+
+class MigrationPage extends StatelessWidget {
+  const MigrationPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const _PlaceholderPage(
+      key: AppKeys.migrationRoute,
+      title: 'Legacy migration',
+      stateKey: AppKeys.migrationReady,
+      message: 'Ready to show migration reports',
+    );
+  }
+}
+
+class _RouteButton extends StatelessWidget {
+  const _RouteButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.routeName,
+  });
+
+  final IconData icon;
+  final String label;
+  final String routeName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: FilledButton.icon(
+        onPressed: () => Navigator.of(context).pushNamed(routeName),
+        icon: Icon(icon),
+        label: Text(label),
+      ),
+    );
+  }
+}
+
+class _PlaceholderPage extends StatelessWidget {
+  const _PlaceholderPage({
+    super.key,
+    required this.title,
+    required this.stateKey,
+    required this.message,
+  });
+
+  final String title;
+  final Key stateKey;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(
+        child: Text(key: stateKey, message),
+      ),
+    );
+  }
+}
