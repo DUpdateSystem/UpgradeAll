@@ -17,7 +17,8 @@ Before coding, read these files in order:
 7. `docs/architecture/adr/0004-sqlite-main-db-and-cache-db.md`
 8. `docs/architecture/adr/0005-lua-package-api.md`
 9. `docs/architecture/adr/0006-package-centric-cli-command-contract.md`
-10. `docs/app/flutter-ui-feature-parity-and-testing.md`
+10. `docs/architecture/adr/0007-flutter-getter-bridge-contract.md`
+11. `docs/app/flutter-ui-feature-parity-and-testing.md`
 
 ## Mission
 

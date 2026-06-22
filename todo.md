@@ -306,77 +306,56 @@ Getter PR #54 now states:
 - Android JNI/API proxy consumers can depend on getter without pulling Lua/domain dependencies
 - checks are green except optional SARIF skip
 
-## 7. Next architecture gate: real Flutter-to-getter bridge
+## 7. Completed first architecture gate: Flutter-to-getter bridge contract
 
-Do not add more fake Flutter product screens before this gate.
+Status: first implementation slice completed after the CI fix.
 
-### Objective
+What landed:
 
-Define and implement the first real data path from Flutter shell to getter without moving product logic into Dart.
+- Added `docs/architecture/adr/0007-flutter-getter-bridge-contract.md`.
+- Added Flutter bridge DTO/interface file: `app_flutter/lib/getter_adapter.dart`.
+- Split fake test adapter export: `app_flutter/lib/fake_getter_adapter.dart`.
+- Added `CliGetterAdapter` in `app_flutter/lib/cli_getter_adapter.dart`.
+- Added a real getter-backed Flutter dev test: `app_flutter/dev_test/cli_getter_adapter_test.dart`.
+- Added `just test-flutter-getter-cli-integration` and included it in `just verify`.
+- Added getter CLI `legacy report-list` so Flutter/test adapters consume sanitized migration reports through the getter JSON envelope instead of reading getter's data-directory layout directly.
 
-### New doc / ADR to add
+Bridge direction accepted:
 
-```text
-docs/architecture/adr/0007-flutter-getter-bridge-contract.md
-```
+- `FakeGetterAdapter` remains for deterministic widget tests.
+- `CliGetterAdapter` is a development/integration bridge and test oracle against `getter-cli`; it is not the final Android production path.
+- Android production should still embed getter through a native/FFI-style bridge after DTOs stabilize.
+- The shared `GetterAdapter` interface now exposes the first read-only bridge surface:
+  - `initialize()`
+  - `listRepositories()`
+  - `listTrackedPackages()`
+  - `evaluatePackage(packageId, repositoryId?)`
+  - `readMigrationReports()`
+  - `loadSnapshot()`
 
-This ADR should decide:
-
-1. short-term bridge for development and tests
-2. Android production bridge path
-3. whether the JSON envelope used by CLI is also the app bridge contract
-4. error model and event model
-5. how Flutter gets paged snapshots and event deltas
-6. which APIs are forbidden in Flutter UI code
-
-Recommended default direction:
-
-- Use getter-owned DTOs and JSON envelopes as the stable behavior contract.
-- Keep CLI as the headless test oracle.
-- For in-app Flutter, prefer a direct generated/native bridge only after the DTO contract is stable.
-- Local RPC remains acceptable for debug/external plugins, but do not force every mobile UI call through a heavyweight JSON-RPC server unless an ADR accepts the lifecycle cost.
-
-### First bridge API surface
-
-Start with read-only snapshot APIs. Do not start with downloads/installers.
-
-Minimum getter-facing operations:
+Validation completed:
 
 ```text
-initialize(data_dir)
-list_repositories()
-list_tracked_packages()
-evaluate_package(package_id, repo_id?)
-read_migration_reports()
+just verify
 ```
 
-Minimum Flutter-facing DTOs:
+Result:
 
 ```text
-GetterSnapshot
-AppSummary
-RepositorySummary
-MigrationReportSummary
-GetterError
+getter unit/bin tests: pass
+getter CLI BDD: 8 features, 9 scenarios, 65 steps passed
+Flutter widget tests: pass
+Flutter analyze: pass
+Flutter getter CLI integration test: pass
+Gradle project check: pass
+Flutter Android debug APK build: pass
 ```
 
-### Files likely touched
+Important boundary note:
 
-```text
-app_flutter/lib/main.dart                 # split only if needed
-app_flutter/lib/getter_adapter.dart       # new adapter interface / DTOs
-app_flutter/lib/fake_getter_adapter.dart  # keep fake test adapter separate
-app_flutter/test/widget_test.dart
-core-getter/src/main/rust/getter/crates/getter-cli/src/lib.rs
-core-getter/src/main/rust/getter/crates/getter-ffi/src/lib.rs or future bridge crate
-```
-
-### Acceptance
-
-- Flutter tests can still run with fake adapter.
-- A separate integration/dev test exercises a real getter data directory and returns real repository/app state.
-- No repository resolution, update selection, migration mapping, or storage decision is implemented in Dart.
-- Docs name the bridge decision and its limitations.
+- Flutter parses getter envelopes and renders DTOs.
+- Flutter still must not implement repository resolution, Lua validation/evaluation semantics, version comparison, migration mapping, provider/source selection, cache invalidation, or download task state machines.
+- If Flutter needs richer state, extend getter output first and cover it with getter tests.
 
 ## 8. Next product phases after bridge
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'getter_adapter.dart';
+
 void main() {
   runApp(const UpgradeAllApp());
 }
@@ -72,73 +74,6 @@ class UpgradeAllApp extends StatelessWidget {
       },
     );
   }
-}
-
-abstract interface class GetterAdapter {
-  GetterSnapshot loadSnapshot();
-}
-
-class FakeGetterAdapter implements GetterAdapter {
-  const FakeGetterAdapter();
-
-  @override
-  GetterSnapshot loadSnapshot() {
-    return const GetterSnapshot(
-      status: 'Fake getter ready',
-      updateCount: 0,
-      apps: <AppSummary>[
-        AppSummary(
-          id: 'android/org.fdroid.fdroid',
-          name: 'F-Droid',
-          installedVersion: '1.20.0',
-          latestVersion: '1.20.0',
-          hasFreeNetworkWarning: true,
-        ),
-      ],
-      repositories: <RepositorySummary>[
-        RepositorySummary(id: 'local', priority: 100),
-        RepositorySummary(id: 'official', priority: 0),
-        RepositorySummary(id: 'local_autogen', priority: -1),
-      ],
-    );
-  }
-}
-
-class GetterSnapshot {
-  const GetterSnapshot({
-    required this.status,
-    required this.updateCount,
-    required this.apps,
-    required this.repositories,
-  });
-
-  final String status;
-  final int updateCount;
-  final List<AppSummary> apps;
-  final List<RepositorySummary> repositories;
-}
-
-class AppSummary {
-  const AppSummary({
-    required this.id,
-    required this.name,
-    required this.installedVersion,
-    required this.latestVersion,
-    required this.hasFreeNetworkWarning,
-  });
-
-  final String id;
-  final String name;
-  final String installedVersion;
-  final String latestVersion;
-  final bool hasFreeNetworkWarning;
-}
-
-class RepositorySummary {
-  const RepositorySummary({required this.id, required this.priority});
-
-  final String id;
-  final int priority;
 }
 
 class HomePage extends StatelessWidget {

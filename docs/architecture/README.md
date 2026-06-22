@@ -14,6 +14,7 @@ Planned / active ADRs:
 - `adr/0004-sqlite-main-db-and-cache-db.md`
 - `adr/0005-lua-package-api.md`
 - `adr/0006-package-centric-cli-command-contract.md`
+- `adr/0007-flutter-getter-bridge-contract.md`
 
 Documentation policy:
 

@@ -8,6 +8,7 @@ verify:
     just test-getter-bdd
     just test-flutter-widget
     just verify-workspace-skeleton
+    just test-flutter-getter-cli-integration
     just build-flutter-android-debug
 
 verify-fast:
@@ -23,6 +24,10 @@ test-getter-bdd:
 
 test-flutter-widget:
     cd app_flutter && flutter test
+
+test-flutter-getter-cli-integration:
+    cargo build --manifest-path {{ GETTER_MANIFEST }} -p getter-cli --bin getter-cli
+    cd app_flutter && GETTER_CLI_BIN="../core-getter/src/main/rust/getter/target/debug/getter-cli" flutter test dev_test/cli_getter_adapter_test.dart
 
 build-flutter-android-debug:
     cd app_flutter && flutter build apk --debug

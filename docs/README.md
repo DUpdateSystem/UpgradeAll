@@ -14,10 +14,12 @@ Start here:
 4. `architecture/adr/0003-legacy-room-migration.md` — old Room DB migration strategy.
 5. `architecture/adr/0004-sqlite-main-db-and-cache-db.md` — storage and cache split.
 6. `architecture/adr/0005-lua-package-api.md` — Lua package API and Rust validation boundary.
-7. `lua-api/` — practical Lua package authoring docs.
-8. `migration/legacy-room-mapping.md` — old data mapping rules.
-9. `app/flutter-ui-feature-parity-and-testing.md` — Flutter feature parity and BDD/TDD test boundary.
-10. `implementation/coding-agent-handoff.md` — coding-agent / pi-agent handoff instructions.
+7. `architecture/adr/0006-package-centric-cli-command-contract.md` — getter CLI automation contract.
+8. `architecture/adr/0007-flutter-getter-bridge-contract.md` — Flutter/getter DTO and bridge contract.
+9. `lua-api/` — practical Lua package authoring docs.
+10. `migration/legacy-room-mapping.md` — old data mapping rules.
+11. `app/flutter-ui-feature-parity-and-testing.md` — Flutter feature parity and BDD/TDD test boundary.
+12. `implementation/coding-agent-handoff.md` — coding-agent / pi-agent handoff instructions.
 
 Canonical architecture ADRs live in `docs/architecture/adr/*`. The `docs/adr/*` directory is kept for historical/refactor-phase ADRs and transition notes.
 

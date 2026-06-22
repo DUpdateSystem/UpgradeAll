@@ -21,6 +21,7 @@ getter --data-dir <path> repo eval <repo-id>
 getter --data-dir <path> package eval <package-id> [--repo <repo-id>]
 getter --data-dir <path> storage validate
 getter --data-dir <path> legacy import-room-bundle <bundle.json>
+getter --data-dir <path> legacy report-list
 getter --data-dir <path> hub list   # temporary compatibility only
 ```
 
@@ -80,6 +81,8 @@ The first supported `legacy import-room-bundle` slice accepts a JSON bridge bund
 ```
 
 It maps `apps[]` into getter tracked package state in `main.db`, writes a sanitized report under `migration-reports/`, and records `legacy-room-v17` migration completion. Malformed JSON uses `migration.invalid_bundle`; wrong format/version uses `migration.unsupported_bundle`.
+
+`legacy report-list` returns sanitized migration report summaries through the same JSON envelope so app/test adapters do not need to inspect getter's data-directory layout directly.
 
 Exit-code classes:
 

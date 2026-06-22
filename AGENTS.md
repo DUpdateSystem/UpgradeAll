@@ -12,7 +12,8 @@ Before coding, every agent MUST read:
 6. `docs/architecture/adr/0004-sqlite-main-db-and-cache-db.md`
 7. `docs/architecture/adr/0005-lua-package-api.md`
 8. `docs/architecture/adr/0006-package-centric-cli-command-contract.md`
-9. `docs/app/flutter-ui-feature-parity-and-testing.md`
+9. `docs/architecture/adr/0007-flutter-getter-bridge-contract.md`
+10. `docs/app/flutter-ui-feature-parity-and-testing.md`
 
 ## Core architecture rules
 
