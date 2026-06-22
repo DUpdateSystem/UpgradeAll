@@ -118,7 +118,7 @@ jobs:
 #          token: ${{secrets.APP_CENTER_TOKEN}}
 
       - name: Find debug APK
-        if: ${{ !github.event.pull_request }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         run: |
           if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
             OUTPUT="app/build/outputs/apk/debug/"
@@ -127,7 +127,7 @@ jobs:
           fi
 
       - name: Generate Commit Message
-        if: ${{ !github.event.pull_request }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         run: |
           COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
           AUTHOR_NAME=$(git log -1 --pretty=format:%an)
@@ -146,7 +146,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Send commit to Telegram
-        if: ${{ !github.event.pull_request }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         uses: xz-dev/TelegramFileUploader@v1
         env:
           BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
