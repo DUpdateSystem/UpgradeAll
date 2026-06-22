@@ -457,20 +457,29 @@ Acceptance:
 
 Goal: move from static app/repo display to real update workflows.
 
-Tasks:
+Status: first getter-owned offline update-check slice in progress. The accepted minimal slice is intentionally not a provider/downloader/installer runtime. It defines normalized offline fixture input/output DTOs, reuses Rust getter update selection/version comparison, and adds `getter --data-dir <path> update check --fixture <fixture.json>` returning selected update and generated download/install action DTOs with `network_required = false`.
 
-1. Expand getter core update task model.
-2. Implement provider/downloader crate behavior beyond placeholders.
-3. Add event stream/backpressure model.
-4. Add download task state and cancellation.
-5. Add platform install handoff contract.
-6. Add Flutter BDD for update/download user flows only after getter behavior exists.
+Completed tasks:
 
-Acceptance:
+1. Add offline update-check fixture DTO and result/status DTO in getter core.
+2. Reuse existing getter-core update selection for update availability.
+3. Generate minimal download/install action DTOs for the selected artifact.
+4. Add CLI command `update check --fixture <fixture.json>`.
+5. Add BDD coverage for update available, up to date, ignored latest fallback, ignored-only, unknown installed version, and malformed fixture.
 
-- CLI can run an offline fixture update check.
-- Flutter displays getter events rather than calculating status itself.
-- Android platform adapter owns permissions/notifications/installer handoff.
+Remaining tasks:
+
+1. Implement provider/downloader crate behavior beyond placeholders.
+2. Add event stream/backpressure model.
+3. Add persistent download task state and cancellation.
+4. Add platform install handoff contract.
+5. Add Flutter BDD for update/download user flows only after getter behavior exists.
+
+Acceptance progress:
+
+- CLI can run an offline fixture update check: done for first slice.
+- Flutter displays getter events rather than calculating status itself: deferred until event DTO/bridge slice.
+- Android platform adapter owns permissions/notifications/installer handoff: documented/deferred; no Android execution added in first slice.
 
 ## 9. Do-not-do list for the next agent
 
