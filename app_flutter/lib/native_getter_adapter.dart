@@ -1,0 +1,111 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+
+import 'getter_adapter.dart';
+
+/// First Android production bridge slice.
+///
+/// Until the full native getter bridge replaces every CLI/fake surface, this
+/// adapter inherits the deterministic shell data from [FakeGetterAdapter] and
+/// overrides only installed-autogen operations with the Rust/native bridge.
+/// The bridge returns getter-owned JSON envelopes; Dart parses and renders them
+/// but does not scan PackageManager or make autogen/package decisions.
+class MethodChannelGetterAdapter extends FakeGetterAdapter {
+  const MethodChannelGetterAdapter({
+    MethodChannel channel = const MethodChannel(
+      'net.xzos.upgradeall/getter_bridge',
+    ),
+  }) : _channel = channel;
+
+  final MethodChannel _channel;
+
+  @override
+  bool get supportsInstalledAutogen => true;
+
+  @override
+  void initialize() {
+    // The installed-autogen bridge initializes lazily when preview is called.
+  }
+
+  @override
+  Future<InstalledAutogenPreview> previewInstalledAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async {
+    final data = await _invokeGetterData(
+      'previewInstalledAutogen',
+      <String, Object?>{'scan_options': options.toJson()},
+    );
+    return InstalledAutogenPreview.fromJson(data);
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyInstalledAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    final data = await _invokeGetterData(
+      'applyInstalledAutogen',
+      <String, Object?>{
+        'preview_json': jsonEncode(preview.rawJson),
+        'acceptance': acceptedPackageIds == null
+            ? const <String, Object?>{'mode': 'all'}
+            : <String, Object?>{
+                'mode': 'packages',
+                'package_ids': acceptedPackageIds,
+              },
+      },
+    );
+    return InstalledAutogenApplyResult.fromJson(data);
+  }
+
+  Future<Map<String, Object?>> _invokeGetterData(
+    String method,
+    Map<String, Object?> arguments,
+  ) async {
+    try {
+      final response = await _channel.invokeMethod<String>(method, arguments);
+      if (response == null || response.isEmpty) {
+        throw const GetterBridgeException(
+          GetterError(
+            code: 'bridge.empty_response',
+            message: 'Getter native bridge returned an empty response',
+          ),
+        );
+      }
+      final envelope = _asMap(jsonDecode(response), 'getter bridge response');
+      if (envelope['ok'] != true) {
+        throw GetterBridgeException(_errorFromEnvelope(envelope));
+      }
+      return _asMap(envelope['data'], 'getter bridge data');
+    } on PlatformException catch (error) {
+      throw GetterBridgeException(
+        GetterError(
+          code: error.code,
+          message: error.message ?? 'Getter native bridge call failed',
+          detail: error.details?.toString(),
+        ),
+      );
+    }
+  }
+}
+
+GetterError _errorFromEnvelope(Map<String, Object?> envelope) {
+  final error = _asMap(envelope['error'], 'getter bridge error');
+  return GetterError(
+    code: _asString(error['code'], 'getter bridge error.code'),
+    message: _asString(error['message'], 'getter bridge error.message'),
+    detail: error['detail']?.toString(),
+  );
+}
+
+Map<String, Object?> _asMap(Object? value, String name) {
+  if (value is Map<String, Object?>) return value;
+  if (value is Map) return value.cast<String, Object?>();
+  throw FormatException('$name should be a JSON object');
+}
+
+String _asString(Object? value, String name) {
+  if (value is String) return value;
+  throw FormatException('$name should be a string');
+}

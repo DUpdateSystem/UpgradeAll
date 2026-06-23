@@ -18,6 +18,8 @@ pluginManagement {
 
     plugins {
         id "dev.flutter.flutter-gradle-plugin" version "1.0.0" apply false
+        id "com.android.library" version "8.6.0" apply false
+        id "io.github.MatrixDev.android-rust" version "0.6.0" apply false
     }
 }
 
@@ -27,3 +29,5 @@ plugins {
 }
 
 include ":app"
+include ":getter_bridge"
+project(":getter_bridge").projectDir = file("getter_bridge")

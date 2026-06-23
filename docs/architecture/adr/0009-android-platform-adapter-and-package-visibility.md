@@ -127,13 +127,23 @@ The second slice adds the first Android facts provider while preserving the same
 - Rust `AndroidPlatformAdapter::scan_installed_inventory` serializes scan options, calls the provider, and deserializes the JSON into platform DTOs;
 - `api_proxy` initializes the platform adapter runtime alongside `rustls-platform-verifier`, using separate JNI local refs for each initializer.
 
+The third slice wires the first product bridge operation without changing ownership boundaries:
+
+- installed-autogen preview/apply semantics are extracted into reusable getter-owned `getter-operations` code so CLI and native bridge use the same `local_autogen` rules;
+- `getter-core` Lua support is feature-gated so the Android native bridge can use autogen/storage operations without pulling Lua evaluation into `api_proxy`;
+- `api_proxy` exposes JNI entrypoints for bridge initialization, installed-autogen preview, and installed-autogen apply;
+- preview initializes the Rust-active Android platform adapter, scans PackageManager facts, and passes getter-compatible inventory into getter-owned autogen planning;
+- apply validates the preview/acceptance and uses the same getter-owned apply code as the CLI;
+- `app_flutter/android/getter_bridge` is a slim Android library that packages `libapi_proxy.so`, `NativeLib`, and the facts provider classes into the Flutter product APK without depending on the legacy native `:app` UI or old `GetterPort` hub/RPC wrapper surface;
+- `just verify` now inspects the Flutter debug APK for the native bridge library and provider classes.
+
 These slices still do not:
 
 - make the reusable getter submodule depend on superproject-only crates;
-- add Flutter installed-autogen UX;
-- add product native bridge operations that combine platform scan + getter autogen preview/apply;
 - add Magisk scanning;
 - add live downloads, background worker policy, installer URI/SAF semantics, or notification behavior.
+
+A follow-up slice added the first Flutter installed-autogen preview/apply confirmation UI. It consumes getter-owned DTOs from `MethodChannelGetterAdapter` and passes displayed accepted package ids back to getter; it still does not scan PackageManager or generate package ids in Dart/Flutter.
 
 ## Consequences
 
@@ -146,7 +156,7 @@ Positive:
 
 Costs and risks:
 
-- The first slice is not yet product-complete; production bridge packaging into the Flutter APK still needs a later accepted implementation.
+- The current bridge slice is not yet product-complete because device/instrumented runtime verification is still pending.
 - The Rust platform DTOs must stay compatible with getter's installed inventory contract.
 - JNI/runtime bugs require Android build/device validation beyond host unit tests.
 - Broad package visibility is now an explicit product policy with distribution implications.

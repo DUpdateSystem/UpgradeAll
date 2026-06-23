@@ -125,6 +125,64 @@ void main() {
     expect(find.byKey(AppKeys.migrationImported), findsNothing);
   });
 
+  testWidgets('installed autogen route previews and applies getter DTOs',
+      (tester) async {
+    final getter = _AutogenRecordingGetterAdapter();
+    await tester.pumpWidget(UpgradeAllApp(getter: getter));
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -240));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.openInstalledAutogen));
+    await tester.pumpAndSettle();
+    expect(find.byKey(AppKeys.installedAutogenRoute), findsOneWidget);
+    expect(find.byKey(AppKeys.installedAutogenReady), findsOneWidget);
+
+    await tester.tap(find.byKey(AppKeys.previewInstalledAutogen));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(AppKeys.installedAutogenPreview), findsOneWidget);
+    expect(find.byKey(AppKeys.installedAutogenScanStats), findsOneWidget);
+    expect(
+      find.byKey(AppKeys.autogenCandidateRow('android/com.example.autogen')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(AppKeys.autogenSkipRow('android/org.fdroid.fdroid')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(AppKeys.applyInstalledAutogen));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(AppKeys.installedAutogenApplied), findsOneWidget);
+    expect(
+      find.byKey(AppKeys.autogenAppliedRow('android/com.example.autogen')),
+      findsOneWidget,
+    );
+    expect(getter.acceptedPackageIds, <String>['android/com.example.autogen']);
+  });
+
+  testWidgets('installed autogen route disables actions without bridge',
+      (tester) async {
+    await tester.pumpWidget(
+      const UpgradeAllApp(getter: _NoInstalledAutogenGetterAdapter()),
+    );
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -240));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.openInstalledAutogen));
+    await tester.pumpAndSettle();
+
+    final button = tester.widget<ElevatedButton>(
+      find.byKey(AppKeys.previewInstalledAutogen),
+    );
+    expect(button.onPressed, isNull);
+    expect(
+      find.byKey(AppKeys.installedAutogenBridgeUnavailable),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('migration route disables import when getter bridge is absent',
       (tester) async {
     await tester.pumpWidget(
@@ -192,6 +250,29 @@ class _LegacyMigrationCapableGetterAdapter extends FakeGetterAdapter {
 
   @override
   bool get supportsLegacyRoomImport => true;
+}
+
+class _NoInstalledAutogenGetterAdapter extends FakeGetterAdapter {
+  const _NoInstalledAutogenGetterAdapter();
+
+  @override
+  bool get supportsInstalledAutogen => false;
+}
+
+class _AutogenRecordingGetterAdapter extends FakeGetterAdapter {
+  List<String>? acceptedPackageIds;
+
+  @override
+  Future<InstalledAutogenApplyResult> applyInstalledAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) {
+    this.acceptedPackageIds = acceptedPackageIds;
+    return super.applyInstalledAutogen(
+      preview,
+      acceptedPackageIds: acceptedPackageIds,
+    );
+  }
 }
 
 class _MigrationGetterAdapter extends FakeGetterAdapter {

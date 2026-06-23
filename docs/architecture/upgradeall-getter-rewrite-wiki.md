@@ -1046,6 +1046,8 @@ Room DB 信息：
 6. getter 写入 `local_autogen` repo。
 7. 生成后不会自动消失。
 
+实现进展：Flutter 产品 APK 通过 `app_flutter/android/getter_bridge` 打包一个 slim native bridge library，包含 Rust `api_proxy`、`NativeLib` 和 Android installed-inventory facts provider。`api_proxy` 已提供 installed-autogen preview/apply JNI entrypoints；它们调用 Rust-active platform adapter 扫描 Android PackageManager 原始事实，再调用 getter-owned `getter-operations` 执行 `local_autogen` preview/apply。Flutter 已新增 installed-autogen 页面和 `MethodChannelGetterAdapter`，只渲染 getter-owned preview/apply DTO 并把用户接受的包 id 传回 getter；不能引入 Dart-led installed inventory scanner 或在 Dart/Kotlin 中生成 package id。
+
 ### 14.2 清理流程
 
 用户点击“清除不存在的应用”：

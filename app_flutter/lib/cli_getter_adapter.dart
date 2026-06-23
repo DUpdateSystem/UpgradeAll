@@ -18,6 +18,9 @@ class CliGetterAdapter implements GetterAdapter {
   bool get supportsLegacyRoomImport => true;
 
   @override
+  bool get supportsInstalledAutogen => false;
+
+  @override
   void initialize() {
     _runGetter(const <String>['init']);
   }
@@ -86,6 +89,31 @@ class CliGetterAdapter implements GetterAdapter {
       limit.toString(),
     ]);
     return _taskEventPageFromJson(_data(json));
+  }
+
+  @override
+  Future<InstalledAutogenPreview> previewInstalledAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message: 'CLI adapter cannot scan Android installed inventory',
+      ),
+    );
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyInstalledAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message: 'CLI adapter cannot apply Android installed autogen previews',
+      ),
+    );
   }
 
   @override

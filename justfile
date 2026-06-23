@@ -36,6 +36,7 @@ test-android-platform-adapter:
 
 build-flutter-android-debug:
     cd app_flutter && flutter build apk --debug
+    python3 tools/verify_flutter_apk_bridge.py app_flutter/build/app/outputs/flutter-apk/app-debug.apk
 
 verify-workspace-skeleton:
     test "$(git ls-files -s core-getter/src/main/rust/getter | awk '{print $1}')" = "160000"
@@ -46,7 +47,7 @@ verify-workspace-skeleton:
     cargo fmt --manifest-path {{ PLATFORM_ADAPTER_MANIFEST }} --all --check
     cargo check --manifest-path {{ GETTER_MANIFEST }} --workspace --all-targets
     cargo check --manifest-path {{ API_PROXY_MANIFEST }}
-    cargo check --manifest-path {{ API_PROXY_MANIFEST }} --target aarch64-linux-android
+    if [ -n "${ANDROID_NDK_HOME:-}" ]; then export CC_aarch64_linux_android="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android23-clang"; fi; cargo check --manifest-path {{ API_PROXY_MANIFEST }} --target aarch64-linux-android
     cargo test --manifest-path {{ PLATFORM_ADAPTER_MANIFEST }}
     cargo check --manifest-path {{ PLATFORM_ADAPTER_MANIFEST }} --target aarch64-linux-android
     cd app_flutter && flutter analyze

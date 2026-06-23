@@ -45,14 +45,16 @@ importLegacyRoomDatabase(databasePath)
 
 The Android platform adapter may prepare a copied/checkpointed legacy Room SQLite file and return its path to Flutter, but getter still owns the actual `legacy import-room-db` import semantics. Flutter starts the flow and renders getter reports; it must not inspect or map Room tables directly.
 
-The installed-autogen product bridge must follow ADR-0009's Rust-active platform adapter direction rather than a Flutter-led inventory scan. The future bridge shape is a getter-owned operation such as:
+The fourth accepted API surface adds the production installed-autogen bridge boundary and must follow ADR-0009's Rust-active platform adapter direction rather than a Flutter-led inventory scan:
 
 ```text
 previewInstalledAutogen(scanOptions)
 applyInstalledAutogen(preview, acceptedPackages)
 ```
 
-Internally, Rust/native bridge code scans Android inventory through the platform adapter, then asks getter to plan/apply `local_autogen`. Flutter renders getter-owned preview/apply DTOs and scan diagnostics; it must not expose a product Dart `InstalledInventoryPlatform` scanner or convert Android package names into package ids.
+The Android product APK packages a slim `:getter_bridge` library under `app_flutter/android/getter_bridge`. It builds the Rust `api_proxy` cdylib and includes only the no-UI native bridge / installed-inventory provider classes needed by the Flutter product path, avoiding the legacy native `:app` UI and old `GetterPort` hub/RPC wrapper surface. `MainActivity` exposes a no-UI `net.xzos.upgradeall/getter_bridge` MethodChannel that derives the app-private getter data directory and forwards preview/apply requests to JNI entrypoints returning getter-style JSON envelopes.
+
+Internally, Rust/native bridge code scans Android inventory through the platform adapter, then asks getter-owned shared autogen operations to plan/apply `local_autogen`. `MethodChannelGetterAdapter` consumes the returned getter-style JSON envelopes. Flutter renders getter-owned preview/apply DTOs and scan diagnostics, then passes the package ids from displayed accepted preview candidates back to getter on apply; it must not expose a product Dart `InstalledInventoryPlatform` scanner or convert Android package names into package ids.
 
 `loadSnapshot()` composes the smaller getter-owned operations into the UI shell's first snapshot DTO. It must not perform repository resolution, version comparison, migration mapping, or update selection in Dart. `readMigrationReports()` must go through a getter operation such as `legacy report-list`; Flutter must not inspect getter's data-directory layout directly. `listDownloadTasks()` and `listTaskEvents()` render getter-owned task/event DTOs; Flutter must not synthesize task states, retry policy, installer behavior, or update decisions.
 
@@ -74,6 +76,11 @@ DownloadTaskSummary
 TaskEventPage
 TaskEventSummary
 GetterError
+InstalledAutogenPreview
+InstalledAutogenCandidate
+InstalledAutogenSkip
+InstalledAutogenScanStats
+InstalledAutogenApplyResult
 ```
 
 DTOs are a UI transport shape, not a new product model. Any field whose value requires domain interpretation must be supplied by getter or by a platform capability explicitly documented in a later ADR.
@@ -107,7 +114,7 @@ and structured error envelopes:
 
 Flutter adapter code may parse and display these fields, but it must not infer missing domain state from them. If the UI needs a richer field, add it to getter output first and cover it with getter tests.
 
-For installed-autogen flows, CLI/dev tests may continue to pass fixture inventory JSON to `getter autogen installed preview/apply`. The Android product bridge should not expose that fixture boundary as a Flutter-owned scanning API; it should wrap scan + getter autogen planning behind a getter/native bridge operation.
+For installed-autogen flows, CLI/dev tests may continue to pass fixture inventory JSON to `getter autogen installed preview/apply`. The Android product bridge does not expose that fixture boundary as a Flutter-owned scanning API; it wraps scan + getter autogen planning behind a getter/native bridge operation.
 
 ## Error model
 
@@ -194,7 +201,7 @@ The first implementation slice must provide:
 
 ## Non-goals
 
-- No full FFI/native bridge implementation in this ADR.
+- No full FFI/native bridge implementation beyond the first installed-autogen preview/apply JNI/MethodChannel operation slice.
 - No update/download/install event stream.
 - No Android-owned legacy Room mapping/import semantics; Android only prepares a copied DB file for getter.
 - No product-complete Flutter UI.

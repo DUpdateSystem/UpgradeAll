@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'getter_adapter.dart';
 import 'legacy_migration_platform.dart';
+import 'native_getter_adapter.dart';
 
 void main() {
   runApp(
     const UpgradeAllApp(
+      getter: MethodChannelGetterAdapter(),
       legacyMigrationPlatform: MethodChannelLegacyMigrationPlatform(),
     ),
   );
@@ -21,6 +23,8 @@ class AppKeys {
   static const logsRoute = ValueKey<String>('route.logs');
   static const settingsRoute = ValueKey<String>('route.settings');
   static const migrationRoute = ValueKey<String>('route.migration');
+  static const installedAutogenRoute =
+      ValueKey<String>('route.installed_autogen');
 
   static const openApps = ValueKey<String>('action.open_apps');
   static const openRepositories = ValueKey<String>('action.open_repositories');
@@ -28,9 +32,15 @@ class AppKeys {
   static const openLogs = ValueKey<String>('action.open_logs');
   static const openSettings = ValueKey<String>('action.open_settings');
   static const openMigration = ValueKey<String>('action.open_migration');
+  static const openInstalledAutogen =
+      ValueKey<String>('action.open_installed_autogen');
   static const openFirstApp = ValueKey<String>('action.open_first_app');
   static const startLegacyMigration =
       ValueKey<String>('action.start_legacy_migration');
+  static const previewInstalledAutogen =
+      ValueKey<String>('action.preview_installed_autogen');
+  static const applyInstalledAutogen =
+      ValueKey<String>('action.apply_installed_autogen');
 
   static const updateSummary = ValueKey<String>('state.update_summary');
   static const getterStatus = ValueKey<String>('state.getter_status');
@@ -49,6 +59,24 @@ class AppKeys {
   static const migrationError = ValueKey<String>('state.migration_error');
   static const migrationReportsList =
       ValueKey<String>('state.migration_reports_list');
+  static const installedAutogenReady =
+      ValueKey<String>('state.installed_autogen_ready');
+  static const installedAutogenBridgeUnavailable =
+      ValueKey<String>('state.installed_autogen_bridge_unavailable');
+  static const installedAutogenPreview =
+      ValueKey<String>('state.installed_autogen_preview');
+  static const installedAutogenCandidatesList =
+      ValueKey<String>('state.installed_autogen_candidates_list');
+  static const installedAutogenSkipsList =
+      ValueKey<String>('state.installed_autogen_skips_list');
+  static const installedAutogenDiagnosticsList =
+      ValueKey<String>('state.installed_autogen_diagnostics_list');
+  static const installedAutogenScanStats =
+      ValueKey<String>('state.installed_autogen_scan_stats');
+  static const installedAutogenApplied =
+      ValueKey<String>('state.installed_autogen_applied');
+  static const installedAutogenError =
+      ValueKey<String>('state.installed_autogen_error');
 
   static ValueKey<String> appRow(String packageId) =>
       ValueKey<String>('state.app.$packageId');
@@ -58,6 +86,14 @@ class AppKeys {
       ValueKey<String>('state.download_task.$taskId');
   static ValueKey<String> taskEventRow(int cursor) =>
       ValueKey<String>('state.task_event.$cursor');
+  static ValueKey<String> autogenCandidateRow(String packageId) =>
+      ValueKey<String>('state.autogen_candidate.$packageId');
+  static ValueKey<String> autogenSkipRow(String packageId) =>
+      ValueKey<String>('state.autogen_skip.$packageId');
+  static ValueKey<String> autogenDiagnosticRow(int index) =>
+      ValueKey<String>('state.autogen_diagnostic.$index');
+  static ValueKey<String> autogenAppliedRow(String packageId) =>
+      ValueKey<String>('state.autogen_applied.$packageId');
 }
 
 class UpgradeAllApp extends StatelessWidget {
@@ -89,6 +125,7 @@ class UpgradeAllApp extends StatelessWidget {
               getter: getter,
               legacyMigrationPlatform: legacyMigrationPlatform,
             ),
+        '/autogen': (context) => InstalledAutogenPage(getter: getter),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/apps/detail') {
@@ -168,6 +205,12 @@ class HomePage extends StatelessWidget {
             icon: Icons.move_down,
             label: 'Legacy migration',
             routeName: '/migration',
+          ),
+          const _RouteButton(
+            key: AppKeys.openInstalledAutogen,
+            icon: Icons.auto_fix_high,
+            label: 'Installed autogen',
+            routeName: '/autogen',
           ),
         ],
       ),
@@ -332,6 +375,240 @@ class DownloadsPage extends StatelessWidget {
                 ),
               ],
             ),
+    );
+  }
+}
+
+class InstalledAutogenPage extends StatefulWidget {
+  const InstalledAutogenPage({super.key, required this.getter});
+
+  final GetterAdapter getter;
+
+  @override
+  State<InstalledAutogenPage> createState() => _InstalledAutogenPageState();
+}
+
+class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
+  InstalledAutogenPreview? _preview;
+  InstalledAutogenApplyResult? _applyResult;
+  GetterError? _error;
+  bool _running = false;
+
+  Future<void> _previewInstalledAutogen() async {
+    setState(() {
+      _running = true;
+      _error = null;
+      _applyResult = null;
+    });
+    try {
+      final preview = await widget.getter.previewInstalledAutogen();
+      if (!mounted) return;
+      setState(() {
+        _preview = preview;
+        _running = false;
+      });
+    } on GetterBridgeException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _error = error.error;
+        _running = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _error = GetterError(
+          code: 'bridge.installed_autogen_error',
+          message: 'Installed autogen bridge failed',
+          detail: error.toString(),
+        );
+        _running = false;
+      });
+    }
+  }
+
+  Future<void> _applyInstalledAutogen() async {
+    final preview = _preview;
+    if (preview == null) return;
+    setState(() {
+      _running = true;
+      _error = null;
+    });
+    try {
+      final result = await widget.getter.applyInstalledAutogen(
+        preview,
+        acceptedPackageIds: preview.candidates
+            .map((candidate) => candidate.packageId)
+            .toList(growable: false),
+      );
+      if (!mounted) return;
+      setState(() {
+        _applyResult = result;
+        _running = false;
+      });
+    } on GetterBridgeException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _error = error.error;
+        _running = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _error = GetterError(
+          code: 'bridge.installed_autogen_error',
+          message: 'Installed autogen bridge failed',
+          detail: error.toString(),
+        );
+        _running = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final preview = _preview;
+    final applyResult = _applyResult;
+    final canUseBridge = widget.getter.supportsInstalledAutogen;
+    return Scaffold(
+      key: AppKeys.installedAutogenRoute,
+      appBar: AppBar(title: const Text('Installed autogen')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: <Widget>[
+          ElevatedButton.icon(
+            key: AppKeys.previewInstalledAutogen,
+            onPressed:
+                _running || !canUseBridge ? null : _previewInstalledAutogen,
+            icon: const Icon(Icons.manage_search),
+            label: Text(_running ? 'Working…' : 'Preview installed autogen'),
+          ),
+          if (!canUseBridge)
+            const Padding(
+              padding: EdgeInsets.only(top: 12),
+              child: Text(
+                key: AppKeys.installedAutogenBridgeUnavailable,
+                'Getter installed-autogen bridge is not connected',
+              ),
+            ),
+          if (preview == null && _error == null)
+            const Padding(
+              padding: EdgeInsets.only(top: 16),
+              child: Text(
+                key: AppKeys.installedAutogenReady,
+                'Ready to preview installed app fallback packages',
+              ),
+            ),
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Text(
+                key: AppKeys.installedAutogenError,
+                '${_error!.code}: ${_error!.message}',
+              ),
+            ),
+          if (preview != null) ...<Widget>[
+            const SizedBox(height: 16),
+            Text(
+              key: AppKeys.installedAutogenPreview,
+              '${preview.summary.candidateCount} candidates, ${preview.summary.skippedCount} skipped',
+            ),
+            if (preview.scanStats != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  key: AppKeys.installedAutogenScanStats,
+                  'Seen ${preview.scanStats!.totalSeen}, returned ${preview.scanStats!.returned}, filtered system ${preview.scanStats!.filteredSystem}, filtered self ${preview.scanStats!.filteredSelf}',
+                ),
+              ),
+            const SizedBox(height: 16),
+            Text('Candidates', style: Theme.of(context).textTheme.titleMedium),
+            ListView.builder(
+              key: AppKeys.installedAutogenCandidatesList,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: preview.candidates.length,
+              itemBuilder: (context, index) {
+                final candidate = preview.candidates[index];
+                return ListTile(
+                  key: AppKeys.autogenCandidateRow(candidate.packageId),
+                  title: Text(candidate.displayName),
+                  subtitle: Text(
+                    '${candidate.packageId} • ${candidate.outputRelativePath}',
+                  ),
+                );
+              },
+            ),
+            if (preview.skipped.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 16),
+              Text('Skipped', style: Theme.of(context).textTheme.titleMedium),
+              ListView.builder(
+                key: AppKeys.installedAutogenSkipsList,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: preview.skipped.length,
+                itemBuilder: (context, index) {
+                  final skipped = preview.skipped[index];
+                  return ListTile(
+                    key: AppKeys.autogenSkipRow(skipped.packageId),
+                    title: Text(skipped.packageId),
+                    subtitle: Text(
+                      '${skipped.reason}${skipped.coveringRepoId == null ? '' : ' • ${skipped.coveringRepoId}'}',
+                    ),
+                  );
+                },
+              ),
+            ],
+            if (preview.diagnostics.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 16),
+              Text('Diagnostics',
+                  style: Theme.of(context).textTheme.titleMedium),
+              ListView.builder(
+                key: AppKeys.installedAutogenDiagnosticsList,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: preview.diagnostics.length,
+                itemBuilder: (context, index) {
+                  final diagnostic = preview.diagnostics[index];
+                  return ListTile(
+                    key: AppKeys.autogenDiagnosticRow(index),
+                    title: Text(diagnostic.code),
+                    subtitle: Text(diagnostic.message),
+                  );
+                },
+              ),
+            ],
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              key: AppKeys.applyInstalledAutogen,
+              onPressed: _running || preview.candidates.isEmpty
+                  ? null
+                  : _applyInstalledAutogen,
+              icon: const Icon(Icons.check),
+              label: const Text('Apply all candidates'),
+            ),
+          ],
+          if (applyResult != null) ...<Widget>[
+            const SizedBox(height: 16),
+            Text(
+              key: AppKeys.installedAutogenApplied,
+              'Applied ${applyResult.appliedCount} packages',
+            ),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: applyResult.applied.length,
+              itemBuilder: (context, index) {
+                final applied = applyResult.applied[index];
+                return ListTile(
+                  key: AppKeys.autogenAppliedRow(applied.packageId),
+                  title: Text(applied.packageId),
+                  subtitle: Text(applied.outputRelativePath),
+                );
+              },
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

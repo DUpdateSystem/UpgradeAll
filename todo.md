@@ -427,7 +427,7 @@ User-confirmed decisions:
 - autogen apply/cleanup are getter-managed; if a generated file has been edited, getter preserves it into `local` before regenerating/deleting.
 - applying installed autogen also tracks accepted packages because user confirmation means the user wants update tracking.
 
-Status: first getter-owned CLI/core slice in progress. Implemented pure autogen planning, installed preview/apply, cleanup preview/apply, deterministic package Lua generation, manifest-managed cleanup, higher-priority coverage skips, local preservation for edited autogen files, guarded cleanup against stale/tampered previews, and preservation of existing tracked user state during autogen apply. Flutter/Android inventory collection and UX remain future adapter work.
+Status: getter-owned CLI/core and first production bridge slices are in progress. Implemented pure autogen planning, installed preview/apply, cleanup preview/apply, deterministic package Lua generation, manifest-managed cleanup, higher-priority coverage skips, local preservation for edited autogen files, guarded cleanup against stale/tampered previews, and preservation of existing tracked user state during autogen apply. Added Rust-active Android PackageManager inventory collection and first native bridge preview/apply operations packaged into the Flutter product APK. Added a Flutter installed-autogen preview/apply UI that renders getter-owned DTOs and calls the native bridge without Dart-led package-id or autogen decisions.
 
 Completed tasks:
 
@@ -439,13 +439,15 @@ Completed tasks:
 6. Preserve edited generated files into `local` before autogen rewrite/delete.
 7. Guard cleanup deletion by current autogen manifest, repository id, and generated-package resolution.
 8. Add Rust-active Android installed inventory provider/scanner path: Kotlin PackageManager facts provider, Rust JNI call/deserialization, and `api_proxy` runtime initialization.
+9. Extract installed-autogen preview/apply semantics into reusable getter-owned `getter-operations` code so CLI and native bridge share the same `local_autogen` rules.
+10. Add native bridge operations that combine platform scan + getter `local_autogen` preview/apply while returning getter-style JSON envelopes.
+11. Wire/package a slim production bridge into `app_flutter` so the Flutter APK contains `libapi_proxy.so`, `NativeLib`, and the installed-inventory provider classes without depending on the legacy native `:app` UI or old `GetterPort` hub/RPC wrapper surface.
+12. Add Flutter confirmation UX that consumes getter preview/apply DTOs and passes displayed accepted package ids back to getter/native bridge.
 
 Remaining tasks:
 
-1. Add getter/native bridge operations that combine platform scan + getter `local_autogen` preview/apply; Flutter must consume these getter-owned DTOs rather than leading a MethodChannel inventory scan.
-2. Wire/package the production bridge into `app_flutter` so the Flutter APK can exercise the Rust-active installed inventory provider path.
-3. Flutter confirmation UX consumes getter preview/apply DTOs.
-4. Cache invalidation hooks beyond file-hash-based repository reload need to be expanded when evaluated/provider caches become active.
+1. Add device/instrumented validation for the full Flutter MethodChannel -> JNI -> Rust platform scan -> getter autogen preview/apply path if practical.
+2. Cache invalidation hooks beyond file-hash-based repository reload need to be expanded when evaluated/provider caches become active.
 
 Acceptance progress:
 

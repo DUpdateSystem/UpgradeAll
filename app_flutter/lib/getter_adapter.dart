@@ -6,6 +6,8 @@
 abstract interface class GetterAdapter {
   bool get supportsLegacyRoomImport;
 
+  bool get supportsInstalledAutogen;
+
   void initialize();
 
   List<RepositorySummary> listRepositories();
@@ -21,6 +23,15 @@ abstract interface class GetterAdapter {
   List<DownloadTaskSummary> listDownloadTasks();
 
   TaskEventPage listTaskEvents({required int after, required int limit});
+
+  Future<InstalledAutogenPreview> previewInstalledAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  });
+
+  Future<InstalledAutogenApplyResult> applyInstalledAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  });
 
   GetterSnapshot loadSnapshot();
 }
@@ -49,6 +60,9 @@ class FakeGetterAdapter implements GetterAdapter {
 
   @override
   bool get supportsLegacyRoomImport => false;
+
+  @override
+  bool get supportsInstalledAutogen => true;
 
   @override
   void initialize() {}
@@ -171,6 +185,74 @@ class FakeGetterAdapter implements GetterAdapter {
       nextCursor: nextCursor,
       hasMore: _taskEvents.events.any((event) => event.cursor > nextCursor),
     );
+  }
+
+  @override
+  Future<InstalledAutogenPreview> previewInstalledAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async {
+    return InstalledAutogenPreview.fromJson(const <String, Object?>{
+      'operation': 'installed.preview',
+      'target_repo_id': 'local_autogen',
+      'target_repo_path': '/fake/getter/repositories/local_autogen',
+      'scan': <String, Object?>{
+        'stats': <String, Object?>{
+          'total_seen': 3,
+          'returned': 1,
+          'filtered_system': 1,
+          'filtered_self': 1,
+        },
+        'diagnostics': <Object?>[],
+      },
+      'summary': <String, Object?>{
+        'candidate_count': 1,
+        'skipped_count': 1,
+        'write_count': 1,
+        'delete_count': 0,
+      },
+      'candidates': <Object?>[
+        <String, Object?>{
+          'package_id': 'android/com.example.autogen',
+          'kind': 'android',
+          'display_name': 'Example Autogen',
+          'installed_target': <String, Object?>{
+            'kind': 'android_package',
+            'package_name': 'com.example.autogen',
+          },
+          'action': 'create',
+          'output_relative_path': 'packages/android/com.example.autogen.lua',
+          'content_hash': 'fnv1a64:fake',
+          'content': '-- fake generated content',
+        },
+      ],
+      'skipped': <Object?>[
+        <String, Object?>{
+          'package_id': 'android/org.fdroid.fdroid',
+          'reason': 'covered_by_higher_priority_repo',
+          'covering_repo_id': 'official',
+        },
+      ],
+      'diagnostics': <Object?>[],
+    });
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyInstalledAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    return InstalledAutogenApplyResult.fromJson(const <String, Object?>{
+      'target_repo_id': 'local_autogen',
+      'target_repo_path': '/fake/getter/repositories/local_autogen',
+      'applied_count': 1,
+      'applied': <Object?>[
+        <String, Object?>{
+          'package_id': 'android/com.example.autogen',
+          'output_relative_path': 'packages/android/com.example.autogen.lua',
+        },
+      ],
+      'preserved_to_local': <Object?>[],
+    });
   }
 
   @override
@@ -351,6 +433,305 @@ class TaskEventSummary {
   final String? message;
 }
 
+class InstalledAutogenScanOptions {
+  const InstalledAutogenScanOptions({
+    this.includeSystemApps = false,
+    this.includeSelf = false,
+  });
+
+  final bool includeSystemApps;
+  final bool includeSelf;
+
+  Map<String, Object?> toJson() => <String, Object?>{
+        'include_system_apps': includeSystemApps,
+        'include_self': includeSelf,
+      };
+}
+
+class InstalledAutogenPreview {
+  InstalledAutogenPreview({
+    required this.operation,
+    required this.targetRepoId,
+    required this.targetRepoPath,
+    required this.summary,
+    required this.candidates,
+    required this.skipped,
+    required this.diagnostics,
+    required this.scanStats,
+    required this.rawJson,
+  });
+
+  factory InstalledAutogenPreview.fromJson(Map<String, Object?> json) {
+    final scan = _jsonMapOrNull(json['scan'], 'autogen.scan');
+    return InstalledAutogenPreview(
+      operation: _jsonString(json['operation'], 'autogen.operation'),
+      targetRepoId:
+          _jsonString(json['target_repo_id'], 'autogen.target_repo_id'),
+      targetRepoPath: _jsonOptionalString(
+        json['target_repo_path'],
+        'autogen.target_repo_path',
+      ),
+      summary: AutogenSummary.fromJson(
+        _jsonMap(json['summary'], 'autogen.summary'),
+      ),
+      candidates: _jsonList(json['candidates'], 'autogen.candidates')
+          .map((candidate) => InstalledAutogenCandidate.fromJson(
+                _jsonMap(candidate, 'autogen.candidate'),
+              ))
+          .toList(growable: false),
+      skipped: _jsonList(json['skipped'], 'autogen.skipped')
+          .map((skip) => InstalledAutogenSkip.fromJson(
+                _jsonMap(skip, 'autogen.skip'),
+              ))
+          .toList(growable: false),
+      diagnostics: _jsonList(
+        scan?['diagnostics'] ?? json['diagnostics'],
+        'autogen.diagnostics',
+      )
+          .map((diagnostic) => PlatformDiagnosticSummary.fromJson(
+                _jsonMap(diagnostic, 'autogen.diagnostic'),
+              ))
+          .toList(growable: false),
+      scanStats: scan == null || scan['stats'] == null
+          ? null
+          : InstalledAutogenScanStats.fromJson(
+              _jsonMap(scan['stats'], 'autogen.scan.stats'),
+            ),
+      rawJson: Map<String, Object?>.unmodifiable(json),
+    );
+  }
+
+  final String operation;
+  final String targetRepoId;
+  final String? targetRepoPath;
+  final AutogenSummary summary;
+  final List<InstalledAutogenCandidate> candidates;
+  final List<InstalledAutogenSkip> skipped;
+  final List<PlatformDiagnosticSummary> diagnostics;
+  final InstalledAutogenScanStats? scanStats;
+  final Map<String, Object?> rawJson;
+}
+
+class AutogenSummary {
+  const AutogenSummary({
+    required this.candidateCount,
+    required this.skippedCount,
+    required this.writeCount,
+    required this.deleteCount,
+  });
+
+  factory AutogenSummary.fromJson(Map<String, Object?> json) {
+    return AutogenSummary(
+      candidateCount:
+          _jsonInt(json['candidate_count'], 'autogen.summary.candidate_count'),
+      skippedCount:
+          _jsonInt(json['skipped_count'], 'autogen.summary.skipped_count'),
+      writeCount: _jsonInt(json['write_count'], 'autogen.summary.write_count'),
+      deleteCount:
+          _jsonInt(json['delete_count'], 'autogen.summary.delete_count'),
+    );
+  }
+
+  final int candidateCount;
+  final int skippedCount;
+  final int writeCount;
+  final int deleteCount;
+}
+
+class InstalledAutogenCandidate {
+  const InstalledAutogenCandidate({
+    required this.packageId,
+    required this.kind,
+    required this.displayName,
+    required this.action,
+    required this.outputRelativePath,
+    required this.contentHash,
+    required this.installedTarget,
+  });
+
+  factory InstalledAutogenCandidate.fromJson(Map<String, Object?> json) {
+    return InstalledAutogenCandidate(
+      packageId:
+          _jsonString(json['package_id'], 'autogen.candidate.package_id'),
+      kind: _jsonString(json['kind'], 'autogen.candidate.kind'),
+      displayName:
+          _jsonString(json['display_name'], 'autogen.candidate.display_name'),
+      action: _jsonString(json['action'], 'autogen.candidate.action'),
+      outputRelativePath: _jsonString(
+        json['output_relative_path'],
+        'autogen.candidate.output_relative_path',
+      ),
+      contentHash:
+          _jsonString(json['content_hash'], 'autogen.candidate.content_hash'),
+      installedTarget: _jsonMap(
+        json['installed_target'],
+        'autogen.candidate.installed_target',
+      ),
+    );
+  }
+
+  final String packageId;
+  final String kind;
+  final String displayName;
+  final String action;
+  final String outputRelativePath;
+  final String contentHash;
+  final Map<String, Object?> installedTarget;
+}
+
+class InstalledAutogenSkip {
+  const InstalledAutogenSkip({
+    required this.packageId,
+    required this.reason,
+    required this.coveringRepoId,
+  });
+
+  factory InstalledAutogenSkip.fromJson(Map<String, Object?> json) {
+    return InstalledAutogenSkip(
+      packageId: _jsonString(json['package_id'], 'autogen.skip.package_id'),
+      reason: _jsonString(json['reason'], 'autogen.skip.reason'),
+      coveringRepoId: _jsonOptionalString(
+        json['covering_repo_id'],
+        'autogen.skip.covering_repo_id',
+      ),
+    );
+  }
+
+  final String packageId;
+  final String reason;
+  final String? coveringRepoId;
+}
+
+class InstalledAutogenScanStats {
+  const InstalledAutogenScanStats({
+    required this.totalSeen,
+    required this.returned,
+    required this.filteredSystem,
+    required this.filteredSelf,
+  });
+
+  factory InstalledAutogenScanStats.fromJson(Map<String, Object?> json) {
+    return InstalledAutogenScanStats(
+      totalSeen: _jsonInt(json['total_seen'], 'autogen.scan.total_seen'),
+      returned: _jsonInt(json['returned'], 'autogen.scan.returned'),
+      filteredSystem:
+          _jsonInt(json['filtered_system'], 'autogen.scan.filtered_system'),
+      filteredSelf:
+          _jsonInt(json['filtered_self'], 'autogen.scan.filtered_self'),
+    );
+  }
+
+  final int totalSeen;
+  final int returned;
+  final int filteredSystem;
+  final int filteredSelf;
+}
+
+class PlatformDiagnosticSummary {
+  const PlatformDiagnosticSummary({
+    required this.code,
+    required this.message,
+    required this.detail,
+  });
+
+  factory PlatformDiagnosticSummary.fromJson(Map<String, Object?> json) {
+    return PlatformDiagnosticSummary(
+      code: _jsonString(json['code'], 'autogen.diagnostic.code'),
+      message: _jsonString(json['message'], 'autogen.diagnostic.message'),
+      detail: _jsonOptionalString(json['detail'], 'autogen.diagnostic.detail'),
+    );
+  }
+
+  final String code;
+  final String message;
+  final String? detail;
+}
+
+class InstalledAutogenApplyResult {
+  InstalledAutogenApplyResult({
+    required this.targetRepoId,
+    required this.targetRepoPath,
+    required this.appliedCount,
+    required this.applied,
+    required this.preservedToLocal,
+  });
+
+  factory InstalledAutogenApplyResult.fromJson(Map<String, Object?> json) {
+    return InstalledAutogenApplyResult(
+      targetRepoId:
+          _jsonString(json['target_repo_id'], 'autogen.apply.target_repo_id'),
+      targetRepoPath: _jsonOptionalString(
+        json['target_repo_path'],
+        'autogen.apply.target_repo_path',
+      ),
+      appliedCount:
+          _jsonInt(json['applied_count'], 'autogen.apply.applied_count'),
+      applied: _jsonList(json['applied'], 'autogen.apply.applied')
+          .map((applied) => InstalledAutogenAppliedPackage.fromJson(
+                _jsonMap(applied, 'autogen.apply.applied_item'),
+              ))
+          .toList(growable: false),
+      preservedToLocal: _jsonList(
+        json['preserved_to_local'],
+        'autogen.apply.preserved_to_local',
+      )
+          .map((preserved) => InstalledAutogenPreservedPackage.fromJson(
+                _jsonMap(preserved, 'autogen.apply.preserved_item'),
+              ))
+          .toList(growable: false),
+    );
+  }
+
+  final String targetRepoId;
+  final String? targetRepoPath;
+  final int appliedCount;
+  final List<InstalledAutogenAppliedPackage> applied;
+  final List<InstalledAutogenPreservedPackage> preservedToLocal;
+}
+
+class InstalledAutogenAppliedPackage {
+  const InstalledAutogenAppliedPackage({
+    required this.packageId,
+    required this.outputRelativePath,
+  });
+
+  factory InstalledAutogenAppliedPackage.fromJson(Map<String, Object?> json) {
+    return InstalledAutogenAppliedPackage(
+      packageId: _jsonString(json['package_id'], 'autogen.apply.package_id'),
+      outputRelativePath: _jsonString(
+        json['output_relative_path'],
+        'autogen.apply.output_relative_path',
+      ),
+    );
+  }
+
+  final String packageId;
+  final String outputRelativePath;
+}
+
+class InstalledAutogenPreservedPackage {
+  const InstalledAutogenPreservedPackage({
+    required this.packageId,
+    required this.repositoryId,
+    required this.relativePath,
+  });
+
+  factory InstalledAutogenPreservedPackage.fromJson(Map<String, Object?> json) {
+    return InstalledAutogenPreservedPackage(
+      packageId:
+          _jsonString(json['package_id'], 'autogen.preserved.package_id'),
+      repositoryId:
+          _jsonString(json['repository_id'], 'autogen.preserved.repository_id'),
+      relativePath:
+          _jsonString(json['relative_path'], 'autogen.preserved.relative_path'),
+    );
+  }
+
+  final String packageId;
+  final String repositoryId;
+  final String relativePath;
+}
+
 class GetterError {
   const GetterError({required this.code, required this.message, this.detail});
 
@@ -371,4 +752,36 @@ class GetterBridgeException implements Exception {
     final exit = exitCode == null ? '' : ' (exit $exitCode)';
     return 'GetterBridgeException$exit: ${error.code}: ${error.message}$detail';
   }
+}
+
+Map<String, Object?> _jsonMap(Object? value, String name) {
+  if (value is Map<String, Object?>) return value;
+  if (value is Map) return value.cast<String, Object?>();
+  throw FormatException('$name should be a JSON object');
+}
+
+Map<String, Object?>? _jsonMapOrNull(Object? value, String name) {
+  if (value == null) return null;
+  return _jsonMap(value, name);
+}
+
+List<Object?> _jsonList(Object? value, String name) {
+  if (value is List<Object?>) return value;
+  if (value is List) return value.cast<Object?>();
+  throw FormatException('$name should be a JSON array');
+}
+
+String _jsonString(Object? value, String name) {
+  if (value is String) return value;
+  throw FormatException('$name should be a string');
+}
+
+String? _jsonOptionalString(Object? value, String name) {
+  if (value == null || value is String) return value as String?;
+  throw FormatException('$name should be a string or null');
+}
+
+int _jsonInt(Object? value, String name) {
+  if (value is int) return value;
+  throw FormatException('$name should be an integer');
 }
