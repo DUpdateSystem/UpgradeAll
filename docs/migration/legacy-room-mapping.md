@@ -97,7 +97,7 @@ Currently dropped with warnings:
 - hub auth/API keys/provider credentials;
 - app regex/cloud config fields whose new package equivalent is not accepted yet.
 
-The direct CLI reader expects Android/platform code to provide a WAL/SHM-consistent DB copy; it does not perform Android Room checkpointing itself.
+The direct CLI reader expects Android/platform code to provide a WAL/SHM-consistent DB copy; it does not perform Android Room checkpointing itself. The first Flutter APK migration-adapter slice prepares that input with a no-UI Android MethodChannel adapter that copies the SQLite triplet (`.db`, `-wal`, `-shm`), checkpoints/canonicalizes the copy in app-private storage, and returns the copied DB path for Flutter to pass to getter. The default product migration action remains disabled until the production getter import bridge is connected.
 
 ## Current CLI bridge bundle
 

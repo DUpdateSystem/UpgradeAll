@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:upgradeall/getter_adapter.dart';
+import 'package:upgradeall/legacy_migration_platform.dart';
 import 'package:upgradeall/main.dart';
 
 void main() {
@@ -79,6 +81,70 @@ void main() {
     expect(find.byKey(AppKeys.downloadsEmpty), findsOneWidget);
   });
 
+  testWidgets('migration route imports prepared legacy DB through getter',
+      (tester) async {
+    final getter = _MigrationGetterAdapter();
+    await tester.pumpWidget(
+      UpgradeAllApp(
+        getter: getter,
+        legacyMigrationPlatform: const _PreparedLegacyMigrationPlatform(
+          '/tmp/app_metadata_database.db',
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(AppKeys.openMigration));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.startLegacyMigration));
+    await tester.pumpAndSettle();
+
+    expect(getter.importedDatabasePath, '/tmp/app_metadata_database.db');
+    expect(find.byKey(AppKeys.migrationStatus), findsOneWidget);
+    expect(find.text('Legacy migration imported 1 records'), findsOneWidget);
+    expect(find.byKey(AppKeys.migrationImported), findsOneWidget);
+    expect(find.byKey(AppKeys.migrationReportsList), findsOneWidget);
+    expect(find.text('migration.imported'), findsOneWidget);
+  });
+
+  testWidgets('migration route reports missing legacy DB from platform adapter',
+      (tester) async {
+    await tester.pumpWidget(
+      const UpgradeAllApp(
+        getter: _LegacyMigrationCapableGetterAdapter(),
+        legacyMigrationPlatform: _MissingLegacyMigrationPlatform(),
+      ),
+    );
+
+    await tester.tap(find.byKey(AppKeys.openMigration));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.startLegacyMigration));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(AppKeys.migrationStatus), findsOneWidget);
+    expect(find.text('No legacy Room database found'), findsOneWidget);
+    expect(find.byKey(AppKeys.migrationImported), findsNothing);
+  });
+
+  testWidgets('migration route disables import when getter bridge is absent',
+      (tester) async {
+    await tester.pumpWidget(
+      const UpgradeAllApp(
+        legacyMigrationPlatform: _PreparedLegacyMigrationPlatform(
+          '/tmp/app_metadata_database.db',
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(AppKeys.openMigration));
+    await tester.pumpAndSettle();
+
+    final button = tester.widget<ElevatedButton>(
+      find.byKey(AppKeys.startLegacyMigration),
+    );
+    expect(button.onPressed, isNull);
+    expect(find.byKey(AppKeys.migrationBridgeUnavailable), findsOneWidget);
+  });
+
   testWidgets('placeholder routes expose stable empty-state keys',
       (tester) async {
     await tester.pumpWidget(const UpgradeAllApp());
@@ -117,6 +183,86 @@ class _NoTaskGetterAdapter extends FakeGetterAdapter {
       events: <TaskEventSummary>[],
       nextCursor: 0,
       hasMore: false,
+    );
+  }
+}
+
+class _LegacyMigrationCapableGetterAdapter extends FakeGetterAdapter {
+  const _LegacyMigrationCapableGetterAdapter();
+
+  @override
+  bool get supportsLegacyRoomImport => true;
+}
+
+class _MigrationGetterAdapter extends FakeGetterAdapter {
+  String? importedDatabasePath;
+  @override
+  bool get supportsLegacyRoomImport => true;
+  var _reports = const <MigrationReportSummary>[];
+
+  @override
+  LegacyMigrationImportResult importLegacyRoomDatabase(String databasePath) {
+    importedDatabasePath = databasePath;
+    _reports = const <MigrationReportSummary>[
+      MigrationReportSummary(
+        ok: true,
+        code: 'migration.imported',
+        message: 'Legacy Room database imported',
+        importedRecords: 1,
+        trackedRecords: 1,
+      ),
+    ];
+    return const LegacyMigrationImportResult(
+      alreadyImported: false,
+      importedRecords: 1,
+      trackedPackages: <TrackedPackageSummary>[
+        TrackedPackageSummary(
+          id: 'android/org.fdroid.fdroid',
+          enabled: true,
+          favorite: true,
+          ignoredVersion: '1.20.0',
+          repositoryId: null,
+          packageResolution: 'missing_package_definition',
+        ),
+      ],
+      warnings: <MigrationWarningSummary>[],
+      sourceCounts: MigrationSourceCounts(
+        appRows: 1,
+        extraAppRows: 1,
+        hubRows: 0,
+        extraHubRows: 0,
+      ),
+    );
+  }
+
+  @override
+  List<MigrationReportSummary> readMigrationReports() => _reports;
+}
+
+class _PreparedLegacyMigrationPlatform implements LegacyMigrationPlatform {
+  const _PreparedLegacyMigrationPlatform(this.databasePath);
+
+  final String databasePath;
+
+  @override
+  Future<LegacyRoomImportCandidate> prepareLegacyRoomImport() async {
+    return LegacyRoomImportCandidate(
+      found: true,
+      databasePath: databasePath,
+      message: 'Legacy Room database prepared',
+    );
+  }
+}
+
+class _MissingLegacyMigrationPlatform implements LegacyMigrationPlatform {
+  const _MissingLegacyMigrationPlatform();
+
+  @override
+  Future<LegacyRoomImportCandidate> prepareLegacyRoomImport() async {
+    return const LegacyRoomImportCandidate(
+      found: false,
+      databasePath: null,
+      message: 'No legacy Room database found',
     );
   }
 }

@@ -4,6 +4,41 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:upgradeall/cli_getter_adapter.dart';
 
 void main() {
+  test('CliGetterAdapter imports a direct legacy Room database', () {
+    final getterCli = Platform.environment['GETTER_CLI_BIN'];
+    if (getterCli == null || getterCli.isEmpty) {
+      fail('GETTER_CLI_BIN must point to the built getter-cli binary');
+    }
+
+    final temp = Directory.systemTemp.createTempSync('upgradeall-getter-cli-');
+    addTearDown(() => temp.deleteSync(recursive: true));
+
+    final dataDir = Directory('${temp.path}/data')..createSync();
+    final legacyDb = _createLegacyRoomDatabase(temp);
+    final adapter =
+        CliGetterAdapter(executable: getterCli, dataDir: dataDir.path);
+
+    adapter.initialize();
+    final result = adapter.importLegacyRoomDatabase(legacyDb.path);
+
+    expect(result.alreadyImported, isFalse);
+    expect(result.importedRecords, 1);
+    expect(result.sourceCounts?.appRows, 1);
+    expect(result.sourceCounts?.extraAppRows, 1);
+    final tracked = result.trackedPackages.singleWhere(
+      (package) => package.id == 'android/org.fdroid.fdroid',
+    );
+    expect(tracked.favorite, isTrue);
+    expect(tracked.ignoredVersion, '1.20.0');
+    expect(tracked.packageResolution, 'missing_package_definition');
+
+    final reports = adapter.readMigrationReports();
+    expect(
+      reports.singleWhere((report) => report.code == 'migration.imported').ok,
+      isTrue,
+    );
+  });
+
   test('CliGetterAdapter reads real getter repository and tracked state', () {
     final getterCli = Platform.environment['GETTER_CLI_BIN'];
     if (getterCli == null || getterCli.isEmpty) {
@@ -16,6 +51,7 @@ void main() {
     final dataDir = Directory('${temp.path}/data')..createSync();
     final repoDir = _createFixtureRepository(temp, 'official');
     final bundle = _createLegacyBundle(temp);
+    final legacyDb = _createLegacyRoomDatabase(temp);
     final taskRequest = _createDownloadTaskRequest(temp);
     final adapter =
         CliGetterAdapter(executable: getterCli, dataDir: dataDir.path);
@@ -67,6 +103,14 @@ void main() {
     expect(
         reports.singleWhere((report) => report.code == 'migration.imported').ok,
         isTrue);
+
+    final alreadyImported = adapter.importLegacyRoomDatabase(legacyDb.path);
+    expect(alreadyImported.alreadyImported, isTrue);
+    expect(alreadyImported.importedRecords, 0);
+    expect(
+      alreadyImported.trackedPackages.map((package) => package.id),
+      contains('android/org.fdroid.fdroid'),
+    );
 
     final tasks = adapter.listDownloadTasks();
     final task = tasks.singleWhere((task) => task.id == 'task-1');
@@ -141,6 +185,40 @@ File _createLegacyBundle(Directory temp) {
   ]
 }
 ''');
+}
+
+File _createLegacyRoomDatabase(Directory temp) {
+  final db = File('${temp.path}/app_metadata_database.db');
+  final result = Process.runSync('python3', <String>[
+    '-c',
+    r'''
+import sqlite3
+import sys
+path = sys.argv[1]
+conn = sqlite3.connect(path)
+conn.execute('PRAGMA user_version = 17')
+conn.execute('CREATE TABLE app (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, app_id TEXT NOT NULL, ignore_version_number TEXT, star INTEGER)')
+conn.execute('CREATE TABLE extra_app (id INTEGER PRIMARY KEY AUTOINCREMENT, app_id TEXT NOT NULL, mark_version_number TEXT)')
+app_id = '{"android_app_package":"org.fdroid.fdroid"}'
+conn.execute(
+    'INSERT INTO app(id, name, app_id, ignore_version_number, star) VALUES (1, ?, ?, ?, ?)',
+    ('F-Droid', app_id, '1.10.0', 1),
+)
+conn.execute(
+    'INSERT INTO extra_app(id, app_id, mark_version_number) VALUES (1, ?, ?)',
+    (app_id, '1.20.0'),
+)
+conn.commit()
+conn.close()
+''',
+    db.path,
+  ]);
+  if (result.exitCode != 0) {
+    fail('failed to create legacy Room DB fixture\n'
+        'stdout:\n${result.stdout}\n'
+        'stderr:\n${result.stderr}');
+  }
+  return db;
 }
 
 File _createDownloadTaskRequest(Directory temp) {

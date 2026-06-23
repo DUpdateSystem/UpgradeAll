@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'getter_adapter.dart';
+import 'legacy_migration_platform.dart';
 
 void main() {
-  runApp(const UpgradeAllApp());
+  runApp(
+    const UpgradeAllApp(
+      legacyMigrationPlatform: MethodChannelLegacyMigrationPlatform(),
+    ),
+  );
 }
 
 @visibleForTesting
@@ -24,6 +29,8 @@ class AppKeys {
   static const openSettings = ValueKey<String>('action.open_settings');
   static const openMigration = ValueKey<String>('action.open_migration');
   static const openFirstApp = ValueKey<String>('action.open_first_app');
+  static const startLegacyMigration =
+      ValueKey<String>('action.start_legacy_migration');
 
   static const updateSummary = ValueKey<String>('state.update_summary');
   static const getterStatus = ValueKey<String>('state.getter_status');
@@ -35,6 +42,13 @@ class AppKeys {
   static const logsEmpty = ValueKey<String>('state.logs_empty');
   static const settingsShell = ValueKey<String>('state.settings_shell');
   static const migrationReady = ValueKey<String>('state.migration_ready');
+  static const migrationStatus = ValueKey<String>('state.migration_status');
+  static const migrationBridgeUnavailable =
+      ValueKey<String>('state.migration_bridge_unavailable');
+  static const migrationImported = ValueKey<String>('state.migration_imported');
+  static const migrationError = ValueKey<String>('state.migration_error');
+  static const migrationReportsList =
+      ValueKey<String>('state.migration_reports_list');
 
   static ValueKey<String> appRow(String packageId) =>
       ValueKey<String>('state.app.$packageId');
@@ -47,9 +61,14 @@ class AppKeys {
 }
 
 class UpgradeAllApp extends StatelessWidget {
-  const UpgradeAllApp({super.key, this.getter = const FakeGetterAdapter()});
+  const UpgradeAllApp({
+    super.key,
+    this.getter = const FakeGetterAdapter(),
+    this.legacyMigrationPlatform = const NoopLegacyMigrationPlatform(),
+  });
 
   final GetterAdapter getter;
+  final LegacyMigrationPlatform legacyMigrationPlatform;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +85,10 @@ class UpgradeAllApp extends StatelessWidget {
         '/downloads': (context) => DownloadsPage(getter: getter),
         '/logs': (context) => const LogsPage(),
         '/settings': (context) => const SettingsPage(),
-        '/migration': (context) => const MigrationPage(),
+        '/migration': (context) => MigrationPage(
+              getter: getter,
+              legacyMigrationPlatform: legacyMigrationPlatform,
+            ),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/apps/detail') {
@@ -342,16 +364,158 @@ class SettingsPage extends StatelessWidget {
   }
 }
 
-class MigrationPage extends StatelessWidget {
-  const MigrationPage({super.key});
+class MigrationPage extends StatefulWidget {
+  const MigrationPage({
+    super.key,
+    required this.getter,
+    required this.legacyMigrationPlatform,
+  });
+
+  final GetterAdapter getter;
+  final LegacyMigrationPlatform legacyMigrationPlatform;
+
+  @override
+  State<MigrationPage> createState() => _MigrationPageState();
+}
+
+class _MigrationPageState extends State<MigrationPage> {
+  late List<MigrationReportSummary> _reports;
+  LegacyMigrationImportResult? _importResult;
+  String? _status;
+  GetterError? _error;
+  bool _running = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _reports = widget.getter.readMigrationReports();
+  }
+
+  Future<void> _startMigration() async {
+    setState(() {
+      _running = true;
+      _status = 'Preparing legacy Room database';
+      _error = null;
+    });
+
+    try {
+      final candidate =
+          await widget.legacyMigrationPlatform.prepareLegacyRoomImport();
+      if (!mounted) return;
+      if (!candidate.found || candidate.databasePath == null) {
+        setState(() {
+          _status = candidate.message ?? 'No legacy Room database found';
+          _running = false;
+        });
+        return;
+      }
+
+      final importResult =
+          widget.getter.importLegacyRoomDatabase(candidate.databasePath!);
+      final reports = widget.getter.readMigrationReports();
+      if (!mounted) return;
+      setState(() {
+        _importResult = importResult;
+        _reports = reports;
+        _status = importResult.alreadyImported
+            ? 'Legacy migration was already completed'
+            : 'Legacy migration imported ${importResult.importedRecords} records';
+        _running = false;
+      });
+    } on GetterBridgeException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _error = error.error;
+        _status = error.error.message;
+        _reports = widget.getter.readMigrationReports();
+        _running = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _error = GetterError(
+          code: 'platform.legacy_migration_error',
+          message: 'Legacy migration platform adapter failed',
+          detail: error.toString(),
+        );
+        _status = 'Legacy migration platform adapter failed';
+        _running = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const _PlaceholderPage(
+    final canImportLegacyRoom = widget.getter.supportsLegacyRoomImport;
+    return Scaffold(
       key: AppKeys.migrationRoute,
-      title: 'Legacy migration',
-      stateKey: AppKeys.migrationReady,
-      message: 'Ready to show migration reports',
+      appBar: AppBar(title: const Text('Legacy migration')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: <Widget>[
+          ElevatedButton.icon(
+            key: AppKeys.startLegacyMigration,
+            onPressed:
+                _running || !canImportLegacyRoom ? null : _startMigration,
+            icon: const Icon(Icons.move_down),
+            label: Text(_running ? 'Migrating…' : 'Start legacy migration'),
+          ),
+          if (!canImportLegacyRoom)
+            const Padding(
+              padding: EdgeInsets.only(top: 12),
+              child: Text(
+                key: AppKeys.migrationBridgeUnavailable,
+                'Getter migration bridge is not connected',
+              ),
+            ),
+          const SizedBox(height: 16),
+          if (_status == null && _reports.isEmpty)
+            const Text(
+              key: AppKeys.migrationReady,
+              'Ready to show migration reports',
+            ),
+          if (_status != null) Text(key: AppKeys.migrationStatus, _status!),
+          if (_importResult != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                key: AppKeys.migrationImported,
+                '${_importResult!.trackedPackages.length} tracked packages after import',
+              ),
+            ),
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                key: AppKeys.migrationError,
+                '${_error!.code}: ${_error!.message}',
+              ),
+            ),
+          if (_reports.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 16),
+            Text('Reports', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            ListView.builder(
+              key: AppKeys.migrationReportsList,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _reports.length,
+              itemBuilder: (context, index) {
+                final report = _reports[index];
+                return ListTile(
+                  title: Text(report.code),
+                  subtitle: Text(
+                    '${report.message} • imported ${report.importedRecords}',
+                  ),
+                  trailing: report.ok
+                      ? const Icon(Icons.check_circle, color: Colors.green)
+                      : const Icon(Icons.error, color: Colors.red),
+                );
+              },
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

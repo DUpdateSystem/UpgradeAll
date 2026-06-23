@@ -380,7 +380,7 @@ Remaining follow-up:
 
 Goal: replace bridge-only JSON import with the Android upgrade path.
 
-Status: first getter-owned direct DB slice completed. The getter CLI now supports `legacy import-room-db <db.sqlite>` for copied/checkpointed Room v17 SQLite files. It reads `app` and `extra_app`, maps known legacy app-id keys, writes `tracked_packages` plus `legacy-room-v17` in one transaction, prevents rerun, emits sanitized reports, and documents dropped hub/extra_hub fields. Android-side WAL/SHM copy/checkpoint and Flutter migration UX remain future work.
+Status: first getter-owned direct DB slice completed, and the first Flutter/platform UX slice is in progress. The getter CLI now supports `legacy import-room-db <db.sqlite>` for copied/checkpointed Room v17 SQLite files. It reads `app` and `extra_app`, maps known legacy app-id keys, writes `tracked_packages` plus `legacy-room-v17` in one transaction, prevents rerun, emits sanitized reports, and documents dropped hub/extra_hub fields. Android-side code now exposes a no-UI MethodChannel adapter that locates, copies, and checkpoints the legacy SQLite triplet for Flutter to pass into getter. Flutter has a migration page that starts this adapter flow and renders getter reports, but the default product APK keeps the action disabled until the production getter import bridge replaces the dev CLI adapter.
 
 Completed tasks:
 
@@ -393,10 +393,9 @@ Completed tasks:
 
 Remaining tasks:
 
-1. Android migrator copies old DB plus `-wal` and `-shm` safely before invoking getter.
-2. Android/platform adapter opens/checkpoints/canonicalizes old Room schema to latest supported legacy version.
+1. Wire a production getter bridge for `importLegacyRoomDatabase` in the Flutter APK; until then the default product migration action stays disabled with an explicit bridge-unavailable state.
+2. Add focused native adapter coverage for SQLite triplet copy/checkpoint behavior if practical.
 3. Extend accepted mapping if future ADR accepts direct `hub`/`extra_hub` semantics.
-4. Flutter migration page starts the adapter flow and renders getter reports.
 
 Acceptance progress:
 
@@ -407,7 +406,7 @@ Acceptance progress:
 - Mixed valid/invalid app rows import valid rows and warn: done.
 - DBs with app rows but zero importable rows fail with recovery report: done.
 - Report sanitization for dropped `hub`/`extra_hub` secrets and URL rewrite data: done.
-- WAL/SHM pending writes: pending Android adapter slice.
+- WAL/SHM pending writes: first Android adapter copy/checkpoint slice implemented; focused native adapter test still pending.
 - Per-app failures become warnings; global unreadable DB becomes recovery state, not crash: done for the getter-owned direct importer.
 
 ### Phase B: `local_autogen` generation

@@ -37,6 +37,14 @@ listDownloadTasks()
 listTaskEvents(after, limit)
 ```
 
+The third accepted API surface adds the first legacy migration action boundary:
+
+```text
+importLegacyRoomDatabase(databasePath)
+```
+
+The Android platform adapter may prepare a copied/checkpointed legacy Room SQLite file and return its path to Flutter, but getter still owns the actual `legacy import-room-db` import semantics. Flutter starts the flow and renders getter reports; it must not inspect or map Room tables directly.
+
 `loadSnapshot()` composes the smaller getter-owned operations into the UI shell's first snapshot DTO. It must not perform repository resolution, version comparison, migration mapping, or update selection in Dart. `readMigrationReports()` must go through a getter operation such as `legacy report-list`; Flutter must not inspect getter's data-directory layout directly. `listDownloadTasks()` and `listTaskEvents()` render getter-owned task/event DTOs; Flutter must not synthesize task states, retry policy, installer behavior, or update decisions.
 
 ## Flutter DTOs
@@ -50,6 +58,9 @@ RepositorySummary
 TrackedPackageSummary
 PackageEvaluation
 MigrationReportSummary
+LegacyMigrationImportResult
+MigrationWarningSummary
+MigrationSourceCounts
 DownloadTaskSummary
 TaskEventPage
 TaskEventSummary
@@ -96,6 +107,26 @@ The bridge maps getter errors into `GetterError`:
 - `detail`: optional diagnostic detail.
 
 Flutter may choose presentation, but the source classification belongs to getter or a documented platform adapter.
+
+## Legacy migration platform adapter
+
+Flutter owns the migration screen and user-visible flow. Android-native code exposes a no-UI platform adapter over `net.xzos.upgradeall/legacy_migration` with `prepareLegacyRoomImport`.
+
+That adapter may:
+
+- locate `app_metadata_database.db` in the app database directory;
+- copy the SQLite triplet (`.db`, `-wal`, `-shm`) into an app-private getter-import path;
+- checkpoint/canonicalize the copied database into a standalone SQLite file;
+- return `{ found, database_path, message }` to Flutter.
+
+That adapter must not:
+
+- show Android-native UI;
+- map legacy rows into package IDs;
+- decide what fields are dropped/imported;
+- write getter storage directly.
+
+Flutter then calls a getter bridge operation equivalent to `legacy import-room-db <database_path>` and renders getter-owned reports.
 
 ## Event model
 
@@ -146,13 +177,14 @@ Costs:
 The first implementation slice must provide:
 
 - Flutter widget tests that continue to use `FakeGetterAdapter`.
-- A Flutter/Dart integration test that builds or receives a real `getter-cli` binary, initializes a real getter data directory, and reads repositories, tracked packages, package evaluation output, migration reports, and task lifecycle DTOs through `CliGetterAdapter`.
+- Flutter widget tests for the migration flow using fake platform/getter adapters.
+- A Flutter/Dart integration test that builds or receives a real `getter-cli` binary, initializes a real getter data directory, and reads repositories, tracked packages, package evaluation output, migration reports, direct Room import output, and task lifecycle DTOs through `CliGetterAdapter`.
 - `just verify` coverage for the bridge integration test.
 
 ## Non-goals
 
 - No full FFI/native bridge implementation in this ADR.
 - No update/download/install event stream.
-- No direct Android Room DB reader.
+- No Android-owned legacy Room mapping/import semantics; Android only prepares a copied DB file for getter.
 - No product-complete Flutter UI.
 - No product/domain decisions in Dart.

@@ -4,6 +4,8 @@
 /// repository overlay resolution, update selection, Lua validation, migration
 /// mapping, and storage behavior belong in Rust getter.
 abstract interface class GetterAdapter {
+  bool get supportsLegacyRoomImport;
+
   void initialize();
 
   List<RepositorySummary> listRepositories();
@@ -13,6 +15,8 @@ abstract interface class GetterAdapter {
   PackageEvaluation evaluatePackage(String packageId, {String? repositoryId});
 
   List<MigrationReportSummary> readMigrationReports();
+
+  LegacyMigrationImportResult importLegacyRoomDatabase(String databasePath);
 
   List<DownloadTaskSummary> listDownloadTasks();
 
@@ -42,6 +46,9 @@ class FakeGetterAdapter implements GetterAdapter {
       RepositorySummary(id: 'local_autogen', priority: -1),
     ],
   );
+
+  @override
+  bool get supportsLegacyRoomImport => false;
 
   @override
   void initialize() {}
@@ -137,6 +144,16 @@ class FakeGetterAdapter implements GetterAdapter {
   @override
   List<MigrationReportSummary> readMigrationReports() {
     return const <MigrationReportSummary>[];
+  }
+
+  @override
+  LegacyMigrationImportResult importLegacyRoomDatabase(String databasePath) {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.not_connected',
+        message: 'Getter migration import bridge is not connected',
+      ),
+    );
   }
 
   @override
@@ -243,6 +260,43 @@ class MigrationReportSummary {
   final String message;
   final int importedRecords;
   final int trackedRecords;
+}
+
+class LegacyMigrationImportResult {
+  const LegacyMigrationImportResult({
+    required this.alreadyImported,
+    required this.importedRecords,
+    required this.trackedPackages,
+    required this.warnings,
+    required this.sourceCounts,
+  });
+
+  final bool alreadyImported;
+  final int importedRecords;
+  final List<TrackedPackageSummary> trackedPackages;
+  final List<MigrationWarningSummary> warnings;
+  final MigrationSourceCounts? sourceCounts;
+}
+
+class MigrationWarningSummary {
+  const MigrationWarningSummary({required this.code, required this.message});
+
+  final String code;
+  final String message;
+}
+
+class MigrationSourceCounts {
+  const MigrationSourceCounts({
+    required this.appRows,
+    required this.extraAppRows,
+    required this.hubRows,
+    required this.extraHubRows,
+  });
+
+  final int appRows;
+  final int extraAppRows;
+  final int hubRows;
+  final int extraHubRows;
 }
 
 class DownloadTaskSummary {
