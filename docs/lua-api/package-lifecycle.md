@@ -63,6 +63,8 @@ return {
 
 The first Phase D implementation slice exposes this boundary only through an offline CLI fixture command: `getter --data-dir <path> update check --fixture <fixture.json>`. The fixture is normalized JSON, not live provider output, and the command returns `network_required = false`, update-check status, selected candidate/artifact, and generated download/install action DTOs. It does not execute network providers, download files, persist download tasks, stream progress events, or invoke Android installers.
 
+The second Phase D slice consumes those generated actions through an explicitly offline/fake task lifecycle: `task submit --request <request.json>`, `task run <task-id>`, `task list`, `task cancel <task-id>`, `task events --after <cursor> --limit <n>`, and `task install-result <handoff-id> --status <status>`. This proves getter-owned persistent task state, cancellation, pollable event DTOs, and abstract install handoff recording without live network I/O, background runners, native streaming, Flutter task-state logic, or Android installer calls.
+
 ## post_update
 
 Optional post-update hook. Most persistent state changes should remain in Rust core, not Lua.

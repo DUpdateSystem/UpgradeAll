@@ -91,7 +91,9 @@ Flutter may choose presentation, but the source classification belongs to getter
 
 The first bridge slice is snapshot-only. Streaming events, progress, cancellation, backpressure, foreground services, notification lifecycle, and installer handoff are explicitly deferred to the update/download/install lifecycle ADR/work.
 
-Until then, Flutter should refresh snapshots rather than maintaining its own task state machine.
+The first Phase D lifecycle slice defines getter-owned task/event/handoff DTOs through the CLI only: task state is persisted in getter `main.db`, task events are pollable with `after` cursor plus `limit`, and fake executor progress is command-driven rather than background-streamed. This pollable CLI/dev contract is not the final native stream API. Flutter should not maintain its own task state machine; future Flutter/bridge work must render getter task/event DTOs or ask getter for richer fields.
+
+Android platform install remains a handoff boundary. Getter may request/record an abstract install handoff, but Android permissions, notifications, PackageInstaller/Shizuku/root execution, and path-versus-URI/SAF semantics belong to platform adapter work and remain outside this bridge slice.
 
 ## Android production bridge direction
 

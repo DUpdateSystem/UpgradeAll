@@ -457,7 +457,7 @@ Acceptance:
 
 Goal: move from static app/repo display to real update workflows.
 
-Status: first getter-owned offline update-check slice in progress. The accepted minimal slice is intentionally not a provider/downloader/installer runtime. It defines normalized offline fixture input/output DTOs, reuses Rust getter update selection/version comparison, and adds `getter --data-dir <path> update check --fixture <fixture.json>` returning selected update and generated download/install action DTOs with `network_required = false`.
+Status: second getter-owned offline lifecycle slice in progress. The accepted minimal Phase D work remains intentionally offline/fake: it defines normalized offline update-check DTOs, reuses Rust getter update selection/version comparison, adds `getter --data-dir <path> update check --fixture <fixture.json>`, and now adds a command-driven fake task lifecycle for persisted task state, cancellation, pollable task events, and abstract install handoff result recording. It still does not run live providers, perform network downloads, run background workers, invoke Android installers, or add Flutter product task state.
 
 Completed tasks:
 
@@ -466,20 +466,28 @@ Completed tasks:
 3. Generate minimal download/install action DTOs for the selected artifact.
 4. Add CLI command `update check --fixture <fixture.json>`.
 5. Add BDD coverage for update available, up to date, ignored latest fallback, ignored-only, unknown installed version, and malformed fixture.
+6. Add getter-core task/event/install-handoff DTOs for the first offline lifecycle proof.
+7. Add main DB task/event/install-handoff tables and storage APIs with TDD coverage.
+8. Implement deterministic fake/offline downloader behavior beyond the previous placeholder crate: submit, run, cancel, list, poll events, and record install result.
+9. Add CLI commands and BDD coverage for `task submit`, `task run`, `task list`, `task cancel`, `task events`, and `task install-result`.
 
 Remaining tasks:
 
-1. Implement provider/downloader crate behavior beyond placeholders.
-2. Add event stream/backpressure model.
-3. Add persistent download task state and cancellation.
-4. Add platform install handoff contract.
-5. Add Flutter BDD for update/download user flows only after getter behavior exists.
+1. Implement live provider/downloader behavior beyond the fake/offline proof.
+2. Add native stream/backpressure runtime beyond the current pollable CLI/dev event contract.
+3. Decide and implement background worker/restart/retry/resume policy for real downloads.
+4. Define Android production install handoff URI/SAF/permission/notification details and wire platform adapter execution.
+5. Add Flutter BDD for update/download user flows only after getter behavior exists and the bridge consumes getter task/event DTOs.
 
 Acceptance progress:
 
-- CLI can run an offline fixture update check: done for first slice.
-- Flutter displays getter events rather than calculating status itself: deferred until event DTO/bridge slice.
-- Android platform adapter owns permissions/notifications/installer handoff: documented/deferred; no Android execution added in first slice.
+- CLI can run an offline fixture update check: done.
+- Getter can persist and list fake/offline task state: done for CLI/dev slice.
+- Getter can cancel queued/running fake tasks and reject invalid terminal cancellation: done.
+- Getter can expose pollable task events with cursor/limit: done for CLI/dev slice; native streaming remains deferred.
+- Getter can record abstract install handoff requests/results: done for CLI/dev slice; Android installer execution remains deferred.
+- Flutter displays getter events rather than calculating status itself: deferred until bridge/UI task DTO slice.
+- Android platform adapter owns permissions/notifications/installer handoff: documented/deferred; no Android execution added in this slice.
 
 ## 9. Do-not-do list for the next agent
 

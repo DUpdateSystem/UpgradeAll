@@ -22,6 +22,12 @@ getter --data-dir <path> repo validate <path>
 getter --data-dir <path> package eval <package-id> [--repo <repo-id>]
 getter --data-dir <path> storage validate
 getter --data-dir <path> update check --fixture <fixture.json>
+getter --data-dir <path> task submit --request <request.json>
+getter --data-dir <path> task run <task-id>
+getter --data-dir <path> task list
+getter --data-dir <path> task cancel <task-id>
+getter --data-dir <path> task events --after <cursor> --limit <n>
+getter --data-dir <path> task install-result <handoff-id> --status <accepted|succeeded|failed|canceled>
 getter --data-dir <path> autogen installed preview --inventory <installed.json>
 getter --data-dir <path> autogen installed apply --preview <preview.json> (--accept-all|--accept <package-id>...)
 getter --data-dir <path> autogen cleanup preview --inventory <installed.json>
@@ -97,6 +103,8 @@ The first installed-app autogen slice accepts an Android/platform-provided inven
 
 `update check --fixture <fixture.json>` is the first Phase D offline update-check slice. The fixture contract is explicitly offline and uses `format = "getter-offline-update-check"`, `version = 1`, `package_id`, optional `installed_version`, optional `ignored_version`, and normalized candidate/artifact DTOs. The command returns `network_required = false`, a getter-owned status (`update_available`, `up_to_date`, `no_candidates`, or `ignored`), the selected update when one exists, and generated download/install action DTOs. An update-selected result must have an actionable artifact; a selected candidate without artifacts is a structured update-check error rather than `update_available` with no actions. It reuses Rust getter update selection and version comparison; it does not run providers, perform downloads, persist download tasks, stream events, or call Android installers.
 
+The first getter-owned task lifecycle slice is also explicitly offline/fake and command-driven. `task submit --request <request.json>` accepts `format = "getter-download-request"`, `version = 1`, `package_id`, `executor = "fake"`, and update actions containing at least one `download` action; an optional `install` action creates an abstract install handoff after a successful fake run. `task run <task-id>` deterministically advances the fake task to `succeeded`; it performs no network I/O and writes no downloaded bytes. `task list` returns persisted task summaries from `main.db`. `task cancel <task-id>` persists cancellation for `queued`/`running` tasks, is idempotent for already-canceled tasks, and rejects terminal success/failure with a structured download error. `task events --after <cursor> --limit <n>` is a pollable CLI/dev event contract with a positive `limit`; it is not a native streaming API, and native streaming/backpressure remains deferred. `task install-result <handoff-id> --status <accepted|succeeded|failed|canceled>` records the platform-side result of an abstract handoff; the getter-created `requested` handoff state is not accepted as a platform result. Getter records handoff requests/results but does not call Android installers, request permissions, create notifications, or decide Android URI/SAF semantics.
+
 `repo validate <path>` validates a repository path offline without requiring it to be registered first. It returns `valid`, `diagnostics`, `package_count`, and `network_required = false`; diagnostics are getter-owned structured records with stable codes, message, severity, source path, and optional package id/field.
 
 Exit-code classes:
@@ -107,7 +115,7 @@ Exit-code classes:
 - `10`: data/storage error.
 - `20`: migration/import error.
 - `30`: future network/provider error.
-- `40`: future download error.
+- `40`: download/task lifecycle error.
 
 ## Context
 
