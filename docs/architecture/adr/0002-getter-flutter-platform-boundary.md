@@ -12,7 +12,7 @@ Getter remains a separate reusable git submodule at `core-getter/src/main/rust/g
 
 The Flutter Android app embeds getter as a Rust library / FFI-style core. The app does not use a standalone getter daemon as the primary path.
 
-Platform-specific APIs are exposed to getter through RPC/callback-style boundaries so that thread management and platform complexity remain isolated.
+Platform-specific APIs are exposed to getter through documented platform adapter seams so that thread management and platform complexity remain isolated. For Android installed inventory, ADR-0009 supersedes the earlier MethodChannel-led scan idea: Rust/native bridge code is the active caller, initializes JVM/context/classloader handles, and calls Android implementation classes for raw PackageManager facts.
 
 ## getter owns
 
@@ -32,13 +32,19 @@ Platform-specific APIs are exposed to getter through RPC/callback-style boundari
 ## Flutter APP owns
 
 - UI rendering and navigation.
-- Android permission prompts.
-- Android PackageManager inventory scanning.
-- Installed version lookup through platform APIs.
-- APK install / Shizuku/root/system installer adapters.
-- Notifications / foreground service integration.
-- SAF/file picker and URI permissions.
+- Android permission prompts and user-facing permission explanations.
 - User confirmation flows.
+- Rendering getter-owned DTOs, platform diagnostics, and recovery states.
+
+## Platform adapters own
+
+- Raw Android PackageManager installed-package facts exposed through the Rust-active platform adapter accepted in ADR-0009.
+- Installed version lookup through platform APIs.
+- APK install / Shizuku/root/system installer adapters after installer semantics are accepted.
+- Notifications / foreground service integration after background-runtime semantics are accepted.
+- SAF/file picker and URI permissions.
+
+Platform adapters expose facts/capabilities to Rust getter/native bridge code. They must not perform package-id normalization, repository resolution, Lua validation, autogen candidate selection, migration mapping, download retry policy, or storage writes.
 
 ## Boundary rule
 

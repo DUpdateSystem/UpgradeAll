@@ -45,6 +45,15 @@ importLegacyRoomDatabase(databasePath)
 
 The Android platform adapter may prepare a copied/checkpointed legacy Room SQLite file and return its path to Flutter, but getter still owns the actual `legacy import-room-db` import semantics. Flutter starts the flow and renders getter reports; it must not inspect or map Room tables directly.
 
+The installed-autogen product bridge must follow ADR-0009's Rust-active platform adapter direction rather than a Flutter-led inventory scan. The future bridge shape is a getter-owned operation such as:
+
+```text
+previewInstalledAutogen(scanOptions)
+applyInstalledAutogen(preview, acceptedPackages)
+```
+
+Internally, Rust/native bridge code scans Android inventory through the platform adapter, then asks getter to plan/apply `local_autogen`. Flutter renders getter-owned preview/apply DTOs and scan diagnostics; it must not expose a product Dart `InstalledInventoryPlatform` scanner or convert Android package names into package ids.
+
 `loadSnapshot()` composes the smaller getter-owned operations into the UI shell's first snapshot DTO. It must not perform repository resolution, version comparison, migration mapping, or update selection in Dart. `readMigrationReports()` must go through a getter operation such as `legacy report-list`; Flutter must not inspect getter's data-directory layout directly. `listDownloadTasks()` and `listTaskEvents()` render getter-owned task/event DTOs; Flutter must not synthesize task states, retry policy, installer behavior, or update decisions.
 
 ## Flutter DTOs
@@ -97,6 +106,8 @@ and structured error envelopes:
 ```
 
 Flutter adapter code may parse and display these fields, but it must not infer missing domain state from them. If the UI needs a richer field, add it to getter output first and cover it with getter tests.
+
+For installed-autogen flows, CLI/dev tests may continue to pass fixture inventory JSON to `getter autogen installed preview/apply`. The Android product bridge should not expose that fixture boundary as a Flutter-owned scanning API; it should wrap scan + getter autogen planning behind a getter/native bridge operation.
 
 ## Error model
 

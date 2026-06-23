@@ -441,9 +441,10 @@ Completed tasks:
 
 Remaining tasks:
 
-1. Android adapter supplies real installed inventory DTO.
-2. Flutter confirmation UX consumes getter preview/apply DTOs.
-3. Cache invalidation hooks beyond file-hash-based repository reload need to be expanded when evaluated/provider caches become active.
+1. Finish the Rust-active Android platform adapter path from ADR-0009: Kotlin PackageManager provider/scanner, native bridge packaging, and Rust calls that return installed inventory facts.
+2. Add getter/native bridge operations that combine platform scan + getter `local_autogen` preview/apply; Flutter must consume these getter-owned DTOs rather than leading a MethodChannel inventory scan.
+3. Flutter confirmation UX consumes getter preview/apply DTOs.
+4. Cache invalidation hooks beyond file-hash-based repository reload need to be expanded when evaluated/provider caches become active.
 
 Acceptance progress:
 

@@ -76,6 +76,7 @@ The first Flutter implementation slice is intentionally a shell, not product log
 - `CliGetterAdapter` exercises a real getter data directory through the `getter-cli` JSON envelope for development/integration tests.
 - ADR-0007 documents the bridge contract and explicitly treats the CLI adapter as a test/development bridge, not the final Android production path.
 - Product decisions such as repository resolution, updates, migrations, storage, and downloads still belong in Rust getter.
+- Installed-autogen product flows must call getter/native bridge operations that use the Rust-active Android platform adapter from ADR-0009; Flutter should not lead PackageManager inventory scanning through a Dart MethodChannel API.
 - CI/release APK artifacts must be built from `app_flutter`, not from the legacy `:app` module.
 - The downloads route may render getter task/event DTOs read-only, but it must not implement a Dart download task state machine, retry policy, or installer semantics.
 

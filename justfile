@@ -2,6 +2,7 @@ set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
 GETTER_MANIFEST := "core-getter/src/main/rust/getter/Cargo.toml"
 API_PROXY_MANIFEST := "core-getter/src/main/rust/api_proxy/Cargo.toml"
+PLATFORM_ADAPTER_MANIFEST := "core-getter/src/main/rust/platform_adapter/Cargo.toml"
 
 verify:
     just test-getter-unit
@@ -36,8 +37,12 @@ verify-workspace-skeleton:
     test "$(git ls-files -s core-getter/src/main/rust/getter | awk '{print $1}')" = "160000"
     cargo metadata --manifest-path {{ GETTER_MANIFEST }} --no-deps --format-version 1 >/tmp/upgradeall-getter-metadata.json
     cargo metadata --manifest-path {{ API_PROXY_MANIFEST }} --no-deps --format-version 1 >/tmp/upgradeall-api-proxy-metadata.json
+    cargo metadata --manifest-path {{ PLATFORM_ADAPTER_MANIFEST }} --no-deps --format-version 1 >/tmp/upgradeall-platform-adapter-metadata.json
     cargo fmt --manifest-path {{ GETTER_MANIFEST }} --all --check
+    cargo fmt --manifest-path {{ PLATFORM_ADAPTER_MANIFEST }} --all --check
     cargo check --manifest-path {{ GETTER_MANIFEST }} --workspace --all-targets
     cargo check --manifest-path {{ API_PROXY_MANIFEST }}
+    cargo test --manifest-path {{ PLATFORM_ADAPTER_MANIFEST }}
+    cargo check --manifest-path {{ PLATFORM_ADAPTER_MANIFEST }} --target aarch64-linux-android
     cd app_flutter && flutter analyze
     ./gradlew --no-daemon projects

@@ -13,7 +13,7 @@ The legacy Android `:app` module and its native Activity/Fragment/XML UI are kep
 All user-visible flows migrate into Flutter. Android-native code remains allowed only for non-UI platform adapter responsibilities such as:
 
 - legacy Room database copy/checkpoint handoff;
-- installed package inventory collection;
+- installed package inventory facts exposed through the Rust-active platform adapter from ADR-0009;
 - Android permission prompts and capability adapters;
 - SAF/file picker and URI permission plumbing;
 - installer handoff adapters;

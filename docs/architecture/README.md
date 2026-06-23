@@ -16,6 +16,7 @@ Planned / active ADRs:
 - `adr/0006-package-centric-cli-command-contract.md`
 - `adr/0007-flutter-getter-bridge-contract.md`
 - `adr/0008-flutter-product-apk-entry.md`
+- `adr/0009-android-platform-adapter-and-package-visibility.md`
 
 Documentation policy:
 

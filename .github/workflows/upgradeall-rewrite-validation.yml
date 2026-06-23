@@ -41,6 +41,9 @@ jobs:
         with:
           components: clippy, rustfmt
 
+      - name: Install Android Rust target
+        run: rustup target add aarch64-linux-android
+
       - name: Install just
         run: |
           if ! command -v just >/dev/null 2>&1; then

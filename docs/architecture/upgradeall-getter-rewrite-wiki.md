@@ -177,7 +177,7 @@ Hub
 3. 所有 product/domain logic 都放在 getter。
 4. Android App 只是 Flutter UI + platform adapter。
 5. App 内 getter 形态采用嵌入式 Rust library / FFI 风格，不以 daemon 作为主路径。
-6. 平台专用 API 通过 RPC/callback 暴露给 getter，用于隐藏平台线程/API 复杂度。
+6. 平台专用 API 通过 Rust-active platform adapter 暴露给 getter/native bridge；Rust 定义接口并主动调用 Android 实现，Android/Kotlin 只提供平台事实。
 7. 后端存储使用 SQLite。
 8. 用户通过非标准方式改坏 backend storage 时，getter fail fast 报错，不提供复杂恢复引导。
 9. 用户二次开发采用 patch stack/source fork 模式，不设计复杂 runtime customization/plugin 系统。
@@ -191,16 +191,18 @@ Hub
 Flutter APP
   - UI rendering
   - navigation
-  - Android permissions
-  - Android PackageManager inventory
-  - installer adapter
-  - notification adapter
-  - SAF/file picker adapter
-  - platform RPC/callback server
+  - Android permission prompts
+  - user confirmation flows
+  - render getter/platform DTOs
         |
-        | FFI / RPC-like boundary
+        | FFI / native bridge boundary
         v
-Rust getter core
+Rust getter core + native bridge
+  - Rust-active platform adapter interface
+  - Android PackageManager inventory calls through platform adapter
+  - installer adapter handoff
+  - notification adapter handoff
+  - SAF/file picker/URI permission handoff
   - app/package model
   - repository/overlay resolution
   - Lua package evaluation
@@ -238,7 +240,7 @@ Rust getter core
 
 保留在 Flutter/Android adapter：
 
-- Android PackageManager installed app scanning。
+- Android PackageManager installed app scanning exposed as raw facts through the Rust-active platform adapter (ADR-0009)。
 - Android installed version lookup。
 - APK install / package installer / Shizuku/root installer。
 - Android permission request。
@@ -1036,21 +1038,24 @@ Room DB 信息：
 
 用户点击“从已安装应用生成”：
 
-1. Android adapter 扫描 installed inventory。
-2. getter 找出可生成的候选列表。
-3. UI 展示列表。
-4. 用户 yes/no 确认。
-5. getter 写入 `local_autogen` repo。
-6. 生成后不会自动消失。
+1. Flutter 调用 getter/native bridge 的 installed-autogen preview 操作。
+2. Rust platform adapter 主动调用 Android PackageManager adapter，取得 installed inventory 原始事实。
+3. getter 找出可生成的候选列表。
+4. UI 展示 getter-owned preview DTO。
+5. 用户 yes/no 确认。
+6. getter 写入 `local_autogen` repo。
+7. 生成后不会自动消失。
 
 ### 14.2 清理流程
 
 用户点击“清除不存在的应用”：
 
-1. getter 计算将删除列表。
-2. UI 展示列表。
-3. 用户 yes/no 确认。
-4. getter 删除 `local_autogen` 中不再安装的记录/文件。
+1. Flutter 调用 getter/native bridge 的 installed-autogen cleanup preview 操作。
+2. Rust platform adapter 主动调用 Android PackageManager adapter，取得当前 installed inventory 原始事实。
+3. getter 计算将删除列表。
+4. UI 展示 getter-owned preview DTO。
+5. 用户 yes/no 确认。
+6. getter 删除 `local_autogen` 中不再安装的记录/文件。
 
 普通清理按钮只作用于 `local_autogen`，不删除 `local`。
 

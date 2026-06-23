@@ -46,20 +46,20 @@ return android.local_app {
 
 Generation flow:
 
-1. Android/platform adapter writes an installed-inventory DTO.
-2. User clicks generate.
-3. getter computes candidate list through `autogen installed preview --inventory <installed.json>`.
-4. Flutter shows preview list.
+1. User clicks generate in Flutter.
+2. Flutter calls a getter/native bridge operation for installed-autogen preview.
+3. Rust calls the Android platform adapter for installed-inventory facts, then getter computes the candidate list. CLI/dev tests may still exercise this with `autogen installed preview --inventory <installed.json>` fixtures.
+4. Flutter shows the getter-owned preview list.
 5. User confirms yes/no.
-6. getter applies the accepted preview through `autogen installed apply --preview <preview.json> --accept-all` or repeated `--accept <package-id>`.
+6. getter applies the accepted preview through the native bridge operation; CLI/dev tests may still use `autogen installed apply --preview <preview.json> --accept-all` or repeated `--accept <package-id>`.
 7. getter writes files under `<data-dir>/repositories/local_autogen`, registers the repo, records `autogen-manifest.json`, and tracks accepted packages in `main.db`.
 
 Cleanup flow:
 
-1. Android/platform adapter writes the current installed-inventory DTO.
-2. User clicks clear missing generated apps.
-3. getter computes deletion list through `autogen cleanup preview --inventory <installed.json>`.
-4. Flutter shows preview list.
+1. User clicks clear missing generated apps.
+2. Flutter calls a getter/native bridge operation; Rust obtains the current installed-inventory facts through the Android platform adapter.
+3. getter computes the deletion list. CLI/dev tests may still exercise this with `autogen cleanup preview --inventory <installed.json>` fixtures.
+4. Flutter shows the getter-owned preview list.
 5. User confirms yes/no.
 6. getter deletes only accepted manifest-managed `local_autogen` files/state.
 
