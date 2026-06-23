@@ -2,23 +2,22 @@
 //!
 //! This follows the same shape as rustls-platform-verifier: the Rust native
 //! entrypoint initializes JVM/context/classloader handles once, then Rust code
-//! can attach a thread and call app classes through the app classloader. The
-//! PackageManager scanner/provider is intentionally not implemented in this
-//! skeleton slice.
+//! can attach a thread and call app classes through the app classloader.
 
 use crate::{
     InstalledInventoryScanOptions, InstalledInventoryScanResult, PlatformAdapter,
     PlatformAdapterError,
 };
-use jni::objects::{GlobalRef, JObject, JString};
+use jni::objects::{GlobalRef, JClass, JObject, JString, JValue};
 use jni::{JNIEnv, JavaVM};
 use once_cell::sync::OnceCell;
 
 static RUNTIME: OnceCell<AndroidRuntime> = OnceCell::new();
+const INSTALLED_INVENTORY_PROVIDER_CLASS: &str =
+    "net.xzos.upgradeall.getter.platform.InstalledInventoryProvider";
 
 struct AndroidRuntime {
     java_vm: JavaVM,
-    #[allow(dead_code)]
     application_context: GlobalRef,
     class_loader: GlobalRef,
 }
@@ -88,11 +87,44 @@ pub struct AndroidPlatformAdapter;
 impl PlatformAdapter for AndroidPlatformAdapter {
     fn scan_installed_inventory(
         &self,
-        _options: InstalledInventoryScanOptions,
+        options: InstalledInventoryScanOptions,
     ) -> Result<InstalledInventoryScanResult, PlatformAdapterError> {
-        with_attached_env(|_env, _runtime| Ok(()))?;
-        Err(PlatformAdapterError::Unsupported {
-            capability: "installed_inventory.android_jni_provider",
+        let options_json = serde_json::to_string(&options).map_err(|error| {
+            PlatformAdapterError::MalformedResponse(format!(
+                "failed to encode scan options for Android provider: {error}"
+            ))
+        })?;
+
+        with_attached_env(|env, runtime| {
+            let provider_class = JClass::from(load_class(
+                env,
+                runtime,
+                INSTALLED_INVENTORY_PROVIDER_CLASS,
+            )?);
+            let context = env
+                .new_local_ref(runtime.application_context.as_obj())
+                .map_err(|error| PlatformAdapterError::Jni(error.to_string()))?;
+            let options_json = env
+                .new_string(options_json)
+                .map_err(|error| PlatformAdapterError::Jni(error.to_string()))?;
+            let options_json = JObject::from(options_json);
+
+            let result = env
+                .call_static_method(
+                    provider_class,
+                    "scanInstalledInventory",
+                    "(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;",
+                    &[JValue::Object(&context), JValue::Object(&options_json)],
+                )
+                .and_then(|value| value.l())
+                .map_err(|error| PlatformAdapterError::Jni(error.to_string()))?;
+            let result_json = java_string(env, result)?;
+
+            serde_json::from_str(&result_json).map_err(|error| {
+                PlatformAdapterError::MalformedResponse(format!(
+                    "Android installed inventory provider returned invalid JSON: {error}"
+                ))
+            })
         })
     }
 }
@@ -110,7 +142,6 @@ fn with_attached_env<T>(
 }
 
 /// Load an application class with the app classloader instead of `FindClass`.
-#[allow(dead_code)]
 fn load_class<'local>(
     env: &mut JNIEnv<'local>,
     runtime: &AndroidRuntime,
@@ -132,7 +163,6 @@ fn load_class<'local>(
 }
 
 /// Convert a Java string into a Rust string.
-#[allow(dead_code)]
 fn java_string(env: &mut JNIEnv<'_>, value: JObject<'_>) -> Result<String, PlatformAdapterError> {
     if value.is_null() {
         return Ok(String::new());

@@ -9,6 +9,7 @@ verify:
     just test-getter-bdd
     just test-flutter-widget
     just verify-workspace-skeleton
+    just test-android-platform-adapter
     just test-flutter-getter-cli-integration
     just build-flutter-android-debug
 
@@ -30,6 +31,9 @@ test-flutter-getter-cli-integration:
     cargo build --manifest-path {{ GETTER_MANIFEST }} -p getter-cli --bin getter-cli
     cd app_flutter && GETTER_CLI_BIN="../core-getter/src/main/rust/getter/target/debug/getter-cli" flutter test dev_test/cli_getter_adapter_test.dart
 
+test-android-platform-adapter:
+    ./gradlew --no-daemon ':core-getter:buildDebugApi_proxyRust[arm64-v8a]' ':core-getter:buildDebugApi_proxyRust[armeabi-v7a]' ':core-getter:buildDebugApi_proxyRust[x86_64]' :core-getter:testDebugUnitTest --tests 'net.xzos.upgradeall.getter.platform.InstalledInventoryCollectorTest' :core-getter:assembleDebug
+
 build-flutter-android-debug:
     cd app_flutter && flutter build apk --debug
 
@@ -42,6 +46,7 @@ verify-workspace-skeleton:
     cargo fmt --manifest-path {{ PLATFORM_ADAPTER_MANIFEST }} --all --check
     cargo check --manifest-path {{ GETTER_MANIFEST }} --workspace --all-targets
     cargo check --manifest-path {{ API_PROXY_MANIFEST }}
+    cargo check --manifest-path {{ API_PROXY_MANIFEST }} --target aarch64-linux-android
     cargo test --manifest-path {{ PLATFORM_ADAPTER_MANIFEST }}
     cargo check --manifest-path {{ PLATFORM_ADAPTER_MANIFEST }} --target aarch64-linux-android
     cd app_flutter && flutter analyze

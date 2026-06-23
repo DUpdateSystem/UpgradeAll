@@ -438,11 +438,12 @@ Completed tasks:
 5. Track accepted generated packages in getter storage without clobbering existing user state.
 6. Preserve edited generated files into `local` before autogen rewrite/delete.
 7. Guard cleanup deletion by current autogen manifest, repository id, and generated-package resolution.
+8. Add Rust-active Android installed inventory provider/scanner path: Kotlin PackageManager facts provider, Rust JNI call/deserialization, and `api_proxy` runtime initialization.
 
 Remaining tasks:
 
-1. Finish the Rust-active Android platform adapter path from ADR-0009: Kotlin PackageManager provider/scanner, native bridge packaging, and Rust calls that return installed inventory facts.
-2. Add getter/native bridge operations that combine platform scan + getter `local_autogen` preview/apply; Flutter must consume these getter-owned DTOs rather than leading a MethodChannel inventory scan.
+1. Add getter/native bridge operations that combine platform scan + getter `local_autogen` preview/apply; Flutter must consume these getter-owned DTOs rather than leading a MethodChannel inventory scan.
+2. Wire/package the production bridge into `app_flutter` so the Flutter APK can exercise the Rust-active installed inventory provider path.
 3. Flutter confirmation UX consumes getter preview/apply DTOs.
 4. Cache invalidation hooks beyond file-hash-based repository reload need to be expanded when evaluated/provider caches become active.
 

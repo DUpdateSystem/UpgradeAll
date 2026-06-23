@@ -11,6 +11,8 @@ jobs:
   rewrite-validation:
     name: Rewrite validation
     runs-on: ubuntu-latest
+    env:
+      NDK_VERSION: 29.0.14206865
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -28,7 +30,12 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install Android SDK packages
-        run: sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+        run: sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "platform-tools" "ndk;${{ env.NDK_VERSION }}"
+
+      - name: Add Android NDK to environment
+        run: |
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
@@ -41,8 +48,8 @@ jobs:
         with:
           components: clippy, rustfmt
 
-      - name: Install Android Rust target
-        run: rustup target add aarch64-linux-android
+      - name: Install Android Rust targets
+        run: rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
 
       - name: Install just
         run: |

@@ -110,21 +110,28 @@ The permission may have distribution-policy implications on app stores. The proj
 
 If lint/build tooling flags `QUERY_ALL_PACKAGES`, the manifest may suppress that lint with an inline comment and `tools:ignore="QueryAllPackagesPermission"`; this suppression must remain documented as policy, not treated as a generic lint cleanup.
 
-## First implementation slice
+## Implementation slices
 
-The first slice is intentionally narrow:
+The first slice was intentionally narrow:
 
 - document this ADR and update existing boundary docs;
 - add `QUERY_ALL_PACKAGES` to the Flutter product manifest;
 - add a superproject Rust crate for platform adapter DTOs, errors, a `NoopPlatformAdapter`, and Android runtime/JNI initialization skeleton;
 - add validation for that crate.
 
-The first slice does not:
+The second slice adds the first Android facts provider while preserving the same boundary:
+
+- `net.xzos.upgradeall.getter.platform.InstalledInventoryProvider` is a no-UI Kotlin provider called by Rust JNI through the app classloader;
+- Kotlin `InstalledInventoryScanner` collects raw PackageManager facts and encodes the getter-compatible installed inventory JSON;
+- Kotlin collector tests cover filtering, sorting, duplicate handling, and contract format without constructing package ids;
+- Rust `AndroidPlatformAdapter::scan_installed_inventory` serializes scan options, calls the provider, and deserializes the JSON into platform DTOs;
+- `api_proxy` initializes the platform adapter runtime alongside `rustls-platform-verifier`, using separate JNI local refs for each initializer.
+
+These slices still do not:
 
 - make the reusable getter submodule depend on superproject-only crates;
-- add Kotlin PackageManager scanner behavior;
-- wire product native bridge operations;
 - add Flutter installed-autogen UX;
+- add product native bridge operations that combine platform scan + getter autogen preview/apply;
 - add Magisk scanning;
 - add live downloads, background worker policy, installer URI/SAF semantics, or notification behavior.
 

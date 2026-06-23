@@ -15,14 +15,40 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runServer<'local>(
     _context: JObject,
     callback: JObject<'local>,
 ) -> JString<'local> {
-    // Initialize the certificate verifier for future use.
+    // Initialize Android-hosted Rust platform integrations for future use.
     // https://github.com/rustls/rustls-platform-verifier/tree/3edb4d278215a8603020351b8b519d907a26041f?tab=readme-ov-file#crate-initialization
     #[cfg(target_os = "android")]
-    match rustls_platform_verifier::android::init_hosted(&mut env, _context) {
-        Ok(_) => {}
-        Err(e) => {
+    {
+        let rustls_context = match env.new_local_ref(&_context) {
+            Ok(context) => context,
+            Err(e) => {
+                return env
+                    .new_string(format!("Error creating rustls context ref: {}", e))
+                    .expect("Failed to create Java string");
+            }
+        };
+        if let Err(e) = rustls_platform_verifier::android::init_hosted(&mut env, rustls_context) {
             return env
                 .new_string(format!("Error initializing certificate verifier: {}", e))
+                .expect("Failed to create Java string");
+        }
+
+        let platform_context = match env.new_local_ref(&_context) {
+            Ok(context) => context,
+            Err(e) => {
+                return env
+                    .new_string(format!(
+                        "Error creating platform adapter context ref: {}",
+                        e
+                    ))
+                    .expect("Failed to create Java string");
+            }
+        };
+        if let Err(e) =
+            upgradeall_platform_adapter::android::init_with_env(&mut env, platform_context)
+        {
+            return env
+                .new_string(format!("Error initializing platform adapter: {}", e))
                 .expect("Failed to create Java string");
         }
     }
