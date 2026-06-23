@@ -54,6 +54,28 @@ class CliGetterAdapter implements GetterAdapter {
   }
 
   @override
+  List<DownloadTaskSummary> listDownloadTasks() {
+    final json = _runGetter(const <String>['task', 'list']);
+    final tasks = _asList(_data(json)['tasks'], 'tasks');
+    return tasks
+        .map((task) => _downloadTaskFromJson(_asMap(task, 'task')))
+        .toList(growable: false);
+  }
+
+  @override
+  TaskEventPage listTaskEvents({required int after, required int limit}) {
+    final json = _runGetter(<String>[
+      'task',
+      'events',
+      '--after',
+      after.toString(),
+      '--limit',
+      limit.toString(),
+    ]);
+    return _taskEventPageFromJson(_data(json));
+  }
+
+  @override
   GetterSnapshot loadSnapshot() {
     initialize();
     final repositories = listRepositories();
@@ -158,6 +180,54 @@ MigrationReportSummary _migrationReportFromJson(Map<String, Object?> json) {
   );
 }
 
+DownloadTaskSummary _downloadTaskFromJson(Map<String, Object?> json) {
+  return DownloadTaskSummary(
+    id: _asString(json['id'], 'task.id'),
+    packageId: _asString(json['package_id'], 'task.package_id'),
+    status: _asString(json['status'], 'task.status'),
+    executor: _asString(json['executor'], 'task.executor'),
+    actions: _asList(json['actions'], 'task.actions')
+        .map((action) => _asMap(action, 'task.action'))
+        .toList(growable: false),
+    downloadFileName: _asString(
+      json['download_file_name'],
+      'task.download_file_name',
+    ),
+    downloadedFile: _asOptionalString(
+      json['downloaded_file'],
+      'task.downloaded_file',
+    ),
+    failureMessage: _asOptionalString(
+      json['failure_message'],
+      'task.failure_message',
+    ),
+    installHandoffId: _asOptionalString(
+      json['install_handoff_id'],
+      'task.install_handoff_id',
+    ),
+  );
+}
+
+TaskEventPage _taskEventPageFromJson(Map<String, Object?> json) {
+  return TaskEventPage(
+    events: _asList(json['events'], 'task.events')
+        .map((event) => _taskEventFromJson(_asMap(event, 'task.event')))
+        .toList(growable: false),
+    nextCursor: _asInt(json['next_cursor'], 'task.next_cursor'),
+    hasMore: _asBool(json['has_more'], 'task.has_more'),
+  );
+}
+
+TaskEventSummary _taskEventFromJson(Map<String, Object?> json) {
+  return TaskEventSummary(
+    cursor: _asInt(json['cursor'], 'task.event.cursor'),
+    taskId: _asString(json['task_id'], 'task.event.task_id'),
+    kind: _asString(json['kind'], 'task.event.kind'),
+    status: _asOptionalString(json['status'], 'task.event.status'),
+    message: _asOptionalString(json['message'], 'task.event.message'),
+  );
+}
+
 Map<String, Object?> _asMap(Object? value, String name) {
   if (value is Map<String, Object?>) {
     return value;
@@ -183,6 +253,13 @@ String _asString(Object? value, String name) {
     return value;
   }
   throw FormatException('$name should be a string');
+}
+
+String? _asOptionalString(Object? value, String name) {
+  if (value == null || value is String) {
+    return value as String?;
+  }
+  throw FormatException('$name should be a string or null');
 }
 
 int _asInt(Object? value, String name) {

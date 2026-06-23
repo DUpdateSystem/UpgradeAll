@@ -30,7 +30,14 @@ readMigrationReports()
 loadSnapshot()
 ```
 
-`loadSnapshot()` composes the smaller getter-owned operations into the UI shell's first snapshot DTO. It must not perform repository resolution, version comparison, migration mapping, or update selection in Dart. `readMigrationReports()` must go through a getter operation such as `legacy report-list`; Flutter must not inspect getter's data-directory layout directly.
+The second accepted API surface adds read-only task lifecycle DTO consumption for the already accepted offline/fake getter lifecycle:
+
+```text
+listDownloadTasks()
+listTaskEvents(after, limit)
+```
+
+`loadSnapshot()` composes the smaller getter-owned operations into the UI shell's first snapshot DTO. It must not perform repository resolution, version comparison, migration mapping, or update selection in Dart. `readMigrationReports()` must go through a getter operation such as `legacy report-list`; Flutter must not inspect getter's data-directory layout directly. `listDownloadTasks()` and `listTaskEvents()` render getter-owned task/event DTOs; Flutter must not synthesize task states, retry policy, installer behavior, or update decisions.
 
 ## Flutter DTOs
 
@@ -43,6 +50,9 @@ RepositorySummary
 TrackedPackageSummary
 PackageEvaluation
 MigrationReportSummary
+DownloadTaskSummary
+TaskEventPage
+TaskEventSummary
 GetterError
 ```
 
@@ -136,7 +146,7 @@ Costs:
 The first implementation slice must provide:
 
 - Flutter widget tests that continue to use `FakeGetterAdapter`.
-- A Flutter/Dart integration test that builds or receives a real `getter-cli` binary, initializes a real getter data directory, and reads repositories, tracked packages, package evaluation output, and migration reports through `CliGetterAdapter`.
+- A Flutter/Dart integration test that builds or receives a real `getter-cli` binary, initializes a real getter data directory, and reads repositories, tracked packages, package evaluation output, migration reports, and task lifecycle DTOs through `CliGetterAdapter`.
 - `just verify` coverage for the bridge integration test.
 
 ## Non-goals

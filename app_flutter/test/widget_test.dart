@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:upgradeall/getter_adapter.dart';
 import 'package:upgradeall/main.dart';
 
 void main() {
@@ -50,17 +51,38 @@ void main() {
     expect(find.byKey(AppKeys.repoRow('local_autogen')), findsOneWidget);
   });
 
-  testWidgets('placeholder routes expose stable empty-state keys',
+  testWidgets('downloads route renders getter task DTOs read-only',
       (tester) async {
     await tester.pumpWidget(const UpgradeAllApp());
 
     await tester.tap(find.byKey(AppKeys.openDownloads));
     await tester.pumpAndSettle();
+
+    expect(find.byKey(AppKeys.downloadsRoute), findsOneWidget);
+    expect(find.byKey(AppKeys.downloadsList), findsOneWidget);
+    expect(find.byKey(AppKeys.downloadTaskRow('task-1')), findsOneWidget);
+    expect(find.byKey(AppKeys.taskEventsList), findsOneWidget);
+    expect(find.byKey(AppKeys.taskEventRow(3)), findsOneWidget);
+    expect(find.text('Install handoff'), findsOneWidget);
+  });
+
+  testWidgets('downloads route exposes getter empty task state',
+      (tester) async {
+    await tester.pumpWidget(
+      const UpgradeAllApp(getter: _NoTaskGetterAdapter()),
+    );
+
+    await tester.tap(find.byKey(AppKeys.openDownloads));
+    await tester.pumpAndSettle();
+
     expect(find.byKey(AppKeys.downloadsRoute), findsOneWidget);
     expect(find.byKey(AppKeys.downloadsEmpty), findsOneWidget);
+  });
 
-    await tester.pageBack();
-    await tester.pumpAndSettle();
+  testWidgets('placeholder routes expose stable empty-state keys',
+      (tester) async {
+    await tester.pumpWidget(const UpgradeAllApp());
+
     await tester.tap(find.byKey(AppKeys.openLogs));
     await tester.pumpAndSettle();
     expect(find.byKey(AppKeys.logsRoute), findsOneWidget);
@@ -80,4 +102,21 @@ void main() {
     expect(find.byKey(AppKeys.migrationRoute), findsOneWidget);
     expect(find.byKey(AppKeys.migrationReady), findsOneWidget);
   });
+}
+
+class _NoTaskGetterAdapter extends FakeGetterAdapter {
+  const _NoTaskGetterAdapter();
+
+  @override
+  List<DownloadTaskSummary> listDownloadTasks() =>
+      const <DownloadTaskSummary>[];
+
+  @override
+  TaskEventPage listTaskEvents({required int after, required int limit}) {
+    return const TaskEventPage(
+      events: <TaskEventSummary>[],
+      nextCursor: 0,
+      hasMore: false,
+    );
+  }
 }

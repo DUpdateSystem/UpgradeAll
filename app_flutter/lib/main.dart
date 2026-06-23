@@ -29,7 +29,9 @@ class AppKeys {
   static const getterStatus = ValueKey<String>('state.getter_status');
   static const appsList = ValueKey<String>('state.apps_list');
   static const repositoriesList = ValueKey<String>('state.repositories_list');
+  static const downloadsList = ValueKey<String>('state.downloads_list');
   static const downloadsEmpty = ValueKey<String>('state.downloads_empty');
+  static const taskEventsList = ValueKey<String>('state.task_events_list');
   static const logsEmpty = ValueKey<String>('state.logs_empty');
   static const settingsShell = ValueKey<String>('state.settings_shell');
   static const migrationReady = ValueKey<String>('state.migration_ready');
@@ -38,6 +40,10 @@ class AppKeys {
       ValueKey<String>('state.app.$packageId');
   static ValueKey<String> repoRow(String repositoryId) =>
       ValueKey<String>('state.repository.$repositoryId');
+  static ValueKey<String> downloadTaskRow(String taskId) =>
+      ValueKey<String>('state.download_task.$taskId');
+  static ValueKey<String> taskEventRow(int cursor) =>
+      ValueKey<String>('state.task_event.$cursor');
 }
 
 class UpgradeAllApp extends StatelessWidget {
@@ -57,7 +63,7 @@ class UpgradeAllApp extends StatelessWidget {
         '/': (context) => HomePage(getter: getter),
         '/apps': (context) => AppsPage(getter: getter),
         '/repositories': (context) => RepositoriesPage(getter: getter),
-        '/downloads': (context) => const DownloadsPage(),
+        '/downloads': (context) => DownloadsPage(getter: getter),
         '/logs': (context) => const LogsPage(),
         '/settings': (context) => const SettingsPage(),
         '/migration': (context) => const MigrationPage(),
@@ -242,15 +248,68 @@ class RepositoriesPage extends StatelessWidget {
 }
 
 class DownloadsPage extends StatelessWidget {
-  const DownloadsPage({super.key});
+  const DownloadsPage({super.key, required this.getter});
+
+  final GetterAdapter getter;
 
   @override
   Widget build(BuildContext context) {
-    return const _PlaceholderPage(
+    final tasks = getter.listDownloadTasks();
+    final events = getter.listTaskEvents(after: 0, limit: 20).events;
+    return Scaffold(
       key: AppKeys.downloadsRoute,
-      title: 'Downloads',
-      stateKey: AppKeys.downloadsEmpty,
-      message: 'No download tasks yet',
+      appBar: AppBar(title: const Text('Downloads')),
+      body: tasks.isEmpty
+          ? const Center(
+              child: Text(key: AppKeys.downloadsEmpty, 'No download tasks yet'),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: <Widget>[
+                Text('Tasks', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 8),
+                ListView.builder(
+                  key: AppKeys.downloadsList,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: tasks.length,
+                  itemBuilder: (context, index) {
+                    final task = tasks[index];
+                    return Card(
+                      child: ListTile(
+                        key: AppKeys.downloadTaskRow(task.id),
+                        title: Text(task.packageId),
+                        subtitle: Text(
+                          '${task.status} • ${task.downloadFileName}',
+                        ),
+                        trailing: task.installHandoffId == null
+                            ? null
+                            : const Chip(label: Text('Install handoff')),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+                Text('Events', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 8),
+                ListView.builder(
+                  key: AppKeys.taskEventsList,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: events.length,
+                  itemBuilder: (context, index) {
+                    final event = events[index];
+                    return ListTile(
+                      key: AppKeys.taskEventRow(event.cursor),
+                      title: Text(event.kind),
+                      subtitle: Text(
+                        '${event.taskId} • ${event.status ?? 'no status'}',
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
     );
   }
 }

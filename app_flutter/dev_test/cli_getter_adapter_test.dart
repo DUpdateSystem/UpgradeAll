@@ -16,6 +16,7 @@ void main() {
     final dataDir = Directory('${temp.path}/data')..createSync();
     final repoDir = _createFixtureRepository(temp, 'official');
     final bundle = _createLegacyBundle(temp);
+    final taskRequest = _createDownloadTaskRequest(temp);
     final adapter =
         CliGetterAdapter(executable: getterCli, dataDir: dataDir.path);
 
@@ -33,6 +34,13 @@ void main() {
       'import-room-bundle',
       bundle.path,
     ]);
+    _runGetter(getterCli, dataDir.path, <String>[
+      'task',
+      'submit',
+      '--request',
+      taskRequest.path,
+    ]);
+    _runGetter(getterCli, dataDir.path, <String>['task', 'run', 'task-1']);
 
     final repositories = adapter.listRepositories();
     expect(repositories.map((repo) => repo.id), contains('official'));
@@ -59,6 +67,26 @@ void main() {
     expect(
         reports.singleWhere((report) => report.code == 'migration.imported').ok,
         isTrue);
+
+    final tasks = adapter.listDownloadTasks();
+    final task = tasks.singleWhere((task) => task.id == 'task-1');
+    expect(task.packageId, 'android/org.fdroid.fdroid');
+    expect(task.status, 'succeeded');
+    expect(task.downloadFileName, 'app.apk');
+    expect(task.installHandoffId, 'handoff-1');
+
+    final eventPage = adapter.listTaskEvents(after: 0, limit: 10);
+    expect(eventPage.hasMore, isFalse);
+    expect(eventPage.nextCursor, greaterThanOrEqualTo(4));
+    expect(
+      eventPage.events.map((event) => event.kind),
+      containsAll(<String>[
+        'task_created',
+        'task_started',
+        'task_succeeded',
+        'install_handoff_requested',
+      ]),
+    );
 
     final snapshot = adapter.loadSnapshot();
     expect(snapshot.status, 'Getter CLI ready');
@@ -109,6 +137,29 @@ File _createLegacyBundle(Directory temp) {
       "official_package_available": true,
       "ignored_version": "1.20.0",
       "favorite": true
+    }
+  ]
+}
+''');
+}
+
+File _createDownloadTaskRequest(Directory temp) {
+  return File('${temp.path}/download-request.json')..writeAsStringSync('''
+{
+  "format": "getter-download-request",
+  "version": 1,
+  "package_id": "android/org.fdroid.fdroid",
+  "executor": "fake",
+  "actions": [
+    {
+      "type": "download",
+      "url": "https://example.invalid/app.apk",
+      "file_name": "app.apk"
+    },
+    {
+      "type": "install",
+      "installer": "android_package",
+      "file": "app.apk"
     }
   ]
 }

@@ -471,13 +471,19 @@ Completed tasks:
 8. Implement deterministic fake/offline downloader behavior beyond the previous placeholder crate: submit, run, cancel, list, poll events, and record install result.
 9. Add CLI commands and BDD coverage for `task submit`, `task run`, `task list`, `task cancel`, `task events`, and `task install-result`.
 
+Completed additional UI/bridge slice:
+
+10. Extend Flutter getter bridge DTOs/adapters with read-only task list and event page APIs backed by existing getter CLI `task list` and `task events`.
+11. Render getter-owned task/event DTOs on the Flutter Downloads route without adding a Dart task state machine.
+12. Add Flutter widget/dev integration coverage for reading and rendering getter task lifecycle DTOs.
+
 Remaining tasks:
 
 1. Implement live provider/downloader behavior beyond the fake/offline proof.
 2. Add native stream/backpressure runtime beyond the current pollable CLI/dev event contract.
 3. Decide and implement background worker/restart/retry/resume policy for real downloads.
 4. Define Android production install handoff URI/SAF/permission/notification details and wire platform adapter execution.
-5. Add Flutter BDD for update/download user flows only after getter behavior exists and the bridge consumes getter task/event DTOs.
+5. Add product-level Flutter BDD for update/download user flows after live/provider/background/installer decisions are accepted; the current slice only covers read-only DTO rendering.
 
 Acceptance progress:
 
@@ -486,7 +492,7 @@ Acceptance progress:
 - Getter can cancel queued/running fake tasks and reject invalid terminal cancellation: done.
 - Getter can expose pollable task events with cursor/limit: done for CLI/dev slice; native streaming remains deferred.
 - Getter can record abstract install handoff requests/results: done for CLI/dev slice; Android installer execution remains deferred.
-- Flutter displays getter events rather than calculating status itself: deferred until bridge/UI task DTO slice.
+- Flutter displays getter task/event DTOs rather than calculating status itself: done for read-only CLI/dev bridge slice.
 - Android platform adapter owns permissions/notifications/installer handoff: documented/deferred; no Android execution added in this slice.
 
 ## 9. Do-not-do list for the next agent

@@ -14,6 +14,10 @@ abstract interface class GetterAdapter {
 
   List<MigrationReportSummary> readMigrationReports();
 
+  List<DownloadTaskSummary> listDownloadTasks();
+
+  TaskEventPage listTaskEvents({required int after, required int limit});
+
   GetterSnapshot loadSnapshot();
 }
 
@@ -77,9 +81,79 @@ class FakeGetterAdapter implements GetterAdapter {
     );
   }
 
+  static const _downloadTasks = <DownloadTaskSummary>[
+    DownloadTaskSummary(
+      id: 'task-1',
+      packageId: 'android/org.fdroid.fdroid',
+      status: 'succeeded',
+      executor: 'fake',
+      actions: <Map<String, Object?>>[
+        <String, Object?>{
+          'type': 'download',
+          'url': 'https://example.invalid/app.apk',
+          'file_name': 'app.apk',
+        },
+        <String, Object?>{
+          'type': 'install',
+          'installer': 'android_package',
+          'file': 'app.apk',
+        },
+      ],
+      downloadFileName: 'app.apk',
+      downloadedFile: 'app.apk',
+      failureMessage: null,
+      installHandoffId: 'handoff-1',
+    ),
+  ];
+
+  static const _taskEvents = TaskEventPage(
+    events: <TaskEventSummary>[
+      TaskEventSummary(
+        cursor: 1,
+        taskId: 'task-1',
+        kind: 'task_created',
+        status: 'queued',
+        message: 'Task created',
+      ),
+      TaskEventSummary(
+        cursor: 2,
+        taskId: 'task-1',
+        kind: 'task_succeeded',
+        status: 'succeeded',
+        message: 'Task succeeded',
+      ),
+      TaskEventSummary(
+        cursor: 3,
+        taskId: 'task-1',
+        kind: 'install_handoff_requested',
+        status: 'succeeded',
+        message: 'Install handoff requested',
+      ),
+    ],
+    nextCursor: 3,
+    hasMore: false,
+  );
+
   @override
   List<MigrationReportSummary> readMigrationReports() {
     return const <MigrationReportSummary>[];
+  }
+
+  @override
+  List<DownloadTaskSummary> listDownloadTasks() => _downloadTasks;
+
+  @override
+  TaskEventPage listTaskEvents({required int after, required int limit}) {
+    final events = _taskEvents.events
+        .where((event) => event.cursor > after)
+        .take(limit)
+        .toList(growable: false);
+    final nextCursor = events.isEmpty ? after : events.last.cursor;
+    return TaskEventPage(
+      events: events,
+      nextCursor: nextCursor,
+      hasMore: _taskEvents.events.any((event) => event.cursor > nextCursor),
+    );
   }
 
   @override
@@ -169,6 +243,58 @@ class MigrationReportSummary {
   final String message;
   final int importedRecords;
   final int trackedRecords;
+}
+
+class DownloadTaskSummary {
+  const DownloadTaskSummary({
+    required this.id,
+    required this.packageId,
+    required this.status,
+    required this.executor,
+    required this.actions,
+    required this.downloadFileName,
+    required this.downloadedFile,
+    required this.failureMessage,
+    required this.installHandoffId,
+  });
+
+  final String id;
+  final String packageId;
+  final String status;
+  final String executor;
+  final List<Map<String, Object?>> actions;
+  final String downloadFileName;
+  final String? downloadedFile;
+  final String? failureMessage;
+  final String? installHandoffId;
+}
+
+class TaskEventPage {
+  const TaskEventPage({
+    required this.events,
+    required this.nextCursor,
+    required this.hasMore,
+  });
+
+  final List<TaskEventSummary> events;
+  final int nextCursor;
+  final bool hasMore;
+}
+
+class TaskEventSummary {
+  const TaskEventSummary({
+    required this.cursor,
+    required this.taskId,
+    required this.kind,
+    required this.status,
+    required this.message,
+  });
+
+  final int cursor;
+  final String taskId;
+  final String kind;
+  final String? status;
+  final String? message;
 }
 
 class GetterError {
