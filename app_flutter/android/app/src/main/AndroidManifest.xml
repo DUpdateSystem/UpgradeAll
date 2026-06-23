@@ -1,6 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Release Flutter product flows will need network access for provider/update
+         checks once live provider runtime is approved. The current shell does not
+         implement those semantics yet, but the product APK owns the permission. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
-        android:label="upgradeall"
+        android:label="UpgradeAll"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

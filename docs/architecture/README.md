@@ -15,6 +15,7 @@ Planned / active ADRs:
 - `adr/0005-lua-package-api.md`
 - `adr/0006-package-centric-cli-command-contract.md`
 - `adr/0007-flutter-getter-bridge-contract.md`
+- `adr/0008-flutter-product-apk-entry.md`
 
 Documentation policy:
 

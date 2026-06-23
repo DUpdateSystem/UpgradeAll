@@ -1,10 +1,11 @@
 # UpgradeAll Flutter app
 
-This is the new Flutter shell for the UpgradeAll rewrite. It must remain a UI and platform adapter around the Rust getter core; product logic, repository resolution, storage, and migration behavior belong in getter.
+This is the new Flutter shell and product APK entry for the UpgradeAll rewrite. It must remain a UI and platform adapter around the Rust getter core; product logic, repository resolution, storage, and migration behavior belong in getter. The legacy Android `:app` UI is kept only as reference code during migration.
 
 ## Current slice
 
-- Android application identity: `net.xzos.upgradeall`
+- Android release application identity: `net.xzos.upgradeall`
+- Android debug application identity: `net.xzos.upgradeall.debug`
 - Stable route/action/state keys for widget and future integration/dev tests
 - Placeholder routes for apps, repositories, downloads, logs, settings, and legacy migration
 - `FakeGetterAdapter` for deterministic widget tests
@@ -21,3 +22,5 @@ GETTER_CLI_BIN=/path/to/getter-cli flutter test dev_test/cli_getter_adapter_test
 ```
 
 From the repository root, `just verify` also runs the Flutter analyzer, widget tests, getter CLI integration/dev test, and Android debug build.
+
+Android CI/release artifacts are built from this Flutter project with `flutter build apk`; the root Gradle `:app` module is no longer the rewrite product APK path.

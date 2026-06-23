@@ -6,11 +6,11 @@
 
 ## Decision
 
-All product and domain logic belongs in the Rust getter core. Flutter is a UI shell and platform adapter.
+All product and domain logic belongs in the Rust getter core. Flutter is the only product UI and product APK entry for the rewrite. The legacy Android native UI may remain as reference code during migration, but it is not a shipped rewrite entry path. Android-native code is limited to non-UI platform adapter responsibilities.
 
 Getter remains a separate reusable git submodule at `core-getter/src/main/rust/getter`, tracking `https://github.com/DUpdateSystem/getter`. UpgradeAll records a gitlink to a getter commit; getter CLI/core implementation belongs in that submodule, not as vendored superproject files.
 
-The Android app embeds getter as a Rust library / FFI-style core. The app does not use a standalone getter daemon as the primary path.
+The Flutter Android app embeds getter as a Rust library / FFI-style core. The app does not use a standalone getter daemon as the primary path.
 
 Platform-specific APIs are exposed to getter through RPC/callback-style boundaries so that thread management and platform complexity remain isolated.
 

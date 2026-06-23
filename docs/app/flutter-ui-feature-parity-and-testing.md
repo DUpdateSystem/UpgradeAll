@@ -68,13 +68,15 @@ Feature: Installed app autogen
 
 The first Flutter implementation slice is intentionally a shell, not product logic:
 
-- App project lives under `app_flutter/`.
-- Android identity remains `net.xzos.upgradeall` for future direct upgrade work.
+- Product APK entry lives under `app_flutter/`; the legacy Android `:app` UI is reference-only during migration.
+- Android release identity remains `net.xzos.upgradeall` for future direct upgrade work.
+- Android debug identity is `net.xzos.upgradeall.debug` so Flutter debug snapshots can install beside release builds.
 - `UpgradeAllApp` exposes stable route/action/state keys such as `route.home`, `action.open_apps`, `state.apps_list`, and `state.migration_ready`.
 - `FakeGetterAdapter` keeps UI routes deterministic for widget tests.
 - `CliGetterAdapter` exercises a real getter data directory through the `getter-cli` JSON envelope for development/integration tests.
 - ADR-0007 documents the bridge contract and explicitly treats the CLI adapter as a test/development bridge, not the final Android production path.
 - Product decisions such as repository resolution, updates, migrations, storage, and downloads still belong in Rust getter.
+- CI/release APK artifacts must be built from `app_flutter`, not from the legacy `:app` module.
 - The downloads route may render getter task/event DTOs read-only, but it must not implement a Dart download task state machine, retry policy, or installer semantics.
 
 ## Test pyramid

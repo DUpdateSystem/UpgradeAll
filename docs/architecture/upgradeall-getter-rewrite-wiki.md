@@ -61,6 +61,8 @@
 - Compose 依赖存在，但不是主 UI 架构。
 - `core-getter` 已经有 Rust getter 的 JNI/RPC 集成，但目前仍是过渡形态。
 
+Rewrite 决策更新：`app_flutter/` 是新架构唯一产品 APK 入口；旧 `:app` 原生 UI 暂时保留为参考代码，但不再作为 rewrite 的发布/启动路径。Android CI/release 产物必须来自 Flutter app，旧 native UI 不能继续接收新的产品入口。
+
 ### 1.2 当前 Gradle 模块
 
 现有模块：

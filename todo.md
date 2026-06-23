@@ -357,7 +357,24 @@ Important boundary note:
 - Flutter still must not implement repository resolution, Lua validation/evaluation semantics, version comparison, migration mapping, provider/source selection, cache invalidation, or download task state machines.
 - If Flutter needs richer state, extend getter output first and cover it with getter tests.
 
-## 8. Next product phases after bridge
+## 8. Product APK entry switch
+
+Decision: `app_flutter/` is the only product APK entry for the rewrite. The old native `:app` module remains in the repository as reference code only; all user-visible entry points and future flows must move to Flutter.
+
+Completed tasks:
+
+1. Added ADR-0008 to record the Flutter product APK entry decision.
+2. Switched Android CI away from root `./gradlew assembleDebug/assembleRelease` product builds.
+3. Android CI now runs `just verify`, builds Android Rust bridge libraries for the supported ABIs, and builds Flutter debug/release APK artifacts from `app_flutter`.
+4. Release artifacts, APK info, and Telegram upload paths now use `app_flutter/build/app/outputs/flutter-apk/*.apk`.
+5. Flutter release builds keep package id `net.xzos.upgradeall`; Flutter debug builds use `net.xzos.upgradeall.debug`.
+
+Remaining follow-up:
+
+1. Once the production native/FFI getter bridge is wired into `app_flutter`, add APK-level validation that the Flutter product APK contains/exercises that bridge.
+2. Delete/archive legacy native UI code after Flutter feature parity is reached.
+
+## 9. Next product phases after bridge
 
 ### Phase A: direct legacy Room migration
 
@@ -495,7 +512,7 @@ Acceptance progress:
 - Flutter displays getter task/event DTOs rather than calculating status itself: done for read-only CLI/dev bridge slice.
 - Android platform adapter owns permissions/notifications/installer handoff: documented/deferred; no Android execution added in this slice.
 
-## 9. Do-not-do list for the next agent
+## 10. Do-not-do list for the next agent
 
 - Do not add more fake product screens before fixing CI and defining the bridge.
 - Do not move provider/update/storage/migration logic into Flutter.
@@ -514,7 +531,7 @@ Acceptance progress:
   - `.pi/`
   - `context-build/`
 
-## 10. Quick commands for the next session
+## 11. Quick commands for the next session
 
 ```bash
 cd ~/Code/DUpdateSystem/UpgradeAll

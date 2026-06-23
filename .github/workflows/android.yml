@@ -2,19 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: 
+    branches:
       - master
-    paths-ignore:
-      - 'source/**'
-      - '**.md'
-      - '.**'
-      - 'fastlane/**'
   pull_request:
-      paths-ignore:
-      - 'source/**'
-      - '**.md'
-      - '.**'
-      - 'fastlane/**'
   workflow_dispatch:
 
 jobs:
@@ -40,91 +30,152 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install NDK
-        run: echo "y" | sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
+      - name: Install Android SDK packages
+        run: yes | sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "platform-tools" "ndk;${{ env.NDK_VERSION }}"
 
-      - name: Install Cargo with aarch64-linux-android
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: aarch64-linux-android
-
-      - name: Add Rust targe tarchitectures
-        run: |
-          rustup target add x86_64-linux-android
-          rustup target add armv7-linux-androideabi
-
-      - name: Retrieve version
-        run: |
-          echo VERSION=$(git rev-parse --short HEAD) >> $GITHUB_ENV
-
-      # Split due https://github.com/mozilla/rust-android-gradle/issues/38
-      - name: Build with Gradle (debug)
-        run: ./gradlew -PappVerName=${{ env.VERSION }} assembleDebug
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-
-      - name: Build with Gradle (release)
-        if: ${{ !github.event.pull_request }}
-        run: ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-
-      - name: Setup build tool version variable
+      - name: Add Android tools to environment
         shell: bash
         run: |
-          BUILD_TOOL_VERSION=$(ls /usr/local/lib/android/sdk/build-tools/ | tail -n 1)
-          echo "BUILD_TOOL_VERSION=$BUILD_TOOL_VERSION" >> $GITHUB_ENV
-          echo Last build tool version is: $BUILD_TOOL_VERSION
+          BUILD_TOOL_VERSION=$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)
+          echo "BUILD_TOOL_VERSION=$BUILD_TOOL_VERSION" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/build-tools/$BUILD_TOOL_VERSION" >> "$GITHUB_PATH"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
+          echo "Android build tools: $BUILD_TOOL_VERSION"
+          echo "Android NDK: $ANDROID_HOME/ndk/$NDK_VERSION"
 
-      - name: Sign Android release
-        if: ${{ !github.event.pull_request }}
-        id: sign
-        uses: r0adkll/sign-android-release@v1.0.4
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Install Android Rust targets
+        run: rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+
+      - name: Install just
+        run: |
+          if ! command -v just >/dev/null 2>&1; then
+            cargo install just --locked
+          fi
+
+      - name: Retrieve version
+        shell: bash
+        run: |
+          VERSION=$(git rev-parse --short HEAD)
+          APP_VERSION=$(awk '/^version:/ {print $2}' app_flutter/pubspec.yaml)
+          FLUTTER_BASE_VERSION="${APP_VERSION%%+*}"
+          FLUTTER_BUILD_NUMBER="${APP_VERSION##*+}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "FLUTTER_BUILD_NAME=${FLUTTER_BASE_VERSION}_${VERSION}" >> "$GITHUB_ENV"
+          echo "FLUTTER_BUILD_NUMBER=$FLUTTER_BUILD_NUMBER" >> "$GITHUB_ENV"
+
+      - name: Run rewrite validation
+        run: just verify
+
+      - name: Build Android Rust bridge libraries
+        run: ./gradlew --no-daemon ':core-getter:buildDebugApi_proxyRust[arm64-v8a]' ':core-getter:buildDebugApi_proxyRust[armeabi-v7a]' ':core-getter:buildDebugApi_proxyRust[x86_64]'
+
+      - name: Configure Flutter release signing
+        if: ${{ github.event_name != 'pull_request' }}
+        shell: bash
         env:
-          BUILD_TOOLS_VERSION: ${{ env.BUILD_TOOL_VERSION }}
-        with:
-          releaseDirectory: app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ALIAS }}
+        run: |
+          set -euo pipefail
+          : "${SIGNING_KEY:?SIGNING_KEY secret is required}"
+          : "${KEY_STORE_PASSWORD:?KEY_STORE_PASSWORD secret is required}"
+          : "${KEY_PASSWORD:?KEY_PASSWORD secret is required}"
+          : "${KEY_ALIAS:?ALIAS secret is required}"
+          printf '%s' "$SIGNING_KEY" | base64 --decode > app_flutter/android/upload-keystore.jks
+          {
+            printf 'storePassword=%s\n' "$KEY_STORE_PASSWORD"
+            printf 'keyPassword=%s\n' "$KEY_PASSWORD"
+            printf 'keyAlias=%s\n' "$KEY_ALIAS"
+            printf 'storeFile=../upload-keystore.jks\n'
+          } > app_flutter/android/key.properties
 
-      - name: Upload debug apk
-        uses: actions/upload-artifact@v6
-        if: ${{ !github.event.pull_request }}
-        with:
-          path: './app/build/outputs/apk/debug/*.apk'
-          name: build_debug_${{ env.VERSION }}
+      - name: Build Flutter APK artifacts
+        shell: bash
+        run: |
+          cd app_flutter
+          flutter build apk --debug --build-name "$FLUTTER_BUILD_NAME" --build-number "$FLUTTER_BUILD_NUMBER"
+          flutter build apk --release --build-name "$FLUTTER_BUILD_NAME" --build-number "$FLUTTER_BUILD_NUMBER"
 
-      - name: Upload release apk
+      - name: Locate Flutter APK artifacts
+        shell: bash
+        run: |
+          DEBUG_APK="app_flutter/build/app/outputs/flutter-apk/app-debug.apk"
+          RELEASE_APK="app_flutter/build/app/outputs/flutter-apk/app-release.apk"
+          test -f "$DEBUG_APK"
+          test -f "$RELEASE_APK"
+          echo "DEBUG_APK=$DEBUG_APK" >> "$GITHUB_ENV"
+          echo "RELEASE_APK=$RELEASE_APK" >> "$GITHUB_ENV"
+
+      - name: Verify Flutter APK identity and signature
+        shell: bash
+        env:
+          EXPECTED_SIGNING_CERT_SHA256: ${{ secrets.EXPECTED_SIGNING_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          aapt dump badging "$DEBUG_APK" | tee /tmp/upgradeall-debug-badging.txt
+          aapt dump badging "$RELEASE_APK" | tee /tmp/upgradeall-release-badging.txt
+          grep -F "package: name='net.xzos.upgradeall.debug'" /tmp/upgradeall-debug-badging.txt
+          grep -F "versionCode='$FLUTTER_BUILD_NUMBER'" /tmp/upgradeall-debug-badging.txt
+          grep -F "versionName='$FLUTTER_BUILD_NAME'" /tmp/upgradeall-debug-badging.txt
+          grep -F "package: name='net.xzos.upgradeall'" /tmp/upgradeall-release-badging.txt
+          grep -F "versionCode='$FLUTTER_BUILD_NUMBER'" /tmp/upgradeall-release-badging.txt
+          grep -F "versionName='$FLUTTER_BUILD_NAME'" /tmp/upgradeall-release-badging.txt
+          apksigner verify --print-certs "$RELEASE_APK" | tee /tmp/upgradeall-release-certs.txt
+          if [[ "${{ github.event_name }}" != "pull_request" ]] && grep -q "CN=Android Debug" /tmp/upgradeall-release-certs.txt; then
+            echo "::error::Flutter release APK is debug-signed; CI release signing did not take effect"
+            exit 1
+          fi
+          actual_sha256=$(awk -F': ' '/Signer #1 certificate SHA-256 digest/ { gsub(":", "", $2); print toupper($2); exit }' /tmp/upgradeall-release-certs.txt)
+          expected_sha256=$(printf '%s' "$EXPECTED_SIGNING_CERT_SHA256" | tr -d ':[:space:]' | tr '[:lower:]' '[:upper:]')
+          if [[ -n "$expected_sha256" && "$actual_sha256" != "$expected_sha256" ]]; then
+            echo "::error::Flutter release APK signer SHA-256 does not match EXPECTED_SIGNING_CERT_SHA256"
+            exit 1
+          fi
+          if [[ "${{ github.event_name }}" != "pull_request" && -z "$expected_sha256" ]]; then
+            echo "::warning::EXPECTED_SIGNING_CERT_SHA256 is not set; release signer identity was not pinned"
+          fi
+
+      - name: Upload Flutter debug apk
         uses: actions/upload-artifact@v6
-        if: ${{ !github.event.pull_request }}
+        if: ${{ github.event_name != 'pull_request' }}
         with:
-          path: ${{ steps.sign.outputs.signedReleaseFile }}
-          name: build_release_${{ env.VERSION }}
+          path: ${{ env.DEBUG_APK }}
+          name: build_flutter_debug_${{ env.VERSION }}
+
+      - name: Upload Flutter release apk
+        uses: actions/upload-artifact@v6
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          path: ${{ env.RELEASE_APK }}
+          name: build_flutter_release_${{ env.VERSION }}
 
       - name: Get apk info
-        if: ${{ !github.event.pull_request }}
+        if: ${{ github.event_name != 'pull_request' }}
         id: apk-info
         uses: hkusu/apk-info-action@v1
         with:
-          apk-path: ${{ steps.sign.outputs.signedReleaseFile }}
+          apk-path: ${{ env.RELEASE_APK }}
 
 #      - name: Upload mappings with App Center CLI
-#        if: ${{ !github.event.pull_request }}
+#        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
 #        uses: zhaobozhen/AppCenter-Github-Action@1.0.1
 #        with:
-#          command: appcenter crashes upload-mappings --mapping app/build/outputs/mapping/release/mapping.txt --version-name ${{ steps.apk-info.outputs.version-name }} --version-code ${{ steps.apk-info.outputs.version-code }} --app DUpdateSystem/UpgradeAll
+#          command: appcenter crashes upload-mappings --mapping app_flutter/build/app/outputs/mapping/release/mapping.txt --version-name ${{ steps.apk-info.outputs.version-name }} --version-code ${{ steps.apk-info.outputs.version-code }} --app DUpdateSystem/UpgradeAll
 #          token: ${{secrets.APP_CENTER_TOKEN}}
-
-      - name: Find debug APK
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-        run: |
-          if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
-            OUTPUT="app/build/outputs/apk/debug/"
-            DEBUG_APK=$(find $OUTPUT -name "*.apk")
-            echo "DEBUG_APK=$DEBUG_APK" >> $GITHUB_ENV
-          fi
 
       - name: Generate Commit Message
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
@@ -139,7 +190,7 @@ jobs:
           \`\`\`$COMMIT_MESSAGE\`\`\`
           by \`$AUTHOR_NAME\`
           See commit detail [Here]($COMMIT_URL)
-          Snapshot apk is attached"
+          Flutter snapshot apk is attached"
 
           echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
           echo "$TELEGRAM_MESSAGE" >> $GITHUB_ENV
@@ -156,7 +207,7 @@ jobs:
           to-who: ${{ secrets.TELEGRAM_TO }}
           message: ${{ env.TELEGRAM_MESSAGE }}
           files: |
-            /github/workspace/${{ steps.sign.outputs.signedReleaseFile }}
+            /github/workspace/${{ env.RELEASE_APK }}
             /github/workspace/${{ env.DEBUG_APK }}
 
       - name: Delete workflow runs
