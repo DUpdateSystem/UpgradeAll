@@ -38,6 +38,7 @@ jobs:
           echo "ANDROID_NDK_HOME=$NDK_HOME" >> "$GITHUB_ENV"
           echo "ANDROID_NDK_ROOT=$NDK_HOME" >> "$GITHUB_ENV"
           echo "CC_aarch64_linux_android=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android23-clang" >> "$GITHUB_ENV"
+          echo "AR_aarch64_linux_android=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar" >> "$GITHUB_ENV"
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
