@@ -11,10 +11,10 @@ This is the new Flutter shell and product APK entry for the UpgradeAll rewrite. 
 - `FakeGetterAdapter` for deterministic widget tests
 - `CliGetterAdapter` as a development/integration bridge against the real `getter-cli` JSON envelope
 - A slim Android `:getter_bridge` library inside `app_flutter/android/getter_bridge` packages the Rust `api_proxy` native library and the no-UI installed-inventory provider classes into the Flutter product APK without depending on the legacy native `:app` UI or old `GetterPort` RPC wrapper surface.
-- `MainActivity` exposes a no-UI `net.xzos.upgradeall/getter_bridge` MethodChannel for native bridge plumbing. The installed-autogen methods derive the app-private getter data directory on Android, call Rust JNI entrypoints, and return getter-style JSON envelopes consumed by `MethodChannelGetterAdapter`.
+- `MainActivity` exposes a no-UI `net.xzos.upgradeall/getter_bridge` MethodChannel for native bridge plumbing. The legacy migration and installed-autogen methods derive the app-private getter data directory on Android, call Rust JNI entrypoints, and return getter-style JSON envelopes consumed by `MethodChannelGetterAdapter`.
 - Product manifest permissions include `QUERY_ALL_PACKAGES` per ADR-0009 so the Rust-active Android platform adapter can provide complete installed package inventory facts to getter.
 
-`CliGetterAdapter` is not the final Android production bridge. It exists to keep the getter-owned DTO and error contract executable. `MethodChannelGetterAdapter` is the current production bridge slice for installed-autogen preview/apply: Flutter renders getter-owned DTOs and passes accepted package ids back to getter, but PackageManager scanning, package-id decisions, and `local_autogen` writes remain in Rust/native getter code.
+`CliGetterAdapter` is not the final Android production bridge. It exists to keep the getter-owned DTO and error contract executable for dev tests. `MethodChannelGetterAdapter` is the current production bridge slice for direct legacy Room import/report-list and installed-autogen preview/apply: Flutter renders getter-owned DTOs and passes user choices/paths back to getter, but Room mapping, PackageManager scanning, package-id decisions, and `local_autogen` writes remain in Rust/native getter code.
 
 ## Verification
 

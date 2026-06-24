@@ -43,7 +43,7 @@ The third accepted API surface adds the first legacy migration action boundary:
 importLegacyRoomDatabase(databasePath)
 ```
 
-The Android platform adapter may prepare a copied/checkpointed legacy Room SQLite file and return its path to Flutter, but getter still owns the actual `legacy import-room-db` import semantics. Flutter starts the flow and renders getter reports; it must not inspect or map Room tables directly.
+The Android platform adapter may prepare a copied/checkpointed legacy Room SQLite file and return its path to Flutter, but getter still owns the actual `legacy import-room-db` import semantics. The production Android bridge exposes `importLegacyRoomDatabase` and `legacyReportList` through JNI/MethodChannel by delegating to getter-owned `getter-operations` legacy Room code. Flutter starts the flow and renders getter reports; it must not inspect or map Room tables directly.
 
 The fourth accepted API surface adds the production installed-autogen bridge boundary and must follow ADR-0009's Rust-active platform adapter direction rather than a Flutter-led inventory scan:
 
@@ -52,7 +52,7 @@ previewInstalledAutogen(scanOptions)
 applyInstalledAutogen(preview, acceptedPackages)
 ```
 
-The Android product APK packages a slim `:getter_bridge` library under `app_flutter/android/getter_bridge`. It builds the Rust `api_proxy` cdylib and includes only the no-UI native bridge / installed-inventory provider classes needed by the Flutter product path, avoiding the legacy native `:app` UI and old `GetterPort` hub/RPC wrapper surface. `MainActivity` exposes a no-UI `net.xzos.upgradeall/getter_bridge` MethodChannel that derives the app-private getter data directory and forwards preview/apply requests to JNI entrypoints returning getter-style JSON envelopes.
+The Android product APK packages a slim `:getter_bridge` library under `app_flutter/android/getter_bridge`. It builds the Rust `api_proxy` cdylib and includes only the no-UI native bridge / installed-inventory provider classes needed by the Flutter product path, avoiding the legacy native `:app` UI and old `GetterPort` hub/RPC wrapper surface. `MainActivity` exposes a no-UI `net.xzos.upgradeall/getter_bridge` MethodChannel that derives the app-private getter data directory and forwards migration and installed-autogen requests to JNI entrypoints returning getter-style JSON envelopes.
 
 Internally, Rust/native bridge code scans Android inventory through the platform adapter, then asks getter-owned shared autogen operations to plan/apply `local_autogen`. `MethodChannelGetterAdapter` consumes the returned getter-style JSON envelopes. Flutter renders getter-owned preview/apply DTOs and scan diagnostics, then passes the package ids from displayed accepted preview candidates back to getter on apply; it must not expose a product Dart `InstalledInventoryPlatform` scanner or convert Android package names into package ids.
 
@@ -201,7 +201,7 @@ The first implementation slice must provide:
 
 ## Non-goals
 
-- No full FFI/native bridge implementation beyond the first installed-autogen preview/apply JNI/MethodChannel operation slice.
+- No full FFI/native bridge implementation beyond the first direct legacy Room import/report-list and installed-autogen preview/apply JNI/MethodChannel operation slices.
 - No update/download/install event stream.
 - No Android-owned legacy Room mapping/import semantics; Android only prepares a copied DB file for getter.
 - No product-complete Flutter UI.

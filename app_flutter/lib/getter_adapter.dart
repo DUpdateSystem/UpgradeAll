@@ -16,9 +16,10 @@ abstract interface class GetterAdapter {
 
   PackageEvaluation evaluatePackage(String packageId, {String? repositoryId});
 
-  List<MigrationReportSummary> readMigrationReports();
+  Future<List<MigrationReportSummary>> readMigrationReports();
 
-  LegacyMigrationImportResult importLegacyRoomDatabase(String databasePath);
+  Future<LegacyMigrationImportResult> importLegacyRoomDatabase(
+      String databasePath);
 
   List<DownloadTaskSummary> listDownloadTasks();
 
@@ -156,12 +157,13 @@ class FakeGetterAdapter implements GetterAdapter {
   );
 
   @override
-  List<MigrationReportSummary> readMigrationReports() {
+  Future<List<MigrationReportSummary>> readMigrationReports() async {
     return const <MigrationReportSummary>[];
   }
 
   @override
-  LegacyMigrationImportResult importLegacyRoomDatabase(String databasePath) {
+  Future<LegacyMigrationImportResult> importLegacyRoomDatabase(
+      String databasePath) async {
     throw const GetterBridgeException(
       GetterError(
         code: 'bridge.not_connected',
@@ -306,6 +308,24 @@ class TrackedPackageSummary {
     required this.packageResolution,
   });
 
+  factory TrackedPackageSummary.fromJson(Map<String, Object?> json) {
+    return TrackedPackageSummary(
+      id: _jsonString(json['id'], 'tracked.id'),
+      enabled: _jsonBool(json['enabled'], 'tracked.enabled'),
+      favorite: _jsonBool(json['favorite'], 'tracked.favorite'),
+      ignoredVersion: _jsonOptionalString(
+        json['ignored_version'],
+        'tracked.ignored_version',
+      ),
+      repositoryId:
+          _jsonOptionalString(json['repository_id'], 'tracked.repository_id'),
+      packageResolution: _jsonString(
+        json['package_resolution'],
+        'tracked.package_resolution',
+      ),
+    );
+  }
+
   final String id;
   final bool enabled;
   final bool favorite;
@@ -337,6 +357,16 @@ class MigrationReportSummary {
     required this.trackedRecords,
   });
 
+  factory MigrationReportSummary.fromJson(Map<String, Object?> json) {
+    return MigrationReportSummary(
+      ok: _jsonBool(json['ok'], 'migration.ok'),
+      code: _jsonString(json['code'], 'migration.code'),
+      message: _jsonString(json['message'], 'migration.message'),
+      importedRecords: _jsonInt(json['imported_records'], 'migration.imported'),
+      trackedRecords: _jsonInt(json['tracked_records'], 'migration.tracked'),
+    );
+  }
+
   final bool ok;
   final String code;
   final String message;
@@ -353,6 +383,36 @@ class LegacyMigrationImportResult {
     required this.sourceCounts,
   });
 
+  factory LegacyMigrationImportResult.fromJson(Map<String, Object?> json) {
+    final warningsValue = json['warnings'];
+    final sourceCountsValue = json['source_counts'];
+    return LegacyMigrationImportResult(
+      alreadyImported: _jsonOptionalBool(
+            json['already_imported'],
+            'migration.already_imported',
+          ) ??
+          false,
+      importedRecords: _jsonInt(json['imported_records'], 'migration.imported'),
+      trackedPackages: _jsonList(json['apps'], 'migration.apps')
+          .map((tracked) => TrackedPackageSummary.fromJson(
+                _jsonMap(tracked, 'migration.tracked_package'),
+              ))
+          .toList(growable: false),
+      warnings: warningsValue == null
+          ? const <MigrationWarningSummary>[]
+          : _jsonList(warningsValue, 'migration.warnings')
+              .map((warning) => MigrationWarningSummary.fromJson(
+                    _jsonMap(warning, 'migration.warning'),
+                  ))
+              .toList(growable: false),
+      sourceCounts: sourceCountsValue == null
+          ? null
+          : MigrationSourceCounts.fromJson(
+              _jsonMap(sourceCountsValue, 'migration.source_counts'),
+            ),
+    );
+  }
+
   final bool alreadyImported;
   final int importedRecords;
   final List<TrackedPackageSummary> trackedPackages;
@@ -362,6 +422,13 @@ class LegacyMigrationImportResult {
 
 class MigrationWarningSummary {
   const MigrationWarningSummary({required this.code, required this.message});
+
+  factory MigrationWarningSummary.fromJson(Map<String, Object?> json) {
+    return MigrationWarningSummary(
+      code: _jsonString(json['code'], 'migration.warning.code'),
+      message: _jsonString(json['message'], 'migration.warning.message'),
+    );
+  }
 
   final String code;
   final String message;
@@ -374,6 +441,21 @@ class MigrationSourceCounts {
     required this.hubRows,
     required this.extraHubRows,
   });
+
+  factory MigrationSourceCounts.fromJson(Map<String, Object?> json) {
+    return MigrationSourceCounts(
+      appRows: _jsonInt(json['app_rows'], 'migration.source_counts.app_rows'),
+      extraAppRows: _jsonInt(
+        json['extra_app_rows'],
+        'migration.source_counts.extra_app_rows',
+      ),
+      hubRows: _jsonInt(json['hub_rows'], 'migration.source_counts.hub_rows'),
+      extraHubRows: _jsonInt(
+        json['extra_hub_rows'],
+        'migration.source_counts.extra_hub_rows',
+      ),
+    );
+  }
 
   final int appRows;
   final int extraAppRows;
@@ -784,4 +866,14 @@ String? _jsonOptionalString(Object? value, String name) {
 int _jsonInt(Object? value, String name) {
   if (value is int) return value;
   throw FormatException('$name should be an integer');
+}
+
+bool _jsonBool(Object? value, String name) {
+  if (value is bool) return value;
+  throw FormatException('$name should be a boolean');
+}
+
+bool? _jsonOptionalBool(Object? value, String name) {
+  if (value == null || value is bool) return value as bool?;
+  throw FormatException('$name should be a boolean or null');
 }

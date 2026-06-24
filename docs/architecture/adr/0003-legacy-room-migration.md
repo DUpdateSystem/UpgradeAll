@@ -65,7 +65,7 @@ getter --data-dir <path> legacy import-room-db <db.sqlite>
 
 The direct importer opens the DB read-only, requires `PRAGMA user_version = 17`, reads legacy `app` and `extra_app` rows, maps known app-id keys to `android/<packageName>` or `magisk/<moduleId>`, writes getter tracked package state plus the `legacy-room-v17` migration record in one transaction, and emits sanitized report counts/warnings. Current `hub` and `extra_hub` rows are not imported as top-level objects; they are counted/dropped with warnings until a later accepted mapping exists.
 
-The first Flutter/Android migration UX slice adds a no-UI Android platform adapter that locates `app_metadata_database.db`, copies the SQLite triplet (`.db`, `-wal`, `-shm`) into an app-private getter-import path, checkpoints/canonicalizes the copy, and returns that copied DB path to Flutter. Flutter starts the flow and renders getter-owned reports. Getter still owns the actual import operation; the default product APK keeps the action disabled until the production getter import bridge is connected.
+The first Flutter/Android migration UX slice adds a no-UI Android platform adapter that locates `app_metadata_database.db`, copies the SQLite triplet (`.db`, `-wal`, `-shm`) into an app-private getter-import path, checkpoints/canonicalizes the copy, and returns that copied DB path to Flutter. A follow-up production bridge slice wires Flutter to the native getter bridge for `importLegacyRoomDatabase` and `legacyReportList`; Flutter starts the flow and renders getter-owned reports, while Rust getter owns the actual import operation and Room-row mapping.
 
 The host-side CLI also keeps the deterministic JSON bridge bundle for tests and non-Android fixtures:
 

@@ -282,7 +282,9 @@ class _MigrationGetterAdapter extends FakeGetterAdapter {
   var _reports = const <MigrationReportSummary>[];
 
   @override
-  LegacyMigrationImportResult importLegacyRoomDatabase(String databasePath) {
+  Future<LegacyMigrationImportResult> importLegacyRoomDatabase(
+    String databasePath,
+  ) async {
     importedDatabasePath = databasePath;
     _reports = const <MigrationReportSummary>[
       MigrationReportSummary(
@@ -317,7 +319,7 @@ class _MigrationGetterAdapter extends FakeGetterAdapter {
   }
 
   @override
-  List<MigrationReportSummary> readMigrationReports() => _reports;
+  Future<List<MigrationReportSummary>> readMigrationReports() async => _reports;
 }
 
 class _PreparedLegacyMigrationPlatform implements LegacyMigrationPlatform {

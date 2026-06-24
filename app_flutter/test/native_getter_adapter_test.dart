@@ -92,6 +92,77 @@ void main() {
     expect(result.applied.single.packageId, 'android/com.example.autogen');
   });
 
+  test('native legacy import and reports parse getter envelopes', () async {
+    final calls = <MethodCall>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+      calls.add(call);
+      switch (call.method) {
+        case 'importLegacyRoomDatabase':
+          return jsonEncode(<String, Object?>{
+            'ok': true,
+            'command': 'legacy import-room-db',
+            'data': <String, Object?>{
+              'imported_records': 1,
+              'apps': <Object?>[
+                <String, Object?>{
+                  'id': 'android/org.fdroid.fdroid',
+                  'enabled': true,
+                  'favorite': true,
+                  'ignored_version': '1.20.0',
+                  'repository_id': null,
+                  'package_resolution': 'missing_package_definition',
+                },
+              ],
+              'warnings': <Object?>[],
+              'source_counts': <String, Object?>{
+                'app_rows': 1,
+                'extra_app_rows': 1,
+                'hub_rows': 0,
+                'extra_hub_rows': 0,
+              },
+            },
+            'warnings': <Object?>[],
+          });
+        case 'legacyReportList':
+          return jsonEncode(<String, Object?>{
+            'ok': true,
+            'command': 'legacy report-list',
+            'data': <String, Object?>{
+              'reports': <Object?>[
+                <String, Object?>{
+                  'ok': true,
+                  'code': 'migration.imported',
+                  'message': 'Legacy Room data imported',
+                  'imported_records': 1,
+                  'tracked_records': 1,
+                },
+              ],
+            },
+            'warnings': <Object?>[],
+          });
+        default:
+          fail('unexpected method ${call.method}');
+      }
+    });
+
+    const adapter = MethodChannelGetterAdapter(channel: channel);
+    final importResult =
+        await adapter.importLegacyRoomDatabase('/tmp/legacy.db');
+    final reports = await adapter.readMigrationReports();
+
+    expect(calls.map((call) => call.method), <String>[
+      'importLegacyRoomDatabase',
+      'legacyReportList',
+    ]);
+    expect(calls.first.arguments, <String, Object?>{
+      'database_path': '/tmp/legacy.db',
+    });
+    expect(importResult.importedRecords, 1);
+    expect(importResult.trackedPackages.single.id, 'android/org.fdroid.fdroid');
+    expect(reports.single.code, 'migration.imported');
+  });
+
   test('native adapter maps getter error envelope to bridge exception',
       () async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

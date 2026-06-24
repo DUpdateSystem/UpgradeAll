@@ -21,11 +21,39 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   final MethodChannel _channel;
 
   @override
+  bool get supportsLegacyRoomImport => true;
+
+  @override
   bool get supportsInstalledAutogen => true;
 
   @override
   void initialize() {
     // The installed-autogen bridge initializes lazily when preview is called.
+  }
+
+  @override
+  Future<List<MigrationReportSummary>> readMigrationReports() async {
+    final data = await _invokeGetterData(
+      'legacyReportList',
+      const <String, Object?>{},
+    );
+    final reports = _asList(data['reports'], 'legacy reports');
+    return reports
+        .map((report) => MigrationReportSummary.fromJson(
+              _asMap(report, 'legacy report'),
+            ))
+        .toList(growable: false);
+  }
+
+  @override
+  Future<LegacyMigrationImportResult> importLegacyRoomDatabase(
+    String databasePath,
+  ) async {
+    final data = await _invokeGetterData(
+      'importLegacyRoomDatabase',
+      <String, Object?>{'database_path': databasePath},
+    );
+    return LegacyMigrationImportResult.fromJson(data);
   }
 
   @override
@@ -103,6 +131,12 @@ Map<String, Object?> _asMap(Object? value, String name) {
   if (value is Map<String, Object?>) return value;
   if (value is Map) return value.cast<String, Object?>();
   throw FormatException('$name should be a JSON object');
+}
+
+List<Object?> _asList(Object? value, String name) {
+  if (value is List<Object?>) return value;
+  if (value is List) return value.cast<Object?>();
+  throw FormatException('$name should be a JSON array');
 }
 
 String _asString(Object? value, String name) {

@@ -656,7 +656,7 @@ class MigrationPage extends StatefulWidget {
 }
 
 class _MigrationPageState extends State<MigrationPage> {
-  late List<MigrationReportSummary> _reports;
+  List<MigrationReportSummary> _reports = const <MigrationReportSummary>[];
   LegacyMigrationImportResult? _importResult;
   String? _status;
   GetterError? _error;
@@ -665,7 +665,20 @@ class _MigrationPageState extends State<MigrationPage> {
   @override
   void initState() {
     super.initState();
-    _reports = widget.getter.readMigrationReports();
+    _loadMigrationReports();
+  }
+
+  Future<void> _loadMigrationReports() async {
+    try {
+      final reports = await widget.getter.readMigrationReports();
+      if (!mounted) return;
+      setState(() {
+        _reports = reports;
+      });
+    } on GetterBridgeException {
+      // Reports are best-effort on page open. The explicit migration action
+      // surfaces bridge errors to the user.
+    }
   }
 
   Future<void> _startMigration() async {
@@ -688,8 +701,8 @@ class _MigrationPageState extends State<MigrationPage> {
       }
 
       final importResult =
-          widget.getter.importLegacyRoomDatabase(candidate.databasePath!);
-      final reports = widget.getter.readMigrationReports();
+          await widget.getter.importLegacyRoomDatabase(candidate.databasePath!);
+      final reports = await widget.getter.readMigrationReports();
       if (!mounted) return;
       setState(() {
         _importResult = importResult;
@@ -700,11 +713,17 @@ class _MigrationPageState extends State<MigrationPage> {
         _running = false;
       });
     } on GetterBridgeException catch (error) {
+      var reports = _reports;
+      try {
+        reports = await widget.getter.readMigrationReports();
+      } on GetterBridgeException {
+        // Keep the reports already on screen if the bridge cannot list them.
+      }
       if (!mounted) return;
       setState(() {
         _error = error.error;
         _status = error.error.message;
-        _reports = widget.getter.readMigrationReports();
+        _reports = reports;
         _running = false;
       });
     } catch (error) {

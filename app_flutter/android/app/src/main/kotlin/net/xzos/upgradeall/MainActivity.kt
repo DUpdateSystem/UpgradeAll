@@ -41,6 +41,14 @@ class MainActivity : FlutterActivity() {
                     nativeLib.applyInstalledAutogen(applyInstalledAutogenRequest(call))
                 }
 
+                "importLegacyRoomDatabase" -> runGetterBridge(result) {
+                    nativeLib.importLegacyRoomDatabase(importLegacyRoomDatabaseRequest(call))
+                }
+
+                "legacyReportList" -> runGetterBridge(result) {
+                    nativeLib.legacyReportList(legacyReportListRequest())
+                }
+
                 else -> result.notImplemented()
             }
         }
@@ -142,6 +150,22 @@ class MainActivity : FlutterActivity() {
                     .put("mode", acceptance?.get("mode") as? String ?: "all")
                     .put("package_ids", JSONArray(packageIds)),
             )
+            .toString()
+    }
+
+    private fun importLegacyRoomDatabaseRequest(call: MethodCall): String {
+        val args = call.arguments as? Map<*, *> ?: emptyMap<Any?, Any?>()
+        val databasePath = args["database_path"] as? String
+            ?: throw IllegalArgumentException("database_path is required")
+        return JSONObject()
+            .put("data_dir", getterDataDir().absolutePath)
+            .put("database_path", databasePath)
+            .toString()
+    }
+
+    private fun legacyReportListRequest(): String {
+        return JSONObject()
+            .put("data_dir", getterDataDir().absolutePath)
             .toString()
     }
 

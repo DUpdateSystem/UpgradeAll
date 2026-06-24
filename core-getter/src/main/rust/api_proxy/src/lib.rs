@@ -1,6 +1,7 @@
 extern crate jni;
 
 use getter::operations::autogen::{self, AutogenAcceptance, AutogenOperationError};
+use getter::operations::legacy_room::{self, LegacyRoomOperationError};
 use getter::rpc::server::run_server_hanging;
 #[cfg(target_os = "android")]
 use getter::rustls_platform_verifier;
@@ -31,6 +32,17 @@ struct ApplyInstalledAutogenRequest {
     preview: Value,
     #[serde(default)]
     acceptance: ApplyInstalledAutogenAcceptance,
+}
+
+#[derive(Debug, Deserialize)]
+struct ImportLegacyRoomDatabaseRequest {
+    data_dir: PathBuf,
+    database_path: PathBuf,
+}
+
+#[derive(Debug, Deserialize)]
+struct LegacyReportListRequest {
+    data_dir: PathBuf,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -166,6 +178,37 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_applyInstalledAutoge
     java_string_or_fallback(&mut env, response)
 }
 
+#[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_importLegacyRoomDatabase<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "legacy import-room-db";
+    let response = match jstring_to_string(&mut env, &request_json)
+        .and_then(|raw| import_legacy_room_database(&raw))
+    {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_legacyReportList<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "legacy report-list";
+    let response =
+        match jstring_to_string(&mut env, &request_json).and_then(|raw| legacy_report_list(&raw)) {
+            Ok(data) => success_envelope(command, data),
+            Err(error) => operation_error_envelope(command, error),
+        };
+    java_string_or_fallback(&mut env, response)
+}
+
 fn preview_installed_autogen(
     env: &mut JNIEnv<'_>,
     context: &JObject<'_>,
@@ -206,6 +249,19 @@ fn apply_installed_autogen(request_json: &str) -> Result<Value, BridgeOperationE
         &preview,
         &acceptance,
     )?)
+}
+
+fn import_legacy_room_database(request_json: &str) -> Result<Value, BridgeOperationError> {
+    let request: ImportLegacyRoomDatabaseRequest = serde_json::from_str(request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    legacy_room::import_room_db_json(&request.data_dir, &request.database_path)
+        .map_err(BridgeOperationError::from)
+}
+
+fn legacy_report_list(request_json: &str) -> Result<Value, BridgeOperationError> {
+    let request: LegacyReportListRequest = serde_json::from_str(request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    legacy_room::report_list_json(&request.data_dir).map_err(BridgeOperationError::from)
 }
 
 impl ApplyInstalledAutogenAcceptance {
@@ -337,6 +393,8 @@ enum BridgeOperationError {
     Repository(String),
     #[error("autogen error: {0}")]
     Autogen(String),
+    #[error("migration error: {0}")]
+    Migration(#[from] LegacyRoomOperationError),
 }
 
 impl BridgeOperationError {
@@ -400,6 +458,13 @@ impl BridgeOperationError {
                 "autogen.error",
                 "Getter autogen operation failed",
                 Some(detail),
+            ),
+            Self::Migration(error) => (
+                error.code(),
+                error.message(),
+                error
+                    .detail()
+                    .or_else(|| error.report_path().map(|path| path.display().to_string())),
             ),
         }
     }

@@ -51,22 +51,25 @@ class CliGetterAdapter implements GetterAdapter {
   }
 
   @override
-  List<MigrationReportSummary> readMigrationReports() {
+  Future<List<MigrationReportSummary>> readMigrationReports() async {
     final json = _runGetter(const <String>['legacy', 'report-list']);
     final reports = _asList(_data(json)['reports'], 'reports');
     return reports
-        .map((report) => _migrationReportFromJson(_asMap(report, 'report')))
+        .map((report) =>
+            MigrationReportSummary.fromJson(_asMap(report, 'report')))
         .toList(growable: false);
   }
 
   @override
-  LegacyMigrationImportResult importLegacyRoomDatabase(String databasePath) {
+  Future<LegacyMigrationImportResult> importLegacyRoomDatabase(
+    String databasePath,
+  ) async {
     final json = _runGetter(<String>[
       'legacy',
       'import-room-db',
       databasePath,
     ]);
-    return _legacyMigrationImportResultFromJson(_data(json));
+    return LegacyMigrationImportResult.fromJson(_data(json));
   }
 
   @override
@@ -211,70 +214,6 @@ PackageEvaluation _packageEvaluationFromJson(Object? value) {
   );
 }
 
-MigrationReportSummary _migrationReportFromJson(Map<String, Object?> json) {
-  return MigrationReportSummary(
-    ok: _asBool(json['ok'], 'migration.ok'),
-    code: _asString(json['code'], 'migration.code'),
-    message: _asString(json['message'], 'migration.message'),
-    importedRecords: _asInt(json['imported_records'], 'migration.imported'),
-    trackedRecords: _asInt(json['tracked_records'], 'migration.tracked'),
-  );
-}
-
-LegacyMigrationImportResult _legacyMigrationImportResultFromJson(
-  Map<String, Object?> json,
-) {
-  final warningsValue = json['warnings'];
-  final sourceCountsValue = json['source_counts'];
-  return LegacyMigrationImportResult(
-    alreadyImported: _asOptionalBool(
-          json['already_imported'],
-          'migration.already_imported',
-        ) ??
-        false,
-    importedRecords: _asInt(json['imported_records'], 'migration.imported'),
-    trackedPackages: _asList(json['apps'], 'migration.apps')
-        .map(_trackedPackageFromJson)
-        .toList(growable: false),
-    warnings: warningsValue == null
-        ? const <MigrationWarningSummary>[]
-        : _asList(warningsValue, 'migration.warnings')
-            .map((warning) => _migrationWarningFromJson(
-                  _asMap(warning, 'migration.warning'),
-                ))
-            .toList(growable: false),
-    sourceCounts: sourceCountsValue == null
-        ? null
-        : _migrationSourceCountsFromJson(
-            _asMap(sourceCountsValue, 'migration.source_counts'),
-          ),
-  );
-}
-
-MigrationWarningSummary _migrationWarningFromJson(Map<String, Object?> json) {
-  return MigrationWarningSummary(
-    code: _asString(json['code'], 'migration.warning.code'),
-    message: _asString(json['message'], 'migration.warning.message'),
-  );
-}
-
-MigrationSourceCounts _migrationSourceCountsFromJson(
-  Map<String, Object?> json,
-) {
-  return MigrationSourceCounts(
-    appRows: _asInt(json['app_rows'], 'migration.source_counts.app_rows'),
-    extraAppRows: _asInt(
-      json['extra_app_rows'],
-      'migration.source_counts.extra_app_rows',
-    ),
-    hubRows: _asInt(json['hub_rows'], 'migration.source_counts.hub_rows'),
-    extraHubRows: _asInt(
-      json['extra_hub_rows'],
-      'migration.source_counts.extra_hub_rows',
-    ),
-  );
-}
-
 DownloadTaskSummary _downloadTaskFromJson(Map<String, Object?> json) {
   return DownloadTaskSummary(
     id: _asString(json['id'], 'task.id'),
@@ -369,11 +308,4 @@ bool _asBool(Object? value, String name) {
     return value;
   }
   throw FormatException('$name should be a boolean');
-}
-
-bool? _asOptionalBool(Object? value, String name) {
-  if (value == null || value is bool) {
-    return value as bool?;
-  }
-  throw FormatException('$name should be a boolean or null');
 }

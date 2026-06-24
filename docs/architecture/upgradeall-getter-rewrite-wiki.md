@@ -1030,6 +1030,8 @@ Room DB 信息：
 - 单个 package 无法匹配不应阻塞整个 App。
 - 该 package 显示 missing/needs package script 状态。
 
+实现进展：Android/Flutter 侧已有 no-UI legacy migration adapter 负责定位、复制并 checkpoint 旧 Room SQLite triplet；Flutter 产品 APK 通过 slim getter/native bridge 调用 Rust `importLegacyRoomDatabase` / `legacyReportList`。Room 表读取、字段映射、migration record、tracked package 写入和 sanitized report 仍由 getter-owned Rust code 完成，Flutter/Kotlin 不解析 Room 行。
+
 ---
 
 ## 14. Installed autogen UX

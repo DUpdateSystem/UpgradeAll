@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:upgradeall/cli_getter_adapter.dart';
 
 void main() {
-  test('CliGetterAdapter imports a direct legacy Room database', () {
+  test('CliGetterAdapter imports a direct legacy Room database', () async {
     final getterCli = Platform.environment['GETTER_CLI_BIN'];
     if (getterCli == null || getterCli.isEmpty) {
       fail('GETTER_CLI_BIN must point to the built getter-cli binary');
@@ -19,7 +19,7 @@ void main() {
         CliGetterAdapter(executable: getterCli, dataDir: dataDir.path);
 
     adapter.initialize();
-    final result = adapter.importLegacyRoomDatabase(legacyDb.path);
+    final result = await adapter.importLegacyRoomDatabase(legacyDb.path);
 
     expect(result.alreadyImported, isFalse);
     expect(result.importedRecords, 1);
@@ -32,14 +32,15 @@ void main() {
     expect(tracked.ignoredVersion, '1.20.0');
     expect(tracked.packageResolution, 'missing_package_definition');
 
-    final reports = adapter.readMigrationReports();
+    final reports = await adapter.readMigrationReports();
     expect(
       reports.singleWhere((report) => report.code == 'migration.imported').ok,
       isTrue,
     );
   });
 
-  test('CliGetterAdapter reads real getter repository and tracked state', () {
+  test('CliGetterAdapter reads real getter repository and tracked state',
+      () async {
     final getterCli = Platform.environment['GETTER_CLI_BIN'];
     if (getterCli == null || getterCli.isEmpty) {
       fail('GETTER_CLI_BIN must point to the built getter-cli binary');
@@ -99,12 +100,13 @@ void main() {
     expect(evaluated.repositoryId, 'official');
     expect(evaluated.hasFreeNetworkWarning, isTrue);
 
-    final reports = adapter.readMigrationReports();
+    final reports = await adapter.readMigrationReports();
     expect(
         reports.singleWhere((report) => report.code == 'migration.imported').ok,
         isTrue);
 
-    final alreadyImported = adapter.importLegacyRoomDatabase(legacyDb.path);
+    final alreadyImported =
+        await adapter.importLegacyRoomDatabase(legacyDb.path);
     expect(alreadyImported.alreadyImported, isTrue);
     expect(alreadyImported.importedRecords, 0);
     expect(

@@ -380,7 +380,7 @@ Remaining follow-up:
 
 Goal: replace bridge-only JSON import with the Android upgrade path.
 
-Status: first getter-owned direct DB slice completed, and the first Flutter/platform UX slice is in progress. The getter CLI now supports `legacy import-room-db <db.sqlite>` for copied/checkpointed Room v17 SQLite files. It reads `app` and `extra_app`, maps known legacy app-id keys, writes `tracked_packages` plus `legacy-room-v17` in one transaction, prevents rerun, emits sanitized reports, and documents dropped hub/extra_hub fields. Android-side code now exposes a no-UI MethodChannel adapter that locates, copies, and checkpoints the legacy SQLite triplet for Flutter to pass into getter. Flutter has a migration page that starts this adapter flow and renders getter reports, but the default product APK keeps the action disabled until the production getter import bridge replaces the dev CLI adapter.
+Status: getter-owned direct DB and production bridge slices are implemented. The getter CLI supports `legacy import-room-db <db.sqlite>` for copied/checkpointed Room v17 SQLite files. It reads `app` and `extra_app`, maps known legacy app-id keys, writes `tracked_packages` plus `legacy-room-v17` in one transaction, prevents rerun, emits sanitized reports, and documents dropped hub/extra_hub fields. Android-side code exposes a no-UI MethodChannel adapter that locates, copies, and checkpoints the legacy SQLite triplet. The Flutter product APK now uses the native getter bridge for `importLegacyRoomDatabase` and `legacyReportList`; Flutter starts the adapter flow and renders getter-owned results/reports without mapping Room rows in Dart/Kotlin.
 
 Completed tasks:
 
@@ -391,10 +391,16 @@ Completed tasks:
 5. Reports are sanitized and visible through `legacy report-list`.
 6. Dropped `hub`/`extra_hub` fields are documented in `docs/migration/legacy-room-mapping.md`.
 
+Completed additional bridge tasks:
+
+7. Extract direct Room DB import/report-list behavior into reusable getter-owned `getter-operations` code shared by CLI and native bridge.
+8. Wire production native bridge operations for `importLegacyRoomDatabase` and `legacyReportList` into the Flutter APK.
+9. Enable the product migration page through `MethodChannelGetterAdapter` while keeping Flutter as DTO/rendering glue.
+
 Remaining tasks:
 
-1. Wire a production getter bridge for `importLegacyRoomDatabase` in the Flutter APK; until then the default product migration action stays disabled with an explicit bridge-unavailable state.
-2. Add focused native adapter coverage for SQLite triplet copy/checkpoint behavior if practical.
+1. Add focused native adapter coverage for SQLite triplet copy/checkpoint behavior if practical.
+2. Add device/instrumented validation for the full Flutter MethodChannel -> Android copy/checkpoint -> JNI -> Rust getter import path if practical.
 3. Extend accepted mapping if future ADR accepts direct `hub`/`extra_hub` semantics.
 
 Acceptance progress:
