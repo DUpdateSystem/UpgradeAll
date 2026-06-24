@@ -38,6 +38,9 @@ test-android-platform-adapter:
 test-flutter-android-platform-adapter:
     cd app_flutter/android && ./gradlew --no-daemon :app:testDebugUnitTest --tests 'net.xzos.upgradeall.LegacyRoomImportPreparerTest'
 
+test-flutter-device-bridge device="emulator-5554":
+    cd app_flutter && flutter test integration_test/native_bridge_test.dart -d {{ device }}
+
 build-flutter-android-debug:
     cd app_flutter && flutter build apk --debug
     python3 tools/verify_flutter_apk_bridge.py app_flutter/build/app/outputs/flutter-apk/app-debug.apk

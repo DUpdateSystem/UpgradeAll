@@ -33,7 +33,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace "net.xzos.upgradeall"
     compileSdkVersion 36
-    ndkVersion flutter.ndkVersion
+    ndkVersion "29.0.14206865"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17

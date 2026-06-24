@@ -24,6 +24,16 @@ flutter test
 GETTER_CLI_BIN=/path/to/getter-cli flutter test dev_test/cli_getter_adapter_test.dart
 ```
 
-From the repository root, `just verify` also runs the Flutter analyzer, widget tests, getter CLI integration/dev test, Android debug build, and an APK inspection that verifies the Flutter APK contains `libapi_proxy.so`, `NativeLib`, and `InstalledInventoryProvider`.
+Device/emulator bridge validation is available when an Android device is attached:
+
+```bash
+flutter test integration_test/native_bridge_test.dart -d emulator-5554
+# or, from the repository root:
+just test-flutter-device-bridge emulator-5554
+```
+
+The device bridge test exercises the production MethodChannel/JNI path for copied legacy Room import/report-list and installed-autogen preview/apply. If using the local `Pixel_9a` AVD, start it with enough memory (for example `-memory 4096`) so the Flutter debug VM is not killed by Android low-memory pressure.
+
+From the repository root, `just verify` also runs the Flutter analyzer, widget tests, getter CLI integration/dev test, Android debug build, and an APK inspection that verifies the Flutter APK contains `libapi_proxy.so`, `NativeLib`, and `InstalledInventoryProvider`. `just verify` intentionally does not require an attached device; use `just test-flutter-device-bridge` for the emulator-only path.
 
 Android CI/release artifacts are built from this Flutter project with `flutter build apk`; the root Gradle `:app` module is no longer the rewrite product APK path.

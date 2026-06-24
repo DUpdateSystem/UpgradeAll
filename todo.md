@@ -399,8 +399,7 @@ Completed additional bridge tasks:
 
 Remaining tasks:
 
-1. Add device/instrumented validation for the full Flutter MethodChannel -> Android copy/checkpoint -> JNI -> Rust getter import path if practical.
-2. Extend accepted mapping if future ADR accepts direct `hub`/`extra_hub` semantics.
+1. Extend accepted mapping if future ADR accepts direct `hub`/`extra_hub` semantics.
 
 Acceptance progress:
 
@@ -411,7 +410,7 @@ Acceptance progress:
 - Mixed valid/invalid app rows import valid rows and warn: done.
 - DBs with app rows but zero importable rows fail with recovery report: done.
 - Report sanitization for dropped `hub`/`extra_hub` secrets and URL rewrite data: done.
-- WAL/SHM pending writes: first Android adapter copy/checkpoint slice implemented; focused JVM native-adapter tests now cover triplet copy, stale sidecar cleanup, missing DB behavior, and checkpointer invocation. Real Android SQLite checkpoint behavior still needs device/instrumented coverage.
+- WAL/SHM pending writes: first Android adapter copy/checkpoint slice implemented; focused JVM native-adapter tests cover triplet copy, stale sidecar cleanup, missing DB behavior, and checkpointer invocation. Device integration validation on the `Pixel_9a` emulator covers Flutter MethodChannel -> Android copy/checkpoint -> JNI -> Rust getter import/report-list using a Room v17 fixture whose committed rows remain in the WAL sidecar before Android checkpointing.
 - Per-app failures become warnings; global unreadable DB becomes recovery state, not crash: done for the getter-owned direct importer.
 
 ### Phase B: `local_autogen` generation
@@ -451,13 +450,13 @@ Completed tasks:
 
 Remaining tasks:
 
-1. Add device/instrumented validation for the full Flutter MethodChannel -> JNI -> Rust platform scan -> getter autogen preview/apply path if practical.
-2. Cache invalidation hooks beyond file-hash-based repository reload need to be expanded when evaluated/provider caches become active.
+1. Cache invalidation hooks beyond file-hash-based repository reload need to be expanded when evaluated/provider caches become active.
 
 Acceptance progress:
 
 - BDD for preview/confirm cleanup UX: done for CLI slice.
 - TDD for deterministic Lua generation and no overwrite of `local`: done for core/CLI slice.
+- Device integration validation on the `Pixel_9a` emulator covers Flutter MethodChannel -> JNI -> Rust platform scan -> getter autogen preview/apply for the app's own installed package.
 - Yellow/free-network warning tagging remains getter-driven metadata, not hardcoded UI behavior: not needed for installed-target-only stubs in this slice.
 
 ### Phase C: repository tooling and diagnostics
