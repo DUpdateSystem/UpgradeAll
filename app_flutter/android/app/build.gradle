@@ -88,4 +88,5 @@ flutter {
 
 dependencies {
     implementation project(':getter_bridge')
+    testImplementation "junit:junit:4.13.2"
 }

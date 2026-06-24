@@ -10,6 +10,7 @@ verify:
     just test-flutter-widget
     just verify-workspace-skeleton
     just test-android-platform-adapter
+    just test-flutter-android-platform-adapter
     just test-flutter-getter-cli-integration
     just build-flutter-android-debug
 
@@ -33,6 +34,9 @@ test-flutter-getter-cli-integration:
 
 test-android-platform-adapter:
     ./gradlew --no-daemon ':core-getter:buildDebugApi_proxyRust[arm64-v8a]' ':core-getter:buildDebugApi_proxyRust[armeabi-v7a]' ':core-getter:buildDebugApi_proxyRust[x86_64]' :core-getter:testDebugUnitTest --tests 'net.xzos.upgradeall.getter.platform.InstalledInventoryCollectorTest' :core-getter:assembleDebug
+
+test-flutter-android-platform-adapter:
+    cd app_flutter/android && ./gradlew --no-daemon :app:testDebugUnitTest --tests 'net.xzos.upgradeall.LegacyRoomImportPreparerTest'
 
 build-flutter-android-debug:
     cd app_flutter && flutter build apk --debug

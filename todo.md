@@ -399,9 +399,8 @@ Completed additional bridge tasks:
 
 Remaining tasks:
 
-1. Add focused native adapter coverage for SQLite triplet copy/checkpoint behavior if practical.
-2. Add device/instrumented validation for the full Flutter MethodChannel -> Android copy/checkpoint -> JNI -> Rust getter import path if practical.
-3. Extend accepted mapping if future ADR accepts direct `hub`/`extra_hub` semantics.
+1. Add device/instrumented validation for the full Flutter MethodChannel -> Android copy/checkpoint -> JNI -> Rust getter import path if practical.
+2. Extend accepted mapping if future ADR accepts direct `hub`/`extra_hub` semantics.
 
 Acceptance progress:
 
@@ -412,7 +411,7 @@ Acceptance progress:
 - Mixed valid/invalid app rows import valid rows and warn: done.
 - DBs with app rows but zero importable rows fail with recovery report: done.
 - Report sanitization for dropped `hub`/`extra_hub` secrets and URL rewrite data: done.
-- WAL/SHM pending writes: first Android adapter copy/checkpoint slice implemented; focused native adapter test still pending.
+- WAL/SHM pending writes: first Android adapter copy/checkpoint slice implemented; focused JVM native-adapter tests now cover triplet copy, stale sidecar cleanup, missing DB behavior, and checkpointer invocation. Real Android SQLite checkpoint behavior still needs device/instrumented coverage.
 - Per-app failures become warnings; global unreadable DB becomes recovery state, not crash: done for the getter-owned direct importer.
 
 ### Phase B: `local_autogen` generation
