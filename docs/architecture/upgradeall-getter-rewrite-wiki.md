@@ -891,7 +891,7 @@ v1 暂不做 repo/script/artifact 强校验。
 - migration records。
 - settings。
 - credentials references。
-- download task persistent state。
+- later ADR-accepted operation-specific durable records; ADR-0011 keeps runtime task state process-memory only and excludes it from main/cache DB persistence。
 
 ### 11.2 Cache DB
 

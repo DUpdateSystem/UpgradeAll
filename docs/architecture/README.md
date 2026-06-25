@@ -6,7 +6,7 @@ Start here:
 
 - `upgradeall-getter-rewrite-wiki.md` — main living wiki for the Flutter + Rust getter + Lua package repository redesign.
 
-Planned / active ADRs:
+Canonical ADRs:
 
 - `adr/0001-app-centric-lua-package-repository-model.md`
 - `adr/0002-getter-flutter-platform-boundary.md`
@@ -17,6 +17,8 @@ Planned / active ADRs:
 - `adr/0007-flutter-getter-bridge-contract.md`
 - `adr/0008-flutter-product-apk-entry.md`
 - `adr/0009-android-platform-adapter-and-package-visibility.md`
+- `adr/0010-package-metadata-cache-and-version-baseline.md`
+- `adr/0011-lua-update-runtime-side-effects-and-events.md`
 
 Documentation policy:
 

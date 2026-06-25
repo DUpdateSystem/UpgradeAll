@@ -23,7 +23,7 @@ Users manually corrupting backend storage is considered non-standard usage. gett
 - Ignored versions, pins, favorites.
 - Migration records.
 - Settings and credential references.
-- Download task persistent state.
+- Operation-specific durable records accepted by later ADRs. ADR-0011 explicitly excludes runtime task state from main/cache DB persistence.
 
 ## Cache DB stores
 

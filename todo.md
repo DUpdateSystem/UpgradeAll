@@ -481,7 +481,7 @@ Acceptance:
 
 Goal: move from static app/repo display to real update workflows.
 
-Status: second getter-owned offline lifecycle slice in progress. The accepted minimal Phase D work remains intentionally offline/fake: it defines normalized offline update-check DTOs, reuses Rust getter update selection/version comparison, adds `getter --data-dir <path> update check --fixture <fixture.json>`, and now adds a command-driven fake task lifecycle for persisted task state, cancellation, pollable task events, and abstract install handoff result recording. It still does not run live providers, perform network downloads, run background workers, invoke Android installers, or add Flutter product task state.
+Status: ADR-0011 is accepted for the first in-memory Lua runtime/task/action/RuntimeNotification architecture. Earlier offline CLI/dev scaffolding proved update-check and fake task DTOs, but ADR-0011 supersedes the persisted fake task model: task state is process-memory only, `action_id` is single-use, task submission binds a sealed action plan plus in-memory package-version Lua object, and Flutter receives best-effort push `RuntimeNotification.task_changed` snapshots. The first implementation of this accepted runtime has begun in `getter-core`; live providers, real downloads, Android installers, background workers, and Android system notifications remain deferred to later ADRs.
 
 Completed tasks:
 
@@ -494,6 +494,8 @@ Completed tasks:
 7. Add main DB task/event/install-handoff tables and storage APIs with TDD coverage.
 8. Implement deterministic fake/offline downloader behavior beyond the previous placeholder crate: submit, run, cancel, list, poll events, and record install result.
 9. Add CLI commands and BDD coverage for `task submit`, `task run`, `task list`, `task cancel`, `task events`, and `task install-result`.
+10. Accept ADR-0011 for the in-memory runtime/task/action/RuntimeNotification model.
+11. Add `getter-core::runtime` with in-memory `GetterRuntime`, single-use `action_id`, sealed action plans, package-version Lua object binding, generic `user-result`, mock download/install state, package-level non-waiting lock, task controls, remove/clean, and RuntimeNotification DTOs with TDD coverage.
 
 Completed additional UI/bridge slice:
 
@@ -503,19 +505,20 @@ Completed additional UI/bridge slice:
 
 Remaining tasks:
 
-1. Implement live provider/downloader behavior beyond the fake/offline proof.
-2. Add native stream/backpressure runtime beyond the current pollable CLI/dev event contract.
-3. Decide and implement background worker/restart/retry/resume policy for real downloads.
-4. Define Android production install handoff URI/SAF/permission/notification details and wire platform adapter execution.
-5. Add product-level Flutter BDD for update/download user flows after live/provider/background/installer decisions are accepted; the current slice only covers read-only DTO rendering.
+1. Wire `getter-core::runtime` into getter operations/CLI single-process debug tooling without reintroducing persisted task state.
+2. Wire the native bridge process-lifetime runtime singleton and Flutter push stream/EventChannel for `RuntimeNotification.task_changed` snapshots.
+3. Replace or retire the older persisted fake CLI task scaffold so public task status/control language uses ADR-0011 (`completed`, `user-result`, remove/clean, no cross-invocation task state).
+4. Implement live provider/downloader behavior beyond the fake/offline proof after a later ADR accepts real side-effect details.
+5. Define Android production install handoff URI/SAF/permission/notification details and wire platform adapter execution after later ADRs.
+6. Add product-level Flutter BDD for update/download user flows after live/provider/background/installer decisions are accepted; the current slice only covers read-only DTO rendering.
 
 Acceptance progress:
 
 - CLI can run an offline fixture update check: done.
-- Getter can persist and list fake/offline task state: done for CLI/dev slice.
-- Getter can cancel queued/running fake tasks and reject invalid terminal cancellation: done.
-- Getter can expose pollable task events with cursor/limit: done for CLI/dev slice; native streaming remains deferred.
-- Getter can record abstract install handoff requests/results: done for CLI/dev slice; Android installer execution remains deferred.
+- Older CLI/dev fake task scaffold can persist/list task state: done, but superseded by ADR-0011 and slated for replacement/retirement.
+- `getter-core::runtime` can manage in-memory tasks, controls, `user-result`, retry, package lock, remove/clean, and notifications: first TDD slice done.
+- Getter can expose pollable task events with cursor/limit in the older CLI/dev scaffold; ADR-0011 native push stream wiring remains pending.
+- Getter can record abstract install handoff requests/results in the older scaffold; ADR-0011 uses generic `user-result` and mock install waiting-user state, Android installer execution remains deferred.
 - Flutter displays getter task/event DTOs rather than calculating status itself: done for read-only CLI/dev bridge slice.
 - Android platform adapter owns permissions/notifications/installer handoff: documented/deferred; no Android execution added in this slice.
 

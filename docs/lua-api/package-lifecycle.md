@@ -63,7 +63,7 @@ return {
 
 The first Phase D implementation slice exposes this boundary only through an offline CLI fixture command: `getter --data-dir <path> update check --fixture <fixture.json>`. The fixture is normalized JSON, not live provider output, and the command returns `network_required = false`, update-check status, selected candidate/artifact, and generated download/install action DTOs. It does not execute network providers, download files, persist download tasks, stream progress events, or invoke Android installers.
 
-The second Phase D slice consumes those generated actions through an explicitly offline/fake task lifecycle: `task submit --request <request.json>`, `task run <task-id>`, `task list`, `task cancel <task-id>`, `task events --after <cursor> --limit <n>`, and `task install-result <handoff-id> --status <status>`. This proves getter-owned persistent task state, cancellation, pollable event DTOs, and abstract install handoff recording without live network I/O, background runners, native streaming, Flutter task-state logic, or Android installer calls.
+ADR-0011 supersedes the earlier persisted fake task scaffold. The accepted Phase D runtime consumes getter-issued actions through an in-memory process-lifetime runtime: task state is not stored in SQLite, `action_id` is single-use, task submission binds a sealed action plan plus package-version Lua object, mock download/install executors simulate task state, and `RuntimeNotification.task_changed` is pushed to Flutter as a best-effort current snapshot. CLI coverage for this model should use Rust runtime tests or a single-process scripted/debug command rather than pretending separate CLI invocations share task memory.
 
 ## post_update
 
