@@ -363,6 +363,9 @@ fn runtime_operation_with_runtime(
         request.payload.to_string()
     };
     match request.operation.as_str() {
+        "update_check_offline_issue_action" => {
+            runtime_operations::issue_action_from_offline_update_check_json(runtime, &payload)
+        }
         "task_submit" => runtime_operations::submit_action_json(runtime, &payload),
         "task_get" => runtime_operations::task_get_json(runtime, &payload),
         "task_list" => runtime_operations::task_list_json(runtime, &payload),
@@ -654,6 +657,53 @@ mod tests {
             }
             AutogenAcceptance::AcceptAll => panic!("expected explicit package acceptance"),
         }
+    }
+
+    #[test]
+    fn runtime_dispatcher_issues_action_from_offline_update_check() {
+        let mut runtime = getter::core::runtime::GetterRuntime::new();
+
+        let issued = runtime_operation_with_runtime(
+            &mut runtime,
+            &json!({
+                "operation": "update_check_offline_issue_action",
+                "payload": {
+                    "fixture": {
+                        "format": "getter-offline-update-check",
+                        "version": 1,
+                        "package_id": "android/org.fdroid.fdroid",
+                        "installed_version": "1.0.0",
+                        "candidates": [
+                            {
+                                "version": "1.2.0",
+                                "artifacts": [
+                                    {
+                                        "name": "app.apk",
+                                        "url": "https://example.invalid/app.apk",
+                                        "file_name": "app.apk"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            })
+            .to_string(),
+        )
+        .expect("issue action");
+
+        assert_eq!(issued["update"]["status"], "update_available");
+        let action_id = issued["action"]["action_id"].as_str().expect("action id");
+        let submitted = runtime_operation_with_runtime(
+            &mut runtime,
+            &json!({
+                "operation": "task_submit",
+                "payload": { "action_id": action_id }
+            })
+            .to_string(),
+        )
+        .expect("submit issued action");
+        assert_eq!(submitted["package_id"], "android/org.fdroid.fdroid");
     }
 
     #[test]
