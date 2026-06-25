@@ -6,6 +6,15 @@
 
 This documentation set records the design decisions for the UpgradeAll rewrite. It exists so coding agents and human maintainers can trace every major implementation choice back to a written decision.
 
+## Toolchain baseline
+
+The rewrite should be validated on current stable toolchains, not old local SDKs:
+
+- Flutter stable `>=3.44.4` with Dart `>=3.12.2 <4.0.0`.
+- Rust stable; latest local validated baseline is `rustc 1.96.0` / `cargo 1.96.0`.
+- Android Gradle Plugin `9.0.1`, Gradle `9.3.1`, Kotlin Gradle Plugin `2.3.20`.
+- Android product APK `minSdkVersion` follows the active stable Flutter SDK's `flutter.minSdkVersion`.
+
 Start here:
 
 1. `architecture/upgradeall-getter-rewrite-wiki.md` — main living architecture wiki.

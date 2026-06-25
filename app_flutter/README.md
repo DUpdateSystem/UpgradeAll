@@ -2,6 +2,15 @@
 
 This is the new Flutter shell and product APK entry for the UpgradeAll rewrite. It must remain a UI and platform adapter around the Rust getter core; product logic, repository resolution, storage, and migration behavior belong in getter. The legacy Android `:app` UI is kept only as reference code during migration.
 
+## Toolchain baseline
+
+- Flutter stable `>=3.44.4`
+- Dart SDK `>=3.12.2 <4.0.0`
+- Gradle `9.3.1`, Android Gradle Plugin `9.0.1`, Kotlin Gradle Plugin `2.3.20`
+- Android product APK `minSdkVersion` follows `flutter.minSdkVersion` from the active stable Flutter SDK (Flutter 3.44 currently uses Android API 24).
+
+Do not validate the rewrite with an older local Flutter SDK; older Flutter tester/Impeller builds can crash in widget tests and do not match CI. Do not pin the Flutter product APK to an Android API level below the active stable Flutter SDK baseline just to preserve old local compatibility.
+
 ## Current slice
 
 - Android release application identity: `net.xzos.upgradeall`

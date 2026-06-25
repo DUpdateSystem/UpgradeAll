@@ -4,6 +4,10 @@
 > Date: 2026-06-21
 > Project: UpgradeAll rewrite — Flutter APP + Rust getter core + Lua package repository model
 
+## Toolchain baseline
+
+The rewrite's Flutter UI/test baseline is Flutter stable `>=3.44.4` with Dart `>=3.12.2 <4.0.0`. The Android build baseline is Gradle `9.3.1`, Android Gradle Plugin `9.0.1`, and Kotlin Gradle Plugin `2.3.20`. Local validation should use the same current-stable Flutter generation as CI; older Flutter tester/Impeller builds are not an acceptable validation baseline for this rewrite. The Flutter product APK's Android `minSdkVersion` follows the active stable Flutter SDK's `flutter.minSdkVersion` (Flutter 3.44 currently uses API 24), rather than pinning an older product APK baseline below Flutter's supported default.
+
 ## UI feature parity
 
 The Flutter UI should preserve these user-visible product capabilities unless explicitly deferred:

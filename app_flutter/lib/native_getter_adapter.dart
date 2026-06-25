@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_initializing_formals
+
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
@@ -12,6 +14,7 @@ import 'getter_adapter.dart';
 /// The bridge returns getter-owned JSON envelopes; Dart parses and renders them
 /// but does not scan PackageManager or make autogen/package decisions.
 class MethodChannelGetterAdapter extends FakeGetterAdapter {
+  // Keep public parameter names stable for tests and injected bridges.
   const MethodChannelGetterAdapter({
     MethodChannel channel = const MethodChannel(
       'net.xzos.upgradeall/getter_bridge',
@@ -19,8 +22,8 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
     EventChannel runtimeNotificationChannel = const EventChannel(
       'net.xzos.upgradeall/runtime_notifications',
     ),
-  })  : _channel = channel,
-        _runtimeNotificationChannel = runtimeNotificationChannel;
+  }) : _channel = channel,
+       _runtimeNotificationChannel = runtimeNotificationChannel;
 
   final MethodChannel _channel;
   final EventChannel _runtimeNotificationChannel;
@@ -44,9 +47,10 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
     );
     final reports = _asList(data['reports'], 'legacy reports');
     return reports
-        .map((report) => MigrationReportSummary.fromJson(
-              _asMap(report, 'legacy report'),
-            ))
+        .map(
+          (report) =>
+              MigrationReportSummary.fromJson(_asMap(report, 'legacy report')),
+        )
         .toList(growable: false);
   }
 
@@ -114,13 +118,10 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
     String operation, {
     Map<String, Object?> payload = const <String, Object?>{},
   }) {
-    return _invokeGetterData(
-      'runtimeOperation',
-      <String, Object?>{
-        'operation': operation,
-        'payload': payload,
-      },
-    );
+    return _invokeGetterData('runtimeOperation', <String, Object?>{
+      'operation': operation,
+      'payload': payload,
+    });
   }
 
   @override
@@ -132,9 +133,9 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   }) async {
     final payload = <String, Object?>{
       'package_id': packageId,
-      if (repositoryId != null) 'repository_id': repositoryId,
-      if (installedVersion != null) 'installed_version': installedVersion,
-      if (pinVersion != null) 'pin_version': pinVersion,
+      'repository_id': ?repositoryId,
+      'installed_version': ?installedVersion,
+      'pin_version': ?pinVersion,
     };
     final data = await invokeRuntimeOperation(
       'update_check_package_issue_action',
@@ -145,10 +146,9 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
 
   @override
   Future<RuntimeTaskSnapshot> submitRuntimeAction(String actionId) {
-    return _runtimeTaskOperation(
-      'task_submit',
-      <String, Object?>{'action_id': actionId},
-    );
+    return _runtimeTaskOperation('task_submit', <String, Object?>{
+      'action_id': actionId,
+    });
   }
 
   @override
@@ -158,10 +158,7 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   }) async {
     final data = await invokeRuntimeOperation(
       'task_list',
-      payload: <String, Object?>{
-        'active': active,
-        if (packageId != null) 'package_id': packageId,
-      },
+      payload: <String, Object?>{'active': active, 'package_id': ?packageId},
     );
     return _runtimeTasksFromData(data);
   }
@@ -207,14 +204,11 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
     RuntimeUserResult result, {
     String? reason,
   }) {
-    return _runtimeTaskOperation(
-      'task_user_result',
-      <String, Object?>{
-        'task_id': taskId,
-        'result': result.wireName,
-        if (reason != null) 'reason': reason,
-      },
-    );
+    return _runtimeTaskOperation('task_user_result', <String, Object?>{
+      'task_id': taskId,
+      'result': result.wireName,
+      'reason': ?reason,
+    });
   }
 
   @override

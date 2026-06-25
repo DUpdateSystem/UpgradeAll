@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_initializing_formals
+
 import 'package:flutter/services.dart';
 
 import 'getter_adapter.dart';
@@ -24,6 +26,7 @@ class LegacyRoomImportCandidate {
 }
 
 class MethodChannelLegacyMigrationPlatform implements LegacyMigrationPlatform {
+  // Keep the public `channel` parameter name for tests/callers.
   const MethodChannelLegacyMigrationPlatform({
     MethodChannel channel = const MethodChannel(
       'net.xzos.upgradeall/legacy_migration',
