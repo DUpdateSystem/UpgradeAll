@@ -27,6 +27,11 @@ jobs:
           distribution: 'temurin'
           java-version: 21
 
+      - name: Install Linux host build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib g++-multilib
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
