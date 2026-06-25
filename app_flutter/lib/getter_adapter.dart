@@ -34,6 +34,44 @@ abstract interface class GetterAdapter {
     List<String>? acceptedPackageIds,
   });
 
+  Future<RuntimeUpdateCheckResult> checkPackageForUpdate(
+    String packageId, {
+    String? repositoryId,
+    String? installedVersion,
+    String? pinVersion,
+  });
+
+  Future<RuntimeTaskSnapshot> submitRuntimeAction(String actionId);
+
+  Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
+    bool active = false,
+    String? packageId,
+  });
+
+  Future<RuntimeTaskSnapshot> getRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> startRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> pauseRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> resumeRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> cancelRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> retryRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> removeRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> sendRuntimeUserResult(
+    String taskId,
+    RuntimeUserResult result, {
+    String? reason,
+  });
+
+  Future<List<RuntimeTaskSnapshot>> cleanRuntimeTasks({
+    RuntimeTaskCleanMode mode = RuntimeTaskCleanMode.defaultMode,
+  });
+
   GetterSnapshot loadSnapshot();
 }
 
@@ -255,6 +293,137 @@ class FakeGetterAdapter implements GetterAdapter {
       ],
       'preserved_to_local': <Object?>[],
     });
+  }
+
+  @override
+  Future<RuntimeUpdateCheckResult> checkPackageForUpdate(
+    String packageId, {
+    String? repositoryId,
+    String? installedVersion,
+    String? pinVersion,
+  }) async {
+    return RuntimeUpdateCheckResult.fromJson(<String, Object?>{
+      'package': <String, Object?>{
+        'id': packageId,
+        'name': 'F-Droid',
+        'repository': repositoryId ?? 'official',
+        'permissions': <String, Object?>{'free_network': false},
+      },
+      'update': <String, Object?>{
+        'network_required': false,
+        'package_id': packageId,
+        'installed_version': installedVersion,
+        'effective_local_version': pinVersion ?? installedVersion,
+        'policy': <String, Object?>{'pin_version': pinVersion},
+        'status': 'update_available',
+        'selected': <String, Object?>{
+          'package_id': packageId,
+          'candidate': <String, Object?>{
+            'version': '1.2.0',
+            'artifacts': <Object?>[
+              <String, Object?>{
+                'name': 'app.apk',
+                'url': 'https://example.invalid/app.apk',
+                'file_name': 'app.apk',
+              },
+            ],
+          },
+          'artifact': <String, Object?>{
+            'name': 'app.apk',
+            'url': 'https://example.invalid/app.apk',
+            'file_name': 'app.apk',
+          },
+        },
+        'actions': <Object?>[
+          <String, Object?>{
+            'type': 'download',
+            'url': 'https://example.invalid/app.apk',
+            'file_name': 'app.apk',
+          },
+        ],
+      },
+      'action': <String, Object?>{
+        'action_id': 'action-fake',
+        'package_id': packageId,
+      },
+    });
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> submitRuntimeAction(String actionId) async {
+    return RuntimeTaskSnapshot.fromJson(_runtimeTaskJson('task-1'));
+  }
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
+    bool active = false,
+    String? packageId,
+  }) async {
+    return <RuntimeTaskSnapshot>[
+      RuntimeTaskSnapshot.fromJson(_runtimeTaskJson('task-1')),
+    ];
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> getRuntimeTask(String taskId) async {
+    return RuntimeTaskSnapshot.fromJson(_runtimeTaskJson(taskId));
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> startRuntimeTask(String taskId) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<RuntimeTaskSnapshot> pauseRuntimeTask(String taskId) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<RuntimeTaskSnapshot> resumeRuntimeTask(String taskId) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<RuntimeTaskSnapshot> cancelRuntimeTask(String taskId) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<RuntimeTaskSnapshot> retryRuntimeTask(String taskId) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<RuntimeTaskSnapshot> removeRuntimeTask(String taskId) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<RuntimeTaskSnapshot> sendRuntimeUserResult(
+    String taskId,
+    RuntimeUserResult result, {
+    String? reason,
+  }) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> cleanRuntimeTasks({
+    RuntimeTaskCleanMode mode = RuntimeTaskCleanMode.defaultMode,
+  }) async {
+    return <RuntimeTaskSnapshot>[];
+  }
+
+  static Map<String, Object?> _runtimeTaskJson(String taskId) {
+    return <String, Object?>{
+      'task_id': taskId,
+      'package_id': 'android/org.fdroid.fdroid',
+      'status': 'queued',
+      'phase': <String, Object?>{'category': 'queued'},
+      'progress': null,
+      'capabilities': <String, Object?>{
+        'cancel': true,
+        'pause': false,
+        'resume': false,
+        'retry': false,
+      },
+      'current_diagnostic': null,
+      'updated_at': 1,
+    };
   }
 
   @override
@@ -513,6 +682,285 @@ class TaskEventSummary {
   final String kind;
   final String? status;
   final String? message;
+}
+
+class RuntimeUpdateCheckResult {
+  const RuntimeUpdateCheckResult({
+    required this.package,
+    required this.update,
+    required this.action,
+  });
+
+  factory RuntimeUpdateCheckResult.fromJson(Map<String, Object?> json) {
+    return RuntimeUpdateCheckResult(
+      package: RuntimePackageSummary.fromJson(
+        _jsonMap(json['package'], 'runtime.package'),
+      ),
+      update: RuntimeUpdateSummary.fromJson(
+        _jsonMap(json['update'], 'runtime.update'),
+      ),
+      action: json['action'] == null
+          ? null
+          : RuntimeIssuedAction.fromJson(
+              _jsonMap(json['action'], 'runtime.action'),
+            ),
+    );
+  }
+
+  final RuntimePackageSummary package;
+  final RuntimeUpdateSummary update;
+  final RuntimeIssuedAction? action;
+}
+
+class RuntimePackageSummary {
+  const RuntimePackageSummary({
+    required this.id,
+    required this.name,
+    required this.repositoryId,
+  });
+
+  factory RuntimePackageSummary.fromJson(Map<String, Object?> json) {
+    return RuntimePackageSummary(
+      id: _jsonString(json['id'], 'runtime.package.id'),
+      name: _jsonString(json['name'], 'runtime.package.name'),
+      repositoryId:
+          _jsonString(json['repository'], 'runtime.package.repository'),
+    );
+  }
+
+  final String id;
+  final String name;
+  final String repositoryId;
+}
+
+class RuntimeUpdateSummary {
+  const RuntimeUpdateSummary({
+    required this.packageId,
+    required this.status,
+    required this.installedVersion,
+    required this.effectiveLocalVersion,
+    required this.selectedVersion,
+    required this.actions,
+  });
+
+  factory RuntimeUpdateSummary.fromJson(Map<String, Object?> json) {
+    final selected =
+        _jsonMapOrNull(json['selected'], 'runtime.update.selected');
+    final candidate = selected == null
+        ? null
+        : _jsonMap(selected['candidate'], 'runtime.update.selected.candidate');
+    return RuntimeUpdateSummary(
+      packageId: _jsonString(json['package_id'], 'runtime.update.package_id'),
+      status: _jsonString(json['status'], 'runtime.update.status'),
+      installedVersion: _jsonOptionalString(
+        json['installed_version'],
+        'runtime.update.installed_version',
+      ),
+      effectiveLocalVersion: _jsonOptionalString(
+        json['effective_local_version'],
+        'runtime.update.effective_local_version',
+      ),
+      selectedVersion: candidate == null
+          ? null
+          : _jsonString(
+              candidate['version'], 'runtime.update.selected.version'),
+      actions: _jsonList(json['actions'], 'runtime.update.actions')
+          .map((action) => _jsonMap(action, 'runtime.update.action'))
+          .toList(growable: false),
+    );
+  }
+
+  final String packageId;
+  final String status;
+  final String? installedVersion;
+  final String? effectiveLocalVersion;
+  final String? selectedVersion;
+  final List<Map<String, Object?>> actions;
+}
+
+class RuntimeIssuedAction {
+  const RuntimeIssuedAction({required this.actionId, required this.packageId});
+
+  factory RuntimeIssuedAction.fromJson(Map<String, Object?> json) {
+    return RuntimeIssuedAction(
+      actionId: _jsonString(json['action_id'], 'runtime.action.action_id'),
+      packageId: _jsonString(json['package_id'], 'runtime.action.package_id'),
+    );
+  }
+
+  final String actionId;
+  final String packageId;
+}
+
+class RuntimeTaskSnapshot {
+  const RuntimeTaskSnapshot({
+    required this.taskId,
+    required this.packageId,
+    required this.status,
+    required this.phase,
+    required this.progress,
+    required this.capabilities,
+    required this.currentDiagnostic,
+    required this.updatedAt,
+  });
+
+  factory RuntimeTaskSnapshot.fromJson(Map<String, Object?> json) {
+    return RuntimeTaskSnapshot(
+      taskId: _jsonString(json['task_id'], 'runtime.task.task_id'),
+      packageId: _jsonString(json['package_id'], 'runtime.task.package_id'),
+      status: _jsonString(json['status'], 'runtime.task.status'),
+      phase: RuntimeTaskPhase.fromJson(
+        _jsonMap(json['phase'], 'runtime.task.phase'),
+      ),
+      progress: json['progress'] == null
+          ? null
+          : RuntimeTaskProgress.fromJson(
+              _jsonMap(json['progress'], 'runtime.task.progress'),
+            ),
+      capabilities: RuntimeTaskCapabilities.fromJson(
+        _jsonMap(json['capabilities'], 'runtime.task.capabilities'),
+      ),
+      currentDiagnostic: json['current_diagnostic'] == null
+          ? null
+          : RuntimeTaskDiagnostic.fromJson(
+              _jsonMap(
+                json['current_diagnostic'],
+                'runtime.task.current_diagnostic',
+              ),
+            ),
+      updatedAt: _jsonInt(json['updated_at'], 'runtime.task.updated_at'),
+    );
+  }
+
+  final String taskId;
+  final String packageId;
+  final String status;
+  final RuntimeTaskPhase phase;
+  final RuntimeTaskProgress? progress;
+  final RuntimeTaskCapabilities capabilities;
+  final RuntimeTaskDiagnostic? currentDiagnostic;
+  final int updatedAt;
+}
+
+class RuntimeTaskPhase {
+  const RuntimeTaskPhase({required this.category, required this.reason});
+
+  factory RuntimeTaskPhase.fromJson(Map<String, Object?> json) {
+    return RuntimeTaskPhase(
+      category: _jsonString(json['category'], 'runtime.task.phase.category'),
+      reason: _jsonOptionalString(json['reason'], 'runtime.task.phase.reason'),
+    );
+  }
+
+  final String category;
+  final String? reason;
+}
+
+class RuntimeTaskProgress {
+  const RuntimeTaskProgress({
+    required this.unit,
+    required this.current,
+    required this.total,
+  });
+
+  factory RuntimeTaskProgress.fromJson(Map<String, Object?> json) {
+    return RuntimeTaskProgress(
+      unit: _jsonString(json['unit'], 'runtime.task.progress.unit'),
+      current: _jsonInt(json['current'], 'runtime.task.progress.current'),
+      total: json['total'] == null
+          ? null
+          : _jsonInt(json['total'], 'runtime.task.progress.total'),
+    );
+  }
+
+  final String unit;
+  final int current;
+  final int? total;
+}
+
+class RuntimeTaskCapabilities {
+  const RuntimeTaskCapabilities({
+    required this.cancel,
+    required this.pause,
+    required this.resume,
+    required this.retry,
+  });
+
+  factory RuntimeTaskCapabilities.fromJson(Map<String, Object?> json) {
+    return RuntimeTaskCapabilities(
+      cancel: _jsonBool(json['cancel'], 'runtime.task.capabilities.cancel'),
+      pause: _jsonBool(json['pause'], 'runtime.task.capabilities.pause'),
+      resume: _jsonBool(json['resume'], 'runtime.task.capabilities.resume'),
+      retry: _jsonBool(json['retry'], 'runtime.task.capabilities.retry'),
+    );
+  }
+
+  final bool cancel;
+  final bool pause;
+  final bool resume;
+  final bool retry;
+}
+
+class RuntimeTaskDiagnostic {
+  const RuntimeTaskDiagnostic({
+    required this.code,
+    required this.message,
+    required this.severity,
+  });
+
+  factory RuntimeTaskDiagnostic.fromJson(Map<String, Object?> json) {
+    return RuntimeTaskDiagnostic(
+      code: _jsonString(json['code'], 'runtime.task.diagnostic.code'),
+      message: _jsonString(json['message'], 'runtime.task.diagnostic.message'),
+      severity:
+          _jsonString(json['severity'], 'runtime.task.diagnostic.severity'),
+    );
+  }
+
+  final String code;
+  final String message;
+  final String severity;
+}
+
+enum RuntimeUserResult {
+  accepted,
+  rejected;
+
+  String get wireName => switch (this) {
+        RuntimeUserResult.accepted => 'accepted',
+        RuntimeUserResult.rejected => 'rejected',
+      };
+}
+
+enum RuntimeTaskCleanMode {
+  defaultMode,
+  failed,
+  allInactive;
+
+  String get wireName => switch (this) {
+        RuntimeTaskCleanMode.defaultMode => 'default',
+        RuntimeTaskCleanMode.failed => 'failed',
+        RuntimeTaskCleanMode.allInactive => 'all_inactive',
+      };
+}
+
+class RuntimeNotificationEnvelope {
+  const RuntimeNotificationEnvelope({required this.kind, required this.task});
+
+  factory RuntimeNotificationEnvelope.fromJson(Map<String, Object?> json) {
+    final kind = _jsonString(json['kind'], 'runtime.notification.kind');
+    return RuntimeNotificationEnvelope(
+      kind: kind,
+      task: kind == 'task_changed'
+          ? RuntimeTaskSnapshot.fromJson(
+              _jsonMap(json['task'], 'runtime.notification.task'),
+            )
+          : null,
+    );
+  }
+
+  final String kind;
+  final RuntimeTaskSnapshot? task;
 }
 
 class InstalledAutogenScanOptions {

@@ -319,62 +319,71 @@ class DownloadsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tasks = getter.listDownloadTasks();
-    final events = getter.listTaskEvents(after: 0, limit: 20).events;
     return Scaffold(
       key: AppKeys.downloadsRoute,
       appBar: AppBar(title: const Text('Downloads')),
-      body: tasks.isEmpty
-          ? const Center(
-              child: Text(key: AppKeys.downloadsEmpty, 'No download tasks yet'),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: <Widget>[
-                Text('Tasks', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
-                ListView.builder(
-                  key: AppKeys.downloadsList,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: tasks.length,
-                  itemBuilder: (context, index) {
-                    final task = tasks[index];
-                    return Card(
-                      child: ListTile(
-                        key: AppKeys.downloadTaskRow(task.id),
-                        title: Text(task.packageId),
-                        subtitle: Text(
-                          '${task.status} • ${task.downloadFileName}',
-                        ),
-                        trailing: task.installHandoffId == null
-                            ? null
-                            : const Chip(label: Text('Install handoff')),
-                      ),
-                    );
-                  },
+      body: FutureBuilder<List<RuntimeTaskSnapshot>>(
+        future: getter.listRuntimeTasks(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text(
+                key: AppKeys.downloadsEmpty,
+                'Runtime tasks unavailable',
+              ),
+            );
+          }
+          final tasks = snapshot.data ?? const <RuntimeTaskSnapshot>[];
+          if (tasks.isEmpty) {
+            return const Center(
+              child: Text(key: AppKeys.downloadsEmpty, 'No runtime tasks yet'),
+            );
+          }
+          return ListView.builder(
+            key: AppKeys.downloadsList,
+            padding: const EdgeInsets.all(16),
+            itemCount: tasks.length,
+            itemBuilder: (context, index) {
+              final task = tasks[index];
+              return Card(
+                child: ListTile(
+                  key: AppKeys.downloadTaskRow(task.taskId),
+                  title: Text(task.packageId),
+                  subtitle: Text(
+                    '${task.status} • ${task.phase.category}',
+                  ),
+                  trailing:
+                      _TaskCapabilitiesChips(capabilities: task.capabilities),
                 ),
-                const SizedBox(height: 16),
-                Text('Events', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
-                ListView.builder(
-                  key: AppKeys.taskEventsList,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: events.length,
-                  itemBuilder: (context, index) {
-                    final event = events[index];
-                    return ListTile(
-                      key: AppKeys.taskEventRow(event.cursor),
-                      title: Text(event.kind),
-                      subtitle: Text(
-                        '${event.taskId} • ${event.status ?? 'no status'}',
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _TaskCapabilitiesChips extends StatelessWidget {
+  const _TaskCapabilitiesChips({required this.capabilities});
+
+  final RuntimeTaskCapabilities capabilities;
+
+  @override
+  Widget build(BuildContext context) {
+    final labels = <String>[
+      if (capabilities.cancel) 'Cancel',
+      if (capabilities.pause) 'Pause',
+      if (capabilities.resume) 'Resume',
+      if (capabilities.retry) 'Retry',
+    ];
+    if (labels.isEmpty) return const SizedBox.shrink();
+    return Wrap(
+      spacing: 4,
+      children: labels.map((label) => Chip(label: Text(label))).toList(),
     );
   }
 }

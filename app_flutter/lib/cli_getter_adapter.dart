@@ -120,6 +120,101 @@ class CliGetterAdapter implements GetterAdapter {
   }
 
   @override
+  Future<RuntimeUpdateCheckResult> checkPackageForUpdate(
+    String packageId, {
+    String? repositoryId,
+    String? installedVersion,
+    String? pinVersion,
+  }) async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message: 'CLI adapter does not host a process-lifetime runtime',
+      ),
+    );
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> submitRuntimeAction(String actionId) {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message: 'CLI adapter does not host a process-lifetime runtime',
+      ),
+    );
+  }
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
+    bool active = false,
+    String? packageId,
+  }) {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message: 'CLI adapter does not host a process-lifetime runtime',
+      ),
+    );
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> getRuntimeTask(String taskId) =>
+      _unsupportedRuntimeTask();
+
+  @override
+  Future<RuntimeTaskSnapshot> startRuntimeTask(String taskId) =>
+      _unsupportedRuntimeTask();
+
+  @override
+  Future<RuntimeTaskSnapshot> pauseRuntimeTask(String taskId) =>
+      _unsupportedRuntimeTask();
+
+  @override
+  Future<RuntimeTaskSnapshot> resumeRuntimeTask(String taskId) =>
+      _unsupportedRuntimeTask();
+
+  @override
+  Future<RuntimeTaskSnapshot> cancelRuntimeTask(String taskId) =>
+      _unsupportedRuntimeTask();
+
+  @override
+  Future<RuntimeTaskSnapshot> retryRuntimeTask(String taskId) =>
+      _unsupportedRuntimeTask();
+
+  @override
+  Future<RuntimeTaskSnapshot> removeRuntimeTask(String taskId) =>
+      _unsupportedRuntimeTask();
+
+  @override
+  Future<RuntimeTaskSnapshot> sendRuntimeUserResult(
+    String taskId,
+    RuntimeUserResult result, {
+    String? reason,
+  }) =>
+      _unsupportedRuntimeTask();
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> cleanRuntimeTasks({
+    RuntimeTaskCleanMode mode = RuntimeTaskCleanMode.defaultMode,
+  }) {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message: 'CLI adapter does not host a process-lifetime runtime',
+      ),
+    );
+  }
+
+  Future<RuntimeTaskSnapshot> _unsupportedRuntimeTask() {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message: 'CLI adapter does not host a process-lifetime runtime',
+      ),
+    );
+  }
+
+  @override
   GetterSnapshot loadSnapshot() {
     initialize();
     final repositories = listRepositories();

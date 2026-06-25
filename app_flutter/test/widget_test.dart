@@ -53,7 +53,7 @@ void main() {
     expect(find.byKey(AppKeys.repoRow('local_autogen')), findsOneWidget);
   });
 
-  testWidgets('downloads route renders getter task DTOs read-only',
+  testWidgets('downloads route renders runtime task snapshots read-only',
       (tester) async {
     await tester.pumpWidget(const UpgradeAllApp());
 
@@ -63,9 +63,8 @@ void main() {
     expect(find.byKey(AppKeys.downloadsRoute), findsOneWidget);
     expect(find.byKey(AppKeys.downloadsList), findsOneWidget);
     expect(find.byKey(AppKeys.downloadTaskRow('task-1')), findsOneWidget);
-    expect(find.byKey(AppKeys.taskEventsList), findsOneWidget);
-    expect(find.byKey(AppKeys.taskEventRow(3)), findsOneWidget);
-    expect(find.text('Install handoff'), findsOneWidget);
+    expect(find.text('queued • queued'), findsOneWidget);
+    expect(find.text('Cancel'), findsOneWidget);
   });
 
   testWidgets('downloads route exposes getter empty task state',
@@ -243,6 +242,13 @@ class _NoTaskGetterAdapter extends FakeGetterAdapter {
       hasMore: false,
     );
   }
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
+    bool active = false,
+    String? packageId,
+  }) async =>
+      const <RuntimeTaskSnapshot>[];
 }
 
 class _LegacyMigrationCapableGetterAdapter extends FakeGetterAdapter {

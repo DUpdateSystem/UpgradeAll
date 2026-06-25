@@ -504,6 +504,7 @@ Completed additional UI/bridge slice:
 11. Render getter-owned task/event DTOs on the Flutter Downloads route without adding a Dart task state machine.
 12. Add Flutter widget/dev integration coverage for reading and rendering getter task lifecycle DTOs.
 13. Add native bridge process-lifetime runtime singleton, runtime operation dispatcher, bounded best-effort notification drain, Kotlin EventChannel, and Dart runtime notification stream primitive.
+14. Add typed Dart runtime/update methods for package update-check action issuance, action-id submission, task query/control/user-result/remove/clean, typed runtime notifications, and runtime task snapshot rendering on the Downloads route.
 
 Remaining tasks:
 
@@ -512,7 +513,7 @@ Remaining tasks:
 3. Replace or retire the older persisted fake CLI task scaffold so public task status/control language uses ADR-0011 (`completed`, `user-result`, remove/clean, no cross-invocation task state).
 4. Implement live provider/downloader behavior beyond the fake/offline proof after a later ADR accepts real side-effect details.
 5. Define Android production install handoff URI/SAF/permission/notification details and wire platform adapter execution after later ADRs.
-6. Add product-level Flutter BDD for update/download user flows after live/provider/background/installer decisions are accepted; the current slice only covers read-only DTO rendering.
+6. Add product-level Flutter BDD for full update/download/install user flows after live/provider/background/installer decisions are accepted; the current slice covers typed runtime DTO methods and read-only runtime task snapshot rendering.
 
 Acceptance progress:
 

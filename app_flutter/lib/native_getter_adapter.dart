@@ -106,6 +106,10 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
     });
   }
 
+  Stream<RuntimeNotificationEnvelope> runtimeNotificationEnvelopes() {
+    return runtimeNotifications().map(RuntimeNotificationEnvelope.fromJson);
+  }
+
   Future<Map<String, Object?>> invokeRuntimeOperation(
     String operation, {
     Map<String, Object?> payload = const <String, Object?>{},
@@ -117,6 +121,129 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
         'payload': payload,
       },
     );
+  }
+
+  @override
+  Future<RuntimeUpdateCheckResult> checkPackageForUpdate(
+    String packageId, {
+    String? repositoryId,
+    String? installedVersion,
+    String? pinVersion,
+  }) async {
+    final payload = <String, Object?>{
+      'package_id': packageId,
+      if (repositoryId != null) 'repository_id': repositoryId,
+      if (installedVersion != null) 'installed_version': installedVersion,
+      if (pinVersion != null) 'pin_version': pinVersion,
+    };
+    final data = await invokeRuntimeOperation(
+      'update_check_package_issue_action',
+      payload: payload,
+    );
+    return RuntimeUpdateCheckResult.fromJson(data);
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> submitRuntimeAction(String actionId) {
+    return _runtimeTaskOperation(
+      'task_submit',
+      <String, Object?>{'action_id': actionId},
+    );
+  }
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
+    bool active = false,
+    String? packageId,
+  }) async {
+    final data = await invokeRuntimeOperation(
+      'task_list',
+      payload: <String, Object?>{
+        'active': active,
+        if (packageId != null) 'package_id': packageId,
+      },
+    );
+    return _runtimeTasksFromData(data);
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> getRuntimeTask(String taskId) {
+    return _runtimeTaskOperation('task_get', _taskIdPayload(taskId));
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> startRuntimeTask(String taskId) {
+    return _runtimeTaskOperation('task_start', _taskIdPayload(taskId));
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> pauseRuntimeTask(String taskId) {
+    return _runtimeTaskOperation('task_pause', _taskIdPayload(taskId));
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> resumeRuntimeTask(String taskId) {
+    return _runtimeTaskOperation('task_resume', _taskIdPayload(taskId));
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> cancelRuntimeTask(String taskId) {
+    return _runtimeTaskOperation('task_cancel', _taskIdPayload(taskId));
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> retryRuntimeTask(String taskId) {
+    return _runtimeTaskOperation('task_retry', _taskIdPayload(taskId));
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> removeRuntimeTask(String taskId) {
+    return _runtimeTaskOperation('task_remove', _taskIdPayload(taskId));
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> sendRuntimeUserResult(
+    String taskId,
+    RuntimeUserResult result, {
+    String? reason,
+  }) {
+    return _runtimeTaskOperation(
+      'task_user_result',
+      <String, Object?>{
+        'task_id': taskId,
+        'result': result.wireName,
+        if (reason != null) 'reason': reason,
+      },
+    );
+  }
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> cleanRuntimeTasks({
+    RuntimeTaskCleanMode mode = RuntimeTaskCleanMode.defaultMode,
+  }) async {
+    final data = await invokeRuntimeOperation(
+      'task_clean',
+      payload: <String, Object?>{'mode': mode.wireName},
+    );
+    return _runtimeTasksFromData(data);
+  }
+
+  Future<RuntimeTaskSnapshot> _runtimeTaskOperation(
+    String operation,
+    Map<String, Object?> payload,
+  ) async {
+    final data = await invokeRuntimeOperation(operation, payload: payload);
+    return RuntimeTaskSnapshot.fromJson(data);
+  }
+
+  List<RuntimeTaskSnapshot> _runtimeTasksFromData(Map<String, Object?> data) {
+    return _asList(data['tasks'], 'runtime tasks')
+        .map((task) => RuntimeTaskSnapshot.fromJson(_asMap(task, 'task')))
+        .toList(growable: false);
+  }
+
+  Map<String, Object?> _taskIdPayload(String taskId) {
+    return <String, Object?>{'task_id': taskId};
   }
 
   Future<Map<String, Object?>> _invokeGetterData(

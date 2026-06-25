@@ -204,6 +204,126 @@ void main() {
     );
   });
 
+  test('typed runtime update check returns getter-issued action id', () async {
+    final calls = <MethodCall>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+      calls.add(call);
+      if (call.method != 'runtimeOperation') {
+        fail('unexpected method ${call.method}');
+      }
+      final args =
+          (call.arguments as Map<Object?, Object?>).cast<String, Object?>();
+      if (args['operation'] == 'update_check_package_issue_action') {
+        return jsonEncode(<String, Object?>{
+          'ok': true,
+          'command': 'runtime operation',
+          'data': <String, Object?>{
+            'package': <String, Object?>{
+              'id': 'android/org.fdroid.fdroid',
+              'name': 'F-Droid',
+              'repository': 'official',
+              'permissions': <String, Object?>{'free_network': false},
+            },
+            'update': <String, Object?>{
+              'network_required': false,
+              'package_id': 'android/org.fdroid.fdroid',
+              'installed_version': '1.0.0',
+              'effective_local_version': '1.0.0',
+              'policy': <String, Object?>{'pin_version': null},
+              'status': 'update_available',
+              'selected': <String, Object?>{
+                'package_id': 'android/org.fdroid.fdroid',
+                'candidate': <String, Object?>{
+                  'version': '1.2.0',
+                  'artifacts': <Object?>[],
+                },
+              },
+              'actions': <Object?>[
+                <String, Object?>{
+                  'type': 'download',
+                  'url': 'https://example.invalid/app.apk',
+                  'file_name': 'app.apk',
+                },
+              ],
+            },
+            'action': <String, Object?>{
+              'action_id': 'action-1',
+              'package_id': 'android/org.fdroid.fdroid',
+            },
+          },
+          'warnings': <Object?>[],
+        });
+      }
+      if (args['operation'] == 'task_submit') {
+        return jsonEncode(<String, Object?>{
+          'ok': true,
+          'command': 'runtime operation',
+          'data': _runtimeTaskJson('task-1', status: 'queued'),
+          'warnings': <Object?>[],
+        });
+      }
+      fail('unexpected runtime operation ${args['operation']}');
+    });
+
+    const adapter = MethodChannelGetterAdapter(channel: channel);
+    final update = await adapter.checkPackageForUpdate(
+      'android/org.fdroid.fdroid',
+      repositoryId: 'official',
+      installedVersion: '1.0.0',
+    );
+    final task = await adapter.submitRuntimeAction(update.action!.actionId);
+
+    expect(update.action!.actionId, 'action-1');
+    expect(update.update.selectedVersion, '1.2.0');
+    expect(task.taskId, 'task-1');
+    expect(calls.first.arguments, <String, Object?>{
+      'operation': 'update_check_package_issue_action',
+      'payload': <String, Object?>{
+        'package_id': 'android/org.fdroid.fdroid',
+        'repository_id': 'official',
+        'installed_version': '1.0.0',
+      },
+    });
+    expect(calls.last.arguments, <String, Object?>{
+      'operation': 'task_submit',
+      'payload': <String, Object?>{'action_id': 'action-1'},
+    });
+  });
+
+  test('typed runtime task controls parse task snapshots', () async {
+    final operations = <String>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+      final args =
+          (call.arguments as Map<Object?, Object?>).cast<String, Object?>();
+      operations.add(args['operation']! as String);
+      return jsonEncode(<String, Object?>{
+        'ok': true,
+        'command': 'runtime operation',
+        'data': args['operation'] == 'task_list' ||
+                args['operation'] == 'task_clean'
+            ? <String, Object?>{
+                'tasks': <Object?>[
+                  _runtimeTaskJson('task-1', status: 'running')
+                ],
+              }
+            : _runtimeTaskJson('task-1', status: 'running'),
+        'warnings': <Object?>[],
+      });
+    });
+
+    const adapter = MethodChannelGetterAdapter(channel: channel);
+    final tasks = await adapter.listRuntimeTasks(active: true);
+    final canceled = await adapter.cancelRuntimeTask('task-1');
+    final cleaned = await adapter.cleanRuntimeTasks();
+
+    expect(tasks.single.status, 'running');
+    expect(canceled.taskId, 'task-1');
+    expect(cleaned.single.taskId, 'task-1');
+    expect(operations, <String>['task_list', 'task_cancel', 'task_clean']);
+  });
+
   test('native runtime operation forwards operation and payload', () async {
     MethodCall? captured;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -272,6 +392,26 @@ void main() {
     );
   });
 }
+
+Map<String, Object?> _runtimeTaskJson(
+  String taskId, {
+  required String status,
+}) =>
+    <String, Object?>{
+      'task_id': taskId,
+      'package_id': 'android/org.fdroid.fdroid',
+      'status': status,
+      'phase': <String, Object?>{'category': status},
+      'progress': null,
+      'capabilities': <String, Object?>{
+        'cancel': true,
+        'pause': false,
+        'resume': false,
+        'retry': false,
+      },
+      'current_diagnostic': null,
+      'updated_at': 1,
+    };
 
 Map<String, Object?> _previewJson() => <String, Object?>{
       'operation': 'installed.preview',
