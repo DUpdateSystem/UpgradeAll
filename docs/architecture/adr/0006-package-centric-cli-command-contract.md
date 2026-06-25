@@ -22,12 +22,13 @@ getter --data-dir <path> repo validate <path>
 getter --data-dir <path> package eval <package-id> [--repo <repo-id>]
 getter --data-dir <path> storage validate
 getter --data-dir <path> update check --fixture <fixture.json>
-getter --data-dir <path> task submit --request <request.json>
-getter --data-dir <path> task run <task-id>
-getter --data-dir <path> task list
-getter --data-dir <path> task cancel <task-id>
-getter --data-dir <path> task events --after <cursor> --limit <n>
-getter --data-dir <path> task install-result <handoff-id> --status <accepted|succeeded|failed|canceled>
+getter --data-dir <path> runtime script --script <script.json>
+getter --data-dir <path> debug fake-task submit --request <request.json>
+getter --data-dir <path> debug fake-task run <task-id>
+getter --data-dir <path> debug fake-task list
+getter --data-dir <path> debug fake-task cancel <task-id>
+getter --data-dir <path> debug fake-task events --after <cursor> --limit <n>
+getter --data-dir <path> debug fake-task install-result <handoff-id> --status <accepted|succeeded|failed|canceled>
 getter --data-dir <path> autogen installed preview --inventory <installed.json>
 getter --data-dir <path> autogen installed apply --preview <preview.json> (--accept-all|--accept <package-id>...)
 getter --data-dir <path> autogen cleanup preview --inventory <installed.json>
@@ -103,7 +104,9 @@ The first installed-app autogen slice accepts an Android/platform-provided inven
 
 `update check --fixture <fixture.json>` is the first Phase D offline update-check slice. The fixture contract is explicitly offline and uses `format = "getter-offline-update-check"`, `version = 1`, `package_id`, optional `installed_version`, optional `pin_version` (with transitional `ignored_version` accepted as an input alias), and normalized candidate/artifact DTOs. The command returns `network_required = false`, observed `installed_version`, `effective_local_version`, a getter-owned status (`update_available`, `up_to_date`, or `no_candidates`), the selected update when one exists, and generated download/install action DTOs. An update-selected result must have an actionable artifact; a selected candidate without artifacts is a structured update-check error rather than `update_available` with no actions. It reuses Rust getter update selection and version comparison; it does not run providers, perform downloads, persist download tasks, stream events, or call Android installers.
 
-The first getter-owned task lifecycle slice is also explicitly offline/fake and command-driven. `task submit --request <request.json>` accepts `format = "getter-download-request"`, `version = 1`, `package_id`, `executor = "fake"`, and update actions containing at least one `download` action; an optional `install` action creates an abstract install handoff after a successful fake run. `task run <task-id>` deterministically advances the fake task to `succeeded`; it performs no network I/O and writes no downloaded bytes. `task list` returns persisted task summaries from `main.db`. `task cancel <task-id>` persists cancellation for `queued`/`running` tasks, is idempotent for already-canceled tasks, and rejects terminal success/failure with a structured download error. `task events --after <cursor> --limit <n>` is a pollable CLI/dev event contract with a positive `limit`; it is not a native streaming API, and native streaming/backpressure remains deferred. `task install-result <handoff-id> --status <accepted|succeeded|failed|canceled>` records the platform-side result of an abstract handoff; the getter-created `requested` handoff state is not accepted as a platform result. Getter records handoff requests/results but does not call Android installers, request permissions, create notifications, or decide Android URI/SAF semantics.
+The old persisted fake downloader slice is retained only as debug scaffolding under `debug fake-task ...`. `debug fake-task submit --request <request.json>` accepts `format = "getter-download-request"`, `version = 1`, `package_id`, `executor = "fake"`, and update actions containing at least one `download` action; an optional `install` action creates an abstract install handoff after a successful fake run. `debug fake-task run <task-id>` deterministically advances the fake task to `succeeded`; it performs no network I/O and writes no downloaded bytes. `debug fake-task list` returns persisted fake-task summaries from `main.db`. `debug fake-task cancel <task-id>` persists cancellation for `queued`/`running` fake tasks, is idempotent for already-canceled tasks, and rejects terminal success/failure with a structured download error. `debug fake-task events --after <cursor> --limit <n>` is a pollable debug event contract with a positive `limit`; it is not the ADR-0011 runtime event model. `debug fake-task install-result <handoff-id> --status <accepted|succeeded|failed|canceled>` records the platform-side result of an abstract debug handoff; the getter-created `requested` handoff state is not accepted as a platform result. This scaffold is not a product task API.
+
+ADR-0011 runtime task debugging uses `runtime script --script <script.json>`. The script command creates one in-memory `GetterRuntime` for that single CLI process, executes scripted operations such as `issue_action`, `submit_action`, `task_start`, `task_complete_download`, `task_user_result`, `task_remove`, and `task_clean`, then drops all runtime task state when the process exits. It exists so CLI tests can cover runtime remove/clean/control semantics without introducing a task database, daemon, or cross-invocation task promise. Product task submission remains getter-issued opaque `action_id` only through the native bridge/runtime operation path.
 
 `repo validate <path>` validates a repository path offline without requiring it to be registered first. It returns `valid`, `diagnostics`, `package_count`, and `network_required = false`; diagnostics are getter-owned structured records with stable codes, message, severity, source path, and optional package id/field.
 

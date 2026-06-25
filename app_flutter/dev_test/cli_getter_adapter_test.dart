@@ -72,12 +72,18 @@ void main() {
       bundle.path,
     ]);
     _runGetter(getterCli, dataDir.path, <String>[
-      'task',
+      'debug',
+      'fake-task',
       'submit',
       '--request',
       taskRequest.path,
     ]);
-    _runGetter(getterCli, dataDir.path, <String>['task', 'run', 'task-1']);
+    _runGetter(getterCli, dataDir.path, <String>[
+      'debug',
+      'fake-task',
+      'run',
+      'task-1',
+    ]);
 
     final repositories = adapter.listRepositories();
     expect(repositories.map((repo) => repo.id), contains('official'));

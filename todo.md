@@ -493,36 +493,36 @@ Completed tasks:
 6. Add getter-core task/event/install-handoff DTOs for the first offline lifecycle proof.
 7. Add main DB task/event/install-handoff tables and storage APIs with TDD coverage.
 8. Implement deterministic fake/offline downloader behavior beyond the previous placeholder crate: submit, run, cancel, list, poll events, and record install result.
-9. Add CLI commands and BDD coverage for `task submit`, `task run`, `task list`, `task cancel`, `task events`, and `task install-result`.
+9. Add debug fake-task CLI commands and BDD coverage for persisted offline scaffold operations: submit, run, list, cancel, events, and install-result.
 10. Accept ADR-0011 for the in-memory runtime/task/action/RuntimeNotification model.
 11. Add `getter-core::runtime` with in-memory `GetterRuntime`, single-use `action_id`, sealed action plans, package-version Lua object binding, generic `user-result`, mock download/install state, package-level non-waiting lock, task controls, remove/clean, and RuntimeNotification DTOs with TDD coverage.
 12. Add shared `getter-operations::runtime` JSON controls for offline update-check action issuance plus submit/get/list/start/progress/complete-download/pause/resume/user-result/cancel/retry/remove/clean without persisted task state.
 
 Completed additional UI/bridge slice:
 
-10. Extend Flutter getter bridge DTOs/adapters with read-only task list and event page APIs backed by existing getter CLI `task list` and `task events`.
-11. Render getter-owned task/event DTOs on the Flutter Downloads route without adding a Dart task state machine.
-12. Add Flutter widget/dev integration coverage for reading and rendering getter task lifecycle DTOs.
+10. Extend Flutter getter bridge DTOs/adapters with read-only debug fake-task list and event page APIs backed by getter CLI `debug fake-task list/events`.
+11. Render getter-owned task/event DTOs on the initial Flutter Downloads route without adding a Dart task state machine.
+12. Add Flutter widget/dev integration coverage for reading and rendering getter debug fake-task lifecycle DTOs.
 13. Add native bridge process-lifetime runtime singleton, runtime operation dispatcher, bounded best-effort notification drain, Kotlin EventChannel, and Dart runtime notification stream primitive.
 14. Add typed Dart runtime/update methods for package update-check action issuance, action-id submission, task query/control/user-result/remove/clean, typed runtime notifications, and runtime task snapshot rendering on the Downloads route.
+15. Add `runtime script --script <script.json>` as a single-process CLI debug harness over `getter-operations::runtime`, including task remove/clean coverage, and move the old persisted fake downloader scaffold out of the public `task` namespace to `debug fake-task ...`.
 
 Remaining tasks:
 
 1. Replace the current static `updates` package seam with live provider update-check action issuance that materializes sealed action plans and returns opaque `action_id` to Flutter; keep Dart from constructing action payloads.
-2. Optionally add CLI single-process scripted/debug tooling over `getter-operations::runtime` without pretending separate invocations share memory.
-3. Replace or retire the older persisted fake CLI task scaffold so public task status/control language uses ADR-0011 (`completed`, `user-result`, remove/clean, no cross-invocation task state).
-4. Implement live provider/downloader behavior beyond the fake/offline proof after a later ADR accepts real side-effect details.
-5. Define Android production install handoff URI/SAF/permission/notification details and wire platform adapter execution after later ADRs.
-6. Add product-level Flutter BDD for full update/download/install user flows after live/provider/background/installer decisions are accepted; the current slice covers typed runtime DTO methods and read-only runtime task snapshot rendering.
+2. Continue retiring old fake-task scaffolding from product-facing adapters/docs as newer runtime/native flows cover those cases; the remaining `debug fake-task ...` commands are development-only.
+3. Implement live provider/downloader behavior beyond the fake/offline proof after a later ADR accepts real side-effect details.
+4. Define Android production install handoff URI/SAF/permission/notification details and wire platform adapter execution after later ADRs.
+5. Add product-level Flutter BDD for full update/download/install user flows after live/provider/background/installer decisions are accepted; the current slice covers typed runtime DTO methods and read-only runtime task snapshot rendering.
 
 Acceptance progress:
 
 - CLI can run an offline fixture update check: done.
-- Older CLI/dev fake task scaffold can persist/list task state: done, but superseded by ADR-0011 and slated for replacement/retirement.
+- Older CLI/dev fake task scaffold can persist/list task state: done under `debug fake-task ...`; it is development-only and superseded by ADR-0011 for product runtime tasks.
 - `getter-core::runtime` can manage in-memory tasks, controls, `user-result`, retry, package lock, remove/clean, and notifications: first TDD slice done.
-- Getter can expose pollable task events with cursor/limit in the older CLI/dev scaffold; ADR-0011 native push stream skeleton is done with bounded best-effort EventChannel delivery and current-state query operations still pending typed Flutter UI use.
-- Getter can record abstract install handoff requests/results in the older scaffold; ADR-0011 uses generic `user-result` and mock install waiting-user state, Android installer execution remains deferred.
-- Flutter displays getter task/event DTOs rather than calculating status itself: done for read-only CLI/dev bridge slice.
+- Getter can expose pollable task events with cursor/limit only in the `debug fake-task` scaffold; ADR-0011 native push stream skeleton is done with bounded best-effort EventChannel delivery and typed current-state query operations in Flutter.
+- Getter can record abstract install handoff requests/results in the debug fake-task scaffold; ADR-0011 uses generic `user-result` and mock install waiting-user state, Android installer execution remains deferred.
+- Flutter displays getter runtime task snapshots rather than calculating status itself: done for read-only typed runtime snapshot rendering.
 - Android platform adapter owns permissions/notifications/installer handoff: documented/deferred; no Android execution added in this slice.
 
 ## 10. Do-not-do list for the next agent

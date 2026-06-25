@@ -74,7 +74,7 @@ class CliGetterAdapter implements GetterAdapter {
 
   @override
   List<DownloadTaskSummary> listDownloadTasks() {
-    final json = _runGetter(const <String>['task', 'list']);
+    final json = _runGetter(const <String>['debug', 'fake-task', 'list']);
     final tasks = _asList(_data(json)['tasks'], 'tasks');
     return tasks
         .map((task) => _downloadTaskFromJson(_asMap(task, 'task')))
@@ -84,7 +84,8 @@ class CliGetterAdapter implements GetterAdapter {
   @override
   TaskEventPage listTaskEvents({required int after, required int limit}) {
     final json = _runGetter(<String>[
-      'task',
+      'debug',
+      'fake-task',
       'events',
       '--after',
       after.toString(),

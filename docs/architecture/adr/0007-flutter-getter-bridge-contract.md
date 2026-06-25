@@ -148,9 +148,9 @@ Flutter then calls a getter bridge operation equivalent to `legacy import-room-d
 
 ## Event model
 
-The first bridge slice is snapshot-only. Streaming events, progress, cancellation, backpressure, foreground services, notification lifecycle, and installer handoff are explicitly deferred to the update/download/install lifecycle ADR/work.
+The initial bridge slice was snapshot-only. ADR-0011 supersedes the old persisted fake-task CLI scaffold for product task flow: runtime task state is process-memory only in the native getter singleton, `RuntimeNotification.task_changed` is pushed over the bridge, and current-state task query operations remain authoritative. The remaining `debug fake-task ...` CLI commands are development scaffolding, not a Flutter/product task API. CLI runtime task coverage uses `runtime script --script <script.json>`, which executes within one process and intentionally drops runtime task state after the command exits.
 
-The first Phase D lifecycle slice defines getter-owned task/event/handoff DTOs through the CLI only: task state is persisted in getter `main.db`, task events are pollable with `after` cursor plus `limit`, and fake executor progress is command-driven rather than background-streamed. This pollable CLI/dev contract is not the final native stream API. Flutter should not maintain its own task state machine; future Flutter/bridge work must render getter task/event DTOs or ask getter for richer fields.
+Flutter should not maintain its own task state machine; it renders getter-owned runtime task snapshots and invokes getter-owned task controls/update operations using opaque `action_id`s.
 
 Android platform install remains a handoff boundary. Getter may request/record an abstract install handoff, but Android permissions, notifications, PackageInstaller/Shizuku/root execution, and path-versus-URI/SAF semantics belong to platform adapter work and remain outside this bridge slice.
 
