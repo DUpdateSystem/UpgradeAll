@@ -2,6 +2,7 @@ extern crate jni;
 
 use getter::operations::autogen::{self, AutogenAcceptance, AutogenOperationError};
 use getter::operations::legacy_room::{self, LegacyRoomOperationError};
+use getter::operations::read_model::{self, ReadModelOperationError};
 use getter::operations::runtime as runtime_operations;
 use getter::rpc::server::run_server_hanging;
 #[cfg(target_os = "android")]
@@ -50,6 +51,14 @@ struct ImportLegacyRoomDatabaseRequest {
 #[derive(Debug, Deserialize)]
 struct LegacyReportListRequest {
     data_dir: PathBuf,
+}
+
+#[derive(Debug, Deserialize)]
+struct ReadOperationRequest {
+    data_dir: PathBuf,
+    operation: String,
+    #[serde(default)]
+    payload: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -255,6 +264,20 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_legacyReportList<'lo
     java_string_or_fallback(&mut env, response)
 }
 
+#[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_readOperation<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "read operation";
+    let response = match jstring_to_string(&mut env, &request_json).and_then(read_operation) {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
 fn preview_installed_autogen(
     env: &mut JNIEnv<'_>,
     context: &JObject<'_>,
@@ -343,6 +366,25 @@ fn drain_runtime_notifications() -> Result<Value, BridgeOperationError> {
         .map_err(|_| BridgeOperationError::RuntimeNotificationQueuePoisoned)?;
     let notifications: Vec<Value> = queue.drain(..).collect();
     Ok(json!({ "notifications": notifications }))
+}
+
+fn read_operation(request_json: String) -> Result<Value, BridgeOperationError> {
+    let request: ReadOperationRequest = serde_json::from_str(&request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let payload = if request.payload.is_null() {
+        "{}".to_owned()
+    } else {
+        request.payload.to_string()
+    };
+    match request.operation.as_str() {
+        "repository_list" => read_model::repository_list_json(&request.data_dir),
+        "tracked_package_list" => read_model::tracked_package_list_json(&request.data_dir),
+        "package_eval" => read_model::package_eval_json(&request.data_dir, &payload),
+        other => Err(ReadModelOperationError::InvalidRequest(format!(
+            "unsupported read operation '{other}'"
+        ))),
+    }
+    .map_err(BridgeOperationError::ReadModel)
 }
 
 fn runtime_operation(request_json: String) -> Result<Value, BridgeOperationError> {
@@ -532,6 +574,8 @@ enum BridgeOperationError {
     Autogen(String),
     #[error("migration error: {0}")]
     Migration(#[from] LegacyRoomOperationError),
+    #[error("read model error: {0}")]
+    ReadModel(#[from] ReadModelOperationError),
     #[error("runtime error: {0}")]
     Runtime(#[from] runtime_operations::RuntimeOperationError),
     #[error("runtime lock is poisoned")]
@@ -609,6 +653,7 @@ impl BridgeOperationError {
                     .detail()
                     .or_else(|| error.report_path().map(|path| path.display().to_string())),
             ),
+            Self::ReadModel(error) => (error.code(), error.message(), error.detail()),
             Self::Runtime(error) => (error.code(), error.message(), error.detail()),
             Self::RuntimePoisoned => ("runtime.poisoned", "Getter runtime lock is poisoned", None),
             Self::RuntimeNotificationQueuePoisoned => (
@@ -670,6 +715,48 @@ mod tests {
             }
             AutogenAcceptance::AcceptAll => panic!("expected explicit package acceptance"),
         }
+    }
+
+    #[test]
+    fn read_operation_lists_repositories_and_evaluates_packages() {
+        let temp = tempfile::tempdir().unwrap();
+        let data_dir = temp.path().join("data");
+        let repo_root = temp.path().join("repo");
+        write_static_update_repo(&repo_root);
+        let db = open_main_db(&data_dir).unwrap();
+        db.upsert_repository(
+            &RepositoryMetadata {
+                id: "official".parse().unwrap(),
+                name: "Official".to_owned(),
+                priority: RepositoryPriority::new(0),
+                api_version: REPO_API_VERSION_V1.to_owned(),
+            },
+            Some(&repo_root),
+            None,
+        )
+        .unwrap();
+
+        let repositories = read_operation(
+            json!({
+                "operation": "repository_list",
+                "data_dir": data_dir,
+            })
+            .to_string(),
+        )
+        .expect("repository list");
+        assert_eq!(repositories["repositories"][0]["id"], "official");
+
+        let package = read_operation(
+            json!({
+                "operation": "package_eval",
+                "data_dir": data_dir,
+                "payload": { "package_id": "android/org.fdroid.fdroid" }
+            })
+            .to_string(),
+        )
+        .expect("package eval");
+        assert_eq!(package["package"]["id"], "android/org.fdroid.fdroid");
+        assert_eq!(package["package"]["repository"], "official");
     }
 
     #[test]

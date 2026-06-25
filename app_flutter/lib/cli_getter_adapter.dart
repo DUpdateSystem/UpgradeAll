@@ -55,8 +55,9 @@ class CliGetterAdapter implements GetterAdapter {
     final json = _runGetter(const <String>['legacy', 'report-list']);
     final reports = _asList(_data(json)['reports'], 'reports');
     return reports
-        .map((report) =>
-            MigrationReportSummary.fromJson(_asMap(report, 'report')))
+        .map(
+          (report) => MigrationReportSummary.fromJson(_asMap(report, 'report')),
+        )
         .toList(growable: false);
   }
 
@@ -64,11 +65,7 @@ class CliGetterAdapter implements GetterAdapter {
   Future<LegacyMigrationImportResult> importLegacyRoomDatabase(
     String databasePath,
   ) async {
-    final json = _runGetter(<String>[
-      'legacy',
-      'import-room-db',
-      databasePath,
-    ]);
+    final json = _runGetter(<String>['legacy', 'import-room-db', databasePath]);
     return LegacyMigrationImportResult.fromJson(_data(json));
   }
 
@@ -168,8 +165,7 @@ class CliGetterAdapter implements GetterAdapter {
     String taskId,
     RuntimeUserResult result, {
     String? reason,
-  }) =>
-      _unsupportedRuntimeTask();
+  }) => _unsupportedRuntimeTask();
 
   @override
   Future<List<RuntimeTaskSnapshot>> cleanRuntimeTasks({
@@ -193,23 +189,25 @@ class CliGetterAdapter implements GetterAdapter {
   }
 
   @override
-  GetterSnapshot loadSnapshot() {
+  Future<GetterSnapshot> loadSnapshot() async {
     initialize();
     final repositories = listRepositories();
     final trackedPackages = listTrackedPackages();
-    final apps = trackedPackages.map((tracked) {
-      final evaluated = evaluatePackage(
-        tracked.id,
-        repositoryId: tracked.repositoryId,
-      );
-      return AppSummary(
-        id: tracked.id,
-        name: evaluated.name,
-        installedVersion: 'unknown',
-        latestVersion: 'unknown',
-        hasFreeNetworkWarning: evaluated.hasFreeNetworkWarning,
-      );
-    }).toList(growable: false);
+    final apps = trackedPackages
+        .map((tracked) {
+          final evaluated = evaluatePackage(
+            tracked.id,
+            repositoryId: tracked.repositoryId,
+          );
+          return AppSummary(
+            id: tracked.id,
+            name: evaluated.name,
+            installedVersion: 'unknown',
+            latestVersion: 'unknown',
+            hasFreeNetworkWarning: evaluated.hasFreeNetworkWarning,
+          );
+        })
+        .toList(growable: false);
 
     return GetterSnapshot(
       status: 'Getter CLI ready',
@@ -220,11 +218,11 @@ class CliGetterAdapter implements GetterAdapter {
   }
 
   Map<String, Object?> _runGetter(List<String> commandArgs) {
-    final result = Process.runSync(
-      executable,
-      <String>['--data-dir', dataDir, ...commandArgs],
-      environment: environment.isEmpty ? null : environment,
-    );
+    final result = Process.runSync(executable, <String>[
+      '--data-dir',
+      dataDir,
+      ...commandArgs,
+    ], environment: environment.isEmpty ? null : environment);
     final stdoutText = result.stdout.toString();
     final decoded = stdoutText.trim().isEmpty
         ? <String, Object?>{}

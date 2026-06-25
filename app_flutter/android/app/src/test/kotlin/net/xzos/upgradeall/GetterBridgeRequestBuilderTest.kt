@@ -7,6 +7,24 @@ import org.junit.Test
 
 class GetterBridgeRequestBuilderTest {
     @Test
+    fun readOperationRequestPreservesOperationAndPayload() {
+        val json = JSONObject(
+            GetterBridgeRequestBuilder.readOperationRequest(
+                mapOf(
+                    "operation" to "package_eval",
+                    "payload" to mapOf("package_id" to "android/org.fdroid.fdroid"),
+                ),
+            ),
+        )
+
+        assertEquals("package_eval", json.getString("operation"))
+        assertEquals(
+            "android/org.fdroid.fdroid",
+            json.getJSONObject("payload").getString("package_id"),
+        )
+    }
+
+    @Test
     fun runtimeOperationRequestPreservesOperationAndPayload() {
         val json = JSONObject(
             GetterBridgeRequestBuilder.runtimeOperationRequest(

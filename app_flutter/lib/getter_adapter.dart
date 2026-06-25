@@ -19,7 +19,8 @@ abstract interface class GetterAdapter {
   Future<List<MigrationReportSummary>> readMigrationReports();
 
   Future<LegacyMigrationImportResult> importLegacyRoomDatabase(
-      String databasePath);
+    String databasePath,
+  );
 
   Future<InstalledAutogenPreview> previewInstalledAutogen({
     InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
@@ -68,7 +69,7 @@ abstract interface class GetterAdapter {
     RuntimeTaskCleanMode mode = RuntimeTaskCleanMode.defaultMode,
   });
 
-  GetterSnapshot loadSnapshot();
+  Future<GetterSnapshot> loadSnapshot();
 }
 
 class FakeGetterAdapter implements GetterAdapter {
@@ -144,7 +145,8 @@ class FakeGetterAdapter implements GetterAdapter {
 
   @override
   Future<LegacyMigrationImportResult> importLegacyRoomDatabase(
-      String databasePath) async {
+    String databasePath,
+  ) async {
     throw const GetterBridgeException(
       GetterError(
         code: 'bridge.not_connected',
@@ -324,8 +326,7 @@ class FakeGetterAdapter implements GetterAdapter {
     String taskId,
     RuntimeUserResult result, {
     String? reason,
-  }) =>
-      getRuntimeTask(taskId);
+  }) => getRuntimeTask(taskId);
 
   @override
   Future<List<RuntimeTaskSnapshot>> cleanRuntimeTasks({
@@ -353,7 +354,7 @@ class FakeGetterAdapter implements GetterAdapter {
   }
 
   @override
-  GetterSnapshot loadSnapshot() => _snapshot;
+  Future<GetterSnapshot> loadSnapshot() async => _snapshot;
 }
 
 class GetterSnapshot {
@@ -412,8 +413,10 @@ class TrackedPackageSummary {
         json['pin_version'],
         'tracked.pin_version',
       ),
-      repositoryId:
-          _jsonOptionalString(json['repository_id'], 'tracked.repository_id'),
+      repositoryId: _jsonOptionalString(
+        json['repository_id'],
+        'tracked.repository_id',
+      ),
       packageResolution: _jsonString(
         json['package_resolution'],
         'tracked.package_resolution',
@@ -482,24 +485,29 @@ class LegacyMigrationImportResult {
     final warningsValue = json['warnings'];
     final sourceCountsValue = json['source_counts'];
     return LegacyMigrationImportResult(
-      alreadyImported: _jsonOptionalBool(
+      alreadyImported:
+          _jsonOptionalBool(
             json['already_imported'],
             'migration.already_imported',
           ) ??
           false,
       importedRecords: _jsonInt(json['imported_records'], 'migration.imported'),
       trackedPackages: _jsonList(json['apps'], 'migration.apps')
-          .map((tracked) => TrackedPackageSummary.fromJson(
-                _jsonMap(tracked, 'migration.tracked_package'),
-              ))
+          .map(
+            (tracked) => TrackedPackageSummary.fromJson(
+              _jsonMap(tracked, 'migration.tracked_package'),
+            ),
+          )
           .toList(growable: false),
       warnings: warningsValue == null
           ? const <MigrationWarningSummary>[]
           : _jsonList(warningsValue, 'migration.warnings')
-              .map((warning) => MigrationWarningSummary.fromJson(
+                .map(
+                  (warning) => MigrationWarningSummary.fromJson(
                     _jsonMap(warning, 'migration.warning'),
-                  ))
-              .toList(growable: false),
+                  ),
+                )
+                .toList(growable: false),
       sourceCounts: sourceCountsValue == null
           ? null
           : MigrationSourceCounts.fromJson(
@@ -597,8 +605,10 @@ class RuntimePackageSummary {
     return RuntimePackageSummary(
       id: _jsonString(json['id'], 'runtime.package.id'),
       name: _jsonString(json['name'], 'runtime.package.name'),
-      repositoryId:
-          _jsonString(json['repository'], 'runtime.package.repository'),
+      repositoryId: _jsonString(
+        json['repository'],
+        'runtime.package.repository',
+      ),
     );
   }
 
@@ -618,8 +628,10 @@ class RuntimeUpdateSummary {
   });
 
   factory RuntimeUpdateSummary.fromJson(Map<String, Object?> json) {
-    final selected =
-        _jsonMapOrNull(json['selected'], 'runtime.update.selected');
+    final selected = _jsonMapOrNull(
+      json['selected'],
+      'runtime.update.selected',
+    );
     final candidate = selected == null
         ? null
         : _jsonMap(selected['candidate'], 'runtime.update.selected.candidate');
@@ -637,7 +649,9 @@ class RuntimeUpdateSummary {
       selectedVersion: candidate == null
           ? null
           : _jsonString(
-              candidate['version'], 'runtime.update.selected.version'),
+              candidate['version'],
+              'runtime.update.selected.version',
+            ),
       actions: _jsonList(json['actions'], 'runtime.update.actions')
           .map((action) => _jsonMap(action, 'runtime.update.action'))
           .toList(growable: false),
@@ -786,8 +800,10 @@ class RuntimeTaskDiagnostic {
     return RuntimeTaskDiagnostic(
       code: _jsonString(json['code'], 'runtime.task.diagnostic.code'),
       message: _jsonString(json['message'], 'runtime.task.diagnostic.message'),
-      severity:
-          _jsonString(json['severity'], 'runtime.task.diagnostic.severity'),
+      severity: _jsonString(
+        json['severity'],
+        'runtime.task.diagnostic.severity',
+      ),
     );
   }
 
@@ -801,9 +817,9 @@ enum RuntimeUserResult {
   rejected;
 
   String get wireName => switch (this) {
-        RuntimeUserResult.accepted => 'accepted',
-        RuntimeUserResult.rejected => 'rejected',
-      };
+    RuntimeUserResult.accepted => 'accepted',
+    RuntimeUserResult.rejected => 'rejected',
+  };
 }
 
 enum RuntimeTaskCleanMode {
@@ -812,10 +828,10 @@ enum RuntimeTaskCleanMode {
   allInactive;
 
   String get wireName => switch (this) {
-        RuntimeTaskCleanMode.defaultMode => 'default',
-        RuntimeTaskCleanMode.failed => 'failed',
-        RuntimeTaskCleanMode.allInactive => 'all_inactive',
-      };
+    RuntimeTaskCleanMode.defaultMode => 'default',
+    RuntimeTaskCleanMode.failed => 'failed',
+    RuntimeTaskCleanMode.allInactive => 'all_inactive',
+  };
 }
 
 class RuntimeNotificationEnvelope {
@@ -847,9 +863,9 @@ class InstalledAutogenScanOptions {
   final bool includeSelf;
 
   Map<String, Object?> toJson() => <String, Object?>{
-        'include_system_apps': includeSystemApps,
-        'include_self': includeSelf,
-      };
+    'include_system_apps': includeSystemApps,
+    'include_self': includeSelf,
+  };
 }
 
 class InstalledAutogenPreview {
@@ -869,8 +885,10 @@ class InstalledAutogenPreview {
     final scan = _jsonMapOrNull(json['scan'], 'autogen.scan');
     return InstalledAutogenPreview(
       operation: _jsonString(json['operation'], 'autogen.operation'),
-      targetRepoId:
-          _jsonString(json['target_repo_id'], 'autogen.target_repo_id'),
+      targetRepoId: _jsonString(
+        json['target_repo_id'],
+        'autogen.target_repo_id',
+      ),
       targetRepoPath: _jsonOptionalString(
         json['target_repo_path'],
         'autogen.target_repo_path',
@@ -879,23 +897,29 @@ class InstalledAutogenPreview {
         _jsonMap(json['summary'], 'autogen.summary'),
       ),
       candidates: _jsonList(json['candidates'], 'autogen.candidates')
-          .map((candidate) => InstalledAutogenCandidate.fromJson(
-                _jsonMap(candidate, 'autogen.candidate'),
-              ))
+          .map(
+            (candidate) => InstalledAutogenCandidate.fromJson(
+              _jsonMap(candidate, 'autogen.candidate'),
+            ),
+          )
           .toList(growable: false),
       skipped: _jsonList(json['skipped'], 'autogen.skipped')
-          .map((skip) => InstalledAutogenSkip.fromJson(
-                _jsonMap(skip, 'autogen.skip'),
-              ))
+          .map(
+            (skip) =>
+                InstalledAutogenSkip.fromJson(_jsonMap(skip, 'autogen.skip')),
+          )
           .toList(growable: false),
-      diagnostics: _jsonList(
-        scan?['diagnostics'] ?? json['diagnostics'],
-        'autogen.diagnostics',
-      )
-          .map((diagnostic) => PlatformDiagnosticSummary.fromJson(
-                _jsonMap(diagnostic, 'autogen.diagnostic'),
-              ))
-          .toList(growable: false),
+      diagnostics:
+          _jsonList(
+                scan?['diagnostics'] ?? json['diagnostics'],
+                'autogen.diagnostics',
+              )
+              .map(
+                (diagnostic) => PlatformDiagnosticSummary.fromJson(
+                  _jsonMap(diagnostic, 'autogen.diagnostic'),
+                ),
+              )
+              .toList(growable: false),
       scanStats: scan == null || scan['stats'] == null
           ? null
           : InstalledAutogenScanStats.fromJson(
@@ -926,13 +950,19 @@ class AutogenSummary {
 
   factory AutogenSummary.fromJson(Map<String, Object?> json) {
     return AutogenSummary(
-      candidateCount:
-          _jsonInt(json['candidate_count'], 'autogen.summary.candidate_count'),
-      skippedCount:
-          _jsonInt(json['skipped_count'], 'autogen.summary.skipped_count'),
+      candidateCount: _jsonInt(
+        json['candidate_count'],
+        'autogen.summary.candidate_count',
+      ),
+      skippedCount: _jsonInt(
+        json['skipped_count'],
+        'autogen.summary.skipped_count',
+      ),
       writeCount: _jsonInt(json['write_count'], 'autogen.summary.write_count'),
-      deleteCount:
-          _jsonInt(json['delete_count'], 'autogen.summary.delete_count'),
+      deleteCount: _jsonInt(
+        json['delete_count'],
+        'autogen.summary.delete_count',
+      ),
     );
   }
 
@@ -955,18 +985,24 @@ class InstalledAutogenCandidate {
 
   factory InstalledAutogenCandidate.fromJson(Map<String, Object?> json) {
     return InstalledAutogenCandidate(
-      packageId:
-          _jsonString(json['package_id'], 'autogen.candidate.package_id'),
+      packageId: _jsonString(
+        json['package_id'],
+        'autogen.candidate.package_id',
+      ),
       kind: _jsonString(json['kind'], 'autogen.candidate.kind'),
-      displayName:
-          _jsonString(json['display_name'], 'autogen.candidate.display_name'),
+      displayName: _jsonString(
+        json['display_name'],
+        'autogen.candidate.display_name',
+      ),
       action: _jsonString(json['action'], 'autogen.candidate.action'),
       outputRelativePath: _jsonString(
         json['output_relative_path'],
         'autogen.candidate.output_relative_path',
       ),
-      contentHash:
-          _jsonString(json['content_hash'], 'autogen.candidate.content_hash'),
+      contentHash: _jsonString(
+        json['content_hash'],
+        'autogen.candidate.content_hash',
+      ),
       installedTarget: _jsonMap(
         json['installed_target'],
         'autogen.candidate.installed_target',
@@ -1018,10 +1054,14 @@ class InstalledAutogenScanStats {
     return InstalledAutogenScanStats(
       totalSeen: _jsonInt(json['total_seen'], 'autogen.scan.total_seen'),
       returned: _jsonInt(json['returned'], 'autogen.scan.returned'),
-      filteredSystem:
-          _jsonInt(json['filtered_system'], 'autogen.scan.filtered_system'),
-      filteredSelf:
-          _jsonInt(json['filtered_self'], 'autogen.scan.filtered_self'),
+      filteredSystem: _jsonInt(
+        json['filtered_system'],
+        'autogen.scan.filtered_system',
+      ),
+      filteredSelf: _jsonInt(
+        json['filtered_self'],
+        'autogen.scan.filtered_self',
+      ),
     );
   }
 
@@ -1062,27 +1102,36 @@ class InstalledAutogenApplyResult {
 
   factory InstalledAutogenApplyResult.fromJson(Map<String, Object?> json) {
     return InstalledAutogenApplyResult(
-      targetRepoId:
-          _jsonString(json['target_repo_id'], 'autogen.apply.target_repo_id'),
+      targetRepoId: _jsonString(
+        json['target_repo_id'],
+        'autogen.apply.target_repo_id',
+      ),
       targetRepoPath: _jsonOptionalString(
         json['target_repo_path'],
         'autogen.apply.target_repo_path',
       ),
-      appliedCount:
-          _jsonInt(json['applied_count'], 'autogen.apply.applied_count'),
+      appliedCount: _jsonInt(
+        json['applied_count'],
+        'autogen.apply.applied_count',
+      ),
       applied: _jsonList(json['applied'], 'autogen.apply.applied')
-          .map((applied) => InstalledAutogenAppliedPackage.fromJson(
-                _jsonMap(applied, 'autogen.apply.applied_item'),
-              ))
+          .map(
+            (applied) => InstalledAutogenAppliedPackage.fromJson(
+              _jsonMap(applied, 'autogen.apply.applied_item'),
+            ),
+          )
           .toList(growable: false),
-      preservedToLocal: _jsonList(
-        json['preserved_to_local'],
-        'autogen.apply.preserved_to_local',
-      )
-          .map((preserved) => InstalledAutogenPreservedPackage.fromJson(
-                _jsonMap(preserved, 'autogen.apply.preserved_item'),
-              ))
-          .toList(growable: false),
+      preservedToLocal:
+          _jsonList(
+                json['preserved_to_local'],
+                'autogen.apply.preserved_to_local',
+              )
+              .map(
+                (preserved) => InstalledAutogenPreservedPackage.fromJson(
+                  _jsonMap(preserved, 'autogen.apply.preserved_item'),
+                ),
+              )
+              .toList(growable: false),
     );
   }
 
@@ -1122,12 +1171,18 @@ class InstalledAutogenPreservedPackage {
 
   factory InstalledAutogenPreservedPackage.fromJson(Map<String, Object?> json) {
     return InstalledAutogenPreservedPackage(
-      packageId:
-          _jsonString(json['package_id'], 'autogen.preserved.package_id'),
-      repositoryId:
-          _jsonString(json['repository_id'], 'autogen.preserved.repository_id'),
-      relativePath:
-          _jsonString(json['relative_path'], 'autogen.preserved.relative_path'),
+      packageId: _jsonString(
+        json['package_id'],
+        'autogen.preserved.package_id',
+      ),
+      repositoryId: _jsonString(
+        json['repository_id'],
+        'autogen.preserved.repository_id',
+      ),
+      relativePath: _jsonString(
+        json['relative_path'],
+        'autogen.preserved.relative_path',
+      ),
     );
   }
 

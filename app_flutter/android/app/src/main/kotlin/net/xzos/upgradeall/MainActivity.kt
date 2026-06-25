@@ -67,6 +67,10 @@ class MainActivity : FlutterActivity() {
                     nativeLib.legacyReportList(legacyReportListRequest())
                 }
 
+                "readOperation" -> runGetterBridge(result) {
+                    nativeLib.readOperation(readOperationRequest(call))
+                }
+
                 "runtimeOperation" -> runGetterBridge(result, emitRuntimeNotifications = true) {
                     nativeLib.runtimeOperation(runtimeOperationRequest(call))
                 }
@@ -199,6 +203,14 @@ class MainActivity : FlutterActivity() {
 
     private fun legacyReportListRequest(): String {
         return JSONObject()
+            .put("data_dir", getterDataDir().absolutePath)
+            .toString()
+    }
+
+    private fun readOperationRequest(call: MethodCall): String {
+        val args = call.arguments as? Map<*, *>
+            ?: throw IllegalArgumentException("read operation arguments are required")
+        return JSONObject(GetterBridgeRequestBuilder.readOperationRequest(args))
             .put("data_dir", getterDataDir().absolutePath)
             .toString()
     }

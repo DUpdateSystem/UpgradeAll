@@ -23,8 +23,9 @@ class AppKeys {
   static const logsRoute = ValueKey<String>('route.logs');
   static const settingsRoute = ValueKey<String>('route.settings');
   static const migrationRoute = ValueKey<String>('route.migration');
-  static const installedAutogenRoute =
-      ValueKey<String>('route.installed_autogen');
+  static const installedAutogenRoute = ValueKey<String>(
+    'route.installed_autogen',
+  );
 
   static const openApps = ValueKey<String>('action.open_apps');
   static const openRepositories = ValueKey<String>('action.open_repositories');
@@ -32,15 +33,19 @@ class AppKeys {
   static const openLogs = ValueKey<String>('action.open_logs');
   static const openSettings = ValueKey<String>('action.open_settings');
   static const openMigration = ValueKey<String>('action.open_migration');
-  static const openInstalledAutogen =
-      ValueKey<String>('action.open_installed_autogen');
+  static const openInstalledAutogen = ValueKey<String>(
+    'action.open_installed_autogen',
+  );
   static const openFirstApp = ValueKey<String>('action.open_first_app');
-  static const startLegacyMigration =
-      ValueKey<String>('action.start_legacy_migration');
-  static const previewInstalledAutogen =
-      ValueKey<String>('action.preview_installed_autogen');
-  static const applyInstalledAutogen =
-      ValueKey<String>('action.apply_installed_autogen');
+  static const startLegacyMigration = ValueKey<String>(
+    'action.start_legacy_migration',
+  );
+  static const previewInstalledAutogen = ValueKey<String>(
+    'action.preview_installed_autogen',
+  );
+  static const applyInstalledAutogen = ValueKey<String>(
+    'action.apply_installed_autogen',
+  );
 
   static const updateSummary = ValueKey<String>('state.update_summary');
   static const getterStatus = ValueKey<String>('state.getter_status');
@@ -53,30 +58,41 @@ class AppKeys {
   static const settingsShell = ValueKey<String>('state.settings_shell');
   static const migrationReady = ValueKey<String>('state.migration_ready');
   static const migrationStatus = ValueKey<String>('state.migration_status');
-  static const migrationBridgeUnavailable =
-      ValueKey<String>('state.migration_bridge_unavailable');
+  static const migrationBridgeUnavailable = ValueKey<String>(
+    'state.migration_bridge_unavailable',
+  );
   static const migrationImported = ValueKey<String>('state.migration_imported');
   static const migrationError = ValueKey<String>('state.migration_error');
-  static const migrationReportsList =
-      ValueKey<String>('state.migration_reports_list');
-  static const installedAutogenReady =
-      ValueKey<String>('state.installed_autogen_ready');
-  static const installedAutogenBridgeUnavailable =
-      ValueKey<String>('state.installed_autogen_bridge_unavailable');
-  static const installedAutogenPreview =
-      ValueKey<String>('state.installed_autogen_preview');
-  static const installedAutogenCandidatesList =
-      ValueKey<String>('state.installed_autogen_candidates_list');
-  static const installedAutogenSkipsList =
-      ValueKey<String>('state.installed_autogen_skips_list');
-  static const installedAutogenDiagnosticsList =
-      ValueKey<String>('state.installed_autogen_diagnostics_list');
-  static const installedAutogenScanStats =
-      ValueKey<String>('state.installed_autogen_scan_stats');
-  static const installedAutogenApplied =
-      ValueKey<String>('state.installed_autogen_applied');
-  static const installedAutogenError =
-      ValueKey<String>('state.installed_autogen_error');
+  static const migrationReportsList = ValueKey<String>(
+    'state.migration_reports_list',
+  );
+  static const installedAutogenReady = ValueKey<String>(
+    'state.installed_autogen_ready',
+  );
+  static const installedAutogenBridgeUnavailable = ValueKey<String>(
+    'state.installed_autogen_bridge_unavailable',
+  );
+  static const installedAutogenPreview = ValueKey<String>(
+    'state.installed_autogen_preview',
+  );
+  static const installedAutogenCandidatesList = ValueKey<String>(
+    'state.installed_autogen_candidates_list',
+  );
+  static const installedAutogenSkipsList = ValueKey<String>(
+    'state.installed_autogen_skips_list',
+  );
+  static const installedAutogenDiagnosticsList = ValueKey<String>(
+    'state.installed_autogen_diagnostics_list',
+  );
+  static const installedAutogenScanStats = ValueKey<String>(
+    'state.installed_autogen_scan_stats',
+  );
+  static const installedAutogenApplied = ValueKey<String>(
+    'state.installed_autogen_applied',
+  );
+  static const installedAutogenError = ValueKey<String>(
+    'state.installed_autogen_error',
+  );
 
   static ValueKey<String> appRow(String packageId) =>
       ValueKey<String>('state.app.$packageId');
@@ -122,9 +138,9 @@ class UpgradeAllApp extends StatelessWidget {
         '/logs': (context) => const LogsPage(),
         '/settings': (context) => const SettingsPage(),
         '/migration': (context) => MigrationPage(
-              getter: getter,
-              legacyMigrationPlatform: legacyMigrationPlatform,
-            ),
+          getter: getter,
+          legacyMigrationPlatform: legacyMigrationPlatform,
+        ),
         '/autogen': (context) => InstalledAutogenPage(getter: getter),
       },
       onGenerateRoute: (settings) {
@@ -141,111 +157,147 @@ class UpgradeAllApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.getter});
 
   final GetterAdapter getter;
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late final Future<GetterSnapshot> _snapshot = widget.getter.loadSnapshot();
+
+  @override
   Widget build(BuildContext context) {
-    final snapshot = getter.loadSnapshot();
     return Scaffold(
       key: AppKeys.homeRoute,
       appBar: AppBar(title: const Text('UpgradeAll')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: <Widget>[
-          Card(
-            key: AppKeys.updateSummary,
-            child: ListTile(
-              title: const Text('Updates'),
-              subtitle: Text('${snapshot.updateCount} updates available'),
-            ),
-          ),
-          Card(
-            key: AppKeys.getterStatus,
-            child: ListTile(
-              title: const Text('Getter core'),
-              subtitle: Text(snapshot.status),
-            ),
-          ),
-          const SizedBox(height: 16),
-          const _RouteButton(
-            key: AppKeys.openApps,
-            icon: Icons.apps,
-            label: 'Apps',
-            routeName: '/apps',
-          ),
-          const _RouteButton(
-            key: AppKeys.openRepositories,
-            icon: Icons.source,
-            label: 'Repositories',
-            routeName: '/repositories',
-          ),
-          const _RouteButton(
-            key: AppKeys.openDownloads,
-            icon: Icons.download,
-            label: 'Downloads',
-            routeName: '/downloads',
-          ),
-          const _RouteButton(
-            key: AppKeys.openLogs,
-            icon: Icons.receipt_long,
-            label: 'Logs',
-            routeName: '/logs',
-          ),
-          const _RouteButton(
-            key: AppKeys.openSettings,
-            icon: Icons.settings,
-            label: 'Settings',
-            routeName: '/settings',
-          ),
-          const _RouteButton(
-            key: AppKeys.openMigration,
-            icon: Icons.move_down,
-            label: 'Legacy migration',
-            routeName: '/migration',
-          ),
-          const _RouteButton(
-            key: AppKeys.openInstalledAutogen,
-            icon: Icons.auto_fix_high,
-            label: 'Installed autogen',
-            routeName: '/autogen',
-          ),
-        ],
+      body: FutureBuilder<GetterSnapshot>(
+        future: _snapshot,
+        builder: (context, snapshot) {
+          final data = snapshot.data;
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: <Widget>[
+              Card(
+                key: AppKeys.updateSummary,
+                child: ListTile(
+                  title: const Text('Updates'),
+                  subtitle: Text('${data?.updateCount ?? 0} updates available'),
+                ),
+              ),
+              Card(
+                key: AppKeys.getterStatus,
+                child: ListTile(
+                  title: const Text('Getter core'),
+                  subtitle: Text(
+                    snapshot.hasError
+                        ? 'Getter snapshot unavailable'
+                        : data?.status ?? 'Loading getter snapshot...',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const _RouteButton(
+                key: AppKeys.openApps,
+                icon: Icons.apps,
+                label: 'Apps',
+                routeName: '/apps',
+              ),
+              const _RouteButton(
+                key: AppKeys.openRepositories,
+                icon: Icons.source,
+                label: 'Repositories',
+                routeName: '/repositories',
+              ),
+              const _RouteButton(
+                key: AppKeys.openDownloads,
+                icon: Icons.download,
+                label: 'Downloads',
+                routeName: '/downloads',
+              ),
+              const _RouteButton(
+                key: AppKeys.openLogs,
+                icon: Icons.receipt_long,
+                label: 'Logs',
+                routeName: '/logs',
+              ),
+              const _RouteButton(
+                key: AppKeys.openSettings,
+                icon: Icons.settings,
+                label: 'Settings',
+                routeName: '/settings',
+              ),
+              const _RouteButton(
+                key: AppKeys.openMigration,
+                icon: Icons.move_down,
+                label: 'Legacy migration',
+                routeName: '/migration',
+              ),
+              const _RouteButton(
+                key: AppKeys.openInstalledAutogen,
+                icon: Icons.auto_fix_high,
+                label: 'Installed autogen',
+                routeName: '/autogen',
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-class AppsPage extends StatelessWidget {
+class AppsPage extends StatefulWidget {
   const AppsPage({super.key, required this.getter});
 
   final GetterAdapter getter;
 
   @override
+  State<AppsPage> createState() => _AppsPageState();
+}
+
+class _AppsPageState extends State<AppsPage> {
+  late final Future<GetterSnapshot> _snapshot = widget.getter.loadSnapshot();
+
+  @override
   Widget build(BuildContext context) {
-    final apps = getter.loadSnapshot().apps;
     return Scaffold(
       key: AppKeys.appsRoute,
       appBar: AppBar(title: const Text('Apps')),
-      body: ListView.builder(
-        key: AppKeys.appsList,
-        itemCount: apps.length,
-        itemBuilder: (context, index) {
-          final app = apps[index];
-          return ListTile(
-            key: AppKeys.appRow(app.id),
-            title: Text(app.name),
-            subtitle: Text('${app.id} • ${app.installedVersion}'),
-            trailing: app.hasFreeNetworkWarning
-                ? const Chip(
-                    label: Text('Network'),
-                    backgroundColor: Colors.amber,
-                  )
-                : null,
-            onTap: () {
-              Navigator.of(context).pushNamed('/apps/detail', arguments: app);
+      body: FutureBuilder<GetterSnapshot>(
+        future: _snapshot,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: Text('Loading getter apps...'));
+          }
+          if (snapshot.hasError) {
+            return const Center(child: Text('Getter apps unavailable'));
+          }
+          final apps = snapshot.data?.apps ?? const <AppSummary>[];
+          return ListView.builder(
+            key: AppKeys.appsList,
+            itemCount: apps.length,
+            itemBuilder: (context, index) {
+              final app = apps[index];
+              return ListTile(
+                key: AppKeys.appRow(app.id),
+                title: Text(app.name),
+                subtitle: Text('${app.id} • ${app.installedVersion}'),
+                trailing: app.hasFreeNetworkWarning
+                    ? const Chip(
+                        label: Text('Network'),
+                        backgroundColor: Colors.amber,
+                      )
+                    : null,
+                onTap: () {
+                  Navigator.of(
+                    context,
+                  ).pushNamed('/apps/detail', arguments: app);
+                },
+              );
             },
           );
         },
@@ -285,26 +337,45 @@ class AppDetailPage extends StatelessWidget {
   }
 }
 
-class RepositoriesPage extends StatelessWidget {
+class RepositoriesPage extends StatefulWidget {
   const RepositoriesPage({super.key, required this.getter});
 
   final GetterAdapter getter;
 
   @override
+  State<RepositoriesPage> createState() => _RepositoriesPageState();
+}
+
+class _RepositoriesPageState extends State<RepositoriesPage> {
+  late final Future<GetterSnapshot> _snapshot = widget.getter.loadSnapshot();
+
+  @override
   Widget build(BuildContext context) {
-    final repositories = getter.loadSnapshot().repositories;
     return Scaffold(
       key: AppKeys.repositoriesRoute,
       appBar: AppBar(title: const Text('Repositories')),
-      body: ListView.builder(
-        key: AppKeys.repositoriesList,
-        itemCount: repositories.length,
-        itemBuilder: (context, index) {
-          final repository = repositories[index];
-          return ListTile(
-            key: AppKeys.repoRow(repository.id),
-            title: Text(repository.id),
-            subtitle: Text('Priority ${repository.priority}'),
+      body: FutureBuilder<GetterSnapshot>(
+        future: _snapshot,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: Text('Loading getter repositories...'));
+          }
+          if (snapshot.hasError) {
+            return const Center(child: Text('Getter repositories unavailable'));
+          }
+          final repositories =
+              snapshot.data?.repositories ?? const <RepositorySummary>[];
+          return ListView.builder(
+            key: AppKeys.repositoriesList,
+            itemCount: repositories.length,
+            itemBuilder: (context, index) {
+              final repository = repositories[index];
+              return ListTile(
+                key: AppKeys.repoRow(repository.id),
+                title: Text(repository.id),
+                subtitle: Text('Priority ${repository.priority}'),
+              );
+            },
           );
         },
       ),
@@ -352,11 +423,10 @@ class DownloadsPage extends StatelessWidget {
                 child: ListTile(
                   key: AppKeys.downloadTaskRow(task.taskId),
                   title: Text(task.packageId),
-                  subtitle: Text(
-                    '${task.status} • ${task.phase.category}',
+                  subtitle: Text('${task.status} • ${task.phase.category}'),
+                  trailing: _TaskCapabilitiesChips(
+                    capabilities: task.capabilities,
                   ),
-                  trailing:
-                      _TaskCapabilitiesChips(capabilities: task.capabilities),
                 ),
               );
             },
@@ -486,8 +556,9 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
         children: <Widget>[
           ElevatedButton.icon(
             key: AppKeys.previewInstalledAutogen,
-            onPressed:
-                _running || !canUseBridge ? null : _previewInstalledAutogen,
+            onPressed: _running || !canUseBridge
+                ? null
+                : _previewInstalledAutogen,
             icon: const Icon(Icons.manage_search),
             label: Text(_running ? 'Working…' : 'Preview installed autogen'),
           ),
@@ -569,8 +640,10 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
             ],
             if (preview.diagnostics.isNotEmpty) ...<Widget>[
               const SizedBox(height: 16),
-              Text('Diagnostics',
-                  style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                'Diagnostics',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               ListView.builder(
                 key: AppKeys.installedAutogenDiagnosticsList,
                 shrinkWrap: true,
@@ -698,8 +771,8 @@ class _MigrationPageState extends State<MigrationPage> {
     });
 
     try {
-      final candidate =
-          await widget.legacyMigrationPlatform.prepareLegacyRoomImport();
+      final candidate = await widget.legacyMigrationPlatform
+          .prepareLegacyRoomImport();
       if (!mounted) return;
       if (!candidate.found || candidate.databasePath == null) {
         setState(() {
@@ -709,8 +782,9 @@ class _MigrationPageState extends State<MigrationPage> {
         return;
       }
 
-      final importResult =
-          await widget.getter.importLegacyRoomDatabase(candidate.databasePath!);
+      final importResult = await widget.getter.importLegacyRoomDatabase(
+        candidate.databasePath!,
+      );
       final reports = await widget.getter.readMigrationReports();
       if (!mounted) return;
       setState(() {
@@ -760,8 +834,9 @@ class _MigrationPageState extends State<MigrationPage> {
         children: <Widget>[
           ElevatedButton.icon(
             key: AppKeys.startLegacyMigration,
-            onPressed:
-                _running || !canImportLegacyRoom ? null : _startMigration,
+            onPressed: _running || !canImportLegacyRoom
+                ? null
+                : _startMigration,
             icon: const Icon(Icons.move_down),
             label: Text(_running ? 'Migrating…' : 'Start legacy migration'),
           ),
@@ -866,9 +941,7 @@ class _PlaceholderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Text(key: stateKey, message),
-      ),
+      body: Center(child: Text(key: stateKey, message)),
     );
   }
 }

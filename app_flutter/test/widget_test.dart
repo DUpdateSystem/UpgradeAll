@@ -6,9 +6,11 @@ import 'package:upgradeall/legacy_migration_platform.dart';
 import 'package:upgradeall/main.dart';
 
 void main() {
-  testWidgets('fresh launch exposes home route and getter state',
-      (tester) async {
+  testWidgets('fresh launch exposes home route and getter state', (
+    tester,
+  ) async {
     await tester.pumpWidget(const UpgradeAllApp());
+    await tester.pumpAndSettle();
 
     expect(find.byKey(AppKeys.homeRoute), findsOneWidget);
     expect(find.byKey(AppKeys.updateSummary), findsOneWidget);
@@ -25,8 +27,10 @@ void main() {
 
     expect(find.byKey(AppKeys.appsRoute), findsOneWidget);
     expect(find.byKey(AppKeys.appsList), findsOneWidget);
-    expect(find.byKey(AppKeys.appRow('android/org.fdroid.fdroid')),
-        findsOneWidget);
+    expect(
+      find.byKey(AppKeys.appRow('android/org.fdroid.fdroid')),
+      findsOneWidget,
+    );
     expect(find.text('Network'), findsOneWidget);
 
     await tester.tap(find.byKey(AppKeys.appRow('android/org.fdroid.fdroid')));
@@ -39,8 +43,9 @@ void main() {
     expect(find.text('Network access required'), findsOneWidget);
   });
 
-  testWidgets('repository route lists priority ordered repository IDs',
-      (tester) async {
+  testWidgets('repository route lists priority ordered repository IDs', (
+    tester,
+  ) async {
     await tester.pumpWidget(const UpgradeAllApp());
 
     await tester.tap(find.byKey(AppKeys.openRepositories));
@@ -53,8 +58,9 @@ void main() {
     expect(find.byKey(AppKeys.repoRow('local_autogen')), findsOneWidget);
   });
 
-  testWidgets('downloads route renders runtime task snapshots read-only',
-      (tester) async {
+  testWidgets('downloads route renders runtime task snapshots read-only', (
+    tester,
+  ) async {
     await tester.pumpWidget(const UpgradeAllApp());
 
     await tester.tap(find.byKey(AppKeys.openDownloads));
@@ -67,8 +73,9 @@ void main() {
     expect(find.text('Cancel'), findsOneWidget);
   });
 
-  testWidgets('downloads route exposes getter empty task state',
-      (tester) async {
+  testWidgets('downloads route exposes getter empty task state', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const UpgradeAllApp(getter: _NoTaskGetterAdapter()),
     );
@@ -80,8 +87,9 @@ void main() {
     expect(find.byKey(AppKeys.downloadsEmpty), findsOneWidget);
   });
 
-  testWidgets('migration route imports prepared legacy DB through getter',
-      (tester) async {
+  testWidgets('migration route imports prepared legacy DB through getter', (
+    tester,
+  ) async {
     final getter = _MigrationGetterAdapter();
     await tester.pumpWidget(
       UpgradeAllApp(
@@ -105,27 +113,30 @@ void main() {
     expect(find.text('migration.imported'), findsOneWidget);
   });
 
-  testWidgets('migration route reports missing legacy DB from platform adapter',
-      (tester) async {
-    await tester.pumpWidget(
-      const UpgradeAllApp(
-        getter: _LegacyMigrationCapableGetterAdapter(),
-        legacyMigrationPlatform: _MissingLegacyMigrationPlatform(),
-      ),
-    );
+  testWidgets(
+    'migration route reports missing legacy DB from platform adapter',
+    (tester) async {
+      await tester.pumpWidget(
+        const UpgradeAllApp(
+          getter: _LegacyMigrationCapableGetterAdapter(),
+          legacyMigrationPlatform: _MissingLegacyMigrationPlatform(),
+        ),
+      );
 
-    await tester.tap(find.byKey(AppKeys.openMigration));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(AppKeys.startLegacyMigration));
-    await tester.pumpAndSettle();
+      await tester.tap(find.byKey(AppKeys.openMigration));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(AppKeys.startLegacyMigration));
+      await tester.pumpAndSettle();
 
-    expect(find.byKey(AppKeys.migrationStatus), findsOneWidget);
-    expect(find.text('No legacy Room database found'), findsOneWidget);
-    expect(find.byKey(AppKeys.migrationImported), findsNothing);
-  });
+      expect(find.byKey(AppKeys.migrationStatus), findsOneWidget);
+      expect(find.text('No legacy Room database found'), findsOneWidget);
+      expect(find.byKey(AppKeys.migrationImported), findsNothing);
+    },
+  );
 
-  testWidgets('installed autogen route previews and applies getter DTOs',
-      (tester) async {
+  testWidgets('installed autogen route previews and applies getter DTOs', (
+    tester,
+  ) async {
     final getter = _AutogenRecordingGetterAdapter();
     await tester.pumpWidget(UpgradeAllApp(getter: getter));
 
@@ -161,8 +172,9 @@ void main() {
     expect(getter.acceptedPackageIds, <String>['android/com.example.autogen']);
   });
 
-  testWidgets('installed autogen route disables actions without bridge',
-      (tester) async {
+  testWidgets('installed autogen route disables actions without bridge', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const UpgradeAllApp(getter: _NoInstalledAutogenGetterAdapter()),
     );
@@ -182,8 +194,9 @@ void main() {
     );
   });
 
-  testWidgets('migration route disables import when getter bridge is absent',
-      (tester) async {
+  testWidgets('migration route disables import when getter bridge is absent', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const UpgradeAllApp(
         legacyMigrationPlatform: _PreparedLegacyMigrationPlatform(
@@ -202,8 +215,9 @@ void main() {
     expect(find.byKey(AppKeys.migrationBridgeUnavailable), findsOneWidget);
   });
 
-  testWidgets('placeholder routes expose stable empty-state keys',
-      (tester) async {
+  testWidgets('placeholder routes expose stable empty-state keys', (
+    tester,
+  ) async {
     await tester.pumpWidget(const UpgradeAllApp());
 
     await tester.tap(find.byKey(AppKeys.openLogs));
@@ -234,8 +248,7 @@ class _NoTaskGetterAdapter extends FakeGetterAdapter {
   Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
     bool active = false,
     String? packageId,
-  }) async =>
-      const <RuntimeTaskSnapshot>[];
+  }) async => const <RuntimeTaskSnapshot>[];
 }
 
 class _LegacyMigrationCapableGetterAdapter extends FakeGetterAdapter {

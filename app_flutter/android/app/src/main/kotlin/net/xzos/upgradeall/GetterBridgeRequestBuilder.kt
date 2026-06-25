@@ -3,7 +3,11 @@ package net.xzos.upgradeall
 import org.json.JSONObject
 
 object GetterBridgeRequestBuilder {
-    fun runtimeOperationRequest(args: Map<*, *>): String {
+    fun readOperationRequest(args: Map<*, *>): String = operationRequest(args)
+
+    fun runtimeOperationRequest(args: Map<*, *>): String = operationRequest(args)
+
+    private fun operationRequest(args: Map<*, *>): String {
         val operation = args["operation"] as? String
             ?: throw IllegalArgumentException("operation is required")
         val payload = args["payload"] as? Map<*, *> ?: emptyMap<Any?, Any?>()

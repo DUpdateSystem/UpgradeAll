@@ -6,13 +6,11 @@ import 'package:flutter/services.dart';
 
 import 'getter_adapter.dart';
 
-/// First Android production bridge slice.
+/// Android production getter bridge.
 ///
-/// Until the full native getter bridge replaces every CLI/fake surface, this
-/// adapter inherits the deterministic shell data from [FakeGetterAdapter] and
-/// overrides only installed-autogen operations with the Rust/native bridge.
 /// The bridge returns getter-owned JSON envelopes; Dart parses and renders them
-/// but does not scan PackageManager or make autogen/package decisions.
+/// but does not scan PackageManager, resolve repositories, evaluate Lua, or make
+/// autogen/update/runtime decisions.
 class MethodChannelGetterAdapter extends FakeGetterAdapter {
   // Keep public parameter names stable for tests and injected bridges.
   const MethodChannelGetterAdapter({
@@ -96,6 +94,16 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
     return InstalledAutogenApplyResult.fromJson(data);
   }
 
+  Future<Map<String, Object?>> invokeReadOperation(
+    String operation, {
+    Map<String, Object?> payload = const <String, Object?>{},
+  }) {
+    return _invokeGetterData('readOperation', <String, Object?>{
+      'operation': operation,
+      'payload': payload,
+    });
+  }
+
   /// Invoke a getter runtime operation through the native bridge.
   ///
   /// This is an internal/debug bridge primitive for ADR-0011 wiring. Product UI
@@ -122,6 +130,71 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
       'operation': operation,
       'payload': payload,
     });
+  }
+
+  @override
+  Future<GetterSnapshot> loadSnapshot() async {
+    final repositoriesData = await invokeReadOperation('repository_list');
+    final trackedData = await invokeReadOperation('tracked_package_list');
+    final repositories = _asList(
+      repositoriesData['repositories'],
+      'repositories',
+    ).map(_repositoryFromJson).toList(growable: false);
+    final trackedPackages = _asList(trackedData['packages'], 'tracked packages')
+        .map(
+          (tracked) => TrackedPackageSummary.fromJson(
+            _asMap(tracked, 'tracked package'),
+          ),
+        )
+        .toList(growable: false);
+    final apps = <AppSummary>[];
+    for (final tracked in trackedPackages) {
+      try {
+        final package = await _evaluatePackageFromGetter(
+          tracked.id,
+          repositoryId: tracked.repositoryId,
+        );
+        apps.add(
+          AppSummary(
+            id: tracked.id,
+            name: package.name,
+            installedVersion: 'unknown',
+            latestVersion: 'unknown',
+            hasFreeNetworkWarning: package.hasFreeNetworkWarning,
+          ),
+        );
+      } catch (_) {
+        apps.add(
+          AppSummary(
+            id: tracked.id,
+            name: tracked.id,
+            installedVersion: 'unknown',
+            latestVersion: 'unknown',
+            hasFreeNetworkWarning: false,
+          ),
+        );
+      }
+    }
+    return GetterSnapshot(
+      status: 'Getter native bridge ready',
+      updateCount: 0,
+      apps: apps,
+      repositories: repositories,
+    );
+  }
+
+  Future<PackageEvaluation> _evaluatePackageFromGetter(
+    String packageId, {
+    String? repositoryId,
+  }) async {
+    final data = await invokeReadOperation(
+      'package_eval',
+      payload: <String, Object?>{
+        'package_id': packageId,
+        'repository_id': ?repositoryId,
+      },
+    );
+    return _packageEvaluationFromJson(_asMap(data['package'], 'package'));
   }
 
   @override
@@ -271,6 +344,27 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   }
 }
 
+RepositorySummary _repositoryFromJson(Object? value) {
+  final json = _asMap(value, 'repository');
+  return RepositorySummary(
+    id: _asString(json['id'], 'repository.id'),
+    priority: _asInt(json['priority'], 'repository.priority'),
+  );
+}
+
+PackageEvaluation _packageEvaluationFromJson(Map<String, Object?> json) {
+  final permissions = _asMap(json['permissions'], 'package.permissions');
+  return PackageEvaluation(
+    id: _asString(json['id'], 'package.id'),
+    repositoryId: _asString(json['repository'], 'package.repository'),
+    name: _asString(json['name'], 'package.name'),
+    hasFreeNetworkWarning: _asBool(
+      permissions['free_network'],
+      'package.permissions.free_network',
+    ),
+  );
+}
+
 GetterError _errorFromEnvelope(Map<String, Object?> envelope) {
   final error = _asMap(envelope['error'], 'getter bridge error');
   return GetterError(
@@ -295,4 +389,14 @@ List<Object?> _asList(Object? value, String name) {
 String _asString(Object? value, String name) {
   if (value is String) return value;
   throw FormatException('$name should be a string');
+}
+
+int _asInt(Object? value, String name) {
+  if (value is int) return value;
+  throw FormatException('$name should be an integer');
+}
+
+bool _asBool(Object? value, String name) {
+  if (value is bool) return value;
+  throw FormatException('$name should be a boolean');
 }
