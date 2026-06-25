@@ -231,19 +231,6 @@ class _NoTaskGetterAdapter extends FakeGetterAdapter {
   const _NoTaskGetterAdapter();
 
   @override
-  List<DownloadTaskSummary> listDownloadTasks() =>
-      const <DownloadTaskSummary>[];
-
-  @override
-  TaskEventPage listTaskEvents({required int after, required int limit}) {
-    return const TaskEventPage(
-      events: <TaskEventSummary>[],
-      nextCursor: 0,
-      hasMore: false,
-    );
-  }
-
-  @override
   Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
     bool active = false,
     String? packageId,

@@ -72,7 +72,7 @@ class CliGetterAdapter implements GetterAdapter {
     return LegacyMigrationImportResult.fromJson(_data(json));
   }
 
-  @override
+  /// Development-only accessor for the persisted `debug fake-task` scaffold.
   List<DownloadTaskSummary> listDownloadTasks() {
     final json = _runGetter(const <String>['debug', 'fake-task', 'list']);
     final tasks = _asList(_data(json)['tasks'], 'tasks');
@@ -81,7 +81,7 @@ class CliGetterAdapter implements GetterAdapter {
         .toList(growable: false);
   }
 
-  @override
+  /// Development-only accessor for the persisted `debug fake-task` scaffold.
   TaskEventPage listTaskEvents({required int after, required int limit}) {
     final json = _runGetter(<String>[
       'debug',
@@ -258,6 +258,58 @@ class CliGetterAdapter implements GetterAdapter {
     }
     return decoded;
   }
+}
+
+class DownloadTaskSummary {
+  const DownloadTaskSummary({
+    required this.id,
+    required this.packageId,
+    required this.status,
+    required this.executor,
+    required this.actions,
+    required this.downloadFileName,
+    required this.downloadedFile,
+    required this.failureMessage,
+    required this.installHandoffId,
+  });
+
+  final String id;
+  final String packageId;
+  final String status;
+  final String executor;
+  final List<Map<String, Object?>> actions;
+  final String downloadFileName;
+  final String? downloadedFile;
+  final String? failureMessage;
+  final String? installHandoffId;
+}
+
+class TaskEventPage {
+  const TaskEventPage({
+    required this.events,
+    required this.nextCursor,
+    required this.hasMore,
+  });
+
+  final List<TaskEventSummary> events;
+  final int nextCursor;
+  final bool hasMore;
+}
+
+class TaskEventSummary {
+  const TaskEventSummary({
+    required this.cursor,
+    required this.taskId,
+    required this.kind,
+    required this.status,
+    required this.message,
+  });
+
+  final int cursor;
+  final String taskId;
+  final String kind;
+  final String? status;
+  final String? message;
 }
 
 Map<String, Object?> _data(Map<String, Object?> envelope) {
