@@ -10,6 +10,7 @@ use jni::objects::{JObject, JString, JValue};
 use jni::JNIEnv;
 use serde::Deserialize;
 use serde_json::{json, Value};
+use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::channel;
 use std::sync::{Mutex, OnceLock};
@@ -20,8 +21,10 @@ use upgradeall_platform_adapter::PlatformAdapter;
 
 const MAIN_DB_FILE: &str = "main.db";
 const CACHE_DB_FILE: &str = "cache.db";
+const MAX_RUNTIME_NOTIFICATION_QUEUE: usize = 64;
 
 static GETTER_RUNTIME: OnceLock<Mutex<getter::core::runtime::GetterRuntime>> = OnceLock::new();
+static RUNTIME_NOTIFICATIONS: OnceLock<Mutex<VecDeque<Value>>> = OnceLock::new();
 
 #[derive(Debug, Deserialize)]
 struct PreviewInstalledAutogenRequest {
@@ -207,6 +210,19 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runtimeOperation<'lo
 }
 
 #[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_drainRuntimeNotifications<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+) -> JString<'local> {
+    let command = "runtime notifications drain";
+    let response = match drain_runtime_notifications() {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
 pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_importLegacyRoomDatabase<'local>(
     mut env: JNIEnv<'local>,
     _: JObject<'local>,
@@ -293,7 +309,38 @@ fn legacy_report_list(request_json: &str) -> Result<Value, BridgeOperationError>
 }
 
 fn init_getter_runtime() -> &'static Mutex<getter::core::runtime::GetterRuntime> {
-    GETTER_RUNTIME.get_or_init(|| Mutex::new(getter::core::runtime::GetterRuntime::new()))
+    GETTER_RUNTIME.get_or_init(|| {
+        let mut runtime = getter::core::runtime::GetterRuntime::new();
+        runtime.set_notification_sink(|notification| {
+            enqueue_runtime_notification(notification);
+        });
+        Mutex::new(runtime)
+    })
+}
+
+fn runtime_notification_queue() -> &'static Mutex<VecDeque<Value>> {
+    RUNTIME_NOTIFICATIONS.get_or_init(|| Mutex::new(VecDeque::new()))
+}
+
+fn enqueue_runtime_notification(notification: getter::core::runtime::RuntimeNotification) {
+    let Ok(value) = serde_json::to_value(notification) else {
+        return;
+    };
+    let Ok(mut queue) = runtime_notification_queue().lock() else {
+        return;
+    };
+    if queue.len() >= MAX_RUNTIME_NOTIFICATION_QUEUE {
+        queue.pop_front();
+    }
+    queue.push_back(value);
+}
+
+fn drain_runtime_notifications() -> Result<Value, BridgeOperationError> {
+    let mut queue = runtime_notification_queue()
+        .lock()
+        .map_err(|_| BridgeOperationError::RuntimeNotificationQueuePoisoned)?;
+    let notifications: Vec<Value> = queue.drain(..).collect();
+    Ok(json!({ "notifications": notifications }))
 }
 
 fn runtime_operation(request_json: String) -> Result<Value, BridgeOperationError> {
@@ -475,6 +522,8 @@ enum BridgeOperationError {
     Runtime(#[from] runtime_operations::RuntimeOperationError),
     #[error("runtime lock is poisoned")]
     RuntimePoisoned,
+    #[error("runtime notification queue is poisoned")]
+    RuntimeNotificationQueuePoisoned,
 }
 
 impl BridgeOperationError {
@@ -548,6 +597,11 @@ impl BridgeOperationError {
             ),
             Self::Runtime(error) => (error.code(), error.message(), error.detail()),
             Self::RuntimePoisoned => ("runtime.poisoned", "Getter runtime lock is poisoned", None),
+            Self::RuntimeNotificationQueuePoisoned => (
+                "runtime.notification_queue_poisoned",
+                "Getter runtime notification queue is poisoned",
+                None,
+            ),
         }
     }
 }
@@ -681,5 +735,35 @@ mod tests {
         let (code, _, detail) = error.parts();
         assert_eq!(code, "runtime.invalid_request");
         assert!(detail.unwrap().contains("unsupported runtime operation"));
+    }
+
+    #[test]
+    fn runtime_notification_queue_is_bounded_and_drained() {
+        drain_runtime_notifications().expect("clear queue");
+        for index in 0..(MAX_RUNTIME_NOTIFICATION_QUEUE + 1) {
+            enqueue_runtime_notification(getter::core::runtime::RuntimeNotification::TaskChanged {
+                task: getter::core::runtime::TaskSnapshot {
+                    task_id: format!("task-{index}"),
+                    package_id: "android/org.fdroid.fdroid".parse().expect("package id"),
+                    status: getter::core::runtime::RuntimeTaskStatus::Running,
+                    phase: getter::core::runtime::TaskPhase::new(
+                        getter::core::runtime::TaskPhaseCategory::Download,
+                    ),
+                    progress: None,
+                    capabilities: getter::core::runtime::TaskCapabilities::default(),
+                    current_diagnostic: None,
+                    updated_at: index as u64,
+                },
+            });
+        }
+
+        let drained = drain_runtime_notifications().expect("drain notifications");
+        let notifications = drained["notifications"].as_array().expect("notifications");
+
+        assert_eq!(notifications.len(), MAX_RUNTIME_NOTIFICATION_QUEUE);
+        assert_eq!(notifications[0]["task"]["task_id"], "task-1");
+        assert_eq!(notifications.last().unwrap()["task"]["task_id"], "task-64");
+        let empty = drain_runtime_notifications().expect("drain empty queue");
+        assert_eq!(empty["notifications"].as_array().unwrap().len(), 0);
     }
 }

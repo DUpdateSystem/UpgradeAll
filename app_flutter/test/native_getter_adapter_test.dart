@@ -9,10 +9,14 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const channel = MethodChannel('test/getter_bridge');
+  const eventChannel = EventChannel('test/runtime_notifications');
+  const eventMethodChannel = MethodChannel('test/runtime_notifications');
 
   tearDown(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(eventMethodChannel, null);
   });
 
   test('native preview sends scan options and parses getter envelope',
@@ -161,6 +165,43 @@ void main() {
     expect(importResult.importedRecords, 1);
     expect(importResult.trackedPackages.single.id, 'android/org.fdroid.fdroid');
     expect(reports.single.code, 'migration.imported');
+  });
+
+  test('runtime notification stream decodes pushed JSON events', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(eventMethodChannel, (call) async {
+      if (call.method == 'listen') {
+        await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .handlePlatformMessage(
+          'test/runtime_notifications',
+          const StandardMethodCodec().encodeSuccessEnvelope(
+            jsonEncode(<String, Object?>{
+              'kind': 'task_changed',
+              'task': <String, Object?>{
+                'task_id': 'task-1',
+                'package_id': 'android/org.fdroid.fdroid',
+                'status': 'completed',
+              },
+            }),
+          ),
+          (_) {},
+        );
+      }
+      return null;
+    });
+
+    const adapter = MethodChannelGetterAdapter(
+      channel: channel,
+      runtimeNotificationChannel: eventChannel,
+    );
+
+    final notification = await adapter.runtimeNotifications().first;
+
+    expect(notification['kind'], 'task_changed');
+    expect(
+      (notification['task'] as Map<Object?, Object?>)['task_id'],
+      'task-1',
+    );
   });
 
   test('native runtime operation forwards operation and payload', () async {

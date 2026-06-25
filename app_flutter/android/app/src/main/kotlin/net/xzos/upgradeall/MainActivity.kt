@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
@@ -16,10 +17,28 @@ class MainActivity : FlutterActivity() {
     private val legacyMigrationExecutor = Executors.newSingleThreadExecutor()
     private val getterBridgeExecutor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
+    @Volatile
+    private var runtimeEventSink: EventChannel.EventSink? = null
     private val nativeLib by lazy { NativeLib() }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        EventChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            RUNTIME_NOTIFICATION_CHANNEL,
+        ).setStreamHandler(
+            object : EventChannel.StreamHandler {
+                override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                    runtimeEventSink = events
+                    emitRuntimeNotifications()
+                }
+
+                override fun onCancel(arguments: Any?) {
+                    runtimeEventSink = null
+                }
+            },
+        )
+
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             GETTER_BRIDGE_CHANNEL,
@@ -48,7 +67,7 @@ class MainActivity : FlutterActivity() {
                     nativeLib.legacyReportList(legacyReportListRequest())
                 }
 
-                "runtimeOperation" -> runGetterBridge(result) {
+                "runtimeOperation" -> runGetterBridge(result, emitRuntimeNotifications = true) {
                     nativeLib.runtimeOperation(runtimeOperationRequest(call))
                 }
 
@@ -89,11 +108,23 @@ class MainActivity : FlutterActivity() {
         super.onDestroy()
     }
 
-    private fun runGetterBridge(result: MethodChannel.Result, operation: () -> String) {
+    private fun runGetterBridge(
+        result: MethodChannel.Result,
+        emitRuntimeNotifications: Boolean = false,
+        operation: () -> String,
+    ) {
         getterBridgeExecutor.execute {
             try {
                 val response = operation()
-                mainHandler.post { result.success(response) }
+                val notifications = if (emitRuntimeNotifications) {
+                    drainRuntimeNotificationEvents()
+                } else {
+                    emptyList<String>()
+                }
+                mainHandler.post {
+                    result.success(response)
+                    emitRuntimeNotifications(notifications)
+                }
             } catch (error: UnsatisfiedLinkError) {
                 mainHandler.post {
                     result.error(
@@ -178,6 +209,37 @@ class MainActivity : FlutterActivity() {
         return GetterBridgeRequestBuilder.runtimeOperationRequest(args)
     }
 
+    private fun emitRuntimeNotifications() {
+        getterBridgeExecutor.execute {
+            val notifications = drainRuntimeNotificationEvents()
+            mainHandler.post { emitRuntimeNotifications(notifications) }
+        }
+    }
+
+    private fun emitRuntimeNotifications(notifications: List<String>) {
+        val sink = runtimeEventSink ?: return
+        for (notification in notifications) {
+            sink.success(notification)
+        }
+    }
+
+    private fun drainRuntimeNotificationEvents(): List<String> {
+        return try {
+            val envelope = JSONObject(nativeLib.drainRuntimeNotifications())
+            if (!envelope.optBoolean("ok", false)) {
+                return emptyList()
+            }
+            val notifications = envelope
+                .getJSONObject("data")
+                .getJSONArray("notifications")
+            List(notifications.length()) { index -> notifications.getJSONObject(index).toString() }
+        } catch (_: UnsatisfiedLinkError) {
+            emptyList()
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
     private fun getterDataDir(): File = File(filesDir, "getter")
 
     private fun prepareLegacyRoomImport(): Map<String, Any?> {
@@ -192,6 +254,7 @@ class MainActivity : FlutterActivity() {
 
     private companion object {
         const val GETTER_BRIDGE_CHANNEL = "net.xzos.upgradeall/getter_bridge"
+        const val RUNTIME_NOTIFICATION_CHANNEL = "net.xzos.upgradeall/runtime_notifications"
         const val LEGACY_MIGRATION_CHANNEL = "net.xzos.upgradeall/legacy_migration"
         const val LEGACY_ROOM_DB_NAME = "app_metadata_database.db"
     }

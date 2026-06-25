@@ -16,9 +16,14 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
     MethodChannel channel = const MethodChannel(
       'net.xzos.upgradeall/getter_bridge',
     ),
-  }) : _channel = channel;
+    EventChannel runtimeNotificationChannel = const EventChannel(
+      'net.xzos.upgradeall/runtime_notifications',
+    ),
+  })  : _channel = channel,
+        _runtimeNotificationChannel = runtimeNotificationChannel;
 
   final MethodChannel _channel;
+  final EventChannel _runtimeNotificationChannel;
 
   @override
   bool get supportsLegacyRoomImport => true;
@@ -92,6 +97,15 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   /// This is an internal/debug bridge primitive for ADR-0011 wiring. Product UI
   /// should use typed getter operations and getter-issued `action_id`s rather
   /// than assembling runtime action plans in Dart.
+  Stream<Map<String, Object?>> runtimeNotifications() {
+    return _runtimeNotificationChannel.receiveBroadcastStream().map((event) {
+      if (event is String) {
+        return _asMap(jsonDecode(event), 'runtime notification');
+      }
+      return _asMap(event, 'runtime notification');
+    });
+  }
+
   Future<Map<String, Object?>> invokeRuntimeOperation(
     String operation, {
     Map<String, Object?> payload = const <String, Object?>{},

@@ -21,6 +21,7 @@ class NativeLib {
     external fun importLegacyRoomDatabase(requestJson: String): String
     external fun legacyReportList(requestJson: String): String
     external fun runtimeOperation(requestJson: String): String
+    external fun drainRuntimeNotifications(): String
 
     fun runServerLambda(context: Context, callback: (String) -> Unit): String {
         return runServer(context, RunServerCallback(callback))
