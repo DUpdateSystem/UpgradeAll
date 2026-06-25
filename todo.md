@@ -481,7 +481,7 @@ Acceptance:
 
 Goal: move from static app/repo display to real update workflows.
 
-Status: ADR-0011 is accepted for the first in-memory Lua runtime/task/action/RuntimeNotification architecture. Earlier offline CLI/dev scaffolding proved update-check and fake task DTOs, but ADR-0011 supersedes the persisted fake task model: task state is process-memory only, `action_id` is single-use, task submission binds a sealed action plan plus in-memory package-version Lua object, and Flutter receives best-effort push `RuntimeNotification.task_changed` snapshots. The first runtime core plus shared JSON operation seam and native bridge/EventChannel skeleton are implemented. Live provider action issuance, real downloads, Android installers, background workers, and Android system notifications remain deferred to later ADRs.
+Status: ADR-0011 is accepted for the first in-memory Lua runtime/task/action/RuntimeNotification architecture. Earlier offline CLI/dev scaffolding proved update-check and fake task DTOs, but ADR-0011 supersedes the persisted fake task model: task state is process-memory only, `action_id` is single-use, task submission binds a sealed action plan plus in-memory package-version Lua object, and Flutter receives best-effort push `RuntimeNotification.task_changed` snapshots. The first runtime core plus shared JSON operation seam, offline update-check action issuance, and native bridge/EventChannel skeleton are implemented. Live provider action issuance, real downloads, Android installers, background workers, and Android system notifications remain deferred to later ADRs.
 
 Completed tasks:
 
@@ -496,7 +496,7 @@ Completed tasks:
 9. Add CLI commands and BDD coverage for `task submit`, `task run`, `task list`, `task cancel`, `task events`, and `task install-result`.
 10. Accept ADR-0011 for the in-memory runtime/task/action/RuntimeNotification model.
 11. Add `getter-core::runtime` with in-memory `GetterRuntime`, single-use `action_id`, sealed action plans, package-version Lua object binding, generic `user-result`, mock download/install state, package-level non-waiting lock, task controls, remove/clean, and RuntimeNotification DTOs with TDD coverage.
-12. Add shared `getter-operations::runtime` JSON controls for submit/get/list/start/progress/complete-download/pause/resume/user-result/cancel/retry/remove/clean without persisted task state.
+12. Add shared `getter-operations::runtime` JSON controls for offline update-check action issuance plus submit/get/list/start/progress/complete-download/pause/resume/user-result/cancel/retry/remove/clean without persisted task state.
 
 Completed additional UI/bridge slice:
 
@@ -507,7 +507,7 @@ Completed additional UI/bridge slice:
 
 Remaining tasks:
 
-1. Add a getter-owned update/action issuance operation that materializes real sealed action plans and returns opaque `action_id` to Flutter; keep Dart from constructing action payloads.
+1. Replace the offline-fixture action issuance seam with real package/repository/provider update-check action issuance that materializes sealed action plans and returns opaque `action_id` to Flutter; keep Dart from constructing action payloads.
 2. Optionally add CLI single-process scripted/debug tooling over `getter-operations::runtime` without pretending separate invocations share memory.
 3. Replace or retire the older persisted fake CLI task scaffold so public task status/control language uses ADR-0011 (`completed`, `user-result`, remove/clean, no cross-invocation task state).
 4. Implement live provider/downloader behavior beyond the fake/offline proof after a later ADR accepts real side-effect details.
