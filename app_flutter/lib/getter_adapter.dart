@@ -40,6 +40,8 @@ abstract interface class GetterAdapter {
 
   Future<RuntimeTaskSnapshot> submitRuntimeAction(String actionId);
 
+  Stream<RuntimeNotificationEnvelope> runtimeNotificationEnvelopes();
+
   Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
     bool active = false,
     String? packageId,
@@ -280,6 +282,11 @@ class FakeGetterAdapter implements GetterAdapter {
   @override
   Future<RuntimeTaskSnapshot> submitRuntimeAction(String actionId) async {
     return RuntimeTaskSnapshot.fromJson(_runtimeTaskJson('task-1'));
+  }
+
+  @override
+  Stream<RuntimeNotificationEnvelope> runtimeNotificationEnvelopes() {
+    return const Stream<RuntimeNotificationEnvelope>.empty();
   }
 
   @override

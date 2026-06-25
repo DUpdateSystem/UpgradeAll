@@ -120,6 +120,11 @@ class CliGetterAdapter implements GetterAdapter {
   }
 
   @override
+  Stream<RuntimeNotificationEnvelope> runtimeNotificationEnvelopes() {
+    return const Stream<RuntimeNotificationEnvelope>.empty();
+  }
+
+  @override
   Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
     bool active = false,
     String? packageId,

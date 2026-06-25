@@ -82,7 +82,8 @@ The first Flutter implementation slice is intentionally a shell, not product log
 - Product decisions such as repository resolution, updates, migrations, storage, and downloads still belong in Rust getter.
 - Installed-autogen product flows must call getter/native bridge operations that use the Rust-active Android platform adapter from ADR-0009; Flutter should not lead PackageManager inventory scanning through a Dart MethodChannel API.
 - CI/release APK artifacts must be built from `app_flutter`, not from the legacy `:app` module.
-- The downloads route may render getter task/event DTOs read-only, but it must not implement a Dart download task state machine, retry policy, or installer semantics.
+- The app detail update button may call getter's typed update-check operation, receive a getter-issued opaque `action_id`, submit that `action_id`, and open Downloads. Flutter must not assemble or echo action payloads.
+- The downloads route may render getter task/event DTOs read-only and refresh after `RuntimeNotification.task_changed`, but it must not implement a Dart download task state machine, retry policy, or installer semantics. Current-state runtime queries remain authoritative.
 
 ## Test pyramid
 

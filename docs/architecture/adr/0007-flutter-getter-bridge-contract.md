@@ -51,6 +51,8 @@ Internally, Rust/native bridge code scans Android inventory through the platform
 
 `loadSnapshot()` composes smaller getter-owned read-model operations into the UI shell's first snapshot DTO. In the Android/native product path, `MethodChannelGetterAdapter` calls `readOperation` for `repository_list`, `tracked_package_list`, and `package_eval`; Rust getter reads SQLite repository/tracked-package state and evaluates registered Lua packages. Flutter may parse and combine those returned DTOs for rendering, but must not perform repository resolution, Lua validation/evaluation, version comparison, migration mapping, or update selection in Dart. `readMigrationReports()` must go through a getter operation such as `legacy report-list`; Flutter must not inspect getter's data-directory layout directly. Runtime task rendering must use ADR-0011 runtime task snapshot APIs and opaque action/task controls; Flutter must not synthesize task states, retry policy, installer behavior, or update decisions.
 
+The first product click-through update flow is: App detail calls a typed getter update-check operation, receives a getter-issued `action_id`, submits only that `action_id` to the process-lifetime runtime, and opens Downloads to query authoritative task snapshots. Flutter may refresh the Downloads page after `RuntimeNotification.task_changed`, but the notification is only a trigger; `task_list`/equivalent runtime queries remain the source of truth.
+
 ## Flutter DTOs
 
 The Flutter shell may use DTOs that mirror getter output for rendering:

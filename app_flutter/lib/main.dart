@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'getter_adapter.dart';
@@ -46,6 +48,10 @@ class AppKeys {
   static const applyInstalledAutogen = ValueKey<String>(
     'action.apply_installed_autogen',
   );
+  static const updateCheckStatus = ValueKey<String>(
+    'state.update_check_status',
+  );
+  static const updateCheckError = ValueKey<String>('state.update_check_error');
 
   static const updateSummary = ValueKey<String>('state.update_summary');
   static const getterStatus = ValueKey<String>('state.getter_status');
@@ -94,6 +100,8 @@ class AppKeys {
     'state.installed_autogen_error',
   );
 
+  static ValueKey<String> checkPackageUpdate(String packageId) =>
+      ValueKey<String>('action.check_update.$packageId');
   static ValueKey<String> appRow(String packageId) =>
       ValueKey<String>('state.app.$packageId');
   static ValueKey<String> repoRow(String repositoryId) =>
@@ -147,7 +155,7 @@ class UpgradeAllApp extends StatelessWidget {
         if (settings.name == '/apps/detail') {
           final app = settings.arguments! as AppSummary;
           return MaterialPageRoute<void>(
-            builder: (context) => AppDetailPage(app: app),
+            builder: (context) => AppDetailPage(app: app, getter: getter),
             settings: settings,
           );
         }
@@ -306,13 +314,67 @@ class _AppsPageState extends State<AppsPage> {
   }
 }
 
-class AppDetailPage extends StatelessWidget {
-  const AppDetailPage({super.key, required this.app});
+class AppDetailPage extends StatefulWidget {
+  const AppDetailPage({super.key, required this.app, required this.getter});
 
   final AppSummary app;
+  final GetterAdapter getter;
+
+  @override
+  State<AppDetailPage> createState() => _AppDetailPageState();
+}
+
+class _AppDetailPageState extends State<AppDetailPage> {
+  bool _checkingUpdate = false;
+  String? _status;
+  String? _error;
+
+  Future<void> _checkForUpdate() async {
+    if (_checkingUpdate) return;
+    setState(() {
+      _checkingUpdate = true;
+      _status = 'Checking for updates...';
+      _error = null;
+    });
+
+    try {
+      final result = await widget.getter.checkPackageForUpdate(
+        widget.app.id,
+        installedVersion: _knownVersion(widget.app.installedVersion),
+      );
+      final action = result.action;
+      if (action == null) {
+        if (!mounted) return;
+        setState(() {
+          _status = 'No update task available: ${result.update.status}';
+        });
+        return;
+      }
+
+      final task = await widget.getter.submitRuntimeAction(action.actionId);
+      if (!mounted) return;
+      setState(() {
+        _status = 'Submitted runtime task ${task.taskId}';
+      });
+      await Navigator.of(context).pushNamed('/downloads');
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _status = null;
+        _error = error.toString();
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _checkingUpdate = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final app = widget.app;
     return Scaffold(
       key: AppKeys.appDetailRoute,
       appBar: AppBar(title: Text(app.name)),
@@ -323,6 +385,25 @@ class AppDetailPage extends StatelessWidget {
           const SizedBox(height: 12),
           Text('Installed: ${app.installedVersion}'),
           Text('Latest: ${app.latestVersion}'),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            key: AppKeys.checkPackageUpdate(app.id),
+            onPressed: _checkingUpdate ? null : _checkForUpdate,
+            icon: const Icon(Icons.system_update_alt),
+            label: Text(
+              _checkingUpdate ? 'Checking update...' : 'Check update',
+            ),
+          ),
+          if (_status != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(key: AppKeys.updateCheckStatus, _status!),
+            ),
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(key: AppKeys.updateCheckError, _error!),
+            ),
           if (app.hasFreeNetworkWarning)
             const Padding(
               padding: EdgeInsets.only(top: 12),
@@ -335,6 +416,11 @@ class AppDetailPage extends StatelessWidget {
       ),
     );
   }
+}
+
+String? _knownVersion(String version) {
+  final normalized = version.trim();
+  return normalized.isEmpty || normalized == 'unknown' ? null : normalized;
 }
 
 class RepositoriesPage extends StatefulWidget {
@@ -383,10 +469,44 @@ class _RepositoriesPageState extends State<RepositoriesPage> {
   }
 }
 
-class DownloadsPage extends StatelessWidget {
+class DownloadsPage extends StatefulWidget {
   const DownloadsPage({super.key, required this.getter});
 
   final GetterAdapter getter;
+
+  @override
+  State<DownloadsPage> createState() => _DownloadsPageState();
+}
+
+class _DownloadsPageState extends State<DownloadsPage> {
+  late Future<List<RuntimeTaskSnapshot>> _tasks = widget.getter
+      .listRuntimeTasks();
+  StreamSubscription<RuntimeNotificationEnvelope>? _notificationSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationSubscription = widget.getter
+        .runtimeNotificationEnvelopes()
+        .listen((notification) {
+          if (notification.kind == 'task_changed') {
+            _reloadTasks();
+          }
+        }, onError: (_) {});
+  }
+
+  @override
+  void dispose() {
+    _notificationSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _reloadTasks() {
+    if (!mounted) return;
+    setState(() {
+      _tasks = widget.getter.listRuntimeTasks();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -394,7 +514,7 @@ class DownloadsPage extends StatelessWidget {
       key: AppKeys.downloadsRoute,
       appBar: AppBar(title: const Text('Downloads')),
       body: FutureBuilder<List<RuntimeTaskSnapshot>>(
-        future: getter.listRuntimeTasks(),
+        future: _tasks,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Center(child: CircularProgressIndicator());

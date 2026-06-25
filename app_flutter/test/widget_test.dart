@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -43,6 +45,53 @@ void main() {
     expect(find.text('Network access required'), findsOneWidget);
   });
 
+  testWidgets('app detail submits getter-issued update action to runtime', (
+    tester,
+  ) async {
+    final getter = _UpdateCheckRecordingGetterAdapter();
+    await tester.pumpWidget(UpgradeAllApp(getter: getter));
+
+    await tester.tap(find.byKey(AppKeys.openApps));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.appRow('android/org.fdroid.fdroid')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(AppKeys.checkPackageUpdate('android/org.fdroid.fdroid')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(getter.checkedPackageId, 'android/org.fdroid.fdroid');
+    expect(getter.checkedInstalledVersion, '1.20.0');
+    expect(getter.submittedActionId, 'action-from-getter');
+    expect(find.byKey(AppKeys.downloadsRoute), findsOneWidget);
+    expect(
+      find.byKey(AppKeys.downloadTaskRow('task-from-action')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('app detail reports update checks without runtime action', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      UpgradeAllApp(getter: _NoUpdateActionGetterAdapter()),
+    );
+
+    await tester.tap(find.byKey(AppKeys.openApps));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.appRow('android/org.fdroid.fdroid')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(AppKeys.checkPackageUpdate('android/org.fdroid.fdroid')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(AppKeys.appDetailRoute), findsOneWidget);
+    expect(find.byKey(AppKeys.updateCheckStatus), findsOneWidget);
+    expect(find.text('No update task available: up_to_date'), findsOneWidget);
+    expect(find.byKey(AppKeys.downloadsRoute), findsNothing);
+  });
+
   testWidgets('repository route lists priority ordered repository IDs', (
     tester,
   ) async {
@@ -71,6 +120,23 @@ void main() {
     expect(find.byKey(AppKeys.downloadTaskRow('task-1')), findsOneWidget);
     expect(find.text('queued • queued'), findsOneWidget);
     expect(find.text('Cancel'), findsOneWidget);
+  });
+
+  testWidgets('downloads route refreshes after runtime notification', (
+    tester,
+  ) async {
+    final getter = _NotificationRefreshingGetterAdapter();
+    await tester.pumpWidget(UpgradeAllApp(getter: getter));
+
+    await tester.tap(find.byKey(AppKeys.openDownloads));
+    await tester.pumpAndSettle();
+    expect(find.text('queued • queued'), findsOneWidget);
+
+    getter.emitRunningTaskNotification();
+    await tester.pumpAndSettle();
+
+    expect(find.text('running • download'), findsOneWidget);
+    expect(getter.listCallCount, 2);
   });
 
   testWidgets('downloads route exposes getter empty task state', (
@@ -239,6 +305,154 @@ void main() {
     expect(find.byKey(AppKeys.migrationRoute), findsOneWidget);
     expect(find.byKey(AppKeys.migrationReady), findsOneWidget);
   });
+}
+
+class _UpdateCheckRecordingGetterAdapter extends FakeGetterAdapter {
+  String? checkedPackageId;
+  String? checkedInstalledVersion;
+  String? submittedActionId;
+  final _tasks = <RuntimeTaskSnapshot>[];
+
+  @override
+  Future<RuntimeUpdateCheckResult> checkPackageForUpdate(
+    String packageId, {
+    String? repositoryId,
+    String? installedVersion,
+    String? pinVersion,
+  }) async {
+    checkedPackageId = packageId;
+    checkedInstalledVersion = installedVersion;
+    return RuntimeUpdateCheckResult.fromJson(<String, Object?>{
+      'package': <String, Object?>{
+        'id': packageId,
+        'name': 'F-Droid',
+        'repository': repositoryId ?? 'official',
+      },
+      'update': <String, Object?>{
+        'package_id': packageId,
+        'status': 'update_available',
+        'installed_version': installedVersion,
+        'effective_local_version': installedVersion,
+        'selected': <String, Object?>{
+          'candidate': <String, Object?>{'version': '1.21.0'},
+        },
+        'actions': <Object?>[
+          <String, Object?>{'type': 'download'},
+        ],
+      },
+      'action': <String, Object?>{
+        'action_id': 'action-from-getter',
+        'package_id': packageId,
+      },
+    });
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> submitRuntimeAction(String actionId) async {
+    submittedActionId = actionId;
+    final task = RuntimeTaskSnapshot.fromJson(const <String, Object?>{
+      'task_id': 'task-from-action',
+      'package_id': 'android/org.fdroid.fdroid',
+      'status': 'queued',
+      'phase': <String, Object?>{'category': 'queued'},
+      'progress': null,
+      'capabilities': <String, Object?>{
+        'cancel': true,
+        'pause': false,
+        'resume': false,
+        'retry': false,
+      },
+      'current_diagnostic': null,
+      'updated_at': 42,
+    });
+    _tasks
+      ..clear()
+      ..add(task);
+    return task;
+  }
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
+    bool active = false,
+    String? packageId,
+  }) async => List<RuntimeTaskSnapshot>.unmodifiable(_tasks);
+}
+
+class _NoUpdateActionGetterAdapter extends FakeGetterAdapter {
+  const _NoUpdateActionGetterAdapter();
+
+  @override
+  Future<RuntimeUpdateCheckResult> checkPackageForUpdate(
+    String packageId, {
+    String? repositoryId,
+    String? installedVersion,
+    String? pinVersion,
+  }) async {
+    return RuntimeUpdateCheckResult.fromJson(<String, Object?>{
+      'package': <String, Object?>{
+        'id': packageId,
+        'name': 'F-Droid',
+        'repository': repositoryId ?? 'official',
+      },
+      'update': <String, Object?>{
+        'package_id': packageId,
+        'status': 'up_to_date',
+        'installed_version': installedVersion,
+        'effective_local_version': installedVersion,
+        'selected': null,
+        'actions': <Object?>[],
+      },
+      'action': null,
+    });
+  }
+}
+
+class _NotificationRefreshingGetterAdapter extends FakeGetterAdapter {
+  final _notifications =
+      StreamController<RuntimeNotificationEnvelope>.broadcast();
+  var _running = false;
+  var listCallCount = 0;
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
+    bool active = false,
+    String? packageId,
+  }) async {
+    listCallCount += 1;
+    return <RuntimeTaskSnapshot>[_task(_running ? 'running' : 'queued')];
+  }
+
+  @override
+  Stream<RuntimeNotificationEnvelope> runtimeNotificationEnvelopes() {
+    return _notifications.stream;
+  }
+
+  void emitRunningTaskNotification() {
+    _running = true;
+    _notifications.add(
+      RuntimeNotificationEnvelope(kind: 'task_changed', task: _task('running')),
+    );
+  }
+
+  RuntimeTaskSnapshot _task(String status) {
+    return RuntimeTaskSnapshot.fromJson(<String, Object?>{
+      'task_id': 'task-refresh',
+      'package_id': 'android/org.fdroid.fdroid',
+      'status': status,
+      'phase': <String, Object?>{
+        'category': status == 'running' ? 'download' : 'queued',
+      },
+      'progress': null,
+      'capabilities': <String, Object?>{
+        'cancel': true,
+        'pause': false,
+        'resume': false,
+        'retry': false,
+      },
+      'current_diagnostic': null,
+      'updated_at': status == 'running' ? 2 : 1,
+    });
+  }
 }
 
 class _NoTaskGetterAdapter extends FakeGetterAdapter {

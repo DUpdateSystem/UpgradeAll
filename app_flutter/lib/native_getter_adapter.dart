@@ -118,6 +118,7 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
     });
   }
 
+  @override
   Stream<RuntimeNotificationEnvelope> runtimeNotificationEnvelopes() {
     return runtimeNotifications().map(RuntimeNotificationEnvelope.fromJson);
   }
