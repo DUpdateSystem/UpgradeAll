@@ -45,7 +45,7 @@ Normalize, filter and enrich release candidates.
 
 Choose the candidate/artifact to update to, using installed version and user state.
 
-The first getter-core selection helper uses deterministic tokenized version comparison: digit runs compare numerically, text suffixes compare case-insensitively, separators are ignored, and a prerelease-like text suffix (for example `beta`/`rc`) sorts before the final release with the same numeric prefix. The selector skips the user's ignored version and returns the highest candidate newer than the installed version.
+The first getter-core selection helper uses deterministic tokenized version comparison: digit runs compare numerically, text suffixes compare case-insensitively, separators are ignored, and a prerelease-like text suffix (for example `beta`/`rc`) sorts before the final release with the same numeric prefix. The selector returns the highest candidate newer than the effective local baseline. The effective baseline is normally the observed installed version; when the user has set `pin_version`, getter compares candidates against that pin override instead while still keeping the observed installed version available for display/diagnostics.
 
 ## resolve
 

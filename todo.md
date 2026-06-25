@@ -157,7 +157,7 @@ Do not jump to AGP 9 as part of the immediate fix unless the minimal Kotlin fix 
 | SQLite storage | Use main DB + cache DB, not JSONL product store | `MainDb` and `CacheDb` implemented; `init` creates `main.db` and `cache.db` | Aligned |
 | Lua package repositories | Lua files return JSON-like tables; Rust validates | `getter-core/src/lua.rs` and repository loader implemented; hardened lib search path | Aligned |
 | Legacy migration | Automatic migration eventually; initial slice may be JSON bridge | JSON bridge bundle import exists; direct Room reader deferred | Partial but acceptable |
-| ExtraApp preservation | Do not repeat old bug of skipping `extra_app` state | Current mapping preserves `ignored_version` and `favorite` from extra app slice | Aligned for current slice |
+| ExtraApp preservation | Do not repeat old bug of skipping `extra_app` state | Current mapping preserves legacy version override as `pin_version` plus `favorite` from extra app slice | Aligned for current slice |
 | Flutter UI | Flutter owns UI/platform only | `FakeGetterAdapter`, route keys, placeholder pages; no real product logic | Acceptable shell; freeze scope until bridge |
 | Mixed TDD/BDD | TDD for Rust/domain, BDD for user-facing/integration | Rust unit tests + CLI BDD + Flutter widget tests | Aligned |
 | Verification | `just verify` should be the main gate | `just verify` exists, passes locally, and passes in the rewrite validation workflow | Aligned |
@@ -489,7 +489,7 @@ Completed tasks:
 2. Reuse existing getter-core update selection for update availability.
 3. Generate minimal download/install action DTOs for the selected artifact.
 4. Add CLI command `update check --fixture <fixture.json>`.
-5. Add BDD coverage for update available, up to date, ignored latest fallback, ignored-only, unknown installed version, and malformed fixture.
+5. Add BDD coverage for update available, up to date, `pin_version` baseline override, unknown installed version, and malformed fixture.
 6. Add getter-core task/event/install-handoff DTOs for the first offline lifecycle proof.
 7. Add main DB task/event/install-handoff tables and storage APIs with TDD coverage.
 8. Implement deterministic fake/offline downloader behavior beyond the previous placeholder crate: submit, run, cancel, list, poll events, and record install result.

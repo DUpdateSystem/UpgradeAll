@@ -191,7 +191,7 @@ TrackedPackageSummary _trackedPackageFromJson(Object? value) {
     id: _asString(json['id'], 'tracked.id'),
     enabled: _asBool(json['enabled'], 'tracked.enabled'),
     favorite: _asBool(json['favorite'], 'tracked.favorite'),
-    ignoredVersion: json['ignored_version'] as String?,
+    pinVersion: json['pin_version'] as String?,
     repositoryId: json['repository_id'] as String?,
     packageResolution: _asString(
       json['package_resolution'],

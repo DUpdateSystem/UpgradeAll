@@ -113,7 +113,7 @@ void main() {
                   'id': 'android/org.fdroid.fdroid',
                   'enabled': true,
                   'favorite': true,
-                  'ignored_version': '1.20.0',
+                  'pin_version': '1.20.0',
                   'repository_id': null,
                   'package_resolution': 'missing_package_definition',
                 },

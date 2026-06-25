@@ -64,7 +64,7 @@ Complex auth may be dropped.
 
 ## ExtraApp mapping
 
-Map mark/ignore version state when possible. In the direct Room DB importer, `extra_app.mark_version_number` wins over `app.ignore_version_number` when both exist for the same package id because it is the more specific extra-app state.
+Map legacy mark/ignore version state into rewrite `pin_version` when possible. In the direct Room DB importer, `extra_app.mark_version_number` wins over `app.ignore_version_number` when both exist for the same package id because it is the more specific extra-app state.
 
 ## ExtraHub mapping
 
@@ -113,7 +113,7 @@ The host-side CLI implementation also accepts a deterministic JSON bridge bundle
       "installed_id": "org.fdroid.fdroid",
       "official_package_available": true,
       "common_conversion_available": false,
-      "ignored_version": "1.20.0",
+      "pin_version": "1.20.0",
       "favorite": true
     }
   ]

@@ -29,7 +29,7 @@ void main() {
       (package) => package.id == 'android/org.fdroid.fdroid',
     );
     expect(tracked.favorite, isTrue);
-    expect(tracked.ignoredVersion, '1.20.0');
+    expect(tracked.pinVersion, '1.20.0');
     expect(tracked.packageResolution, 'missing_package_definition');
 
     final reports = await adapter.readMigrationReports();
@@ -89,7 +89,7 @@ void main() {
       (package) => package.id == 'android/org.fdroid.fdroid',
     );
     expect(tracked.favorite, isTrue);
-    expect(tracked.ignoredVersion, '1.20.0');
+    expect(tracked.pinVersion, '1.20.0');
     expect(tracked.packageResolution, 'official_repository_package');
 
     final evaluated = adapter.evaluatePackage(
@@ -181,7 +181,7 @@ File _createLegacyBundle(Directory temp) {
       "kind": "android",
       "installed_id": "org.fdroid.fdroid",
       "official_package_available": true,
-      "ignored_version": "1.20.0",
+      "pin_version": "1.20.0",
       "favorite": true
     }
   ]

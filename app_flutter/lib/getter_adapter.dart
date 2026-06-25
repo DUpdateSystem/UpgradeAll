@@ -78,7 +78,7 @@ class FakeGetterAdapter implements GetterAdapter {
         id: 'android/org.fdroid.fdroid',
         enabled: true,
         favorite: false,
-        ignoredVersion: null,
+        pinVersion: null,
         repositoryId: 'official',
         packageResolution: 'official_repository_package',
       ),
@@ -303,7 +303,7 @@ class TrackedPackageSummary {
     required this.id,
     required this.enabled,
     required this.favorite,
-    required this.ignoredVersion,
+    required this.pinVersion,
     required this.repositoryId,
     required this.packageResolution,
   });
@@ -313,9 +313,9 @@ class TrackedPackageSummary {
       id: _jsonString(json['id'], 'tracked.id'),
       enabled: _jsonBool(json['enabled'], 'tracked.enabled'),
       favorite: _jsonBool(json['favorite'], 'tracked.favorite'),
-      ignoredVersion: _jsonOptionalString(
-        json['ignored_version'],
-        'tracked.ignored_version',
+      pinVersion: _jsonOptionalString(
+        json['pin_version'],
+        'tracked.pin_version',
       ),
       repositoryId:
           _jsonOptionalString(json['repository_id'], 'tracked.repository_id'),
@@ -329,7 +329,7 @@ class TrackedPackageSummary {
   final String id;
   final bool enabled;
   final bool favorite;
-  final String? ignoredVersion;
+  final String? pinVersion;
   final String? repositoryId;
   final String packageResolution;
 }

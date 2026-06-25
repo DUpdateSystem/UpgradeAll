@@ -32,7 +32,7 @@ void main() {
     expect(result.trackedPackages, hasLength(1));
     expect(result.trackedPackages.single.id, 'android/org.fdroid.fdroid');
     expect(result.trackedPackages.single.favorite, isTrue);
-    expect(result.trackedPackages.single.ignoredVersion, '1.20.0');
+    expect(result.trackedPackages.single.pinVersion, '1.20.0');
     expect(result.sourceCounts?.appRows, 1);
     expect(result.sourceCounts?.extraAppRows, 1);
 

@@ -885,8 +885,8 @@ v1 暂不做 repo/script/artifact 强校验。
 - repo priority。
 - enabled apps/packages。
 - user source priority override。
-- ignore versions。
-- pins。
+- legacy ignore/mark version state mapped into `pin_version`.
+- pins / version baselines。
 - favorites/star。
 - migration records。
 - settings。
@@ -983,7 +983,7 @@ end
 
 - saved apps 的基本 identity。
 - Android package / Magisk module installed id。
-- ignore version / mark version 能力，如果可映射。
+- legacy ignore version / mark version 能力映射为 `pin_version`，如果可映射。
 - user-visible tracked app 列表。
 - 常见 source/cloud config 能力，如果可内置转换。
 

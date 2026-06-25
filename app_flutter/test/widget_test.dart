@@ -303,7 +303,7 @@ class _MigrationGetterAdapter extends FakeGetterAdapter {
           id: 'android/org.fdroid.fdroid',
           enabled: true,
           favorite: true,
-          ignoredVersion: '1.20.0',
+          pinVersion: '1.20.0',
           repositoryId: null,
           packageResolution: 'missing_package_definition',
         ),

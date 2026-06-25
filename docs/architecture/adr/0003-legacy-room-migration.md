@@ -79,7 +79,7 @@ The host-side CLI also keeps the deterministic JSON bridge bundle for tests and 
       "installed_id": "org.fdroid.fdroid",
       "official_package_available": true,
       "common_conversion_available": false,
-      "ignored_version": "1.20.0",
+      "pin_version": "1.20.0",
       "favorite": true
     }
   ]

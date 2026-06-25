@@ -63,7 +63,7 @@ Cleanup flow:
 5. User confirms yes/no.
 6. getter deletes only accepted manifest-managed `local_autogen` files/state.
 
-Cleanup apply refuses stale/tampered previews that do not match the current manifest, and guarded tracked-state deletion only removes rows still owned by `local_autogen` generated packages. Installed apply preserves existing user state (`enabled`, `favorite`, `ignored_version`) and existing non-missing resolution metadata when a package is already tracked. If a managed autogen file has been edited, getter preserves that content into the user-authored `local` repo before regenerating or deleting the generated file. Ordinary autogen cleanup never deletes `local`.
+Cleanup apply refuses stale/tampered previews that do not match the current manifest, and guarded tracked-state deletion only removes rows still owned by `local_autogen` generated packages. Installed apply preserves existing user state (`enabled`, `favorite`, `pin_version`) and existing non-missing resolution metadata when a package is already tracked. If a managed autogen file has been edited, getter preserves that content into the user-authored `local` repo before regenerating or deleting the generated file. Ordinary autogen cleanup never deletes `local`.
 
 ## Repositories
 
