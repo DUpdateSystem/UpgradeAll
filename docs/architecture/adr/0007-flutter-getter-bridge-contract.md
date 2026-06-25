@@ -30,14 +30,7 @@ readMigrationReports()
 loadSnapshot()
 ```
 
-The second accepted API surface adds read-only task lifecycle DTO consumption for the already accepted offline/fake getter lifecycle:
-
-```text
-listDownloadTasks()
-listTaskEvents(after, limit)
-```
-
-The third accepted API surface adds the first legacy migration action boundary:
+The second accepted API surface adds the first legacy migration action boundary:
 
 ```text
 importLegacyRoomDatabase(databasePath)
@@ -45,7 +38,7 @@ importLegacyRoomDatabase(databasePath)
 
 The Android platform adapter may prepare a copied/checkpointed legacy Room SQLite file and return its path to Flutter, but getter still owns the actual `legacy import-room-db` import semantics. The production Android bridge exposes `importLegacyRoomDatabase` and `legacyReportList` through JNI/MethodChannel by delegating to getter-owned `getter-operations` legacy Room code. Flutter starts the flow and renders getter reports; it must not inspect or map Room tables directly.
 
-The fourth accepted API surface adds the production installed-autogen bridge boundary and must follow ADR-0009's Rust-active platform adapter direction rather than a Flutter-led inventory scan:
+The third accepted API surface adds the production installed-autogen bridge boundary and must follow ADR-0009's Rust-active platform adapter direction rather than a Flutter-led inventory scan:
 
 ```text
 previewInstalledAutogen(scanOptions)
@@ -56,7 +49,7 @@ The Android product APK packages a slim `:getter_bridge` library under `app_flut
 
 Internally, Rust/native bridge code scans Android inventory through the platform adapter, then asks getter-owned shared autogen operations to plan/apply `local_autogen`. `MethodChannelGetterAdapter` consumes the returned getter-style JSON envelopes. Flutter renders getter-owned preview/apply DTOs and scan diagnostics, then passes the package ids from displayed accepted preview candidates back to getter on apply; it must not expose a product Dart `InstalledInventoryPlatform` scanner or convert Android package names into package ids.
 
-`loadSnapshot()` composes the smaller getter-owned operations into the UI shell's first snapshot DTO. It must not perform repository resolution, version comparison, migration mapping, or update selection in Dart. `readMigrationReports()` must go through a getter operation such as `legacy report-list`; Flutter must not inspect getter's data-directory layout directly. `listDownloadTasks()` and `listTaskEvents()` render getter-owned task/event DTOs; Flutter must not synthesize task states, retry policy, installer behavior, or update decisions.
+`loadSnapshot()` composes the smaller getter-owned operations into the UI shell's first snapshot DTO. It must not perform repository resolution, version comparison, migration mapping, or update selection in Dart. `readMigrationReports()` must go through a getter operation such as `legacy report-list`; Flutter must not inspect getter's data-directory layout directly. Runtime task rendering must use ADR-0011 runtime task snapshot APIs and opaque action/task controls; Flutter must not synthesize task states, retry policy, installer behavior, or update decisions.
 
 ## Flutter DTOs
 
@@ -72,9 +65,16 @@ MigrationReportSummary
 LegacyMigrationImportResult
 MigrationWarningSummary
 MigrationSourceCounts
-DownloadTaskSummary
-TaskEventPage
-TaskEventSummary
+RuntimeUpdateCheckResult
+RuntimePackageSummary
+RuntimeUpdateSummary
+RuntimeIssuedAction
+RuntimeTaskSnapshot
+RuntimeTaskPhase
+RuntimeTaskProgress
+RuntimeTaskCapabilities
+RuntimeTaskDiagnostic
+RuntimeNotificationEnvelope
 GetterError
 InstalledAutogenPreview
 InstalledAutogenCandidate
@@ -179,15 +179,15 @@ If a feature requires one of these decisions, add or extend a getter operation i
 
 Positive:
 
-- The first bridge is executable in CI without waiting for full mobile FFI.
-- CLI output remains the headless test oracle.
-- Flutter can start consuming real getter data while preserving the Rust-owned domain boundary.
-- Future native bridge work has a concrete DTO/error contract to preserve.
+- The early bridge was executable in CI before the native bridge stabilized.
+- CLI output remains a headless oracle for storage/repository/migration coverage.
+- Flutter can consume real getter data while preserving the Rust-owned domain boundary.
+- The native bridge now has a concrete DTO/error/runtime notification contract to preserve.
 
 Costs:
 
 - The CLI adapter is development/test infrastructure, not the final mobile path.
-- Snapshot-only UI cannot yet represent long-running update/download/install flows.
+- Runtime task UI still exposes only the first read-only snapshot rendering slice until live provider/downloader/installer ADRs are accepted.
 - Getter output schemas must evolve carefully because they are now a cross-boundary contract.
 
 ## Validation
@@ -196,13 +196,13 @@ The first implementation slice must provide:
 
 - Flutter widget tests that continue to use `FakeGetterAdapter`.
 - Flutter widget tests for the migration flow using fake platform/getter adapters.
-- A Flutter/Dart integration test that builds or receives a real `getter-cli` binary, initializes a real getter data directory, and reads repositories, tracked packages, package evaluation output, migration reports, direct Room import output, and task lifecycle DTOs through `CliGetterAdapter`.
+- A Flutter/Dart integration test that builds or receives a real `getter-cli` binary, initializes a real getter data directory, and reads repositories, tracked packages, package evaluation output, migration reports, and direct Room import output through `CliGetterAdapter`.
 - `just verify` coverage for the bridge integration test.
 
 ## Non-goals
 
-- No full FFI/native bridge implementation beyond the first direct legacy Room import/report-list and installed-autogen preview/apply JNI/MethodChannel operation slices.
-- No update/download/install event stream.
+- No product-complete live provider/downloader/installer execution beyond the ADR-0011 in-memory runtime operation and notification skeleton.
+- No durable update/download/install event log or cross-process task recovery.
 - No Android-owned legacy Room mapping/import semantics; Android only prepares a copied DB file for getter.
 - No product-complete Flutter UI.
 - No product/domain decisions in Dart.

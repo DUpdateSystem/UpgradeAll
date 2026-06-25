@@ -506,14 +506,14 @@ Completed additional UI/bridge slice:
 13. Add native bridge process-lifetime runtime singleton, runtime operation dispatcher, bounded best-effort notification drain, Kotlin EventChannel, and Dart runtime notification stream primitive.
 14. Add typed Dart runtime/update methods for package update-check action issuance, action-id submission, task query/control/user-result/remove/clean, typed runtime notifications, and runtime task snapshot rendering on the Downloads route.
 15. Add `runtime script --script <script.json>` as a single-process CLI debug harness over `getter-operations::runtime`, including task remove/clean coverage, and move the old persisted fake downloader scaffold out of the public `task` namespace to `debug fake-task ...`.
+16. Remove remaining `debug fake-task` DTO accessors from `CliGetterAdapter` and keep fake-task coverage inside getter CLI BDD/dev scaffolding only, so Flutter product/development adapters no longer expose the old persisted task/event DTO surface.
 
 Remaining tasks:
 
 1. Replace the current static `updates` package seam with live provider update-check action issuance that materializes sealed action plans and returns opaque `action_id` to Flutter; keep Dart from constructing action payloads.
-2. Continue retiring old fake-task scaffolding from product-facing adapters/docs as newer runtime/native flows cover those cases; the remaining `debug fake-task ...` commands are development-only.
-3. Implement live provider/downloader behavior beyond the fake/offline proof after a later ADR accepts real side-effect details.
-4. Define Android production install handoff URI/SAF/permission/notification details and wire platform adapter execution after later ADRs.
-5. Add product-level Flutter BDD for full update/download/install user flows after live/provider/background/installer decisions are accepted; the current slice covers typed runtime DTO methods and read-only runtime task snapshot rendering.
+2. Implement live provider/downloader behavior beyond the fake/offline proof after a later ADR accepts real side-effect details.
+3. Define Android production install handoff URI/SAF/permission/notification details and wire platform adapter execution after later ADRs.
+4. Add product-level Flutter BDD for full update/download/install user flows after live/provider/background/installer decisions are accepted; the current slice covers typed runtime DTO methods and read-only runtime task snapshot rendering.
 
 Acceptance progress:
 
