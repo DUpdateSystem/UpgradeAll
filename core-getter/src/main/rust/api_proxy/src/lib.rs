@@ -2,6 +2,7 @@ extern crate jni;
 
 use getter::operations::autogen::{self, AutogenAcceptance, AutogenOperationError};
 use getter::operations::legacy_room::{self, LegacyRoomOperationError};
+use getter::operations::runtime as runtime_operations;
 use getter::rpc::server::run_server_hanging;
 #[cfg(target_os = "android")]
 use getter::rustls_platform_verifier;
@@ -11,6 +12,7 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::channel;
+use std::sync::{Mutex, OnceLock};
 use std::thread;
 use upgradeall_platform_adapter::InstalledInventoryScanOptions;
 #[cfg(target_os = "android")]
@@ -18,6 +20,8 @@ use upgradeall_platform_adapter::PlatformAdapter;
 
 const MAIN_DB_FILE: &str = "main.db";
 const CACHE_DB_FILE: &str = "cache.db";
+
+static GETTER_RUNTIME: OnceLock<Mutex<getter::core::runtime::GetterRuntime>> = OnceLock::new();
 
 #[derive(Debug, Deserialize)]
 struct PreviewInstalledAutogenRequest {
@@ -43,6 +47,13 @@ struct ImportLegacyRoomDatabaseRequest {
 #[derive(Debug, Deserialize)]
 struct LegacyReportListRequest {
     data_dir: PathBuf,
+}
+
+#[derive(Debug, Deserialize)]
+struct RuntimeOperationRequest {
+    operation: String,
+    #[serde(default)]
+    payload: Value,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -134,7 +145,10 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_initializeBridge<'lo
     context: JObject<'local>,
 ) -> JString<'local> {
     let response = match init_android_integrations(&mut env, &context) {
-        Ok(()) => success_envelope("bridge initialize", json!({ "initialized": true })),
+        Ok(()) => {
+            init_getter_runtime();
+            success_envelope("bridge initialize", json!({ "initialized": true }))
+        }
         Err(error) => error_envelope(
             "bridge initialize",
             "bridge.initialize_error",
@@ -172,6 +186,20 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_applyInstalledAutoge
     let response = match jstring_to_string(&mut env, &request_json)
         .and_then(|raw| apply_installed_autogen(&raw))
     {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runtimeOperation<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "runtime operation";
+    let response = match jstring_to_string(&mut env, &request_json).and_then(runtime_operation) {
         Ok(data) => success_envelope(command, data),
         Err(error) => operation_error_envelope(command, error),
     };
@@ -262,6 +290,54 @@ fn legacy_report_list(request_json: &str) -> Result<Value, BridgeOperationError>
     let request: LegacyReportListRequest = serde_json::from_str(request_json)
         .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
     legacy_room::report_list_json(&request.data_dir).map_err(BridgeOperationError::from)
+}
+
+fn init_getter_runtime() -> &'static Mutex<getter::core::runtime::GetterRuntime> {
+    GETTER_RUNTIME.get_or_init(|| Mutex::new(getter::core::runtime::GetterRuntime::new()))
+}
+
+fn runtime_operation(request_json: String) -> Result<Value, BridgeOperationError> {
+    let runtime = init_getter_runtime();
+    let mut runtime = runtime
+        .lock()
+        .map_err(|_| BridgeOperationError::RuntimePoisoned)?;
+    runtime_operation_with_runtime(&mut runtime, &request_json)
+}
+
+fn runtime_operation_with_runtime(
+    runtime: &mut getter::core::runtime::GetterRuntime,
+    request_json: &str,
+) -> Result<Value, BridgeOperationError> {
+    let request: RuntimeOperationRequest = serde_json::from_str(request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let payload = if request.payload.is_null() {
+        "{}".to_owned()
+    } else {
+        request.payload.to_string()
+    };
+    match request.operation.as_str() {
+        "task_submit" => runtime_operations::submit_action_json(runtime, &payload),
+        "task_get" => runtime_operations::task_get_json(runtime, &payload),
+        "task_list" => runtime_operations::task_list_json(runtime, &payload),
+        "task_start" => runtime_operations::task_start_json(runtime, &payload),
+        "task_download_progress" => {
+            runtime_operations::task_download_progress_json(runtime, &payload)
+        }
+        "task_complete_download" => {
+            runtime_operations::task_complete_download_json(runtime, &payload)
+        }
+        "task_pause" => runtime_operations::task_pause_json(runtime, &payload),
+        "task_resume" => runtime_operations::task_resume_json(runtime, &payload),
+        "task_user_result" => runtime_operations::task_user_result_json(runtime, &payload),
+        "task_cancel" => runtime_operations::task_cancel_json(runtime, &payload),
+        "task_retry" => runtime_operations::task_retry_json(runtime, &payload),
+        "task_remove" => runtime_operations::task_remove_json(runtime, &payload),
+        "task_clean" => runtime_operations::task_clean_json(runtime, &payload),
+        other => Err(runtime_operations::RuntimeOperationError::InvalidRequest(
+            format!("unsupported runtime operation '{other}'"),
+        )),
+    }
+    .map_err(BridgeOperationError::Runtime)
 }
 
 impl ApplyInstalledAutogenAcceptance {
@@ -395,6 +471,10 @@ enum BridgeOperationError {
     Autogen(String),
     #[error("migration error: {0}")]
     Migration(#[from] LegacyRoomOperationError),
+    #[error("runtime error: {0}")]
+    Runtime(#[from] runtime_operations::RuntimeOperationError),
+    #[error("runtime lock is poisoned")]
+    RuntimePoisoned,
 }
 
 impl BridgeOperationError {
@@ -466,6 +546,8 @@ impl BridgeOperationError {
                     .detail()
                     .or_else(|| error.report_path().map(|path| path.display().to_string())),
             ),
+            Self::Runtime(error) => (error.code(), error.message(), error.detail()),
+            Self::RuntimePoisoned => ("runtime.poisoned", "Getter runtime lock is poisoned", None),
         }
     }
 }
@@ -489,6 +571,10 @@ impl From<AutogenOperationError> for BridgeOperationError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use getter::core::{
+        runtime::{PackageVersionLuaObject, SealedActionPlan},
+        UpdateAction,
+    };
 
     #[test]
     fn packages_acceptance_defaults_to_all() {
@@ -514,5 +600,86 @@ mod tests {
             }
             AutogenAcceptance::AcceptAll => panic!("expected explicit package acceptance"),
         }
+    }
+
+    #[test]
+    fn runtime_dispatcher_uses_in_memory_runtime_controls() {
+        let mut runtime = getter::core::runtime::GetterRuntime::new();
+        let action = runtime_operations::issue_action(
+            &mut runtime,
+            SealedActionPlan {
+                package_id: "android/org.fdroid.fdroid".parse().expect("package id"),
+                actions: vec![
+                    UpdateAction::Download {
+                        url: "https://example.invalid/app.apk".to_owned(),
+                        file_name: "app.apk".to_owned(),
+                    },
+                    UpdateAction::Install {
+                        installer: "android_package".to_owned(),
+                        file: "app.apk".to_owned(),
+                    },
+                ],
+                lua_object: PackageVersionLuaObject {
+                    object_id: "lua:android/org.fdroid.fdroid".to_owned(),
+                    dependency_digest: "sha256:test".to_owned(),
+                },
+            },
+        );
+        let action_id = action["action_id"].as_str().expect("action id");
+
+        let submitted = runtime_operation_with_runtime(
+            &mut runtime,
+            &json!({
+                "operation": "task_submit",
+                "payload": { "action_id": action_id }
+            })
+            .to_string(),
+        )
+        .expect("submit");
+        let task_id = submitted["task_id"].as_str().expect("task id");
+        assert_eq!(submitted["status"], "queued");
+
+        runtime_operation_with_runtime(
+            &mut runtime,
+            &json!({ "operation": "task_start", "payload": { "task_id": task_id } }).to_string(),
+        )
+        .expect("start");
+        let waiting = runtime_operation_with_runtime(
+            &mut runtime,
+            &json!({
+                "operation": "task_complete_download",
+                "payload": { "task_id": task_id }
+            })
+            .to_string(),
+        )
+        .expect("complete download");
+        assert_eq!(waiting["status"], "running");
+        assert_eq!(waiting["phase"]["category"], "waiting_user");
+
+        let completed = runtime_operation_with_runtime(
+            &mut runtime,
+            &json!({
+                "operation": "task_user_result",
+                "payload": { "task_id": task_id, "result": "accepted" }
+            })
+            .to_string(),
+        )
+        .expect("user result");
+        assert_eq!(completed["status"], "completed");
+    }
+
+    #[test]
+    fn runtime_dispatcher_rejects_unknown_operation() {
+        let mut runtime = getter::core::runtime::GetterRuntime::new();
+
+        let error = runtime_operation_with_runtime(
+            &mut runtime,
+            &json!({ "operation": "task_install_result", "payload": {} }).to_string(),
+        )
+        .unwrap_err();
+
+        let (code, _, detail) = error.parts();
+        assert_eq!(code, "runtime.invalid_request");
+        assert!(detail.unwrap().contains("unsupported runtime operation"));
     }
 }

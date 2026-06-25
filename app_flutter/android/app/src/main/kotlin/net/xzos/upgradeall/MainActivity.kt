@@ -48,6 +48,10 @@ class MainActivity : FlutterActivity() {
                     nativeLib.legacyReportList(legacyReportListRequest())
                 }
 
+                "runtimeOperation" -> runGetterBridge(result) {
+                    nativeLib.runtimeOperation(runtimeOperationRequest(call))
+                }
+
                 else -> result.notImplemented()
             }
         }
@@ -166,6 +170,12 @@ class MainActivity : FlutterActivity() {
         return JSONObject()
             .put("data_dir", getterDataDir().absolutePath)
             .toString()
+    }
+
+    private fun runtimeOperationRequest(call: MethodCall): String {
+        val args = call.arguments as? Map<*, *>
+            ?: throw IllegalArgumentException("runtime operation arguments are required")
+        return GetterBridgeRequestBuilder.runtimeOperationRequest(args)
     }
 
     private fun getterDataDir(): File = File(filesDir, "getter")

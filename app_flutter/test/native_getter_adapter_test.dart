@@ -163,6 +163,45 @@ void main() {
     expect(reports.single.code, 'migration.imported');
   });
 
+  test('native runtime operation forwards operation and payload', () async {
+    MethodCall? captured;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+      captured = call;
+      return jsonEncode(<String, Object?>{
+        'ok': true,
+        'command': 'runtime operation',
+        'data': <String, Object?>{
+          'task_id': 'task-1',
+          'package_id': 'android/org.fdroid.fdroid',
+          'status': 'completed',
+          'phase': <String, Object?>{'category': 'completed'},
+          'capabilities': <String, Object?>{
+            'cancel': false,
+            'pause': false,
+            'resume': false,
+            'retry': false,
+          },
+          'updated_at': 1,
+        },
+        'warnings': <Object?>[],
+      });
+    });
+
+    const adapter = MethodChannelGetterAdapter(channel: channel);
+    final data = await adapter.invokeRuntimeOperation(
+      'task_get',
+      payload: const <String, Object?>{'task_id': 'task-1'},
+    );
+
+    expect(captured!.method, 'runtimeOperation');
+    expect(captured!.arguments, <String, Object?>{
+      'operation': 'task_get',
+      'payload': <String, Object?>{'task_id': 'task-1'},
+    });
+    expect(data['status'], 'completed');
+  });
+
   test('native adapter maps getter error envelope to bridge exception',
       () async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

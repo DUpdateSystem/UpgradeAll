@@ -87,6 +87,24 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
     return InstalledAutogenApplyResult.fromJson(data);
   }
 
+  /// Invoke a getter runtime operation through the native bridge.
+  ///
+  /// This is an internal/debug bridge primitive for ADR-0011 wiring. Product UI
+  /// should use typed getter operations and getter-issued `action_id`s rather
+  /// than assembling runtime action plans in Dart.
+  Future<Map<String, Object?>> invokeRuntimeOperation(
+    String operation, {
+    Map<String, Object?> payload = const <String, Object?>{},
+  }) {
+    return _invokeGetterData(
+      'runtimeOperation',
+      <String, Object?>{
+        'operation': operation,
+        'payload': payload,
+      },
+    );
+  }
+
   Future<Map<String, Object?>> _invokeGetterData(
     String method,
     Map<String, Object?> arguments,
