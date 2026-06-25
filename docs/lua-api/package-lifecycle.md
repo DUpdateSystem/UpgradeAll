@@ -61,6 +61,29 @@ return {
 }
 ```
 
+As the first offline/mock-provider bridge toward this lifecycle, package Lua may also declare static `updates` candidates in the package table. Getter validates this table, performs Rust-owned selection/version comparison, and issues opaque runtime `action_id`s from the selected candidate; Flutter must still return only the getter-issued `action_id` and must not assemble download/install action payloads.
+
+```lua
+return package_def {
+  id = "android/org.fdroid.fdroid",
+  name = "F-Droid",
+  updates = {
+    {
+      version = "1.2.0",
+      channel = "stable",
+      source = "fixture",
+      artifacts = {
+        {
+          name = "app.apk",
+          url = "https://example.invalid/app.apk",
+          file_name = "fdroid.apk",
+        },
+      },
+    },
+  },
+}
+```
+
 The first Phase D implementation slice exposes this boundary only through an offline CLI fixture command: `getter --data-dir <path> update check --fixture <fixture.json>`. The fixture is normalized JSON, not live provider output, and the command returns `network_required = false`, update-check status, selected candidate/artifact, and generated download/install action DTOs. It does not execute network providers, download files, persist download tasks, stream progress events, or invoke Android installers.
 
 ADR-0011 supersedes the earlier persisted fake task scaffold. The accepted Phase D runtime consumes getter-issued actions through an in-memory process-lifetime runtime: task state is not stored in SQLite, `action_id` is single-use, task submission binds a sealed action plan plus package-version Lua object, mock download/install executors simulate task state, and `RuntimeNotification.task_changed` is pushed to Flutter as a best-effort current snapshot. CLI coverage for this model should use Rust runtime tests or a single-process scripted/debug command rather than pretending separate CLI invocations share task memory.
