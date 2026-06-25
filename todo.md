@@ -481,7 +481,7 @@ Acceptance:
 
 Goal: move from static app/repo display to real update workflows.
 
-Status: ADR-0011 is accepted for the first in-memory Lua runtime/task/action/RuntimeNotification architecture. Earlier offline CLI/dev scaffolding proved update-check and fake task DTOs, but ADR-0011 supersedes the persisted fake task model: task state is process-memory only, `action_id` is single-use, task submission binds a sealed action plan plus in-memory package-version Lua object, and Flutter receives best-effort push `RuntimeNotification.task_changed` snapshots. The first runtime core plus shared JSON operation seam, offline update-check action issuance, and native bridge/EventChannel skeleton are implemented. Live provider action issuance, real downloads, Android installers, background workers, and Android system notifications remain deferred to later ADRs.
+Status: ADR-0011 is accepted for the first in-memory Lua runtime/task/action/RuntimeNotification architecture. Earlier offline CLI/dev scaffolding proved update-check and fake task DTOs, but ADR-0011 supersedes the persisted fake task model: task state is process-memory only, `action_id` is single-use, task submission binds a sealed action plan plus in-memory package-version Lua object, and Flutter receives best-effort push `RuntimeNotification.task_changed` snapshots. The first runtime core plus shared JSON operation seam, offline update-check action issuance, registered-package/static-update action issuance, and native bridge/EventChannel skeleton are implemented. Live provider action issuance, real downloads, Android installers, background workers, and Android system notifications remain deferred to later ADRs.
 
 Completed tasks:
 
@@ -507,7 +507,7 @@ Completed additional UI/bridge slice:
 
 Remaining tasks:
 
-1. Replace the offline-fixture action issuance seam with real package/repository/provider update-check action issuance that materializes sealed action plans and returns opaque `action_id` to Flutter; keep Dart from constructing action payloads.
+1. Replace the current static `updates` package seam with live provider update-check action issuance that materializes sealed action plans and returns opaque `action_id` to Flutter; keep Dart from constructing action payloads.
 2. Optionally add CLI single-process scripted/debug tooling over `getter-operations::runtime` without pretending separate invocations share memory.
 3. Replace or retire the older persisted fake CLI task scaffold so public task status/control language uses ADR-0011 (`completed`, `user-result`, remove/clean, no cross-invocation task state).
 4. Implement live provider/downloader behavior beyond the fake/offline proof after a later ADR accepts real side-effect details.
