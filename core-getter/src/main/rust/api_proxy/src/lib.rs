@@ -57,6 +57,8 @@ struct RuntimeOperationRequest {
     operation: String,
     #[serde(default)]
     payload: Value,
+    #[serde(default)]
+    data_dir: Option<PathBuf>,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -366,6 +368,15 @@ fn runtime_operation_with_runtime(
         "update_check_offline_issue_action" => {
             runtime_operations::issue_action_from_offline_update_check_json(runtime, &payload)
         }
+        "update_check_package_issue_action" => {
+            let data_dir = request.data_dir.as_ref().ok_or_else(|| {
+                BridgeOperationError::InvalidRequest(
+                    "data_dir is required for package update checks".to_owned(),
+                )
+            })?;
+            let db = open_main_db(data_dir)?;
+            runtime_operations::issue_action_from_registered_package_json(runtime, &db, &payload)
+        }
         "task_submit" => runtime_operations::submit_action_json(runtime, &payload),
         "task_get" => runtime_operations::task_get_json(runtime, &payload),
         "task_list" => runtime_operations::task_list_json(runtime, &payload),
@@ -629,9 +640,11 @@ impl From<AutogenOperationError> for BridgeOperationError {
 mod tests {
     use super::*;
     use getter::core::{
+        repository::{RepositoryMetadata, REPO_API_VERSION_V1},
         runtime::{PackageVersionLuaObject, SealedActionPlan},
-        UpdateAction,
+        RepositoryPriority, UpdateAction,
     };
+    use std::fs;
 
     #[test]
     fn packages_acceptance_defaults_to_all() {
@@ -657,6 +670,45 @@ mod tests {
             }
             AutogenAcceptance::AcceptAll => panic!("expected explicit package acceptance"),
         }
+    }
+
+    #[test]
+    fn runtime_dispatcher_issues_action_from_registered_package_update_check() {
+        let temp = tempfile::tempdir().unwrap();
+        let data_dir = temp.path().join("data");
+        let repo_root = temp.path().join("repo");
+        write_static_update_repo(&repo_root);
+        let db = open_main_db(&data_dir).unwrap();
+        db.upsert_repository(
+            &RepositoryMetadata {
+                id: "official".parse().unwrap(),
+                name: "Official".to_owned(),
+                priority: RepositoryPriority::new(0),
+                api_version: REPO_API_VERSION_V1.to_owned(),
+            },
+            Some(&repo_root),
+            None,
+        )
+        .unwrap();
+        let mut runtime = getter::core::runtime::GetterRuntime::new();
+
+        let issued = runtime_operation_with_runtime(
+            &mut runtime,
+            &json!({
+                "operation": "update_check_package_issue_action",
+                "data_dir": data_dir,
+                "payload": {
+                    "package_id": "android/org.fdroid.fdroid",
+                    "installed_version": "1.0.0"
+                }
+            })
+            .to_string(),
+        )
+        .expect("issue action");
+
+        assert_eq!(issued["package"]["repository"], "official");
+        assert_eq!(issued["update"]["status"], "update_available");
+        assert!(issued["action"]["action_id"].as_str().is_some());
     }
 
     #[test]
@@ -785,6 +837,43 @@ mod tests {
         let (code, _, detail) = error.parts();
         assert_eq!(code, "runtime.invalid_request");
         assert!(detail.unwrap().contains("unsupported runtime operation"));
+    }
+
+    fn write_static_update_repo(root: &std::path::Path) {
+        fs::create_dir_all(root.join("packages/android")).unwrap();
+        fs::create_dir(root.join("lib")).unwrap();
+        fs::create_dir(root.join("templates")).unwrap();
+        fs::write(
+            root.join("repo.toml"),
+            r#"id = "official"
+name = "Official"
+priority = 0
+api_version = "getter.repo.v1"
+"#,
+        )
+        .unwrap();
+        fs::write(
+            root.join("packages/android/org.fdroid.fdroid.lua"),
+            r#"
+return package_def {
+  id = "android/org.fdroid.fdroid",
+  name = "F-Droid",
+  updates = {
+    {
+      version = "1.2.0",
+      artifacts = {
+        {
+          name = "app.apk",
+          url = "https://example.invalid/app.apk",
+          file_name = "app.apk",
+        },
+      },
+    },
+  },
+}
+"#,
+        )
+        .unwrap();
     }
 
     #[test]

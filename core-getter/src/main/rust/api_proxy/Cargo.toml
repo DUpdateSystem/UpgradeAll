@@ -7,12 +7,15 @@ edition = "2021"
 
 [dependencies]
 jni = "0.21"  # from rustls-platform-verifier-android, sync version
-getter = { path = "../getter", default-features = false, features = ["domain", "native-tokio", "rustls-platform-verifier-android"] }
+getter = { path = "../getter", default-features = false, features = ["domain", "lua", "native-tokio", "rustls-platform-verifier-android"] }
 upgradeall-platform-adapter = { path = "../platform_adapter" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.145"
 thiserror = "1"
 tokio = { version = "1.48.0", features = ["rt-multi-thread"] }
+
+[dev-dependencies]
+tempfile = "3"
 
 [lib]
 crate-type = ["cdylib"]

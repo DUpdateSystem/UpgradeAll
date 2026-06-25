@@ -206,7 +206,9 @@ class MainActivity : FlutterActivity() {
     private fun runtimeOperationRequest(call: MethodCall): String {
         val args = call.arguments as? Map<*, *>
             ?: throw IllegalArgumentException("runtime operation arguments are required")
-        return GetterBridgeRequestBuilder.runtimeOperationRequest(args)
+        return JSONObject(GetterBridgeRequestBuilder.runtimeOperationRequest(args))
+            .put("data_dir", getterDataDir().absolutePath)
+            .toString()
     }
 
     private fun emitRuntimeNotifications() {
