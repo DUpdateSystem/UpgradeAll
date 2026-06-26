@@ -296,7 +296,7 @@ UpgradeAll PR #514 now states:
 - Flutter shell is intentionally fake-adapter only
 - Gradle/AGP/Kotlin compatibility fixes are included
 - current CI validation is green
-- deferred work includes real bridge, direct Room migration, `local_autogen`, provider/downloader/update lifecycle
+- deferred work includes real bridge, direct Room migration, installed-autogen generated repository work, provider/downloader/update lifecycle
 
 Getter PR #54 now states:
 
@@ -413,25 +413,26 @@ Acceptance progress:
 - WAL/SHM pending writes: first Android adapter copy/checkpoint slice implemented; focused JVM native-adapter tests cover triplet copy, stale sidecar cleanup, missing DB behavior, and checkpointer invocation. Device integration validation on the `Pixel_9a` emulator covers Flutter MethodChannel -> Android copy/checkpoint -> JNI -> Rust getter import/report-list using a Room v17 fixture whose committed rows remain in the WAL sidecar before Android checkpointing.
 - Per-app failures become warnings; global unreadable DB becomes recovery state, not crash: done for the getter-owned direct importer.
 
-### Phase B: `local_autogen` generation
+### Phase B: installed-autogen generated repository
 
-Goal: convert installed/legacy state into generated fallback Lua packages without mixing with user-authored overrides.
+Goal: convert installed/legacy state into generated fallback package directories without mixing with user-authored overrides.
 
 Rules:
 
 ```text
-local        = user-authored, highest priority, never overwritten silently
-local_autogen = generated fallback, safe to regenerate/clean after preview
+local     = user-authored, highest priority, never overwritten silently
+autogen   = default generated fallback repository, safe to regenerate/clean after preview and ownership checks
 ```
 
-User-confirmed decisions:
+User-confirmed decisions now live in ADR-0012:
 
-- getter creates/uses canonical `<data-dir>/repositories/local_autogen`.
-- any registered repository with priority higher than `local_autogen` suppresses generation for a package id.
-- autogen apply/cleanup are getter-managed; if a generated file has been edited, getter preserves it into `local` before regenerating/deleting.
+- getter writes installed-autogen output to `repo/metadata.jsonc` `generated_repository`, default `autogen`.
+- if the target is default `autogen`, getter creates `repo/autogen/` at autogen runtime when needed; custom generated targets must already exist.
+- any registered repository with priority higher than the configured generated repository suppresses generation for a package path.
+- autogen apply/cleanup are getter-managed through package-local `.autogen.jsonc` ownership records; modified/missing/malformed ownership records are conflicts, not triggers for copying generated content into `local`.
 - applying installed autogen also tracks accepted packages because user confirmation means the user wants update tracking.
 
-Status: getter-owned CLI/core and first production bridge slices are in progress. Implemented pure autogen planning, installed preview/apply, cleanup preview/apply, deterministic package Lua generation, manifest-managed cleanup, higher-priority coverage skips, local preservation for edited autogen files, guarded cleanup against stale/tampered previews, and preservation of existing tracked user state during autogen apply. Added Rust-active Android PackageManager inventory collection and first native bridge preview/apply operations packaged into the Flutter product APK. Added a Flutter installed-autogen preview/apply UI that renders getter-owned DTOs and calls the native bridge without Dart-led package-id or autogen decisions.
+Status: getter-owned CLI/core and first production bridge slices exist for the earlier installed-autogen implementation. ADR-0012 supersedes the old flat generated-file/manifest storage model with ordinary package directories, package-local `.autogen.jsonc`, generated-repository target config, and clear-then-write cleanup/refresh semantics. Added Rust-active Android PackageManager inventory collection and first native bridge preview/apply operations packaged into the Flutter product APK. Added a Flutter installed-autogen preview/apply UI that renders getter-owned DTOs and calls the native bridge without Dart-led package-path or autogen decisions.
 
 Completed tasks:
 
@@ -443,10 +444,10 @@ Completed tasks:
 6. Preserve edited generated files into `local` before autogen rewrite/delete.
 7. Guard cleanup deletion by current autogen manifest, repository id, and generated-package resolution.
 8. Add Rust-active Android installed inventory provider/scanner path: Kotlin PackageManager facts provider, Rust JNI call/deserialization, and `api_proxy` runtime initialization.
-9. Extract installed-autogen preview/apply semantics into reusable getter-owned `getter-operations` code so CLI and native bridge share the same `local_autogen` rules.
-10. Add native bridge operations that combine platform scan + getter `local_autogen` preview/apply while returning getter-style JSON envelopes.
+9. Extract installed-autogen preview/apply semantics into reusable getter-owned `getter-operations` code so CLI and native bridge share the same generated-repository ownership rules.
+10. Add native bridge operations that combine platform scan + getter installed-autogen preview/apply while returning getter-style JSON envelopes.
 11. Wire/package a slim production bridge into `app_flutter` so the Flutter APK contains `libapi_proxy.so`, `NativeLib`, and the installed-inventory provider classes without depending on the legacy native `:app` UI or old `GetterPort` hub/RPC wrapper surface.
-12. Add Flutter confirmation UX that consumes getter preview/apply DTOs and passes displayed accepted package ids back to getter/native bridge.
+12. Add Flutter confirmation UX that consumes getter preview/apply DTOs and passes displayed accepted package paths back to getter/native bridge.
 
 Remaining tasks:
 

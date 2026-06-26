@@ -29,10 +29,11 @@ Start here:
 10. `architecture/adr/0009-android-platform-adapter-and-package-visibility.md` — Rust-active Android platform adapter and package visibility policy.
 11. `architecture/adr/0010-package-metadata-cache-and-version-baseline.md` — accepted package metadata cache, live-version, installed-version, and `pin_version` rules.
 12. `architecture/adr/0011-lua-update-runtime-side-effects-and-events.md` — accepted Phase D Lua runtime, task/action lifecycle, mock side-effect executor, and RuntimeNotification bridge rules.
-13. `lua-api/` — practical Lua package authoring docs, including offline `repo validate` diagnostics.
-14. `migration/legacy-room-mapping.md` — old data mapping rules.
-15. `app/flutter-ui-feature-parity-and-testing.md` — Flutter feature parity and BDD/TDD test boundary.
-16. `implementation/coding-agent-handoff.md` — coding-agent / pi-agent handoff instructions.
+13. `architecture/adr/0012-getter-owned-provider-modules-and-autogen-refresh.md` — draft live provider design for getter-owned F-Droid autogen, standard GitHub/F-Droid Lua modules, provider cache refresh, and stale-cache semantics.
+14. `lua-api/` — practical Lua package authoring docs, including offline `repo validate` diagnostics.
+15. `migration/legacy-room-mapping.md` — old data mapping rules.
+16. `app/flutter-ui-feature-parity-and-testing.md` — Flutter feature parity and BDD/TDD test boundary.
+17. `implementation/coding-agent-handoff.md` — coding-agent / pi-agent handoff instructions.
 
 Canonical architecture ADRs live in `docs/architecture/adr/*`. The `docs/adr/*` directory is kept for historical/refactor-phase ADRs and transition notes.
 

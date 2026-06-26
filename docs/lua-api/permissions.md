@@ -6,19 +6,44 @@
 
 ## Default
 
-Lua package scripts do not receive direct network access by default.
+Lua package scripts do not receive Lua-native or Flutter/Kotlin-owned network access by default.
 
-They can use getter-provided provider/source APIs.
+They can use getter-provided provider/source host APIs. HTTP requests go through getter-managed functions such as:
+
+```lua
+local body = http_get(url, {
+  headers = { Accept = "application/json" },
+  cache = true,
+})
+```
+
+`cache` defaults to `false`. Passing `cache = true` opts that request into getter-owned provider/source caching; getter owns cache keys, persistence, revalidation, stale diagnostics, permissions, and secret redaction.
 
 ## Free network permission
 
-A package may declare free network access for live/9999-like logic or unusual upstreams.
+A package declares free network access per Lua script in `metadata.jsonc`, for example:
+
+```jsonc
+{
+  "lua": {
+    "9999.lua": {
+      "permission": ["allow_free_network"]
+    }
+  }
+}
+```
+
+`allow_free_network` may be attached to `9999.lua` or to any fixed-version script. The `lua` map is lookup-only: getter first discovers an enabled Lua file from the filesystem, then queries this map by basename. Getter does not enumerate the map to discover scripts or warnings. `9999.lua` commonly needs it, but the filename alone does not grant free network or force the warning if metadata does not grant that permission. A version script omitted from the `lua` map defaults to `permission: []`. Entries for nonexistent files or dot-prefixed Lua files are inert and do not enable, display, validate, or otherwise bring those files under getter management.
+
+Without `allow_free_network`, any external network/dynamic-download data file or API response body used by that script must have a SHA-512 hash listed in the package `Manifest`. If the response hash is not listed or does not match, getter rejects the download/use. A missing `Manifest` is equivalent to an empty hash set, not an invalid package, so network fetches from scripts without `allow_free_network` cannot succeed when `Manifest` is missing or empty. Scripts that do not fetch external network content, or only read package-local `files/`, do not need a `Manifest`. Scripts with `allow_free_network` are not blocked by `Manifest` membership but remain high-risk.
+
+Package-local reads from the script's own package `files/` subtree through `read_package_file(path)` are not free-network access. The path is relative to `files/`; the original built-in does not expose real filesystem paths or a general `io.open` escape hatch and returns a Lua string without encoding/MIME/JSON/text-vs-binary interpretation. Hook code may still wrap the public `read_package_file()` name as local user policy because getter core/CLI does not maintain a protective denylist of hookable public functions. These files are repository source artifacts covered by repository review/signing/trust, and getter does not assign product semantics to their file names or formats.
 
 When declared:
 
-- getter exposes a direct Lua network host API;
+- getter exposes the relevant host HTTP API to that Lua environment;
 - Flutter displays a yellow warning tag at App detail source/version level;
-- use is not blocked.
+- use is not blocked by Manifest membership, but normal diagnostics/download validation still apply.
 
 ## Timeouts
 

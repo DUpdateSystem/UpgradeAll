@@ -1,46 +1,80 @@
-# Lua Templates / Autogen
+# Lua Autogen
 
 > Status: Draft / living design record
 > Date: 2026-06-21
 > Project: UpgradeAll rewrite — Flutter APP + Rust getter core + Lua package repository model
 
-Templates are Lua generators that output package Lua file content.
+Autogen scripts are repository-level Lua generators that output package directories, metadata, version scripts, package Manifests, and any package-local helper files needed under `files/`.
 
-They are inspired by Funtoo Metatools/autogen, where autogen code produces ebuilds from upstream or structured inputs.
+They are inspired by Funtoo Metatools/autogen, where autogen code produces ebuilds from upstream or structured inputs, but UpgradeAll keeps the model smaller and JSONC/Lua based.
 
-## Template role
+## Autogen role
 
-Templates are used for:
+Autogen is used for:
 
-- generating package files from installed Android apps;
-- generating package files from Magisk modules;
+- generating package directories from installed Android apps;
+- generating package directories from Magisk modules;
 - repository maintainer batch generation;
 - assisted package creation from GitHub/F-Droid metadata.
 
-Templates are not runtime package definitions.
+Autogen scripts are not runtime package version scripts. They live under repository `.metadata/autogen/` and may use shared `luaclass/` modules.
 
-## Example
+## Example output
 
-```lua
-return template {
-  id = "android_installed_app",
+An installed Android app autogen may produce:
 
-  generate = function(ctx, input)
-    return {
-      path = "packages/android/" .. input.package_name .. ".lua",
-      content = [[
-local android = require("lib.android")
+```text
+repo/autogen/android/app/com.example.app/
+  metadata.jsonc
+  .autogen.jsonc
+  Manifest
+  1.2.3.lua
+```
 
-return android.local_app {
-  id = "android/]] .. input.package_name .. [[",
-  name = "]] .. input.label .. [[",
-  package_name = "]] .. input.package_name .. [[",
-}
-]]
-    }
-  end
+`metadata.jsonc`:
+
+```jsonc
+{
+  "type": "android:app",
+  "android": {
+    "package_name": "com.example.app"
+  },
+  "homepage": "https://example.com",
+  "description": "..."
 }
 ```
+
+`1.2.3.lua`:
+
+```lua
+#!/bin/upa-lua v1
+local android = require("luaclass.android")
+
+return android.package_version {
+  version = "1.2.3",
+}
+```
+
+`.autogen.jsonc` records the generated output files that getter may later refresh or clean, but it does not list itself in its own `files` map:
+
+```jsonc
+{
+  "generator": "installed-android",
+  "input": {
+    "package_name": "com.example.app"
+  },
+  "files": {
+    "metadata.jsonc": "sha512:...",
+    "Manifest": "sha512:...",
+    "1.2.3.lua": "sha512:...",
+    "files/helper.json": "sha512:..."
+  }
+}
+```
+
+The `files` map covers getter-written generated output such as `metadata.jsonc`, `Manifest`, generated Lua scripts, and generated `files/...` helper files. It excludes `.autogen.jsonc` itself to avoid self-referential hashing; `.autogen.jsonc` validity is checked by parsing/schema validation and matching ownership fields instead.
+
+F-Droid autogen should normally keep generated package metadata/version scripts small and rely on F-Droid catalog metadata plus reusable `luaclass/` helpers for provider behavior. If generated package Lua needs local helper data, autogen writes it under that package directory's `files/` subtree; getter does not assign product semantics to file names or formats inside `files/`.
 
 ## UX contract
 
@@ -51,8 +85,8 @@ Generation flow:
 3. Rust calls the Android platform adapter for installed-inventory facts, then getter computes the candidate list. CLI/dev tests may still exercise this with `autogen installed preview --inventory <installed.json>` fixtures.
 4. Flutter shows the getter-owned preview list.
 5. User confirms yes/no.
-6. getter applies the accepted preview through the native bridge operation; CLI/dev tests may still use `autogen installed apply --preview <preview.json> --accept-all` or repeated `--accept <package-id>`.
-7. getter writes files under `<data-dir>/repositories/local_autogen`, registers the repo, records `autogen-manifest.json`, and tracks accepted packages in `main.db`.
+6. getter applies the accepted preview through the native bridge operation; CLI/dev tests may still use `autogen installed apply --preview <preview.json> --accept-all` or repeated `--accept <package-atom>`.
+7. getter writes package directories/version scripts under the configured generated repository alias, writes a package-local `.autogen.jsonc` generation record, and tracks accepted packages in `main.db`.
 
 Cleanup flow:
 
@@ -61,12 +95,12 @@ Cleanup flow:
 3. getter computes the deletion list. CLI/dev tests may still exercise this with `autogen cleanup preview --inventory <installed.json>` fixtures.
 4. Flutter shows the getter-owned preview list.
 5. User confirms yes/no.
-6. getter deletes only accepted manifest-managed `local_autogen` files/state.
+6. getter clears the accepted generated package directory contents when `.autogen.jsonc` ownership checks pass; it does not delete the package directory itself.
 
-Cleanup apply refuses stale/tampered previews that do not match the current manifest, and guarded tracked-state deletion only removes rows still owned by `local_autogen` generated packages. Installed apply preserves existing user state (`enabled`, `favorite`, `pin_version`) and existing non-missing resolution metadata when a package is already tracked. If a managed autogen file has been edited, getter preserves that content into the user-authored `local` repo before regenerating or deleting the generated file. Ordinary autogen cleanup never deletes `local`.
+Cleanup apply refuses stale/tampered previews that do not match the current package-local `.autogen.jsonc` generation record, and guarded tracked-state deletion only removes rows still owned by generated packages. When cleanup ownership checks pass, cleanup clears the generated package directory contents directly, including `.autogen.jsonc` and any unlisted extra files inside it, but does not delete the package directory itself. If clearing any file or subdirectory fails, the whole cleanup/update fails rather than being ignored. Getter does not classify or preserve unlisted extra files in generated package directories because they are outside getter's domain; direct directory-content clearing is simpler and more stable for generated output. Hashes inside `.autogen.jsonc` are only generated-output ownership/tamper-detection facts, not security trust, repository signing, or Manifest/download validation. Installed apply preserves existing user state (`enabled`, `favorite`, `pin_version`) and existing non-missing resolution metadata when a package is already tracked. The generated repository is generated output: getter may overwrite package directories it previously generated only when matching `.autogen.jsonc` proves ownership. If a target package directory exists without a matching generation record, apply reports a conflict and does not overwrite it; a generated-repo package directory missing `.autogen.jsonc` is a conflict rather than something getter automatically claims. If `.autogen.jsonc` exists but is malformed or schema-invalid, package discovery/evaluation remains governed by `metadata.jsonc`, but ownership-dependent autogen refresh/apply/cleanup/overwrite reports a conflict and does not auto-fix, overwrite, or delete it. Users who want to hand-author or override generated behavior should create or edit `repo/local/...`; ordinary autogen apply/cleanup never overwrites or deletes `local`.
 
 ## Repositories
 
-Ordinary installed-app autogen writes to `local_autogen`, using fixed repo id `local_autogen`, default priority `-1`, and deterministic paths such as `packages/android/com.example.app.lua`. Candidates are skipped when any registered repository with priority higher than `local_autogen` already provides the same package id.
+Ordinary installed-app autogen writes to the generated repository alias configured by `repo/metadata.jsonc` `generated_repository`, defaulting to `autogen`. Generated starter config should include the default as a comment users may uncomment/change. When the target is the default `autogen`, getter creates `repo/autogen/` at autogen runtime if needed. If the configured target is any other alias, that repository directory must already exist or autogen apply reports a configuration error. The default generated repository priority is `-1`, and deterministic package directories look like `android/app/com.example.app/`. Candidates are skipped when any registered repository with priority higher than the generated repository already provides the same package path. Existing generated package directories may be replaced only when their package-local `.autogen.jsonc` matches the autogen ownership that is applying the refresh; directories without a matching generation record, or with a malformed/schema-invalid `.autogen.jsonc`, are conflicts, not overwrite targets. When refresh/overwrite ownership checks pass, getter clears the existing generated package directory contents, then writes the new generated contents into the same package directory, without preserving old unlisted extra files. If clearing any old file or subdirectory fails, the whole refresh/overwrite fails rather than being ignored. If writing new generated contents fails after clearing, the operation fails directly without rollback; the directory may be empty or partially written, and the next refresh continues by clearing and rewriting again.
 
-Legacy migration may generate `local` files once as a special compatibility path.
+Legacy migration may generate `local` package directories once as a special compatibility path.

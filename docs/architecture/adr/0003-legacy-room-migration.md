@@ -30,7 +30,7 @@ Migration writes to:
 - `local` repository package Lua files when necessary.
 - migration records table.
 
-Normal installed-app autogen writes to `local_autogen`, but legacy migration is special: it may generate `local` package files once to preserve explicit old user data.
+Normal installed-app autogen writes to the configured generated repository target (`generated_repository`, default `autogen`), but legacy migration is special: it may generate `local` package files once to preserve explicit old user data.
 
 ## Package ID mapping
 

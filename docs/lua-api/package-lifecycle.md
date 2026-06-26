@@ -37,6 +37,19 @@ Match installed inventory items to this package.
 
 Query sources/providers and return release candidates.
 
+Network access is through getter host APIs. Package version Lua may also read package-local helper data under its own package directory's `files/` subtree through a package-scoped getter host API such as `read_package_file(path)`, where `path` is relative to `files/`; the original built-in does not expose real filesystem paths or freely read arbitrary package/repository directories outside that subtree and returns a Lua string without encoding/MIME/JSON/text-vs-binary interpretation. Hook code may still wrap the public `read_package_file()` name because getter core/CLI does not maintain a protective denylist of hookable public functions.
+
+Provider modules can opt specific HTTP requests into getter-owned source caching:
+
+```lua
+local body = http_get(url, {
+  headers = { Accept = "application/json" },
+  cache = true,
+})
+```
+
+`cache` defaults to `false`; Lua chooses cache participation, while getter owns cache keys, storage, revalidation, stale diagnostics, and secret redaction.
+
 ## prepare
 
 Normalize, filter and enrich release candidates.
@@ -61,12 +74,13 @@ return {
 }
 ```
 
-As the first offline/mock-provider bridge toward this lifecycle, package Lua may also declare static `updates` candidates in the package table. Getter validates this table, routes it through a mock provider boundary (`StaticPackageUpdatesProvider`), performs Rust-owned selection/version comparison, and issues opaque runtime `action_id`s from the selected candidate; Flutter must still return only the getter-issued `action_id` and must not assemble download/install action payloads.
+As the first offline/mock-provider bridge toward this lifecycle, a package version script may also declare static `updates` candidates. Getter validates this table, routes it through a mock provider boundary (`StaticPackageUpdatesProvider`), performs Rust-owned selection/version comparison, and issues opaque runtime `action_id`s from the selected candidate; Flutter must still return only the getter-issued `action_id` and must not assemble download/install action payloads.
 
 ```lua
-return package_def {
-  id = "android/org.fdroid.fdroid",
-  name = "F-Droid",
+#!/bin/upa-lua v1
+-- repo/official/android/app/org.fdroid.fdroid/1.2.0.lua
+-- package path android/app/org.fdroid.fdroid, version 1.2.0
+return package_version {
   updates = {
     {
       version = "1.2.0",
@@ -94,7 +108,7 @@ Optional post-update hook. Most persistent state changes should remain in Rust c
 
 ## Offline validation
 
-`getter --data-dir <path> repo validate <repo-path>` validates repository layout and package schema without network access. The command evaluates local package Lua files with the same constrained `lib/` module loading used by `repo eval`/`package eval`, then returns a getter-owned diagnostic report:
+`getter --data-dir <path> repo validate <repo-path>` validates repository layout and package schema without network access. The command evaluates local package metadata and version scripts with the same constrained `luaclass/` module loading used by `repo eval`/`package eval`, then returns a getter-owned diagnostic report:
 
 ```json
 {
@@ -105,10 +119,10 @@ Optional post-update hook. Most persistent state changes should remain in Rust c
     {
       "severity": "error",
       "code": "package.schema",
-      "message": "required string field 'name' is missing",
-      "package_id": "android/org.fdroid.fdroid",
+      "message": "required field 'android.package_name' is missing",
+      "package_path": "android/app/org.fdroid.fdroid",
       "location": {
-        "path": "repo/packages/android/org.fdroid.fdroid.lua"
+        "path": "repo/official/android/app/org.fdroid.fdroid/metadata.jsonc"
       }
     }
   ]
@@ -117,18 +131,18 @@ Optional post-update hook. Most persistent state changes should remain in Rust c
 
 Initial stable diagnostic codes include:
 
-- `repository.read_repo_toml`
-- `repository.parse_repo_toml`
+- `repository.read_metadata`
+- `repository.parse_metadata`
 - `repository.invalid_id`
 - `repository.unsupported_api_version`
 - `repository.missing_directory`
-- `repository.read_packages_dir`
 - `repository.invalid_package_path`
-- `repository.invalid_package_id`
-- `repository.hash_package_file`
-- `package.read_file`
+- `package.read_metadata`
+- `package.parse_metadata`
+- `package.read_version_script`
 - `package.lua_runtime`
 - `package.not_a_table`
+- `package.missing_api_version`
 - `package.unsupported_value`
 - `package.schema`
 - `package.domain`

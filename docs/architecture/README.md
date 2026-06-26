@@ -19,6 +19,7 @@ Canonical ADRs:
 - `adr/0009-android-platform-adapter-and-package-visibility.md`
 - `adr/0010-package-metadata-cache-and-version-baseline.md`
 - `adr/0011-lua-update-runtime-side-effects-and-events.md`
+- `adr/0012-getter-owned-provider-modules-and-autogen-refresh.md`
 
 Documentation policy:
 

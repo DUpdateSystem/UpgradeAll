@@ -14,7 +14,7 @@ The runtime caches software metadata produced by running package Lua/provider lo
 
 The cache model has two layers:
 
-1. **Provider/source cache**: provider host API responses keyed by provider id, request parameters, executor/cache policy, auth/permission mode, and other provider-context inputs.
+1. **Provider/source cache**: getter host API responses keyed by provider id, request parameters, executor/cache policy, auth/permission mode, and other provider-context inputs. Lua/provider modules opt individual HTTP host API calls into this cache explicitly, e.g. `http_get(url, headers = ..., cache = true)`, while the default is `cache = false`.
 2. **Package metadata cache**: normalized package metadata produced by Lua/package logic from provider/source data.
 
 Package metadata cache entries are persisted in `cache.db` from the first runtime implementation.

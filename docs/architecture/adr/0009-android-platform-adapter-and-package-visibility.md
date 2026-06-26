@@ -10,7 +10,7 @@ UpgradeAll will use a Rust-active platform adapter for Android platform capabili
 
 Rust/getter-side native code defines the platform interface and actively calls the Android implementation. Android/Kotlin code supplies raw platform facts only. Flutter remains the product UI and renders getter-owned DTOs; it does not lead installed-app inventory scanning or turn Android package names into UpgradeAll package ids.
 
-The first accepted platform capability is installed Android package inventory for `local_autogen` preview/apply workflows. The product Flutter APK declares:
+The first accepted platform capability is installed Android package inventory for installed-autogen preview/apply workflows. ADR-0012 supersedes the early fixed generated repository target with the configured generated repository target (`generated_repository`, default `autogen`). The product Flutter APK declares:
 
 ```xml
 <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
@@ -87,7 +87,7 @@ The product operation shape is:
 Flutter UI
   -> getter/native bridge: preview installed autogen
     -> Rust platform adapter: scan installed inventory facts
-    -> getter core: plan local_autogen candidates/skips
+    -> getter core: plan installed-autogen candidates/skips
   <- getter-owned preview DTO
 ```
 
@@ -129,7 +129,7 @@ The second slice adds the first Android facts provider while preserving the same
 
 The third slice wires the first product bridge operation without changing ownership boundaries:
 
-- installed-autogen preview/apply semantics are extracted into reusable getter-owned `getter-operations` code so CLI and native bridge use the same `local_autogen` rules;
+- installed-autogen preview/apply semantics are extracted into reusable getter-owned `getter-operations` code so CLI and native bridge use the same generated-repository ownership rules;
 - `getter-core` Lua support is feature-gated so the Android native bridge can use autogen/storage operations without pulling Lua evaluation into `api_proxy`;
 - `api_proxy` exposes JNI entrypoints for bridge initialization, installed-autogen preview, and installed-autogen apply;
 - preview initializes the Rust-active Android platform adapter, scans PackageManager facts, and passes getter-compatible inventory into getter-owned autogen planning;

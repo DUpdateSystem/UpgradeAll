@@ -254,29 +254,29 @@ Rust getter core + native bridge
 
 ## 4. Package-centric 模型
 
-### 4.1 Package ID
+### 4.1 Package path
 
-Package 主 ID 使用 UpgradeAll 自己的可读 namespace，不使用 UUID 作为主身份。
+Package 主身份使用 UpgradeAll 自己的可读 repository-local package path，不使用 UUID 作为主身份，也不在 Lua table 里重复声明 `id` 字段。
 
 示例：
 
 ```text
-android/org.fdroid.fdroid
-android/com.termux
-magisk/zygisk-next
-generic/example-tool
+android/app/org.fdroid.fdroid
+android/app/com.termux
+android/magisk/zygisk-next
+generic/tool/example-tool
 ```
 
 设计理由：
 
 - UUID 对用户无意义。
-- package ID 应可读、可 diff、可手写、可在 issue/文档中引用。
+- package path 应可读、可 diff、可手写、可在 issue/文档中引用。
 - Android 和 Magisk 迁移可以自然映射。
 
 旧数据映射：
 
-- 旧 Android app：`android/<packageName>`。
-- 旧 Magisk module：`magisk/<moduleId>`。
+- 旧 Android app：`android/app/<packageName>`。
+- 旧 Magisk module：`android/magisk/<moduleId>`。
 
 ### 4.2 APP/package-centric，而不是 hub-centric
 
@@ -303,16 +303,19 @@ CLI/UI 命名建议：
 例如：
 
 ```lua
+#!/bin/upa-lua v1
+-- repo/official/android/app/org.fdroid.fdroid/9999.lua
+-- package path: android/app/org.fdroid.fdroid
 return android_app {
-  id = "android/org.fdroid.fdroid",
-  name = "F-Droid",
   installed = android.package("org.fdroid.fdroid"),
   sources = {
-    fdroid.package { package = "org.fdroid.fdroid" },
+    fdroid.package { package_name = "org.fdroid.fdroid" },
     github.release { repo = "f-droid/fdroidclient" },
   },
 }
 ```
+
+For F-Droid sources, display metadata such as app name/description comes from the self-describing F-Droid catalog rather than duplicated generated Lua fields.
 
 source priority 可以来自 package 默认值，也可以被 user state 覆盖。
 
@@ -328,7 +331,7 @@ Repository 可以是：
 
 - official：官方包定义仓库。
 - community：社区包定义仓库。
-- local_autogen：自动生成的本地包仓库。
+- autogen：默认的自动生成包仓库。
 - local：用户手写/覆盖仓库。
 
 ### 5.2 Priority 规则
@@ -337,20 +340,22 @@ Repository 可以是：
 
 - 数字越大优先级越高。
 - getter resolved view 只看最高优先级 package。
-- 用户可以手动修改 repo priority。
+- 用户可以通过 `repo/metadata.jsonc`、UI 或 CLI 修改 repo priority。
 
 默认建议：
 
 ```text
-local              100   用户手写覆盖，默认最高
-official             0   官方仓库
-community            0   或用户配置
-local_autogen   -1   根据已安装应用自动生成的 fallback
+local       100   用户手写覆盖，默认最高
+official      0   官方仓库
+community     0   或用户配置
+autogen      -1   根据已安装应用/显式 autogen 生成的 fallback
 ```
+
+`repo/metadata.jsonc` 还可以包含 `generated_repository`，默认值是 `autogen`。初始配置文件应把这个默认值写成注释，用户可取消注释后改成其它已有 alias。实际运行 autogen 时，如果目标是默认 `autogen` 且 `repo/autogen/` 不存在，getter 创建它；如果用户配置的是非 `autogen` alias，则目标目录必须已经存在，否则 autogen apply 报配置错误。`generated_repository` 只决定 autogen 输出目标，package resolution 仍然只看 priority。
 
 注意：`local` 只是默认最高，用户可以自己改优先级。
 
-### 5.3 local 与 local_autogen 的区别
+### 5.3 local 与 autogen 的区别
 
 `local`：
 
@@ -359,14 +364,12 @@ local_autogen   -1   根据已安装应用自动生成的 fallback
 - 默认 priority 最高。
 - 普通清理按钮不应删除 `local`。
 
-`local_autogen`：
+`autogen` / configured generated repository：
 
-- 用户点击“从已安装应用生成”后产生。
+- 用户点击“从已安装应用生成”或显式选择 provider autogen 后产生。
 - 是低优先级 fallback。
 - 上游 official package 出现后，official 会覆盖它。
-- 清理按钮只作用于该 autogen 仓库。
-
-仓库名固定为 `local_autogen`。它表达“本地自动生成的 fallback 仓库”。
+- 清理按钮只作用于 configured generated repository。
 
 ### 5.4 首次旧数据迁移与 autogen 的区别
 
@@ -379,124 +382,115 @@ local_autogen   -1   根据已安装应用自动生成的 fallback
 普通 installed autogen：
 
 - 是用户主动点击按钮触发。
-- 生成到 `local_autogen`。
+- 生成到 `generated_repository` 指定的仓库，默认 `autogen`。
 - 不是首启迁移的一部分。
 
 ---
 
 ## 6. Repository 文件布局
 
-建议 layout：
+Accepted layout now has a getter data directory with `repo/` and `rc/` as siblings:
 
 ```text
-repo/
-  repo.toml
-
-  packages/
-    android/
-      org.fdroid.fdroid.lua
-      com.termux.lua
-    magisk/
-      zygisk-next.lua
-
-  lib/
-    std.lua
-    github.lua
-    fdroid.lua
-    google_play.lua
-    coolapk.lua
-    android.lua
-    magisk.lua
-    github_android_apk.lua
-    fdroid_android_apk.lua
-
-  templates/
-    android_installed_app.lua
-    magisk_installed_module.lua
-    github_android_apk.lua
-    fdroid_android_apk.lua
+<data-dir>/
+  main.db
+  cache.db
+  repo/
+    metadata.jsonc
+    official/
+      .metadata/
+        metadata.jsonc
+        autogen/
+          metadata.jsonc
+          android.lua
+      luaclass/
+        github_android_apk.lua
+        fdroid_android.lua
+      android/
+        app/
+          org.fdroid.fdroid/
+            metadata.jsonc
+            Manifest
+            1.20.0.lua
+            9999.lua
+            files/
+              helper-data.json
+    autogen/
+      android/
+        app/
+          org.fdroid.fdroid/
+            metadata.jsonc
+            .autogen.jsonc
+            Manifest
+            1.20.0.lua
+  rc/
+    hook/
+      10-http-rewrite.lua
 ```
 
-`repo.toml` 示例：
+`repo/metadata.jsonc` is getter-owned local repository registry/config, not publishable repository metadata:
 
-```toml
-id = "official"
-name = "UpgradeAll Official"
-priority = 0
-api_version = "getter.repo.v1"
+```jsonc
+{
+  "version": 1,
+  // Autogen writes to "autogen" by default. Uncomment and change this
+  // if generated packages should target another existing repository alias.
+  // "generated_repository": "autogen",
+  "priority": {
+    "local": 100,
+    "official": 0,
+    "autogen": -1
+  }
+}
 ```
 
-### 6.1 packages/
+Repository self metadata lives under `repo/<alias>/.metadata/metadata.jsonc`. Shared Lua classes/helpers live under `luaclass/`, not `lib/`. Repository-level autogen scripts/metadata live under `.metadata/autogen/`. Runtime/local policy hooks live under top-level `rc/hook/`, not under `repo/`.
 
-`packages/` 里是最终被 getter 解析的 package Lua 文件。
+### 6.1 Package directories
 
-路径建议：
+A package is a directory that directly contains `metadata.jsonc`. Package identity is derived from the repository-local directory path, for example:
 
 ```text
-packages/android/org.fdroid.fdroid.lua
-packages/magisk/zygisk-next.lua
+repo/official/android/app/org.fdroid.fdroid/ -> android/app/org.fdroid.fdroid
+repo/official/android/magisk/zygisk-next/   -> android/magisk/zygisk-next
 ```
 
-路径可推导 package id：
+A package directory contains `metadata.jsonc`, optional generated-package `.autogen.jsonc`, optional `Manifest`, direct child version scripts such as `1.20.0.lua` or `9999.lua`, and optional package-local helper files under `files/`. There is no `versions/` subdirectory. Lua package files do not declare a duplicate package id; getter derives identity from the package directory path.
 
-```text
-packages/android/org.fdroid.fdroid.lua -> android/org.fdroid.fdroid
-```
+### 6.2 luaclass/
 
-文件内也应声明同样 id，getter 校验路径 id 和声明 id 一致。
-
-### 6.2 lib/
-
-`lib/` 里是 reusable Lua module。
+`luaclass/` contains reusable Lua modules/classes.
 
 注意：这里的角色类似 Gentoo eclass，但项目语法里不需要真的叫 eclass。
 
 原则：
 
-- 不限定 lib 里写什么。
+- 不限定 helper 里写什么。
 - 只抽象重复代码。
-- 可以提供高层 helper，例如 `github_android_apk { ... }`。
-- package 文件通过 Lua 原生 `require()` 导入。
+- 可以提供高层 helper，例如 `github_android_apk { ... }` 或 `fdroid.package { ... }`。
+- package 文件通过 Lua `require()` 导入。
 
 示例：
 
 ```lua
-local github_android = require("lib.github_android_apk")
+local github_android = require("luaclass.github_android_apk")
 ```
 
-### 6.3 templates/
+### 6.3 Repository autogen scripts
 
-`templates/` 里是 Lua 生成器，用于生成新的 package Lua 文件内容。
+`.metadata/autogen/` contains repository-level Lua generators/templates for producing package directories from installed inventory or structured provider/catalog input. Generated package output is ordinary package directories plus a package-local `.autogen.jsonc` ownership record, not a repo-level generation table.
 
-这参考 Funtoo Metatools/autogen：
+Example generated package output:
 
-- Funtoo metatools 用 autogen.py/autogen.yaml 查询 upstream 并生成 ebuild。
-- UpgradeAll 的 templates 用 Lua 根据 installed inventory 或用户输入生成 package Lua。
-
-template 直接返回文件路径和文本内容，而不是返回 AST。
-
-示例：
-
-```lua
-return template {
-  id = "android_installed_app",
-
-  generate = function(ctx, input)
-    return {
-      path = "packages/android/" .. input.package_name .. ".lua",
-      content = [[
-local android = require("lib.android")
-
-return android.local_app {
-  id = "android/]] .. input.package_name .. [[",
-  name = "]] .. input.label .. [[",
-  package_name = "]] .. input.package_name .. [[",
-}
-]]
-    }
-  end
-}
+```text
+repo/autogen/android/app/org.fdroid.fdroid/
+  metadata.jsonc
+  .autogen.jsonc
+  Manifest
+  1.20.0.lua
 ```
+
+`.autogen.jsonc` records generator identity, input facts, generated file hashes, and cleanup/refresh ownership state. It is not security trust and does not replace package `Manifest`.
 
 ---
 
@@ -530,20 +524,20 @@ return android.local_app {
 父包导入使用 host helper：
 
 ```lua
-local base = package_from("official", "android/org.fdroid.fdroid")
+local base = package_from("official", "android/app/org.fdroid.fdroid")
 ```
 
 理由：
 
-- package id 里有 `/`、`.`、`-` 等字符。
+- package path 里有 `/`、`.`、`-` 等字符。
 - Lua 原生 `require()` 会把 `.` 当模块路径分隔。
-- parent package import 需要显式 repo id，避免 priority/递归歧义。
+- parent package import may use an explicit repository alias to avoid priority/recursion ambiguity.
 - 这是 host function，不是新语法。
 
 Reusable module 仍使用 Lua `require()`：
 
 ```lua
-local github = require("lib.github")
+local github = require("luaclass.github")
 ```
 
 ### 7.4 Lua/Rust boundary / Lua/Rust 边界
@@ -576,12 +570,13 @@ Lua package scripts 在边界返回 JSON-like object/table。
 官方 package：
 
 ```lua
-local github_android = require("lib.github_android_apk")
+#!/bin/upa-lua v1
+-- repo/official/android/app/org.fdroid.fdroid/9999.lua
+-- package path: android/app/org.fdroid.fdroid
+local github_android = require("luaclass.github_android_apk")
 
 return github_android {
-  id = "android/org.fdroid.fdroid",
-  name = "F-Droid",
-  android_package = "org.fdroid.fdroid",
+  android = { package_name = "org.fdroid.fdroid" },
   repo = "f-droid/fdroidclient",
   asset_pattern = "%.apk$",
 }
@@ -674,7 +669,7 @@ end)
 - 简单 metadata 修改用 table override。
 - 非平凡修改用 function override。
 
-注意：override helper 是 Lua lib/helper 问题，不是 Rust API 问题。Rust 只关心最终返回的 JSON-like package object 是否符合 schema。
+注意：override helper 是 Lua helper/module 问题，不是 Rust API 问题。Rust 只关心最终返回的 JSON-like package object 是否符合 schema。
 
 ---
 
@@ -834,15 +829,26 @@ return {
 
 ## 10. Permissions / network model
 
-### 10.1 默认无直接网络
+### 10.1 默认无 Lua 原生网络
 
-默认情况下，Lua package script 不获得直接网络 API。
+默认情况下，Lua package script 不获得 Lua 标准库/第三方库形式的直接网络能力。
 
-它可以通过 getter 暴露的 provider/source API 间接获取 release 信息。
+网络请求通过 getter 暴露的 host API 执行，例如：
+
+```lua
+local body = http_get(url, {
+  headers = { Accept = "application/json" },
+  cache = true,
+})
+```
+
+`cache` 默认是 `false`。Lua/provider module 通过 `cache = true` 主动把单次 HTTP 请求纳入 getter-owned HTTP/source cache；getter 负责 cache key、持久化、revalidation、stale diagnostics 和 secret redaction，Lua 只表达该请求是否应缓存。
+
+标准 provider module/class 可以在声明的 provider/source 语义下使用该 host HTTP API 获取 release/catalog 信息。
 
 ### 10.2 自由网络权限
 
-如果 package 声明自由网络权限，getter 才向 Lua 环境暴露直接网络接口。
+如果 package 需要超出标准 provider module 的任意 upstream 访问，它必须声明自由网络权限，getter 才向该 Lua 环境暴露对应 host HTTP 能力。
 
 该权限用于类似 live/9999 包或特殊 upstream 逻辑。
 
@@ -910,9 +916,8 @@ v1 暂不做 repo/script/artifact 强校验。
 Cache key 应包含：
 
 ```text
-repo id
-repo revision/hash
-package file hash
+repository alias and verified repository metadata/revision facts
+package path and Lua dependency/file hashes
 Lua API version
 getter version or package API version
 platform target
@@ -939,28 +944,21 @@ Android 上 repo sync 可以先采用 archive zip/tar 或 bundled repo snapshot�
 - 可按 package/repository scope 区分。
 - 参考 emerge bashrc 的精神：全局 hook 根据上下文做调整。
 
-建议文件：
-
-```text
-config/hooks/download_rewrite.lua
-```
+Accepted hook location is top-level runtime config, `rc/hook/*.lua`. Hooks wrap public getter host functions and call original unhooked entrypoints through `getter_builtin.<name>`.
 
 示例：
 
 ```lua
-return function(ctx, req)
-  if ctx.repo_id == "official" and ctx.package_id == "android/com.foo" then
-    req.url = req.url:gsub("https://github.com/", "https://mirror.example/github/")
-  end
+#!/bin/upa-lua v1
+local upstream_http_get = getter_builtin.http_get
 
-  return req
+function http_get(url, opts)
+  local rewritten = url:gsub("https://github.com/", "https://mirror.example/github/")
+  return upstream_http_get(rewritten, opts)
 end
 ```
 
-执行阶段：
-
-- `resolve` 生成 DownloadRequest 后。
-- downloader submit 前。
+Hooks are loaded before each Lua execution environment in deterministic filename order. Enabled hook load/init failure fails the current Lua execution. Hooks do not bypass Manifest validation: non-`allow_free_network` package scripts still require response-body SHA-512 membership in the package `Manifest`.
 
 ---
 
@@ -1011,7 +1009,7 @@ Room DB 信息：
 
 迁移生成 `local` 是特殊情况，只做一次。
 
-普通 installed autogen 不写 local，而写 `local_autogen`。
+普通 installed autogen 不写 `local`，而写 `repo/metadata.jsonc` 的 `generated_repository` 目标，默认 `autogen`。
 
 ### 13.4 迁移匹配策略
 
@@ -1045,10 +1043,10 @@ Room DB 信息：
 3. getter 找出可生成的候选列表。
 4. UI 展示 getter-owned preview DTO。
 5. 用户 yes/no 确认。
-6. getter 写入 `local_autogen` repo。
+6. getter 写入 configured generated repository，默认 `repo/autogen/`。
 7. 生成后不会自动消失。
 
-实现进展：Flutter 产品 APK 通过 `app_flutter/android/getter_bridge` 打包一个 slim native bridge library，包含 Rust `api_proxy`、`NativeLib` 和 Android installed-inventory facts provider。`api_proxy` 已提供 installed-autogen preview/apply JNI entrypoints；它们调用 Rust-active platform adapter 扫描 Android PackageManager 原始事实，再调用 getter-owned `getter-operations` 执行 `local_autogen` preview/apply。Flutter 已新增 installed-autogen 页面和 `MethodChannelGetterAdapter`，只渲染 getter-owned preview/apply DTO 并把用户接受的包 id 传回 getter；不能引入 Dart-led installed inventory scanner 或在 Dart/Kotlin 中生成 package id。
+实现进展：Flutter 产品 APK 通过 `app_flutter/android/getter_bridge` 打包一个 slim native bridge library，包含 Rust `api_proxy`、`NativeLib` 和 Android installed-inventory facts provider。`api_proxy` 已提供 installed-autogen preview/apply JNI entrypoints；它们调用 Rust-active platform adapter 扫描 Android PackageManager 原始事实，再调用 getter-owned `getter-operations` 执行 installed-autogen preview/apply。Flutter 已新增 installed-autogen 页面和 `MethodChannelGetterAdapter`，只渲染 getter-owned preview/apply DTO 并把用户接受的 package path 传回 getter；不能引入 Dart-led installed inventory scanner 或在 Dart/Kotlin 中生成 package path。
 
 ### 14.2 清理流程
 
@@ -1059,9 +1057,9 @@ Room DB 信息：
 3. getter 计算将删除列表。
 4. UI 展示 getter-owned preview DTO。
 5. 用户 yes/no 确认。
-6. getter 删除 `local_autogen` 中不再安装的记录/文件。
+6. getter 清理 configured generated repository 中不再安装且 ownership checks 通过的 generated package directory contents。
 
-普通清理按钮只作用于 `local_autogen`，不删除 `local`。
+普通清理按钮只作用于 configured generated repository，不删除 `local`。
 
 ---
 
