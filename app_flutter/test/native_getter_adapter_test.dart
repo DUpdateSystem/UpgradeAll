@@ -53,7 +53,7 @@ void main() {
       expect(preview.scanStats!.returned, 1);
       expect(
         preview.candidates.single.packageId,
-        'android/com.example.autogen',
+        'android/app/com.example.autogen',
       );
     },
   );
@@ -72,12 +72,10 @@ void main() {
               'applied_count': 1,
               'applied': <Object?>[
                 <String, Object?>{
-                  'package_id': 'android/com.example.autogen',
-                  'output_relative_path':
-                      'packages/android/com.example.autogen.lua',
+                  'package_id': 'android/app/com.example.autogen',
+                  'output_relative_path': 'android/app/com.example.autogen',
                 },
               ],
-              'preserved_to_local': <Object?>[],
             },
             'warnings': <Object?>[],
           });
@@ -87,7 +85,7 @@ void main() {
     final preview = InstalledAutogenPreview.fromJson(_previewJson());
     final result = await adapter.applyInstalledAutogen(
       preview,
-      acceptedPackageIds: const <String>['android/com.example.autogen'],
+      acceptedPackageIds: const <String>['android/app/com.example.autogen'],
     );
 
     expect(captured!.method, 'applyInstalledAutogen');
@@ -96,9 +94,9 @@ void main() {
     expect(jsonDecode(args['preview_json']! as String), preview.rawJson);
     expect(args['acceptance'], <String, Object?>{
       'mode': 'packages',
-      'package_ids': <String>['android/com.example.autogen'],
+      'package_ids': <String>['android/app/com.example.autogen'],
     });
-    expect(result.applied.single.packageId, 'android/com.example.autogen');
+    expect(result.applied.single.packageId, 'android/app/com.example.autogen');
   });
 
   test('native legacy import and reports parse getter envelopes', () async {
@@ -522,7 +520,7 @@ Map<String, Object?> _previewJson() => <String, Object?>{
   },
   'candidates': <Object?>[
     <String, Object?>{
-      'package_id': 'android/com.example.autogen',
+      'package_id': 'android/app/com.example.autogen',
       'kind': 'android',
       'display_name': 'Example Autogen',
       'installed_target': <String, Object?>{
@@ -530,8 +528,8 @@ Map<String, Object?> _previewJson() => <String, Object?>{
         'package_name': 'com.example.autogen',
       },
       'action': 'create',
-      'output_relative_path': 'packages/android/com.example.autogen.lua',
-      'content_hash': 'fnv1a64:fake',
+      'output_relative_path': 'android/app/com.example.autogen',
+      'content_hash': 'sha512:fake',
       'content': '-- fake generated content',
     },
   ],

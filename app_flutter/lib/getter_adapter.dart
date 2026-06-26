@@ -182,7 +182,7 @@ class FakeGetterAdapter implements GetterAdapter {
       },
       'candidates': <Object?>[
         <String, Object?>{
-          'package_id': 'android/com.example.autogen',
+          'package_id': 'android/app/com.example.autogen',
           'kind': 'android',
           'display_name': 'Example Autogen',
           'installed_target': <String, Object?>{
@@ -190,8 +190,8 @@ class FakeGetterAdapter implements GetterAdapter {
             'package_name': 'com.example.autogen',
           },
           'action': 'create',
-          'output_relative_path': 'packages/android/com.example.autogen.lua',
-          'content_hash': 'fnv1a64:fake',
+          'output_relative_path': 'android/app/com.example.autogen',
+          'content_hash': 'sha512:fake',
           'content': '-- fake generated content',
         },
       ],
@@ -217,11 +217,10 @@ class FakeGetterAdapter implements GetterAdapter {
       'applied_count': 1,
       'applied': <Object?>[
         <String, Object?>{
-          'package_id': 'android/com.example.autogen',
-          'output_relative_path': 'packages/android/com.example.autogen.lua',
+          'package_id': 'android/app/com.example.autogen',
+          'output_relative_path': 'android/app/com.example.autogen',
         },
       ],
-      'preserved_to_local': <Object?>[],
     });
   }
 
@@ -1104,7 +1103,6 @@ class InstalledAutogenApplyResult {
     required this.targetRepoPath,
     required this.appliedCount,
     required this.applied,
-    required this.preservedToLocal,
   });
 
   factory InstalledAutogenApplyResult.fromJson(Map<String, Object?> json) {
@@ -1128,17 +1126,6 @@ class InstalledAutogenApplyResult {
             ),
           )
           .toList(growable: false),
-      preservedToLocal:
-          _jsonList(
-                json['preserved_to_local'],
-                'autogen.apply.preserved_to_local',
-              )
-              .map(
-                (preserved) => InstalledAutogenPreservedPackage.fromJson(
-                  _jsonMap(preserved, 'autogen.apply.preserved_item'),
-                ),
-              )
-              .toList(growable: false),
     );
   }
 
@@ -1146,7 +1133,6 @@ class InstalledAutogenApplyResult {
   final String? targetRepoPath;
   final int appliedCount;
   final List<InstalledAutogenAppliedPackage> applied;
-  final List<InstalledAutogenPreservedPackage> preservedToLocal;
 }
 
 class InstalledAutogenAppliedPackage {
@@ -1167,35 +1153,6 @@ class InstalledAutogenAppliedPackage {
 
   final String packageId;
   final String outputRelativePath;
-}
-
-class InstalledAutogenPreservedPackage {
-  const InstalledAutogenPreservedPackage({
-    required this.packageId,
-    required this.repositoryId,
-    required this.relativePath,
-  });
-
-  factory InstalledAutogenPreservedPackage.fromJson(Map<String, Object?> json) {
-    return InstalledAutogenPreservedPackage(
-      packageId: _jsonString(
-        json['package_id'],
-        'autogen.preserved.package_id',
-      ),
-      repositoryId: _jsonString(
-        json['repository_id'],
-        'autogen.preserved.repository_id',
-      ),
-      relativePath: _jsonString(
-        json['relative_path'],
-        'autogen.preserved.relative_path',
-      ),
-    );
-  }
-
-  final String packageId;
-  final String repositoryId;
-  final String relativePath;
 }
 
 class GetterError {

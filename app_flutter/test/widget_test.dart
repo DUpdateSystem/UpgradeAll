@@ -219,7 +219,9 @@ void main() {
     expect(find.byKey(AppKeys.installedAutogenPreview), findsOneWidget);
     expect(find.byKey(AppKeys.installedAutogenScanStats), findsOneWidget);
     expect(
-      find.byKey(AppKeys.autogenCandidateRow('android/com.example.autogen')),
+      find.byKey(
+        AppKeys.autogenCandidateRow('android/app/com.example.autogen'),
+      ),
       findsOneWidget,
     );
     expect(
@@ -232,10 +234,12 @@ void main() {
 
     expect(find.byKey(AppKeys.installedAutogenApplied), findsOneWidget);
     expect(
-      find.byKey(AppKeys.autogenAppliedRow('android/com.example.autogen')),
+      find.byKey(AppKeys.autogenAppliedRow('android/app/com.example.autogen')),
       findsOneWidget,
     );
-    expect(getter.acceptedPackageIds, <String>['android/com.example.autogen']);
+    expect(getter.acceptedPackageIds, <String>[
+      'android/app/com.example.autogen',
+    ]);
   });
 
   testWidgets('installed autogen route disables actions without bridge', (
