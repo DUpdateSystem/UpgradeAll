@@ -292,8 +292,8 @@ fn preview_installed_autogen(
         serde_json::to_value(&scan.inventory)
             .and_then(serde_json::from_value)
             .map_err(|source| BridgeOperationError::PlatformMalformed(source.to_string()))?;
-    let plan = autogen::build_local_autogen_plan(&db, &inventory)?;
-    let mut preview = autogen::installed_preview_json(&request.data_dir, &plan);
+    let plan = autogen::build_installed_autogen_plan(&request.data_dir, &db, &inventory)?;
+    let mut preview = autogen::installed_preview_json(&request.data_dir, &plan)?;
     if let Some(object) = preview.as_object_mut() {
         object.insert(
             "scan".to_owned(),
@@ -676,6 +676,9 @@ impl From<AutogenOperationError> for BridgeOperationError {
         match value {
             AutogenOperationError::Storage(source) => Self::Storage(source.to_string()),
             AutogenOperationError::Repository(detail) => Self::Repository(detail),
+            AutogenOperationError::MissingGeneratedRepository { .. } => {
+                Self::Autogen(value.to_string())
+            }
             AutogenOperationError::Autogen(detail) => Self::Autogen(detail),
         }
     }

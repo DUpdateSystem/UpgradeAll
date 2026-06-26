@@ -64,7 +64,7 @@ Feature: Installed app autogen
     Given the device has installed apps not covered by official repository
     When the user opens Installed Autogen
     And confirms the generated list
-    Then getter writes package scripts to local_autogen
+    Then getter writes package scripts to autogen
     And the apps appear in the app list as generated fallback packages
 ```
 

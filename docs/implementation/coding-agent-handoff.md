@@ -112,9 +112,9 @@ Prefer adding/updating ADRs for decisions rather than burying major changes in c
 ## Repository naming
 
 - `local` is the default highest-priority user-authored override repository.
-- `local_autogen` is the generated fallback repository used by ordinary installed-app autogen.
+- `autogen` is the default generated fallback repository used by ordinary installed-app autogen; `repo/metadata.jsonc` may configure another existing generated repository alias.
 - Legacy migration is special and may generate `local` package files once for compatibility.
-- Cleanup of missing generated apps only touches `local_autogen`.
+- Cleanup of missing generated apps only touches the configured generated repository target.
 
 ## Open questions to resolve before implementation hardens
 

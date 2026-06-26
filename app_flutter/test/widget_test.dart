@@ -104,7 +104,7 @@ void main() {
     expect(find.byKey(AppKeys.repositoriesList), findsOneWidget);
     expect(find.byKey(AppKeys.repoRow('local')), findsOneWidget);
     expect(find.byKey(AppKeys.repoRow('official')), findsOneWidget);
-    expect(find.byKey(AppKeys.repoRow('local_autogen')), findsOneWidget);
+    expect(find.byKey(AppKeys.repoRow('autogen')), findsOneWidget);
   });
 
   testWidgets('downloads route renders runtime task snapshots read-only', (

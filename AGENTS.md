@@ -13,7 +13,11 @@ Before coding, every agent MUST read:
 7. `docs/architecture/adr/0005-lua-package-api.md`
 8. `docs/architecture/adr/0006-package-centric-cli-command-contract.md`
 9. `docs/architecture/adr/0007-flutter-getter-bridge-contract.md`
-10. `docs/app/flutter-ui-feature-parity-and-testing.md`
+10. `docs/architecture/adr/0012-getter-owned-provider-modules-and-autogen-refresh.md`
+11. `docs/lua-api/repository-layout.md`
+12. `docs/lua-api/permissions.md`
+13. `docs/lua-api/templates.md`
+14. `docs/app/flutter-ui-feature-parity-and-testing.md`
 
 ## Core architecture rules
 
@@ -26,7 +30,7 @@ Before coding, every agent MUST read:
 - Backend state uses SQLite main DB plus separate cache DB.
 - Package Lua source files live in repository folders.
 - `local` is user-authored override repo.
-- `local_autogen` is generated fallback repo.
+- `autogen` is the default generated fallback repo; `repo/metadata.jsonc` may configure another existing generated repository alias.
 - Do not add runtime UI customization/plugin framework unless a later ADR changes this.
 
 ## Testing rules

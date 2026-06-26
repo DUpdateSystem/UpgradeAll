@@ -67,8 +67,8 @@ void main() {
             'ok': true,
             'command': 'autogen installed apply',
             'data': <String, Object?>{
-              'target_repo_id': 'local_autogen',
-              'target_repo_path': '/getter/repositories/local_autogen',
+              'target_repo_id': 'autogen',
+              'target_repo_path': '/getter/repo/autogen',
               'applied_count': 1,
               'applied': <Object?>[
                 <String, Object?>{
@@ -503,8 +503,8 @@ Map<String, Object?> _runtimeTaskJson(
 
 Map<String, Object?> _previewJson() => <String, Object?>{
   'operation': 'installed.preview',
-  'target_repo_id': 'local_autogen',
-  'target_repo_path': '/getter/repositories/local_autogen',
+  'target_repo_id': 'autogen',
+  'target_repo_path': '/getter/repo/autogen',
   'scan': <String, Object?>{
     'stats': <String, Object?>{
       'total_seen': 2,

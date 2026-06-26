@@ -92,7 +92,7 @@ class FakeGetterAdapter implements GetterAdapter {
     repositories: <RepositorySummary>[
       RepositorySummary(id: 'local', priority: 100),
       RepositorySummary(id: 'official', priority: 0),
-      RepositorySummary(id: 'local_autogen', priority: -1),
+      RepositorySummary(id: 'autogen', priority: -1),
     ],
   );
 
@@ -163,8 +163,8 @@ class FakeGetterAdapter implements GetterAdapter {
   }) async {
     return InstalledAutogenPreview.fromJson(const <String, Object?>{
       'operation': 'installed.preview',
-      'target_repo_id': 'local_autogen',
-      'target_repo_path': '/fake/getter/repositories/local_autogen',
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
       'scan': <String, Object?>{
         'stats': <String, Object?>{
           'total_seen': 3,
@@ -212,8 +212,8 @@ class FakeGetterAdapter implements GetterAdapter {
     List<String>? acceptedPackageIds,
   }) async {
     return InstalledAutogenApplyResult.fromJson(const <String, Object?>{
-      'target_repo_id': 'local_autogen',
-      'target_repo_path': '/fake/getter/repositories/local_autogen',
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
       'applied_count': 1,
       'applied': <Object?>[
         <String, Object?>{
