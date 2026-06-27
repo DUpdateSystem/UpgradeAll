@@ -99,6 +99,76 @@ void main() {
     expect(result.applied.single.packageId, 'android/app/com.example.autogen');
   });
 
+  test('native F-Droid autogen forwards getter-owned payloads', () async {
+    final calls = <MethodCall>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          calls.add(call);
+          switch (call.method) {
+            case 'previewFdroidAutogen':
+              return jsonEncode(<String, Object?>{
+                'ok': true,
+                'command': 'autogen fdroid preview',
+                'data': _fdroidPreviewJson(),
+                'warnings': <Object?>[],
+              });
+            case 'applyFdroidAutogen':
+              return jsonEncode(<String, Object?>{
+                'ok': true,
+                'command': 'autogen fdroid apply',
+                'data': <String, Object?>{
+                  'target_repo_id': 'autogen',
+                  'target_repo_path': '/getter/repo/autogen',
+                  'applied_count': 1,
+                  'applied': <Object?>[
+                    <String, Object?>{
+                      'package_id': 'android/f-droid/app/org.fdroid.fdroid',
+                      'output_relative_path':
+                          'android/f-droid/app/org.fdroid.fdroid',
+                    },
+                  ],
+                },
+                'warnings': <Object?>[],
+              });
+            default:
+              fail('unexpected method ${call.method}');
+          }
+        });
+
+    const adapter = MethodChannelGetterAdapter(channel: channel);
+    final payload = <String, Object?>{
+      'index_xml': '<fdroid />',
+      'package_names': <String>['org.fdroid.fdroid'],
+    };
+    final preview = await adapter.previewFdroidAutogen(payload);
+    final result = await adapter.applyFdroidAutogen(
+      preview,
+      acceptedPackageIds: const <String>[
+        'android/f-droid/app/org.fdroid.fdroid',
+      ],
+    );
+
+    expect(calls.first.method, 'previewFdroidAutogen');
+    expect(calls.first.arguments, <String, Object?>{'payload': payload});
+    expect(preview.operation, 'fdroid.autogen.preview');
+    expect(
+      preview.candidates.single.packageId,
+      'android/f-droid/app/org.fdroid.fdroid',
+    );
+    expect(calls.last.method, 'applyFdroidAutogen');
+    final args = (calls.last.arguments as Map<Object?, Object?>)
+        .cast<String, Object?>();
+    expect(jsonDecode(args['preview_json']! as String), preview.rawJson);
+    expect(args['acceptance'], <String, Object?>{
+      'mode': 'packages',
+      'package_ids': <String>['android/f-droid/app/org.fdroid.fdroid'],
+    });
+    expect(
+      result.applied.single.packageId,
+      'android/f-droid/app/org.fdroid.fdroid',
+    );
+  });
+
   test('native legacy import and reports parse getter envelopes', () async {
     final calls = <MethodCall>[];
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -497,6 +567,38 @@ Map<String, Object?> _runtimeTaskJson(
   },
   'current_diagnostic': null,
   'updated_at': 1,
+};
+
+Map<String, Object?> _fdroidPreviewJson() => <String, Object?>{
+  'operation': 'fdroid.autogen.preview',
+  'provider': 'fdroid',
+  'endpoint_id': 'official',
+  'endpoint_url': 'https://f-droid.org/repo',
+  'target_repo_id': 'autogen',
+  'target_repo_path': '/getter/repo/autogen',
+  'summary': <String, Object?>{
+    'candidate_count': 1,
+    'skipped_count': 0,
+    'write_count': 1,
+    'delete_count': 0,
+  },
+  'candidates': <Object?>[
+    <String, Object?>{
+      'package_id': 'android/f-droid/app/org.fdroid.fdroid',
+      'kind': 'android',
+      'display_name': 'F-Droid',
+      'installed_target': <String, Object?>{
+        'kind': 'android_package',
+        'package_name': 'org.fdroid.fdroid',
+      },
+      'action': 'create',
+      'output_relative_path': 'android/f-droid/app/org.fdroid.fdroid',
+      'content_hash': 'sha512:fake-fdroid',
+      'content': '-- fake generated F-Droid content',
+    },
+  ],
+  'skipped': <Object?>[],
+  'diagnostics': <Object?>[],
 };
 
 Map<String, Object?> _previewJson() => <String, Object?>{

@@ -10,7 +10,6 @@ import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.util.concurrent.Executors
 import net.xzos.upgradeall.getter.NativeLib
-import org.json.JSONArray
 import org.json.JSONObject
 
 class MainActivity : FlutterActivity() {
@@ -57,6 +56,14 @@ class MainActivity : FlutterActivity() {
 
                 "applyInstalledAutogen" -> runGetterBridge(result) {
                     nativeLib.applyInstalledAutogen(applyInstalledAutogenRequest(call))
+                }
+
+                "previewFdroidAutogen" -> runGetterBridge(result) {
+                    nativeLib.previewFdroidAutogen(previewFdroidAutogenRequest(call))
+                }
+
+                "applyFdroidAutogen" -> runGetterBridge(result) {
+                    nativeLib.applyFdroidAutogen(applyFdroidAutogenRequest(call))
                 }
 
                 "importLegacyRoomDatabase" -> runGetterBridge(result) {
@@ -171,23 +178,22 @@ class MainActivity : FlutterActivity() {
 
     private fun applyInstalledAutogenRequest(call: MethodCall): String {
         val args = call.arguments as? Map<*, *> ?: emptyMap<Any?, Any?>()
-        val previewJson = args["preview_json"] as? String
-            ?: throw IllegalArgumentException("preview_json is required")
-        val acceptance = args["acceptance"] as? Map<*, *>
-        val packageIds = acceptance
-            ?.get("package_ids")
-            ?.let { value -> value as? Collection<*> }
-            ?.map { value -> value.toString() }
-            ?: emptyList<String>()
-        return JSONObject()
+        return JSONObject(GetterBridgeRequestBuilder.autogenApplyRequest(args))
             .put("data_dir", getterDataDir().absolutePath)
-            .put("preview", JSONObject(previewJson))
-            .put(
-                "acceptance",
-                JSONObject()
-                    .put("mode", acceptance?.get("mode") as? String ?: "all")
-                    .put("package_ids", JSONArray(packageIds)),
-            )
+            .toString()
+    }
+
+    private fun previewFdroidAutogenRequest(call: MethodCall): String {
+        val args = call.arguments as? Map<*, *> ?: emptyMap<Any?, Any?>()
+        return JSONObject(GetterBridgeRequestBuilder.fdroidAutogenPreviewRequest(args))
+            .put("data_dir", getterDataDir().absolutePath)
+            .toString()
+    }
+
+    private fun applyFdroidAutogenRequest(call: MethodCall): String {
+        val args = call.arguments as? Map<*, *> ?: emptyMap<Any?, Any?>()
+        return JSONObject(GetterBridgeRequestBuilder.autogenApplyRequest(args))
+            .put("data_dir", getterDataDir().absolutePath)
             .toString()
     }
 

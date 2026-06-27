@@ -52,6 +52,59 @@ class GetterBridgeRequestBuilderTest {
     }
 
     @Test
+    fun fdroidAutogenPreviewRequestPreservesGetterPayload() {
+        val json = JSONObject(
+            GetterBridgeRequestBuilder.fdroidAutogenPreviewRequest(
+                mapOf(
+                    "payload" to mapOf(
+                        "index_xml" to "<fdroid />",
+                        "package_names" to listOf("org.fdroid.fdroid"),
+                    ),
+                ),
+            ),
+        )
+
+        val payload = json.getJSONObject("payload")
+        assertEquals("<fdroid />", payload.getString("index_xml"))
+        assertEquals("org.fdroid.fdroid", payload.getJSONArray("package_names").getString(0))
+    }
+
+    @Test
+    fun autogenApplyRequestPreservesPreviewAndAcceptance() {
+        val json = JSONObject(
+            GetterBridgeRequestBuilder.autogenApplyRequest(
+                mapOf(
+                    "preview_json" to "{\"operation\":\"fdroid.autogen.preview\"}",
+                    "acceptance" to mapOf(
+                        "mode" to "packages",
+                        "package_ids" to listOf("android/f-droid/app/org.fdroid.fdroid"),
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(
+            "fdroid.autogen.preview",
+            json.getJSONObject("preview").getString("operation"),
+        )
+        val acceptance = json.getJSONObject("acceptance")
+        assertEquals("packages", acceptance.getString("mode"))
+        assertEquals(
+            "android/f-droid/app/org.fdroid.fdroid",
+            acceptance.getJSONArray("package_ids").getString(0),
+        )
+    }
+
+    @Test
+    fun autogenApplyRequestRequiresPreviewJson() {
+        val error = assertThrows(IllegalArgumentException::class.java) {
+            GetterBridgeRequestBuilder.autogenApplyRequest(mapOf("acceptance" to emptyMap<String, String>()))
+        }
+
+        assertEquals("preview_json is required", error.message)
+    }
+
+    @Test
     fun runtimeOperationRequestRequiresOperation() {
         val error = assertThrows(IllegalArgumentException::class.java) {
             GetterBridgeRequestBuilder.runtimeOperationRequest(mapOf("payload" to emptyMap<String, String>()))

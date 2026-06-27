@@ -95,6 +95,31 @@ class CliGetterAdapter implements GetterAdapter {
   }
 
   @override
+  Future<InstalledAutogenPreview> previewFdroidAutogen(
+    Map<String, Object?> payload,
+  ) async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message: 'CLI adapter does not expose fixture-backed F-Droid autogen',
+      ),
+    );
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyFdroidAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message: 'CLI adapter does not expose fixture-backed F-Droid autogen',
+      ),
+    );
+  }
+
+  @override
   Future<RuntimeUpdateCheckResult> checkPackageForUpdate(
     String packageId, {
     String? repositoryId,

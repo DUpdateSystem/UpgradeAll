@@ -31,6 +31,15 @@ abstract interface class GetterAdapter {
     List<String>? acceptedPackageIds,
   });
 
+  Future<InstalledAutogenPreview> previewFdroidAutogen(
+    Map<String, Object?> payload,
+  );
+
+  Future<InstalledAutogenApplyResult> applyFdroidAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  });
+
   Future<RuntimeUpdateCheckResult> checkPackageForUpdate(
     String packageId, {
     String? repositoryId,
@@ -219,6 +228,61 @@ class FakeGetterAdapter implements GetterAdapter {
         <String, Object?>{
           'package_id': 'android/app/com.example.autogen',
           'output_relative_path': 'android/app/com.example.autogen',
+        },
+      ],
+    });
+  }
+
+  @override
+  Future<InstalledAutogenPreview> previewFdroidAutogen(
+    Map<String, Object?> payload,
+  ) async {
+    return InstalledAutogenPreview.fromJson(const <String, Object?>{
+      'operation': 'fdroid.autogen.preview',
+      'provider': 'fdroid',
+      'endpoint_id': 'official',
+      'endpoint_url': 'https://f-droid.org/repo',
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'summary': <String, Object?>{
+        'candidate_count': 1,
+        'skipped_count': 0,
+        'write_count': 1,
+        'delete_count': 0,
+      },
+      'candidates': <Object?>[
+        <String, Object?>{
+          'package_id': 'android/f-droid/app/org.fdroid.fdroid',
+          'kind': 'android',
+          'display_name': 'F-Droid',
+          'installed_target': <String, Object?>{
+            'kind': 'android_package',
+            'package_name': 'org.fdroid.fdroid',
+          },
+          'action': 'create',
+          'output_relative_path': 'android/f-droid/app/org.fdroid.fdroid',
+          'content_hash': 'sha512:fake-fdroid',
+          'content': '-- fake generated F-Droid content',
+        },
+      ],
+      'skipped': <Object?>[],
+      'diagnostics': <Object?>[],
+    });
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyFdroidAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    return InstalledAutogenApplyResult.fromJson(const <String, Object?>{
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'applied_count': 1,
+      'applied': <Object?>[
+        <String, Object?>{
+          'package_id': 'android/f-droid/app/org.fdroid.fdroid',
+          'output_relative_path': 'android/f-droid/app/org.fdroid.fdroid',
         },
       ],
     });

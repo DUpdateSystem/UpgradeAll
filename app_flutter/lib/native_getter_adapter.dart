@@ -81,15 +81,30 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   }) async {
     final data = await _invokeGetterData(
       'applyInstalledAutogen',
-      <String, Object?>{
-        'preview_json': jsonEncode(preview.rawJson),
-        'acceptance': acceptedPackageIds == null
-            ? const <String, Object?>{'mode': 'all'}
-            : <String, Object?>{
-                'mode': 'packages',
-                'package_ids': acceptedPackageIds,
-              },
-      },
+      _autogenApplyArguments(preview, acceptedPackageIds),
+    );
+    return InstalledAutogenApplyResult.fromJson(data);
+  }
+
+  @override
+  Future<InstalledAutogenPreview> previewFdroidAutogen(
+    Map<String, Object?> payload,
+  ) async {
+    final data = await _invokeGetterData(
+      'previewFdroidAutogen',
+      <String, Object?>{'payload': payload},
+    );
+    return InstalledAutogenPreview.fromJson(data);
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyFdroidAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    final data = await _invokeGetterData(
+      'applyFdroidAutogen',
+      _autogenApplyArguments(preview, acceptedPackageIds),
     );
     return InstalledAutogenApplyResult.fromJson(data);
   }
@@ -312,6 +327,21 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
 
   Map<String, Object?> _taskIdPayload(String taskId) {
     return <String, Object?>{'task_id': taskId};
+  }
+
+  Map<String, Object?> _autogenApplyArguments(
+    InstalledAutogenPreview preview,
+    List<String>? acceptedPackageIds,
+  ) {
+    return <String, Object?>{
+      'preview_json': jsonEncode(preview.rawJson),
+      'acceptance': acceptedPackageIds == null
+          ? const <String, Object?>{'mode': 'all'}
+          : <String, Object?>{
+              'mode': 'packages',
+              'package_ids': acceptedPackageIds,
+            },
+    };
   }
 
   Future<Map<String, Object?>> _invokeGetterData(

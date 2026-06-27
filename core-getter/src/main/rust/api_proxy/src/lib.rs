@@ -1,6 +1,7 @@
 extern crate jni;
 
 use getter::operations::autogen::{self, AutogenAcceptance, AutogenOperationError};
+use getter::operations::fdroid_autogen;
 use getter::operations::legacy_room::{self, LegacyRoomOperationError};
 use getter::operations::read_model::{self, ReadModelOperationError};
 use getter::operations::runtime as runtime_operations;
@@ -39,7 +40,22 @@ struct ApplyInstalledAutogenRequest {
     data_dir: PathBuf,
     preview: Value,
     #[serde(default)]
-    acceptance: ApplyInstalledAutogenAcceptance,
+    acceptance: ApplyAutogenAcceptance,
+}
+
+#[derive(Debug, Deserialize)]
+struct PreviewFdroidAutogenRequest {
+    data_dir: PathBuf,
+    #[serde(default)]
+    payload: Value,
+}
+
+#[derive(Debug, Deserialize)]
+struct ApplyFdroidAutogenRequest {
+    data_dir: PathBuf,
+    preview: Value,
+    #[serde(default)]
+    acceptance: ApplyAutogenAcceptance,
 }
 
 #[derive(Debug, Deserialize)]
@@ -71,7 +87,7 @@ struct RuntimeOperationRequest {
 }
 
 #[derive(Debug, Default, Deserialize)]
-struct ApplyInstalledAutogenAcceptance {
+struct ApplyAutogenAcceptance {
     #[serde(default)]
     mode: Option<String>,
     #[serde(default)]
@@ -207,6 +223,38 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_applyInstalledAutoge
 }
 
 #[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_previewFdroidAutogen<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "autogen fdroid preview";
+    let response = match jstring_to_string(&mut env, &request_json)
+        .and_then(|raw| preview_fdroid_autogen(&raw))
+    {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_applyFdroidAutogen<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "autogen fdroid apply";
+    let response = match jstring_to_string(&mut env, &request_json)
+        .and_then(|raw| apply_fdroid_autogen(&raw))
+    {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
 pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runtimeOperation<'local>(
     mut env: JNIEnv<'local>,
     _: JObject<'local>,
@@ -313,6 +361,38 @@ fn apply_installed_autogen(request_json: &str) -> Result<Value, BridgeOperationE
     let preview = autogen::unwrap_preview_payload(request.preview, "installed.preview")?;
     let acceptance = request.acceptance.into_autogen_acceptance()?;
     Ok(autogen::apply_installed_preview(
+        &request.data_dir,
+        &db,
+        &preview,
+        &acceptance,
+    )?)
+}
+
+fn preview_fdroid_autogen(request_json: &str) -> Result<Value, BridgeOperationError> {
+    let request: PreviewFdroidAutogenRequest = serde_json::from_str(request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let db = open_main_db(&request.data_dir)?;
+    let cache_db = open_cache_db(&request.data_dir)?;
+    let payload = if request.payload.is_null() {
+        "{}".to_owned()
+    } else {
+        request.payload.to_string()
+    };
+    Ok(fdroid_autogen::preview_fdroid_packages_json(
+        &request.data_dir,
+        &db,
+        &cache_db,
+        &payload,
+    )?)
+}
+
+fn apply_fdroid_autogen(request_json: &str) -> Result<Value, BridgeOperationError> {
+    let request: ApplyFdroidAutogenRequest = serde_json::from_str(request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let db = open_main_db(&request.data_dir)?;
+    let preview = autogen::unwrap_preview_payload(request.preview, "fdroid.autogen.preview")?;
+    let acceptance = request.acceptance.into_autogen_acceptance()?;
+    Ok(fdroid_autogen::apply_fdroid_preview_json(
         &request.data_dir,
         &db,
         &preview,
@@ -443,13 +523,13 @@ fn runtime_operation_with_runtime(
     .map_err(BridgeOperationError::Runtime)
 }
 
-impl ApplyInstalledAutogenAcceptance {
+impl ApplyAutogenAcceptance {
     fn into_autogen_acceptance(self) -> Result<AutogenAcceptance, BridgeOperationError> {
         match self.mode.as_deref().unwrap_or("all") {
             "all" => Ok(AutogenAcceptance::AcceptAll),
             "packages" => Ok(AutogenAcceptance::Accept(self.package_ids)),
             other => Err(BridgeOperationError::InvalidRequest(format!(
-                "unsupported installed autogen acceptance mode '{other}'"
+                "unsupported autogen acceptance mode '{other}'"
             ))),
         }
     }
@@ -460,6 +540,14 @@ fn open_main_db(data_dir: &Path) -> Result<getter::storage::MainDb, BridgeOperat
         .map_err(|source| BridgeOperationError::Storage(source.to_string()))?;
     getter::storage::CacheDb::open(data_dir.join(CACHE_DB_FILE))?;
     Ok(getter::storage::MainDb::open(data_dir.join(MAIN_DB_FILE))?)
+}
+
+fn open_cache_db(data_dir: &Path) -> Result<getter::storage::CacheDb, BridgeOperationError> {
+    std::fs::create_dir_all(data_dir)
+        .map_err(|source| BridgeOperationError::Storage(source.to_string()))?;
+    Ok(getter::storage::CacheDb::open(
+        data_dir.join(CACHE_DB_FILE),
+    )?)
 }
 
 fn scan_installed_inventory(
@@ -688,7 +776,8 @@ impl From<AutogenOperationError> for BridgeOperationError {
 mod tests {
     use super::*;
     use getter::core::{
-        repository::{RepositoryMetadata, REPO_API_VERSION_V1},
+        autogen::FDROID_AUTOGEN_GENERATOR,
+        repository::{RepositoryMetadata, RepositoryPackageDirectoryLayout, REPO_API_VERSION_V1},
         runtime::{PackageVersionLuaObject, SealedActionPlan},
         RepositoryPriority, UpdateAction,
     };
@@ -696,7 +785,7 @@ mod tests {
 
     #[test]
     fn packages_acceptance_defaults_to_all() {
-        let acceptance = ApplyInstalledAutogenAcceptance::default()
+        let acceptance = ApplyAutogenAcceptance::default()
             .into_autogen_acceptance()
             .expect("acceptance");
 
@@ -705,7 +794,7 @@ mod tests {
 
     #[test]
     fn packages_acceptance_preserves_getter_package_ids() {
-        let acceptance = ApplyInstalledAutogenAcceptance {
+        let acceptance = ApplyAutogenAcceptance {
             mode: Some("packages".to_owned()),
             package_ids: vec!["android/org.fdroid.fdroid".parse().expect("package id")],
         }
@@ -718,6 +807,59 @@ mod tests {
             }
             AutogenAcceptance::AcceptAll => panic!("expected explicit package acceptance"),
         }
+    }
+
+    #[test]
+    fn fdroid_autogen_bridge_preview_and_apply_write_package_directories() {
+        let temp = tempfile::tempdir().unwrap();
+        let data_dir = temp.path().join("data");
+        let request = json!({
+            "data_dir": data_dir,
+            "payload": {
+                "index_xml": fdroid_fixture(),
+                "package_names": ["org.fdroid.fdroid"]
+            }
+        });
+
+        let preview = preview_fdroid_autogen(&request.to_string()).expect("F-Droid preview");
+
+        assert_eq!(preview["operation"], "fdroid.autogen.preview");
+        assert_eq!(
+            preview["candidates"][0]["package_id"],
+            "android/f-droid/app/org.fdroid.fdroid"
+        );
+
+        let apply = apply_fdroid_autogen(
+            &json!({
+                "data_dir": data_dir,
+                "preview": preview,
+                "acceptance": { "mode": "packages", "package_ids": ["android/f-droid/app/org.fdroid.fdroid"] }
+            })
+            .to_string(),
+        )
+        .expect("F-Droid apply");
+
+        assert_eq!(apply["applied_count"], 1);
+        assert_eq!(
+            apply["applied"][0]["package_id"],
+            "android/f-droid/app/org.fdroid.fdroid"
+        );
+        let repo_root = temp.path().join("data/repo/autogen");
+        let package_dir = repo_root.join("android/f-droid/app/org.fdroid.fdroid");
+        assert!(package_dir.join("metadata.jsonc").is_file());
+        assert!(package_dir.join("Manifest").is_file());
+        assert!(package_dir.join("9999.lua").is_file());
+        assert!(package_dir.join(".autogen.jsonc").is_file());
+        let record: Value = serde_json::from_str(
+            &std::fs::read_to_string(package_dir.join(".autogen.jsonc")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(record["generator"], FDROID_AUTOGEN_GENERATOR);
+        assert_eq!(record["input"]["package_name"], "org.fdroid.fdroid");
+        let layout = RepositoryPackageDirectoryLayout::load(&repo_root).unwrap();
+        assert!(layout
+            .package(&"android/f-droid/app/org.fdroid.fdroid".parse().unwrap())
+            .is_some());
     }
 
     #[test]
@@ -927,6 +1069,25 @@ mod tests {
         let (code, _, detail) = error.parts();
         assert_eq!(code, "runtime.invalid_request");
         assert!(detail.unwrap().contains("unsupported runtime operation"));
+    }
+
+    fn fdroid_fixture() -> &'static str {
+        r#"<?xml version="1.0" encoding="utf-8"?>
+<fdroid>
+  <repo name="F-Droid" timestamp="1700000000" url="https://f-droid.org/repo" />
+  <application id="org.fdroid.fdroid">
+    <name>F-Droid</name>
+    <summary>App repository client</summary>
+    <package>
+      <version>1.20.0</version>
+      <versioncode>1020000</versioncode>
+      <apkname>org.fdroid.fdroid_1020000.apk</apkname>
+      <hash type="sha256">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</hash>
+      <size>1234567</size>
+    </package>
+  </application>
+</fdroid>
+"#
     }
 
     fn write_static_update_repo(root: &std::path::Path) {

@@ -13,6 +13,8 @@ class NativeLib {
     external fun initializeBridge(context: Context): String
     external fun previewInstalledAutogen(context: Context, requestJson: String): String
     external fun applyInstalledAutogen(requestJson: String): String
+    external fun previewFdroidAutogen(requestJson: String): String
+    external fun applyFdroidAutogen(requestJson: String): String
     external fun importLegacyRoomDatabase(requestJson: String): String
     external fun legacyReportList(requestJson: String): String
     external fun readOperation(requestJson: String): String
