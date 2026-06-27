@@ -84,6 +84,8 @@ Repository self-metadata lives at `.metadata/metadata.jsonc` and records schema 
 
 Inside a repository alias directory, getter only considers explicit entries: reserved repository-root directories such as `.metadata/` and `luaclass/`, plus directory chains that form package paths. Reserved directories are handled only by their own responsibility and never participate in package discovery; package paths cannot begin with reserved names such as `.metadata` or `luaclass`. Future repository-root reserved directories follow the same rule so the repo layout remains organizable. A directory that directly contains `metadata.jsonc` declares a package boundary. `.autogen.jsonc` does not declare a package boundary; it is only a generated-package ownership record inside a package directory that already has `metadata.jsonc`. If `metadata.jsonc` parses correctly as package metadata, the directory is a valid package directory; if parsing fails, getter reports an invalid package metadata diagnostic for that package path. In both cases, that directory is the package path endpoint and getter does not discover nested packages below it. Other files or directories such as `README.md`, `docs/`, or random helper files are outside getter domain entirely: they are not parsed, validated, displayed, warned about, or modeled as ignored managed objects. The primary reason is clear responsibility boundaries; a smaller getter-core attack surface is a beneficial side effect.
 
+Package version Lua resolves `require("luaclass.<name>")` from the active package repository's `luaclass/` directory first, then from getter-shipped built-in standard modules. Repository-local modules intentionally override built-in standard modules. Generated repositories do not need to copy shared standard modules into repository-root `luaclass/`, and getter does not introduce repo-level autogen ownership records for shared modules; `.autogen.jsonc` remains package-local.
+
 ## Package directories
 
 Package directories are final package definitions consumed by getter. UpgradeAll/getter domain strings, including package paths and aliases, are treated as UTF-8. Getter does not detect or convert other filesystem/text encodings; inputs in other encodings are still interpreted as UTF-8.
@@ -199,7 +201,9 @@ Reusable Lua modules. These are conceptually similar to eclasses but are plain L
 local github_android = require("luaclass.github_android_apk")
 ```
 
-Cross-repository imports may resolve by priority when no repository alias is specified, or by explicit local alias when an author intentionally depends on one. Explicit alias imports break if the user renames that alias, preserving the user's ability to replace a repository layer intentionally.
+Package version Lua resolves `require("luaclass.<name>")` from the active package repository's `luaclass/` directory first, then from getter-shipped built-in standard modules. Repository-local modules intentionally override built-in standard modules, so a trusted repository or `local` overlay can replace the shipped default behavior in normal source form.
+
+Cross-repository `luaclass` imports are not supported in this model. A package in `repo/official` does not load modules from `repo/local`, `repo/autogen`, or another alias by priority or by explicit alias. If shared behavior is needed for generated packages, it should either live in getter-shipped built-in modules or be copied/authored into the active repository's own `luaclass/` tree.
 
 ## Getter hook scripts
 

@@ -69,7 +69,7 @@ To avoid drifting back into the old hub-app model, ADR-0012 uses these terms str
 - **Qualified package atom**: `<package-path>[::repo-name]`; omitting `::repo-name` resolves by repository priority, specifying it resolves only that local alias. If `repo/metadata.jsonc` is missing, built-in priority defaults are `local` = 100, `autogen` = -1, all other aliases = 0, with same-priority aliases resolved in lexicographic order. If present, the priority map is lookup-only: getter discovers actual repository alias directories first, then queries the map by alias; entries for nonexistent aliases are inert and do not warn, create repositories, display repositories, or participate in sorting. `generated_repository` defaults to `autogen` when omitted, and starter config should include that default as a comment users may uncomment/change. When autogen runs with target `autogen`, getter creates `repo/autogen/` if needed; any non-`autogen` target must already exist or autogen apply reports a configuration error. `generated_repository` only decides autogen output target and does not participate in package resolution except through the normal priority map. If `repo/metadata.jsonc` exists but cannot be parsed, getter reports a configuration diagnostic instead of silently falling back.
 - **Provider endpoint/catalog**: an upstream service or index, such as the official F-Droid catalog endpoint or the GitHub API endpoint for a repository. It is not an UpgradeAll repository.
 - **Package source**: a source declaration inside one package definition/version script that uses a provider module to discover candidates/artifacts.
-- **Reusable Lua provider module/class**: a Lua helper under `luaclass/`, such as `luaclass.fdroid_android` or `luaclass.github_android_apk`, that fills common lifecycle behavior and calls getter provider host APIs.
+- **Reusable Lua provider module/class**: a Lua helper under `luaclass/`, such as `luaclass.fdroid_android` or `luaclass.github_android_apk`, that fills common lifecycle behavior and calls getter provider host APIs. Getter may ship standard `luaclass.*` modules as a built-in fallback module root; repository-local `repo/<alias>/luaclass/` modules resolve first so repositories can override or extend the shipped defaults without generated repositories owning shared module files.
 - **Autogen pipeline**: a getter operation and repository-level `.metadata/autogen/` Lua helper that previews and writes package directories/version scripts, Manifests, optional package-local `files/` helper data, and a package-local `.autogen.jsonc` generation record from structured inputs. Autogen output is ordinary repository content.
 - **Provider/source cache**: cache.db entries for upstream facts, API responses, indexes, freshness tokens, and parsed provider facts.
 - **Package metadata cache**: cache.db entries for normalized package metadata/candidates/artifacts produced by evaluating a package's Lua dependency closure.
@@ -77,6 +77,15 @@ To avoid drifting back into the old hub-app model, ADR-0012 uses these terms str
 ## F-Droid model
 
 F-Droid is treated as a structured Android catalog provider endpoint. Its product support is autogen-first.
+
+### Standard `luaclass` module resolution
+
+Package version Lua resolves `require("luaclass.<name>")` in this order:
+
+1. the active package repository's `luaclass/` directory, e.g. `repo/official/luaclass/fdroid_android.lua`; then
+2. getter-shipped built-in standard modules.
+
+Repository-local modules deliberately win over getter-shipped modules. This gives trusted repositories and `local` overlays a normal source-level override path while keeping generated repositories boring: generated package directories do not need to copy shared standard modules, and `.autogen.jsonc` remains package-local ownership proof rather than a repository-root ownership system. Built-in modules are part of the getter binary/source distribution and are not repository source files; repository trust/signing still applies only to repository-provided files. Cross-repository module lookup is not accepted in this slice because it would make package behavior depend on unrelated repository priority and trust boundaries.
 
 ### F-Droid reusable module
 
