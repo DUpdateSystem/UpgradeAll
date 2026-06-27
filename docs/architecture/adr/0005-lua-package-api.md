@@ -45,9 +45,11 @@ post_update
 
 ## Network permission model
 
-Lua has no native or standard-library network API by default. Network access, when allowed by the package/provider mode, goes through getter host APIs such as `http_get(url, headers = ..., cache = true|false, ...)`.
+Lua has no native or standard-library network API by default. Network access, when allowed by the package/provider mode, goes through getter host APIs such as `http_get(url, { headers = ..., cache = true|false })`.
 
-`cache` defaults to `false`. Passing `cache = true` opts that HTTP request into getter-owned provider/source caching; Lua chooses cache participation per request, but getter owns cache keys, persistence, revalidation, stale diagnostics, and secret redaction.
+Plain package evaluation does not install `http_get` by default. The getter operation/runtime that evaluates a provider-backed script must deliberately install an HTTP transport and own permission checks, Manifest validation, provider policy, cache behavior, and diagnostics for that execution.
+
+`cache` defaults to `false`. Passing `cache = true` opts that HTTP request into getter-owned provider/source caching; Lua chooses cache participation per request, but getter owns cache keys, persistence, revalidation, stale diagnostics, and secret redaction. The initial stable request shape is deliberately small: URL string plus an optional options table containing only string-to-string `headers` and boolean `cache`.
 
 Free network permission is declared per enabled Lua script in package `metadata.jsonc` using a filename-keyed map, for example `lua: { "9999.lua": { permission: ["allow_free_network"] } }`. The `lua` map is lookup-only: getter first discovers an enabled Lua file from the filesystem, then queries this map by basename. Getter does not enumerate the map to discover scripts or warnings. Entries for nonexistent files or dot-prefixed Lua files are inert. The permission can apply to `9999.lua` or to a fixed-version script. `9999.lua` commonly needs free network, but the filename alone does not grant the permission or force the warning if metadata does not declare it. A version script omitted from the `lua` map defaults to `permission: []`.
 

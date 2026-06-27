@@ -42,7 +42,7 @@ F-Droid and GitHub are providers/sources/backends, not package identities and no
 
 1. Getter owns live provider execution, provider/source caching, package metadata normalization, update selection, action issuance, and autogen/package-path decisions.
 2. Reusable Lua provider modules/classes under `luaclass/` provide high-level package-authoring APIs for common provider families.
-3. Those Lua modules call getter-owned host APIs by default. HTTP access is exposed as a getter-managed host function such as `http_get(url, headers = ..., cache = true|false, ...)`; `cache` defaults to `false`, and Lua/provider modules opt individual requests into HTTP source caching by passing `cache = true`. This remains getter-owned network/cache execution, not Flutter/Kotlin HTTP and not a Lua standard-library network primitive.
+3. Those Lua modules call getter-owned host APIs by default. HTTP access is exposed as a getter-managed host function such as `http_get(url, { headers = ..., cache = true|false })`; `cache` defaults to `false`, and Lua/provider modules opt individual requests into HTTP source caching by passing `cache = true`. Plain package evaluation does not install `http_get`; the getter operation/runtime evaluating provider-backed Lua deliberately installs the transport and owns permission, Manifest, provider, cache, and diagnostic policy for that execution. This remains getter-owned network/cache execution, not Flutter/Kotlin HTTP and not a Lua standard-library network primitive.
 4. F-Droid support is **autogen-first**:
    - an F-Droid app is represented as an ordinary package directory with metadata and version scripts;
    - explicit user selection of an F-Droid app uses a getter autogen preview/apply operation that generates a package directory/version script;
@@ -272,7 +272,7 @@ local index = http_get(fdroid_index_url, {
 })
 ```
 
-`cache = false` is the default so ordinary one-off HTTP calls do not silently become durable provider cache. When `cache = true`, getter owns cache key construction, storage, revalidation, stale diagnostics, and secret redaction; Lua chooses that the request should participate in HTTP/source caching but does not write cache entries itself.
+`cache = false` is the default so ordinary one-off HTTP calls do not silently become durable provider cache. The v1 host request shape is intentionally narrow: a URL string plus an optional options table with string-to-string `headers` and boolean `cache`; unsupported options are rejected rather than silently accepted. When `cache = true`, getter owns cache key construction, storage, revalidation, stale diagnostics, and secret redaction; Lua chooses that the request should participate in HTTP/source caching but does not write cache entries itself.
 
 F-Droid provider cache keys must include inputs such as:
 

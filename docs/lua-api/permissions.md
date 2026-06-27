@@ -6,9 +6,9 @@
 
 ## Default
 
-Lua package scripts do not receive Lua-native or Flutter/Kotlin-owned network access by default.
+Lua package scripts do not receive Lua-native or Flutter/Kotlin-owned network access by default. Plain package evaluation does not install an HTTP function.
 
-They can use getter-provided provider/source host APIs. HTTP requests go through getter-managed functions such as:
+Provider-backed getter operations may deliberately install getter-provided provider/source host APIs for that execution. HTTP requests go through getter-managed functions such as:
 
 ```lua
 local body = http_get(url, {
@@ -17,7 +17,7 @@ local body = http_get(url, {
 })
 ```
 
-`cache` defaults to `false`. Passing `cache = true` opts that request into getter-owned provider/source caching; getter owns cache keys, persistence, revalidation, stale diagnostics, permissions, and secret redaction.
+`cache` defaults to `false`. Passing `cache = true` opts that request into getter-owned provider/source caching; getter owns cache keys, persistence, revalidation, stale diagnostics, permissions, and secret redaction. The v1 request shape is intentionally narrow: a URL string plus an optional options table with string-to-string `headers` and boolean `cache`; unsupported options should be rejected rather than silently accepted.
 
 ## Free network permission
 

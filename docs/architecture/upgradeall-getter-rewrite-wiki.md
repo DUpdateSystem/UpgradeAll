@@ -842,7 +842,7 @@ local body = http_get(url, {
 })
 ```
 
-`cache` 默认是 `false`。Lua/provider module 通过 `cache = true` 主动把单次 HTTP 请求纳入 getter-owned HTTP/source cache；getter 负责 cache key、持久化、revalidation、stale diagnostics 和 secret redaction，Lua 只表达该请求是否应缓存。
+`cache` 默认是 `false`。普通 package evaluation 不默认安装 `http_get`；需要 provider/network 的 getter operation/runtime 必须显式安装 transport，并由 getter 拥有 permission、Manifest、provider、cache、diagnostic policy。Lua/provider module 通过 `cache = true` 主动把单次 HTTP 请求纳入 getter-owned HTTP/source cache；getter 负责 cache key、持久化、revalidation、stale diagnostics 和 secret redaction，Lua 只表达该请求是否应缓存。v1 请求形状保持很小：URL string，加可选 options table，其中只接受 string-to-string `headers` 与 boolean `cache`。
 
 标准 provider module/class 可以在声明的 provider/source 语义下使用该 host HTTP API 获取 release/catalog 信息。
 
@@ -944,7 +944,7 @@ Android 上 repo sync 可以先采用 archive zip/tar 或 bundled repo snapshot�
 - 可按 package/repository scope 区分。
 - 参考 emerge bashrc 的精神：全局 hook 根据上下文做调整。
 
-Accepted hook location is top-level runtime config, `rc/hook/*.lua`. Hooks wrap public getter host functions and call original unhooked entrypoints through `getter_builtin.<name>`.
+Accepted hook location is top-level runtime config, `rc/hook/*.lua`. Hooks wrap public getter host functions and call original unhooked entrypoints through `getter_builtin.<name>`. Plain package evaluation does not install `http_get`; provider/runtime operations that need network install it deliberately and own permission, Manifest, provider, cache, and diagnostic policy.
 
 示例：
 

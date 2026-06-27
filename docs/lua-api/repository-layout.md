@@ -74,7 +74,7 @@ The user may change priority through UI, CLI, or this getter-owned metadata file
 
 ## Runtime hooks
 
-Runtime/local hooks live under `rc/hook/`, not under `repo/`. Hooks are runtime policy, while `repo/metadata.jsonc` stays repository-related configuration. Hooks are discovered only from the filesystem: getter lists enabled `rc/hook/*.lua` files, excludes basenames starting with `.`, sorts them deterministically, then loads them before every Lua execution environment. There is no hook registry, metadata map, or persistent disabled-hook state. Enabled hooks can wrap getter-exposed Lua host functions such as `http_get()` for transparent URL replacement or similar local policy. A dot-prefixed Lua file is outside getter management and is not a hook entry.
+Runtime/local hooks live under `rc/hook/`, not under `repo/`. Hooks are runtime policy, while `repo/metadata.jsonc` stays repository-related configuration. Hooks are discovered only from the filesystem: getter lists enabled `rc/hook/*.lua` files, excludes basenames starting with `.`, sorts them deterministically, then loads them before every Lua execution environment. There is no hook registry, metadata map, or persistent disabled-hook state. Enabled hooks can wrap getter-exposed Lua host functions such as `http_get()` for transparent URL replacement or similar local policy when the active getter operation installs that function; plain package evaluation does not install HTTP by default. A dot-prefixed Lua file is outside getter management and is not a hook entry.
 
 ## Repository alias
 
@@ -211,7 +211,7 @@ Getter preserves user-controlled transparent URL replacement through local hook 
 
 Hooks are global getter-local runtime policy. Getter discovers hooks only from the filesystem: list enabled `rc/hook/*.lua` files, exclude basenames starting with `.`, sort deterministically, then load before every Lua execution environment. For example, enabled files load as `00-env.lua`, `10-http-rewrite.lua`, then `20-headers.lua`. A Lua file whose basename starts with `.` is excluded from hook Lua discovery, so `.10-http-rewrite.lua` is not parsed, validated, loaded, displayed, or treated as a hook entry. There is no hook registry, metadata map, or disabled-hook state.
 
-A hook can wrap visible Lua host functions such as `http_get()` or `read_package_file()` and call the original getter-internal entrypoint after rewriting the URL or applying local policy. Getter core/CLI does not maintain a protective denylist of hookable public functions; if extra guardrails are needed, they belong in UI/UX policy rather than the getter core. Original unhooked host entrypoints are available to hook code as `getter_builtin.<name>`, for example:
+A hook can wrap visible Lua host functions such as `http_get()` or `read_package_file()` and call the original getter-internal entrypoint after rewriting the URL or applying local policy. Plain package evaluation does not install `http_get`; provider/runtime operations that need network access deliberately install the HTTP transport and own permission, Manifest, provider, cache, and diagnostic policy for that execution. Getter core/CLI does not maintain a protective denylist of hookable public functions; if extra guardrails are needed, they belong in UI/UX policy rather than the getter core. Original unhooked host entrypoints are available to hook code as `getter_builtin.<name>`, for example:
 
 ```lua
 local upstream_http_get = getter_builtin.http_get
