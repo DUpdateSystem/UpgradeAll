@@ -129,7 +129,7 @@ Reusable Lua modules should use Lua import helpers where practical:
 local github_android = require("luaclass.github_android_apk")
 ```
 
-Cross-repository imports may resolve by repository priority when no repository alias is specified, or by explicit local alias when the author writes one. Explicit alias imports intentionally depend on the user's local repository name; if the user renames `repo/official` to `repo/a`, imports that explicitly name `official` are considered intentionally broken by that rename. This is a feature: users can intentionally replace, fork, or interpose repository layers instead of having every package become fully self-maintained.
+`luaclass.*` imports resolve only from the active package repository's own `luaclass/` directory and then from getter-shipped built-in fallback modules. Cross-repository `luaclass` lookup is intentionally unsupported: a package in `repo/official` does not load modules from `repo/local`, `repo/autogen`, or another alias by priority or by explicit alias. Shared behavior needed by generated packages should either live in getter-shipped built-ins or be authored/copied into that package's active repository.
 
 Parent package imports should use package atoms rather than raw file paths:
 

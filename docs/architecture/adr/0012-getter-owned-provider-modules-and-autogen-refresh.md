@@ -87,6 +87,8 @@ Package version Lua resolves `require("luaclass.<name>")` in this order:
 
 Repository-local modules deliberately win over getter-shipped modules. This gives trusted repositories and `local` overlays a normal source-level override path while keeping generated repositories boring: generated package directories do not need to copy shared standard modules, and `.autogen.jsonc` remains package-local ownership proof rather than a repository-root ownership system. Built-in modules are part of the getter binary/source distribution and are not repository source files; repository trust/signing still applies only to repository-provided files. Cross-repository module lookup is not accepted in this slice because it would make package behavior depend on unrelated repository priority and trust boundaries.
 
+Implementation status: only the neutral `luaclass.android` helper is an always-on getter-shipped builtin today. Provider-named fallback modules such as `luaclass.fdroid_android` and `luaclass.github_android_apk` are currently dev-gated tracer modules over `getter_dev.*` host calls. They exist to validate provider-host seams and builtin fallback distribution, not to publish a stable product Lua provider API. Generated F-Droid output does not depend on them yet; promoting provider modules to an always-on public authoring surface requires a later stable host-API decision.
+
 ### F-Droid reusable module
 
 The common package-authoring API should be intentionally small. The default case should need only the Android/F-Droid package name:
