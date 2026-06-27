@@ -18,7 +18,11 @@ Before coding, read these files in order:
 8. `docs/architecture/adr/0005-lua-package-api.md`
 9. `docs/architecture/adr/0006-package-centric-cli-command-contract.md`
 10. `docs/architecture/adr/0007-flutter-getter-bridge-contract.md`
-11. `docs/app/flutter-ui-feature-parity-and-testing.md`
+11. `docs/architecture/adr/0012-getter-owned-provider-modules-and-autogen-refresh.md`
+12. `docs/lua-api/repository-layout.md`
+13. `docs/lua-api/permissions.md`
+14. `docs/lua-api/templates.md`
+15. `docs/app/flutter-ui-feature-parity-and-testing.md`
 
 ## Mission
 
@@ -36,7 +40,7 @@ The old hub-app model must not be reintroduced.
 - Flutter owns UI and platform adapter only.
 - getter lives in the reusable `core-getter/src/main/rust/getter` git submodule (`https://github.com/DUpdateSystem/getter`); make getter changes in that submodule and update the superproject gitlink.
 - getter storage uses SQLite main DB plus separate cache DB.
-- Package definitions are Lua files in repositories.
+- Package definitions are package directories in repositories, with `metadata.jsonc`, optional `Manifest`, and direct-child version Lua scripts such as `1.2.3.lua` or `9999.lua`.
 - Lua returns JSON-like tables across the Lua/Rust boundary; Rust validates typed structs.
 - Package IDs are readable, e.g. `android/org.fdroid.fdroid`, not UUID primary identities.
 - Legacy Room migration must be automatic for normal users, but it is intentionally limited/simple.
@@ -59,16 +63,18 @@ Recommended order:
    - SelectedUpdate
    - UpdateAction
 3. Implement repository layout loader:
-   - `repo.toml`
-   - `packages/`
-   - `lib/`
-   - `templates/`
+   - getter data dir `repo/` plus `rc/` roots;
+   - `repo/metadata.jsonc` for local repository priority and generated-repository config;
+   - `repo/<alias>/` repository aliases;
+   - package directories that directly contain `metadata.jsonc`;
+   - optional package `Manifest`, optional generated-package `.autogen.jsonc`, direct-child version scripts, and package-local `files/`;
+   - repository `luaclass/` helpers and `.metadata/autogen/` generator metadata.
 4. Integrate `mlua` minimally:
-   - load a Lua package file;
-   - expose `require` search path for repo `lib/`;
-   - expose `package_from(repo, id)` later;
+   - load a package-directory version Lua script;
+   - expose `require` search path for repo `luaclass/`;
+   - expose `package_from(<package-atom>)` later;
    - return JSON-like Lua table;
-   - validate into Rust structs.
+   - validate into Rust structs while deriving package identity from the package directory path.
 5. Implement repository priority resolution.
 6. Implement main DB and cache DB skeleton.
 7. Write migration mapping tests before writing migration implementation.

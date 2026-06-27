@@ -930,24 +930,22 @@ mod tests {
     }
 
     fn write_static_update_repo(root: &std::path::Path) {
-        fs::create_dir_all(root.join("packages/android")).unwrap();
-        fs::create_dir(root.join("lib")).unwrap();
-        fs::create_dir(root.join("templates")).unwrap();
+        let package_dir = root.join("android/org.fdroid.fdroid");
+        fs::create_dir_all(&package_dir).unwrap();
         fs::write(
-            root.join("repo.toml"),
-            r#"id = "official"
-name = "Official"
-priority = 0
-api_version = "getter.repo.v1"
-"#,
+            package_dir.join("metadata.jsonc"),
+            r#"{
+  "type": "android:app",
+  "display_name": "F-Droid",
+  "android": { "package_name": "org.fdroid.fdroid" }
+}"#,
         )
         .unwrap();
+        fs::write(package_dir.join("Manifest"), "").unwrap();
         fs::write(
-            root.join("packages/android/org.fdroid.fdroid.lua"),
-            r#"
-return package_def {
-  id = "android/org.fdroid.fdroid",
-  name = "F-Droid",
+            package_dir.join("9999.lua"),
+            r#"#!/bin/upa-lua v1
+return package_version {
   updates = {
     {
       version = "1.2.0",

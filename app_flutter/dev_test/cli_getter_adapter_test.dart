@@ -134,26 +134,22 @@ void main() {
 
 Directory _createFixtureRepository(Directory temp, String repoId) {
   final repoDir = Directory('${temp.path}/repo-$repoId')..createSync();
-  Directory('${repoDir.path}/packages/android').createSync(recursive: true);
-  Directory('${repoDir.path}/lib').createSync();
-  Directory('${repoDir.path}/templates').createSync();
-  File('${repoDir.path}/repo.toml').writeAsStringSync('''
-id = "$repoId"
-name = "Fixture $repoId"
-priority = 0
-api_version = "getter.repo.v1"
-''');
-  File(
-    '${repoDir.path}/packages/android/org.fdroid.fdroid.lua',
-  ).writeAsStringSync('''
-return package_def {
-  id = "android/org.fdroid.fdroid",
-  name = "F-Droid",
-  installed = {
-    { kind = "android_package", package_name = "org.fdroid.fdroid" },
-  },
-  permissions = { free_network = true },
+  final packageDir = Directory('${repoDir.path}/android/org.fdroid.fdroid')
+    ..createSync(recursive: true);
+  File('${packageDir.path}/metadata.jsonc').writeAsStringSync('''
+{
+  "type": "android:app",
+  "display_name": "F-Droid",
+  "android": { "package_name": "org.fdroid.fdroid" },
+  "lua": {
+    "9999.lua": { "permission": ["allow_free_network"] }
+  }
 }
+''');
+  File('${packageDir.path}/Manifest').writeAsStringSync('');
+  File('${packageDir.path}/9999.lua').writeAsStringSync('''
+#!/bin/upa-lua v1
+return package_version {}
 ''');
   return repoDir;
 }
