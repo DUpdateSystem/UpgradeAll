@@ -497,7 +497,9 @@ fn runtime_operation_with_runtime(
                 )
             })?;
             let db = open_main_db(data_dir)?;
-            runtime_operations::issue_action_from_registered_package_json(runtime, &db, &payload)
+            runtime_operations::issue_action_from_registered_package_json(
+                runtime, data_dir, &db, &payload,
+            )
         }
         "task_submit" => runtime_operations::submit_action_json(runtime, &payload),
         "task_get" => runtime_operations::task_get_json(runtime, &payload),

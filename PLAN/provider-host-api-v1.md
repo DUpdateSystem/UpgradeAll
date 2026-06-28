@@ -1,8 +1,8 @@
 # PLAN: Stable Lua provider host API v1
 
-> Status: implementation plan with stable host, provenance, and provider module promotion slices validated; generated-output migration pending
+> Status: stable host, provenance, provider module promotion, and cache-backed product runtime update-check slices validated; generated-output migration pending
 > Scope: ADR-0012 provider-host API design for F-Droid and GitHub standard Lua modules
-> Current boundary: provider modules are promoted to built-in fallbacks; generated F-Droid output has not yet been migrated to require them
+> Current boundary: provider modules are promoted to built-in fallbacks, and `update_check_package_issue_action` can evaluate provider-backed packages against Manifest-compatible provider cache entries; generated F-Droid output has not yet been migrated to require them
 
 ## Progress
 
@@ -15,7 +15,8 @@
 - [x] Implement and validate Slice 2 provider cache provenance storage and Manifest-compatible cache hits.
 - [x] Implement and validate Slice 4 standard provider module promotion tests.
 - [x] Add pre-adoption regression coverage locking generated F-Droid output as self-contained/plain-evaluable.
-- [ ] Next slice: product provider-backed package evaluation/update-check operation before generated F-Droid provider-module adoption.
+- [x] Add product provider-backed package evaluation/update-check operation before generated F-Droid provider-module adoption.
+- [ ] Next slice: generated F-Droid provider-module adoption, keeping generated packages usable through the provider-backed update-check path.
 
 ## Current evidence and constraints
 
@@ -26,6 +27,8 @@
 - Runtime hooks live under `<data-dir>/rc/hook/*.lua`, load after host functions are installed in the current operation harness, and call originals through `getter_builtin.*`.
 - Package `Manifest` constrains external network/dynamic response bodies for scripts without `allow_free_network`; missing `Manifest` means an empty allow-list. Hooks and cache must not bypass this.
 - Current provider-named modules `luaclass.fdroid_android` and `luaclass.github_android_apk` are always-on getter-shipped built-in fallback modules that call operation-installed `getter.provider.*` host functions. Plain package evaluation still does not install provider APIs and fails with a stable host-unavailable error if a package calls a provider module there.
+- Product runtime update checks deliberately install the stable provider host and runtime hooks before package evaluation. The bridge request shape remains narrow (`package_id`, optional `repository_id`, `installed_version`, and `pin_version`); provider fixture bodies, cache mode, endpoint URLs, and live transport controls are not Flutter/native request fields in this slice.
+- Until live provider transport is accepted and implemented, the product runtime path is cache-backed: provider-backed packages can use existing provider cache rows only when Manifest-compatible provenance permits them, while cache miss/refresh remains a later provider operation concern.
 - Repository-local `luaclass/` modules must continue to override getter-shipped built-ins; cross-repository `luaclass` lookup stays unsupported.
 
 ## Design goals
@@ -340,7 +343,7 @@ The operation evaluating package Lua decides the cache mode:
 - normal update/read: use cached provider facts when valid, refresh on cache miss or stale according to provider policy;
 - forced refresh: bypass cached reads for the requested provider/package scope, replace cache on success, and use stale cache only with explicit diagnostics on refresh failure.
 
-Lua package authors do not pass `mode = "force_refresh"` to stable provider host functions.
+Lua package authors do not pass `mode = "force_refresh"` to stable provider host functions. The first product runtime slice keeps `update_check_package_issue_action` in normal cache-backed mode only and does not add provider fixture/cache-mode fields to the Flutter/native bridge payload. Live refresh and user-triggered force-refresh semantics remain separate provider-operation work.
 
 ### Provider cache contents
 
@@ -467,11 +470,18 @@ Done in the implementation branch:
 - Plain package evaluation resolves the built-in provider modules, but calling them without operation-installed provider host functions fails with a stable host-unavailable diagnostic.
 - Provider modules are always-on built-in fallback modules; `getter_dev.*` remains only a private compatibility shim in operation tests.
 
-### Slice 5: docs and generated output migration
+### Slice 5: product runtime adoption and generated output migration
 
-- Update ADR-0012, ADR-0005, `docs/lua-api/permissions.md`, `docs/lua-api/repository-layout.md`, and `CONTEXT.md` with stable provider module status.
-- Add pre-adoption regression coverage that generated F-Droid output remains self-contained, does not require `luaclass.fdroid_android`, and does not call `getter.provider.*` while normal package evaluation remains plain.
-- Before changing generated output, add a product-facing provider-backed package evaluation/update-check operation (not the fixture/dev-hidden harness) and route only intended update-check callers through it.
+Done in the implementation branch:
+
+- Updated ADR-0012, `CONTEXT.md`, and this plan with stable provider module/product runtime status.
+- Added pre-adoption regression coverage that generated F-Droid output remains self-contained, does not require `luaclass.fdroid_android`, and does not call `getter.provider.*` while normal package evaluation remains plain.
+- Added a product-facing provider-backed package evaluation/update-check operation by routing only `update_check_package_issue_action` through the stable provider host; read-model `package_eval` remains plain.
+- Kept the Flutter/native bridge request shape narrow: no provider fixture body, cache mode, endpoint URL, or live transport fields are added to the product payload.
+- Added runtime tests proving static packages still work, F-Droid/GitHub provider modules work from Manifest-compatible provider cache entries, Manifest-incompatible cache fails closed, and no-update checks do not issue actions.
+
+Still pending:
+
 - Update generated F-Droid output to use `luaclass.fdroid_android` only after the product provider-backed operation exists and tests prove generated packages remain usable through that operation.
 - Add generator tests proving generated output does not depend on `getter_dev.*` or repository-local copied modules.
 
