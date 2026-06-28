@@ -1044,11 +1044,12 @@ Room DB 信息：
 
 1. Flutter 调用 getter/native bridge 的 installed-autogen preview 操作。
 2. Rust platform adapter 主动调用 Android PackageManager adapter，取得 installed inventory 原始事实。
-3. getter 找出可生成的候选列表。
+3. getter 找出可生成的候选列表；F-Droid 命中的候选由 getter 生成 minimal package directory：`metadata.jsonc`、带 provider source SHA-512 provenance 的 `Manifest`、以及调用 `luaclass.fdroid_android` 的小型 `9999.lua`。
 4. UI 展示 getter-owned preview DTO。
 5. 用户 yes/no 确认。
 6. getter 写入 configured generated repository，默认 `repo/autogen/`。
-7. 生成后不会自动消失。
+7. 后续 update check 通过 getter/provider-backed runtime 安装 `getter.provider.*` 后执行生成的 F-Droid Lua；普通 read-model package eval 不作为 provider-module 生成包的验证路径。
+8. 生成后不会自动消失。
 
 实现进展：Flutter 产品 APK 通过 `app_flutter/android/getter_bridge` 打包一个 slim native bridge library，包含 Rust `api_proxy`、`NativeLib` 和 Android installed-inventory facts provider。`api_proxy` 已提供 installed-autogen preview/apply JNI entrypoints；它们调用 Rust-active platform adapter 扫描 Android PackageManager 原始事实，再调用 getter-owned `getter-operations` 执行 installed-autogen preview/apply。Flutter 已新增 installed-autogen 页面和 `MethodChannelGetterAdapter`，只渲染 getter-owned preview/apply DTO 并把用户接受的 package path 传回 getter；不能引入 Dart-led installed inventory scanner 或在 Dart/Kotlin 中生成 package path。
 
