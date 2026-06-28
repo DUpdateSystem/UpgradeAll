@@ -14,7 +14,8 @@
 - [x] Implement and validate Slice 1 fixture-backed stable namespace harness.
 - [x] Implement and validate Slice 2 provider cache provenance storage and Manifest-compatible cache hits.
 - [x] Implement and validate Slice 4 standard provider module promotion tests.
-- [ ] Next slice: generated F-Droid provider-module adoption.
+- [x] Add pre-adoption regression coverage locking generated F-Droid output as self-contained/plain-evaluable.
+- [ ] Next slice: product provider-backed package evaluation/update-check operation before generated F-Droid provider-module adoption.
 
 ## Current evidence and constraints
 
@@ -469,7 +470,9 @@ Done in the implementation branch:
 ### Slice 5: docs and generated output migration
 
 - Update ADR-0012, ADR-0005, `docs/lua-api/permissions.md`, `docs/lua-api/repository-layout.md`, and `CONTEXT.md` with stable provider module status.
-- Update generated F-Droid output to use `luaclass.fdroid_android` only after stable module/host tests pass.
+- Add pre-adoption regression coverage that generated F-Droid output remains self-contained, does not require `luaclass.fdroid_android`, and does not call `getter.provider.*` while normal package evaluation remains plain.
+- Before changing generated output, add a product-facing provider-backed package evaluation/update-check operation (not the fixture/dev-hidden harness) and route only intended update-check callers through it.
+- Update generated F-Droid output to use `luaclass.fdroid_android` only after the product provider-backed operation exists and tests prove generated packages remain usable through that operation.
 - Add generator tests proving generated output does not depend on `getter_dev.*` or repository-local copied modules.
 
 ## Review questions for the read-only reviewer
