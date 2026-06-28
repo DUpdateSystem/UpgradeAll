@@ -42,7 +42,7 @@ F-Droid and GitHub are providers/sources/backends, not package identities and no
 
 1. Getter owns live provider execution, provider/source caching, package metadata normalization, update selection, action issuance, and autogen/package-path decisions.
 2. Reusable Lua provider modules/classes under `luaclass/` provide high-level package-authoring APIs for common provider families.
-3. Those Lua modules call getter-owned host APIs by default. HTTP access is exposed as a getter-managed host function such as `http_get(url, { headers = ..., cache = true|false })`; `cache` defaults to `false`, and Lua/provider modules opt individual requests into HTTP source caching by passing `cache = true`. Plain package evaluation does not install `http_get`; the getter operation/runtime evaluating provider-backed Lua deliberately installs the transport and owns permission, Manifest, provider, cache, and diagnostic policy for that execution. This remains getter-owned network/cache execution, not Flutter/Kotlin HTTP and not a Lua standard-library network primitive.
+3. Those Lua modules call getter-owned host APIs by default. Getter-shipped standard provider modules use provider-specific host functions such as `getter.provider.fdroid.update_candidates(...)` and `getter.provider.github.release_candidates(...)` so Rust owns provider parsing, cache consistency, diagnostics, and candidate normalization. Generic/custom Lua HTTP remains available through a getter-managed host function such as `http_get(url, { headers = ..., cache = true|false })`; `cache` defaults to `false`, and Lua opts individual generic HTTP requests into HTTP source caching by passing `cache = true`. Plain package evaluation does not install `http_get` or provider host APIs; the getter operation/runtime evaluating provider-backed Lua deliberately installs the transport/host functions and owns permission, Manifest, provider, cache, and diagnostic policy for that execution. This remains getter-owned network/cache execution, not Flutter/Kotlin HTTP and not a Lua standard-library network primitive.
 4. F-Droid support is **autogen-first**:
    - an F-Droid app is represented as an ordinary package directory with metadata and version scripts;
    - explicit user selection of an F-Droid app uses a getter autogen preview/apply operation that generates a package directory/version script;
@@ -89,6 +89,27 @@ Repository-local modules deliberately win over getter-shipped modules. This give
 
 Implementation status: only the neutral `luaclass.android` helper is an always-on getter-shipped builtin today. Provider-named fallback modules such as `luaclass.fdroid_android` and `luaclass.github_android_apk` are currently dev-gated tracer modules over `getter_dev.*` host calls. They exist to validate provider-host seams and builtin fallback distribution, not to publish a stable product Lua provider API. Generated F-Droid output does not depend on them yet; promoting provider modules to an always-on public authoring surface requires a later stable host-API decision.
 
+### Stable provider host API v1 direction
+
+The stable provider host namespace is rooted at `getter.provider.*`:
+
+```lua
+getter.provider.fdroid.update_candidates(spec)
+getter.provider.github.release_candidates(spec)
+-- reserved for an explicit live/floating operation, not installed by the default release module:
+getter.provider.github.latest_commit(spec)
+```
+
+Host functions installed for package Lua are also exposed to runtime hooks through matching originals under `getter_builtin.provider.*`. Ordinary package Lua and `luaclass/` code should call the public `getter.provider.*` functions; `getter_builtin.*` is an escape hatch for local `rc/hook/*.lua` policy.
+
+F-Droid `update_candidates` takes a required `package_name` and optional `endpoint_id`. GitHub `release_candidates` takes required typed `owner` and `repo`, optional Rust-regex asset filters (`asset.include` / `asset.exclude`), optional `include_prereleases`, and optional `endpoint_id`. The package Lua API keeps typed coordinates even if a Lua helper later accepts shorthand authoring syntax.
+
+Candidate-returning provider functions return an envelope containing non-empty `candidates`, provider cache `source` (`cache`, `refreshed`, or `stale`), `cache_key`, and getter-owned `diagnostics`. Zero-candidate provider results use `candidates = nil`/omitted plus diagnostics rather than an empty Lua table, because the current Lua-to-JSON boundary serializes empty Lua tables as objects, not arrays. Standard modules pass `result.candidates` through to `package_version { updates = ... }`, so nil/omitted candidates become an omitted `updates` field and validate as no updates.
+
+The GitHub `latest_commit` host shape is reserved because latest-commit checks are live/floating behavior. The default GitHub release/APK helper must not install or call it by default, and latest-commit results must not be silently treated as ordinary release candidates. A later explicit live operation/helper may install and use it after live-version UI/CLI semantics are implemented.
+
+Provider functions must not bypass Manifest policy. For package scripts without `allow_free_network`, every external response body used to produce provider facts must match a package `Manifest` SHA-512 entry. Parsed provider cache hits are usable for non-free scripts only when cache provenance records the source response digest(s) and proves Manifest compatibility; missing provenance must fail closed or refetch/revalidate. This provenance storage/test slice is required before Manifest-bound provider cache hits are called stable.
+
 ### F-Droid reusable module
 
 The common package-authoring API should be intentionally small. The default case should need only the Android/F-Droid package name:
@@ -116,7 +137,7 @@ The common class may allow optional typed fields when needed, for example:
 ```lua
 return fdroid.package {
   package_name = "org.example",
-  endpoint = "fdroid-official",
+  endpoint_id = "fdroid-official",
   channel = "stable",
 }
 ```
@@ -181,7 +202,7 @@ return github_android.package {
   owner = "f-droid",
   repo = "fdroidclient",
   asset = {
-    include = "%.apk$",
+    include = "[.]apk$",
     exclude = "debug",
   },
 }
@@ -210,7 +231,7 @@ The standard GitHub class can provide useful defaults, especially for Android AP
 
 Package-authored filters/overrides remain valid and expected:
 
-- include/exclude regexes;
+- include/exclude Rust-regex filters;
 - artifact naming rules;
 - prerelease handling;
 - ABI/channel/flavor selection;
@@ -265,7 +286,9 @@ ADR-0012 preserves ADR-0010 cache consistency and makes the cache layers explici
 
 Provider/source cache entries live in `cache.db` and store upstream facts or parsed provider facts.
 
-Lua/provider modules opt into HTTP source caching per request through getter's host HTTP API, for example:
+Getter-shipped standard provider modules call provider-specific host functions such as `getter.provider.fdroid.update_candidates(...)` and `getter.provider.github.release_candidates(...)`; Rust provider operations decide which upstream request(s), parsed facts, freshness tokens, and provider/source cache entries are involved.
+
+Generic/custom Lua can still opt into HTTP source caching per request through getter's host HTTP API, for example:
 
 ```lua
 local index = http_get(fdroid_index_url, {
@@ -274,7 +297,7 @@ local index = http_get(fdroid_index_url, {
 })
 ```
 
-`cache = false` is the default so ordinary one-off HTTP calls do not silently become durable provider cache. The v1 host request shape is intentionally narrow: a URL string plus an optional options table with string-to-string `headers` and boolean `cache`; unsupported options are rejected rather than silently accepted. When `cache = true`, getter owns cache key construction, storage, revalidation, stale diagnostics, and secret redaction; Lua chooses that the request should participate in HTTP/source caching but does not write cache entries itself.
+`cache = false` is the default so ordinary one-off HTTP calls do not silently become durable provider cache. The v1 host request shape is intentionally narrow: a URL string plus an optional options table with string-to-string `headers` and boolean `cache`; unsupported options are rejected rather than silently accepted. When `cache = true`, getter owns cache key construction, storage, revalidation, stale diagnostics, and secret redaction; Lua chooses that the generic HTTP request should participate in HTTP/source caching but does not write cache entries itself.
 
 F-Droid provider cache keys must include inputs such as:
 
