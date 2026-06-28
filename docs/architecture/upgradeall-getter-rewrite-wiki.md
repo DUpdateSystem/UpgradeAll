@@ -575,10 +575,14 @@ Lua package scripts 在边界返回 JSON-like object/table。
 -- package path: android/app/org.fdroid.fdroid
 local github_android = require("luaclass.github_android_apk")
 
-return github_android {
-  android = { package_name = "org.fdroid.fdroid" },
-  repo = "f-droid/fdroidclient",
-  asset_pattern = "%.apk$",
+return github_android.package {
+  name = "F-Droid",
+  android_package = "org.fdroid.fdroid",
+  owner = "f-droid",
+  repo = "fdroidclient",
+  asset = {
+    include = "[.]apk$",
+  },
 }
 ```
 
@@ -842,9 +846,9 @@ local body = http_get(url, {
 })
 ```
 
-`cache` 默认是 `false`。普通 package evaluation 不默认安装 `http_get`；需要 provider/network 的 getter operation/runtime 必须显式安装 transport，并由 getter 拥有 permission、Manifest、provider、cache、diagnostic policy。Lua/provider module 通过 `cache = true` 主动把单次 HTTP 请求纳入 getter-owned HTTP/source cache；getter 负责 cache key、持久化、revalidation、stale diagnostics 和 secret redaction，Lua 只表达该请求是否应缓存。v1 请求形状保持很小：URL string，加可选 options table，其中只接受 string-to-string `headers` 与 boolean `cache`。
+`cache` 默认是 `false`。普通 package evaluation 不默认安装 `http_get` 或 provider host API；需要 provider/network 的 getter operation/runtime 必须显式安装 transport/provider host functions，并由 getter 拥有 permission、Manifest、provider、cache、diagnostic policy。Generic/custom Lua 通过 `cache = true` 主动把单次 HTTP 请求纳入 getter-owned HTTP/source cache；getter 负责 cache key、持久化、revalidation、stale diagnostics 和 secret redaction，Lua 只表达该请求是否应缓存。v1 generic HTTP 请求形状保持很小：URL string，加可选 options table，其中只接受 string-to-string `headers` 与 boolean `cache`。
 
-标准 provider module/class 可以在声明的 provider/source 语义下使用该 host HTTP API 获取 release/catalog 信息。
+标准 provider module/class 默认调用 provider-specific host API，例如 `getter.provider.fdroid.update_candidates(...)` 和 `getter.provider.github.release_candidates(...)`，由 Rust getter provider operations 负责 release/catalog 获取、解析、cache provenance、diagnostics 和 candidate normalization，而不是在 Lua 中直接用 `http_get` 解析 provider payload。
 
 ### 10.2 自由网络权限
 

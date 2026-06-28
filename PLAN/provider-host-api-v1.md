@@ -1,8 +1,8 @@
 # PLAN: Stable Lua provider host API v1
 
-> Status: reviewed design; ready for the first fixture-backed implementation slice
+> Status: implementation plan with stable host, provenance, and provider module promotion slices validated; generated-output migration pending
 > Scope: ADR-0012 provider-host API design for F-Droid and GitHub standard Lua modules
-> Non-code slice: document and review before promoting dev tracers or changing generated F-Droid output
+> Current boundary: provider modules are promoted to built-in fallbacks; generated F-Droid output has not yet been migrated to require them
 
 ## Progress
 
@@ -13,17 +13,18 @@
 - [x] Revise this plan and copy durable decisions into ADR-0012 / glossary docs.
 - [x] Implement and validate Slice 1 fixture-backed stable namespace harness.
 - [x] Implement and validate Slice 2 provider cache provenance storage and Manifest-compatible cache hits.
-- [ ] Next slice: standard provider module promotion tests.
+- [x] Implement and validate Slice 4 standard provider module promotion tests.
+- [ ] Next slice: generated F-Droid provider-module adoption.
 
 ## Current evidence and constraints
 
 - `getter-core` owns constrained Lua evaluation, package/module resolution, JSON-like table conversion, schema/domain validation, `read_package_file`, and the generic `http_get` host seam. It must not depend on provider/cache/storage crates.
-- `getter-operations` owns provider/cache orchestration today (`fdroid_catalog`, `github_releases`, `github_latest_commit`, `provider_cache`) and currently hosts the dev-only Lua provider tracer (`lua_provider_host`).
+- `getter-operations` owns provider/cache orchestration today (`fdroid_catalog`, `github_releases`, `github_latest_commit`, `provider_cache`) and hosts the fixture-backed Lua provider operation harness (`lua_provider_host`) plus private `getter_dev.*` compatibility shims for existing development tests.
 - Plain package evaluation does **not** install `http_get` or provider APIs. Provider-backed operations install host functions deliberately.
 - `http_get(url, { headers = ..., cache = true|false })` is the accepted narrow generic HTTP request shape; `cache` defaults false, and unsupported options are rejected.
 - Runtime hooks live under `<data-dir>/rc/hook/*.lua`, load after host functions are installed in the current operation harness, and call originals through `getter_builtin.*`.
 - Package `Manifest` constrains external network/dynamic response bodies for scripts without `allow_free_network`; missing `Manifest` means an empty allow-list. Hooks and cache must not bypass this.
-- Current provider-named modules `luaclass.fdroid_android` and `luaclass.github_android_apk` are dev-gated tracers over `getter_dev.*`. They validate distribution and authoring shape, not a stable product API.
+- Current provider-named modules `luaclass.fdroid_android` and `luaclass.github_android_apk` are always-on getter-shipped built-in fallback modules that call operation-installed `getter.provider.*` host functions. Plain package evaluation still does not install provider APIs and fails with a stable host-unavailable error if a package calls a provider module there.
 - Repository-local `luaclass/` modules must continue to override getter-shipped built-ins; cross-repository `luaclass` lookup stays unsupported.
 
 ## Design goals
@@ -55,7 +56,7 @@ Rationale:
 - `getter` clearly marks host-owned functionality, unlike free globals such as `fdroid_update_candidates`.
 - `provider` groups provider-specific host APIs and leaves room for non-provider getter APIs later.
 - Provider and function names are explicit enough for hooks and diagnostics.
-- The dev-only `getter_dev.*` namespace remains private and should not appear in stable package docs.
+- The dev-only `getter_dev.*` compatibility namespace remains private and should not appear in stable package docs.
 
 ### Hook originals
 
@@ -209,7 +210,7 @@ F-Droid `update_candidates` and GitHub `release_candidates` return:
 }
 ```
 
-Zero-candidate provider results use `candidates = nil`/omitted plus diagnostics. This mirrors the current dev tracer and avoids the existing Lua JSON ambiguity where an empty Lua table serializes as `{}` rather than `[]`, which would fail the current `updates` array schema if passed through directly.
+Zero-candidate provider results use `candidates = nil`/omitted plus diagnostics. This avoids the existing Lua JSON ambiguity where an empty Lua table serializes as `{}` rather than `[]`, which would fail the current `updates` array schema if passed through directly.
 
 The non-empty `candidates[]` item shape is intentionally the current `getter_core::UpdateCandidate` / `UpdateArtifact` shape. Richer provider-candidate fields from ADR-0012 (`published_at`, `changelog`, `metadata_digest`, etc.) are future extension fields, not required to stabilize v1.
 
@@ -272,7 +273,7 @@ It should not require or duplicate display `name`; F-Droid catalog metadata is s
 
 ### `luaclass.github_android_apk`
 
-Stable author API should stay close to the current dev tracer:
+Stable author API shape:
 
 ```lua
 local github_android = require("luaclass.github_android_apk")
@@ -321,13 +322,13 @@ The module may later grow explicit live helpers, but release checks and latest-c
 
 ### Promotion path
 
-Do not promote the dev tracer modules directly as product API. The later implementation should:
+Implemented promotion state:
 
-1. Add stable host installation in `getter-operations` while keeping `getter_dev.*` tests private or migrating them.
-2. Rewrite the provider modules to call `getter.provider.*`, not `getter_dev.*`.
-3. Add tests that default/plain package evaluation either does not resolve provider modules until promoted or fails with a stable host-unavailable diagnostic if a provider module is called without provider host installed.
-4. Only then make provider modules always-on getter-shipped built-ins.
-5. Only after that, consider changing generated F-Droid output to require `luaclass.fdroid_android`.
+1. Stable host installation exists in `getter-operations`; the old `getter_dev.*` compatibility shims delegate through the stable host functions for development harness callers.
+2. `luaclass.fdroid_android` and `luaclass.github_android_apk` call `getter.provider.*`, not `getter_dev.*`.
+3. Tests cover provider-backed operation success, repository-local override precedence, and plain package evaluation failing with a stable host-unavailable diagnostic when provider modules are called without installed provider host functions.
+4. Provider modules are always-on getter-shipped built-in fallback modules.
+5. Generated F-Droid output still does not require `luaclass.fdroid_android`; changing generated output remains a later generator slice.
 
 ## Cache and refresh semantics
 
@@ -458,14 +459,16 @@ Hooks are trusted local policy for advanced users. Do not add getter-core denyli
 
 ### Slice 4: standard module promotion tests
 
-- Rewrite `luaclass.fdroid_android` and `luaclass.github_android_apk` to call `getter.provider.*`.
-- Keep repository-local override precedence.
-- Decide exact user-facing behavior when a provider module is called without provider host installed (stable diagnostic vs module unavailable in plain eval).
-- Only after tests, promote modules from dev-gated tracers to always-on built-in fallback modules.
+Done in the implementation branch:
+
+- `luaclass.fdroid_android` and `luaclass.github_android_apk` call `getter.provider.*`.
+- Repository-local override precedence remains covered.
+- Plain package evaluation resolves the built-in provider modules, but calling them without operation-installed provider host functions fails with a stable host-unavailable diagnostic.
+- Provider modules are always-on built-in fallback modules; `getter_dev.*` remains only a private compatibility shim in operation tests.
 
 ### Slice 5: docs and generated output migration
 
-- Update ADR-0012, ADR-0005, `docs/lua-api/permissions.md`, `docs/lua-api/repository-layout.md`, and `CONTEXT.md` with stable names and corrected `http_get` table-options syntax.
+- Update ADR-0012, ADR-0005, `docs/lua-api/permissions.md`, `docs/lua-api/repository-layout.md`, and `CONTEXT.md` with stable provider module status.
 - Update generated F-Droid output to use `luaclass.fdroid_android` only after stable module/host tests pass.
 - Add generator tests proving generated output does not depend on `getter_dev.*` or repository-local copied modules.
 

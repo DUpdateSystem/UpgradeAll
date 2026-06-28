@@ -8,7 +8,7 @@
 
 Lua package scripts do not receive Lua-native or Flutter/Kotlin-owned network access by default. Plain package evaluation does not install an HTTP function.
 
-Provider-backed getter operations may deliberately install getter-provided provider/source host APIs for that execution. HTTP requests go through getter-managed functions such as:
+Provider-backed getter operations may deliberately install getter-provided provider/source host APIs for that execution. Getter-shipped standard provider modules such as `luaclass.fdroid_android` and `luaclass.github_android_apk` call provider-specific host functions under `getter.provider.*`; plain package evaluation does not install those host functions and therefore cannot run provider-backed modules by itself. Generic/custom HTTP requests go through getter-managed functions such as:
 
 ```lua
 local body = http_get(url, {

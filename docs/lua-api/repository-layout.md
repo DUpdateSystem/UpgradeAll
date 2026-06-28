@@ -201,7 +201,7 @@ Reusable Lua modules. These are conceptually similar to eclasses but are plain L
 local github_android = require("luaclass.github_android_apk")
 ```
 
-Package version Lua resolves `require("luaclass.<name>")` from the active package repository's `luaclass/` directory first, then from getter-shipped built-in standard modules. Repository-local modules intentionally override built-in standard modules, so a trusted repository or `local` overlay can replace the shipped default behavior in normal source form.
+Package version Lua resolves `require("luaclass.<name>")` from the active package repository's `luaclass/` directory first, then from getter-shipped built-in standard modules. Repository-local modules intentionally override built-in standard modules, so a trusted repository or `local` overlay can replace the shipped default behavior in normal source form. Getter-shipped provider modules such as `luaclass.fdroid_android` and `luaclass.github_android_apk` call stable `getter.provider.*` host functions and require a provider-backed operation to install those functions; plain package evaluation does not install provider host APIs.
 
 Cross-repository `luaclass` imports are not supported in this model. A package in `repo/official` does not load modules from `repo/local`, `repo/autogen`, or another alias by priority or by explicit alias. If shared behavior is needed for generated packages, it should either live in getter-shipped built-in modules or be copied/authored into the active repository's own `luaclass/` tree.
 
