@@ -11,7 +11,9 @@
 - [x] Draft v1 API boundary, names, cache/HTTP/hook/Manifest relationships, and non-goals.
 - [x] Run read-only oracle/reviewer review of this design.
 - [x] Revise this plan and copy durable decisions into ADR-0012 / glossary docs.
-- [ ] Next slice: start a narrow TDD implementation of the fixture-backed stable namespace harness.
+- [x] Implement and validate Slice 1 fixture-backed stable namespace harness.
+- [x] Implement and validate Slice 2 provider cache provenance storage and Manifest-compatible cache hits.
+- [ ] Next slice: standard provider module promotion tests.
 
 ## Current evidence and constraints
 

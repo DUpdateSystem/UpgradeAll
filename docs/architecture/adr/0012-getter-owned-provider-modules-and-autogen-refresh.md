@@ -108,7 +108,7 @@ Candidate-returning provider functions return an envelope containing non-empty `
 
 The GitHub `latest_commit` host shape is reserved because latest-commit checks are live/floating behavior. The default GitHub release/APK helper must not install or call it by default, and latest-commit results must not be silently treated as ordinary release candidates. A later explicit live operation/helper may install and use it after live-version UI/CLI semantics are implemented.
 
-Provider functions must not bypass Manifest policy. For package scripts without `allow_free_network`, every external response body used to produce provider facts must match a package `Manifest` SHA-512 entry. Parsed provider cache hits are usable for non-free scripts only when cache provenance records the source response digest(s) and proves Manifest compatibility; missing provenance must fail closed or refetch/revalidate. This provenance storage/test slice is required before Manifest-bound provider cache hits are called stable.
+Provider functions must not bypass Manifest policy. For package scripts without `allow_free_network`, every external response body used to produce provider facts must match a package `Manifest` SHA-512 entry. Parsed provider cache hits are usable for non-free scripts only when cache provenance records the source response digest(s) and proves Manifest compatibility; missing provenance must fail closed or refetch/revalidate. The initial fixture-backed provenance slice stores source response SHA-512 digest(s), a provenance schema version, and freshness metadata placeholders with parsed provider cache entries so Manifest-compatible cache hits can be accepted while legacy/missing-provenance rows still fail closed.
 
 ### F-Droid reusable module
 
@@ -284,9 +284,9 @@ ADR-0012 preserves ADR-0010 cache consistency and makes the cache layers explici
 
 ### Provider/source cache
 
-Provider/source cache entries live in `cache.db` and store upstream facts or parsed provider facts.
+Provider/source cache entries live in `cache.db` and store upstream facts or parsed provider facts plus provenance for the source response bodies used to produce those facts.
 
-Getter-shipped standard provider modules call provider-specific host functions such as `getter.provider.fdroid.update_candidates(...)` and `getter.provider.github.release_candidates(...)`; Rust provider operations decide which upstream request(s), parsed facts, freshness tokens, and provider/source cache entries are involved.
+Getter-shipped standard provider modules call provider-specific host functions such as `getter.provider.fdroid.update_candidates(...)` and `getter.provider.github.release_candidates(...)`; Rust provider operations decide which upstream request(s), parsed facts, source response digest(s), freshness tokens, and provider/source cache entries are involved.
 
 Generic/custom Lua can still opt into HTTP source caching per request through getter's host HTTP API, for example:
 
