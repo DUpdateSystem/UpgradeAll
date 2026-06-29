@@ -31,11 +31,20 @@ abstract interface class GetterAdapter {
     List<String>? acceptedPackageIds,
   });
 
+  Future<InstalledAutogenPreview> previewInstalledFdroidAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  });
+
   Future<InstalledAutogenPreview> previewFdroidAutogen(
     Map<String, Object?> payload,
   );
 
   Future<InstalledAutogenApplyResult> applyFdroidAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  });
+
+  Future<InstalledAutogenApplyResult> applyInstalledFdroidAutogen(
     InstalledAutogenPreview preview, {
     List<String>? acceptedPackageIds,
   });
@@ -234,6 +243,13 @@ class FakeGetterAdapter implements GetterAdapter {
   }
 
   @override
+  Future<InstalledAutogenPreview> previewInstalledFdroidAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async {
+    return previewFdroidAutogen(<String, Object?>{});
+  }
+
+  @override
   Future<InstalledAutogenPreview> previewFdroidAutogen(
     Map<String, Object?> payload,
   ) async {
@@ -286,6 +302,14 @@ class FakeGetterAdapter implements GetterAdapter {
         },
       ],
     });
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyInstalledFdroidAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) {
+    return applyFdroidAutogen(preview, acceptedPackageIds: acceptedPackageIds);
   }
 
   @override
@@ -953,6 +977,17 @@ class InstalledAutogenPreview {
 
   factory InstalledAutogenPreview.fromJson(Map<String, Object?> json) {
     final scan = _jsonMapOrNull(json['scan'], 'autogen.scan');
+    final diagnosticsJson = <Object?>[
+      ..._jsonList(
+        json['diagnostics'] ?? const <Object?>[],
+        'autogen.diagnostics',
+      ),
+      if (scan != null)
+        ..._jsonList(
+          scan['diagnostics'] ?? const <Object?>[],
+          'autogen.scan.diagnostics',
+        ),
+    ];
     return InstalledAutogenPreview(
       operation: _jsonString(json['operation'], 'autogen.operation'),
       targetRepoId: _jsonString(
@@ -979,17 +1014,13 @@ class InstalledAutogenPreview {
                 InstalledAutogenSkip.fromJson(_jsonMap(skip, 'autogen.skip')),
           )
           .toList(growable: false),
-      diagnostics:
-          _jsonList(
-                scan?['diagnostics'] ?? json['diagnostics'],
-                'autogen.diagnostics',
-              )
-              .map(
-                (diagnostic) => PlatformDiagnosticSummary.fromJson(
-                  _jsonMap(diagnostic, 'autogen.diagnostic'),
-                ),
-              )
-              .toList(growable: false),
+      diagnostics: diagnosticsJson
+          .map(
+            (diagnostic) => PlatformDiagnosticSummary.fromJson(
+              _jsonMap(diagnostic, 'autogen.diagnostic'),
+            ),
+          )
+          .toList(growable: false),
       scanStats: scan == null || scan['stats'] == null
           ? null
           : InstalledAutogenScanStats.fromJson(

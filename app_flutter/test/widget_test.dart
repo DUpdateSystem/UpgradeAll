@@ -232,6 +232,17 @@ void main() {
     await tester.tap(find.byKey(AppKeys.applyInstalledAutogen));
     await tester.pumpAndSettle();
 
+    expect(find.byKey(AppKeys.installedAutogenConfirmDialog), findsOneWidget);
+    expect(
+      find.byKey(
+        AppKeys.autogenConfirmCandidateRow('android/app/com.example.autogen'),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(AppKeys.confirmInstalledAutogenApply));
+    await tester.pumpAndSettle();
+
     expect(find.byKey(AppKeys.installedAutogenApplied), findsOneWidget);
     expect(
       find.byKey(AppKeys.autogenAppliedRow('android/app/com.example.autogen')),
@@ -240,6 +251,102 @@ void main() {
     expect(getter.acceptedPackageIds, <String>[
       'android/app/com.example.autogen',
     ]);
+  });
+
+  testWidgets(
+    'installed autogen route previews and applies installed F-Droid getter DTOs',
+    (tester) async {
+      final getter = _AutogenRecordingGetterAdapter();
+      await tester.pumpWidget(UpgradeAllApp(getter: getter));
+
+      await tester.drag(find.byType(ListView).first, const Offset(0, -240));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(AppKeys.openInstalledAutogen));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(AppKeys.previewInstalledFdroidAutogen));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(AppKeys.installedAutogenPreview), findsOneWidget);
+      expect(
+        find.byKey(
+          AppKeys.autogenCandidateRow('android/f-droid/app/org.fdroid.fdroid'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(AppKeys.applyInstalledAutogen));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(AppKeys.installedAutogenConfirmDialog), findsOneWidget);
+      expect(find.text('Target repository: autogen'), findsOneWidget);
+      expect(
+        find.byKey(
+          AppKeys.autogenConfirmCandidateRow(
+            'android/f-droid/app/org.fdroid.fdroid',
+          ),
+        ),
+        findsOneWidget,
+      );
+      expect(getter.usedInstalledFdroidApply, isFalse);
+
+      await tester.tap(find.byKey(AppKeys.confirmInstalledAutogenApply));
+      await tester.pumpAndSettle();
+
+      expect(getter.usedInstalledFdroidApply, isTrue);
+      expect(getter.acceptedPackageIds, <String>[
+        'android/f-droid/app/org.fdroid.fdroid',
+      ]);
+      expect(
+        find.byKey(
+          AppKeys.autogenAppliedRow('android/f-droid/app/org.fdroid.fdroid'),
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets('installed autogen confirmation cancel does not apply', (
+    tester,
+  ) async {
+    final getter = _AutogenRecordingGetterAdapter();
+    await tester.pumpWidget(UpgradeAllApp(getter: getter));
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -240));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.openInstalledAutogen));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(AppKeys.previewInstalledFdroidAutogen));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.applyInstalledAutogen));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.cancelInstalledAutogenApply));
+    await tester.pumpAndSettle();
+
+    expect(getter.usedInstalledFdroidApply, isFalse);
+    expect(getter.acceptedPackageIds, isNull);
+    expect(find.byKey(AppKeys.installedAutogenApplied), findsNothing);
+  });
+
+  testWidgets('installed autogen route renders bridge error detail', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const UpgradeAllApp(getter: _AutogenErrorGetterAdapter()),
+    );
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -240));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.openInstalledAutogen));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(AppKeys.previewInstalledFdroidAutogen));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(AppKeys.installedAutogenError), findsOneWidget);
+    expect(find.textContaining('autogen.error'), findsOneWidget);
+    expect(find.textContaining('refresh provider cache'), findsOneWidget);
   });
 
   testWidgets('installed autogen route disables actions without bridge', (
@@ -483,8 +590,74 @@ class _NoInstalledAutogenGetterAdapter extends FakeGetterAdapter {
   bool get supportsInstalledAutogen => false;
 }
 
+class _AutogenErrorGetterAdapter extends FakeGetterAdapter {
+  const _AutogenErrorGetterAdapter();
+
+  @override
+  Future<InstalledAutogenPreview> previewInstalledFdroidAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'autogen.error',
+        message: 'Getter autogen operation failed',
+        detail:
+            'F-Droid catalog cache is empty; refresh provider cache before installed F-Droid autogen preview',
+      ),
+    );
+  }
+}
+
 class _AutogenRecordingGetterAdapter extends FakeGetterAdapter {
   List<String>? acceptedPackageIds;
+
+  var usedInstalledFdroidApply = false;
+
+  @override
+  Future<InstalledAutogenPreview> previewInstalledFdroidAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async {
+    return InstalledAutogenPreview.fromJson(const <String, Object?>{
+      'operation': 'fdroid.autogen.preview',
+      'provider': 'fdroid',
+      'endpoint_id': 'official',
+      'endpoint_url': 'https://f-droid.org/repo',
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'scan': <String, Object?>{
+        'stats': <String, Object?>{
+          'total_seen': 2,
+          'returned': 1,
+          'filtered_system': 1,
+          'filtered_self': 0,
+        },
+        'diagnostics': <Object?>[],
+      },
+      'summary': <String, Object?>{
+        'candidate_count': 1,
+        'skipped_count': 0,
+        'write_count': 1,
+        'delete_count': 0,
+      },
+      'candidates': <Object?>[
+        <String, Object?>{
+          'package_id': 'android/f-droid/app/org.fdroid.fdroid',
+          'kind': 'android',
+          'display_name': 'F-Droid',
+          'installed_target': <String, Object?>{
+            'kind': 'android_package',
+            'package_name': 'org.fdroid.fdroid',
+          },
+          'action': 'create',
+          'output_relative_path': 'android/f-droid/app/org.fdroid.fdroid',
+          'content_hash': 'sha512:fake-fdroid',
+          'content': '-- fake generated F-Droid content',
+        },
+      ],
+      'skipped': <Object?>[],
+      'diagnostics': <Object?>[],
+    });
+  }
 
   @override
   Future<InstalledAutogenApplyResult> applyInstalledAutogen(
@@ -496,6 +669,26 @@ class _AutogenRecordingGetterAdapter extends FakeGetterAdapter {
       preview,
       acceptedPackageIds: acceptedPackageIds,
     );
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyInstalledFdroidAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    usedInstalledFdroidApply = true;
+    this.acceptedPackageIds = acceptedPackageIds;
+    return InstalledAutogenApplyResult.fromJson(const <String, Object?>{
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'applied_count': 1,
+      'applied': <Object?>[
+        <String, Object?>{
+          'package_id': 'android/f-droid/app/org.fdroid.fdroid',
+          'output_relative_path': 'android/f-droid/app/org.fdroid.fdroid',
+        },
+      ],
+    });
   }
 }
 

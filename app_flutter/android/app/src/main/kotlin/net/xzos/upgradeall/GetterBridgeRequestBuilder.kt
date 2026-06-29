@@ -8,6 +8,24 @@ object GetterBridgeRequestBuilder {
 
     fun runtimeOperationRequest(args: Map<*, *>): String = operationRequest(args)
 
+    fun installedAutogenPreviewRequest(args: Map<*, *>): String {
+        val scanOptions = args["scan_options"] as? Map<*, *> ?: args
+        return JSONObject()
+            .put(
+                "scan_options",
+                JSONObject()
+                    .put(
+                        "include_system_apps",
+                        scanOptions["include_system_apps"] as? Boolean ?: false,
+                    )
+                    .put(
+                        "include_self",
+                        scanOptions["include_self"] as? Boolean ?: false,
+                    ),
+            )
+            .toString()
+    }
+
     fun fdroidAutogenPreviewRequest(args: Map<*, *>): String {
         val payload = args["payload"] as? Map<*, *> ?: emptyMap<Any?, Any?>()
         return JSONObject()

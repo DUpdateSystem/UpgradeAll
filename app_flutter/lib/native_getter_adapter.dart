@@ -87,6 +87,17 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   }
 
   @override
+  Future<InstalledAutogenPreview> previewInstalledFdroidAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async {
+    final data = await _invokeGetterData(
+      'previewInstalledFdroidAutogen',
+      <String, Object?>{'scan_options': options.toJson()},
+    );
+    return InstalledAutogenPreview.fromJson(data);
+  }
+
+  @override
   Future<InstalledAutogenPreview> previewFdroidAutogen(
     Map<String, Object?> payload,
   ) async {
@@ -104,6 +115,18 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   }) async {
     final data = await _invokeGetterData(
       'applyFdroidAutogen',
+      _autogenApplyArguments(preview, acceptedPackageIds),
+    );
+    return InstalledAutogenApplyResult.fromJson(data);
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyInstalledFdroidAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    final data = await _invokeGetterData(
+      'applyInstalledFdroidAutogen',
       _autogenApplyArguments(preview, acceptedPackageIds),
     );
     return InstalledAutogenApplyResult.fromJson(data);

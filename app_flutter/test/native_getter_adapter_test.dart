@@ -99,6 +99,86 @@ void main() {
     expect(result.applied.single.packageId, 'android/app/com.example.autogen');
   });
 
+  test('native installed F-Droid preview sends only scan options', () async {
+    MethodCall? captured;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          captured = call;
+          return jsonEncode(<String, Object?>{
+            'ok': true,
+            'command': 'autogen installed fdroid preview',
+            'data': _fdroidPreviewJson(),
+            'warnings': <Object?>[],
+          });
+        });
+
+    const adapter = MethodChannelGetterAdapter(channel: channel);
+    final preview = await adapter.previewInstalledFdroidAutogen(
+      options: const InstalledAutogenScanOptions(includeSystemApps: true),
+    );
+
+    expect(captured!.method, 'previewInstalledFdroidAutogen');
+    final args = (captured!.arguments as Map<Object?, Object?>)
+        .cast<String, Object?>();
+    expect(args.keys, <String>['scan_options']);
+    expect(args['scan_options'], <String, Object?>{
+      'include_system_apps': true,
+      'include_self': false,
+    });
+    expect(preview.operation, 'fdroid.autogen.preview');
+    expect(
+      preview.candidates.single.packageId,
+      'android/f-droid/app/org.fdroid.fdroid',
+    );
+  });
+
+  test('native installed F-Droid apply uses typed bridge method', () async {
+    MethodCall? captured;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          captured = call;
+          return jsonEncode(<String, Object?>{
+            'ok': true,
+            'command': 'autogen installed fdroid apply',
+            'data': <String, Object?>{
+              'target_repo_id': 'autogen',
+              'target_repo_path': '/getter/repo/autogen',
+              'applied_count': 1,
+              'applied': <Object?>[
+                <String, Object?>{
+                  'package_id': 'android/f-droid/app/org.fdroid.fdroid',
+                  'output_relative_path':
+                      'android/f-droid/app/org.fdroid.fdroid',
+                },
+              ],
+            },
+            'warnings': <Object?>[],
+          });
+        });
+
+    const adapter = MethodChannelGetterAdapter(channel: channel);
+    final preview = InstalledAutogenPreview.fromJson(_fdroidPreviewJson());
+    final result = await adapter.applyInstalledFdroidAutogen(
+      preview,
+      acceptedPackageIds: const <String>[
+        'android/f-droid/app/org.fdroid.fdroid',
+      ],
+    );
+
+    expect(captured!.method, 'applyInstalledFdroidAutogen');
+    final args = (captured!.arguments as Map<Object?, Object?>)
+        .cast<String, Object?>();
+    expect(jsonDecode(args['preview_json']! as String), preview.rawJson);
+    expect(args['acceptance'], <String, Object?>{
+      'mode': 'packages',
+      'package_ids': <String>['android/f-droid/app/org.fdroid.fdroid'],
+    });
+    expect(
+      result.applied.single.packageId,
+      'android/f-droid/app/org.fdroid.fdroid',
+    );
+  });
+
   test('native F-Droid autogen forwards getter-owned payloads', () async {
     final calls = <MethodCall>[];
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

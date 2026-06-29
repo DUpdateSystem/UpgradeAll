@@ -45,8 +45,20 @@ class AppKeys {
   static const previewInstalledAutogen = ValueKey<String>(
     'action.preview_installed_autogen',
   );
+  static const previewInstalledFdroidAutogen = ValueKey<String>(
+    'action.preview_installed_fdroid_autogen',
+  );
   static const applyInstalledAutogen = ValueKey<String>(
     'action.apply_installed_autogen',
+  );
+  static const installedAutogenConfirmDialog = ValueKey<String>(
+    'dialog.installed_autogen_confirm',
+  );
+  static const cancelInstalledAutogenApply = ValueKey<String>(
+    'action.cancel_installed_autogen_apply',
+  );
+  static const confirmInstalledAutogenApply = ValueKey<String>(
+    'action.confirm_installed_autogen_apply',
   );
   static const updateCheckStatus = ValueKey<String>(
     'state.update_check_status',
@@ -112,6 +124,8 @@ class AppKeys {
       ValueKey<String>('state.task_event.$cursor');
   static ValueKey<String> autogenCandidateRow(String packageId) =>
       ValueKey<String>('state.autogen_candidate.$packageId');
+  static ValueKey<String> autogenConfirmCandidateRow(String packageId) =>
+      ValueKey<String>('state.autogen_confirm_candidate.$packageId');
   static ValueKey<String> autogenSkipRow(String packageId) =>
       ValueKey<String>('state.autogen_skip.$packageId');
   static ValueKey<String> autogenDiagnosticRow(int index) =>
@@ -592,18 +606,39 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
   InstalledAutogenApplyResult? _applyResult;
   GetterError? _error;
   bool _running = false;
+  bool _previewUsesFdroidApply = false;
 
-  Future<void> _previewInstalledAutogen() async {
+  Future<void> _previewInstalledAutogen() {
+    return _runPreview(
+      () => widget.getter.previewInstalledAutogen(),
+      usesFdroidApply: false,
+    );
+  }
+
+  Future<void> _previewInstalledFdroidAutogen() {
+    return _runPreview(
+      () => widget.getter.previewInstalledFdroidAutogen(),
+      usesFdroidApply: true,
+    );
+  }
+
+  Future<void> _runPreview(
+    Future<InstalledAutogenPreview> Function() previewer, {
+    required bool usesFdroidApply,
+  }) async {
     setState(() {
       _running = true;
+      _preview = null;
+      _previewUsesFdroidApply = usesFdroidApply;
       _error = null;
       _applyResult = null;
     });
     try {
-      final preview = await widget.getter.previewInstalledAutogen();
+      final preview = await previewer();
       if (!mounted) return;
       setState(() {
         _preview = preview;
+        _previewUsesFdroidApply = usesFdroidApply;
         _running = false;
       });
     } on GetterBridgeException catch (error) {
@@ -625,20 +660,35 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
     }
   }
 
-  Future<void> _applyInstalledAutogen() async {
+  Future<void> _confirmAndApplyInstalledAutogen() async {
     final preview = _preview;
     if (preview == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => _InstalledAutogenApplyDialog(preview: preview),
+    );
+    if (confirmed != true || !mounted) return;
+    await _applyInstalledAutogen(preview);
+  }
+
+  Future<void> _applyInstalledAutogen(InstalledAutogenPreview preview) async {
     setState(() {
       _running = true;
       _error = null;
     });
     try {
-      final result = await widget.getter.applyInstalledAutogen(
-        preview,
-        acceptedPackageIds: preview.candidates
-            .map((candidate) => candidate.packageId)
-            .toList(growable: false),
-      );
+      final acceptedPackageIds = preview.candidates
+          .map((candidate) => candidate.packageId)
+          .toList(growable: false);
+      final result = _previewUsesFdroidApply
+          ? await widget.getter.applyInstalledFdroidAutogen(
+              preview,
+              acceptedPackageIds: acceptedPackageIds,
+            )
+          : await widget.getter.applyInstalledAutogen(
+              preview,
+              acceptedPackageIds: acceptedPackageIds,
+            );
       if (!mounted) return;
       setState(() {
         _applyResult = result;
@@ -682,6 +732,17 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
             icon: const Icon(Icons.manage_search),
             label: Text(_running ? 'Working…' : 'Preview installed autogen'),
           ),
+          const SizedBox(height: 8),
+          ElevatedButton.icon(
+            key: AppKeys.previewInstalledFdroidAutogen,
+            onPressed: _running || !canUseBridge
+                ? null
+                : _previewInstalledFdroidAutogen,
+            icon: const Icon(Icons.apps_outage),
+            label: Text(
+              _running ? 'Working…' : 'Preview installed F-Droid autogen',
+            ),
+          ),
           if (!canUseBridge)
             const Padding(
               padding: EdgeInsets.only(top: 12),
@@ -703,7 +764,7 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
               padding: const EdgeInsets.only(top: 16),
               child: Text(
                 key: AppKeys.installedAutogenError,
-                '${_error!.code}: ${_error!.message}',
+                _formatGetterError(_error!),
               ),
             ),
           if (preview != null) ...<Widget>[
@@ -784,7 +845,7 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
               key: AppKeys.applyInstalledAutogen,
               onPressed: _running || preview.candidates.isEmpty
                   ? null
-                  : _applyInstalledAutogen,
+                  : _confirmAndApplyInstalledAutogen,
               icon: const Icon(Icons.check),
               label: const Text('Apply all candidates'),
             ),
@@ -811,6 +872,60 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
           ],
         ],
       ),
+    );
+  }
+}
+
+String _formatGetterError(GetterError error) {
+  final detail = error.detail;
+  if (detail == null || detail.trim().isEmpty) {
+    return '${error.code}: ${error.message}';
+  }
+  return '${error.code}: ${error.message}\n$detail';
+}
+
+class _InstalledAutogenApplyDialog extends StatelessWidget {
+  const _InstalledAutogenApplyDialog({required this.preview});
+
+  final InstalledAutogenPreview preview;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      key: AppKeys.installedAutogenConfirmDialog,
+      title: const Text('Apply generated packages?'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text('Target repository: ${preview.targetRepoId}'),
+            if (preview.targetRepoPath != null) Text(preview.targetRepoPath!),
+            const SizedBox(height: 12),
+            const Text('Packages to write:'),
+            const SizedBox(height: 8),
+            ...preview.candidates.map(
+              (candidate) => Padding(
+                key: AppKeys.autogenConfirmCandidateRow(candidate.packageId),
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(candidate.packageId),
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          key: AppKeys.cancelInstalledAutogenApply,
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          key: AppKeys.confirmInstalledAutogenApply,
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text('Apply'),
+        ),
+      ],
     );
   }
 }

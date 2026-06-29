@@ -58,6 +58,17 @@ class MainActivity : FlutterActivity() {
                     nativeLib.applyInstalledAutogen(applyInstalledAutogenRequest(call))
                 }
 
+                "previewInstalledFdroidAutogen" -> runGetterBridge(result) {
+                    nativeLib.previewInstalledFdroidAutogen(
+                        applicationContext,
+                        previewInstalledAutogenRequest(call),
+                    )
+                }
+
+                "applyInstalledFdroidAutogen" -> runGetterBridge(result) {
+                    nativeLib.applyInstalledFdroidAutogen(applyInstalledAutogenRequest(call))
+                }
+
                 "previewFdroidAutogen" -> runGetterBridge(result) {
                     nativeLib.previewFdroidAutogen(previewFdroidAutogenRequest(call))
                 }
@@ -158,21 +169,8 @@ class MainActivity : FlutterActivity() {
 
     private fun previewInstalledAutogenRequest(call: MethodCall): String {
         val args = call.arguments as? Map<*, *> ?: emptyMap<Any?, Any?>()
-        val scanOptions = args["scan_options"] as? Map<*, *> ?: args
-        return JSONObject()
+        return JSONObject(GetterBridgeRequestBuilder.installedAutogenPreviewRequest(args))
             .put("data_dir", getterDataDir().absolutePath)
-            .put(
-                "scan_options",
-                JSONObject()
-                    .put(
-                        "include_system_apps",
-                        scanOptions["include_system_apps"] as? Boolean ?: false,
-                    )
-                    .put(
-                        "include_self",
-                        scanOptions["include_self"] as? Boolean ?: false,
-                    ),
-            )
             .toString()
     }
 

@@ -52,6 +52,28 @@ class GetterBridgeRequestBuilderTest {
     }
 
     @Test
+    fun installedAutogenPreviewRequestPreservesOnlyScanOptions() {
+        val json = JSONObject(
+            GetterBridgeRequestBuilder.installedAutogenPreviewRequest(
+                mapOf(
+                    "scan_options" to mapOf(
+                        "include_system_apps" to true,
+                        "include_self" to false,
+                    ),
+                    "index_xml" to "<fdroid />",
+                    "mode" to "force_refresh",
+                ),
+            ),
+        )
+
+        val scanOptions = json.getJSONObject("scan_options")
+        assertEquals(true, scanOptions.getBoolean("include_system_apps"))
+        assertEquals(false, scanOptions.getBoolean("include_self"))
+        assertEquals(false, json.has("index_xml"))
+        assertEquals(false, json.has("mode"))
+    }
+
+    @Test
     fun fdroidAutogenPreviewRequestPreservesGetterPayload() {
         val json = JSONObject(
             GetterBridgeRequestBuilder.fdroidAutogenPreviewRequest(

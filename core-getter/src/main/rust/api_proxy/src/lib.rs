@@ -2,7 +2,9 @@ extern crate jni;
 
 use getter::operations::autogen::{self, AutogenAcceptance, AutogenOperationError};
 use getter::operations::fdroid_autogen;
+use getter::operations::fdroid_catalog::{self, FdroidEndpointConfig};
 use getter::operations::legacy_room::{self, LegacyRoomOperationError};
+use getter::operations::provider_cache::ProviderCacheMode;
 use getter::operations::read_model::{self, ReadModelOperationError};
 use getter::operations::runtime as runtime_operations;
 use getter::rpc::server::run_server_hanging;
@@ -207,6 +209,25 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_previewInstalledAuto
 }
 
 #[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_previewInstalledFdroidAutogen<
+    'local,
+>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    context: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "autogen installed fdroid preview";
+    let response = match jstring_to_string(&mut env, &request_json)
+        .and_then(|raw| preview_installed_fdroid_autogen(&mut env, &context, &raw))
+    {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
 pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_applyInstalledAutogen<'local>(
     mut env: JNIEnv<'local>,
     _: JObject<'local>,
@@ -215,6 +236,22 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_applyInstalledAutoge
     let command = "autogen installed apply";
     let response = match jstring_to_string(&mut env, &request_json)
         .and_then(|raw| apply_installed_autogen(&raw))
+    {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_applyInstalledFdroidAutogen<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "autogen installed fdroid apply";
+    let response = match jstring_to_string(&mut env, &request_json)
+        .and_then(|raw| apply_fdroid_autogen(&raw))
     {
         Ok(data) => success_envelope(command, data),
         Err(error) => operation_error_envelope(command, error),
@@ -342,6 +379,54 @@ fn preview_installed_autogen(
             .map_err(|source| BridgeOperationError::PlatformMalformed(source.to_string()))?;
     let plan = autogen::build_installed_autogen_plan(&request.data_dir, &db, &inventory)?;
     let mut preview = autogen::installed_preview_json(&request.data_dir, &plan)?;
+    if let Some(object) = preview.as_object_mut() {
+        object.insert(
+            "scan".to_owned(),
+            json!({
+                "stats": scan.stats,
+                "diagnostics": scan.diagnostics,
+            }),
+        );
+    }
+    Ok(preview)
+}
+
+fn preview_installed_fdroid_autogen(
+    env: &mut JNIEnv<'_>,
+    context: &JObject<'_>,
+    request_json: &str,
+) -> Result<Value, BridgeOperationError> {
+    init_android_integrations(env, context).map_err(BridgeOperationError::Initialize)?;
+    let request: PreviewInstalledAutogenRequest = serde_json::from_str(request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let scan = scan_installed_inventory(request.scan_options)?;
+    preview_installed_fdroid_autogen_from_scan(&request.data_dir, scan)
+}
+
+fn preview_installed_fdroid_autogen_from_scan(
+    data_dir: &Path,
+    scan: upgradeall_platform_adapter::InstalledInventoryScanResult,
+) -> Result<Value, BridgeOperationError> {
+    let db = open_main_db(data_dir)?;
+    let cache_db = open_cache_db(data_dir)?;
+    fdroid_catalog::read_or_refresh_fdroid_catalog(
+        &cache_db,
+        FdroidEndpointConfig::default(),
+        ProviderCacheMode::UseCached,
+        || Err("F-Droid catalog cache is empty; refresh provider cache before installed F-Droid autogen preview".to_owned()),
+    )
+    .map_err(|source| BridgeOperationError::Autogen(source.to_string()))?;
+    let inventory: getter::core::autogen::InstalledInventory =
+        serde_json::to_value(&scan.inventory)
+            .and_then(serde_json::from_value)
+            .map_err(|source| BridgeOperationError::PlatformMalformed(source.to_string()))?;
+    let payload = json!({ "installed_inventory": inventory });
+    let mut preview = fdroid_autogen::preview_fdroid_packages_json(
+        data_dir,
+        &db,
+        &cache_db,
+        &payload.to_string(),
+    )?;
     if let Some(object) = preview.as_object_mut() {
         object.insert(
             "scan".to_owned(),
@@ -862,6 +947,81 @@ mod tests {
         assert!(layout
             .package(&"android/f-droid/app/org.fdroid.fdroid".parse().unwrap())
             .is_some());
+    }
+
+    #[test]
+    fn installed_fdroid_preview_reuses_platform_inventory_as_provider_request() {
+        let temp = tempfile::tempdir().unwrap();
+        let data_dir = temp.path().join("data");
+        let cache_db = open_cache_db(&data_dir).unwrap();
+        fdroid_catalog::read_or_refresh_fdroid_catalog(
+            &cache_db,
+            FdroidEndpointConfig::default(),
+            ProviderCacheMode::UseCached,
+            || Ok(fdroid_fixture().to_owned()),
+        )
+        .unwrap();
+        let scan = upgradeall_platform_adapter::InstalledInventoryScanResult {
+            inventory: upgradeall_platform_adapter::InstalledInventory::new(vec![
+                upgradeall_platform_adapter::InstalledInventoryItem::AndroidPackage {
+                    package_name: "org.fdroid.fdroid".to_owned(),
+                    label: Some("F-Droid".to_owned()),
+                    version_name: Some("1.20.0".to_owned()),
+                    version_code: Some(1_020_000),
+                },
+            ]),
+            stats: upgradeall_platform_adapter::InstalledInventoryScanStats {
+                total_seen: 2,
+                returned: 1,
+                filtered_system: 1,
+                filtered_self: 0,
+            },
+            diagnostics: vec![upgradeall_platform_adapter::PlatformDiagnostic {
+                code: "platform.note".to_owned(),
+                message: "scan diagnostic".to_owned(),
+                detail: None,
+            }],
+        };
+
+        let preview = preview_installed_fdroid_autogen_from_scan(&data_dir, scan).unwrap();
+
+        assert_eq!(preview["operation"], "fdroid.autogen.preview");
+        assert_eq!(preview["source"], "cache");
+        assert_eq!(preview["scan"]["stats"]["returned"], 1);
+        assert_eq!(preview["scan"]["diagnostics"][0]["code"], "platform.note");
+        assert_eq!(
+            preview["candidates"][0]["package_id"],
+            "android/f-droid/app/org.fdroid.fdroid"
+        );
+    }
+
+    #[test]
+    fn installed_fdroid_preview_requires_cached_catalog() {
+        let temp = tempfile::tempdir().unwrap();
+        let data_dir = temp.path().join("data");
+        let scan = upgradeall_platform_adapter::InstalledInventoryScanResult {
+            inventory: upgradeall_platform_adapter::InstalledInventory::new(vec![
+                upgradeall_platform_adapter::InstalledInventoryItem::AndroidPackage {
+                    package_name: "org.fdroid.fdroid".to_owned(),
+                    label: None,
+                    version_name: None,
+                    version_code: None,
+                },
+            ]),
+            stats: upgradeall_platform_adapter::InstalledInventoryScanStats {
+                total_seen: 1,
+                returned: 1,
+                filtered_system: 0,
+                filtered_self: 0,
+            },
+            diagnostics: Vec::new(),
+        };
+
+        let error = preview_installed_fdroid_autogen_from_scan(&data_dir, scan).unwrap_err();
+
+        let detail = error.to_string();
+        assert!(detail.contains("F-Droid catalog cache is empty"));
+        assert!(!detail.contains("index_xml"));
     }
 
     #[test]
