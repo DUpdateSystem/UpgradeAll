@@ -45,6 +45,9 @@ class AppKeys {
   static const previewInstalledAutogen = ValueKey<String>(
     'action.preview_installed_autogen',
   );
+  static const refreshDefaultFdroidCatalogCache = ValueKey<String>(
+    'action.refresh_default_fdroid_catalog_cache',
+  );
   static const previewInstalledFdroidAutogen = ValueKey<String>(
     'action.preview_installed_fdroid_autogen',
   );
@@ -105,6 +108,12 @@ class AppKeys {
   static const installedAutogenScanStats = ValueKey<String>(
     'state.installed_autogen_scan_stats',
   );
+  static const fdroidCatalogRefreshStatus = ValueKey<String>(
+    'state.fdroid_catalog_refresh_status',
+  );
+  static const fdroidCatalogRefreshDiagnosticsList = ValueKey<String>(
+    'state.fdroid_catalog_refresh_diagnostics_list',
+  );
   static const installedAutogenApplied = ValueKey<String>(
     'state.installed_autogen_applied',
   );
@@ -130,6 +139,8 @@ class AppKeys {
       ValueKey<String>('state.autogen_skip.$packageId');
   static ValueKey<String> autogenDiagnosticRow(int index) =>
       ValueKey<String>('state.autogen_diagnostic.$index');
+  static ValueKey<String> fdroidCatalogRefreshDiagnosticRow(int index) =>
+      ValueKey<String>('state.fdroid_catalog_refresh_diagnostic.$index');
   static ValueKey<String> autogenAppliedRow(String packageId) =>
       ValueKey<String>('state.autogen_applied.$packageId');
 }
@@ -603,10 +614,45 @@ class InstalledAutogenPage extends StatefulWidget {
 
 class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
   InstalledAutogenPreview? _preview;
+  FdroidCatalogCacheRefreshResult? _fdroidRefresh;
   InstalledAutogenApplyResult? _applyResult;
   GetterError? _error;
   bool _running = false;
   bool _previewUsesFdroidApply = false;
+
+  Future<void> _refreshDefaultFdroidCatalogCache() async {
+    setState(() {
+      _running = true;
+      _preview = null;
+      _fdroidRefresh = null;
+      _applyResult = null;
+      _error = null;
+    });
+    try {
+      final refresh = await widget.getter.refreshDefaultFdroidCatalogCache();
+      if (!mounted) return;
+      setState(() {
+        _fdroidRefresh = refresh;
+        _running = false;
+      });
+    } on GetterBridgeException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _error = error.error;
+        _running = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _error = GetterError(
+          code: 'bridge.fdroid_catalog_refresh_error',
+          message: 'F-Droid catalog refresh bridge failed',
+          detail: error.toString(),
+        );
+        _running = false;
+      });
+    }
+  }
 
   Future<void> _previewInstalledAutogen() {
     return _runPreview(
@@ -691,6 +737,7 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
             );
       if (!mounted) return;
       setState(() {
+        _preview = null;
         _applyResult = result;
         _running = false;
       });
@@ -734,6 +781,17 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
           ),
           const SizedBox(height: 8),
           ElevatedButton.icon(
+            key: AppKeys.refreshDefaultFdroidCatalogCache,
+            onPressed: _running || !canUseBridge
+                ? null
+                : _refreshDefaultFdroidCatalogCache,
+            icon: const Icon(Icons.sync),
+            label: Text(
+              _running ? 'Working…' : 'Refresh F-Droid catalog cache',
+            ),
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton.icon(
             key: AppKeys.previewInstalledFdroidAutogen,
             onPressed: _running || !canUseBridge
                 ? null
@@ -767,6 +825,31 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
                 _formatGetterError(_error!),
               ),
             ),
+          if (_fdroidRefresh != null) ...<Widget>[
+            const SizedBox(height: 16),
+            Text(
+              key: AppKeys.fdroidCatalogRefreshStatus,
+              'F-Droid catalog ${_fdroidRefresh!.source}: ${_fdroidRefresh!.appCount} apps, ${_fdroidRefresh!.releaseCount} releases',
+            ),
+            Text('Cache key: ${_fdroidRefresh!.cacheKey}'),
+            if (_fdroidRefresh!.diagnostics.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 8),
+              ListView.builder(
+                key: AppKeys.fdroidCatalogRefreshDiagnosticsList,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _fdroidRefresh!.diagnostics.length,
+                itemBuilder: (context, index) {
+                  final diagnostic = _fdroidRefresh!.diagnostics[index];
+                  return ListTile(
+                    key: AppKeys.fdroidCatalogRefreshDiagnosticRow(index),
+                    title: Text(diagnostic.code),
+                    subtitle: Text(diagnostic.message),
+                  );
+                },
+              ),
+            ],
+          ],
           if (preview != null) ...<Widget>[
             const SizedBox(height: 16),
             Text(

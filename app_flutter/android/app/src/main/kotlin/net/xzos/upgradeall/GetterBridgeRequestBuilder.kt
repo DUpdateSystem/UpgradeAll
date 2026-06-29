@@ -26,6 +26,10 @@ object GetterBridgeRequestBuilder {
             .toString()
     }
 
+    fun fdroidCatalogRefreshRequest(dataDir: String): String = JSONObject()
+        .put("data_dir", dataDir)
+        .toString()
+
     fun fdroidAutogenPreviewRequest(args: Map<*, *>): String {
         val payload = args["payload"] as? Map<*, *> ?: emptyMap<Any?, Any?>()
         return JSONObject()

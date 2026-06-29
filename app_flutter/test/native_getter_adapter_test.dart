@@ -179,6 +179,30 @@ void main() {
     );
   });
 
+  test('native default F-Droid catalog refresh sends no payload', () async {
+    MethodCall? captured;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          captured = call;
+          return jsonEncode(<String, Object?>{
+            'ok': true,
+            'command': 'fdroid catalog refresh',
+            'data': _fdroidRefreshJson(),
+            'warnings': <Object?>[],
+          });
+        });
+
+    const adapter = MethodChannelGetterAdapter(channel: channel);
+    final refresh = await adapter.refreshDefaultFdroidCatalogCache();
+
+    expect(captured!.method, 'refreshDefaultFdroidCatalogCache');
+    expect(captured!.arguments, const <String, Object?>{});
+    expect(refresh.operation, 'fdroid.catalog.refresh');
+    expect(refresh.source, 'refreshed');
+    expect(refresh.appCount, 3);
+    expect(refresh.sourceResponseSha512, <String>['sha512:fake']);
+  });
+
   test('native F-Droid autogen forwards getter-owned payloads', () async {
     final calls = <MethodCall>[];
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -647,6 +671,20 @@ Map<String, Object?> _runtimeTaskJson(
   },
   'current_diagnostic': null,
   'updated_at': 1,
+};
+
+Map<String, Object?> _fdroidRefreshJson() => <String, Object?>{
+  'operation': 'fdroid.catalog.refresh',
+  'provider': 'fdroid',
+  'endpoint_id': 'official',
+  'endpoint_url': 'https://f-droid.org/repo',
+  'cache_key': 'fdroid:fdroid-index-v1:official:fake',
+  'source': 'refreshed',
+  'app_count': 3,
+  'release_count': 3,
+  'source_response_sha512': <Object?>['sha512:fake'],
+  'provenance_schema_version': 'provider-response-provenance-v1',
+  'diagnostics': <Object?>[],
 };
 
 Map<String, Object?> _fdroidPreviewJson() => <String, Object?>{

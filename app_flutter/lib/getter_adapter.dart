@@ -35,6 +35,8 @@ abstract interface class GetterAdapter {
     InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
   });
 
+  Future<FdroidCatalogCacheRefreshResult> refreshDefaultFdroidCatalogCache();
+
   Future<InstalledAutogenPreview> previewFdroidAutogen(
     Map<String, Object?> payload,
   );
@@ -247,6 +249,24 @@ class FakeGetterAdapter implements GetterAdapter {
     InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
   }) async {
     return previewFdroidAutogen(<String, Object?>{});
+  }
+
+  @override
+  Future<FdroidCatalogCacheRefreshResult>
+  refreshDefaultFdroidCatalogCache() async {
+    return FdroidCatalogCacheRefreshResult.fromJson(const <String, Object?>{
+      'operation': 'fdroid.catalog.refresh',
+      'provider': 'fdroid',
+      'endpoint_id': 'official',
+      'endpoint_url': 'https://f-droid.org/repo',
+      'cache_key': 'fdroid:fdroid-index-v1:official:fake',
+      'source': 'refreshed',
+      'app_count': 3,
+      'release_count': 3,
+      'source_response_sha512': <Object?>['sha512:fake'],
+      'provenance_schema_version': 'provider-response-provenance-v1',
+      'diagnostics': <Object?>[],
+    });
   }
 
   @override
@@ -960,6 +980,110 @@ class InstalledAutogenScanOptions {
     'include_system_apps': includeSystemApps,
     'include_self': includeSelf,
   };
+}
+
+class FdroidCatalogCacheRefreshResult {
+  const FdroidCatalogCacheRefreshResult({
+    required this.operation,
+    required this.provider,
+    required this.endpointId,
+    required this.endpointUrl,
+    required this.cacheKey,
+    required this.source,
+    required this.appCount,
+    required this.releaseCount,
+    required this.sourceResponseSha512,
+    required this.provenanceSchemaVersion,
+    required this.diagnostics,
+  });
+
+  factory FdroidCatalogCacheRefreshResult.fromJson(Map<String, Object?> json) {
+    return FdroidCatalogCacheRefreshResult(
+      operation: _jsonString(json['operation'], 'fdroid.refresh.operation'),
+      provider: _jsonString(json['provider'], 'fdroid.refresh.provider'),
+      endpointId: _jsonString(
+        json['endpoint_id'],
+        'fdroid.refresh.endpoint_id',
+      ),
+      endpointUrl: _jsonString(
+        json['endpoint_url'],
+        'fdroid.refresh.endpoint_url',
+      ),
+      cacheKey: _jsonString(json['cache_key'], 'fdroid.refresh.cache_key'),
+      source: _jsonString(json['source'], 'fdroid.refresh.source'),
+      appCount: _jsonInt(json['app_count'], 'fdroid.refresh.app_count'),
+      releaseCount: _jsonInt(
+        json['release_count'],
+        'fdroid.refresh.release_count',
+      ),
+      sourceResponseSha512:
+          _jsonList(
+                json['source_response_sha512'],
+                'fdroid.refresh.source_response_sha512',
+              )
+              .map(
+                (digest) => _jsonString(
+                  digest,
+                  'fdroid.refresh.source_response_sha512.item',
+                ),
+              )
+              .toList(growable: false),
+      provenanceSchemaVersion: _jsonOptionalString(
+        json['provenance_schema_version'],
+        'fdroid.refresh.provenance_schema_version',
+      ),
+      diagnostics: _jsonList(json['diagnostics'], 'fdroid.refresh.diagnostics')
+          .map(
+            (diagnostic) => ProviderCacheDiagnosticSummary.fromJson(
+              _jsonMap(diagnostic, 'fdroid.refresh.diagnostic'),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+
+  final String operation;
+  final String provider;
+  final String endpointId;
+  final String endpointUrl;
+  final String cacheKey;
+  final String source;
+  final int appCount;
+  final int releaseCount;
+  final List<String> sourceResponseSha512;
+  final String? provenanceSchemaVersion;
+  final List<ProviderCacheDiagnosticSummary> diagnostics;
+}
+
+class ProviderCacheDiagnosticSummary {
+  const ProviderCacheDiagnosticSummary({
+    required this.code,
+    required this.message,
+    required this.cacheKey,
+    required this.provider,
+    required this.staleFetchedAtUnix,
+  });
+
+  factory ProviderCacheDiagnosticSummary.fromJson(Map<String, Object?> json) {
+    return ProviderCacheDiagnosticSummary(
+      code: _jsonString(json['code'], 'provider.diagnostic.code'),
+      message: _jsonString(json['message'], 'provider.diagnostic.message'),
+      cacheKey: _jsonString(json['cache_key'], 'provider.diagnostic.cache_key'),
+      provider: _jsonString(json['provider'], 'provider.diagnostic.provider'),
+      staleFetchedAtUnix: json['stale_fetched_at_unix'] == null
+          ? null
+          : _jsonInt(
+              json['stale_fetched_at_unix'],
+              'provider.diagnostic.stale_fetched_at_unix',
+            ),
+    );
+  }
+
+  final String code;
+  final String message;
+  final String cacheKey;
+  final String provider;
+  final int? staleFetchedAtUnix;
 }
 
 class InstalledAutogenPreview {

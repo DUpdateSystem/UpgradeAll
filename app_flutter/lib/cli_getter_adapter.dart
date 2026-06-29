@@ -107,6 +107,17 @@ class CliGetterAdapter implements GetterAdapter {
   }
 
   @override
+  Future<FdroidCatalogCacheRefreshResult>
+  refreshDefaultFdroidCatalogCache() async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message: 'CLI adapter does not expose product F-Droid cache refresh',
+      ),
+    );
+  }
+
+  @override
   Future<InstalledAutogenPreview> previewFdroidAutogen(
     Map<String, Object?> payload,
   ) async {

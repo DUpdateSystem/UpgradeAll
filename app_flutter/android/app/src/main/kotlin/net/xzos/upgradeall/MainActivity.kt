@@ -77,6 +77,14 @@ class MainActivity : FlutterActivity() {
                     nativeLib.applyFdroidAutogen(applyFdroidAutogenRequest(call))
                 }
 
+                "refreshDefaultFdroidCatalogCache" -> runGetterBridge(result) {
+                    nativeLib.refreshDefaultFdroidCatalogCache(
+                        GetterBridgeRequestBuilder.fdroidCatalogRefreshRequest(
+                            getterDataDir().absolutePath,
+                        ),
+                    )
+                }
+
                 "importLegacyRoomDatabase" -> runGetterBridge(result) {
                     nativeLib.importLegacyRoomDatabase(importLegacyRoomDatabaseRequest(call))
                 }

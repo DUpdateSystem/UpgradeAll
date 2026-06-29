@@ -74,6 +74,19 @@ class GetterBridgeRequestBuilderTest {
     }
 
     @Test
+    fun fdroidCatalogRefreshRequestCarriesOnlyDataDir() {
+        val json = JSONObject(
+            GetterBridgeRequestBuilder.fdroidCatalogRefreshRequest("/app/files/getter"),
+        )
+
+        assertEquals("/app/files/getter", json.getString("data_dir"))
+        assertEquals(false, json.has("index_xml"))
+        assertEquals(false, json.has("endpoint_url"))
+        assertEquals(false, json.has("mode"))
+        assertEquals(1, json.length())
+    }
+
+    @Test
     fun fdroidAutogenPreviewRequestPreservesGetterPayload() {
         val json = JSONObject(
             GetterBridgeRequestBuilder.fdroidAutogenPreviewRequest(

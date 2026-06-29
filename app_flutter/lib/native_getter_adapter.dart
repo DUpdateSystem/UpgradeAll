@@ -98,6 +98,16 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   }
 
   @override
+  Future<FdroidCatalogCacheRefreshResult>
+  refreshDefaultFdroidCatalogCache() async {
+    final data = await _invokeGetterData(
+      'refreshDefaultFdroidCatalogCache',
+      const <String, Object?>{},
+    );
+    return FdroidCatalogCacheRefreshResult.fromJson(data);
+  }
+
+  @override
   Future<InstalledAutogenPreview> previewFdroidAutogen(
     Map<String, Object?> payload,
   ) async {

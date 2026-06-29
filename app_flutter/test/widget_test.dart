@@ -306,6 +306,58 @@ void main() {
     },
   );
 
+  testWidgets('installed autogen route refreshes F-Droid catalog cache', (
+    tester,
+  ) async {
+    final getter = _AutogenRecordingGetterAdapter();
+    await tester.pumpWidget(UpgradeAllApp(getter: getter));
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -240));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.openInstalledAutogen));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(AppKeys.refreshDefaultFdroidCatalogCache));
+    await tester.pumpAndSettle();
+
+    expect(getter.refreshedFdroidCatalog, isTrue);
+    expect(find.byKey(AppKeys.fdroidCatalogRefreshStatus), findsOneWidget);
+    expect(
+      find.text('F-Droid catalog refreshed: 3 apps, 4 releases'),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(AppKeys.fdroidCatalogRefreshDiagnosticRow(0)),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('installed autogen route renders F-Droid refresh error detail', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const UpgradeAllApp(getter: _FdroidRefreshErrorGetterAdapter()),
+    );
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -240));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.openInstalledAutogen));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(AppKeys.refreshDefaultFdroidCatalogCache));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(AppKeys.installedAutogenError), findsOneWidget);
+    expect(
+      find.textContaining('provider.fdroid_catalog.error'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('bootstrap source parse failed'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('installed autogen confirmation cancel does not apply', (
     tester,
   ) async {
@@ -608,10 +660,27 @@ class _AutogenErrorGetterAdapter extends FakeGetterAdapter {
   }
 }
 
+class _FdroidRefreshErrorGetterAdapter extends FakeGetterAdapter {
+  const _FdroidRefreshErrorGetterAdapter();
+
+  @override
+  Future<FdroidCatalogCacheRefreshResult>
+  refreshDefaultFdroidCatalogCache() async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'provider.fdroid_catalog.error',
+        message: 'F-Droid catalog cache refresh failed',
+        detail: 'bootstrap source parse failed',
+      ),
+    );
+  }
+}
+
 class _AutogenRecordingGetterAdapter extends FakeGetterAdapter {
   List<String>? acceptedPackageIds;
 
   var usedInstalledFdroidApply = false;
+  var refreshedFdroidCatalog = false;
 
   @override
   Future<InstalledAutogenPreview> previewInstalledFdroidAutogen({
@@ -656,6 +725,33 @@ class _AutogenRecordingGetterAdapter extends FakeGetterAdapter {
       ],
       'skipped': <Object?>[],
       'diagnostics': <Object?>[],
+    });
+  }
+
+  @override
+  Future<FdroidCatalogCacheRefreshResult>
+  refreshDefaultFdroidCatalogCache() async {
+    refreshedFdroidCatalog = true;
+    return FdroidCatalogCacheRefreshResult.fromJson(const <String, Object?>{
+      'operation': 'fdroid.catalog.refresh',
+      'provider': 'fdroid',
+      'endpoint_id': 'official',
+      'endpoint_url': 'https://f-droid.org/repo',
+      'cache_key': 'fdroid:fdroid-index-v1:official:fake',
+      'source': 'refreshed',
+      'app_count': 3,
+      'release_count': 4,
+      'source_response_sha512': <Object?>['sha512:fake'],
+      'provenance_schema_version': 'provider-response-provenance-v1',
+      'diagnostics': <Object?>[
+        <String, Object?>{
+          'code': 'provider.note',
+          'message': 'cached bundled catalog',
+          'cache_key': 'fdroid:fdroid-index-v1:official:fake',
+          'provider': 'fdroid',
+          'stale_fetched_at_unix': null,
+        },
+      ],
     });
   }
 

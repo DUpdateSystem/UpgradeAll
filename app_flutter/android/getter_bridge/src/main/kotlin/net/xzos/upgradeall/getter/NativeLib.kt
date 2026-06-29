@@ -17,6 +17,7 @@ class NativeLib {
     external fun applyInstalledFdroidAutogen(requestJson: String): String
     external fun previewFdroidAutogen(requestJson: String): String
     external fun applyFdroidAutogen(requestJson: String): String
+    external fun refreshDefaultFdroidCatalogCache(requestJson: String): String
     external fun importLegacyRoomDatabase(requestJson: String): String
     external fun legacyReportList(requestJson: String): String
     external fun readOperation(requestJson: String): String

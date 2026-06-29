@@ -4,7 +4,7 @@ use getter::operations::autogen::{self, AutogenAcceptance, AutogenOperationError
 use getter::operations::fdroid_autogen;
 use getter::operations::fdroid_catalog::{self, FdroidEndpointConfig};
 use getter::operations::legacy_room::{self, LegacyRoomOperationError};
-use getter::operations::provider_cache::ProviderCacheMode;
+use getter::operations::provider_cache::{ProviderCacheMode, ProviderCacheSource};
 use getter::operations::read_model::{self, ReadModelOperationError};
 use getter::operations::runtime as runtime_operations;
 use getter::rpc::server::run_server_hanging;
@@ -50,6 +50,12 @@ struct PreviewFdroidAutogenRequest {
     data_dir: PathBuf,
     #[serde(default)]
     payload: Value,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RefreshDefaultFdroidCatalogCacheRequest {
+    data_dir: PathBuf,
 }
 
 #[derive(Debug, Deserialize)]
@@ -292,6 +298,24 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_applyFdroidAutogen<'
 }
 
 #[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_refreshDefaultFdroidCatalogCache<
+    'local,
+>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "fdroid catalog refresh";
+    let response = match jstring_to_string(&mut env, &request_json)
+        .and_then(|raw| refresh_default_fdroid_catalog_cache(&raw))
+    {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
 pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_runtimeOperation<'local>(
     mut env: JNIEnv<'local>,
     _: JObject<'local>,
@@ -483,6 +507,59 @@ fn apply_fdroid_autogen(request_json: &str) -> Result<Value, BridgeOperationErro
         &preview,
         &acceptance,
     )?)
+}
+
+fn refresh_default_fdroid_catalog_cache(request_json: &str) -> Result<Value, BridgeOperationError> {
+    let request: RefreshDefaultFdroidCatalogCacheRequest = serde_json::from_str(request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let cache_db = open_cache_db(&request.data_dir)?;
+    let catalog = fdroid_catalog::read_or_refresh_fdroid_catalog(
+        &cache_db,
+        FdroidEndpointConfig::default(),
+        ProviderCacheMode::ForceRefresh,
+        || Ok(default_fdroid_catalog_xml().to_owned()),
+    )
+    .map_err(|source| BridgeOperationError::ProviderCatalog(source.to_string()))?;
+    let release_count: usize = catalog
+        .catalog
+        .apps
+        .iter()
+        .map(|app| app.packages.len())
+        .sum();
+
+    Ok(json!({
+        "operation": "fdroid.catalog.refresh",
+        "provider": "fdroid",
+        "endpoint_id": catalog.endpoint.endpoint_id,
+        "endpoint_url": catalog.endpoint.endpoint_url,
+        "cache_key": catalog.cache_key,
+        "source": provider_cache_source_json(catalog.source),
+        "app_count": catalog.catalog.apps.len(),
+        "release_count": release_count,
+        "source_response_sha512": catalog.source_response_sha512,
+        "provenance_schema_version": catalog.provenance_schema_version,
+        "diagnostics": catalog.diagnostics.iter().map(|diagnostic| {
+            json!({
+                "code": diagnostic.code,
+                "message": diagnostic.message,
+                "cache_key": diagnostic.cache_key,
+                "provider": diagnostic.provider,
+                "stale_fetched_at_unix": diagnostic.stale_fetched_at_unix,
+            })
+        }).collect::<Vec<_>>(),
+    }))
+}
+
+fn provider_cache_source_json(source: ProviderCacheSource) -> &'static str {
+    match source {
+        ProviderCacheSource::Cache => "cache",
+        ProviderCacheSource::Refreshed => "refreshed",
+        ProviderCacheSource::Stale => "stale",
+    }
+}
+
+fn default_fdroid_catalog_xml() -> &'static str {
+    include_str!("../../getter/tests/files/web/f-droid.xml")
 }
 
 fn import_legacy_room_database(request_json: &str) -> Result<Value, BridgeOperationError> {
@@ -747,6 +824,8 @@ enum BridgeOperationError {
     Repository(String),
     #[error("autogen error: {0}")]
     Autogen(String),
+    #[error("F-Droid catalog provider error: {0}")]
+    ProviderCatalog(String),
     #[error("migration error: {0}")]
     Migration(#[from] LegacyRoomOperationError),
     #[error("read model error: {0}")]
@@ -819,6 +898,11 @@ impl BridgeOperationError {
             Self::Autogen(detail) => (
                 "autogen.error",
                 "Getter autogen operation failed",
+                Some(detail),
+            ),
+            Self::ProviderCatalog(detail) => (
+                "provider.fdroid_catalog.error",
+                "F-Droid catalog cache refresh failed",
                 Some(detail),
             ),
             Self::Migration(error) => (
@@ -1022,6 +1106,81 @@ mod tests {
         let detail = error.to_string();
         assert!(detail.contains("F-Droid catalog cache is empty"));
         assert!(!detail.contains("index_xml"));
+    }
+
+    #[test]
+    fn default_fdroid_catalog_refresh_populates_installed_preview_cache() {
+        let temp = tempfile::tempdir().unwrap();
+        let data_dir = temp.path().join("data");
+        let refresh = refresh_default_fdroid_catalog_cache(
+            &json!({
+                "data_dir": data_dir,
+            })
+            .to_string(),
+        )
+        .expect("refresh default catalog");
+
+        assert_eq!(refresh["operation"], "fdroid.catalog.refresh");
+        assert_eq!(refresh["provider"], "fdroid");
+        assert_eq!(refresh["endpoint_id"], "official");
+        assert_eq!(refresh["source"], "refreshed");
+        assert!(refresh["app_count"].as_u64().unwrap() > 0);
+        assert!(refresh["release_count"].as_u64().unwrap() > 0);
+        assert_eq!(
+            refresh["source_response_sha512"].as_array().unwrap().len(),
+            1
+        );
+        assert_eq!(
+            refresh["provenance_schema_version"],
+            getter::operations::provider_cache::PROVIDER_RESPONSE_PROVENANCE_SCHEMA_V1
+        );
+        assert!(!refresh.to_string().contains("index_xml"));
+
+        let scan = upgradeall_platform_adapter::InstalledInventoryScanResult {
+            inventory: upgradeall_platform_adapter::InstalledInventory::new(vec![
+                upgradeall_platform_adapter::InstalledInventoryItem::AndroidPackage {
+                    package_name: "org.fdroid.fdroid".to_owned(),
+                    label: Some("F-Droid".to_owned()),
+                    version_name: Some("1.20.0".to_owned()),
+                    version_code: Some(1_020_000),
+                },
+            ]),
+            stats: upgradeall_platform_adapter::InstalledInventoryScanStats {
+                total_seen: 1,
+                returned: 1,
+                filtered_system: 0,
+                filtered_self: 0,
+            },
+            diagnostics: Vec::new(),
+        };
+        let preview = preview_installed_fdroid_autogen_from_scan(&data_dir, scan)
+            .expect("installed F-Droid preview after refresh");
+
+        assert_eq!(preview["source"], "cache");
+        assert_eq!(
+            preview["candidates"][0]["package_id"],
+            "android/f-droid/app/org.fdroid.fdroid"
+        );
+    }
+
+    #[test]
+    fn default_fdroid_catalog_refresh_rejects_provider_controls() {
+        let temp = tempfile::tempdir().unwrap();
+        let data_dir = temp.path().join("data");
+        let error = refresh_default_fdroid_catalog_cache(
+            &json!({
+                "data_dir": data_dir,
+                "index_xml": "<fdroid />",
+            })
+            .to_string(),
+        )
+        .unwrap_err();
+
+        let (code, _, detail) = error.parts();
+        assert_eq!(code, "bridge.invalid_request");
+        let detail = detail.unwrap();
+        assert!(detail.contains("unknown field"));
+        assert!(detail.contains("index_xml"));
     }
 
     #[test]
