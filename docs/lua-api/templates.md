@@ -86,7 +86,7 @@ return fdroid.package {
 }
 ```
 
-GitHub Android APK autogen follows the same small-script rule. From explicit typed GitHub coordinates and a release snapshot/cache, getter writes a package directory such as `android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall/`, a `Manifest` containing GitHub release source-response SHA-512 digest entries, and a small `9999.lua` that calls the standard GitHub provider module:
+GitHub Android APK autogen follows the same small-script rule. From explicit typed GitHub coordinates and a release snapshot/cache, getter writes a package directory such as `android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall/`, a `Manifest` containing GitHub release source-response SHA-512 digest entries, and a small `9999.lua` that calls the standard GitHub provider module. Later runtime update checks may refresh the same GitHub releases cache through getter-owned live transport; unless the script declares `allow_free_network`, the newly fetched response digest still has to match this package `Manifest` before Lua can consume it:
 
 ```lua
 #!/bin/upa-lua v1
