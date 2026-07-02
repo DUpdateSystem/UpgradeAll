@@ -534,6 +534,7 @@ class FakeGetterAdapter implements GetterAdapter {
         'retry': false,
       },
       'current_diagnostic': null,
+      'downloaded_file': null,
       'updated_at': 1,
     };
   }
@@ -874,6 +875,7 @@ class RuntimeTaskSnapshot {
     required this.progress,
     required this.capabilities,
     required this.currentDiagnostic,
+    required this.downloadedFile,
     required this.updatedAt,
   });
 
@@ -901,6 +903,11 @@ class RuntimeTaskSnapshot {
                 'runtime.task.current_diagnostic',
               ),
             ),
+      downloadedFile: json['downloaded_file'] == null
+          ? null
+          : RuntimeDownloadedFile.fromJson(
+              _jsonMap(json['downloaded_file'], 'runtime.task.downloaded_file'),
+            ),
       updatedAt: _jsonInt(json['updated_at'], 'runtime.task.updated_at'),
     );
   }
@@ -912,7 +919,43 @@ class RuntimeTaskSnapshot {
   final RuntimeTaskProgress? progress;
   final RuntimeTaskCapabilities capabilities;
   final RuntimeTaskDiagnostic? currentDiagnostic;
+  final RuntimeDownloadedFile? downloadedFile;
   final int updatedAt;
+}
+
+class RuntimeDownloadedFile {
+  const RuntimeDownloadedFile({
+    required this.fileName,
+    required this.localPath,
+    required this.sizeBytes,
+    required this.sha256,
+  });
+
+  factory RuntimeDownloadedFile.fromJson(Map<String, Object?> json) {
+    return RuntimeDownloadedFile(
+      fileName: _jsonString(
+        json['file_name'],
+        'runtime.task.downloaded_file.file_name',
+      ),
+      localPath: _jsonString(
+        json['local_path'],
+        'runtime.task.downloaded_file.local_path',
+      ),
+      sizeBytes: _jsonInt(
+        json['size_bytes'],
+        'runtime.task.downloaded_file.size_bytes',
+      ),
+      sha256: _jsonString(
+        json['sha256'],
+        'runtime.task.downloaded_file.sha256',
+      ),
+    );
+  }
+
+  final String fileName;
+  final String localPath;
+  final int sizeBytes;
+  final String sha256;
 }
 
 class RuntimeTaskPhase {

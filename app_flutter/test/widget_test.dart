@@ -139,6 +139,26 @@ void main() {
     expect(getter.listCallCount, 2);
   });
 
+  testWidgets('downloads route renders getter-owned downloaded file metadata', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const UpgradeAllApp(getter: _DownloadedTaskGetterAdapter()),
+    );
+
+    await tester.tap(find.byKey(AppKeys.openDownloads));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(AppKeys.downloadTaskRow('task-downloaded')),
+      findsOneWidget,
+    );
+    expect(
+      find.text('completed • completed • app.apk (12 bytes)'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('downloads route exposes getter empty task state', (
     tester,
   ) async {
@@ -603,6 +623,7 @@ class _UpdateCheckRecordingGetterAdapter extends FakeGetterAdapter {
         'retry': false,
       },
       'current_diagnostic': null,
+      'downloaded_file': null,
       'updated_at': 42,
     });
     _tasks
@@ -690,6 +711,7 @@ class _NotificationRefreshingGetterAdapter extends FakeGetterAdapter {
         'retry': false,
       },
       'current_diagnostic': null,
+      'downloaded_file': null,
       'updated_at': status == 'running' ? 2 : 1,
     });
   }
@@ -703,6 +725,40 @@ class _NoTaskGetterAdapter extends FakeGetterAdapter {
     bool active = false,
     String? packageId,
   }) async => const <RuntimeTaskSnapshot>[];
+}
+
+class _DownloadedTaskGetterAdapter extends FakeGetterAdapter {
+  const _DownloadedTaskGetterAdapter();
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
+    bool active = false,
+    String? packageId,
+  }) async {
+    return <RuntimeTaskSnapshot>[
+      RuntimeTaskSnapshot.fromJson(const <String, Object?>{
+        'task_id': 'task-downloaded',
+        'package_id': 'android/org.fdroid.fdroid',
+        'status': 'completed',
+        'phase': <String, Object?>{'category': 'completed'},
+        'progress': null,
+        'capabilities': <String, Object?>{
+          'cancel': false,
+          'pause': false,
+          'resume': false,
+          'retry': false,
+        },
+        'current_diagnostic': null,
+        'downloaded_file': <String, Object?>{
+          'file_name': 'app.apk',
+          'local_path': '/getter/downloads/task-downloaded/app.apk',
+          'size_bytes': 12,
+          'sha256': 'sha256-test',
+        },
+        'updated_at': 3,
+      }),
+    ];
+  }
 }
 
 class _LegacyMigrationCapableGetterAdapter extends FakeGetterAdapter {

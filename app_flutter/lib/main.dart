@@ -583,7 +583,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
                 child: ListTile(
                   key: AppKeys.downloadTaskRow(task.taskId),
                   title: Text(task.packageId),
-                  subtitle: Text('${task.status} • ${task.phase.category}'),
+                  subtitle: Text(_runtimeTaskSubtitle(task)),
                   trailing: _TaskCapabilitiesChips(
                     capabilities: task.capabilities,
                   ),
@@ -595,6 +595,25 @@ class _DownloadsPageState extends State<DownloadsPage> {
       ),
     );
   }
+}
+
+String _runtimeTaskSubtitle(RuntimeTaskSnapshot task) {
+  final parts = <String>[task.status, task.phase.category];
+  final downloaded = task.downloadedFile;
+  if (downloaded != null) {
+    parts.add('${downloaded.fileName} (${downloaded.sizeBytes} bytes)');
+  } else {
+    final progress = task.progress;
+    if (progress != null) {
+      final total = progress.total;
+      parts.add(
+        total == null
+            ? '${progress.current} ${progress.unit}'
+            : '${progress.current}/$total ${progress.unit}',
+      );
+    }
+  }
+  return parts.join(' • ');
 }
 
 class _TaskCapabilitiesChips extends StatelessWidget {

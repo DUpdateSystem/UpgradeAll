@@ -621,6 +621,8 @@ void main() {
     expect(update.action!.actionId, 'action-1');
     expect(update.update.selectedVersion, '1.2.0');
     expect(task.taskId, 'task-1');
+    expect(task.downloadedFile!.fileName, 'app.apk');
+    expect(task.downloadedFile!.sizeBytes, 4);
     expect(calls.first.arguments, <String, Object?>{
       'operation': 'update_check_package_issue_action',
       'payload': <String, Object?>{
@@ -756,6 +758,12 @@ Map<String, Object?> _runtimeTaskJson(
     'retry': false,
   },
   'current_diagnostic': null,
+  'downloaded_file': <String, Object?>{
+    'file_name': 'app.apk',
+    'local_path': '/getter/downloads/task-1/app.apk',
+    'size_bytes': 4,
+    'sha256': 'sha256-test',
+  },
   'updated_at': 1,
 };
 

@@ -751,7 +751,13 @@ fn runtime_operation_with_runtime(
                 runtime, data_dir, &db, &payload,
             )
         }
-        "task_submit" => runtime_operations::submit_action_json(runtime, &payload),
+        "task_submit" => {
+            if let Some(data_dir) = request.data_dir.as_ref() {
+                runtime_operations::submit_action_and_download_json(runtime, data_dir, &payload)
+            } else {
+                runtime_operations::submit_action_json(runtime, &payload)
+            }
+        }
         "task_get" => runtime_operations::task_get_json(runtime, &payload),
         "task_list" => runtime_operations::task_list_json(runtime, &payload),
         "task_start" => runtime_operations::task_start_json(runtime, &payload),
@@ -765,7 +771,13 @@ fn runtime_operation_with_runtime(
         "task_resume" => runtime_operations::task_resume_json(runtime, &payload),
         "task_user_result" => runtime_operations::task_user_result_json(runtime, &payload),
         "task_cancel" => runtime_operations::task_cancel_json(runtime, &payload),
-        "task_retry" => runtime_operations::task_retry_json(runtime, &payload),
+        "task_retry" => {
+            if let Some(data_dir) = request.data_dir.as_ref() {
+                runtime_operations::task_retry_download_json(runtime, data_dir, &payload)
+            } else {
+                runtime_operations::task_retry_json(runtime, &payload)
+            }
+        }
         "task_remove" => runtime_operations::task_remove_json(runtime, &payload),
         "task_clean" => runtime_operations::task_clean_json(runtime, &payload),
         other => Err(runtime_operations::RuntimeOperationError::InvalidRequest(
@@ -1041,6 +1053,9 @@ mod tests {
         RepositoryPriority, UpdateAction,
     };
     use std::fs;
+    use std::io::{Read, Write};
+    use std::net::TcpListener;
+    use std::thread;
 
     const GITHUB_RELEASES_FIXTURE: &str =
         include_str!("../../getter/tests/files/web/github_api_release.json");
@@ -1493,6 +1508,107 @@ mod tests {
     }
 
     #[test]
+    fn runtime_dispatcher_submit_with_data_dir_downloads_bytes() {
+        let temp = tempfile::tempdir().unwrap();
+        let data_dir = temp.path().join("data");
+        let (url, handle) = serve_one_download_response(b"bridge bytes");
+        let mut runtime = getter::core::runtime::GetterRuntime::new();
+        let action = runtime_operations::issue_action(
+            &mut runtime,
+            SealedActionPlan {
+                package_id: "generic/example".parse().expect("package id"),
+                actions: vec![UpdateAction::Download {
+                    url,
+                    file_name: "source.bin".to_owned(),
+                }],
+                lua_object: PackageVersionLuaObject {
+                    object_id: "lua:generic/example".to_owned(),
+                    dependency_digest: "sha256:test".to_owned(),
+                },
+            },
+        );
+        let action_id = action["action_id"].as_str().expect("action id");
+
+        let completed = runtime_operation_with_runtime(
+            &mut runtime,
+            &json!({
+                "operation": "task_submit",
+                "data_dir": data_dir,
+                "payload": { "action_id": action_id }
+            })
+            .to_string(),
+        )
+        .expect("submit and download");
+
+        assert_eq!(completed["status"], "completed");
+        assert_eq!(completed["downloaded_file"]["file_name"], "source.bin");
+        assert_eq!(completed["downloaded_file"]["size_bytes"], 12);
+        let local_path = completed["downloaded_file"]["local_path"].as_str().unwrap();
+        assert_eq!(fs::read(local_path).unwrap(), b"bridge bytes");
+        assert!(local_path.contains("downloads/task-1/source.bin"));
+        assert!(handle
+            .join()
+            .unwrap()
+            .starts_with("GET /source.bin HTTP/1.1"));
+    }
+
+    #[test]
+    fn runtime_dispatcher_retry_with_data_dir_downloads_failed_task_again() {
+        let temp = tempfile::tempdir().unwrap();
+        let data_dir = temp.path().join("data");
+        let (url, handle) = serve_failing_then_successful_download_response(b"retry bytes");
+        let mut runtime = getter::core::runtime::GetterRuntime::new();
+        let action = runtime_operations::issue_action(
+            &mut runtime,
+            SealedActionPlan {
+                package_id: "generic/example".parse().expect("package id"),
+                actions: vec![UpdateAction::Download {
+                    url,
+                    file_name: "retry.bin".to_owned(),
+                }],
+                lua_object: PackageVersionLuaObject {
+                    object_id: "lua:generic/example".to_owned(),
+                    dependency_digest: "sha256:test".to_owned(),
+                },
+            },
+        );
+        let action_id = action["action_id"].as_str().expect("action id");
+        let failed = runtime_operation_with_runtime(
+            &mut runtime,
+            &json!({
+                "operation": "task_submit",
+                "data_dir": data_dir,
+                "payload": { "action_id": action_id }
+            })
+            .to_string(),
+        )
+        .expect("initial failed download task");
+        assert_eq!(failed["status"], "failed");
+
+        let task_id = failed["task_id"].as_str().expect("task id");
+        let retried = runtime_operation_with_runtime(
+            &mut runtime,
+            &json!({
+                "operation": "task_retry",
+                "data_dir": data_dir,
+                "payload": { "task_id": task_id }
+            })
+            .to_string(),
+        )
+        .expect("retry download task");
+
+        assert_eq!(retried["task_id"], task_id);
+        assert_eq!(retried["status"], "completed");
+        assert_eq!(retried["downloaded_file"]["size_bytes"], 11);
+        let local_path = retried["downloaded_file"]["local_path"].as_str().unwrap();
+        assert_eq!(fs::read(local_path).unwrap(), b"retry bytes");
+        let requests = handle.join().unwrap();
+        assert_eq!(requests.len(), 2);
+        assert!(requests[0].starts_with("GET /source.bin HTTP/1.1"));
+        assert!(requests[1].starts_with("GET /source.bin HTTP/1.1"));
+    }
+
+    #[test]
     fn runtime_dispatcher_uses_in_memory_runtime_controls() {
         let mut runtime = getter::core::runtime::GetterRuntime::new();
         let action = runtime_operations::issue_action(
@@ -1627,6 +1743,63 @@ return package_version {
         .unwrap();
     }
 
+    fn serve_one_download_response(body: &'static [u8]) -> (String, thread::JoinHandle<String>) {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let handle = thread::spawn(move || {
+            let (request, mut stream) = accept_request(&listener);
+            write_success_response(&mut stream, body);
+            request
+        });
+        (format!("http://{address}/source.bin"), handle)
+    }
+
+    fn serve_failing_then_successful_download_response(
+        body: &'static [u8],
+    ) -> (String, thread::JoinHandle<Vec<String>>) {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let handle = thread::spawn(move || {
+            let (first, mut first_stream) = accept_request(&listener);
+            write!(
+                first_stream,
+                "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n"
+            )
+            .unwrap();
+            let (second, mut second_stream) = accept_request(&listener);
+            write_success_response(&mut second_stream, body);
+            vec![first, second]
+        });
+        (format!("http://{address}/source.bin"), handle)
+    }
+
+    fn accept_request(listener: &TcpListener) -> (String, std::net::TcpStream) {
+        let (mut stream, _) = listener.accept().unwrap();
+        let mut request = Vec::new();
+        let mut buffer = [0_u8; 1024];
+        loop {
+            let read = stream.read(&mut buffer).unwrap();
+            if read == 0 {
+                break;
+            }
+            request.extend_from_slice(&buffer[..read]);
+            if request.windows(4).any(|window| window == b"\r\n\r\n") {
+                break;
+            }
+        }
+        (String::from_utf8_lossy(&request).into_owned(), stream)
+    }
+
+    fn write_success_response(stream: &mut std::net::TcpStream, body: &[u8]) {
+        write!(
+            stream,
+            "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: application/octet-stream\r\n\r\n",
+            body.len()
+        )
+        .unwrap();
+        stream.write_all(body).unwrap();
+    }
+
     #[test]
     fn runtime_notification_queue_is_bounded_and_drained() {
         drain_runtime_notifications().expect("clear queue");
@@ -1642,6 +1815,7 @@ return package_version {
                     progress: None,
                     capabilities: getter::core::runtime::TaskCapabilities::default(),
                     current_diagnostic: None,
+                    downloaded_file: None,
                     updated_at: index as u64,
                 },
             });
