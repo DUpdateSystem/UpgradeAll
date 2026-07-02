@@ -30,6 +30,24 @@ object GetterBridgeRequestBuilder {
         .put("data_dir", dataDir)
         .toString()
 
+    fun githubAutogenPreviewRequest(args: Map<*, *>): String {
+        val owner = args["owner"] as? String
+            ?: throw IllegalArgumentException("owner is required")
+        val repo = args["repo"] as? String
+            ?: throw IllegalArgumentException("repo is required")
+        val androidPackage = args["android_package"] as? String
+            ?: throw IllegalArgumentException("android_package is required")
+        val displayName = args["display_name"] as? String
+        val request = JSONObject()
+            .put("owner", owner)
+            .put("repo", repo)
+            .put("android_package", androidPackage)
+        if (!displayName.isNullOrBlank()) {
+            request.put("display_name", displayName)
+        }
+        return request.toString()
+    }
+
     fun fdroidAutogenPreviewRequest(args: Map<*, *>): String {
         val payload = args["payload"] as? Map<*, *> ?: emptyMap<Any?, Any?>()
         return JSONObject()

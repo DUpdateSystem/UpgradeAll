@@ -3,6 +3,7 @@ extern crate jni;
 use getter::operations::autogen::{self, AutogenAcceptance, AutogenOperationError};
 use getter::operations::fdroid_autogen;
 use getter::operations::fdroid_catalog::{self, FdroidEndpointConfig};
+use getter::operations::github_autogen;
 use getter::operations::legacy_room::{self, LegacyRoomOperationError};
 use getter::operations::provider_cache::{ProviderCacheMode, ProviderCacheSource};
 use getter::operations::read_model::{self, ReadModelOperationError};
@@ -60,6 +61,25 @@ struct RefreshDefaultFdroidCatalogCacheRequest {
 
 #[derive(Debug, Deserialize)]
 struct ApplyFdroidAutogenRequest {
+    data_dir: PathBuf,
+    preview: Value,
+    #[serde(default)]
+    acceptance: ApplyAutogenAcceptance,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PreviewGithubAutogenRequest {
+    data_dir: PathBuf,
+    owner: String,
+    repo: String,
+    android_package: String,
+    #[serde(default)]
+    display_name: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ApplyGithubAutogenRequest {
     data_dir: PathBuf,
     preview: Value,
     #[serde(default)]
@@ -258,6 +278,41 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_applyInstalledFdroid
     let command = "autogen installed fdroid apply";
     let response = match jstring_to_string(&mut env, &request_json)
         .and_then(|raw| apply_fdroid_autogen(&raw))
+    {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_previewGithubAutogen<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    context: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "autogen github preview";
+    let response = match init_android_integrations(&mut env, &context)
+        .map_err(BridgeOperationError::Initialize)
+        .and_then(|()| jstring_to_string(&mut env, &request_json))
+        .and_then(|raw| preview_github_autogen(&raw))
+    {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_applyGithubAutogen<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "autogen github apply";
+    let response = match jstring_to_string(&mut env, &request_json)
+        .and_then(|raw| apply_github_autogen(&raw))
     {
         Ok(data) => success_envelope(command, data),
         Err(error) => operation_error_envelope(command, error),
@@ -502,6 +557,39 @@ fn apply_fdroid_autogen(request_json: &str) -> Result<Value, BridgeOperationErro
     let preview = autogen::unwrap_preview_payload(request.preview, "fdroid.autogen.preview")?;
     let acceptance = request.acceptance.into_autogen_acceptance()?;
     Ok(fdroid_autogen::apply_fdroid_preview_json(
+        &request.data_dir,
+        &db,
+        &preview,
+        &acceptance,
+    )?)
+}
+
+fn preview_github_autogen(request_json: &str) -> Result<Value, BridgeOperationError> {
+    let request: PreviewGithubAutogenRequest = serde_json::from_str(request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let db = open_main_db(&request.data_dir)?;
+    let cache_db = open_cache_db(&request.data_dir)?;
+    let payload = json!({
+        "owner": request.owner,
+        "repo": request.repo,
+        "android_package": request.android_package,
+        "display_name": request.display_name,
+    });
+    Ok(github_autogen::preview_github_android_package_json(
+        &request.data_dir,
+        &db,
+        &cache_db,
+        &payload.to_string(),
+    )?)
+}
+
+fn apply_github_autogen(request_json: &str) -> Result<Value, BridgeOperationError> {
+    let request: ApplyGithubAutogenRequest = serde_json::from_str(request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let db = open_main_db(&request.data_dir)?;
+    let preview = autogen::unwrap_preview_payload(request.preview, "github.autogen.preview")?;
+    let acceptance = request.acceptance.into_autogen_acceptance()?;
+    Ok(github_autogen::apply_github_preview_json(
         &request.data_dir,
         &db,
         &preview,
@@ -947,12 +1035,15 @@ impl From<AutogenOperationError> for BridgeOperationError {
 mod tests {
     use super::*;
     use getter::core::{
-        autogen::FDROID_AUTOGEN_GENERATOR,
+        autogen::{FDROID_AUTOGEN_GENERATOR, GITHUB_AUTOGEN_GENERATOR},
         repository::{RepositoryMetadata, RepositoryPackageDirectoryLayout, REPO_API_VERSION_V1},
         runtime::{PackageVersionLuaObject, SealedActionPlan},
         RepositoryPriority, UpdateAction,
     };
     use std::fs;
+
+    const GITHUB_RELEASES_FIXTURE: &str =
+        include_str!("../../getter/tests/files/web/github_api_release.json");
 
     #[test]
     fn packages_acceptance_defaults_to_all() {
@@ -1031,6 +1122,96 @@ mod tests {
         assert!(layout
             .package(&"android/f-droid/app/org.fdroid.fdroid".parse().unwrap())
             .is_some());
+    }
+
+    #[test]
+    fn github_autogen_bridge_preview_and_apply_write_package_directories_from_cache() {
+        let temp = tempfile::tempdir().unwrap();
+        let data_dir = temp.path().join("data");
+        let cache_db = open_cache_db(&data_dir).unwrap();
+        getter::operations::github_releases::read_or_refresh_github_releases(
+            &cache_db,
+            getter::operations::github_releases::GithubReleaseConfig {
+                api_base_url: getter::operations::github_releases::DEFAULT_GITHUB_API_BASE_URL
+                    .to_owned(),
+                owner: "DUpdateSystem".to_owned(),
+                repo: "UpgradeAll".to_owned(),
+            },
+            ProviderCacheMode::UseCached,
+            || Ok(GITHUB_RELEASES_FIXTURE.to_owned()),
+        )
+        .unwrap();
+
+        let preview = preview_github_autogen(
+            &json!({
+                "data_dir": data_dir,
+                "owner": "DUpdateSystem",
+                "repo": "UpgradeAll",
+                "android_package": "net.xzos.upgradeall",
+                "display_name": "UpgradeAll"
+            })
+            .to_string(),
+        )
+        .expect("GitHub preview");
+
+        assert_eq!(preview["operation"], "github.autogen.preview");
+        assert_eq!(preview["source"], "cache");
+        assert_eq!(
+            preview["candidates"][0]["package_id"],
+            "android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall"
+        );
+        assert!(!preview.to_string().contains("releases_json"));
+
+        let apply = apply_github_autogen(
+            &json!({
+                "data_dir": data_dir,
+                "preview": preview,
+                "acceptance": {
+                    "mode": "packages",
+                    "package_ids": ["android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall"]
+                }
+            })
+            .to_string(),
+        )
+        .expect("GitHub apply");
+
+        assert_eq!(apply["applied_count"], 1);
+        let repo_root = temp.path().join("data/repo/autogen");
+        let package_dir =
+            repo_root.join("android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall");
+        assert!(package_dir.join("metadata.jsonc").is_file());
+        assert!(package_dir.join("Manifest").is_file());
+        assert!(package_dir.join("9999.lua").is_file());
+        assert!(package_dir.join(".autogen.jsonc").is_file());
+        let record: Value = serde_json::from_str(
+            &std::fs::read_to_string(package_dir.join(".autogen.jsonc")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(record["generator"], GITHUB_AUTOGEN_GENERATOR);
+    }
+
+    #[test]
+    fn github_autogen_preview_rejects_product_provider_controls() {
+        let temp = tempfile::tempdir().unwrap();
+        let data_dir = temp.path().join("data");
+
+        let error = preview_github_autogen(
+            &json!({
+                "data_dir": data_dir,
+                "owner": "DUpdateSystem",
+                "repo": "UpgradeAll",
+                "android_package": "net.xzos.upgradeall",
+                "releases_json": "[]"
+            })
+            .to_string(),
+        )
+        .unwrap_err();
+
+        let (code, _, detail) = error.parts();
+        assert_eq!(code, "bridge.invalid_request");
+        let detail = detail.unwrap();
+        assert!(detail.contains("unknown field"));
+        assert!(detail.contains("releases_json"));
     }
 
     #[test]

@@ -107,6 +107,31 @@ class CliGetterAdapter implements GetterAdapter {
   }
 
   @override
+  Future<InstalledAutogenPreview> previewGithubAutogen(
+    GithubAutogenPreviewInput input,
+  ) async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message: 'CLI adapter does not expose product GitHub autogen',
+      ),
+    );
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyGithubAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message: 'CLI adapter does not expose product GitHub autogen',
+      ),
+    );
+  }
+
+  @override
   Future<FdroidCatalogCacheRefreshResult>
   refreshDefaultFdroidCatalogCache() async {
     throw const GetterBridgeException(

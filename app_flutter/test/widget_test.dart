@@ -254,6 +254,83 @@ void main() {
   });
 
   testWidgets(
+    'installed autogen route previews and applies GitHub getter DTOs',
+    (tester) async {
+      final getter = _AutogenRecordingGetterAdapter();
+      await tester.pumpWidget(UpgradeAllApp(getter: getter));
+
+      await tester.drag(find.byType(ListView).first, const Offset(0, -240));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(AppKeys.openInstalledAutogen));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(AppKeys.githubAutogenOwnerField),
+        'DUpdateSystem',
+      );
+      await tester.enterText(
+        find.byKey(AppKeys.githubAutogenRepoField),
+        'UpgradeAll',
+      );
+      await tester.enterText(
+        find.byKey(AppKeys.githubAutogenAndroidPackageField),
+        'net.xzos.upgradeall',
+      );
+      await tester.enterText(
+        find.byKey(AppKeys.githubAutogenDisplayNameField),
+        'UpgradeAll',
+      );
+      await tester.tap(find.byKey(AppKeys.previewGithubAutogen));
+      await tester.pumpAndSettle();
+
+      expect(getter.githubInput, isNotNull);
+      expect(getter.githubInput!.owner, 'DUpdateSystem');
+      expect(getter.githubInput!.repo, 'UpgradeAll');
+      expect(getter.githubInput!.androidPackage, 'net.xzos.upgradeall');
+      expect(getter.githubInput!.displayName, 'UpgradeAll');
+      expect(find.byKey(AppKeys.installedAutogenPreview), findsOneWidget);
+      final githubCandidate = find.byKey(
+        AppKeys.autogenCandidateRow(
+          'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+        ),
+      );
+      await tester.scrollUntilVisible(
+        githubCandidate,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      expect(githubCandidate, findsOneWidget);
+
+      await tester.scrollUntilVisible(
+        find.byKey(AppKeys.applyInstalledAutogen),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(AppKeys.applyInstalledAutogen));
+      await tester.pumpAndSettle();
+      expect(find.byKey(AppKeys.installedAutogenConfirmDialog), findsOneWidget);
+
+      await tester.tap(find.byKey(AppKeys.confirmInstalledAutogenApply));
+      await tester.pumpAndSettle();
+
+      expect(getter.usedGithubApply, isTrue);
+      expect(getter.acceptedPackageIds, <String>[
+        'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+      ]);
+      expect(
+        find.byKey(
+          AppKeys.autogenAppliedRow(
+            'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+          ),
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
     'installed autogen route previews and applies installed F-Droid getter DTOs',
     (tester) async {
       final getter = _AutogenRecordingGetterAdapter();
@@ -678,8 +755,10 @@ class _FdroidRefreshErrorGetterAdapter extends FakeGetterAdapter {
 
 class _AutogenRecordingGetterAdapter extends FakeGetterAdapter {
   List<String>? acceptedPackageIds;
+  GithubAutogenPreviewInput? githubInput;
 
   var usedInstalledFdroidApply = false;
+  var usedGithubApply = false;
   var refreshedFdroidCatalog = false;
 
   @override
@@ -729,6 +808,49 @@ class _AutogenRecordingGetterAdapter extends FakeGetterAdapter {
   }
 
   @override
+  Future<InstalledAutogenPreview> previewGithubAutogen(
+    GithubAutogenPreviewInput input,
+  ) async {
+    githubInput = input;
+    return InstalledAutogenPreview.fromJson(const <String, Object?>{
+      'operation': 'github.autogen.preview',
+      'provider': 'github',
+      'api_base_url': 'https://api.github.com',
+      'owner': 'DUpdateSystem',
+      'repo': 'UpgradeAll',
+      'cache_key': 'github:github-releases-v1:fake:DUpdateSystem/UpgradeAll',
+      'source': 'cache',
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'summary': <String, Object?>{
+        'candidate_count': 1,
+        'skipped_count': 0,
+        'write_count': 1,
+        'delete_count': 0,
+      },
+      'candidates': <Object?>[
+        <String, Object?>{
+          'package_id':
+              'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+          'kind': 'android',
+          'display_name': 'UpgradeAll',
+          'installed_target': <String, Object?>{
+            'kind': 'android_package',
+            'package_name': 'net.xzos.upgradeall',
+          },
+          'action': 'create',
+          'output_relative_path':
+              'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+          'content_hash': 'sha512:fake-github',
+          'content': '-- fake generated GitHub content',
+        },
+      ],
+      'skipped': <Object?>[],
+      'diagnostics': <Object?>[],
+    });
+  }
+
+  @override
   Future<FdroidCatalogCacheRefreshResult>
   refreshDefaultFdroidCatalogCache() async {
     refreshedFdroidCatalog = true;
@@ -765,6 +887,28 @@ class _AutogenRecordingGetterAdapter extends FakeGetterAdapter {
       preview,
       acceptedPackageIds: acceptedPackageIds,
     );
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyGithubAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    usedGithubApply = true;
+    this.acceptedPackageIds = acceptedPackageIds;
+    return InstalledAutogenApplyResult.fromJson(const <String, Object?>{
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'applied_count': 1,
+      'applied': <Object?>[
+        <String, Object?>{
+          'package_id':
+              'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+          'output_relative_path':
+              'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+        },
+      ],
+    });
   }
 
   @override

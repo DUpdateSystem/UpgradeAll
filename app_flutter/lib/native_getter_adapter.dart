@@ -98,6 +98,29 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   }
 
   @override
+  Future<InstalledAutogenPreview> previewGithubAutogen(
+    GithubAutogenPreviewInput input,
+  ) async {
+    final data = await _invokeGetterData(
+      'previewGithubAutogen',
+      input.toJson(),
+    );
+    return InstalledAutogenPreview.fromJson(data);
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyGithubAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    final data = await _invokeGetterData(
+      'applyGithubAutogen',
+      _autogenApplyArguments(preview, acceptedPackageIds),
+    );
+    return InstalledAutogenApplyResult.fromJson(data);
+  }
+
+  @override
   Future<FdroidCatalogCacheRefreshResult>
   refreshDefaultFdroidCatalogCache() async {
     final data = await _invokeGetterData(

@@ -74,6 +74,34 @@ class GetterBridgeRequestBuilderTest {
     }
 
     @Test
+    fun githubAutogenPreviewRequestCarriesOnlyProductFields() {
+        val json = JSONObject(
+            GetterBridgeRequestBuilder.githubAutogenPreviewRequest(
+                mapOf(
+                    "owner" to "DUpdateSystem",
+                    "repo" to "UpgradeAll",
+                    "android_package" to "net.xzos.upgradeall",
+                    "display_name" to "UpgradeAll",
+                    "releases_json" to "[]",
+                    "api_base_url" to "https://example.invalid",
+                    "mode" to "force_refresh",
+                    "asset" to mapOf("include" to ".*apk"),
+                ),
+            ),
+        )
+
+        assertEquals("DUpdateSystem", json.getString("owner"))
+        assertEquals("UpgradeAll", json.getString("repo"))
+        assertEquals("net.xzos.upgradeall", json.getString("android_package"))
+        assertEquals("UpgradeAll", json.getString("display_name"))
+        assertEquals(false, json.has("releases_json"))
+        assertEquals(false, json.has("api_base_url"))
+        assertEquals(false, json.has("mode"))
+        assertEquals(false, json.has("asset"))
+        assertEquals(4, json.length())
+    }
+
+    @Test
     fun fdroidCatalogRefreshRequestCarriesOnlyDataDir() {
         val json = JSONObject(
             GetterBridgeRequestBuilder.fdroidCatalogRefreshRequest("/app/files/getter"),

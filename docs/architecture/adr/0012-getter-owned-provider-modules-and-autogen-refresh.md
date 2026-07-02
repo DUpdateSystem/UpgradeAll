@@ -454,6 +454,7 @@ Flutter and Kotlin must not:
 - decide provider/source selection;
 - generate Lua package text;
 - map F-Droid/GitHub upstream ids into UpgradeAll package paths/atoms;
+- expose product GitHub autogen controls beyond owner, repository, Android package, optional display name, preview acceptance, and accepted package ids;
 - implement version comparison/update selection;
 - manage provider/package metadata cache invalidation;
 - construct task/action payloads;
@@ -515,6 +516,7 @@ Use BDD for user-visible Flutter/product flows:
 - user explicitly chooses an F-Droid app, sees preview, confirms, and the app appears as a generated package;
 - F-Droid catalog/search UI passes only raw user input or getter-issued catalog/preview ids to getter and never interprets provider results in Dart;
 - installed-autogen discovers F-Droid-covered installed apps and writes the generated repository only after confirmation;
+- a user enters a GitHub owner/repository/Android package, sees an Android APK autogen preview, confirms it, and Flutter passes only accepted package ids back to getter;
 - a hand-authored GitHub package checks releases and surfaces asset/filter diagnostics;
 - stale provider cache warnings are visible without crashing or pretending success;
 - update-check action submission still uses getter-issued opaque `action_id` only.

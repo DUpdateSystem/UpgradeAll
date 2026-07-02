@@ -51,6 +51,9 @@ class AppKeys {
   static const previewInstalledFdroidAutogen = ValueKey<String>(
     'action.preview_installed_fdroid_autogen',
   );
+  static const previewGithubAutogen = ValueKey<String>(
+    'action.preview_github_autogen',
+  );
   static const applyInstalledAutogen = ValueKey<String>(
     'action.apply_installed_autogen',
   );
@@ -62,6 +65,18 @@ class AppKeys {
   );
   static const confirmInstalledAutogenApply = ValueKey<String>(
     'action.confirm_installed_autogen_apply',
+  );
+  static const githubAutogenOwnerField = ValueKey<String>(
+    'input.github_autogen_owner',
+  );
+  static const githubAutogenRepoField = ValueKey<String>(
+    'input.github_autogen_repo',
+  );
+  static const githubAutogenAndroidPackageField = ValueKey<String>(
+    'input.github_autogen_android_package',
+  );
+  static const githubAutogenDisplayNameField = ValueKey<String>(
+    'input.github_autogen_display_name',
   );
   static const updateCheckStatus = ValueKey<String>(
     'state.update_check_status',
@@ -612,13 +627,19 @@ class InstalledAutogenPage extends StatefulWidget {
   State<InstalledAutogenPage> createState() => _InstalledAutogenPageState();
 }
 
+enum _AutogenApplyTarget { installed, installedFdroid, github }
+
 class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
   InstalledAutogenPreview? _preview;
   FdroidCatalogCacheRefreshResult? _fdroidRefresh;
   InstalledAutogenApplyResult? _applyResult;
   GetterError? _error;
   bool _running = false;
-  bool _previewUsesFdroidApply = false;
+  _AutogenApplyTarget _applyTarget = _AutogenApplyTarget.installed;
+  String _githubOwner = '';
+  String _githubRepo = '';
+  String _githubAndroidPackage = '';
+  String _githubDisplayName = '';
 
   Future<void> _refreshDefaultFdroidCatalogCache() async {
     setState(() {
@@ -657,25 +678,55 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
   Future<void> _previewInstalledAutogen() {
     return _runPreview(
       () => widget.getter.previewInstalledAutogen(),
-      usesFdroidApply: false,
+      applyTarget: _AutogenApplyTarget.installed,
     );
   }
 
   Future<void> _previewInstalledFdroidAutogen() {
     return _runPreview(
       () => widget.getter.previewInstalledFdroidAutogen(),
-      usesFdroidApply: true,
+      applyTarget: _AutogenApplyTarget.installedFdroid,
+    );
+  }
+
+  Future<void> _previewGithubAutogen() {
+    final owner = _githubOwner.trim();
+    final repo = _githubRepo.trim();
+    final androidPackage = _githubAndroidPackage.trim();
+    final displayName = _githubDisplayName.trim();
+    if (owner.isEmpty || repo.isEmpty || androidPackage.isEmpty) {
+      setState(() {
+        _preview = null;
+        _applyResult = null;
+        _error = const GetterError(
+          code: 'bridge.github_autogen_input_error',
+          message: 'GitHub autogen input is incomplete',
+          detail: 'Owner, repository, and Android package are required',
+        );
+      });
+      return Future<void>.value();
+    }
+    return _runPreview(
+      () => widget.getter.previewGithubAutogen(
+        GithubAutogenPreviewInput(
+          owner: owner,
+          repo: repo,
+          androidPackage: androidPackage,
+          displayName: displayName.isEmpty ? null : displayName,
+        ),
+      ),
+      applyTarget: _AutogenApplyTarget.github,
     );
   }
 
   Future<void> _runPreview(
     Future<InstalledAutogenPreview> Function() previewer, {
-    required bool usesFdroidApply,
+    required _AutogenApplyTarget applyTarget,
   }) async {
     setState(() {
       _running = true;
       _preview = null;
-      _previewUsesFdroidApply = usesFdroidApply;
+      _applyTarget = applyTarget;
       _error = null;
       _applyResult = null;
     });
@@ -684,7 +735,7 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
       if (!mounted) return;
       setState(() {
         _preview = preview;
-        _previewUsesFdroidApply = usesFdroidApply;
+        _applyTarget = applyTarget;
         _running = false;
       });
     } on GetterBridgeException catch (error) {
@@ -726,15 +777,22 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
       final acceptedPackageIds = preview.candidates
           .map((candidate) => candidate.packageId)
           .toList(growable: false);
-      final result = _previewUsesFdroidApply
-          ? await widget.getter.applyInstalledFdroidAutogen(
-              preview,
-              acceptedPackageIds: acceptedPackageIds,
-            )
-          : await widget.getter.applyInstalledAutogen(
-              preview,
-              acceptedPackageIds: acceptedPackageIds,
-            );
+      final result = switch (_applyTarget) {
+        _AutogenApplyTarget.installed =>
+          await widget.getter.applyInstalledAutogen(
+            preview,
+            acceptedPackageIds: acceptedPackageIds,
+          ),
+        _AutogenApplyTarget.installedFdroid =>
+          await widget.getter.applyInstalledFdroidAutogen(
+            preview,
+            acceptedPackageIds: acceptedPackageIds,
+          ),
+        _AutogenApplyTarget.github => await widget.getter.applyGithubAutogen(
+          preview,
+          acceptedPackageIds: acceptedPackageIds,
+        ),
+      };
       if (!mounted) return;
       setState(() {
         _preview = null;
@@ -953,6 +1011,47 @@ class _InstalledAutogenPageState extends State<InstalledAutogenPage> {
               },
             ),
           ],
+          const SizedBox(height: 24),
+          Text(
+            'GitHub Android APK autogen',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            key: AppKeys.githubAutogenOwnerField,
+            decoration: const InputDecoration(labelText: 'GitHub owner'),
+            textInputAction: TextInputAction.next,
+            onChanged: (value) => _githubOwner = value,
+          ),
+          TextField(
+            key: AppKeys.githubAutogenRepoField,
+            decoration: const InputDecoration(labelText: 'GitHub repository'),
+            textInputAction: TextInputAction.next,
+            onChanged: (value) => _githubRepo = value,
+          ),
+          TextField(
+            key: AppKeys.githubAutogenAndroidPackageField,
+            decoration: const InputDecoration(labelText: 'Android package'),
+            textInputAction: TextInputAction.next,
+            onChanged: (value) => _githubAndroidPackage = value,
+          ),
+          TextField(
+            key: AppKeys.githubAutogenDisplayNameField,
+            decoration: const InputDecoration(
+              labelText: 'Display name (optional)',
+            ),
+            textInputAction: TextInputAction.done,
+            onChanged: (value) => _githubDisplayName = value,
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton.icon(
+            key: AppKeys.previewGithubAutogen,
+            onPressed: _running || !canUseBridge ? null : _previewGithubAutogen,
+            icon: const Icon(Icons.code),
+            label: Text(
+              _running ? 'Working…' : 'Preview GitHub Android APK autogen',
+            ),
+          ),
         ],
       ),
     );

@@ -179,6 +179,92 @@ void main() {
     );
   });
 
+  test(
+    'native GitHub autogen uses typed product fields and apply method',
+    () async {
+      final calls = <MethodCall>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            calls.add(call);
+            switch (call.method) {
+              case 'previewGithubAutogen':
+                return jsonEncode(<String, Object?>{
+                  'ok': true,
+                  'command': 'autogen github preview',
+                  'data': _githubPreviewJson(),
+                  'warnings': <Object?>[],
+                });
+              case 'applyGithubAutogen':
+                return jsonEncode(<String, Object?>{
+                  'ok': true,
+                  'command': 'autogen github apply',
+                  'data': <String, Object?>{
+                    'target_repo_id': 'autogen',
+                    'target_repo_path': '/getter/repo/autogen',
+                    'applied_count': 1,
+                    'applied': <Object?>[
+                      <String, Object?>{
+                        'package_id':
+                            'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+                        'output_relative_path':
+                            'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+                      },
+                    ],
+                  },
+                  'warnings': <Object?>[],
+                });
+              default:
+                fail('unexpected method ${call.method}');
+            }
+          });
+
+      const adapter = MethodChannelGetterAdapter(channel: channel);
+      final preview = await adapter.previewGithubAutogen(
+        const GithubAutogenPreviewInput(
+          owner: 'DUpdateSystem',
+          repo: 'UpgradeAll',
+          androidPackage: 'net.xzos.upgradeall',
+          displayName: 'UpgradeAll',
+        ),
+      );
+      final result = await adapter.applyGithubAutogen(
+        preview,
+        acceptedPackageIds: const <String>[
+          'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+        ],
+      );
+
+      expect(calls.first.method, 'previewGithubAutogen');
+      expect(calls.first.arguments, <String, Object?>{
+        'owner': 'DUpdateSystem',
+        'repo': 'UpgradeAll',
+        'android_package': 'net.xzos.upgradeall',
+        'display_name': 'UpgradeAll',
+      });
+      final previewArgs = (calls.first.arguments as Map<Object?, Object?>)
+          .cast<String, Object?>();
+      expect(previewArgs.containsKey('releases_json'), isFalse);
+      expect(previewArgs.containsKey('api_base_url'), isFalse);
+      expect(previewArgs.containsKey('mode'), isFalse);
+      expect(previewArgs.containsKey('asset'), isFalse);
+      expect(preview.operation, 'github.autogen.preview');
+      expect(calls.last.method, 'applyGithubAutogen');
+      final applyArgs = (calls.last.arguments as Map<Object?, Object?>)
+          .cast<String, Object?>();
+      expect(jsonDecode(applyArgs['preview_json']! as String), preview.rawJson);
+      expect(applyArgs['acceptance'], <String, Object?>{
+        'mode': 'packages',
+        'package_ids': <String>[
+          'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+        ],
+      });
+      expect(
+        result.applied.single.packageId,
+        'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+      );
+    },
+  );
+
   test('native default F-Droid catalog refresh sends no payload', () async {
     MethodCall? captured;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -713,6 +799,43 @@ Map<String, Object?> _fdroidPreviewJson() => <String, Object?>{
       'output_relative_path': 'android/f-droid/app/org.fdroid.fdroid',
       'content_hash': 'sha512:fake-fdroid',
       'content': '-- fake generated F-Droid content',
+    },
+  ],
+  'skipped': <Object?>[],
+  'diagnostics': <Object?>[],
+};
+
+Map<String, Object?> _githubPreviewJson() => <String, Object?>{
+  'operation': 'github.autogen.preview',
+  'provider': 'github',
+  'api_base_url': 'https://api.github.com',
+  'owner': 'DUpdateSystem',
+  'repo': 'UpgradeAll',
+  'cache_key': 'github:github-releases-v1:fake:DUpdateSystem/UpgradeAll',
+  'source': 'cache',
+  'target_repo_id': 'autogen',
+  'target_repo_path': '/getter/repo/autogen',
+  'summary': <String, Object?>{
+    'candidate_count': 1,
+    'skipped_count': 0,
+    'write_count': 1,
+    'delete_count': 0,
+  },
+  'candidates': <Object?>[
+    <String, Object?>{
+      'package_id':
+          'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+      'kind': 'android',
+      'display_name': 'UpgradeAll',
+      'installed_target': <String, Object?>{
+        'kind': 'android_package',
+        'package_name': 'net.xzos.upgradeall',
+      },
+      'action': 'create',
+      'output_relative_path':
+          'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+      'content_hash': 'sha512:fake-github',
+      'content': '-- fake generated GitHub content',
     },
   ],
   'skipped': <Object?>[],

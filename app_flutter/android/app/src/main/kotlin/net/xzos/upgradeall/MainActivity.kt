@@ -69,6 +69,17 @@ class MainActivity : FlutterActivity() {
                     nativeLib.applyInstalledFdroidAutogen(applyInstalledAutogenRequest(call))
                 }
 
+                "previewGithubAutogen" -> runGetterBridge(result) {
+                    nativeLib.previewGithubAutogen(
+                        applicationContext,
+                        previewGithubAutogenRequest(call),
+                    )
+                }
+
+                "applyGithubAutogen" -> runGetterBridge(result) {
+                    nativeLib.applyGithubAutogen(applyGithubAutogenRequest(call))
+                }
+
                 "previewFdroidAutogen" -> runGetterBridge(result) {
                     nativeLib.previewFdroidAutogen(previewFdroidAutogenRequest(call))
                 }
@@ -183,6 +194,20 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun applyInstalledAutogenRequest(call: MethodCall): String {
+        val args = call.arguments as? Map<*, *> ?: emptyMap<Any?, Any?>()
+        return JSONObject(GetterBridgeRequestBuilder.autogenApplyRequest(args))
+            .put("data_dir", getterDataDir().absolutePath)
+            .toString()
+    }
+
+    private fun previewGithubAutogenRequest(call: MethodCall): String {
+        val args = call.arguments as? Map<*, *> ?: emptyMap<Any?, Any?>()
+        return JSONObject(GetterBridgeRequestBuilder.githubAutogenPreviewRequest(args))
+            .put("data_dir", getterDataDir().absolutePath)
+            .toString()
+    }
+
+    private fun applyGithubAutogenRequest(call: MethodCall): String {
         val args = call.arguments as? Map<*, *> ?: emptyMap<Any?, Any?>()
         return JSONObject(GetterBridgeRequestBuilder.autogenApplyRequest(args))
             .put("data_dir", getterDataDir().absolutePath)

@@ -35,6 +35,15 @@ abstract interface class GetterAdapter {
     InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
   });
 
+  Future<InstalledAutogenPreview> previewGithubAutogen(
+    GithubAutogenPreviewInput input,
+  );
+
+  Future<InstalledAutogenApplyResult> applyGithubAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  });
+
   Future<FdroidCatalogCacheRefreshResult> refreshDefaultFdroidCatalogCache();
 
   Future<InstalledAutogenPreview> previewFdroidAutogen(
@@ -249,6 +258,68 @@ class FakeGetterAdapter implements GetterAdapter {
     InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
   }) async {
     return previewFdroidAutogen(<String, Object?>{});
+  }
+
+  @override
+  Future<InstalledAutogenPreview> previewGithubAutogen(
+    GithubAutogenPreviewInput input,
+  ) async {
+    return InstalledAutogenPreview.fromJson(const <String, Object?>{
+      'operation': 'github.autogen.preview',
+      'provider': 'github',
+      'api_base_url': 'https://api.github.com',
+      'owner': 'DUpdateSystem',
+      'repo': 'UpgradeAll',
+      'cache_key': 'github:github-releases-v1:fake:DUpdateSystem/UpgradeAll',
+      'source': 'cache',
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'summary': <String, Object?>{
+        'candidate_count': 1,
+        'skipped_count': 0,
+        'write_count': 1,
+        'delete_count': 0,
+      },
+      'candidates': <Object?>[
+        <String, Object?>{
+          'package_id':
+              'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+          'kind': 'android',
+          'display_name': 'UpgradeAll',
+          'installed_target': <String, Object?>{
+            'kind': 'android_package',
+            'package_name': 'net.xzos.upgradeall',
+          },
+          'action': 'create',
+          'output_relative_path':
+              'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+          'content_hash': 'sha512:fake-github',
+          'content': '-- fake generated GitHub content',
+        },
+      ],
+      'skipped': <Object?>[],
+      'diagnostics': <Object?>[],
+    });
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyGithubAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    return InstalledAutogenApplyResult.fromJson(const <String, Object?>{
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'applied_count': 1,
+      'applied': <Object?>[
+        <String, Object?>{
+          'package_id':
+              'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+          'output_relative_path':
+              'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+        },
+      ],
+    });
   }
 
   @override
@@ -980,6 +1051,31 @@ class InstalledAutogenScanOptions {
     'include_system_apps': includeSystemApps,
     'include_self': includeSelf,
   };
+}
+
+class GithubAutogenPreviewInput {
+  const GithubAutogenPreviewInput({
+    required this.owner,
+    required this.repo,
+    required this.androidPackage,
+    this.displayName,
+  });
+
+  final String owner;
+  final String repo;
+  final String androidPackage;
+  final String? displayName;
+
+  Map<String, Object?> toJson() {
+    final displayName = this.displayName?.trim();
+    return <String, Object?>{
+      'owner': owner.trim(),
+      'repo': repo.trim(),
+      'android_package': androidPackage.trim(),
+      if (displayName != null && displayName.isNotEmpty)
+        'display_name': displayName,
+    };
+  }
 }
 
 class FdroidCatalogCacheRefreshResult {
