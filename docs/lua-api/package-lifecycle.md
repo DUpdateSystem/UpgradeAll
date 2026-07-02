@@ -84,12 +84,14 @@ return package_version {
   updates = {
     {
       version = "1.2.0",
+      changelog = "Release notes from the provider, when available",
       channel = "stable",
       source = "fixture",
       artifacts = {
         {
           name = "app.apk",
           url = "https://example.invalid/app.apk",
+          content_type = "application/vnd.android.package-archive",
           file_name = "fdroid.apk",
         },
       },
@@ -97,6 +99,8 @@ return package_version {
   },
 }
 ```
+
+Update candidates may carry optional `changelog` text, and artifacts may carry optional `content_type`. Provider-backed operations populate those fields when upstream snapshots include them (for example GitHub release bodies and asset MIME/content types); getter preserves them through the runtime selected candidate/artifact DTO for rendering and later task planning, while download/install action issuance remains getter-owned.
 
 The first Phase D implementation exposes offline update checks through both a normalized CLI fixture command (`getter --data-dir <path> update check --fixture <fixture.json>`) and registered-package native/runtime action issuance over static Lua `updates`. These are mock-provider paths, not live provider output. They return `network_required = false`, update-check status, selected candidate/artifact, and getter-owned action issuance data. They do not execute network providers, download files, persist download tasks, stream progress events, or invoke Android installers.
 
