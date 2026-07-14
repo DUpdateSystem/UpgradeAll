@@ -4,6 +4,25 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 object GetterBridgeRequestBuilder {
+    fun startupRequest(dataDir: String, args: Map<*, *>): String {
+        val scanOptions = args["scan_options"] as? Map<*, *> ?: emptyMap<Any?, Any?>()
+        return JSONObject()
+            .put("data_dir", dataDir)
+            .put(
+                "scan_options",
+                JSONObject()
+                    .put(
+                        "include_system_apps",
+                        scanOptions["include_system_apps"] as? Boolean ?: false,
+                    )
+                    .put(
+                        "include_self",
+                        scanOptions["include_self"] as? Boolean ?: false,
+                    ),
+            )
+            .toString()
+    }
+
     fun readOperationRequest(args: Map<*, *>): String = operationRequest(args)
 
     fun runtimeOperationRequest(args: Map<*, *>): String = operationRequest(args)

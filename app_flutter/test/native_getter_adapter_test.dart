@@ -432,82 +432,63 @@ void main() {
   });
 
   test(
-    'native snapshot reads repositories and package data through getter',
+    'native snapshot makes one startup request and parses getter facts',
     () async {
       final calls = <MethodCall>[];
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (call) async {
             calls.add(call);
-            final args = (call.arguments as Map<Object?, Object?>)
-                .cast<String, Object?>();
-            switch (args['operation']) {
-              case 'repository_list':
-                return jsonEncode(<String, Object?>{
-                  'ok': true,
-                  'command': 'read operation',
-                  'data': <String, Object?>{
-                    'repositories': <Object?>[
-                      <String, Object?>{'id': 'official', 'priority': 0},
-                    ],
-                  },
-                  'warnings': <Object?>[],
-                });
-              case 'tracked_package_list':
-                return jsonEncode(<String, Object?>{
-                  'ok': true,
-                  'command': 'read operation',
-                  'data': <String, Object?>{
-                    'packages': <Object?>[
-                      <String, Object?>{
-                        'id': 'android/org.fdroid.fdroid',
-                        'enabled': true,
-                        'favorite': false,
-                        'pin_version': null,
-                        'repository_id': 'official',
-                        'package_resolution': 'official_repository_package',
-                      },
-                    ],
-                  },
-                  'warnings': <Object?>[],
-                });
-              case 'package_eval':
-                expect(args['payload'], <String, Object?>{
-                  'package_id': 'android/org.fdroid.fdroid',
-                  'repository_id': 'official',
-                });
-                return jsonEncode(<String, Object?>{
-                  'ok': true,
-                  'command': 'read operation',
-                  'data': <String, Object?>{
-                    'package': <String, Object?>{
-                      'id': 'android/org.fdroid.fdroid',
-                      'name': 'F-Droid',
-                      'repository': 'official',
-                      'permissions': <String, Object?>{'free_network': true},
-                    },
-                  },
-                  'warnings': <Object?>[],
-                });
-              default:
-                fail('unexpected read operation ${args['operation']}');
-            }
+            return jsonEncode(<String, Object?>{
+              'ok': true,
+              'command': 'startup',
+              'data': _startupSnapshotJson(),
+              'warnings': <Object?>[],
+            });
           });
 
       const adapter = MethodChannelGetterAdapter(channel: channel);
       final snapshot = await adapter.loadSnapshot();
 
-      expect(calls.map((call) => call.method), <String>[
-        'readOperation',
-        'readOperation',
-        'readOperation',
-      ]);
-      expect(snapshot.status, 'Getter native bridge ready');
+      expect(calls, hasLength(1));
+      expect(calls.single.method, 'startup');
+      expect(calls.single.arguments, <String, Object?>{
+        'scan_options': <String, Object?>{
+          'include_system_apps': false,
+          'include_self': false,
+        },
+      });
+      expect(snapshot.status, 'Getter already initialized');
+      expect(snapshot.updateCount, 1);
       expect(snapshot.repositories.single.id, 'official');
-      expect(snapshot.apps.single.id, 'android/org.fdroid.fdroid');
       expect(snapshot.apps.single.name, 'F-Droid');
-      expect(snapshot.apps.single.hasFreeNetworkWarning, isTrue);
+      expect(snapshot.apps.single.installedVersion, '1.20.0');
+      expect(snapshot.apps.single.latestVersion, '1.21.0');
+      expect(snapshot.apps.single.updateStatus, 'available');
+      expect(
+        snapshot.apps.single.diagnostics.single.code,
+        'provider.cache_miss',
+      );
+      expect(
+        snapshot.diagnostics.map((diagnostic) => diagnostic.code),
+        <String>[
+          'storage.main_migrations_applied',
+          'platform.partial_inventory',
+        ],
+      );
     },
   );
+
+  test('startup snapshot rejects unknown update status', () {
+    final payload = _startupSnapshotJson();
+    final app =
+        (payload['apps']! as List<Object?>).single as Map<String, Object?>;
+    app['update_status'] = 'unknown';
+
+    expect(
+      () => GetterSnapshot.fromStartupJson(payload),
+      throwsA(isA<FormatException>()),
+    );
+  });
 
   test('runtime notification stream decodes pushed JSON events', () async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -886,4 +867,73 @@ Map<String, Object?> _previewJson() => <String, Object?>{
   ],
   'skipped': <Object?>[],
   'diagnostics': <Object?>[],
+};
+
+Map<String, Object?> _startupSnapshotJson() => <String, Object?>{
+  'format': 'getter-startup-snapshot',
+  'version': 1,
+  'bootstrap': <String, Object?>{
+    'lifecycle': 'already_initialized',
+    'data_dir': '/getter',
+    'main_db': <String, Object?>{
+      'path': '/getter/main.db',
+      'contract_version': 1,
+      'created_this_call': false,
+    },
+    'cache_db': <String, Object?>{
+      'path': '/getter/cache.db',
+      'contract_version': 1,
+      'created_this_call': false,
+    },
+    'repo': '/getter/repo',
+    'rc': '/getter/rc',
+    'repo_metadata': '/getter/repo/metadata.jsonc',
+    'diagnostics': <Object?>[
+      <String, Object?>{
+        'code': 'storage.main_migrations_applied',
+        'message': 'Main storage schema migrations were applied',
+      },
+    ],
+  },
+  'repositories': <Object?>[
+    <String, Object?>{
+      'id': 'official',
+      'name': 'Official',
+      'priority': 0,
+      'api_version': 'v1',
+      'path': null,
+      'revision': null,
+    },
+  ],
+  'apps': <Object?>[
+    <String, Object?>{
+      'package_id': 'android/org.fdroid.fdroid',
+      'repository_id': 'official',
+      'name': 'F-Droid',
+      'favorite': true,
+      'pin_version': null,
+      'installed_target': <String, Object?>{
+        'kind': 'android_package',
+        'id': 'org.fdroid.fdroid',
+      },
+      'installed_version': '1.20.0',
+      'effective_installed_version': '1.20.0',
+      'latest_version': '1.21.0',
+      'update_status': 'available',
+      'warning': <String, Object?>{'free_network': false},
+      'diagnostics': <Object?>[
+        <String, Object?>{
+          'code': 'provider.cache_miss',
+          'message': 'No cached provider response',
+        },
+      ],
+    },
+  ],
+  'update_count': 1,
+  'diagnostics': <Object?>[
+    <String, Object?>{
+      'code': 'platform.partial_inventory',
+      'message': 'One package could not be inspected',
+    },
+  ],
 };

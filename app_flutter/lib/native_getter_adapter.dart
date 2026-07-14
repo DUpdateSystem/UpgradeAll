@@ -206,67 +206,13 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
 
   @override
   Future<GetterSnapshot> loadSnapshot() async {
-    final repositoriesData = await invokeReadOperation('repository_list');
-    final trackedData = await invokeReadOperation('tracked_package_list');
-    final repositories = _asList(
-      repositoriesData['repositories'],
-      'repositories',
-    ).map(_repositoryFromJson).toList(growable: false);
-    final trackedPackages = _asList(trackedData['packages'], 'tracked packages')
-        .map(
-          (tracked) => TrackedPackageSummary.fromJson(
-            _asMap(tracked, 'tracked package'),
-          ),
-        )
-        .toList(growable: false);
-    final apps = <AppSummary>[];
-    for (final tracked in trackedPackages) {
-      try {
-        final package = await _evaluatePackageFromGetter(
-          tracked.id,
-          repositoryId: tracked.repositoryId,
-        );
-        apps.add(
-          AppSummary(
-            id: tracked.id,
-            name: package.name,
-            installedVersion: 'unknown',
-            latestVersion: 'unknown',
-            hasFreeNetworkWarning: package.hasFreeNetworkWarning,
-          ),
-        );
-      } catch (_) {
-        apps.add(
-          AppSummary(
-            id: tracked.id,
-            name: tracked.id,
-            installedVersion: 'unknown',
-            latestVersion: 'unknown',
-            hasFreeNetworkWarning: false,
-          ),
-        );
-      }
-    }
-    return GetterSnapshot(
-      status: 'Getter native bridge ready',
-      updateCount: 0,
-      apps: apps,
-      repositories: repositories,
-    );
-  }
-
-  Future<PackageEvaluation> _evaluatePackageFromGetter(
-    String packageId, {
-    String? repositoryId,
-  }) async {
-    final data = await invokeReadOperation(
-      'package_eval',
-      payload: <String, Object?>{
-        'package_id': packageId,
-        'repository_id': ?repositoryId,
+    final data = await _invokeGetterData('startup', <String, Object?>{
+      'scan_options': <String, Object?>{
+        'include_system_apps': false,
+        'include_self': false,
       },
-    );
-    return _packageEvaluationFromJson(_asMap(data['package'], 'package'));
+    });
+    return GetterSnapshot.fromStartupJson(data);
   }
 
   @override
@@ -431,27 +377,6 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   }
 }
 
-RepositorySummary _repositoryFromJson(Object? value) {
-  final json = _asMap(value, 'repository');
-  return RepositorySummary(
-    id: _asString(json['id'], 'repository.id'),
-    priority: _asInt(json['priority'], 'repository.priority'),
-  );
-}
-
-PackageEvaluation _packageEvaluationFromJson(Map<String, Object?> json) {
-  final permissions = _asMap(json['permissions'], 'package.permissions');
-  return PackageEvaluation(
-    id: _asString(json['id'], 'package.id'),
-    repositoryId: _asString(json['repository'], 'package.repository'),
-    name: _asString(json['name'], 'package.name'),
-    hasFreeNetworkWarning: _asBool(
-      permissions['free_network'],
-      'package.permissions.free_network',
-    ),
-  );
-}
-
 GetterError _errorFromEnvelope(Map<String, Object?> envelope) {
   final error = _asMap(envelope['error'], 'getter bridge error');
   return GetterError(
@@ -476,14 +401,4 @@ List<Object?> _asList(Object? value, String name) {
 String _asString(Object? value, String name) {
   if (value is String) return value;
   throw FormatException('$name should be a string');
-}
-
-int _asInt(Object? value, String name) {
-  if (value is int) return value;
-  throw FormatException('$name should be an integer');
-}
-
-bool _asBool(Object? value, String name) {
-  if (value is bool) return value;
-  throw FormatException('$name should be a boolean');
 }

@@ -74,6 +74,38 @@ class GetterBridgeRequestBuilderTest {
     }
 
     @Test
+    fun startupRequestAddsDataDirAndForwardsOnlyScanOptions() {
+        val json = JSONObject(
+            GetterBridgeRequestBuilder.startupRequest(
+                "/app/files/getter",
+                mapOf(
+                    "scan_options" to mapOf(
+                        "include_system_apps" to true,
+                        "include_self" to false,
+                    ),
+                    "inventory" to mapOf("items" to emptyList<Any>()),
+                    "provider" to "github",
+                    "cache" to true,
+                    "endpoint" to "https://example.invalid",
+                    "transport" to "live",
+                ),
+            ),
+        )
+
+        assertEquals("/app/files/getter", json.getString("data_dir"))
+        assertEquals(
+            true,
+            json.getJSONObject("scan_options").getBoolean("include_system_apps"),
+        )
+        assertEquals(false, json.has("inventory"))
+        assertEquals(false, json.has("provider"))
+        assertEquals(false, json.has("cache"))
+        assertEquals(false, json.has("endpoint"))
+        assertEquals(false, json.has("transport"))
+        assertEquals(2, json.length())
+    }
+
+    @Test
     fun githubAutogenPreviewRequestCarriesOnlyProductFields() {
         val json = JSONObject(
             GetterBridgeRequestBuilder.githubAutogenPreviewRequest(

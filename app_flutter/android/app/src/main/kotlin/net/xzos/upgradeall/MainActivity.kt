@@ -104,6 +104,16 @@ class MainActivity : FlutterActivity() {
                     nativeLib.legacyReportList(legacyReportListRequest())
                 }
 
+                "startup" -> runGetterBridge(result) {
+                    nativeLib.startup(
+                        applicationContext,
+                        GetterBridgeRequestBuilder.startupRequest(
+                            getterDataDir().absolutePath,
+                            call.arguments as? Map<*, *> ?: emptyMap<Any?, Any?>(),
+                        ),
+                    )
+                }
+
                 "readOperation" -> runGetterBridge(result) {
                     nativeLib.readOperation(readOperationRequest(call))
                 }

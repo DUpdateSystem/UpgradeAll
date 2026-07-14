@@ -117,7 +117,7 @@ void main() {
       );
 
       final snapshot = await adapter.loadSnapshot();
-      expect(snapshot.status, 'Getter CLI ready');
+      expect(snapshot.status, 'Getter already initialized');
       expect(
         snapshot.repositories.map((repo) => repo.id),
         contains('official'),
@@ -125,8 +125,15 @@ void main() {
       final app = snapshot.apps.singleWhere(
         (app) => app.id == 'android/org.fdroid.fdroid',
       );
-      expect(app.name, 'F-Droid');
-      expect(app.installedVersion, 'unknown');
+      expect(
+        app.name,
+        'F-Droid',
+        reason: app.diagnostics
+            .map((d) => '${d.code}: ${d.message}')
+            .join('\n'),
+      );
+      expect(app.installedVersion, isNull);
+      expect(app.updateStatus, 'not_installed');
       expect(app.hasFreeNetworkWarning, isTrue);
     },
   );

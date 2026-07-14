@@ -20,6 +20,7 @@ class NativeLib {
     external fun applyInstalledAutogen(requestJson: String): String
     external fun importLegacyRoomDatabase(requestJson: String): String
     external fun legacyReportList(requestJson: String): String
+    external fun startup(context: Context, requestJson: String): String
     external fun readOperation(requestJson: String): String
     external fun runtimeOperation(requestJson: String): String
     external fun drainRuntimeNotifications(): String

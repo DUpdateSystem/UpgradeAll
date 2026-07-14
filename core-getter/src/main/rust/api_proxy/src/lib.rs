@@ -8,6 +8,7 @@ use getter::operations::legacy_room::{self, LegacyRoomOperationError};
 use getter::operations::provider_cache::{ProviderCacheMode, ProviderCacheSource};
 use getter::operations::read_model::{self, ReadModelOperationError};
 use getter::operations::runtime as runtime_operations;
+use getter::operations::startup as startup_operations;
 use getter::rpc::server::run_server_hanging;
 #[cfg(target_os = "android")]
 use getter::rustls_platform_verifier;
@@ -95,6 +96,14 @@ struct ImportLegacyRoomDatabaseRequest {
 #[derive(Debug, Deserialize)]
 struct LegacyReportListRequest {
     data_dir: PathBuf,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct StartupRequest {
+    data_dir: PathBuf,
+    #[serde(default)]
+    scan_options: InstalledInventoryScanOptions,
 }
 
 #[derive(Debug, Deserialize)]
@@ -429,6 +438,25 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_legacyReportList<'lo
 }
 
 #[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_startup<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    context: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "startup";
+    let response = match init_android_integrations(&mut env, &context)
+        .map_err(BridgeOperationError::Initialize)
+        .and_then(|()| jstring_to_string(&mut env, &request_json))
+        .and_then(startup_operation)
+    {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
 pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_readOperation<'local>(
     mut env: JNIEnv<'local>,
     _: JObject<'local>,
@@ -698,6 +726,47 @@ fn drain_runtime_notifications() -> Result<Value, BridgeOperationError> {
     Ok(json!({ "notifications": notifications }))
 }
 
+fn startup_operation(request_json: String) -> Result<Value, BridgeOperationError> {
+    startup_operation_with_scanner(&request_json, scan_installed_inventory)
+}
+
+fn startup_operation_with_scanner<F>(
+    request_json: &str,
+    scanner: F,
+) -> Result<Value, BridgeOperationError>
+where
+    F: FnOnce(
+        InstalledInventoryScanOptions,
+    ) -> Result<
+        upgradeall_platform_adapter::InstalledInventoryScanResult,
+        BridgeOperationError,
+    >,
+{
+    let request: StartupRequest = serde_json::from_str(request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let scan = scanner(request.scan_options)?;
+    let inventory = serde_json::to_value(&scan.inventory)
+        .and_then(serde_json::from_value)
+        .map_err(|source| BridgeOperationError::PlatformMalformed(source.to_string()))?;
+    let mut snapshot = startup_operations::startup(&request.data_dir, inventory)?;
+    snapshot
+        .diagnostics
+        .extend(scan.diagnostics.into_iter().map(|diagnostic| {
+            startup_operations::StartupDiagnostic {
+                code: diagnostic.code,
+                message: diagnostic.message,
+            }
+        }));
+    let mut value = serde_json::to_value(snapshot)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    value["platform"] = json!({
+        "inventory_scan": {
+            "stats": scan.stats,
+        }
+    });
+    Ok(value)
+}
+
 fn read_operation(request_json: String) -> Result<Value, BridgeOperationError> {
     let request: ReadOperationRequest = serde_json::from_str(&request_json)
         .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
@@ -930,6 +999,8 @@ enum BridgeOperationError {
     Migration(#[from] LegacyRoomOperationError),
     #[error("read model error: {0}")]
     ReadModel(#[from] ReadModelOperationError),
+    #[error("startup error: {0}")]
+    Startup(#[from] startup_operations::StartupError),
     #[error("runtime error: {0}")]
     Runtime(#[from] runtime_operations::RuntimeOperationError),
     #[error("runtime lock is poisoned")]
@@ -1013,6 +1084,11 @@ impl BridgeOperationError {
                     .or_else(|| error.report_path().map(|path| path.display().to_string())),
             ),
             Self::ReadModel(error) => (error.code(), error.message(), error.detail()),
+            Self::Startup(error) => (
+                "startup.failed",
+                "Getter startup failed",
+                Some(error.to_string()),
+            ),
             Self::Runtime(error) => (error.code(), error.message(), error.detail()),
             Self::RuntimePoisoned => ("runtime.poisoned", "Getter runtime lock is poisoned", None),
             Self::RuntimeNotificationQueuePoisoned => (
@@ -1357,6 +1433,114 @@ mod tests {
             preview["candidates"][0]["package_id"],
             "android/f-droid/app/org.fdroid.fdroid"
         );
+    }
+
+    #[test]
+    fn startup_scans_platform_inventory_and_surfaces_stable_scan_facts() {
+        let temp = tempfile::tempdir().unwrap();
+        let data_dir = temp.path().join("data");
+        let repo_root = temp.path().join("repo");
+        write_static_update_repo(&repo_root);
+        let db = open_main_db(&data_dir).unwrap();
+        let repository_id: getter::core::RepositoryId = "official".parse().unwrap();
+        db.upsert_repository(
+            &RepositoryMetadata {
+                id: repository_id.clone(),
+                name: "Official".to_owned(),
+                priority: RepositoryPriority::DEFAULT,
+                api_version: REPO_API_VERSION_V1.to_owned(),
+            },
+            Some(&repo_root),
+            None,
+        )
+        .unwrap();
+        db.upsert_tracked_package(&getter::storage::TrackedPackageUpsert {
+            package_id: "android/org.fdroid.fdroid".parse().unwrap(),
+            enabled: true,
+            favorite: false,
+            pin_version: None,
+            repository_id: Some(repository_id),
+            package_resolution: getter::storage::StoredPackageResolution::OfficialRepositoryPackage,
+        })
+        .unwrap();
+        let mut scanned_options = None;
+
+        let snapshot = startup_operation_with_scanner(
+            &json!({
+                "data_dir": data_dir,
+                "scan_options": {"include_system_apps": true, "include_self": false}
+            })
+            .to_string(),
+            |options| {
+                scanned_options = Some(options.clone());
+                Ok(upgradeall_platform_adapter::InstalledInventoryScanResult {
+                    inventory: upgradeall_platform_adapter::InstalledInventory::new(vec![
+                        upgradeall_platform_adapter::InstalledInventoryItem::AndroidPackage {
+                            package_name: "org.fdroid.fdroid".to_owned(),
+                            label: Some("F-Droid".to_owned()),
+                            version_name: Some("2.4.0".to_owned()),
+                            version_code: Some(24),
+                        },
+                    ]),
+                    stats: upgradeall_platform_adapter::InstalledInventoryScanStats {
+                        total_seen: 2,
+                        returned: 1,
+                        filtered_system: 1,
+                        filtered_self: 0,
+                    },
+                    diagnostics: vec![upgradeall_platform_adapter::PlatformDiagnostic {
+                        code: "platform.partial_inventory".to_owned(),
+                        message: "One package could not be inspected".to_owned(),
+                        detail: Some("platform-only detail".to_owned()),
+                    }],
+                })
+            },
+        )
+        .unwrap();
+
+        assert_eq!(scanned_options.unwrap().include_system_apps, true);
+        assert_eq!(snapshot["apps"][0]["installed_version"], "2.4.0");
+        assert_eq!(
+            snapshot["platform"]["inventory_scan"]["stats"]["returned"],
+            1
+        );
+        assert!(snapshot["diagnostics"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|item| {
+                item["code"] == "platform.partial_inventory"
+                    && item["message"] == "One package could not be inspected"
+                    && item.get("detail").is_none()
+            }));
+    }
+
+    #[test]
+    fn startup_rejects_domain_and_transport_inputs_before_platform_scan() {
+        let temp = tempfile::tempdir().unwrap();
+        for forbidden in [
+            (
+                "inventory",
+                json!({"format": "upgradeall-installed-inventory", "version": 1, "items": []}),
+            ),
+            ("provider", json!("github")),
+            ("cache", json!(true)),
+            ("endpoint", json!("https://example.invalid")),
+            ("transport", json!("live")),
+        ] {
+            let mut request = serde_json::Map::from_iter([
+                ("data_dir".to_owned(), json!(temp.path().join("data"))),
+                ("scan_options".to_owned(), json!({})),
+            ]);
+            request.insert(forbidden.0.to_owned(), forbidden.1);
+
+            let error = startup_operation(Value::Object(request).to_string()).unwrap_err();
+            assert!(
+                matches!(error, BridgeOperationError::InvalidRequest(_)),
+                "{} must be rejected at the startup request boundary: {error}",
+                forbidden.0,
+            );
+        }
     }
 
     #[test]

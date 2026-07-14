@@ -247,6 +247,18 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+              if (data != null && data.diagnostics.isNotEmpty)
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.info_outline),
+                    title: const Text('Startup diagnostics'),
+                    subtitle: Text(
+                      data.diagnostics
+                          .map((diagnostic) => diagnostic.message)
+                          .join('\n'),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 16),
               const _RouteButton(
                 key: AppKeys.openApps,
@@ -333,8 +345,10 @@ class _AppsPageState extends State<AppsPage> {
               return ListTile(
                 key: AppKeys.appRow(app.id),
                 title: Text(app.name),
-                subtitle: Text('${app.id} • ${app.installedVersion}'),
-                trailing: app.hasFreeNetworkWarning
+                subtitle: Text(_appSummaryLine(app)),
+                trailing: app.updateStatus == 'available'
+                    ? const Chip(label: Text('Update available'))
+                    : app.hasFreeNetworkWarning
                     ? const Chip(
                         label: Text('Network'),
                         backgroundColor: Colors.amber,
@@ -380,7 +394,7 @@ class _AppDetailPageState extends State<AppDetailPage> {
     try {
       final result = await widget.getter.checkPackageForUpdate(
         widget.app.id,
-        installedVersion: _knownVersion(widget.app.installedVersion),
+        installedVersion: widget.app.installedVersion,
       );
       final action = result.action;
       if (action == null) {
@@ -423,8 +437,12 @@ class _AppDetailPageState extends State<AppDetailPage> {
         children: <Widget>[
           Text(app.id, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
-          Text('Installed: ${app.installedVersion}'),
-          Text('Latest: ${app.latestVersion}'),
+          Text('Installed: ${_displayVersion(app.installedVersion)}'),
+          Text('Latest: ${_displayVersion(app.latestVersion)}'),
+          Text('Update: ${_displayUpdateStatus(app.updateStatus)}'),
+          if (app.repositoryId != null) Text('Repository: ${app.repositoryId}'),
+          if (app.pinVersion != null) Text('Pinned: ${app.pinVersion}'),
+          for (final diagnostic in app.diagnostics) Text(diagnostic.message),
           const SizedBox(height: 16),
           FilledButton.icon(
             key: AppKeys.checkPackageUpdate(app.id),
@@ -458,10 +476,28 @@ class _AppDetailPageState extends State<AppDetailPage> {
   }
 }
 
-String? _knownVersion(String version) {
-  final normalized = version.trim();
-  return normalized.isEmpty || normalized == 'unknown' ? null : normalized;
-}
+String _displayVersion(String? version) => version ?? 'Not available';
+
+String _displayUpdateStatus(String status) => switch (status) {
+  'available' => 'available',
+  'up_to_date' => 'up to date',
+  'no_candidates' => 'no candidates',
+  'not_installed' => 'not installed',
+  _ => throw StateError('Unsupported getter update status: $status'),
+};
+
+String _appSummaryLine(AppSummary app) => switch (app.updateStatus) {
+  'available' =>
+    '${_displayVersion(app.installedVersion)} installed • ${_displayVersion(app.latestVersion)} available',
+  'up_to_date' =>
+    '${_displayVersion(app.installedVersion)} installed • up to date',
+  'no_candidates' =>
+    '${_displayVersion(app.installedVersion)} installed • no update candidates',
+  'not_installed' => 'Not installed',
+  _ => throw StateError(
+    'Unsupported getter update status: ${app.updateStatus}',
+  ),
+};
 
 class RepositoriesPage extends StatefulWidget {
   const RepositoriesPage({super.key, required this.getter});

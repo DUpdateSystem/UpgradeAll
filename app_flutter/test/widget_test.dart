@@ -21,6 +21,37 @@ void main() {
     expect(find.text('Fake getter ready'), findsOneWidget);
   });
 
+  testWidgets('getter facts render on home, apps, and app detail', (
+    tester,
+  ) async {
+    const getter = _StartupFactsGetterAdapter();
+    await tester.pumpWidget(const UpgradeAllApp(getter: getter));
+    await tester.pumpAndSettle();
+
+    expect(find.text('1 updates available'), findsOneWidget);
+
+    await tester.tap(find.byKey(AppKeys.openApps));
+    await tester.pumpAndSettle();
+    expect(find.text('2.0 installed • 3.0 available'), findsOneWidget);
+    expect(find.text('Update available'), findsOneWidget);
+
+    await tester.tap(find.byKey(AppKeys.appRow('android/app/com.example')));
+    await tester.pumpAndSettle();
+    expect(find.text('Installed: 2.0'), findsOneWidget);
+    expect(find.text('Latest: 3.0'), findsOneWidget);
+    expect(find.text('Update: available'), findsOneWidget);
+    expect(find.text('Cache miss'), findsOneWidget);
+  });
+
+  testWidgets('startup diagnostics render once on home', (tester) async {
+    const getter = _StartupDiagnosticGetterAdapter();
+    await tester.pumpWidget(const UpgradeAllApp(getter: getter));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Startup diagnostics'), findsOneWidget);
+    expect(find.text('One package could not be inspected'), findsOneWidget);
+  });
+
   testWidgets('app list and detail routes use stable keys', (tester) async {
     await tester.pumpWidget(const UpgradeAllApp());
 
@@ -1061,4 +1092,48 @@ class _MissingLegacyMigrationPlatform implements LegacyMigrationPlatform {
       message: 'No legacy Room database found',
     );
   }
+}
+
+class _StartupDiagnosticGetterAdapter extends FakeGetterAdapter {
+  const _StartupDiagnosticGetterAdapter();
+
+  @override
+  Future<GetterSnapshot> loadSnapshot() async => const GetterSnapshot(
+    status: 'Getter initialized',
+    updateCount: 0,
+    apps: <AppSummary>[],
+    repositories: <RepositorySummary>[],
+    diagnostics: <GetterDiagnostic>[
+      GetterDiagnostic(
+        code: 'platform.partial_inventory',
+        message: 'One package could not be inspected',
+      ),
+    ],
+  );
+}
+
+class _StartupFactsGetterAdapter extends FakeGetterAdapter {
+  const _StartupFactsGetterAdapter();
+
+  @override
+  Future<GetterSnapshot> loadSnapshot() async => const GetterSnapshot(
+    status: 'Getter already initialized',
+    updateCount: 1,
+    repositories: <RepositorySummary>[
+      RepositorySummary(id: 'official', priority: 0),
+    ],
+    apps: <AppSummary>[
+      AppSummary(
+        id: 'android/app/com.example',
+        name: 'Example',
+        installedVersion: '2.0',
+        latestVersion: '3.0',
+        updateStatus: 'available',
+        hasFreeNetworkWarning: false,
+        diagnostics: <GetterDiagnostic>[
+          GetterDiagnostic(code: 'provider.cache_miss', message: 'Cache miss'),
+        ],
+      ),
+    ],
+  );
 }

@@ -549,12 +549,60 @@ class GetterSnapshot {
     required this.updateCount,
     required this.apps,
     required this.repositories,
+    this.diagnostics = const <GetterDiagnostic>[],
   });
+
+  factory GetterSnapshot.fromStartupJson(Map<String, Object?> json) {
+    final bootstrap = _jsonMap(json['bootstrap'], 'startup.bootstrap');
+    final lifecycle = _jsonString(
+      bootstrap['lifecycle'],
+      'startup.bootstrap.lifecycle',
+    );
+    return GetterSnapshot(
+      status: lifecycle == 'already_initialized'
+          ? 'Getter already initialized'
+          : 'Getter initialized',
+      updateCount: _jsonInt(json['update_count'], 'startup.update_count'),
+      repositories: _jsonList(json['repositories'], 'startup.repositories')
+          .map((value) {
+            final repository = _jsonMap(value, 'startup.repository');
+            return RepositorySummary(
+              id: _jsonString(repository['id'], 'startup.repository.id'),
+              priority: _jsonInt(
+                repository['priority'],
+                'startup.repository.priority',
+              ),
+            );
+          })
+          .toList(growable: false),
+      apps: _jsonList(json['apps'], 'startup.apps')
+          .map(
+            (value) =>
+                AppSummary.fromStartupJson(_jsonMap(value, 'startup.app')),
+          )
+          .toList(growable: false),
+      diagnostics: <GetterDiagnostic>[
+        ..._jsonList(
+          bootstrap['diagnostics'],
+          'startup.bootstrap.diagnostics',
+        ).map(
+          (value) => GetterDiagnostic.fromJson(
+            _jsonMap(value, 'startup.bootstrap.diagnostic'),
+          ),
+        ),
+        ..._jsonList(json['diagnostics'], 'startup.diagnostics').map(
+          (value) =>
+              GetterDiagnostic.fromJson(_jsonMap(value, 'startup.diagnostic')),
+        ),
+      ],
+    );
+  }
 
   final String status;
   final int updateCount;
   final List<AppSummary> apps;
   final List<RepositorySummary> repositories;
+  final List<GetterDiagnostic> diagnostics;
 }
 
 class AppSummary {
@@ -564,13 +612,76 @@ class AppSummary {
     required this.installedVersion,
     required this.latestVersion,
     required this.hasFreeNetworkWarning,
+    this.updateStatus = 'up_to_date',
+    this.repositoryId,
+    this.pinVersion,
+    this.diagnostics = const <GetterDiagnostic>[],
   });
+
+  factory AppSummary.fromStartupJson(Map<String, Object?> json) {
+    final warning = _jsonMap(json['warning'], 'startup.app.warning');
+    return AppSummary(
+      id: _jsonString(json['package_id'], 'startup.app.package_id'),
+      name:
+          _jsonOptionalString(json['name'], 'startup.app.name') ??
+          _jsonString(json['package_id'], 'startup.app.package_id'),
+      installedVersion: _jsonOptionalString(
+        json['installed_version'],
+        'startup.app.installed_version',
+      ),
+      latestVersion: _jsonOptionalString(
+        json['latest_version'],
+        'startup.app.latest_version',
+      ),
+      updateStatus: _parseStartupUpdateStatus(
+        json['update_status'],
+        'startup.app.update_status',
+      ),
+      repositoryId: _jsonOptionalString(
+        json['repository_id'],
+        'startup.app.repository_id',
+      ),
+      pinVersion: _jsonOptionalString(
+        json['pin_version'],
+        'startup.app.pin_version',
+      ),
+      hasFreeNetworkWarning: _jsonBool(
+        warning['free_network'],
+        'startup.app.warning.free_network',
+      ),
+      diagnostics: _jsonList(json['diagnostics'], 'startup.app.diagnostics')
+          .map(
+            (value) => GetterDiagnostic.fromJson(
+              _jsonMap(value, 'startup.app.diagnostic'),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
 
   final String id;
   final String name;
-  final String installedVersion;
-  final String latestVersion;
+  final String? installedVersion;
+  final String? latestVersion;
+  final String updateStatus;
+  final String? repositoryId;
+  final String? pinVersion;
   final bool hasFreeNetworkWarning;
+  final List<GetterDiagnostic> diagnostics;
+}
+
+class GetterDiagnostic {
+  const GetterDiagnostic({required this.code, required this.message});
+
+  factory GetterDiagnostic.fromJson(Map<String, Object?> json) {
+    return GetterDiagnostic(
+      code: _jsonString(json['code'], 'diagnostic.code'),
+      message: _jsonString(json['message'], 'diagnostic.message'),
+    );
+  }
+
+  final String code;
+  final String message;
 }
 
 class RepositorySummary {
@@ -1555,6 +1666,20 @@ List<Object?> _jsonList(Object? value, String name) {
 String _jsonString(Object? value, String name) {
   if (value is String) return value;
   throw FormatException('$name should be a string');
+}
+
+String _parseStartupUpdateStatus(Object? value, String name) {
+  final status = _jsonString(value, name);
+  const supported = <String>{
+    'available',
+    'up_to_date',
+    'no_candidates',
+    'not_installed',
+  };
+  if (!supported.contains(status)) {
+    throw FormatException('$name has unsupported value "$status"');
+  }
+  return status;
 }
 
 String? _jsonOptionalString(Object? value, String name) {

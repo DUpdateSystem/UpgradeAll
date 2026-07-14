@@ -24,6 +24,8 @@ The Flutter UI should preserve these user-visible product capabilities unless ex
 - Migration/recovery status.
 - Yellow warning tag for free-network Lua scripts.
 
+Home, Apps, and App detail consume one getter-owned startup snapshot. Rust actively requests raw installed-app inventory from the platform adapter, initializes/migrates the getter data layout idempotently, resolves tracked packages through repository priority, and performs cache-only update evaluation. Flutter renders nullable installed/latest facts, exact update status, warnings, and diagnostics from that snapshot; it must not synthesize versions or update counts, select repositories, parse provider data, or trigger live refresh during startup.
+
 ## BDD vs TDD boundary
 
 Use mixed BDD and TDD.

@@ -281,31 +281,8 @@ class CliGetterAdapter implements GetterAdapter {
 
   @override
   Future<GetterSnapshot> loadSnapshot() async {
-    initialize();
-    final repositories = listRepositories();
-    final trackedPackages = listTrackedPackages();
-    final apps = trackedPackages
-        .map((tracked) {
-          final evaluated = evaluatePackage(
-            tracked.id,
-            repositoryId: tracked.repositoryId,
-          );
-          return AppSummary(
-            id: tracked.id,
-            name: evaluated.name,
-            installedVersion: 'unknown',
-            latestVersion: 'unknown',
-            hasFreeNetworkWarning: evaluated.hasFreeNetworkWarning,
-          );
-        })
-        .toList(growable: false);
-
-    return GetterSnapshot(
-      status: 'Getter CLI ready',
-      updateCount: 0,
-      apps: apps,
-      repositories: repositories,
-    );
+    final json = _runGetter(const <String>['startup']);
+    return GetterSnapshot.fromStartupJson(_data(json));
   }
 
   Map<String, Object?> _runGetter(List<String> commandArgs) {
