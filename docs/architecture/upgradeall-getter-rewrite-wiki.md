@@ -1149,6 +1149,15 @@ getter storage validate
 getter legacy migrate
 ```
 
+当前正常包检查入口为：
+
+```bash
+getter --data-dir <path> app show <package-id> [--inventory <installed.json>]
+getter --data-dir <path> app check <package-id> [--inventory <installed.json>]
+```
+
+`app show` 只读并且只使用静态候选或现有缓存。`app check` 是用户显式触发的刷新，可以访问包声明的 getter-owned provider，并在存在更新时返回 Getter 签发的 action。该 action 只属于当前 CLI 进程/runtime；此命令不承诺另一进程随后提交 action，也不提供跨进程任务恢复。两个命令都不接受 endpoint、provider payload、fixture、transport 或 cache mode 等产品控制字段。
+
 CLI 是验证 getter core 独立性的关键：
 
 如果 CLI 无法完成核心更新流程，说明逻辑仍然泄漏在 Flutter/Android APP 里。
