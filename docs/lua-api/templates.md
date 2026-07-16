@@ -74,6 +74,8 @@ return android.package_version {
 
 The `files` map covers getter-written generated output such as `metadata.jsonc`, `Manifest`, generated Lua scripts, and generated `files/...` helper files. It excludes `.autogen.jsonc` itself to avoid self-referential hashing; `.autogen.jsonc` validity is checked by parsing/schema validation and matching ownership fields instead.
 
+The package `Manifest` keeps one intentionally small format: `<hex-digest> <file-name>`. Getter/autogen generates and refreshes it. Existing 128-hex SHA-512 entries authorize Provider/source response bodies; 64-hex SHA-256 entries identify downloadable artifacts. Multiple entries may share a filename when different releases reuse it. No `SOURCE`/`DIST` keyword or separate artifact-manifest format is added. Version Lua/provider candidates describe artifact identity and location; a standard Provider may retain an upstream digest fact to select the corresponding Manifest membership, but package authors do not repeat the same checksum in Lua merely for staging. Without a Provider digest hint, the filename must identify exactly one SHA-256 Manifest membership.
+
 F-Droid autogen should normally keep generated package metadata/version scripts small and rely on F-Droid catalog metadata plus reusable `luaclass/` helpers for provider behavior. The default generated F-Droid package uses minimal `metadata.jsonc`, a `Manifest` containing provider source response SHA-512 digest entries, and a small `9999.lua` like:
 
 ```lua
@@ -103,6 +105,33 @@ return github_android.package {
   },
 }
 ```
+
+A version candidate may optionally declare one structured installer command. Reusable `luaclass.installer` helpers keep package definitions small:
+
+```lua
+local installer = require("luaclass.installer")
+
+return package_version {
+  updates = {
+    {
+      version = "1.2.3",
+      artifacts = {
+        { name = "app.apk", file_name = "app.apk", url = release_url },
+      },
+      install = installer.command {
+        executable = "adb",
+        args = {
+          "install",
+          "-r",
+          installer.artifact("app.apk"),
+        },
+      },
+    },
+  },
+}
+```
+
+Literal strings become argv entries; `installer.artifact(name)` resolves only to a staged artifact declared by the same candidate. Getter never passes this through a shell. Download ignores installer declarations, while install stages artifacts first and validates the command afterward.
 
 Provider-backed update-check operations install `getter.provider.*` for those modules. Plain package evaluation remains host-free and is not the validation path for generated F-Droid or GitHub provider-module output. If generated package Lua needs local helper data, autogen writes it under that package directory's `files/` subtree; getter does not assign product semantics to file names or formats inside `files/`.
 

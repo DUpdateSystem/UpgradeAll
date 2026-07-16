@@ -14,10 +14,11 @@ Before coding, every agent MUST read:
 8. `docs/architecture/adr/0006-package-centric-cli-command-contract.md`
 9. `docs/architecture/adr/0007-flutter-getter-bridge-contract.md`
 10. `docs/architecture/adr/0012-getter-owned-provider-modules-and-autogen-refresh.md`
-11. `docs/lua-api/repository-layout.md`
-12. `docs/lua-api/permissions.md`
-13. `docs/lua-api/templates.md`
-14. `docs/app/flutter-ui-feature-parity-and-testing.md`
+11. `docs/architecture/adr/0013-artifact-staging-and-package-declared-installers.md`
+12. `docs/lua-api/repository-layout.md`
+13. `docs/lua-api/permissions.md`
+14. `docs/lua-api/templates.md`
+15. `docs/app/flutter-ui-feature-parity-and-testing.md`
 
 ## Core architecture rules
 
