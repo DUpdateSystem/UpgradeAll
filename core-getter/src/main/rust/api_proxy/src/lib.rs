@@ -5,6 +5,7 @@ use getter::operations::fdroid_autogen;
 use getter::operations::fdroid_catalog::{self, FdroidEndpointConfig};
 use getter::operations::github_autogen;
 use getter::operations::legacy_room::{self, LegacyRoomOperationError};
+use getter::operations::onboarding::{self, SetupAcceptance, SetupPreview};
 use getter::operations::provider_cache::{ProviderCacheMode, ProviderCacheSource};
 use getter::operations::read_model::{self, ReadModelOperationError};
 use getter::operations::runtime as runtime_operations;
@@ -45,6 +46,25 @@ struct ApplyInstalledAutogenRequest {
     preview: Value,
     #[serde(default)]
     acceptance: ApplyAutogenAcceptance,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PreviewFreshInstallSetupRequest {
+    data_dir: PathBuf,
+    #[serde(default)]
+    scan_options: InstalledInventoryScanOptions,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ApplyFreshInstallSetupRequest {
+    data_dir: PathBuf,
+    preview_id: String,
+    #[serde(default)]
+    accepted_package_ids: Option<Vec<String>>,
+    #[serde(default)]
+    accept_all: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -236,6 +256,39 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_previewInstalledAuto
     let command = "autogen installed preview";
     let response = match jstring_to_string(&mut env, &request_json)
         .and_then(|raw| preview_installed_autogen(&mut env, &context, &raw))
+    {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_previewFreshInstallSetup<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    context: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "setup preview";
+    let response = match jstring_to_string(&mut env, &request_json)
+        .and_then(|raw| preview_fresh_install_setup(&mut env, &context, &raw))
+    {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_applyFreshInstallSetup<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "setup apply";
+    let response = match jstring_to_string(&mut env, &request_json)
+        .and_then(|raw| apply_fresh_install_setup(&raw))
     {
         Ok(data) => success_envelope(command, data),
         Err(error) => operation_error_envelope(command, error),
@@ -468,6 +521,72 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_readOperation<'local
         Err(error) => operation_error_envelope(command, error),
     };
     java_string_or_fallback(&mut env, response)
+}
+
+fn preview_fresh_install_setup(
+    env: &mut JNIEnv<'_>,
+    context: &JObject<'_>,
+    request_json: &str,
+) -> Result<Value, BridgeOperationError> {
+    init_android_integrations(env, context).map_err(BridgeOperationError::Initialize)?;
+    let request: PreviewFreshInstallSetupRequest = serde_json::from_str(request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let main_db = open_main_db(&request.data_dir)?;
+    let cache_db = open_cache_db(&request.data_dir)?;
+    let scan = scan_installed_inventory(request.scan_options)?;
+    let inventory = serde_json::to_value(&scan.inventory)
+        .and_then(serde_json::from_value)
+        .map_err(|source| BridgeOperationError::PlatformMalformed(source.to_string()))?;
+    let mut value = serde_json::to_value(onboarding::preview_setup(
+        &request.data_dir,
+        &main_db,
+        &cache_db,
+        inventory,
+    )?)
+    .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    value["platform"] = json!({
+        "inventory_scan": { "stats": scan.stats, "diagnostics": scan.diagnostics }
+    });
+    Ok(value)
+}
+
+fn apply_fresh_install_setup(request_json: &str) -> Result<Value, BridgeOperationError> {
+    let request: ApplyFreshInstallSetupRequest = serde_json::from_str(request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let acceptance = match (request.accept_all, request.accepted_package_ids) {
+        (true, None) => SetupAcceptance::AcceptAll,
+        (false, Some(ids)) => SetupAcceptance::Accept(
+            ids.into_iter()
+                .map(|id| {
+                    id.parse().map_err(|source| {
+                        BridgeOperationError::InvalidRequest(format!(
+                            "invalid accepted package id: {source}"
+                        ))
+                    })
+                })
+                .collect::<Result<Vec<_>, _>>()?,
+        ),
+        _ => {
+            return Err(BridgeOperationError::InvalidRequest(
+                "exactly one of accept_all or accepted_package_ids is required".into(),
+            ))
+        }
+    };
+    let main_db = open_main_db(&request.data_dir)?;
+    let preview = SetupPreview {
+        format: "getter-setup-preview".into(),
+        version: 1,
+        preview_id: request.preview_id,
+        candidates: Vec::new(),
+        diagnostics: Vec::new(),
+    };
+    serde_json::to_value(onboarding::apply_setup_preview(
+        &request.data_dir,
+        &main_db,
+        &preview,
+        &acceptance,
+    )?)
+    .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))
 }
 
 fn preview_installed_autogen(
@@ -1513,6 +1632,31 @@ mod tests {
                     && item["message"] == "One package could not be inspected"
                     && item.get("detail").is_none()
             }));
+    }
+
+    #[test]
+    fn fresh_install_setup_request_contract_rejects_controls_and_ambiguous_acceptance() {
+        let preview_error = serde_json::from_value::<PreviewFreshInstallSetupRequest>(json!({
+            "data_dir": "/tmp/getter",
+            "scan_options": {},
+            "endpoint": "https://evil.invalid/index.xml"
+        }))
+        .unwrap_err();
+        assert!(preview_error.to_string().contains("unknown field"));
+
+        let apply_error = apply_fresh_install_setup(
+            &json!({
+                "data_dir": "/tmp/getter",
+                "preview_id": "opaque",
+                "accept_all": true,
+                "accepted_package_ids": []
+            })
+            .to_string(),
+        )
+        .unwrap_err();
+        assert!(apply_error
+            .to_string()
+            .contains("exactly one of accept_all or accepted_package_ids"));
     }
 
     #[test]

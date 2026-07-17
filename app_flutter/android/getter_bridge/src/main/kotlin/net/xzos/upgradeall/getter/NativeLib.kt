@@ -14,6 +14,8 @@ class NativeLib {
     external fun previewInstalledAutogen(context: Context, requestJson: String): String
     external fun previewInstalledFdroidAutogen(context: Context, requestJson: String): String
     external fun applyInstalledAutogen(requestJson: String): String
+    external fun previewFreshInstallSetup(context: Context, requestJson: String): String
+    external fun applyFreshInstallSetup(requestJson: String): String
     external fun applyInstalledFdroidAutogen(requestJson: String): String
     external fun previewGithubAutogen(context: Context, requestJson: String): String
     external fun applyGithubAutogen(requestJson: String): String

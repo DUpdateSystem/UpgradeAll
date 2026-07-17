@@ -45,6 +45,41 @@ object GetterBridgeRequestBuilder {
             .toString()
     }
 
+    fun freshInstallSetupPreviewRequest(args: Map<*, *>): String {
+        requireOnlyKeys(args, setOf("scan_options"))
+        val scanOptions = args["scan_options"] as? Map<*, *> ?: emptyMap<Any?, Any?>()
+        requireOnlyKeys(scanOptions, setOf("include_system_apps", "include_self"))
+        return installedAutogenPreviewRequest(mapOf("scan_options" to scanOptions))
+    }
+
+    fun freshInstallSetupApplyRequest(args: Map<*, *>): String {
+        requireOnlyKeys(args, setOf("preview_id", "accepted_package_ids", "accept_all"))
+        val previewId = (args["preview_id"] as? String)
+            ?.takeIf(String::isNotBlank)
+            ?: throw IllegalArgumentException("preview_id is required")
+        val accepted = args["accepted_package_ids"] as? List<*>
+        val acceptAll = args["accept_all"] as? Boolean
+        if ((accepted != null) == (acceptAll == true)) {
+            throw IllegalArgumentException(
+                "exactly one of accepted_package_ids or accept_all is required",
+            )
+        }
+        val packageIds = accepted?.map { value ->
+            (value as? String)?.takeIf(String::isNotBlank)
+                ?: throw IllegalArgumentException("accepted_package_ids must contain non-empty strings")
+        }
+        return JSONObject()
+            .put("preview_id", previewId)
+            .also { request ->
+                if (packageIds != null) {
+                    request.put("accepted_package_ids", JSONArray(packageIds))
+                } else {
+                    request.put("accept_all", true)
+                }
+            }
+            .toString()
+    }
+
     fun fdroidCatalogRefreshRequest(dataDir: String): String = JSONObject()
         .put("data_dir", dataDir)
         .toString()
@@ -92,6 +127,13 @@ object GetterBridgeRequestBuilder {
                     .put("package_ids", JSONArray(packageIds)),
             )
             .toString()
+    }
+
+    private fun requireOnlyKeys(args: Map<*, *>, allowed: Set<String>) {
+        val invalid = args.keys.firstOrNull { key -> key !is String || key !in allowed }
+        if (invalid != null) {
+            throw IllegalArgumentException("$invalid is not allowed")
+        }
     }
 
     private fun operationRequest(args: Map<*, *>): String {

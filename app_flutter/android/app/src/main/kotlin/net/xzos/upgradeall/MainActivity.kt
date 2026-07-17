@@ -58,6 +58,27 @@ class MainActivity : FlutterActivity() {
                     nativeLib.applyInstalledAutogen(applyInstalledAutogenRequest(call))
                 }
 
+                "previewFreshInstallSetup" -> runGetterBridge(result) {
+                    nativeLib.previewFreshInstallSetup(
+                        applicationContext,
+                        withGetterDataDir(
+                            GetterBridgeRequestBuilder.freshInstallSetupPreviewRequest(
+                                call.arguments as? Map<*, *> ?: emptyMap<Any?, Any?>(),
+                            ),
+                        ),
+                    )
+                }
+
+                "applyFreshInstallSetup" -> runGetterBridge(result) {
+                    nativeLib.applyFreshInstallSetup(
+                        withGetterDataDir(
+                            GetterBridgeRequestBuilder.freshInstallSetupApplyRequest(
+                                call.arguments as? Map<*, *> ?: emptyMap<Any?, Any?>(),
+                            ),
+                        ),
+                    )
+                }
+
                 "previewInstalledFdroidAutogen" -> runGetterBridge(result) {
                     nativeLib.previewInstalledFdroidAutogen(
                         applicationContext,
@@ -300,6 +321,10 @@ class MainActivity : FlutterActivity() {
             emptyList()
         }
     }
+
+    private fun withGetterDataDir(requestJson: String): String = JSONObject(requestJson)
+        .put("data_dir", getterDataDir().absolutePath)
+        .toString()
 
     private fun getterDataDir(): File = File(filesDir, "getter")
 

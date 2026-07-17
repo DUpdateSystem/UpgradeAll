@@ -38,6 +38,14 @@ class AppKeys {
   static const openInstalledAutogen = ValueKey<String>(
     'action.open_installed_autogen',
   );
+  static const openFreshInstallSetup = ValueKey<String>(
+    'action.open_fresh_install_setup',
+  );
+  static const applyFreshInstallSetup = ValueKey<String>(
+    'action.apply_fresh_install_setup',
+  );
+  static ValueKey<String> setupCandidate(String packageId) =>
+      ValueKey<String>('setup.candidate.$packageId');
   static const openFirstApp = ValueKey<String>('action.open_first_app');
   static const startLegacyMigration = ValueKey<String>(
     'action.start_legacy_migration',
@@ -215,7 +223,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final Future<GetterSnapshot> _snapshot = widget.getter.loadSnapshot();
+  late Future<GetterSnapshot> _snapshot = widget.getter.loadSnapshot();
+
+  Future<void> _openFreshInstallSetup() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (context) => FreshInstallSetupPage(getter: widget.getter),
+      ),
+    );
+    if (!mounted) return;
+    setState(() {
+      _snapshot = widget.getter.loadSnapshot();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -259,7 +279,21 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-              const SizedBox(height: 16),
+              if (data?.setup.needsPackageSetup ?? false) ...<Widget>[
+                Card(
+                  child: ListTile(
+                    key: AppKeys.openFreshInstallSetup,
+                    leading: const Icon(Icons.auto_awesome),
+                    title: const Text('Set up installed apps'),
+                    subtitle: const Text(
+                      'Choose installed apps for UpgradeAll to track',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: _openFreshInstallSetup,
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               const _RouteButton(
                 key: AppKeys.openApps,
                 icon: Icons.apps,
@@ -1368,6 +1402,125 @@ class _MigrationPageState extends State<MigrationPage> {
           ],
         ],
       ),
+    );
+  }
+}
+
+class FreshInstallSetupPage extends StatefulWidget {
+  const FreshInstallSetupPage({super.key, required this.getter});
+
+  final GetterAdapter getter;
+
+  @override
+  State<FreshInstallSetupPage> createState() => _FreshInstallSetupPageState();
+}
+
+class _FreshInstallSetupPageState extends State<FreshInstallSetupPage> {
+  late final Future<FreshInstallSetupPreview> _preview = widget.getter
+      .previewFreshInstallSetup();
+  final Set<String> _selected = <String>{};
+  bool _applying = false;
+  String? _applyError;
+
+  Future<void> _apply(FreshInstallSetupPreview preview) async {
+    setState(() {
+      _applying = true;
+      _applyError = null;
+    });
+    try {
+      await widget.getter.applyFreshInstallSetup(
+        preview,
+        acceptedPackageIds: _selected.toList(growable: false),
+      );
+      if (mounted) Navigator.of(context).pop();
+    } catch (error) {
+      if (mounted) {
+        setState(() => _applyError = 'Setup apply failed: $error');
+      }
+    } finally {
+      if (mounted) setState(() => _applying = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Set up installed apps')),
+      body: FutureBuilder<FreshInstallSetupPreview>(
+        future: _preview,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Setup preview unavailable: ${snapshot.error}'),
+            );
+          }
+          final preview = snapshot.data;
+          if (preview == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final fdroid = preview.candidates
+              .where((candidate) => candidate.category == 'fdroid')
+              .toList(growable: false);
+          final fallback = preview.candidates
+              .where((candidate) => candidate.category == 'installed_fallback')
+              .toList(growable: false);
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: <Widget>[
+              if (_applyError != null)
+                ListTile(
+                  leading: const Icon(Icons.error_outline),
+                  title: Text(_applyError!),
+                ),
+              for (final diagnostic in preview.diagnostics)
+                ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: Text(diagnostic.message),
+                ),
+              if (fdroid.isNotEmpty) ...<Widget>[
+                const Text(
+                  'F-Droid',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                ...fdroid.map(_candidateTile),
+              ],
+              if (fallback.isNotEmpty) ...<Widget>[
+                const Text(
+                  'Installed fallback',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                ...fallback.map(_candidateTile),
+              ],
+              const SizedBox(height: 16),
+              FilledButton(
+                key: AppKeys.applyFreshInstallSetup,
+                onPressed: _applying || _selected.isEmpty
+                    ? null
+                    : () => _apply(preview),
+                child: Text(_applying ? 'Applying…' : 'Track selected apps'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _candidateTile(FreshInstallSetupCandidate candidate) {
+    return CheckboxListTile(
+      key: AppKeys.setupCandidate(candidate.packageId),
+      value: _selected.contains(candidate.packageId),
+      title: Text(candidate.displayName),
+      subtitle: Text(candidate.packageId),
+      onChanged: (selected) {
+        setState(() {
+          if (selected ?? false) {
+            _selected.add(candidate.packageId);
+          } else {
+            _selected.remove(candidate.packageId);
+          }
+        });
+      },
     );
   }
 }

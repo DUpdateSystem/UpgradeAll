@@ -207,4 +207,95 @@ class GetterBridgeRequestBuilderTest {
 
         assertEquals("operation is required", error.message)
     }
+
+    @Test
+    fun freshInstallSetupPreviewCarriesOnlyAndroidScanOptions() {
+        val json = JSONObject(
+            GetterBridgeRequestBuilder.freshInstallSetupPreviewRequest(
+                mapOf(
+                    "scan_options" to mapOf(
+                        "include_system_apps" to true,
+                        "include_self" to false,
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(setOf("scan_options"), json.keys().asSequence().toSet())
+        assertEquals(
+            setOf("include_system_apps", "include_self"),
+            json.getJSONObject("scan_options").keys().asSequence().toSet(),
+        )
+        assertEquals(true, json.getJSONObject("scan_options").getBoolean("include_system_apps"))
+    }
+
+    @Test
+    fun freshInstallSetupPreviewRejectsUnknownControlAndInventoryInjection() {
+        listOf(
+            "endpoint",
+            "xml",
+            "provider_payload",
+            "cache_mode",
+            "repository",
+            "category",
+            "normalization",
+            "inventory",
+            "unexpected",
+        ).forEach { forbidden ->
+            assertThrows("expected $forbidden to be rejected", IllegalArgumentException::class.java) {
+                GetterBridgeRequestBuilder.freshInstallSetupPreviewRequest(
+                    mapOf(forbidden to "not-product-safe"),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun freshInstallSetupApplyCarriesOpaquePreviewIdAndAcceptanceOnly() {
+        val json = JSONObject(
+            GetterBridgeRequestBuilder.freshInstallSetupApplyRequest(
+                mapOf(
+                    "preview_id" to "opaque-1",
+                    "accepted_package_ids" to listOf("android/app/com.example"),
+                ),
+            ),
+        )
+
+        assertEquals(setOf("preview_id", "accepted_package_ids"), json.keys().asSequence().toSet())
+        assertEquals("opaque-1", json.getString("preview_id"))
+        assertEquals(
+            "android/app/com.example",
+            json.getJSONArray("accepted_package_ids").getString(0),
+        )
+    }
+
+    @Test
+    fun freshInstallSetupApplyRejectsAmbiguousAcceptanceAndUnknownFields() {
+        assertThrows(IllegalArgumentException::class.java) {
+            GetterBridgeRequestBuilder.freshInstallSetupApplyRequest(
+                mapOf(
+                    "preview_id" to "opaque-1",
+                    "accept_all" to true,
+                    "accepted_package_ids" to emptyList<String>(),
+                ),
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            GetterBridgeRequestBuilder.freshInstallSetupApplyRequest(
+                mapOf(
+                    "preview_id" to "opaque-1",
+                    "accepted_package_ids" to listOf(""),
+                ),
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            GetterBridgeRequestBuilder.freshInstallSetupApplyRequest(
+                mapOf(
+                    "preview_id" to "opaque-1",
+                    "accept_all" to true,
+                    "repository" to "autogen",
+                ),
+            )
+        }
+    }
 }

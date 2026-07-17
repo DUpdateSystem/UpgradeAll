@@ -21,6 +21,50 @@ void main() {
     expect(find.text('Fake getter ready'), findsOneWidget);
   });
 
+  testWidgets(
+    'fresh-install setup renders Getter categories, applies selection, and reloads Home',
+    (tester) async {
+      final getter = _FreshInstallSetupGetterAdapter();
+      await tester.pumpWidget(UpgradeAllApp(getter: getter));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(AppKeys.openFreshInstallSetup), findsOneWidget);
+      await tester.tap(find.byKey(AppKeys.openFreshInstallSetup));
+      await tester.pumpAndSettle();
+
+      expect(find.text('F-Droid'), findsNWidgets(2));
+      expect(find.text('Installed fallback'), findsOneWidget);
+      expect(find.text('Using stale F-Droid catalog'), findsOneWidget);
+      await tester.tap(
+        find.byKey(
+          AppKeys.setupCandidate('android/f-droid/app/org.fdroid.fdroid'),
+        ),
+      );
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(AppKeys.applyFreshInstallSetup));
+      await tester.tap(find.byKey(AppKeys.applyFreshInstallSetup));
+      await tester.pumpAndSettle();
+
+      expect(getter.acceptedPackageIds, <String>[
+        'android/f-droid/app/org.fdroid.fdroid',
+      ]);
+      expect(getter.appliedPreview, 'opaque-preview-1');
+      expect(getter.snapshotLoads, 2);
+      expect(find.byKey(AppKeys.openFreshInstallSetup), findsNothing);
+    },
+  );
+
+  testWidgets('ready startup does not show fresh-install setup CTA', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const UpgradeAllApp(getter: _StartupFactsGetterAdapter()),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(AppKeys.openFreshInstallSetup), findsNothing);
+  });
+
   testWidgets('getter facts render on home, apps, and app detail', (
     tester,
   ) async {
@@ -1090,6 +1134,65 @@ class _MissingLegacyMigrationPlatform implements LegacyMigrationPlatform {
       found: false,
       databasePath: null,
       message: 'No legacy Room database found',
+    );
+  }
+}
+
+class _FreshInstallSetupGetterAdapter extends FakeGetterAdapter {
+  int snapshotLoads = 0;
+  Object? appliedPreview;
+  List<String>? acceptedPackageIds;
+
+  @override
+  Future<GetterSnapshot> loadSnapshot() async {
+    snapshotLoads += 1;
+    return GetterSnapshot(
+      status: 'Getter initialized',
+      updateCount: 0,
+      apps: const <AppSummary>[],
+      repositories: const <RepositorySummary>[],
+      setup: GetterSetupState(
+        state: snapshotLoads == 1 ? 'needs_package_setup' : 'ready',
+      ),
+    );
+  }
+
+  @override
+  Future<FreshInstallSetupPreview> previewFreshInstallSetup({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async => const FreshInstallSetupPreview(
+    opaquePreview: 'opaque-preview-1',
+    candidates: <FreshInstallSetupCandidate>[
+      FreshInstallSetupCandidate(
+        packageId: 'android/f-droid/app/org.fdroid.fdroid',
+        category: 'fdroid',
+        displayName: 'F-Droid',
+      ),
+      FreshInstallSetupCandidate(
+        packageId: 'android/app/com.example',
+        category: 'installed_fallback',
+        displayName: 'Example',
+      ),
+    ],
+    diagnostics: <GetterDiagnostic>[
+      GetterDiagnostic(
+        code: 'used_stale_cache',
+        message: 'Using stale F-Droid catalog',
+      ),
+    ],
+  );
+
+  @override
+  Future<FreshInstallSetupApplyResult> applyFreshInstallSetup(
+    FreshInstallSetupPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    appliedPreview = preview.opaquePreview;
+    this.acceptedPackageIds = acceptedPackageIds;
+    return FreshInstallSetupApplyResult(
+      readiness: 'ready',
+      appliedPackageIds: acceptedPackageIds ?? const <String>[],
+      diagnostics: const <GetterDiagnostic>[],
     );
   }
 }

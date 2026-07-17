@@ -31,6 +31,15 @@ abstract interface class GetterAdapter {
     List<String>? acceptedPackageIds,
   });
 
+  Future<FreshInstallSetupPreview> previewFreshInstallSetup({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  });
+
+  Future<FreshInstallSetupApplyResult> applyFreshInstallSetup(
+    FreshInstallSetupPreview preview, {
+    List<String>? acceptedPackageIds,
+  });
+
   Future<InstalledAutogenPreview> previewInstalledFdroidAutogen({
     InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
   });
@@ -252,6 +261,27 @@ class FakeGetterAdapter implements GetterAdapter {
       ],
     });
   }
+
+  @override
+  Future<FreshInstallSetupPreview> previewFreshInstallSetup({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async => const FreshInstallSetupPreview(
+    opaquePreview: 'fake-setup-preview',
+    candidates: <FreshInstallSetupCandidate>[],
+    diagnostics: <GetterDiagnostic>[],
+  );
+
+  @override
+  Future<FreshInstallSetupApplyResult> applyFreshInstallSetup(
+    FreshInstallSetupPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async => FreshInstallSetupApplyResult(
+    readiness: acceptedPackageIds?.isNotEmpty ?? true
+        ? 'ready'
+        : 'needs_package_setup',
+    appliedPackageIds: acceptedPackageIds ?? const <String>[],
+    diagnostics: const <GetterDiagnostic>[],
+  );
 
   @override
   Future<InstalledAutogenPreview> previewInstalledFdroidAutogen({
@@ -549,6 +579,7 @@ class GetterSnapshot {
     required this.updateCount,
     required this.apps,
     required this.repositories,
+    this.setup = const GetterSetupState(state: 'ready'),
     this.diagnostics = const <GetterDiagnostic>[],
   });
 
@@ -563,6 +594,9 @@ class GetterSnapshot {
           ? 'Getter already initialized'
           : 'Getter initialized',
       updateCount: _jsonInt(json['update_count'], 'startup.update_count'),
+      setup: json['setup'] == null
+          ? const GetterSetupState(state: 'ready')
+          : GetterSetupState.fromJson(_jsonMap(json['setup'], 'startup.setup')),
       repositories: _jsonList(json['repositories'], 'startup.repositories')
           .map((value) {
             final repository = _jsonMap(value, 'startup.repository');
@@ -600,9 +634,26 @@ class GetterSnapshot {
 
   final String status;
   final int updateCount;
+  final GetterSetupState setup;
   final List<AppSummary> apps;
   final List<RepositorySummary> repositories;
   final List<GetterDiagnostic> diagnostics;
+}
+
+class GetterSetupState {
+  const GetterSetupState({required this.state});
+
+  factory GetterSetupState.fromJson(Map<String, Object?> json) {
+    final state = _jsonString(json['state'], 'startup.setup.state');
+    if (state != 'needs_package_setup' && state != 'ready') {
+      throw FormatException('startup.setup.state has unknown value $state');
+    }
+    return GetterSetupState(state: state);
+  }
+
+  final String state;
+
+  bool get needsPackageSetup => state == 'needs_package_setup';
 }
 
 class AppSummary {
@@ -1334,6 +1385,113 @@ class ProviderCacheDiagnosticSummary {
   final String cacheKey;
   final String provider;
   final int? staleFetchedAtUnix;
+}
+
+class FreshInstallSetupPreview {
+  const FreshInstallSetupPreview({
+    required this.opaquePreview,
+    required this.candidates,
+    required this.diagnostics,
+  });
+
+  factory FreshInstallSetupPreview.fromJson(Map<String, Object?> json) {
+    return FreshInstallSetupPreview(
+      opaquePreview: _jsonString(json['preview_id'], 'setup.preview_id'),
+      candidates: _jsonList(json['candidates'], 'setup.candidates')
+          .map(
+            (candidate) => FreshInstallSetupCandidate.fromJson(
+              _jsonMap(candidate, 'setup.candidate'),
+            ),
+          )
+          .toList(growable: false),
+      diagnostics:
+          _jsonList(
+                json['diagnostics'] ?? const <Object?>[],
+                'setup.diagnostics',
+              )
+              .map(
+                (diagnostic) => GetterDiagnostic.fromJson(
+                  _jsonMap(diagnostic, 'setup.diagnostic'),
+                ),
+              )
+              .toList(growable: false),
+    );
+  }
+
+  final Object? opaquePreview;
+  final List<FreshInstallSetupCandidate> candidates;
+  final List<GetterDiagnostic> diagnostics;
+}
+
+class FreshInstallSetupCandidate {
+  const FreshInstallSetupCandidate({
+    required this.packageId,
+    required this.category,
+    required this.displayName,
+    this.installedVersion,
+  });
+
+  factory FreshInstallSetupCandidate.fromJson(Map<String, Object?> json) {
+    final category = _jsonString(json['category'], 'setup.candidate.category');
+    if (category != 'fdroid' && category != 'installed_fallback') {
+      throw FormatException(
+        'setup.candidate.category has unknown value $category',
+      );
+    }
+    return FreshInstallSetupCandidate(
+      packageId: _jsonString(json['package_id'], 'setup.candidate.package_id'),
+      category: category,
+      displayName: _jsonString(
+        json['display_name'],
+        'setup.candidate.display_name',
+      ),
+      installedVersion: _jsonOptionalString(
+        json['installed_version'],
+        'setup.candidate.installed_version',
+      ),
+    );
+  }
+
+  final String packageId;
+  final String category;
+  final String displayName;
+  final String? installedVersion;
+}
+
+class FreshInstallSetupApplyResult {
+  const FreshInstallSetupApplyResult({
+    required this.readiness,
+    required this.appliedPackageIds,
+    required this.diagnostics,
+  });
+
+  factory FreshInstallSetupApplyResult.fromJson(Map<String, Object?> json) {
+    return FreshInstallSetupApplyResult(
+      readiness: _jsonString(json['readiness'], 'setup.apply.readiness'),
+      appliedPackageIds:
+          _jsonList(
+                json['applied_package_ids'],
+                'setup.apply.applied_package_ids',
+              )
+              .map((id) => _jsonString(id, 'setup.apply.package_id'))
+              .toList(growable: false),
+      diagnostics:
+          _jsonList(
+                json['diagnostics'] ?? const <Object?>[],
+                'setup.apply.diagnostics',
+              )
+              .map(
+                (diagnostic) => GetterDiagnostic.fromJson(
+                  _jsonMap(diagnostic, 'setup.apply.diagnostic'),
+                ),
+              )
+              .toList(growable: false),
+    );
+  }
+
+  final String readiness;
+  final List<String> appliedPackageIds;
+  final List<GetterDiagnostic> diagnostics;
 }
 
 class InstalledAutogenPreview {

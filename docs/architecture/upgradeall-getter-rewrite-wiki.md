@@ -1038,7 +1038,13 @@ Room DB 信息：
 
 ## 14. Installed autogen UX
 
-### 14.1 生成流程
+### 14.1 Fresh-install package setup
+
+fresh install 不让 Flutter 串联 F-Droid 和 generic installed-autogen。startup 仅用当前 inventory 与 enabled tracked package 事实派生 `setup.state`，不保存 completion flag，也不联网。用户显式打开 setup preview 时，getter 只扫描一次 inventory，验证并刷新官方签名 `index.jar`，优先产生 F-Droid candidates，再把未匹配项交给 generic installed fallback；有 stale cache 时继续使用并显示 warning，无 cache 时仍保留 fallback candidates。
+
+Preview 的生成文件计划保存在 getter-owned、随机、短时、one-shot id 后面；Flutter 只能看到展示候选、diagnostics 与 opaque preview id。Apply 接受该 id 和 readable package ids，验证 repository/tracked context，并通过统一 preflight/staging/rollback/database transaction 同时应用两类 generated packages。Flutter 不决定 category、repository 或 generated files。
+
+### 14.2 生成流程
 
 用户点击“从已安装应用生成”：
 
@@ -1053,7 +1059,7 @@ Room DB 信息：
 
 实现进展：Flutter 产品 APK 通过 `app_flutter/android/getter_bridge` 打包一个 slim native bridge library，包含 Rust `api_proxy`、`NativeLib` 和 Android installed-inventory facts provider。`api_proxy` 已提供 installed-autogen preview/apply JNI entrypoints；它们调用 Rust-active platform adapter 扫描 Android PackageManager 原始事实，再调用 getter-owned `getter-operations` 执行 installed-autogen preview/apply。Flutter 已新增 installed-autogen 页面和 `MethodChannelGetterAdapter`，只渲染 getter-owned preview/apply DTO 并把用户接受的 package path 传回 getter；不能引入 Dart-led installed inventory scanner 或在 Dart/Kotlin 中生成 package path。
 
-### 14.2 清理流程
+### 14.3 清理流程
 
 用户点击“清除不存在的应用”：
 

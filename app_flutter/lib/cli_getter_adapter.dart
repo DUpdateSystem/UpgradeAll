@@ -95,6 +95,33 @@ class CliGetterAdapter implements GetterAdapter {
   }
 
   @override
+  Future<FreshInstallSetupPreview> previewFreshInstallSetup({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message:
+            'CLI fresh-install setup requires an explicit inventory fixture',
+      ),
+    );
+  }
+
+  @override
+  Future<FreshInstallSetupApplyResult> applyFreshInstallSetup(
+    FreshInstallSetupPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.unsupported',
+        message:
+            'CLI fresh-install setup requires its setup preview file contract',
+      ),
+    );
+  }
+
+  @override
   Future<InstalledAutogenPreview> previewInstalledFdroidAutogen({
     InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
   }) async {

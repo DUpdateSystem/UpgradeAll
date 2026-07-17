@@ -478,6 +478,88 @@ void main() {
     },
   );
 
+  test(
+    'native fresh-install setup uses product-safe requests and typed response',
+    () async {
+      final calls = <MethodCall>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            calls.add(call);
+            if (call.method == 'previewFreshInstallSetup') {
+              return jsonEncode(<String, Object?>{
+                'ok': true,
+                'command': 'setup preview',
+                'data': <String, Object?>{
+                  'preview_id': 'opaque-preview-1',
+                  'candidates': <Object?>[
+                    <String, Object?>{
+                      'package_id': 'android/f-droid/app/org.fdroid.fdroid',
+                      'category': 'fdroid',
+                      'display_name': 'F-Droid',
+                      'installed_version': '1.20.0',
+                    },
+                    <String, Object?>{
+                      'package_id': 'android/app/com.example',
+                      'category': 'installed_fallback',
+                      'display_name': 'Example',
+                    },
+                  ],
+                  'diagnostics': <Object?>[
+                    <String, Object?>{
+                      'code': 'provider.stale_cache',
+                      'message': 'Using stale F-Droid catalog',
+                    },
+                  ],
+                },
+                'warnings': <Object?>[],
+              });
+            }
+            return jsonEncode(<String, Object?>{
+              'ok': true,
+              'command': 'setup apply',
+              'data': <String, Object?>{
+                'readiness': 'ready',
+                'applied_package_ids': <String>[
+                  'android/f-droid/app/org.fdroid.fdroid',
+                ],
+                'diagnostics': <Object?>[],
+              },
+              'warnings': <Object?>[],
+            });
+          });
+
+      const adapter = MethodChannelGetterAdapter(channel: channel);
+      final preview = await adapter.previewFreshInstallSetup();
+      final result = await adapter.applyFreshInstallSetup(
+        preview,
+        acceptedPackageIds: <String>['android/f-droid/app/org.fdroid.fdroid'],
+      );
+
+      expect(calls.first.method, 'previewFreshInstallSetup');
+      expect(calls.first.arguments, <String, Object?>{
+        'scan_options': <String, Object?>{
+          'include_system_apps': false,
+          'include_self': false,
+        },
+      });
+      expect(
+        preview.candidates.map((candidate) => candidate.category),
+        <String>['fdroid', 'installed_fallback'],
+      );
+      expect(preview.diagnostics.single.message, 'Using stale F-Droid catalog');
+      expect(calls.last.method, 'applyFreshInstallSetup');
+      expect(calls.last.arguments, <String, Object?>{
+        'preview_id': 'opaque-preview-1',
+        'accepted_package_ids': <String>[
+          'android/f-droid/app/org.fdroid.fdroid',
+        ],
+      });
+      expect(result.appliedPackageIds, <String>[
+        'android/f-droid/app/org.fdroid.fdroid',
+      ]);
+    },
+  );
+
   test('startup snapshot rejects unknown update status', () {
     final payload = _startupSnapshotJson();
     final app =
@@ -895,6 +977,7 @@ Map<String, Object?> _startupSnapshotJson() => <String, Object?>{
       },
     ],
   },
+  'setup': <String, Object?>{'state': 'ready'},
   'repositories': <Object?>[
     <String, Object?>{
       'id': 'official',

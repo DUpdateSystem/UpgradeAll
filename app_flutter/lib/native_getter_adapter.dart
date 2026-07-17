@@ -87,6 +87,33 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   }
 
   @override
+  Future<FreshInstallSetupPreview> previewFreshInstallSetup({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async {
+    final data = await _invokeGetterData(
+      'previewFreshInstallSetup',
+      <String, Object?>{'scan_options': options.toJson()},
+    );
+    return FreshInstallSetupPreview.fromJson(data);
+  }
+
+  @override
+  Future<FreshInstallSetupApplyResult> applyFreshInstallSetup(
+    FreshInstallSetupPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    final data =
+        await _invokeGetterData('applyFreshInstallSetup', <String, Object?>{
+          'preview_id': preview.opaquePreview,
+          if (acceptedPackageIds == null)
+            'accept_all': true
+          else
+            'accepted_package_ids': acceptedPackageIds,
+        });
+    return FreshInstallSetupApplyResult.fromJson(data);
+  }
+
+  @override
   Future<InstalledAutogenPreview> previewInstalledFdroidAutogen({
     InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
   }) async {
