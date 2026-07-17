@@ -4,6 +4,16 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 object GetterBridgeRequestBuilder {
+    fun prepareInstallRequest(dataDir: String, args: Map<*, *>): String {
+        requireOnlyKeys(args, setOf("package_id"))
+        val packageId = args["package_id"] as? String
+        require(!packageId.isNullOrBlank()) { "package_id must be a non-empty string" }
+        return JSONObject()
+            .put("data_dir", dataDir)
+            .put("package_id", packageId)
+            .toString()
+    }
+
     fun startupRequest(dataDir: String, args: Map<*, *>): String {
         val scanOptions = args["scan_options"] as? Map<*, *> ?: emptyMap<Any?, Any?>()
         return JSONObject()

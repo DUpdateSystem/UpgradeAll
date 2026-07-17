@@ -8,6 +8,10 @@ abstract interface class GetterAdapter {
 
   bool get supportsInstalledAutogen;
 
+  bool get supportsPlatformInstallPreparation;
+
+  Future<PlatformInstallHandoff> prepareInstall(String packageId);
+
   void initialize();
 
   List<RepositorySummary> listRepositories();
@@ -139,6 +143,16 @@ class FakeGetterAdapter implements GetterAdapter {
 
   @override
   bool get supportsInstalledAutogen => true;
+
+  @override
+  bool get supportsPlatformInstallPreparation => false;
+
+  @override
+  Future<PlatformInstallHandoff> prepareInstall(String packageId) {
+    return Future<PlatformInstallHandoff>.error(
+      UnsupportedError('Platform install preparation is unavailable'),
+    );
+  }
 
   @override
   void initialize() {}
@@ -1790,6 +1804,133 @@ class GetterError {
   final String? detail;
 }
 
+enum PlatformInstallKind { androidApk }
+
+class PlatformInstallHandoff {
+  const PlatformInstallHandoff({
+    required this.kind,
+    required this.packageId,
+    required this.repositoryId,
+    required this.target,
+    required this.packageVersion,
+    required this.artifact,
+  });
+
+  factory PlatformInstallHandoff.fromJson(Map<String, Object?> json) {
+    _requireOnlyJsonKeys(json, const <String>{
+      'format',
+      'version',
+      'package_id',
+      'repository_id',
+      'package_version',
+      'request',
+    }, 'platform_install');
+    final format = _jsonString(json['format'], 'platform_install.format');
+    if (format != 'getter-platform-install-handoff') {
+      throw FormatException(
+        'platform_install.format has unsupported value "$format"',
+      );
+    }
+    final version = _jsonInt(json['version'], 'platform_install.version');
+    if (version != 1) {
+      throw FormatException(
+        'platform_install.version has unsupported value $version',
+      );
+    }
+    final request = _jsonMap(json['request'], 'platform_install.request');
+    _requireOnlyJsonKeys(request, const <String>{
+      'kind',
+      'target',
+      'artifact',
+    }, 'platform_install.request');
+    final kind = _jsonString(request['kind'], 'platform_install.request.kind');
+    if (kind != 'android_apk') {
+      throw FormatException(
+        'platform_install.request.kind has unsupported value "$kind"',
+      );
+    }
+    return PlatformInstallHandoff(
+      kind: PlatformInstallKind.androidApk,
+      packageId: _jsonString(json['package_id'], 'platform_install.package_id'),
+      repositoryId: _jsonString(
+        json['repository_id'],
+        'platform_install.repository_id',
+      ),
+      target: AndroidInstallTarget.fromJson(
+        _jsonMap(request['target'], 'platform_install.request.target'),
+      ),
+      packageVersion: _jsonString(
+        json['package_version'],
+        'platform_install.package_version',
+      ),
+      artifact: PlatformInstallArtifact.fromJson(
+        _jsonMap(request['artifact'], 'platform_install.request.artifact'),
+      ),
+    );
+  }
+
+  final PlatformInstallKind kind;
+  final String packageId;
+  final String repositoryId;
+  final AndroidInstallTarget target;
+  final String packageVersion;
+  final PlatformInstallArtifact artifact;
+}
+
+class AndroidInstallTarget {
+  const AndroidInstallTarget({required this.packageName});
+
+  factory AndroidInstallTarget.fromJson(Map<String, Object?> json) {
+    _requireOnlyJsonKeys(json, const <String>{
+      'kind',
+      'package_name',
+    }, 'platform_install.target');
+    final kind = _jsonString(json['kind'], 'platform_install.target.kind');
+    if (kind != 'android') {
+      throw FormatException(
+        'platform_install.target.kind has unsupported value "$kind"',
+      );
+    }
+    return AndroidInstallTarget(
+      packageName: _jsonString(
+        json['package_name'],
+        'platform_install.target.package_name',
+      ),
+    );
+  }
+
+  final String packageName;
+}
+
+class PlatformInstallArtifact {
+  const PlatformInstallArtifact({
+    required this.name,
+    required this.path,
+    required this.sha256,
+    required this.status,
+  });
+
+  factory PlatformInstallArtifact.fromJson(Map<String, Object?> json) {
+    _requireOnlyJsonKeys(json, const <String>{
+      'name',
+      'path',
+      'sha256',
+      'status',
+    }, 'platform_install.artifact');
+    return PlatformInstallArtifact(
+      name: _jsonString(json['name'], 'platform_install.artifact.name'),
+      path: _jsonString(json['path'], 'platform_install.artifact.path'),
+      sha256: _jsonString(json['sha256'], 'platform_install.artifact.sha256'),
+      status: _jsonString(json['status'], 'platform_install.artifact.status'),
+    );
+  }
+
+  final String name;
+  final String path;
+  final String sha256;
+  final String status;
+}
+
 class GetterBridgeException implements Exception {
   const GetterBridgeException(this.error, {this.exitCode});
 
@@ -1801,6 +1942,17 @@ class GetterBridgeException implements Exception {
     final detail = error.detail == null ? '' : ': ${error.detail}';
     final exit = exitCode == null ? '' : ' (exit $exitCode)';
     return 'GetterBridgeException$exit: ${error.code}: ${error.message}$detail';
+  }
+}
+
+void _requireOnlyJsonKeys(
+  Map<String, Object?> json,
+  Set<String> allowed,
+  String name,
+) {
+  final unknown = json.keys.where((key) => !allowed.contains(key)).toList();
+  if (unknown.isNotEmpty) {
+    throw FormatException('$name has unknown field "${unknown.first}"');
   }
 }
 

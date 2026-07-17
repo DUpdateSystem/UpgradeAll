@@ -143,6 +143,13 @@ struct RuntimeOperationRequest {
     data_dir: Option<PathBuf>,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PrepareInstallRequest {
+    data_dir: PathBuf,
+    package_id: getter::core::PackageId,
+}
+
 #[derive(Debug, Default, Deserialize)]
 struct ApplyAutogenAcceptance {
     #[serde(default)]
@@ -503,6 +510,20 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_startup<'local>(
         .and_then(|()| jstring_to_string(&mut env, &request_json))
         .and_then(startup_operation)
     {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_prepareInstall<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "prepare install";
+    let response = match jstring_to_string(&mut env, &request_json).and_then(prepare_install) {
         Ok(data) => success_envelope(command, data),
         Err(error) => operation_error_envelope(command, error),
     };
@@ -886,6 +907,16 @@ where
     Ok(value)
 }
 
+fn prepare_install(request_json: String) -> Result<Value, BridgeOperationError> {
+    let request: PrepareInstallRequest = serde_json::from_str(&request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let handoff =
+        getter::operations::app::prepare_platform_install(&request.data_dir, &request.package_id)
+            .map_err(BridgeOperationError::App)?;
+    serde_json::to_value(handoff)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))
+}
+
 fn read_operation(request_json: String) -> Result<Value, BridgeOperationError> {
     let request: ReadOperationRequest = serde_json::from_str(&request_json)
         .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
@@ -1116,6 +1147,8 @@ enum BridgeOperationError {
     ProviderCatalog(String),
     #[error("migration error: {0}")]
     Migration(#[from] LegacyRoomOperationError),
+    #[error("app operation error: {0}")]
+    App(#[from] getter::operations::app::AppOperationError),
     #[error("read model error: {0}")]
     ReadModel(#[from] ReadModelOperationError),
     #[error("startup error: {0}")]
@@ -1195,6 +1228,11 @@ impl BridgeOperationError {
                 "F-Droid catalog cache refresh failed",
                 Some(detail),
             ),
+            Self::App(error) => (
+                error.code(),
+                "Getter platform install preparation failed",
+                Some(error.to_string()),
+            ),
             Self::Migration(error) => (
                 error.code(),
                 error.message(),
@@ -1241,6 +1279,79 @@ impl From<AutogenOperationError> for BridgeOperationError {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn prepare_install_request_is_strict() {
+        let request: PrepareInstallRequest = serde_json::from_value(json!({
+            "data_dir": "/getter",
+            "package_id": "android/app/com.example.app"
+        }))
+        .unwrap();
+        assert_eq!(request.data_dir, PathBuf::from("/getter"));
+        assert_eq!(
+            request.package_id.to_string(),
+            "android/app/com.example.app"
+        );
+
+        let unknown = serde_json::from_value::<PrepareInstallRequest>(json!({
+            "data_dir": "/getter",
+            "package_id": "android/app/com.example.app",
+            "execute": true
+        }))
+        .unwrap_err();
+        assert!(unknown.to_string().contains("unknown field"));
+    }
+
+    #[test]
+    fn platform_install_handoff_serializes_the_bridge_contract() {
+        use getter::operations::app::{
+            AndroidInstallTarget, PlatformInstallHandoff, PlatformInstallRequest, StagedArtifact,
+        };
+
+        let handoff = PlatformInstallHandoff {
+            format: "getter-platform-install-handoff".into(),
+            version: 1,
+            package_id: "android/app/com.example.app".parse().unwrap(),
+            repository_id: "local".into(),
+            package_version: "1.2.3".into(),
+            request: PlatformInstallRequest::AndroidApk {
+                target: AndroidInstallTarget {
+                    kind: "android".into(),
+                    package_name: "com.example.app".into(),
+                },
+                artifact: StagedArtifact {
+                    name: "app.apk".into(),
+                    path: PathBuf::from("/getter/downloads/app.apk"),
+                    sha256: "a".repeat(64),
+                    status: "downloaded".into(),
+                },
+            },
+        };
+
+        assert_eq!(
+            serde_json::to_value(handoff).unwrap(),
+            json!({
+                "format": "getter-platform-install-handoff",
+                "version": 1,
+                "package_id": "android/app/com.example.app",
+                "repository_id": "local",
+                "package_version": "1.2.3",
+                "request": {
+                    "kind": "android_apk",
+                    "target": {
+                        "kind": "android",
+                        "package_name": "com.example.app"
+                    },
+                    "artifact": {
+                        "name": "app.apk",
+                        "path": "/getter/downloads/app.apk",
+                        "sha256": "a".repeat(64),
+                        "status": "downloaded"
+                    }
+                }
+            })
+        );
+    }
     use getter::core::{
         autogen::{FDROID_AUTOGEN_GENERATOR, GITHUB_AUTOGEN_GENERATOR},
         repository::{RepositoryMetadata, RepositoryPackageDirectoryLayout, REPO_API_VERSION_V1},

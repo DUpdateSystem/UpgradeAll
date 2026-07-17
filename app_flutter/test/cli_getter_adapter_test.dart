@@ -4,6 +4,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:upgradeall/cli_getter_adapter.dart';
 
 void main() {
+  test(
+    'CLI adapter reports platform install preparation unsupported',
+    () async {
+      const adapter = CliGetterAdapter(
+        executable: '/unused/getter',
+        dataDir: '/unused/data',
+      );
+
+      expect(adapter.supportsPlatformInstallPreparation, isFalse);
+      await expectLater(
+        adapter.prepareInstall('android/app/com.example.app'),
+        throwsA(isA<UnsupportedError>()),
+      );
+    },
+  );
+
   test('CLI snapshot consumes the single getter startup response', () async {
     final temp = await Directory.systemTemp.createTemp('getter-cli-startup-');
     addTearDown(() => temp.delete(recursive: true));

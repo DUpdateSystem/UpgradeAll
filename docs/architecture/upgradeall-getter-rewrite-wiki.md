@@ -200,7 +200,7 @@ Flutter APP
 Rust getter core + native bridge
   - Rust-active platform adapter interface
   - Android PackageManager inventory calls through platform adapter
-  - installer adapter handoff
+  - Getter-owned prepare-only Android APK installer handoff
   - notification adapter handoff
   - SAF/file picker/URI permission handoff
   - app/package model
@@ -242,7 +242,7 @@ Rust getter core + native bridge
 
 - Android PackageManager installed app scanning exposed as raw facts through the Rust-active platform adapter (ADR-0009)。
 - Android installed version lookup。
-- APK install / package installer / Shizuku/root installer。
+- APK install / package installer / Shizuku/root installer；在 ADR-0014 的首个 prepare-only slice 中尚不执行这些能力，JNI/Kotlin/Dart 只传输 Getter 已验证的 typed handoff。
 - Android permission request。
 - Notification / foreground service integration。
 - SAF/file picker/URI permission。
@@ -1166,7 +1166,9 @@ getter --data-dir <path> app install <package-id>
 
 `app show` 只读并且只使用静态候选或现有缓存。`app check` 是用户显式触发的刷新，可以访问包声明的 getter-owned provider，并在存在更新时返回 Getter 签发的 action。该 action 只属于当前 CLI 进程/runtime；此命令不承诺另一进程随后提交 action，也不提供跨进程任务恢复。
 
-`app download` 主动选择 Getter 允许的最新候选，将候选的全部 artifacts 按包级 `Manifest` 校验并暂存；已存在最终暂存文件时直接复用。`app install` 先执行相同暂存，再解析版本 Lua 中的结构化 installer argv，显示最终命令并直接 exec，不经过 shell。找不到命令或命令执行失败时保留已暂存文件并返回稳定 installer 错误。产品 CLI 不接受 endpoint、provider payload、fixture、transport、cache mode、artifact URL/输出路径或 installer argv 等控制字段。
+`app download` 主动选择 Getter 允许的最新候选，将候选的全部 artifacts 按包级 `Manifest` 校验并暂存；已存在最终暂存文件时直接复用。`app install` 先执行相同暂存，再解析版本 Lua 中的结构化 installer argv，显示最终命令并直接 exec，不经过 shell。找不到命令或命令执行失败时保留已暂存文件并返回稳定 installer 错误。产品 CLI 不接受 endpoint、provider payload、fixture、transport、cache mode、artifact URL/输出路径或 installer argv 等控制字段。现有 `installer.command` 行为不变。
+
+Android APK package 可以声明 `installer.android_apk { artifact = installer.artifact("app.apk") }`，对应 JSON 为 `{ "kind": "android_apk", "artifact": { "artifact": "app.apk" } }`。Getter 仍负责 refresh/selection、Manifest staging/integrity、唯一 Android target 和单个 `.apk` 引用校验，并返回 versioned prepare-only handoff。首个 slice 只经 JNI/Kotlin/Dart 传输；不包含 `PackageInstaller` execution、UI、persistence、split APK、FileProvider/content URI、completion/results、`core-installer` 或 device tests。
 
 CLI 是验证 getter core 独立性的关键：
 

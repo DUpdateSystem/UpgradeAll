@@ -33,6 +33,17 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   bool get supportsInstalledAutogen => true;
 
   @override
+  bool get supportsPlatformInstallPreparation => true;
+
+  @override
+  Future<PlatformInstallHandoff> prepareInstall(String packageId) async {
+    final data = await _invokeGetterData('prepareInstall', <String, Object?>{
+      'package_id': packageId,
+    });
+    return PlatformInstallHandoff.fromJson(data);
+  }
+
+  @override
   void initialize() {
     // The installed-autogen bridge initializes lazily when preview is called.
   }

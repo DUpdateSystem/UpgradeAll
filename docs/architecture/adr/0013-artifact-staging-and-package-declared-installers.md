@@ -123,6 +123,8 @@ The installer declaration is trusted repository content and does not require a s
 
 If the executable is not found, `app install` exits nonzero with stable code `installer.command_not_found`. If the child exits unsuccessfully, it returns `installer.command_failed`. Downloaded artifacts remain staged after either error. Captured stdout/stderr is bounded before it enters a response or diagnostic.
 
+ADR-0014 extends this model with the platform-specific `installer.android_apk { artifact = installer.artifact("app.apk") }` declaration. Getter prepares a versioned typed handoff after its existing refresh, selection, Manifest-backed staging, integrity, target, and APK validation. The first slice transports that handoff through JNI/Kotlin/Dart only; it does not execute Android `PackageInstaller` or change `installer.command`.
+
 ### Provider and Manifest implications
 
 Provider-normalized artifacts preserve upstream SHA-256 facts when available so getter-owned autogen/refresh can generate the package Manifest. F-Droid already supplies APK hashes. GitHub release assets use the official asset `digest` when it is a valid `sha256:<hex>` value. The generated Manifest keeps the existing `<digest> <filename>` syntax and may also retain provider/source-response SHA-512 provenance lines.

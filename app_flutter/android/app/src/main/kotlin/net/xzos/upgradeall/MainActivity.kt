@@ -47,6 +47,16 @@ class MainActivity : FlutterActivity() {
                     nativeLib.initializeBridge(applicationContext)
                 }
 
+                "prepareInstall" -> runGetterBridge(result) {
+                    val args = call.arguments as? Map<*, *> ?: emptyMap<Any?, Any?>()
+                    nativeLib.prepareInstall(
+                        GetterBridgeRequestBuilder.prepareInstallRequest(
+                            getterDataDir().absolutePath,
+                            args,
+                        ),
+                    )
+                }
+
                 "previewInstalledAutogen" -> runGetterBridge(result) {
                     nativeLib.previewInstalledAutogen(
                         applicationContext,

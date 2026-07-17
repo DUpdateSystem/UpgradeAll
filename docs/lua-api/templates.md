@@ -131,7 +131,19 @@ return package_version {
 }
 ```
 
-Literal strings become argv entries; `installer.artifact(name)` resolves only to a staged artifact declared by the same candidate. Getter never passes this through a shell. Download ignores installer declarations, while install stages artifacts first and validates the command afterward.
+Literal strings become argv entries; `installer.artifact(name)` resolves only to a staged artifact declared by the same candidate. Getter never passes this through a shell. Download ignores installer declarations, while install stages artifacts first and validates the command afterward. Existing `installer.command` behavior remains unchanged.
+
+For an Android APK package, authors can instead declare a prepare-only platform handoff:
+
+```lua
+install = installer.android_apk {
+  artifact = installer.artifact("app.apk"),
+}
+```
+
+The helper preserves the JSON shape `{ "kind": "android_apk", "artifact": { "artifact": "app.apk" } }`. The reference must select exactly one artifact from the same candidate, and its staged file must be an `.apk` for exactly one Android package target. Getter owns provider refresh and selection, Manifest-backed staging and integrity verification, and all target/artifact validation before returning a versioned handoff through JNI/Kotlin/Dart.
+
+This declaration does not run Android `PackageInstaller` and does not define UI, persistence, split APKs, `FileProvider`/content URIs, completion/results, a legacy `core-installer` path, or device tests.
 
 Provider-backed update-check operations install `getter.provider.*` for those modules. Plain package evaluation remains host-free and is not the validation path for generated F-Droid or GitHub provider-module output. If generated package Lua needs local helper data, autogen writes it under that package directory's `files/` subtree; getter does not assign product semantics to file names or formats inside `files/`.
 

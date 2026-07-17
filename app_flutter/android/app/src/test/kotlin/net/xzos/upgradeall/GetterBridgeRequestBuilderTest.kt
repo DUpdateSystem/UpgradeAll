@@ -7,6 +7,36 @@ import org.junit.Test
 
 class GetterBridgeRequestBuilderTest {
     @Test
+    fun prepareInstallRequestCarriesOnlyDataDirAndPackageId() {
+        val json = JSONObject(
+            GetterBridgeRequestBuilder.prepareInstallRequest(
+                "/app/files/getter",
+                mapOf("package_id" to "android/app/com.example.app"),
+            ),
+        )
+
+        assertEquals(2, json.length())
+        assertEquals("/app/files/getter", json.getString("data_dir"))
+        assertEquals("android/app/com.example.app", json.getString("package_id"))
+    }
+
+    @Test
+    fun prepareInstallRequestRejectsMissingOrUnknownFields() {
+        assertThrows(IllegalArgumentException::class.java) {
+            GetterBridgeRequestBuilder.prepareInstallRequest("/getter", emptyMap<Any?, Any?>())
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            GetterBridgeRequestBuilder.prepareInstallRequest(
+                "/getter",
+                mapOf(
+                    "package_id" to "android/app/com.example.app",
+                    "execute" to true,
+                ),
+            )
+        }
+    }
+
+    @Test
     fun readOperationRequestPreservesOperationAndPayload() {
         val json = JSONObject(
             GetterBridgeRequestBuilder.readOperationRequest(

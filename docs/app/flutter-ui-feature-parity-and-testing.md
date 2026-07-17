@@ -28,6 +28,8 @@ Home, Apps, and App detail consume one getter-owned startup snapshot. Rust activ
 
 A fresh installation whose inventory has actionable apps and no enabled tracked packages exposes a nonblocking Home setup action. Explicit setup preview scans inventory once, refreshes the signed official F-Droid catalog, prefers F-Droid matches, and offers remaining installed apps through the generated fallback repository. Flutter only renders the unified candidates and diagnostics, submits selected package ids with Getter's opaque preview id, and reloads startup after apply. If F-Droid refresh fails, a stale cache remains usable; without cache the fallback candidates remain available with a warning.
 
+ADR-0014 adds only transport parity for a Getter-owned prepare-only Android APK install handoff. Getter refreshes/selects, performs Manifest-backed staging and integrity checks, validates the exact Android target and one `.apk`, and returns a versioned DTO. JNI, Kotlin, and Dart carry the typed `android_apk` handoff without reimplementing policy. This slice deliberately adds no Flutter install UI, `PackageInstaller` execution, persistence, split APK support, content URI handling, completion/results, `core-installer` reuse, or device tests.
+
 ## BDD vs TDD boundary
 
 Use mixed BDD and TDD.

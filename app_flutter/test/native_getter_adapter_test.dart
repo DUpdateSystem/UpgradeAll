@@ -5,6 +5,27 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:upgradeall/getter_adapter.dart';
 import 'package:upgradeall/native_getter_adapter.dart';
 
+Map<String, Object?> _platformInstallHandoffJson() => <String, Object?>{
+  'format': 'getter-platform-install-handoff',
+  'version': 1,
+  'package_id': 'android/app/com.example.app',
+  'repository_id': 'local',
+  'package_version': '1.2.3',
+  'request': <String, Object?>{
+    'kind': 'android_apk',
+    'target': <String, Object?>{
+      'kind': 'android',
+      'package_name': 'com.example.app',
+    },
+    'artifact': <String, Object?>{
+      'name': 'example.apk',
+      'path': '/getter/downloads/example.apk',
+      'sha256': 'a' * 64,
+      'status': 'downloaded',
+    },
+  },
+};
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -17,6 +38,75 @@ void main() {
         .setMockMethodCallHandler(channel, null);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(eventMethodChannel, null);
+  });
+
+  test(
+    'native prepare install sends package id and parses typed handoff',
+    () async {
+      MethodCall? captured;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            captured = call;
+            return jsonEncode(<String, Object?>{
+              'ok': true,
+              'command': 'prepare install',
+              'data': _platformInstallHandoffJson(),
+              'warnings': <Object?>[],
+            });
+          });
+
+      const adapter = MethodChannelGetterAdapter(channel: channel);
+      final handoff = await adapter.prepareInstall(
+        'android/app/com.example.app',
+      );
+
+      expect(captured!.method, 'prepareInstall');
+      expect(captured!.arguments, <String, Object?>{
+        'package_id': 'android/app/com.example.app',
+      });
+      expect(handoff.kind, PlatformInstallKind.androidApk);
+      expect(handoff.target.packageName, 'com.example.app');
+      expect(handoff.artifact.path, '/getter/downloads/example.apk');
+      expect(handoff.artifact.sha256, 'a' * 64);
+    },
+  );
+
+  test('native prepare install rejects unknown handoff fields', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          final payload = _platformInstallHandoffJson()..['execute'] = true;
+          return jsonEncode(<String, Object?>{
+            'ok': true,
+            'command': 'prepare install',
+            'data': payload,
+            'warnings': <Object?>[],
+          });
+        });
+
+    const adapter = MethodChannelGetterAdapter(channel: channel);
+    await expectLater(
+      adapter.prepareInstall('android/app/com.example.app'),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
+  test('native prepare install rejects an unknown handoff version', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          final payload = _platformInstallHandoffJson()..['version'] = 2;
+          return jsonEncode(<String, Object?>{
+            'ok': true,
+            'command': 'prepare install',
+            'data': payload,
+            'warnings': <Object?>[],
+          });
+        });
+
+    const adapter = MethodChannelGetterAdapter(channel: channel);
+    await expectLater(
+      adapter.prepareInstall('android/app/com.example.app'),
+      throwsA(isA<FormatException>()),
+    );
   });
 
   test(

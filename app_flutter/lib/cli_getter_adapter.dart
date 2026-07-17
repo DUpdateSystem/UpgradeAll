@@ -21,6 +21,18 @@ class CliGetterAdapter implements GetterAdapter {
   bool get supportsInstalledAutogen => false;
 
   @override
+  bool get supportsPlatformInstallPreparation => false;
+
+  @override
+  Future<PlatformInstallHandoff> prepareInstall(String packageId) {
+    return Future<PlatformInstallHandoff>.error(
+      UnsupportedError(
+        'Platform install preparation requires the native Android bridge',
+      ),
+    );
+  }
+
+  @override
   void initialize() {
     _runGetter(const <String>['init']);
   }
