@@ -1,0 +1,48 @@
+# UpgradeAll Flutter app
+
+This is the new Flutter shell and product APK entry for the UpgradeAll rewrite. It must remain a UI and platform adapter around the Rust getter core; product logic, repository resolution, storage, and migration behavior belong in getter. The legacy Android `:app` UI is kept only as reference code during migration.
+
+## Toolchain baseline
+
+- Flutter stable `>=3.44.4`
+- Dart SDK `>=3.12.2 <4.0.0`
+- Gradle `9.3.1`, Android Gradle Plugin `9.0.1`, Kotlin Gradle Plugin `2.3.20`
+- Android product APK `minSdkVersion` follows `flutter.minSdkVersion` from the active stable Flutter SDK (Flutter 3.44 currently uses Android API 24).
+
+Do not validate the rewrite with an older local Flutter SDK; older Flutter tester/Impeller builds can crash in widget tests and do not match CI. Do not pin the Flutter product APK to an Android API level below the active stable Flutter SDK baseline just to preserve old local compatibility.
+
+## Current slice
+
+- Android release application identity: `net.xzos.upgradeall`
+- Android debug application identity: `net.xzos.upgradeall.debug`
+- Stable route/action/state keys for widget and future integration/dev tests
+- Placeholder routes for apps, repositories, downloads, logs, settings, and legacy migration
+- `FakeGetterAdapter` for deterministic widget tests
+- `CliGetterAdapter` as a development/integration bridge against the real `getter-cli` JSON envelope
+- A slim Android `:getter_bridge` library inside `app_flutter/android/getter_bridge` packages the Rust `api_proxy` native library and the no-UI installed-inventory provider classes into the Flutter product APK without depending on the legacy native `:app` UI or old `GetterPort` RPC wrapper surface.
+- `MainActivity` exposes a no-UI `net.xzos.upgradeall/getter_bridge` MethodChannel for native bridge plumbing. The legacy migration, installed-autogen, and installed F-Droid autogen methods derive the app-private getter data directory on Android, call Rust JNI entrypoints, and return getter-style JSON envelopes consumed by `MethodChannelGetterAdapter`.
+- Product manifest permissions include `QUERY_ALL_PACKAGES` per ADR-0009 so the Rust-active Android platform adapter can provide complete installed package inventory facts to getter.
+
+`CliGetterAdapter` is not the final Android production bridge. It exists to keep the getter-owned DTO and error contract executable for dev tests. `MethodChannelGetterAdapter` is the current production bridge slice for direct legacy Room import/report-list, installed-autogen preview/apply, and cache-backed installed F-Droid autogen preview/apply: Flutter renders getter-owned DTOs and passes user choices/paths back to getter, but Room mapping, PackageManager scanning, F-Droid catalog matching/cache lookup, package-id decisions, and `autogen` writes remain in Rust/native getter code.
+
+## Verification
+
+```bash
+flutter analyze
+flutter test
+GETTER_CLI_BIN=/path/to/getter-cli flutter test dev_test/cli_getter_adapter_test.dart
+```
+
+Device/emulator bridge validation is available when an Android device is attached:
+
+```bash
+flutter test integration_test/native_bridge_test.dart -d emulator-5554
+# or, from the repository root:
+just test-flutter-device-bridge emulator-5554
+```
+
+The device bridge test exercises the production MethodChannel/JNI path for copied legacy Room import/report-list and installed-autogen preview/apply. If using the local `Pixel_9a` AVD, start it with enough memory (for example `-memory 4096`) so the Flutter debug VM is not killed by Android low-memory pressure.
+
+From the repository root, `just verify` also runs the Flutter analyzer, widget tests, getter CLI integration/dev test, Android debug build, and an APK inspection that verifies the Flutter APK contains `libapi_proxy.so`, `NativeLib`, and `InstalledInventoryProvider`. `just verify` intentionally does not require an attached device; use `just test-flutter-device-bridge` for the emulator-only path.
+
+Android CI/release artifacts are built from this Flutter project with `flutter build apk`; the root Gradle `:app` module is no longer the rewrite product APK path.

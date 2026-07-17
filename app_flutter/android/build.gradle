@@ -1,0 +1,46 @@
+import groovy.json.JsonSlurper
+
+buildscript {
+    ext.kotlin_version = '2.3.20'
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+String findRustlsPlatformVerifierProject() {
+    def apiProxyManifest = file('../../core-getter/src/main/rust/api_proxy/Cargo.toml')
+    def dependencyText = providers.exec {
+        commandLine('cargo', 'metadata', '--format-version', '1', '--manifest-path', apiProxyManifest.path)
+    }.standardOutput.asText.get()
+    def dependencyJson = new JsonSlurper().parseText(dependencyText)
+    def manifestPath = file(dependencyJson.packages.find { it.name == 'rustls-platform-verifier-android' }.manifest_path)
+    return new File(manifestPath.parentFile, 'maven').path
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url = findRustlsPlatformVerifierProject()
+            metadataSources.artifact()
+        }
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}

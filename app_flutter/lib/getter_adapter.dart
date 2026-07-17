@@ -1,0 +1,2013 @@
+/// Getter-facing UI bridge contracts for the Flutter shell.
+///
+/// These DTOs are transport/rendering shapes. Product decisions such as
+/// repository overlay resolution, update selection, Lua validation, migration
+/// mapping, and storage behavior belong in Rust getter.
+abstract interface class GetterAdapter {
+  bool get supportsLegacyRoomImport;
+
+  bool get supportsInstalledAutogen;
+
+  bool get supportsPlatformInstallPreparation;
+
+  Future<PlatformInstallHandoff> prepareInstall(String packageId);
+
+  void initialize();
+
+  List<RepositorySummary> listRepositories();
+
+  List<TrackedPackageSummary> listTrackedPackages();
+
+  PackageEvaluation evaluatePackage(String packageId, {String? repositoryId});
+
+  Future<List<MigrationReportSummary>> readMigrationReports();
+
+  Future<LegacyMigrationImportResult> importLegacyRoomDatabase(
+    String databasePath,
+  );
+
+  Future<InstalledAutogenPreview> previewInstalledAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  });
+
+  Future<InstalledAutogenApplyResult> applyInstalledAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  });
+
+  Future<FreshInstallSetupPreview> previewFreshInstallSetup({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  });
+
+  Future<FreshInstallSetupApplyResult> applyFreshInstallSetup(
+    FreshInstallSetupPreview preview, {
+    List<String>? acceptedPackageIds,
+  });
+
+  Future<InstalledAutogenPreview> previewInstalledFdroidAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  });
+
+  Future<InstalledAutogenPreview> previewGithubAutogen(
+    GithubAutogenPreviewInput input,
+  );
+
+  Future<InstalledAutogenApplyResult> applyGithubAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  });
+
+  Future<FdroidCatalogCacheRefreshResult> refreshDefaultFdroidCatalogCache();
+
+  Future<InstalledAutogenPreview> previewFdroidAutogen(
+    Map<String, Object?> payload,
+  );
+
+  Future<InstalledAutogenApplyResult> applyFdroidAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  });
+
+  Future<InstalledAutogenApplyResult> applyInstalledFdroidAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  });
+
+  Future<RuntimeUpdateCheckResult> checkPackageForUpdate(
+    String packageId, {
+    String? repositoryId,
+    String? installedVersion,
+    String? pinVersion,
+  });
+
+  Future<RuntimeTaskSnapshot> submitRuntimeAction(String actionId);
+
+  Stream<RuntimeNotificationEnvelope> runtimeNotificationEnvelopes();
+
+  Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
+    bool active = false,
+    String? packageId,
+  });
+
+  Future<RuntimeTaskSnapshot> getRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> startRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> pauseRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> resumeRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> cancelRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> retryRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> removeRuntimeTask(String taskId);
+
+  Future<RuntimeTaskSnapshot> sendRuntimeUserResult(
+    String taskId,
+    RuntimeUserResult result, {
+    String? reason,
+  });
+
+  Future<List<RuntimeTaskSnapshot>> cleanRuntimeTasks({
+    RuntimeTaskCleanMode mode = RuntimeTaskCleanMode.defaultMode,
+  });
+
+  Future<GetterSnapshot> loadSnapshot();
+}
+
+class FakeGetterAdapter implements GetterAdapter {
+  const FakeGetterAdapter();
+
+  static const _snapshot = GetterSnapshot(
+    status: 'Fake getter ready',
+    updateCount: 0,
+    apps: <AppSummary>[
+      AppSummary(
+        id: 'android/org.fdroid.fdroid',
+        name: 'F-Droid',
+        installedVersion: '1.20.0',
+        latestVersion: '1.20.0',
+        hasFreeNetworkWarning: true,
+      ),
+    ],
+    repositories: <RepositorySummary>[
+      RepositorySummary(id: 'local', priority: 100),
+      RepositorySummary(id: 'official', priority: 0),
+      RepositorySummary(id: 'autogen', priority: -1),
+    ],
+  );
+
+  @override
+  bool get supportsLegacyRoomImport => false;
+
+  @override
+  bool get supportsInstalledAutogen => true;
+
+  @override
+  bool get supportsPlatformInstallPreparation => false;
+
+  @override
+  Future<PlatformInstallHandoff> prepareInstall(String packageId) {
+    return Future<PlatformInstallHandoff>.error(
+      UnsupportedError('Platform install preparation is unavailable'),
+    );
+  }
+
+  @override
+  void initialize() {}
+
+  @override
+  List<RepositorySummary> listRepositories() => _snapshot.repositories;
+
+  @override
+  List<TrackedPackageSummary> listTrackedPackages() {
+    return const <TrackedPackageSummary>[
+      TrackedPackageSummary(
+        id: 'android/org.fdroid.fdroid',
+        enabled: true,
+        favorite: false,
+        pinVersion: null,
+        repositoryId: 'official',
+        packageResolution: 'official_repository_package',
+      ),
+    ];
+  }
+
+  @override
+  PackageEvaluation evaluatePackage(String packageId, {String? repositoryId}) {
+    if (packageId != 'android/org.fdroid.fdroid') {
+      throw const GetterBridgeException(
+        GetterError(
+          code: 'package.not_found',
+          message: 'Fake package not found',
+        ),
+      );
+    }
+    return const PackageEvaluation(
+      id: 'android/org.fdroid.fdroid',
+      repositoryId: 'official',
+      name: 'F-Droid',
+      hasFreeNetworkWarning: true,
+    );
+  }
+
+  @override
+  Future<List<MigrationReportSummary>> readMigrationReports() async {
+    return const <MigrationReportSummary>[];
+  }
+
+  @override
+  Future<LegacyMigrationImportResult> importLegacyRoomDatabase(
+    String databasePath,
+  ) async {
+    throw const GetterBridgeException(
+      GetterError(
+        code: 'bridge.not_connected',
+        message: 'Getter migration import bridge is not connected',
+      ),
+    );
+  }
+
+  @override
+  Future<InstalledAutogenPreview> previewInstalledAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async {
+    return InstalledAutogenPreview.fromJson(const <String, Object?>{
+      'operation': 'installed.preview',
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'scan': <String, Object?>{
+        'stats': <String, Object?>{
+          'total_seen': 3,
+          'returned': 1,
+          'filtered_system': 1,
+          'filtered_self': 1,
+        },
+        'diagnostics': <Object?>[],
+      },
+      'summary': <String, Object?>{
+        'candidate_count': 1,
+        'skipped_count': 1,
+        'write_count': 1,
+        'delete_count': 0,
+      },
+      'candidates': <Object?>[
+        <String, Object?>{
+          'package_id': 'android/app/com.example.autogen',
+          'kind': 'android',
+          'display_name': 'Example Autogen',
+          'installed_target': <String, Object?>{
+            'kind': 'android_package',
+            'package_name': 'com.example.autogen',
+          },
+          'action': 'create',
+          'output_relative_path': 'android/app/com.example.autogen',
+          'content_hash': 'sha512:fake',
+          'content': '-- fake generated content',
+        },
+      ],
+      'skipped': <Object?>[
+        <String, Object?>{
+          'package_id': 'android/org.fdroid.fdroid',
+          'reason': 'covered_by_higher_priority_repo',
+          'covering_repo_id': 'official',
+        },
+      ],
+      'diagnostics': <Object?>[],
+    });
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyInstalledAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    return InstalledAutogenApplyResult.fromJson(const <String, Object?>{
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'applied_count': 1,
+      'applied': <Object?>[
+        <String, Object?>{
+          'package_id': 'android/app/com.example.autogen',
+          'output_relative_path': 'android/app/com.example.autogen',
+        },
+      ],
+    });
+  }
+
+  @override
+  Future<FreshInstallSetupPreview> previewFreshInstallSetup({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async => const FreshInstallSetupPreview(
+    opaquePreview: 'fake-setup-preview',
+    candidates: <FreshInstallSetupCandidate>[],
+    diagnostics: <GetterDiagnostic>[],
+  );
+
+  @override
+  Future<FreshInstallSetupApplyResult> applyFreshInstallSetup(
+    FreshInstallSetupPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async => FreshInstallSetupApplyResult(
+    readiness: acceptedPackageIds?.isNotEmpty ?? true
+        ? 'ready'
+        : 'needs_package_setup',
+    appliedPackageIds: acceptedPackageIds ?? const <String>[],
+    diagnostics: const <GetterDiagnostic>[],
+  );
+
+  @override
+  Future<InstalledAutogenPreview> previewInstalledFdroidAutogen({
+    InstalledAutogenScanOptions options = const InstalledAutogenScanOptions(),
+  }) async {
+    return previewFdroidAutogen(<String, Object?>{});
+  }
+
+  @override
+  Future<InstalledAutogenPreview> previewGithubAutogen(
+    GithubAutogenPreviewInput input,
+  ) async {
+    return InstalledAutogenPreview.fromJson(const <String, Object?>{
+      'operation': 'github.autogen.preview',
+      'provider': 'github',
+      'api_base_url': 'https://api.github.com',
+      'owner': 'DUpdateSystem',
+      'repo': 'UpgradeAll',
+      'cache_key': 'github:github-releases-v1:fake:DUpdateSystem/UpgradeAll',
+      'source': 'cache',
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'summary': <String, Object?>{
+        'candidate_count': 1,
+        'skipped_count': 0,
+        'write_count': 1,
+        'delete_count': 0,
+      },
+      'candidates': <Object?>[
+        <String, Object?>{
+          'package_id':
+              'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+          'kind': 'android',
+          'display_name': 'UpgradeAll',
+          'installed_target': <String, Object?>{
+            'kind': 'android_package',
+            'package_name': 'net.xzos.upgradeall',
+          },
+          'action': 'create',
+          'output_relative_path':
+              'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+          'content_hash': 'sha512:fake-github',
+          'content': '-- fake generated GitHub content',
+        },
+      ],
+      'skipped': <Object?>[],
+      'diagnostics': <Object?>[],
+    });
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyGithubAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    return InstalledAutogenApplyResult.fromJson(const <String, Object?>{
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'applied_count': 1,
+      'applied': <Object?>[
+        <String, Object?>{
+          'package_id':
+              'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+          'output_relative_path':
+              'android/github/DUpdateSystem/UpgradeAll/net.xzos.upgradeall',
+        },
+      ],
+    });
+  }
+
+  @override
+  Future<FdroidCatalogCacheRefreshResult>
+  refreshDefaultFdroidCatalogCache() async {
+    return FdroidCatalogCacheRefreshResult.fromJson(const <String, Object?>{
+      'operation': 'fdroid.catalog.refresh',
+      'provider': 'fdroid',
+      'endpoint_id': 'official',
+      'endpoint_url': 'https://f-droid.org/repo',
+      'cache_key': 'fdroid:fdroid-index-v1:official:fake',
+      'source': 'refreshed',
+      'app_count': 3,
+      'release_count': 3,
+      'source_response_sha512': <Object?>['sha512:fake'],
+      'provenance_schema_version': 'provider-response-provenance-v1',
+      'diagnostics': <Object?>[],
+    });
+  }
+
+  @override
+  Future<InstalledAutogenPreview> previewFdroidAutogen(
+    Map<String, Object?> payload,
+  ) async {
+    return InstalledAutogenPreview.fromJson(const <String, Object?>{
+      'operation': 'fdroid.autogen.preview',
+      'provider': 'fdroid',
+      'endpoint_id': 'official',
+      'endpoint_url': 'https://f-droid.org/repo',
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'summary': <String, Object?>{
+        'candidate_count': 1,
+        'skipped_count': 0,
+        'write_count': 1,
+        'delete_count': 0,
+      },
+      'candidates': <Object?>[
+        <String, Object?>{
+          'package_id': 'android/f-droid/app/org.fdroid.fdroid',
+          'kind': 'android',
+          'display_name': 'F-Droid',
+          'installed_target': <String, Object?>{
+            'kind': 'android_package',
+            'package_name': 'org.fdroid.fdroid',
+          },
+          'action': 'create',
+          'output_relative_path': 'android/f-droid/app/org.fdroid.fdroid',
+          'content_hash': 'sha512:fake-fdroid',
+          'content': '-- fake generated F-Droid content',
+        },
+      ],
+      'skipped': <Object?>[],
+      'diagnostics': <Object?>[],
+    });
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyFdroidAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) async {
+    return InstalledAutogenApplyResult.fromJson(const <String, Object?>{
+      'target_repo_id': 'autogen',
+      'target_repo_path': '/fake/getter/repo/autogen',
+      'applied_count': 1,
+      'applied': <Object?>[
+        <String, Object?>{
+          'package_id': 'android/f-droid/app/org.fdroid.fdroid',
+          'output_relative_path': 'android/f-droid/app/org.fdroid.fdroid',
+        },
+      ],
+    });
+  }
+
+  @override
+  Future<InstalledAutogenApplyResult> applyInstalledFdroidAutogen(
+    InstalledAutogenPreview preview, {
+    List<String>? acceptedPackageIds,
+  }) {
+    return applyFdroidAutogen(preview, acceptedPackageIds: acceptedPackageIds);
+  }
+
+  @override
+  Future<RuntimeUpdateCheckResult> checkPackageForUpdate(
+    String packageId, {
+    String? repositoryId,
+    String? installedVersion,
+    String? pinVersion,
+  }) async {
+    return RuntimeUpdateCheckResult.fromJson(<String, Object?>{
+      'package': <String, Object?>{
+        'id': packageId,
+        'name': 'F-Droid',
+        'repository': repositoryId ?? 'official',
+        'permissions': <String, Object?>{'free_network': false},
+      },
+      'update': <String, Object?>{
+        'network_required': false,
+        'package_id': packageId,
+        'installed_version': installedVersion,
+        'effective_local_version': pinVersion ?? installedVersion,
+        'policy': <String, Object?>{'pin_version': pinVersion},
+        'status': 'update_available',
+        'selected': <String, Object?>{
+          'package_id': packageId,
+          'candidate': <String, Object?>{
+            'version': '1.2.0',
+            'artifacts': <Object?>[
+              <String, Object?>{
+                'name': 'app.apk',
+                'url': 'https://example.invalid/app.apk',
+                'file_name': 'app.apk',
+              },
+            ],
+          },
+          'artifact': <String, Object?>{
+            'name': 'app.apk',
+            'url': 'https://example.invalid/app.apk',
+            'file_name': 'app.apk',
+          },
+        },
+        'actions': <Object?>[
+          <String, Object?>{
+            'type': 'download',
+            'url': 'https://example.invalid/app.apk',
+            'file_name': 'app.apk',
+          },
+        ],
+      },
+      'action': <String, Object?>{
+        'action_id': 'action-fake',
+        'package_id': packageId,
+      },
+    });
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> submitRuntimeAction(String actionId) async {
+    return RuntimeTaskSnapshot.fromJson(_runtimeTaskJson('task-1'));
+  }
+
+  @override
+  Stream<RuntimeNotificationEnvelope> runtimeNotificationEnvelopes() {
+    return const Stream<RuntimeNotificationEnvelope>.empty();
+  }
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
+    bool active = false,
+    String? packageId,
+  }) async {
+    return <RuntimeTaskSnapshot>[
+      RuntimeTaskSnapshot.fromJson(_runtimeTaskJson('task-1')),
+    ];
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> getRuntimeTask(String taskId) async {
+    return RuntimeTaskSnapshot.fromJson(_runtimeTaskJson(taskId));
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> startRuntimeTask(String taskId) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<RuntimeTaskSnapshot> pauseRuntimeTask(String taskId) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<RuntimeTaskSnapshot> resumeRuntimeTask(String taskId) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<RuntimeTaskSnapshot> cancelRuntimeTask(String taskId) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<RuntimeTaskSnapshot> retryRuntimeTask(String taskId) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<RuntimeTaskSnapshot> removeRuntimeTask(String taskId) =>
+      getRuntimeTask(taskId);
+
+  @override
+  Future<RuntimeTaskSnapshot> sendRuntimeUserResult(
+    String taskId,
+    RuntimeUserResult result, {
+    String? reason,
+  }) => getRuntimeTask(taskId);
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> cleanRuntimeTasks({
+    RuntimeTaskCleanMode mode = RuntimeTaskCleanMode.defaultMode,
+  }) async {
+    return <RuntimeTaskSnapshot>[];
+  }
+
+  static Map<String, Object?> _runtimeTaskJson(String taskId) {
+    return <String, Object?>{
+      'task_id': taskId,
+      'package_id': 'android/org.fdroid.fdroid',
+      'status': 'queued',
+      'phase': <String, Object?>{'category': 'queued'},
+      'progress': null,
+      'capabilities': <String, Object?>{
+        'cancel': true,
+        'pause': false,
+        'resume': false,
+        'retry': false,
+      },
+      'current_diagnostic': null,
+      'downloaded_file': null,
+      'updated_at': 1,
+    };
+  }
+
+  @override
+  Future<GetterSnapshot> loadSnapshot() async => _snapshot;
+}
+
+class GetterSnapshot {
+  const GetterSnapshot({
+    required this.status,
+    required this.updateCount,
+    required this.apps,
+    required this.repositories,
+    this.setup = const GetterSetupState(state: 'ready'),
+    this.diagnostics = const <GetterDiagnostic>[],
+  });
+
+  factory GetterSnapshot.fromStartupJson(Map<String, Object?> json) {
+    final bootstrap = _jsonMap(json['bootstrap'], 'startup.bootstrap');
+    final lifecycle = _jsonString(
+      bootstrap['lifecycle'],
+      'startup.bootstrap.lifecycle',
+    );
+    return GetterSnapshot(
+      status: lifecycle == 'already_initialized'
+          ? 'Getter already initialized'
+          : 'Getter initialized',
+      updateCount: _jsonInt(json['update_count'], 'startup.update_count'),
+      setup: json['setup'] == null
+          ? const GetterSetupState(state: 'ready')
+          : GetterSetupState.fromJson(_jsonMap(json['setup'], 'startup.setup')),
+      repositories: _jsonList(json['repositories'], 'startup.repositories')
+          .map((value) {
+            final repository = _jsonMap(value, 'startup.repository');
+            return RepositorySummary(
+              id: _jsonString(repository['id'], 'startup.repository.id'),
+              priority: _jsonInt(
+                repository['priority'],
+                'startup.repository.priority',
+              ),
+            );
+          })
+          .toList(growable: false),
+      apps: _jsonList(json['apps'], 'startup.apps')
+          .map(
+            (value) =>
+                AppSummary.fromStartupJson(_jsonMap(value, 'startup.app')),
+          )
+          .toList(growable: false),
+      diagnostics: <GetterDiagnostic>[
+        ..._jsonList(
+          bootstrap['diagnostics'],
+          'startup.bootstrap.diagnostics',
+        ).map(
+          (value) => GetterDiagnostic.fromJson(
+            _jsonMap(value, 'startup.bootstrap.diagnostic'),
+          ),
+        ),
+        ..._jsonList(json['diagnostics'], 'startup.diagnostics').map(
+          (value) =>
+              GetterDiagnostic.fromJson(_jsonMap(value, 'startup.diagnostic')),
+        ),
+      ],
+    );
+  }
+
+  final String status;
+  final int updateCount;
+  final GetterSetupState setup;
+  final List<AppSummary> apps;
+  final List<RepositorySummary> repositories;
+  final List<GetterDiagnostic> diagnostics;
+}
+
+class GetterSetupState {
+  const GetterSetupState({required this.state});
+
+  factory GetterSetupState.fromJson(Map<String, Object?> json) {
+    final state = _jsonString(json['state'], 'startup.setup.state');
+    if (state != 'needs_package_setup' && state != 'ready') {
+      throw FormatException('startup.setup.state has unknown value $state');
+    }
+    return GetterSetupState(state: state);
+  }
+
+  final String state;
+
+  bool get needsPackageSetup => state == 'needs_package_setup';
+}
+
+class AppSummary {
+  const AppSummary({
+    required this.id,
+    required this.name,
+    required this.installedVersion,
+    required this.latestVersion,
+    required this.hasFreeNetworkWarning,
+    this.updateStatus = 'up_to_date',
+    this.repositoryId,
+    this.pinVersion,
+    this.diagnostics = const <GetterDiagnostic>[],
+  });
+
+  factory AppSummary.fromStartupJson(Map<String, Object?> json) {
+    final warning = _jsonMap(json['warning'], 'startup.app.warning');
+    return AppSummary(
+      id: _jsonString(json['package_id'], 'startup.app.package_id'),
+      name:
+          _jsonOptionalString(json['name'], 'startup.app.name') ??
+          _jsonString(json['package_id'], 'startup.app.package_id'),
+      installedVersion: _jsonOptionalString(
+        json['installed_version'],
+        'startup.app.installed_version',
+      ),
+      latestVersion: _jsonOptionalString(
+        json['latest_version'],
+        'startup.app.latest_version',
+      ),
+      updateStatus: _parseStartupUpdateStatus(
+        json['update_status'],
+        'startup.app.update_status',
+      ),
+      repositoryId: _jsonOptionalString(
+        json['repository_id'],
+        'startup.app.repository_id',
+      ),
+      pinVersion: _jsonOptionalString(
+        json['pin_version'],
+        'startup.app.pin_version',
+      ),
+      hasFreeNetworkWarning: _jsonBool(
+        warning['free_network'],
+        'startup.app.warning.free_network',
+      ),
+      diagnostics: _jsonList(json['diagnostics'], 'startup.app.diagnostics')
+          .map(
+            (value) => GetterDiagnostic.fromJson(
+              _jsonMap(value, 'startup.app.diagnostic'),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+
+  final String id;
+  final String name;
+  final String? installedVersion;
+  final String? latestVersion;
+  final String updateStatus;
+  final String? repositoryId;
+  final String? pinVersion;
+  final bool hasFreeNetworkWarning;
+  final List<GetterDiagnostic> diagnostics;
+}
+
+class GetterDiagnostic {
+  const GetterDiagnostic({required this.code, required this.message});
+
+  factory GetterDiagnostic.fromJson(Map<String, Object?> json) {
+    return GetterDiagnostic(
+      code: _jsonString(json['code'], 'diagnostic.code'),
+      message: _jsonString(json['message'], 'diagnostic.message'),
+    );
+  }
+
+  final String code;
+  final String message;
+}
+
+class RepositorySummary {
+  const RepositorySummary({required this.id, required this.priority});
+
+  final String id;
+  final int priority;
+}
+
+class TrackedPackageSummary {
+  const TrackedPackageSummary({
+    required this.id,
+    required this.enabled,
+    required this.favorite,
+    required this.pinVersion,
+    required this.repositoryId,
+    required this.packageResolution,
+  });
+
+  factory TrackedPackageSummary.fromJson(Map<String, Object?> json) {
+    return TrackedPackageSummary(
+      id: _jsonString(json['id'], 'tracked.id'),
+      enabled: _jsonBool(json['enabled'], 'tracked.enabled'),
+      favorite: _jsonBool(json['favorite'], 'tracked.favorite'),
+      pinVersion: _jsonOptionalString(
+        json['pin_version'],
+        'tracked.pin_version',
+      ),
+      repositoryId: _jsonOptionalString(
+        json['repository_id'],
+        'tracked.repository_id',
+      ),
+      packageResolution: _jsonString(
+        json['package_resolution'],
+        'tracked.package_resolution',
+      ),
+    );
+  }
+
+  final String id;
+  final bool enabled;
+  final bool favorite;
+  final String? pinVersion;
+  final String? repositoryId;
+  final String packageResolution;
+}
+
+class PackageEvaluation {
+  const PackageEvaluation({
+    required this.id,
+    required this.repositoryId,
+    required this.name,
+    required this.hasFreeNetworkWarning,
+  });
+
+  final String id;
+  final String repositoryId;
+  final String name;
+  final bool hasFreeNetworkWarning;
+}
+
+class MigrationReportSummary {
+  const MigrationReportSummary({
+    required this.ok,
+    required this.code,
+    required this.message,
+    required this.importedRecords,
+    required this.trackedRecords,
+  });
+
+  factory MigrationReportSummary.fromJson(Map<String, Object?> json) {
+    return MigrationReportSummary(
+      ok: _jsonBool(json['ok'], 'migration.ok'),
+      code: _jsonString(json['code'], 'migration.code'),
+      message: _jsonString(json['message'], 'migration.message'),
+      importedRecords: _jsonInt(json['imported_records'], 'migration.imported'),
+      trackedRecords: _jsonInt(json['tracked_records'], 'migration.tracked'),
+    );
+  }
+
+  final bool ok;
+  final String code;
+  final String message;
+  final int importedRecords;
+  final int trackedRecords;
+}
+
+class LegacyMigrationImportResult {
+  const LegacyMigrationImportResult({
+    required this.alreadyImported,
+    required this.importedRecords,
+    required this.trackedPackages,
+    required this.warnings,
+    required this.sourceCounts,
+  });
+
+  factory LegacyMigrationImportResult.fromJson(Map<String, Object?> json) {
+    final warningsValue = json['warnings'];
+    final sourceCountsValue = json['source_counts'];
+    return LegacyMigrationImportResult(
+      alreadyImported:
+          _jsonOptionalBool(
+            json['already_imported'],
+            'migration.already_imported',
+          ) ??
+          false,
+      importedRecords: _jsonInt(json['imported_records'], 'migration.imported'),
+      trackedPackages: _jsonList(json['apps'], 'migration.apps')
+          .map(
+            (tracked) => TrackedPackageSummary.fromJson(
+              _jsonMap(tracked, 'migration.tracked_package'),
+            ),
+          )
+          .toList(growable: false),
+      warnings: warningsValue == null
+          ? const <MigrationWarningSummary>[]
+          : _jsonList(warningsValue, 'migration.warnings')
+                .map(
+                  (warning) => MigrationWarningSummary.fromJson(
+                    _jsonMap(warning, 'migration.warning'),
+                  ),
+                )
+                .toList(growable: false),
+      sourceCounts: sourceCountsValue == null
+          ? null
+          : MigrationSourceCounts.fromJson(
+              _jsonMap(sourceCountsValue, 'migration.source_counts'),
+            ),
+    );
+  }
+
+  final bool alreadyImported;
+  final int importedRecords;
+  final List<TrackedPackageSummary> trackedPackages;
+  final List<MigrationWarningSummary> warnings;
+  final MigrationSourceCounts? sourceCounts;
+}
+
+class MigrationWarningSummary {
+  const MigrationWarningSummary({required this.code, required this.message});
+
+  factory MigrationWarningSummary.fromJson(Map<String, Object?> json) {
+    return MigrationWarningSummary(
+      code: _jsonString(json['code'], 'migration.warning.code'),
+      message: _jsonString(json['message'], 'migration.warning.message'),
+    );
+  }
+
+  final String code;
+  final String message;
+}
+
+class MigrationSourceCounts {
+  const MigrationSourceCounts({
+    required this.appRows,
+    required this.extraAppRows,
+    required this.hubRows,
+    required this.extraHubRows,
+  });
+
+  factory MigrationSourceCounts.fromJson(Map<String, Object?> json) {
+    return MigrationSourceCounts(
+      appRows: _jsonInt(json['app_rows'], 'migration.source_counts.app_rows'),
+      extraAppRows: _jsonInt(
+        json['extra_app_rows'],
+        'migration.source_counts.extra_app_rows',
+      ),
+      hubRows: _jsonInt(json['hub_rows'], 'migration.source_counts.hub_rows'),
+      extraHubRows: _jsonInt(
+        json['extra_hub_rows'],
+        'migration.source_counts.extra_hub_rows',
+      ),
+    );
+  }
+
+  final int appRows;
+  final int extraAppRows;
+  final int hubRows;
+  final int extraHubRows;
+}
+
+class RuntimeUpdateCheckResult {
+  const RuntimeUpdateCheckResult({
+    required this.package,
+    required this.update,
+    required this.action,
+  });
+
+  factory RuntimeUpdateCheckResult.fromJson(Map<String, Object?> json) {
+    return RuntimeUpdateCheckResult(
+      package: RuntimePackageSummary.fromJson(
+        _jsonMap(json['package'], 'runtime.package'),
+      ),
+      update: RuntimeUpdateSummary.fromJson(
+        _jsonMap(json['update'], 'runtime.update'),
+      ),
+      action: json['action'] == null
+          ? null
+          : RuntimeIssuedAction.fromJson(
+              _jsonMap(json['action'], 'runtime.action'),
+            ),
+    );
+  }
+
+  final RuntimePackageSummary package;
+  final RuntimeUpdateSummary update;
+  final RuntimeIssuedAction? action;
+}
+
+class RuntimePackageSummary {
+  const RuntimePackageSummary({
+    required this.id,
+    required this.name,
+    required this.repositoryId,
+  });
+
+  factory RuntimePackageSummary.fromJson(Map<String, Object?> json) {
+    return RuntimePackageSummary(
+      id: _jsonString(json['id'], 'runtime.package.id'),
+      name: _jsonString(json['name'], 'runtime.package.name'),
+      repositoryId: _jsonString(
+        json['repository'],
+        'runtime.package.repository',
+      ),
+    );
+  }
+
+  final String id;
+  final String name;
+  final String repositoryId;
+}
+
+class RuntimeUpdateSummary {
+  const RuntimeUpdateSummary({
+    required this.packageId,
+    required this.status,
+    required this.installedVersion,
+    required this.effectiveLocalVersion,
+    required this.selectedVersion,
+    required this.actions,
+  });
+
+  factory RuntimeUpdateSummary.fromJson(Map<String, Object?> json) {
+    final selected = _jsonMapOrNull(
+      json['selected'],
+      'runtime.update.selected',
+    );
+    final candidate = selected == null
+        ? null
+        : _jsonMap(selected['candidate'], 'runtime.update.selected.candidate');
+    return RuntimeUpdateSummary(
+      packageId: _jsonString(json['package_id'], 'runtime.update.package_id'),
+      status: _jsonString(json['status'], 'runtime.update.status'),
+      installedVersion: _jsonOptionalString(
+        json['installed_version'],
+        'runtime.update.installed_version',
+      ),
+      effectiveLocalVersion: _jsonOptionalString(
+        json['effective_local_version'],
+        'runtime.update.effective_local_version',
+      ),
+      selectedVersion: candidate == null
+          ? null
+          : _jsonString(
+              candidate['version'],
+              'runtime.update.selected.version',
+            ),
+      actions: _jsonList(json['actions'], 'runtime.update.actions')
+          .map((action) => _jsonMap(action, 'runtime.update.action'))
+          .toList(growable: false),
+    );
+  }
+
+  final String packageId;
+  final String status;
+  final String? installedVersion;
+  final String? effectiveLocalVersion;
+  final String? selectedVersion;
+  final List<Map<String, Object?>> actions;
+}
+
+class RuntimeIssuedAction {
+  const RuntimeIssuedAction({required this.actionId, required this.packageId});
+
+  factory RuntimeIssuedAction.fromJson(Map<String, Object?> json) {
+    return RuntimeIssuedAction(
+      actionId: _jsonString(json['action_id'], 'runtime.action.action_id'),
+      packageId: _jsonString(json['package_id'], 'runtime.action.package_id'),
+    );
+  }
+
+  final String actionId;
+  final String packageId;
+}
+
+class RuntimeTaskSnapshot {
+  const RuntimeTaskSnapshot({
+    required this.taskId,
+    required this.packageId,
+    required this.status,
+    required this.phase,
+    required this.progress,
+    required this.capabilities,
+    required this.currentDiagnostic,
+    required this.downloadedFile,
+    required this.updatedAt,
+  });
+
+  factory RuntimeTaskSnapshot.fromJson(Map<String, Object?> json) {
+    return RuntimeTaskSnapshot(
+      taskId: _jsonString(json['task_id'], 'runtime.task.task_id'),
+      packageId: _jsonString(json['package_id'], 'runtime.task.package_id'),
+      status: _jsonString(json['status'], 'runtime.task.status'),
+      phase: RuntimeTaskPhase.fromJson(
+        _jsonMap(json['phase'], 'runtime.task.phase'),
+      ),
+      progress: json['progress'] == null
+          ? null
+          : RuntimeTaskProgress.fromJson(
+              _jsonMap(json['progress'], 'runtime.task.progress'),
+            ),
+      capabilities: RuntimeTaskCapabilities.fromJson(
+        _jsonMap(json['capabilities'], 'runtime.task.capabilities'),
+      ),
+      currentDiagnostic: json['current_diagnostic'] == null
+          ? null
+          : RuntimeTaskDiagnostic.fromJson(
+              _jsonMap(
+                json['current_diagnostic'],
+                'runtime.task.current_diagnostic',
+              ),
+            ),
+      downloadedFile: json['downloaded_file'] == null
+          ? null
+          : RuntimeDownloadedFile.fromJson(
+              _jsonMap(json['downloaded_file'], 'runtime.task.downloaded_file'),
+            ),
+      updatedAt: _jsonInt(json['updated_at'], 'runtime.task.updated_at'),
+    );
+  }
+
+  final String taskId;
+  final String packageId;
+  final String status;
+  final RuntimeTaskPhase phase;
+  final RuntimeTaskProgress? progress;
+  final RuntimeTaskCapabilities capabilities;
+  final RuntimeTaskDiagnostic? currentDiagnostic;
+  final RuntimeDownloadedFile? downloadedFile;
+  final int updatedAt;
+}
+
+class RuntimeDownloadedFile {
+  const RuntimeDownloadedFile({
+    required this.fileName,
+    required this.localPath,
+    required this.sizeBytes,
+    required this.sha256,
+  });
+
+  factory RuntimeDownloadedFile.fromJson(Map<String, Object?> json) {
+    return RuntimeDownloadedFile(
+      fileName: _jsonString(
+        json['file_name'],
+        'runtime.task.downloaded_file.file_name',
+      ),
+      localPath: _jsonString(
+        json['local_path'],
+        'runtime.task.downloaded_file.local_path',
+      ),
+      sizeBytes: _jsonInt(
+        json['size_bytes'],
+        'runtime.task.downloaded_file.size_bytes',
+      ),
+      sha256: _jsonString(
+        json['sha256'],
+        'runtime.task.downloaded_file.sha256',
+      ),
+    );
+  }
+
+  final String fileName;
+  final String localPath;
+  final int sizeBytes;
+  final String sha256;
+}
+
+class RuntimeTaskPhase {
+  const RuntimeTaskPhase({required this.category, required this.reason});
+
+  factory RuntimeTaskPhase.fromJson(Map<String, Object?> json) {
+    return RuntimeTaskPhase(
+      category: _jsonString(json['category'], 'runtime.task.phase.category'),
+      reason: _jsonOptionalString(json['reason'], 'runtime.task.phase.reason'),
+    );
+  }
+
+  final String category;
+  final String? reason;
+}
+
+class RuntimeTaskProgress {
+  const RuntimeTaskProgress({
+    required this.unit,
+    required this.current,
+    required this.total,
+  });
+
+  factory RuntimeTaskProgress.fromJson(Map<String, Object?> json) {
+    return RuntimeTaskProgress(
+      unit: _jsonString(json['unit'], 'runtime.task.progress.unit'),
+      current: _jsonInt(json['current'], 'runtime.task.progress.current'),
+      total: json['total'] == null
+          ? null
+          : _jsonInt(json['total'], 'runtime.task.progress.total'),
+    );
+  }
+
+  final String unit;
+  final int current;
+  final int? total;
+}
+
+class RuntimeTaskCapabilities {
+  const RuntimeTaskCapabilities({
+    required this.cancel,
+    required this.pause,
+    required this.resume,
+    required this.retry,
+  });
+
+  factory RuntimeTaskCapabilities.fromJson(Map<String, Object?> json) {
+    return RuntimeTaskCapabilities(
+      cancel: _jsonBool(json['cancel'], 'runtime.task.capabilities.cancel'),
+      pause: _jsonBool(json['pause'], 'runtime.task.capabilities.pause'),
+      resume: _jsonBool(json['resume'], 'runtime.task.capabilities.resume'),
+      retry: _jsonBool(json['retry'], 'runtime.task.capabilities.retry'),
+    );
+  }
+
+  final bool cancel;
+  final bool pause;
+  final bool resume;
+  final bool retry;
+}
+
+class RuntimeTaskDiagnostic {
+  const RuntimeTaskDiagnostic({
+    required this.code,
+    required this.message,
+    required this.severity,
+  });
+
+  factory RuntimeTaskDiagnostic.fromJson(Map<String, Object?> json) {
+    return RuntimeTaskDiagnostic(
+      code: _jsonString(json['code'], 'runtime.task.diagnostic.code'),
+      message: _jsonString(json['message'], 'runtime.task.diagnostic.message'),
+      severity: _jsonString(
+        json['severity'],
+        'runtime.task.diagnostic.severity',
+      ),
+    );
+  }
+
+  final String code;
+  final String message;
+  final String severity;
+}
+
+enum RuntimeUserResult {
+  accepted,
+  rejected;
+
+  String get wireName => switch (this) {
+    RuntimeUserResult.accepted => 'accepted',
+    RuntimeUserResult.rejected => 'rejected',
+  };
+}
+
+enum RuntimeTaskCleanMode {
+  defaultMode,
+  failed,
+  allInactive;
+
+  String get wireName => switch (this) {
+    RuntimeTaskCleanMode.defaultMode => 'default',
+    RuntimeTaskCleanMode.failed => 'failed',
+    RuntimeTaskCleanMode.allInactive => 'all_inactive',
+  };
+}
+
+class RuntimeNotificationEnvelope {
+  const RuntimeNotificationEnvelope({required this.kind, required this.task});
+
+  factory RuntimeNotificationEnvelope.fromJson(Map<String, Object?> json) {
+    final kind = _jsonString(json['kind'], 'runtime.notification.kind');
+    return RuntimeNotificationEnvelope(
+      kind: kind,
+      task: kind == 'task_changed'
+          ? RuntimeTaskSnapshot.fromJson(
+              _jsonMap(json['task'], 'runtime.notification.task'),
+            )
+          : null,
+    );
+  }
+
+  final String kind;
+  final RuntimeTaskSnapshot? task;
+}
+
+class InstalledAutogenScanOptions {
+  const InstalledAutogenScanOptions({
+    this.includeSystemApps = false,
+    this.includeSelf = false,
+  });
+
+  final bool includeSystemApps;
+  final bool includeSelf;
+
+  Map<String, Object?> toJson() => <String, Object?>{
+    'include_system_apps': includeSystemApps,
+    'include_self': includeSelf,
+  };
+}
+
+class GithubAutogenPreviewInput {
+  const GithubAutogenPreviewInput({
+    required this.owner,
+    required this.repo,
+    required this.androidPackage,
+    this.displayName,
+  });
+
+  final String owner;
+  final String repo;
+  final String androidPackage;
+  final String? displayName;
+
+  Map<String, Object?> toJson() {
+    final displayName = this.displayName?.trim();
+    return <String, Object?>{
+      'owner': owner.trim(),
+      'repo': repo.trim(),
+      'android_package': androidPackage.trim(),
+      if (displayName != null && displayName.isNotEmpty)
+        'display_name': displayName,
+    };
+  }
+}
+
+class FdroidCatalogCacheRefreshResult {
+  const FdroidCatalogCacheRefreshResult({
+    required this.operation,
+    required this.provider,
+    required this.endpointId,
+    required this.endpointUrl,
+    required this.cacheKey,
+    required this.source,
+    required this.appCount,
+    required this.releaseCount,
+    required this.sourceResponseSha512,
+    required this.provenanceSchemaVersion,
+    required this.diagnostics,
+  });
+
+  factory FdroidCatalogCacheRefreshResult.fromJson(Map<String, Object?> json) {
+    return FdroidCatalogCacheRefreshResult(
+      operation: _jsonString(json['operation'], 'fdroid.refresh.operation'),
+      provider: _jsonString(json['provider'], 'fdroid.refresh.provider'),
+      endpointId: _jsonString(
+        json['endpoint_id'],
+        'fdroid.refresh.endpoint_id',
+      ),
+      endpointUrl: _jsonString(
+        json['endpoint_url'],
+        'fdroid.refresh.endpoint_url',
+      ),
+      cacheKey: _jsonString(json['cache_key'], 'fdroid.refresh.cache_key'),
+      source: _jsonString(json['source'], 'fdroid.refresh.source'),
+      appCount: _jsonInt(json['app_count'], 'fdroid.refresh.app_count'),
+      releaseCount: _jsonInt(
+        json['release_count'],
+        'fdroid.refresh.release_count',
+      ),
+      sourceResponseSha512:
+          _jsonList(
+                json['source_response_sha512'],
+                'fdroid.refresh.source_response_sha512',
+              )
+              .map(
+                (digest) => _jsonString(
+                  digest,
+                  'fdroid.refresh.source_response_sha512.item',
+                ),
+              )
+              .toList(growable: false),
+      provenanceSchemaVersion: _jsonOptionalString(
+        json['provenance_schema_version'],
+        'fdroid.refresh.provenance_schema_version',
+      ),
+      diagnostics: _jsonList(json['diagnostics'], 'fdroid.refresh.diagnostics')
+          .map(
+            (diagnostic) => ProviderCacheDiagnosticSummary.fromJson(
+              _jsonMap(diagnostic, 'fdroid.refresh.diagnostic'),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+
+  final String operation;
+  final String provider;
+  final String endpointId;
+  final String endpointUrl;
+  final String cacheKey;
+  final String source;
+  final int appCount;
+  final int releaseCount;
+  final List<String> sourceResponseSha512;
+  final String? provenanceSchemaVersion;
+  final List<ProviderCacheDiagnosticSummary> diagnostics;
+}
+
+class ProviderCacheDiagnosticSummary {
+  const ProviderCacheDiagnosticSummary({
+    required this.code,
+    required this.message,
+    required this.cacheKey,
+    required this.provider,
+    required this.staleFetchedAtUnix,
+  });
+
+  factory ProviderCacheDiagnosticSummary.fromJson(Map<String, Object?> json) {
+    return ProviderCacheDiagnosticSummary(
+      code: _jsonString(json['code'], 'provider.diagnostic.code'),
+      message: _jsonString(json['message'], 'provider.diagnostic.message'),
+      cacheKey: _jsonString(json['cache_key'], 'provider.diagnostic.cache_key'),
+      provider: _jsonString(json['provider'], 'provider.diagnostic.provider'),
+      staleFetchedAtUnix: json['stale_fetched_at_unix'] == null
+          ? null
+          : _jsonInt(
+              json['stale_fetched_at_unix'],
+              'provider.diagnostic.stale_fetched_at_unix',
+            ),
+    );
+  }
+
+  final String code;
+  final String message;
+  final String cacheKey;
+  final String provider;
+  final int? staleFetchedAtUnix;
+}
+
+class FreshInstallSetupPreview {
+  const FreshInstallSetupPreview({
+    required this.opaquePreview,
+    required this.candidates,
+    required this.diagnostics,
+  });
+
+  factory FreshInstallSetupPreview.fromJson(Map<String, Object?> json) {
+    return FreshInstallSetupPreview(
+      opaquePreview: _jsonString(json['preview_id'], 'setup.preview_id'),
+      candidates: _jsonList(json['candidates'], 'setup.candidates')
+          .map(
+            (candidate) => FreshInstallSetupCandidate.fromJson(
+              _jsonMap(candidate, 'setup.candidate'),
+            ),
+          )
+          .toList(growable: false),
+      diagnostics:
+          _jsonList(
+                json['diagnostics'] ?? const <Object?>[],
+                'setup.diagnostics',
+              )
+              .map(
+                (diagnostic) => GetterDiagnostic.fromJson(
+                  _jsonMap(diagnostic, 'setup.diagnostic'),
+                ),
+              )
+              .toList(growable: false),
+    );
+  }
+
+  final Object? opaquePreview;
+  final List<FreshInstallSetupCandidate> candidates;
+  final List<GetterDiagnostic> diagnostics;
+}
+
+class FreshInstallSetupCandidate {
+  const FreshInstallSetupCandidate({
+    required this.packageId,
+    required this.category,
+    required this.displayName,
+    this.installedVersion,
+  });
+
+  factory FreshInstallSetupCandidate.fromJson(Map<String, Object?> json) {
+    final category = _jsonString(json['category'], 'setup.candidate.category');
+    if (category != 'fdroid' && category != 'installed_fallback') {
+      throw FormatException(
+        'setup.candidate.category has unknown value $category',
+      );
+    }
+    return FreshInstallSetupCandidate(
+      packageId: _jsonString(json['package_id'], 'setup.candidate.package_id'),
+      category: category,
+      displayName: _jsonString(
+        json['display_name'],
+        'setup.candidate.display_name',
+      ),
+      installedVersion: _jsonOptionalString(
+        json['installed_version'],
+        'setup.candidate.installed_version',
+      ),
+    );
+  }
+
+  final String packageId;
+  final String category;
+  final String displayName;
+  final String? installedVersion;
+}
+
+class FreshInstallSetupApplyResult {
+  const FreshInstallSetupApplyResult({
+    required this.readiness,
+    required this.appliedPackageIds,
+    required this.diagnostics,
+  });
+
+  factory FreshInstallSetupApplyResult.fromJson(Map<String, Object?> json) {
+    return FreshInstallSetupApplyResult(
+      readiness: _jsonString(json['readiness'], 'setup.apply.readiness'),
+      appliedPackageIds:
+          _jsonList(
+                json['applied_package_ids'],
+                'setup.apply.applied_package_ids',
+              )
+              .map((id) => _jsonString(id, 'setup.apply.package_id'))
+              .toList(growable: false),
+      diagnostics:
+          _jsonList(
+                json['diagnostics'] ?? const <Object?>[],
+                'setup.apply.diagnostics',
+              )
+              .map(
+                (diagnostic) => GetterDiagnostic.fromJson(
+                  _jsonMap(diagnostic, 'setup.apply.diagnostic'),
+                ),
+              )
+              .toList(growable: false),
+    );
+  }
+
+  final String readiness;
+  final List<String> appliedPackageIds;
+  final List<GetterDiagnostic> diagnostics;
+}
+
+class InstalledAutogenPreview {
+  InstalledAutogenPreview({
+    required this.operation,
+    required this.targetRepoId,
+    required this.targetRepoPath,
+    required this.summary,
+    required this.candidates,
+    required this.skipped,
+    required this.diagnostics,
+    required this.scanStats,
+    required this.rawJson,
+  });
+
+  factory InstalledAutogenPreview.fromJson(Map<String, Object?> json) {
+    final scan = _jsonMapOrNull(json['scan'], 'autogen.scan');
+    final diagnosticsJson = <Object?>[
+      ..._jsonList(
+        json['diagnostics'] ?? const <Object?>[],
+        'autogen.diagnostics',
+      ),
+      if (scan != null)
+        ..._jsonList(
+          scan['diagnostics'] ?? const <Object?>[],
+          'autogen.scan.diagnostics',
+        ),
+    ];
+    return InstalledAutogenPreview(
+      operation: _jsonString(json['operation'], 'autogen.operation'),
+      targetRepoId: _jsonString(
+        json['target_repo_id'],
+        'autogen.target_repo_id',
+      ),
+      targetRepoPath: _jsonOptionalString(
+        json['target_repo_path'],
+        'autogen.target_repo_path',
+      ),
+      summary: AutogenSummary.fromJson(
+        _jsonMap(json['summary'], 'autogen.summary'),
+      ),
+      candidates: _jsonList(json['candidates'], 'autogen.candidates')
+          .map(
+            (candidate) => InstalledAutogenCandidate.fromJson(
+              _jsonMap(candidate, 'autogen.candidate'),
+            ),
+          )
+          .toList(growable: false),
+      skipped: _jsonList(json['skipped'], 'autogen.skipped')
+          .map(
+            (skip) =>
+                InstalledAutogenSkip.fromJson(_jsonMap(skip, 'autogen.skip')),
+          )
+          .toList(growable: false),
+      diagnostics: diagnosticsJson
+          .map(
+            (diagnostic) => PlatformDiagnosticSummary.fromJson(
+              _jsonMap(diagnostic, 'autogen.diagnostic'),
+            ),
+          )
+          .toList(growable: false),
+      scanStats: scan == null || scan['stats'] == null
+          ? null
+          : InstalledAutogenScanStats.fromJson(
+              _jsonMap(scan['stats'], 'autogen.scan.stats'),
+            ),
+      rawJson: Map<String, Object?>.unmodifiable(json),
+    );
+  }
+
+  final String operation;
+  final String targetRepoId;
+  final String? targetRepoPath;
+  final AutogenSummary summary;
+  final List<InstalledAutogenCandidate> candidates;
+  final List<InstalledAutogenSkip> skipped;
+  final List<PlatformDiagnosticSummary> diagnostics;
+  final InstalledAutogenScanStats? scanStats;
+  final Map<String, Object?> rawJson;
+}
+
+class AutogenSummary {
+  const AutogenSummary({
+    required this.candidateCount,
+    required this.skippedCount,
+    required this.writeCount,
+    required this.deleteCount,
+  });
+
+  factory AutogenSummary.fromJson(Map<String, Object?> json) {
+    return AutogenSummary(
+      candidateCount: _jsonInt(
+        json['candidate_count'],
+        'autogen.summary.candidate_count',
+      ),
+      skippedCount: _jsonInt(
+        json['skipped_count'],
+        'autogen.summary.skipped_count',
+      ),
+      writeCount: _jsonInt(json['write_count'], 'autogen.summary.write_count'),
+      deleteCount: _jsonInt(
+        json['delete_count'],
+        'autogen.summary.delete_count',
+      ),
+    );
+  }
+
+  final int candidateCount;
+  final int skippedCount;
+  final int writeCount;
+  final int deleteCount;
+}
+
+class InstalledAutogenCandidate {
+  const InstalledAutogenCandidate({
+    required this.packageId,
+    required this.kind,
+    required this.displayName,
+    required this.action,
+    required this.outputRelativePath,
+    required this.contentHash,
+    required this.installedTarget,
+  });
+
+  factory InstalledAutogenCandidate.fromJson(Map<String, Object?> json) {
+    return InstalledAutogenCandidate(
+      packageId: _jsonString(
+        json['package_id'],
+        'autogen.candidate.package_id',
+      ),
+      kind: _jsonString(json['kind'], 'autogen.candidate.kind'),
+      displayName: _jsonString(
+        json['display_name'],
+        'autogen.candidate.display_name',
+      ),
+      action: _jsonString(json['action'], 'autogen.candidate.action'),
+      outputRelativePath: _jsonString(
+        json['output_relative_path'],
+        'autogen.candidate.output_relative_path',
+      ),
+      contentHash: _jsonString(
+        json['content_hash'],
+        'autogen.candidate.content_hash',
+      ),
+      installedTarget: _jsonMap(
+        json['installed_target'],
+        'autogen.candidate.installed_target',
+      ),
+    );
+  }
+
+  final String packageId;
+  final String kind;
+  final String displayName;
+  final String action;
+  final String outputRelativePath;
+  final String contentHash;
+  final Map<String, Object?> installedTarget;
+}
+
+class InstalledAutogenSkip {
+  const InstalledAutogenSkip({
+    required this.packageId,
+    required this.reason,
+    required this.coveringRepoId,
+  });
+
+  factory InstalledAutogenSkip.fromJson(Map<String, Object?> json) {
+    return InstalledAutogenSkip(
+      packageId: _jsonString(json['package_id'], 'autogen.skip.package_id'),
+      reason: _jsonString(json['reason'], 'autogen.skip.reason'),
+      coveringRepoId: _jsonOptionalString(
+        json['covering_repo_id'],
+        'autogen.skip.covering_repo_id',
+      ),
+    );
+  }
+
+  final String packageId;
+  final String reason;
+  final String? coveringRepoId;
+}
+
+class InstalledAutogenScanStats {
+  const InstalledAutogenScanStats({
+    required this.totalSeen,
+    required this.returned,
+    required this.filteredSystem,
+    required this.filteredSelf,
+  });
+
+  factory InstalledAutogenScanStats.fromJson(Map<String, Object?> json) {
+    return InstalledAutogenScanStats(
+      totalSeen: _jsonInt(json['total_seen'], 'autogen.scan.total_seen'),
+      returned: _jsonInt(json['returned'], 'autogen.scan.returned'),
+      filteredSystem: _jsonInt(
+        json['filtered_system'],
+        'autogen.scan.filtered_system',
+      ),
+      filteredSelf: _jsonInt(
+        json['filtered_self'],
+        'autogen.scan.filtered_self',
+      ),
+    );
+  }
+
+  final int totalSeen;
+  final int returned;
+  final int filteredSystem;
+  final int filteredSelf;
+}
+
+class PlatformDiagnosticSummary {
+  const PlatformDiagnosticSummary({
+    required this.code,
+    required this.message,
+    required this.detail,
+  });
+
+  factory PlatformDiagnosticSummary.fromJson(Map<String, Object?> json) {
+    return PlatformDiagnosticSummary(
+      code: _jsonString(json['code'], 'autogen.diagnostic.code'),
+      message: _jsonString(json['message'], 'autogen.diagnostic.message'),
+      detail: _jsonOptionalString(json['detail'], 'autogen.diagnostic.detail'),
+    );
+  }
+
+  final String code;
+  final String message;
+  final String? detail;
+}
+
+class InstalledAutogenApplyResult {
+  InstalledAutogenApplyResult({
+    required this.targetRepoId,
+    required this.targetRepoPath,
+    required this.appliedCount,
+    required this.applied,
+  });
+
+  factory InstalledAutogenApplyResult.fromJson(Map<String, Object?> json) {
+    return InstalledAutogenApplyResult(
+      targetRepoId: _jsonString(
+        json['target_repo_id'],
+        'autogen.apply.target_repo_id',
+      ),
+      targetRepoPath: _jsonOptionalString(
+        json['target_repo_path'],
+        'autogen.apply.target_repo_path',
+      ),
+      appliedCount: _jsonInt(
+        json['applied_count'],
+        'autogen.apply.applied_count',
+      ),
+      applied: _jsonList(json['applied'], 'autogen.apply.applied')
+          .map(
+            (applied) => InstalledAutogenAppliedPackage.fromJson(
+              _jsonMap(applied, 'autogen.apply.applied_item'),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+
+  final String targetRepoId;
+  final String? targetRepoPath;
+  final int appliedCount;
+  final List<InstalledAutogenAppliedPackage> applied;
+}
+
+class InstalledAutogenAppliedPackage {
+  const InstalledAutogenAppliedPackage({
+    required this.packageId,
+    required this.outputRelativePath,
+  });
+
+  factory InstalledAutogenAppliedPackage.fromJson(Map<String, Object?> json) {
+    return InstalledAutogenAppliedPackage(
+      packageId: _jsonString(json['package_id'], 'autogen.apply.package_id'),
+      outputRelativePath: _jsonString(
+        json['output_relative_path'],
+        'autogen.apply.output_relative_path',
+      ),
+    );
+  }
+
+  final String packageId;
+  final String outputRelativePath;
+}
+
+class GetterError {
+  const GetterError({required this.code, required this.message, this.detail});
+
+  final String code;
+  final String message;
+  final String? detail;
+}
+
+enum PlatformInstallKind { androidApk }
+
+class PlatformInstallHandoff {
+  const PlatformInstallHandoff({
+    required this.kind,
+    required this.packageId,
+    required this.repositoryId,
+    required this.target,
+    required this.packageVersion,
+    required this.artifact,
+  });
+
+  factory PlatformInstallHandoff.fromJson(Map<String, Object?> json) {
+    _requireOnlyJsonKeys(json, const <String>{
+      'format',
+      'version',
+      'package_id',
+      'repository_id',
+      'package_version',
+      'request',
+    }, 'platform_install');
+    final format = _jsonString(json['format'], 'platform_install.format');
+    if (format != 'getter-platform-install-handoff') {
+      throw FormatException(
+        'platform_install.format has unsupported value "$format"',
+      );
+    }
+    final version = _jsonInt(json['version'], 'platform_install.version');
+    if (version != 1) {
+      throw FormatException(
+        'platform_install.version has unsupported value $version',
+      );
+    }
+    final request = _jsonMap(json['request'], 'platform_install.request');
+    _requireOnlyJsonKeys(request, const <String>{
+      'kind',
+      'target',
+      'artifact',
+    }, 'platform_install.request');
+    final kind = _jsonString(request['kind'], 'platform_install.request.kind');
+    if (kind != 'android_apk') {
+      throw FormatException(
+        'platform_install.request.kind has unsupported value "$kind"',
+      );
+    }
+    return PlatformInstallHandoff(
+      kind: PlatformInstallKind.androidApk,
+      packageId: _jsonString(json['package_id'], 'platform_install.package_id'),
+      repositoryId: _jsonString(
+        json['repository_id'],
+        'platform_install.repository_id',
+      ),
+      target: AndroidInstallTarget.fromJson(
+        _jsonMap(request['target'], 'platform_install.request.target'),
+      ),
+      packageVersion: _jsonString(
+        json['package_version'],
+        'platform_install.package_version',
+      ),
+      artifact: PlatformInstallArtifact.fromJson(
+        _jsonMap(request['artifact'], 'platform_install.request.artifact'),
+      ),
+    );
+  }
+
+  final PlatformInstallKind kind;
+  final String packageId;
+  final String repositoryId;
+  final AndroidInstallTarget target;
+  final String packageVersion;
+  final PlatformInstallArtifact artifact;
+}
+
+class AndroidInstallTarget {
+  const AndroidInstallTarget({required this.packageName});
+
+  factory AndroidInstallTarget.fromJson(Map<String, Object?> json) {
+    _requireOnlyJsonKeys(json, const <String>{
+      'kind',
+      'package_name',
+    }, 'platform_install.target');
+    final kind = _jsonString(json['kind'], 'platform_install.target.kind');
+    if (kind != 'android') {
+      throw FormatException(
+        'platform_install.target.kind has unsupported value "$kind"',
+      );
+    }
+    return AndroidInstallTarget(
+      packageName: _jsonString(
+        json['package_name'],
+        'platform_install.target.package_name',
+      ),
+    );
+  }
+
+  final String packageName;
+}
+
+class PlatformInstallArtifact {
+  const PlatformInstallArtifact({
+    required this.name,
+    required this.path,
+    required this.sha256,
+    required this.status,
+  });
+
+  factory PlatformInstallArtifact.fromJson(Map<String, Object?> json) {
+    _requireOnlyJsonKeys(json, const <String>{
+      'name',
+      'path',
+      'sha256',
+      'status',
+    }, 'platform_install.artifact');
+    return PlatformInstallArtifact(
+      name: _jsonString(json['name'], 'platform_install.artifact.name'),
+      path: _jsonString(json['path'], 'platform_install.artifact.path'),
+      sha256: _jsonString(json['sha256'], 'platform_install.artifact.sha256'),
+      status: _jsonString(json['status'], 'platform_install.artifact.status'),
+    );
+  }
+
+  final String name;
+  final String path;
+  final String sha256;
+  final String status;
+}
+
+class GetterBridgeException implements Exception {
+  const GetterBridgeException(this.error, {this.exitCode});
+
+  final GetterError error;
+  final int? exitCode;
+
+  @override
+  String toString() {
+    final detail = error.detail == null ? '' : ': ${error.detail}';
+    final exit = exitCode == null ? '' : ' (exit $exitCode)';
+    return 'GetterBridgeException$exit: ${error.code}: ${error.message}$detail';
+  }
+}
+
+void _requireOnlyJsonKeys(
+  Map<String, Object?> json,
+  Set<String> allowed,
+  String name,
+) {
+  final unknown = json.keys.where((key) => !allowed.contains(key)).toList();
+  if (unknown.isNotEmpty) {
+    throw FormatException('$name has unknown field "${unknown.first}"');
+  }
+}
+
+Map<String, Object?> _jsonMap(Object? value, String name) {
+  if (value is Map<String, Object?>) return value;
+  if (value is Map) return value.cast<String, Object?>();
+  throw FormatException('$name should be a JSON object');
+}
+
+Map<String, Object?>? _jsonMapOrNull(Object? value, String name) {
+  if (value == null) return null;
+  return _jsonMap(value, name);
+}
+
+List<Object?> _jsonList(Object? value, String name) {
+  if (value is List<Object?>) return value;
+  if (value is List) return value.cast<Object?>();
+  throw FormatException('$name should be a JSON array');
+}
+
+String _jsonString(Object? value, String name) {
+  if (value is String) return value;
+  throw FormatException('$name should be a string');
+}
+
+String _parseStartupUpdateStatus(Object? value, String name) {
+  final status = _jsonString(value, name);
+  const supported = <String>{
+    'available',
+    'up_to_date',
+    'no_candidates',
+    'not_installed',
+  };
+  if (!supported.contains(status)) {
+    throw FormatException('$name has unsupported value "$status"');
+  }
+  return status;
+}
+
+String? _jsonOptionalString(Object? value, String name) {
+  if (value == null || value is String) return value as String?;
+  throw FormatException('$name should be a string or null');
+}
+
+int _jsonInt(Object? value, String name) {
+  if (value is int) return value;
+  throw FormatException('$name should be an integer');
+}
+
+bool _jsonBool(Object? value, String name) {
+  if (value is bool) return value;
+  throw FormatException('$name should be a boolean');
+}
+
+bool? _jsonOptionalBool(Object? value, String name) {
+  if (value == null || value is bool) return value as bool?;
+  throw FormatException('$name should be a boolean or null');
+}

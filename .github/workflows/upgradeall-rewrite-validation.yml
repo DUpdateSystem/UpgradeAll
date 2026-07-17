@@ -1,0 +1,69 @@
+name: UpgradeAll Rewrite Validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  rewrite-validation:
+    name: Rewrite validation
+    runs-on: ubuntu-latest
+    env:
+      NDK_VERSION: 29.0.14206865
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install Linux host build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib g++-multilib
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "platform-tools" "ndk;${{ env.NDK_VERSION }}"
+
+      - name: Add Android NDK to environment
+        run: |
+          NDK_HOME="$ANDROID_HOME/ndk/$NDK_VERSION"
+          echo "ANDROID_NDK_HOME=$NDK_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_ROOT=$NDK_HOME" >> "$GITHUB_ENV"
+          echo "CC_aarch64_linux_android=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android23-clang" >> "$GITHUB_ENV"
+          echo "AR_aarch64_linux_android=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar" >> "$GITHUB_ENV"
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Install Android Rust targets
+        run: rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+
+      - name: Install just
+        run: |
+          if ! command -v just >/dev/null 2>&1; then
+            cargo install just --locked
+          fi
+
+      - name: Run rewrite validation
+        run: just verify

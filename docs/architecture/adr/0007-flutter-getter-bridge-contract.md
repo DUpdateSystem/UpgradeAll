@@ -1,0 +1,248 @@
+# ADR-0007: Flutter / getter bridge contract
+
+> Status: Draft / first implementation slice accepted
+> Date: 2026-06-22
+> Project: UpgradeAll rewrite — Flutter APP + Rust getter core + Lua package repository model
+
+## Decision
+
+Flutter talks to getter through getter-owned DTOs and JSON envelopes. The initial bridge contract is read-only and snapshot-oriented so Flutter can display real getter state without copying product/domain logic into Dart.
+
+The CLI JSON envelope from ADR-0006 is the first executable bridge oracle. It is used for development, integration/dev tests, and contract validation. Android production embedding still follows ADR-0002: the app embeds getter as a Rust library / native bridge rather than depending on a standalone long-lived getter daemon as the primary mobile path.
+
+The first bridge implementation in Flutter therefore has two adapters:
+
+- `FakeGetterAdapter` for deterministic widget tests and UI shell work.
+- `CliGetterAdapter` for development/integration tests against a real getter data directory and the built `getter-cli` binary.
+
+The CLI adapter is not the final Android production bridge. It exists to make the contract executable before the FFI/native bridge is stabilized.
+
+## First bridge API surface
+
+The first accepted API surface is intentionally read-only:
+
+```text
+initialize()
+listRepositories()
+listTrackedPackages()
+evaluatePackage(packageId, repositoryId?)
+readMigrationReports()
+loadSnapshot()
+```
+
+The second accepted API surface adds the first legacy migration action boundary:
+
+```text
+importLegacyRoomDatabase(databasePath)
+```
+
+The Android platform adapter may prepare a copied/checkpointed legacy Room SQLite file and return its path to Flutter, but getter still owns the actual `legacy import-room-db` import semantics. The production Android bridge exposes `importLegacyRoomDatabase` and `legacyReportList` through JNI/MethodChannel by delegating to getter-owned `getter-operations` legacy Room code. Flutter starts the flow and renders getter reports; it must not inspect or map Room tables directly.
+
+The third accepted API surface adds the production installed-autogen bridge boundary and must follow ADR-0009's Rust-active platform adapter direction rather than a Flutter-led inventory scan:
+
+```text
+previewInstalledAutogen(scanOptions)
+applyInstalledAutogen(preview, acceptedPackages)
+```
+
+The fourth accepted API surface exposes the first F-Droid autogen native bridge slice, reusing getter-owned autogen preview/apply DTOs while keeping F-Droid catalog parsing, package-path mapping, repository coverage, and file generation in Rust getter:
+
+```text
+previewFdroidAutogen(payload)
+applyFdroidAutogen(preview, acceptedPackages)
+```
+
+The initial `previewFdroidAutogen` payload is the fixture-backed/offline ADR-0006 F-Droid autogen request shape (`index_xml`, `package_names`, optional `installed_inventory`, endpoint fields, and cache mode) so bridge/widget tests can exercise the cross-boundary contract without live HTTP. Flutter may forward user/test input and render getter-owned candidate/skip/diagnostic DTOs, but it must not parse F-Droid indexes, derive UpgradeAll package paths from F-Droid package names, decide shadowing, or generate Lua.
+
+The fifth accepted API surface adds the product installed-app F-Droid autogen bridge shape. It follows ADR-0009's Rust-active platform adapter direction and deliberately does not expose the fixture/offline F-Droid request payload to product Flutter UI:
+
+```text
+previewInstalledFdroidAutogen(scanOptions)
+applyInstalledFdroidAutogen(preview, acceptedPackages)
+```
+
+`previewInstalledFdroidAutogen` scans Android installed inventory in the native/getter bridge, converts the platform inventory into getter's installed-inventory DTO, and asks getter-owned F-Droid autogen operations to build a preview from the cached default F-Droid catalog. Until a F-Droid live catalog transport slice is accepted, a missing provider cache is reported as a getter-owned autogen error/diagnostic; Flutter must not provide `index_xml`, endpoint URL, cache mode, or raw provider payload fields to this product method.
+
+The sixth accepted API surface adds a narrow product cache bootstrap operation for that installed F-Droid flow:
+
+```text
+refreshDefaultFdroidCatalogCache()
+```
+
+`refreshDefaultFdroidCatalogCache` derives the app-private getter data directory in Android glue, asks Rust/native bridge code to refresh the default official F-Droid catalog cache from a getter/api-proxy-owned bundled bootstrap catalog source, and returns getter-owned provider/cache DTO fields such as endpoint id/url, cache key, source, app/release counts, source response digest provenance, and diagnostics. This is a bootstrap-only bridge while F-Droid live catalog transport is still unaccepted: Flutter/Kotlin must not pass `index_xml`, endpoint URL, cache mode, raw provider payloads, or live transport controls to it. When F-Droid live catalog transport is accepted later, the product operation may keep the same narrow default-refresh shape while Rust getter changes the refresh source behind the bridge.
+
+The seventh accepted API surface adds the narrow product GitHub Android APK autogen bridge shape:
+
+```text
+previewGithubAutogen(owner, repo, androidPackage, displayName?)
+applyGithubAutogen(preview, acceptedPackages)
+```
+
+`previewGithubAutogen` derives the app-private getter data directory in Android glue and passes only user-facing generation fields to Rust getter. Getter owns GitHub release transport/cache refresh, response parsing, provider provenance, asset matching defaults, package-directory path derivation, repository coverage, generated files, diagnostics, and apply semantics. Flutter/Kotlin must not pass `releases_json`, API-base/endpoint URLs, cache mode, raw provider payloads, asset filter controls, prerelease toggles, or live transport controls to this product method.
+
+The Android product APK packages a slim `:getter_bridge` library under `app_flutter/android/getter_bridge`. It builds the Rust `api_proxy` cdylib and includes only the no-UI native bridge / installed-inventory provider classes needed by the Flutter product path, avoiding the legacy native `:app` UI and old `GetterPort` hub/RPC wrapper surface. `MainActivity` exposes a no-UI `net.xzos.upgradeall/getter_bridge` MethodChannel that derives the app-private getter data directory and forwards migration, installed-autogen, installed F-Droid autogen, default F-Droid catalog cache refresh, GitHub Android APK autogen, F-Droid autogen, read-model, and runtime requests to JNI entrypoints returning getter-style JSON envelopes.
+
+Internally, Rust/native bridge code scans Android inventory through the platform adapter for installed-autogen, then asks getter-owned shared autogen operations to plan/apply output in the configured generated repository target (`generated_repository`, default `autogen`). The installed F-Droid autogen product bridge uses the same Rust-active inventory scan but routes matching package names through getter-owned F-Droid catalog/autogen operations backed by `cache.db`; it does not accept provider fixture bodies, endpoint URLs, or cache-mode controls from Flutter. The default F-Droid catalog cache refresh bridge writes the official endpoint cache before preview without moving provider parsing or cache policy into Dart/Kotlin. The GitHub Android APK autogen product bridge routes owner/repo/Android-package/display-name input through getter-owned GitHub autogen operations backed by GitHub release provider cache/live transport; it does not accept fixture bodies, endpoint/API-base URLs, cache-mode controls, asset filters, prerelease toggles, raw provider payloads, or transport controls from Flutter. F-Droid autogen bridge calls the same getter-owned F-Droid catalog/autogen operations used by the CLI for development/test payloads. `MethodChannelGetterAdapter` consumes the returned getter-style JSON envelopes. Flutter renders getter-owned preview/apply/refresh DTOs and scan/provider diagnostics, then passes the package ids from displayed accepted preview candidates back to getter on apply; it must not expose a product Dart `InstalledInventoryPlatform` scanner, convert Android/F-Droid/GitHub upstream ids into package ids, parse provider data, or generate package content.
+
+`loadSnapshot()` composes smaller getter-owned read-model operations into the UI shell's first snapshot DTO. In the Android/native product path, `MethodChannelGetterAdapter` calls `readOperation` for `repository_list`, `tracked_package_list`, and `package_eval`; Rust getter reads SQLite repository/tracked-package state and evaluates registered Lua packages. Flutter may parse and combine those returned DTOs for rendering, but must not perform repository resolution, Lua validation/evaluation, version comparison, migration mapping, or update selection in Dart. `readMigrationReports()` must go through a getter operation such as `legacy report-list`; Flutter must not inspect getter's data-directory layout directly. Runtime task rendering must use ADR-0011 runtime task snapshot APIs and opaque action/task controls; Flutter must not synthesize task states, retry policy, installer behavior, or update decisions.
+
+The first product click-through update flow is: App detail calls a typed getter update-check operation, receives a getter-issued `action_id`, submits only that `action_id` to the process-lifetime runtime, and opens Downloads to query authoritative task snapshots. The update-check operation may evaluate package Lua through the stable provider host for provider-backed packages, but provider/cache/Manifest logic stays in getter and the Flutter/native request remains package/update oriented: `package_id`, optional `repository_id`, `installed_version`, and `pin_version`. Flutter must not pass provider fixture bodies, cache-mode controls, endpoint URLs, raw provider payloads, or action/download details as product update-check input. GitHub releases may refresh through getter-owned Rust transport on provider-cache miss while preserving Manifest/free-network policy; other provider-backed runtime checks remain cache/bootstrap-backed until their live transport slices are accepted. Flutter may refresh the Downloads page after `RuntimeNotification.task_changed`, but the notification is only a trigger; `task_list`/equivalent runtime queries remain the source of truth.
+
+## Flutter DTOs
+
+The Flutter shell may use DTOs that mirror getter output for rendering:
+
+```text
+GetterSnapshot
+AppSummary
+RepositorySummary
+TrackedPackageSummary
+PackageEvaluation
+MigrationReportSummary
+LegacyMigrationImportResult
+MigrationWarningSummary
+MigrationSourceCounts
+RuntimeUpdateCheckResult
+RuntimePackageSummary
+RuntimeUpdateSummary
+RuntimeIssuedAction
+RuntimeTaskSnapshot
+RuntimeTaskPhase
+RuntimeTaskProgress
+RuntimeTaskCapabilities
+RuntimeTaskDiagnostic
+RuntimeNotificationEnvelope
+GetterError
+InstalledAutogenPreview
+InstalledAutogenCandidate
+InstalledAutogenSkip
+InstalledAutogenScanStats
+InstalledAutogenApplyResult
+FdroidCatalogCacheRefreshResult
+ProviderCacheDiagnosticSummary
+GithubAutogenPreviewInput
+```
+
+DTOs are a UI transport shape, not a new product model. Any field whose value requires domain interpretation must be supplied by getter or by a platform capability explicitly documented in a later ADR.
+
+## JSON envelope contract
+
+The CLI bridge consumes the ADR-0006 envelope shape:
+
+```json
+{
+  "ok": true,
+  "command": "repo list",
+  "data": {},
+  "warnings": []
+}
+```
+
+and structured error envelopes:
+
+```json
+{
+  "ok": false,
+  "command": "package eval",
+  "error": {
+    "code": "package.eval_error",
+    "message": "Getter package evaluation failed",
+    "detail": "..."
+  }
+}
+```
+
+Flutter adapter code may parse and display these fields, but it must not infer missing domain state from them. If the UI needs a richer field, add it to getter output first and cover it with getter tests.
+
+For installed-autogen flows, CLI/dev tests may continue to pass fixture inventory JSON to `getter autogen installed preview/apply`. The Android product bridge does not expose that fixture boundary as a Flutter-owned scanning API; it wraps scan + getter autogen planning behind a getter/native bridge operation.
+
+## Error model
+
+The bridge maps getter errors into `GetterError`:
+
+- `code`: stable machine-readable getter/platform code.
+- `message`: short user/log-facing message.
+- `detail`: optional diagnostic detail.
+
+Flutter may choose presentation, but the source classification belongs to getter or a documented platform adapter.
+
+## Legacy migration platform adapter
+
+Flutter owns the migration screen and user-visible flow. Android-native code exposes a no-UI platform adapter over `net.xzos.upgradeall/legacy_migration` with `prepareLegacyRoomImport`.
+
+That adapter may:
+
+- locate `app_metadata_database.db` in the app database directory;
+- copy the SQLite triplet (`.db`, `-wal`, `-shm`) into an app-private getter-import path;
+- checkpoint/canonicalize the copied database into a standalone SQLite file;
+- return `{ found, database_path, message }` to Flutter.
+
+That adapter must not:
+
+- show Android-native UI;
+- map legacy rows into package IDs;
+- decide what fields are dropped/imported;
+- write getter storage directly.
+
+Flutter then calls a getter bridge operation equivalent to `legacy import-room-db <database_path>` and renders getter-owned reports.
+
+## Event model
+
+The initial bridge slice was snapshot-only. ADR-0011 supersedes the old persisted fake-task CLI scaffold for product task flow: runtime task state is process-memory only in the native getter singleton, `RuntimeNotification.task_changed` is pushed over the bridge, and current-state task query operations remain authoritative. The remaining `debug fake-task ...` CLI commands are development scaffolding, not a Flutter/product task API. CLI runtime task coverage uses `runtime script --script <script.json>`, which executes within one process and intentionally drops runtime task state after the command exits.
+
+Flutter should not maintain its own task state machine; it renders getter-owned runtime task snapshots and invokes getter-owned task controls/update operations using opaque `action_id`s.
+
+Android platform install remains a handoff boundary. Getter may request/record an abstract install handoff, but Android permissions, notifications, PackageInstaller/Shizuku/root execution, and path-versus-URI/SAF semantics belong to platform adapter work and remain outside this bridge slice.
+
+## Android production bridge direction
+
+The Android production path should embed getter through a native bridge once the DTO contract is stable. The native bridge should expose getter-owned operations and platform callbacks/capabilities; it should not force all in-app UI calls through a heavyweight local JSON-RPC server unless a future ADR accepts that lifecycle cost.
+
+Local RPC remains acceptable for debug tooling, external integration, and development workflows.
+
+## APIs forbidden in Flutter UI code
+
+Flutter UI code must not implement:
+
+- repository priority/overlay resolution
+- Lua package validation or evaluation semantics
+- version comparison/update selection
+- legacy Room mapping decisions
+- cache invalidation rules
+- provider/source selection
+- download task state machines
+- package ID normalization beyond display-safe handling
+
+If a feature requires one of these decisions, add or extend a getter operation instead.
+
+## Consequences
+
+Positive:
+
+- The early bridge was executable in CI before the native bridge stabilized.
+- CLI output remains a headless oracle for storage/repository/migration coverage.
+- Flutter can consume real getter data while preserving the Rust-owned domain boundary.
+- The native bridge now has a concrete DTO/error/runtime notification contract to preserve.
+
+Costs:
+
+- The CLI adapter is development/test infrastructure, not the final mobile path.
+- Runtime task UI still exposes only the first read-only snapshot rendering slice until live provider/downloader/installer ADRs are accepted.
+- Getter output schemas must evolve carefully because they are now a cross-boundary contract.
+
+## Validation
+
+The first implementation slice must provide:
+
+- Flutter widget tests that continue to use `FakeGetterAdapter`.
+- Flutter widget tests for the migration flow using fake platform/getter adapters.
+- A Flutter/Dart integration test that builds or receives a real `getter-cli` binary, initializes a real getter data directory, and reads repositories, tracked packages, package evaluation output, migration reports, and direct Room import output through `CliGetterAdapter`.
+- `just verify` coverage for the bridge integration test.
+
+## Non-goals
+
+- No product-complete live provider/downloader/installer execution beyond the ADR-0011 in-memory runtime operation and notification skeleton.
+- No durable update/download/install event log or cross-process task recovery.
+- No Android-owned legacy Room mapping/import semantics; Android only prepares a copied DB file for getter.
+- No product-complete Flutter UI.
+- No product/domain decisions in Dart.

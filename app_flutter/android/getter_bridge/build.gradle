@@ -1,0 +1,72 @@
+plugins {
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "io.github.MatrixDev.android-rust"
+}
+
+def resolveAndroidNdkPath() {
+    def envNdk = System.getenv("ANDROID_NDK_HOME") ?: System.getenv("ANDROID_NDK_ROOT")
+    if (envNdk != null && !envNdk.isBlank()) {
+        return envNdk
+    }
+    def localProperties = new Properties()
+    def localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.withInputStream { localProperties.load(it) }
+        def sdkDir = localProperties.getProperty("sdk.dir")
+        if (sdkDir != null && !sdkDir.isBlank()) {
+            return new File(sdkDir, "ndk/29.0.14206865").path
+        }
+    }
+    return null
+}
+
+android {
+    namespace "net.xzos.upgradeall.getter.bridge"
+    compileSdkVersion 36
+    ndkVersion "29.0.14206865"
+    def configuredNdkPath = resolveAndroidNdkPath()
+    if (configuredNdkPath != null) {
+        ndkPath configuredNdkPath
+    }
+
+    defaultConfig {
+        minSdkVersion 23
+        consumerProguardFiles file("../../../core-getter/consumer-rules.pro")
+    }
+
+    sourceSets {
+        main.java.srcDirs += file("../../../core-getter/src/main/java/net/xzos/upgradeall/getter/platform")
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+
+androidRust {
+    minimumSupportedRustVersion = "1.62.1"
+
+    module("api_proxy") { moduleConfig ->
+        moduleConfig.path = file("../../../core-getter/src/main/rust/api_proxy")
+        moduleConfig.targets = ["x86_64", "arm", "arm64"]
+
+        moduleConfig.buildType("debug") {
+            it.profile = "dev"
+        }
+
+        moduleConfig.buildType("release") {
+            it.profile = "release"
+            it.runTests = true
+        }
+    }
+}
+
+dependencies {
+    implementation "rustls:rustls-platform-verifier:latest.release"
+}

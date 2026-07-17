@@ -1,0 +1,154 @@
+# Lua Package Lifecycle
+
+> Status: Draft / living design record
+> Date: 2026-06-21
+> Project: UpgradeAll rewrite — Flutter APP + Rust getter core + Lua package repository model
+
+UpgradeAll uses an app/update lifecycle inspired by Gentoo ebuild phases, but does not copy source-build phase names.
+
+## Phases
+
+```text
+preflight(ctx)
+setup(ctx)
+match(ctx, installed_item)
+discover(ctx)
+prepare(ctx, candidates)
+select(ctx, candidates, installed, user_state)
+resolve(ctx, selected)
+post_update(ctx, result)
+```
+
+`resolve` is the current recommended replacement for the rejected name `plan`. It means: convert selected candidate/artifact into executable update actions.
+
+## preflight
+
+Validate whether the package can be evaluated on this platform and with current permissions/settings.
+
+## setup
+
+Resolve package/provider setup such as default source priority, credential availability and provider config.
+
+## match
+
+Match installed inventory items to this package.
+
+## discover
+
+Query sources/providers and return release candidates.
+
+Network access is through getter host APIs. Package version Lua may also read package-local helper data under its own package directory's `files/` subtree through a package-scoped getter host API such as `read_package_file(path)`, where `path` is relative to `files/`; the original built-in does not expose real filesystem paths or freely read arbitrary package/repository directories outside that subtree and returns a Lua string without encoding/MIME/JSON/text-vs-binary interpretation. Hook code may still wrap the public `read_package_file()` name because getter core/CLI does not maintain a protective denylist of hookable public functions.
+
+Provider modules can opt specific HTTP requests into getter-owned source caching:
+
+```lua
+local body = http_get(url, {
+  headers = { Accept = "application/json" },
+  cache = true,
+})
+```
+
+`cache` defaults to `false`; Lua chooses cache participation, while getter owns cache keys, storage, revalidation, stale diagnostics, and secret redaction.
+
+## prepare
+
+Normalize, filter and enrich release candidates.
+
+## select
+
+Choose the candidate/artifact to update to, using installed version and user state.
+
+The first getter-core selection helper uses deterministic tokenized version comparison: digit runs compare numerically, text suffixes compare case-insensitively, separators are ignored, and a prerelease-like text suffix (for example `beta`/`rc`) sorts before the final release with the same numeric prefix. The selector returns the highest candidate newer than the effective local baseline. The effective baseline is normally the observed installed version; when the user has set `pin_version`, getter compares candidates against that pin override instead while still keeping the observed installed version available for display/diagnostics.
+
+## resolve
+
+Return executable update actions:
+
+```lua
+return {
+  actions = {
+    { type = "download", url = "https://...", file_name = "app.apk" },
+    { type = "install", installer = "android_package", file = "app.apk" },
+  },
+  warnings = {},
+}
+```
+
+As the first offline/mock-provider bridge toward this lifecycle, a package version script may also declare static `updates` candidates. Getter validates this table, routes it through a mock provider boundary (`StaticPackageUpdatesProvider`), performs Rust-owned selection/version comparison, and issues opaque runtime `action_id`s from the selected candidate; Flutter must still return only the getter-issued `action_id` and must not assemble download/install action payloads.
+
+```lua
+#!/bin/upa-lua v1
+-- repo/official/android/app/org.fdroid.fdroid/1.2.0.lua
+-- package path android/app/org.fdroid.fdroid, version 1.2.0
+return package_version {
+  updates = {
+    {
+      version = "1.2.0",
+      changelog = "Release notes from the provider, when available",
+      channel = "stable",
+      source = "fixture",
+      artifacts = {
+        {
+          name = "app.apk",
+          url = "https://example.invalid/app.apk",
+          content_type = "application/vnd.android.package-archive",
+          file_name = "fdroid.apk",
+        },
+      },
+    },
+  },
+}
+```
+
+Update candidates may carry optional `changelog` text, and artifacts may carry optional `content_type`. Provider-backed operations populate those fields when upstream snapshots include them (for example GitHub release bodies and asset MIME/content types); getter preserves them through the runtime selected candidate/artifact DTO for rendering and later task planning, while download/install action issuance remains getter-owned.
+
+The first Phase D implementation exposes offline update checks through both a normalized CLI fixture command (`getter --data-dir <path> update check --fixture <fixture.json>`) and registered-package native/runtime action issuance over static Lua `updates`. These are mock-provider paths, not live provider output. They return `network_required = false`, update-check status, selected candidate/artifact, and getter-owned action issuance data. They do not execute network providers, download files, persist download tasks, stream progress events, or invoke Android installers.
+
+ADR-0011 supersedes the earlier persisted fake task scaffold. The accepted Phase D runtime consumes getter-issued actions through an in-memory process-lifetime runtime: task state is not stored in SQLite, `action_id` is single-use, task submission binds a sealed action plan plus package-version Lua object, mock download/install executors simulate task state, and `RuntimeNotification.task_changed` is pushed to Flutter as a best-effort current snapshot. CLI coverage for this model should use Rust runtime tests or a single-process scripted/debug command rather than pretending separate CLI invocations share task memory.
+
+## post_update
+
+Optional post-update hook. Most persistent state changes should remain in Rust core, not Lua.
+
+## Offline validation
+
+`getter --data-dir <path> repo validate <repo-path>` validates repository layout and package schema without network access. The command evaluates local package metadata and version scripts with the same constrained `luaclass/` module loading used by `repo eval`/`package eval`, then returns a getter-owned diagnostic report:
+
+```json
+{
+  "valid": false,
+  "network_required": false,
+  "package_count": 0,
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "package.schema",
+      "message": "required field 'android.package_name' is missing",
+      "package_path": "android/app/org.fdroid.fdroid",
+      "location": {
+        "path": "repo/official/android/app/org.fdroid.fdroid/metadata.jsonc"
+      }
+    }
+  ]
+}
+```
+
+Initial stable diagnostic codes include:
+
+- `repository.read_metadata`
+- `repository.parse_metadata`
+- `repository.invalid_id`
+- `repository.unsupported_api_version`
+- `repository.missing_directory`
+- `repository.invalid_package_path`
+- `package.read_metadata`
+- `package.parse_metadata`
+- `package.read_version_script`
+- `package.lua_runtime`
+- `package.not_a_table`
+- `package.missing_api_version`
+- `package.unsupported_value`
+- `package.schema`
+- `package.domain`
+
+The validation command is intentionally offline. Provider/network validation belongs to later provider/update workflow commands, not repository schema validation.
