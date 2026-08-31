@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'android_package_installer.dart';
 import 'getter_adapter.dart';
+import 'install_coordinator.dart';
 import 'legacy_migration_platform.dart';
 import 'native_getter_adapter.dart';
 
@@ -10,6 +12,7 @@ void main() {
   runApp(
     const UpgradeAllApp(
       getter: MethodChannelGetterAdapter(),
+      packageInstaller: MethodChannelAndroidPackageInstaller(),
       legacyMigrationPlatform: MethodChannelLegacyMigrationPlatform(),
     ),
   );
@@ -146,6 +149,12 @@ class AppKeys {
 
   static ValueKey<String> checkPackageUpdate(String packageId) =>
       ValueKey<String>('action.check_update.$packageId');
+  static ValueKey<String> retryPackageInstall(String packageId) =>
+      ValueKey<String>('action.retry_install.$packageId');
+  static ValueKey<String> installRuntimeTask(String taskId) =>
+      ValueKey<String>('action.install_task.$taskId');
+  static ValueKey<String> retryRuntimeTask(String taskId) =>
+      ValueKey<String>('action.retry_task.$taskId');
   static ValueKey<String> appRow(String packageId) =>
       ValueKey<String>('state.app.$packageId');
   static ValueKey<String> repoRow(String repositoryId) =>
@@ -168,15 +177,39 @@ class AppKeys {
       ValueKey<String>('state.autogen_applied.$packageId');
 }
 
-class UpgradeAllApp extends StatelessWidget {
+class UpgradeAllApp extends StatefulWidget {
   const UpgradeAllApp({
     super.key,
     this.getter = const FakeGetterAdapter(),
+    this.packageInstaller = const NoopAndroidPackageInstaller(),
     this.legacyMigrationPlatform = const NoopLegacyMigrationPlatform(),
   });
 
   final GetterAdapter getter;
+  final AndroidPackageInstaller packageInstaller;
   final LegacyMigrationPlatform legacyMigrationPlatform;
+
+  @override
+  State<UpgradeAllApp> createState() => _UpgradeAllAppState();
+}
+
+class _UpgradeAllAppState extends State<UpgradeAllApp> {
+  late InstallCoordinator _installCoordinator = InstallCoordinator(
+    getter: widget.getter,
+    packageInstaller: widget.packageInstaller,
+  );
+
+  @override
+  void didUpdateWidget(UpgradeAllApp oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(widget.getter, oldWidget.getter) ||
+        !identical(widget.packageInstaller, oldWidget.packageInstaller)) {
+      _installCoordinator = InstallCoordinator(
+        getter: widget.getter,
+        packageInstaller: widget.packageInstaller,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -187,23 +220,30 @@ class UpgradeAllApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routes: <String, WidgetBuilder>{
-        '/': (context) => HomePage(getter: getter),
-        '/apps': (context) => AppsPage(getter: getter),
-        '/repositories': (context) => RepositoriesPage(getter: getter),
-        '/downloads': (context) => DownloadsPage(getter: getter),
+        '/': (context) => HomePage(getter: widget.getter),
+        '/apps': (context) => AppsPage(getter: widget.getter),
+        '/repositories': (context) => RepositoriesPage(getter: widget.getter),
+        '/downloads': (context) => DownloadsPage(
+          getter: widget.getter,
+          installCoordinator: _installCoordinator,
+        ),
         '/logs': (context) => const LogsPage(),
         '/settings': (context) => const SettingsPage(),
         '/migration': (context) => MigrationPage(
-          getter: getter,
-          legacyMigrationPlatform: legacyMigrationPlatform,
+          getter: widget.getter,
+          legacyMigrationPlatform: widget.legacyMigrationPlatform,
         ),
-        '/autogen': (context) => InstalledAutogenPage(getter: getter),
+        '/autogen': (context) => InstalledAutogenPage(getter: widget.getter),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/apps/detail') {
           final app = settings.arguments! as AppSummary;
           return MaterialPageRoute<void>(
-            builder: (context) => AppDetailPage(app: app, getter: getter),
+            builder: (context) => AppDetailPage(
+              app: app,
+              getter: widget.getter,
+              installCoordinator: _installCoordinator,
+            ),
             settings: settings,
           );
         }
@@ -403,19 +443,36 @@ class _AppsPageState extends State<AppsPage> {
 }
 
 class AppDetailPage extends StatefulWidget {
-  const AppDetailPage({super.key, required this.app, required this.getter});
+  const AppDetailPage({
+    super.key,
+    required this.app,
+    required this.getter,
+    required this.installCoordinator,
+  });
 
   final AppSummary app;
   final GetterAdapter getter;
+  final InstallCoordinator installCoordinator;
 
   @override
   State<AppDetailPage> createState() => _AppDetailPageState();
 }
 
 class _AppDetailPageState extends State<AppDetailPage> {
+  late AppSummary _app = widget.app;
   bool _checkingUpdate = false;
+  String? _pendingInstallTaskId;
   String? _status;
   String? _error;
+
+  @override
+  void didUpdateWidget(AppDetailPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.app.id != oldWidget.app.id) {
+      _app = widget.app;
+      _pendingInstallTaskId = null;
+    }
+  }
 
   Future<void> _checkForUpdate() async {
     if (_checkingUpdate) return;
@@ -427,8 +484,8 @@ class _AppDetailPageState extends State<AppDetailPage> {
 
     try {
       final result = await widget.getter.checkPackageForUpdate(
-        widget.app.id,
-        installedVersion: widget.app.installedVersion,
+        _app.id,
+        installedVersion: _app.installedVersion,
       );
       final action = result.action;
       if (action == null) {
@@ -441,16 +498,16 @@ class _AppDetailPageState extends State<AppDetailPage> {
 
       final task = await widget.getter.submitRuntimeAction(action.actionId);
       if (!mounted) return;
-      setState(() {
-        _status = 'Submitted runtime task ${task.taskId}';
-      });
-      await Navigator.of(context).pushNamed('/downloads');
+      if (task.isInstallReady) {
+        await _installTask(task);
+      } else {
+        setState(() {
+          _status = 'Submitted runtime task ${task.taskId}';
+        });
+        await Navigator.of(context).pushNamed('/downloads');
+      }
     } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _status = null;
-        _error = error.toString();
-      });
+      _showInstallError(error);
     } finally {
       if (mounted) {
         setState(() {
@@ -460,9 +517,91 @@ class _AppDetailPageState extends State<AppDetailPage> {
     }
   }
 
+  Future<void> _retryInstall() async {
+    final taskId = _pendingInstallTaskId;
+    if (_checkingUpdate || taskId == null) return;
+    setState(() {
+      _checkingUpdate = true;
+      _status = 'Checking install task...';
+      _error = null;
+    });
+    try {
+      var task = await widget.getter.getRuntimeTask(taskId);
+      if (!task.isInstallReady && task.capabilities.retry) {
+        task = await widget.getter.retryRuntimeTask(taskId);
+      }
+      if (!task.isInstallReady) {
+        if (!mounted) return;
+        setState(() {
+          _status = 'Getter task is not ready for installation';
+        });
+        return;
+      }
+      await _installTask(task);
+    } catch (error) {
+      _showInstallError(error);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _checkingUpdate = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _installTask(RuntimeTaskSnapshot task) async {
+    if (!mounted) return;
+    setState(() {
+      _pendingInstallTaskId = task.taskId;
+      _status = 'Opening Android installer...';
+      _error = null;
+    });
+    final result = await widget.installCoordinator.install(task.taskId);
+    if (!mounted) return;
+
+    switch (result.platform.outcome) {
+      case AndroidPackageInstallOutcome.authorizationRequired:
+        setState(() {
+          _status = 'Install authorization required. Return and retry.';
+        });
+      case AndroidPackageInstallOutcome.succeeded:
+        var refreshedApp = _app;
+        for (final candidate in result.snapshot?.apps ?? const <AppSummary>[]) {
+          if (candidate.id == _app.id) {
+            refreshedApp = candidate;
+            break;
+          }
+        }
+        setState(() {
+          _app = refreshedApp;
+          _pendingInstallTaskId = null;
+          _status = 'Installation succeeded';
+        });
+      case AndroidPackageInstallOutcome.aborted:
+        setState(() {
+          _status = 'Installation canceled or aborted';
+        });
+      case AndroidPackageInstallOutcome.failed:
+        final message = result.platform.message?.trim();
+        setState(() {
+          _status = message == null || message.isEmpty
+              ? 'Installation failed'
+              : 'Installation failed: $message';
+        });
+    }
+  }
+
+  void _showInstallError(Object error) {
+    if (!mounted) return;
+    setState(() {
+      _status = null;
+      _error = error.toString();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final app = widget.app;
+    final app = _app;
     return Scaffold(
       key: AppKeys.appDetailRoute,
       appBar: AppBar(title: Text(app.name)),
@@ -482,10 +621,18 @@ class _AppDetailPageState extends State<AppDetailPage> {
             key: AppKeys.checkPackageUpdate(app.id),
             onPressed: _checkingUpdate ? null : _checkForUpdate,
             icon: const Icon(Icons.system_update_alt),
-            label: Text(
-              _checkingUpdate ? 'Checking update...' : 'Check update',
-            ),
+            label: Text(_checkingUpdate ? 'Working...' : 'Check update'),
           ),
+          if (_pendingInstallTaskId != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: OutlinedButton.icon(
+                key: AppKeys.retryPackageInstall(app.id),
+                onPressed: _checkingUpdate ? null : _retryInstall,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry install'),
+              ),
+            ),
           if (_status != null)
             Padding(
               padding: const EdgeInsets.only(top: 12),
@@ -580,9 +727,14 @@ class _RepositoriesPageState extends State<RepositoriesPage> {
 }
 
 class DownloadsPage extends StatefulWidget {
-  const DownloadsPage({super.key, required this.getter});
+  const DownloadsPage({
+    super.key,
+    required this.getter,
+    required this.installCoordinator,
+  });
 
   final GetterAdapter getter;
+  final InstallCoordinator installCoordinator;
 
   @override
   State<DownloadsPage> createState() => _DownloadsPageState();
@@ -592,6 +744,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
   late Future<List<RuntimeTaskSnapshot>> _tasks = widget.getter
       .listRuntimeTasks();
   StreamSubscription<RuntimeNotificationEnvelope>? _notificationSubscription;
+  String? _installingTaskId;
 
   @override
   void initState() {
@@ -616,6 +769,96 @@ class _DownloadsPageState extends State<DownloadsPage> {
     setState(() {
       _tasks = widget.getter.listRuntimeTasks();
     });
+  }
+
+  Future<void> _installTask(RuntimeTaskSnapshot task) async {
+    if (_installingTaskId != null) return;
+    setState(() {
+      _installingTaskId = task.taskId;
+    });
+    try {
+      await _coordinateInstall(task);
+    } catch (error) {
+      _showTaskMessage(error.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _installingTaskId = null;
+          _tasks = widget.getter.listRuntimeTasks();
+        });
+      }
+    }
+  }
+
+  Future<void> _retryTask(RuntimeTaskSnapshot task) async {
+    if (_installingTaskId != null) return;
+    setState(() {
+      _installingTaskId = task.taskId;
+    });
+    try {
+      final retried = await widget.getter.retryRuntimeTask(task.taskId);
+      if (retried.isInstallReady) {
+        await _coordinateInstall(retried);
+      } else {
+        _showTaskMessage('Getter task is not ready for installation');
+      }
+    } catch (error) {
+      _showTaskMessage(error.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _installingTaskId = null;
+          _tasks = widget.getter.listRuntimeTasks();
+        });
+      }
+    }
+  }
+
+  Future<void> _coordinateInstall(RuntimeTaskSnapshot task) async {
+    final result = await widget.installCoordinator.install(task.taskId);
+    final message = switch (result.platform.outcome) {
+      AndroidPackageInstallOutcome.authorizationRequired =>
+        'Install authorization required. Return and retry.',
+      AndroidPackageInstallOutcome.succeeded => 'Installation succeeded',
+      AndroidPackageInstallOutcome.aborted =>
+        'Installation canceled or aborted',
+      AndroidPackageInstallOutcome.failed =>
+        result.platform.message?.trim().isNotEmpty == true
+            ? 'Installation failed: ${result.platform.message!.trim()}'
+            : 'Installation failed',
+    };
+    _showTaskMessage(message);
+  }
+
+  void _showTaskMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Widget _taskTrailing(RuntimeTaskSnapshot task) {
+    if (_installingTaskId == task.taskId) {
+      return const SizedBox.square(
+        dimension: 24,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+    if (task.isInstallReady) {
+      return FilledButton(
+        key: AppKeys.installRuntimeTask(task.taskId),
+        onPressed: _installingTaskId == null ? () => _installTask(task) : null,
+        child: const Text('Install'),
+      );
+    }
+    if (task.capabilities.retry) {
+      return TextButton(
+        key: AppKeys.retryRuntimeTask(task.taskId),
+        onPressed: _installingTaskId == null ? () => _retryTask(task) : null,
+        child: const Text('Retry'),
+      );
+    }
+    return _TaskCapabilitiesChips(capabilities: task.capabilities);
   }
 
   @override
@@ -654,9 +897,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
                   key: AppKeys.downloadTaskRow(task.taskId),
                   title: Text(task.packageId),
                   subtitle: Text(_runtimeTaskSubtitle(task)),
-                  trailing: _TaskCapabilitiesChips(
-                    capabilities: task.capabilities,
-                  ),
+                  trailing: _taskTrailing(task),
                 ),
               );
             },

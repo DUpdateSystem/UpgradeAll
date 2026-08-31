@@ -78,6 +78,12 @@ The handoff crosses the product boundary through JNI, Kotlin, and Dart as transp
 
 Existing `installer.command` syntax, JSON representation, validation, and direct no-shell CLI execution remain unchanged. An `android_apk` declaration is not converted into a command and is not executed by the command installer path.
 
+## Runtime refinement in ADR-0015
+
+ADR-0015 preserves this declaration and handoff version while tightening product runtime continuity. Package-scoped prepare remains compatible, but App detail and Downloads do not call it. Getter instead seals the selected Android target, version, artifact filename, and Manifest digest into the issued action; the resulting runtime task owns that plan and its task-scoped downloaded file. Strict task preparation accepts only the exact waiting install-handoff task, performs no repository re-evaluation or second download, revalidates the staged file, and adds `"task_id": "task-…"` to the version-1 handoff. Its artifact path is the Getter-owned `downloads/<task-id>/<filename>` path. The shared coordinator requires the returned task id to match before invoking Android.
+
+The prepare-only package handoff shown above and the task-scoped handoff are therefore two compatible uses of the same typed DTO: only the task-scoped form is allowed to complete a product runtime task.
+
 ## Explicitly excluded
 
 This slice does not include:

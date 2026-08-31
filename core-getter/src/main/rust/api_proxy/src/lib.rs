@@ -150,6 +150,13 @@ struct PrepareInstallRequest {
     package_id: getter::core::PackageId,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PrepareInstallTaskRequest {
+    data_dir: PathBuf,
+    task_id: String,
+}
+
 #[derive(Debug, Default, Deserialize)]
 struct ApplyAutogenAcceptance {
     #[serde(default)]
@@ -524,6 +531,20 @@ pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_prepareInstall<'loca
 ) -> JString<'local> {
     let command = "prepare install";
     let response = match jstring_to_string(&mut env, &request_json).and_then(prepare_install) {
+        Ok(data) => success_envelope(command, data),
+        Err(error) => operation_error_envelope(command, error),
+    };
+    java_string_or_fallback(&mut env, response)
+}
+
+#[no_mangle]
+pub extern "C" fn Java_net_xzos_upgradeall_getter_NativeLib_prepareInstallTask<'local>(
+    mut env: JNIEnv<'local>,
+    _: JObject<'local>,
+    request_json: JString<'local>,
+) -> JString<'local> {
+    let command = "prepare task install";
+    let response = match jstring_to_string(&mut env, &request_json).and_then(prepare_install_task) {
         Ok(data) => success_envelope(command, data),
         Err(error) => operation_error_envelope(command, error),
     };
@@ -917,6 +938,23 @@ fn prepare_install(request_json: String) -> Result<Value, BridgeOperationError> 
         .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))
 }
 
+fn prepare_install_task(request_json: String) -> Result<Value, BridgeOperationError> {
+    let request: PrepareInstallTaskRequest = serde_json::from_str(&request_json)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
+    let runtime = init_getter_runtime();
+    let runtime = runtime
+        .lock()
+        .map_err(|_| BridgeOperationError::RuntimePoisoned)?;
+    let handoff = getter::operations::app::prepare_platform_install_for_task(
+        &runtime,
+        &request.data_dir,
+        &request.task_id,
+    )
+    .map_err(BridgeOperationError::App)?;
+    serde_json::to_value(handoff)
+        .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))
+}
+
 fn read_operation(request_json: String) -> Result<Value, BridgeOperationError> {
     let request: ReadOperationRequest = serde_json::from_str(&request_json)
         .map_err(|source| BridgeOperationError::InvalidRequest(source.to_string()))?;
@@ -1303,6 +1341,25 @@ mod tests {
     }
 
     #[test]
+    fn prepare_install_task_request_is_strict() {
+        let request: PrepareInstallTaskRequest = serde_json::from_value(json!({
+            "data_dir": "/getter",
+            "task_id": "task-7"
+        }))
+        .unwrap();
+        assert_eq!(request.data_dir, PathBuf::from("/getter"));
+        assert_eq!(request.task_id, "task-7");
+
+        let unknown = serde_json::from_value::<PrepareInstallTaskRequest>(json!({
+            "data_dir": "/getter",
+            "task_id": "task-7",
+            "package_id": "android/app/com.example.app"
+        }))
+        .unwrap_err();
+        assert!(unknown.to_string().contains("unknown field"));
+    }
+
+    #[test]
     fn platform_install_handoff_serializes_the_bridge_contract() {
         use getter::operations::app::{
             AndroidInstallTarget, PlatformInstallHandoff, PlatformInstallRequest, StagedArtifact,
@@ -1311,6 +1368,7 @@ mod tests {
         let handoff = PlatformInstallHandoff {
             format: "getter-platform-install-handoff".into(),
             version: 1,
+            task_id: None,
             package_id: "android/app/com.example.app".parse().unwrap(),
             repository_id: "local".into(),
             package_version: "1.2.3".into(),
@@ -1960,6 +2018,7 @@ mod tests {
                     url,
                     file_name: "source.bin".to_owned(),
                 }],
+                android_apk_install: None,
                 lua_object: PackageVersionLuaObject {
                     object_id: "lua:generic/example".to_owned(),
                     dependency_digest: "sha256:test".to_owned(),
@@ -2005,6 +2064,7 @@ mod tests {
                     url,
                     file_name: "retry.bin".to_owned(),
                 }],
+                android_apk_install: None,
                 lua_object: PackageVersionLuaObject {
                     object_id: "lua:generic/example".to_owned(),
                     dependency_digest: "sha256:test".to_owned(),
@@ -2064,6 +2124,7 @@ mod tests {
                         file: "app.apk".to_owned(),
                     },
                 ],
+                android_apk_install: None,
                 lua_object: PackageVersionLuaObject {
                     object_id: "lua:android/org.fdroid.fdroid".to_owned(),
                     dependency_digest: "sha256:test".to_owned(),

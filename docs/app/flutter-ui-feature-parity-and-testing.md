@@ -28,7 +28,7 @@ Home, Apps, and App detail consume one getter-owned startup snapshot. Rust activ
 
 A fresh installation whose inventory has actionable apps and no enabled tracked packages exposes a nonblocking Home setup action. Explicit setup preview scans inventory once, refreshes the signed official F-Droid catalog, prefers F-Droid matches, and offers remaining installed apps through the generated fallback repository. Flutter only renders the unified candidates and diagnostics, submits selected package ids with Getter's opaque preview id, and reloads startup after apply. If F-Droid refresh fails, a stale cache remains usable; without cache the fallback candidates remain available with a warning.
 
-ADR-0014 adds only transport parity for a Getter-owned prepare-only Android APK install handoff. Getter refreshes/selects, performs Manifest-backed staging and integrity checks, validates the exact Android target and one `.apk`, and returns a versioned DTO. JNI, Kotlin, and Dart carry the typed `android_apk` handoff without reimplementing policy. This slice deliberately adds no Flutter install UI, `PackageInstaller` execution, persistence, split APK support, content URI handling, completion/results, `core-installer` reuse, or device tests.
+ADR-0014 defines the Getter-owned typed Android APK handoff. ADR-0015 consumes it through one foreground Android `PackageInstaller` base-APK session and tightens runtime continuity: Getter seals the selected repository, version, Android target, artifact filename, and Manifest digest when it issues the action; strict task preparation later verifies the exact waiting task and its task-owned staged file without package re-evaluation or another download. The handoff carries the matching task id. API 26+ unknown-source authorization is rechecked on retry, the framework-provided confirmation intent is launched for `STATUS_PENDING_USER_ACTION`, and only a terminal callback completes the attempt. Kotlin uses Getter's target package and staged APK path without filename/path inference or duplicated integrity policy. Terminal outcomes are reported to the same Getter task before one Getter inventory refresh; authorization leaves it waiting, while cancellation/failure rejects it and retry resumes that same task. Split APK, silent/root/Shizuku install, FileProvider, durable installer history, and background recovery remain excluded.
 
 ## BDD vs TDD boundary
 
@@ -46,6 +46,8 @@ Use TDD for function/domain behavior:
 - version comparison.
 - download action generation.
 - error classification.
+- sealed action-to-task install-plan continuity.
+- task-owned staged-file identity, size, and digest verification.
 
 TDD tests should be small, deterministic and focused.
 
@@ -58,6 +60,7 @@ Use BDD for UI and integration behavior:
 - installed autogen confirmation.
 - yellow network warning tag.
 - update/download task flow.
+- foreground Android authorization, cancellation, failure retry, success, and inventory refresh through both App detail and Downloads.
 
 BDD scenarios act as self-explaining documentation tests. Do not over-test BDD: each scenario should document a meaningful user behavior or integration boundary.
 
@@ -74,9 +77,22 @@ Feature: Installed app autogen
     And the apps appear in the app list as generated fallback packages
 ```
 
-## Current Flutter shell slice
+```gherkin
+Feature: Foreground Android installation
 
-The first Flutter implementation slice is intentionally a shell, not product logic:
+  Scenario: Retry a canceled install from the same Getter task
+    Given Getter has a sealed runtime task waiting for an install handoff
+    When the user opens Install from App detail or Downloads
+    And cancels Android's confirmation
+    Then the same Getter task is rejected and shown as retryable
+    When the user retries that task and confirms installation
+    Then Android reports success
+    And Getter refreshes installed inventory for the target package
+```
+
+## Current Flutter product slice
+
+The current Flutter implementation keeps product/domain policy in Getter and limits Flutter to rendering, coordination, and platform transport:
 
 - Product APK entry lives under `app_flutter/`; the legacy Android `:app` UI is reference-only during migration.
 - Android release identity remains `net.xzos.upgradeall` for future direct upgrade work.
@@ -88,15 +104,17 @@ The first Flutter implementation slice is intentionally a shell, not product log
 - Product decisions such as repository resolution, updates, migrations, storage, and downloads still belong in Rust getter.
 - Installed-autogen product flows must call getter/native bridge operations that use the Rust-active Android platform adapter from ADR-0009; Flutter should not lead PackageManager inventory scanning through a Dart MethodChannel API. The installed F-Droid autogen product flow forwards only scan options and accepted package ids; F-Droid catalog cache refresh/bootstrap, cache lookup, package-path derivation, repository coverage, generated content, and cache-miss diagnostics stay in getter/native bridge code. The GitHub Android APK autogen product flow forwards only owner, repository, Android package name, optional display name, preview JSON, and accepted package ids; GitHub release refresh/cache/provenance, asset matching defaults, package-path derivation, repository coverage, generated content, and diagnostics stay in getter/native bridge code. The UI may trigger the narrow default F-Droid catalog cache refresh and render getter-owned refresh status/diagnostics, but it must not expose provider fixture XML/JSON, endpoint/API-base URLs, cache-mode controls, raw provider payloads, asset filters, prerelease toggles, or live transport settings. GitHub release refresh for package update checks is likewise a getter-owned provider/runtime concern; Flutter still submits only package/update fields and renders returned diagnostics/actions.
 - CI/release APK artifacts must be built from `app_flutter`, not from the legacy `:app` module.
-- The app detail update button may call getter's typed update-check operation, receive a getter-issued opaque `action_id`, submit that `action_id`, and open Downloads. Flutter must not assemble or echo action payloads.
-- The downloads route may render getter task/event DTOs read-only, including getter-owned downloaded-file metadata when present, and refresh after `RuntimeNotification.task_changed`, but it must not implement a Dart download task state machine, retry policy, file writing, transport/cache controls, or installer semantics. Current-state runtime queries remain authoritative.
+- The app detail update button may call getter's typed update-check operation and submit its opaque `action_id`. When the returned Getter task is `running / waiting_user / install_handoff`, App detail and Downloads pass that task id to one shared install coordinator. The coordinator may only call task-scoped prepare; package-scoped prepare is retained for compatibility but is not a runtime installation path.
+- The downloads route may render getter task/event DTOs, including getter-owned downloaded-file metadata, and refresh after `RuntimeNotification.task_changed`. Install eligibility is only the Getter-owned waiting-user/install-handoff phase; Flutter must not infer it from task titles, requested versions, filenames, paths, extensions, or downloaded metadata. Current-state runtime queries remain authoritative.
+- A terminal platform result is sent to the same runtime task before Getter startup inventory is reloaded exactly once. Authorization is nonterminal and leaves the task waiting. Rejection makes the same task retryable; process loss is resolved by a new Getter inventory scan and, when still needed, a fresh update task rather than a durable Flutter installer state machine.
 
 ## Test pyramid
 
 - Many Rust unit tests.
 - Moderate Rust integration tests for Lua/package/repository behavior.
-- Focused Flutter widget tests for component states.
-- Few BDD end-to-end scenarios for critical user flows.
+- Focused Flutter widget tests for App detail and Downloads task continuity, authorization, cancellation/failure retry, success, overlap rejection, and inventory refresh.
+- Android bridge/contract unit tests for strict task requests and `PackageInstaller` status handling.
+- Few real-device/emulator BDD scenarios for authorization, confirmation, cancellation, success, and refreshed Getter inventory.
 
 ## Anti-goals
 

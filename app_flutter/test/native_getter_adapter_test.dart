@@ -71,6 +71,46 @@ void main() {
     },
   );
 
+  test('native task prepare sends only the exact runtime task id', () async {
+    MethodCall? captured;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          captured = call;
+          return jsonEncode(<String, Object?>{
+            'ok': true,
+            'command': 'prepare task install',
+            'data': _platformInstallHandoffJson()..['task_id'] = 'task-7',
+            'warnings': <Object?>[],
+          });
+        });
+
+    const adapter = MethodChannelGetterAdapter(channel: channel);
+    final handoff = await adapter.prepareInstallTask('task-7');
+
+    expect(captured!.method, 'prepareInstallTask');
+    expect(captured!.arguments, <String, Object?>{'task_id': 'task-7'});
+    expect(handoff.packageId, 'android/app/com.example.app');
+    expect(handoff.artifact.path, '/getter/downloads/example.apk');
+  });
+
+  test('native task prepare rejects a mismatched runtime task id', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          return jsonEncode(<String, Object?>{
+            'ok': true,
+            'command': 'prepare task install',
+            'data': _platformInstallHandoffJson()..['task_id'] = 'task-other',
+            'warnings': <Object?>[],
+          });
+        });
+
+    const adapter = MethodChannelGetterAdapter(channel: channel);
+    await expectLater(
+      adapter.prepareInstallTask('task-7'),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
   test('native prepare install rejects unknown handoff fields', () async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async {

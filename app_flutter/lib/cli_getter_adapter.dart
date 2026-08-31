@@ -33,6 +33,15 @@ class CliGetterAdapter implements GetterAdapter {
   }
 
   @override
+  Future<PlatformInstallHandoff> prepareInstallTask(String taskId) {
+    return Future<PlatformInstallHandoff>.error(
+      UnsupportedError(
+        'Task-scoped platform install preparation requires the native Android bridge',
+      ),
+    );
+  }
+
+  @override
   void initialize() {
     _runGetter(const <String>['init']);
   }

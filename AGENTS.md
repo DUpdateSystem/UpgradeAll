@@ -16,10 +16,11 @@ Before coding, every agent MUST read:
 10. `docs/architecture/adr/0012-getter-owned-provider-modules-and-autogen-refresh.md`
 11. `docs/architecture/adr/0013-artifact-staging-and-package-declared-installers.md`
 12. `docs/architecture/adr/0014-prepare-only-android-apk-install-handoff.md`
-13. `docs/lua-api/repository-layout.md`
-14. `docs/lua-api/permissions.md`
-15. `docs/lua-api/templates.md`
-16. `docs/app/flutter-ui-feature-parity-and-testing.md`
+13. `docs/architecture/adr/0015-foreground-android-packageinstaller-single-apk-execution.md`
+14. `docs/lua-api/repository-layout.md`
+15. `docs/lua-api/permissions.md`
+16. `docs/lua-api/templates.md`
+17. `docs/app/flutter-ui-feature-parity-and-testing.md`
 
 ## Core architecture rules
 

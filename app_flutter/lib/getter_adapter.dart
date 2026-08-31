@@ -12,6 +12,8 @@ abstract interface class GetterAdapter {
 
   Future<PlatformInstallHandoff> prepareInstall(String packageId);
 
+  Future<PlatformInstallHandoff> prepareInstallTask(String taskId);
+
   void initialize();
 
   List<RepositorySummary> listRepositories();
@@ -151,6 +153,15 @@ class FakeGetterAdapter implements GetterAdapter {
   Future<PlatformInstallHandoff> prepareInstall(String packageId) {
     return Future<PlatformInstallHandoff>.error(
       UnsupportedError('Platform install preparation is unavailable'),
+    );
+  }
+
+  @override
+  Future<PlatformInstallHandoff> prepareInstallTask(String taskId) {
+    return Future<PlatformInstallHandoff>.error(
+      UnsupportedError(
+        'Task-scoped platform install preparation is unavailable',
+      ),
     );
   }
 
@@ -1097,6 +1108,11 @@ class RuntimeTaskSnapshot {
   final RuntimeTaskDiagnostic? currentDiagnostic;
   final RuntimeDownloadedFile? downloadedFile;
   final int updatedAt;
+
+  bool get isInstallReady =>
+      status == 'running' &&
+      phase.category == 'waiting_user' &&
+      phase.reason == 'install_handoff';
 }
 
 class RuntimeDownloadedFile {
@@ -1809,6 +1825,7 @@ enum PlatformInstallKind { androidApk }
 class PlatformInstallHandoff {
   const PlatformInstallHandoff({
     required this.kind,
+    this.taskId,
     required this.packageId,
     required this.repositoryId,
     required this.target,
@@ -1820,6 +1837,7 @@ class PlatformInstallHandoff {
     _requireOnlyJsonKeys(json, const <String>{
       'format',
       'version',
+      'task_id',
       'package_id',
       'repository_id',
       'package_version',
@@ -1851,6 +1869,9 @@ class PlatformInstallHandoff {
     }
     return PlatformInstallHandoff(
       kind: PlatformInstallKind.androidApk,
+      taskId: json['task_id'] == null
+          ? null
+          : _jsonString(json['task_id'], 'platform_install.task_id'),
       packageId: _jsonString(json['package_id'], 'platform_install.package_id'),
       repositoryId: _jsonString(
         json['repository_id'],
@@ -1870,6 +1891,7 @@ class PlatformInstallHandoff {
   }
 
   final PlatformInstallKind kind;
+  final String? taskId;
   final String packageId;
   final String repositoryId;
   final AndroidInstallTarget target;

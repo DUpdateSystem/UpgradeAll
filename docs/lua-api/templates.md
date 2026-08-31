@@ -133,7 +133,7 @@ return package_version {
 
 Literal strings become argv entries; `installer.artifact(name)` resolves only to a staged artifact declared by the same candidate. Getter never passes this through a shell. Download ignores installer declarations, while install stages artifacts first and validates the command afterward. Existing `installer.command` behavior remains unchanged.
 
-For an Android APK package, authors can instead declare a prepare-only platform handoff:
+For an Android APK package, authors can instead declare a typed Android platform installer:
 
 ```lua
 install = installer.android_apk {
@@ -141,9 +141,9 @@ install = installer.android_apk {
 }
 ```
 
-The helper preserves the JSON shape `{ "kind": "android_apk", "artifact": { "artifact": "app.apk" } }`. The reference must select exactly one artifact from the same candidate, and its staged file must be an `.apk` for exactly one Android package target. Getter owns provider refresh and selection, Manifest-backed staging and integrity verification, and all target/artifact validation before returning a versioned handoff through JNI/Kotlin/Dart.
+The helper preserves the JSON shape `{ "kind": "android_apk", "artifact": { "artifact": "app.apk" } }`. The reference must select exactly one artifact from the same candidate, and its staged file must be an `.apk` for exactly one Android package target. Getter owns provider refresh and selection, Manifest-backed staging and integrity verification, and all target/artifact validation. For product runtime installation, Getter seals those facts into the issued action; strict task preparation later revalidates the exact waiting task and its task-owned file without repository re-evaluation or a second download, then returns a typed handoff through JNI/Kotlin/Dart.
 
-This declaration does not run Android `PackageInstaller` and does not define UI, persistence, split APKs, `FileProvider`/content URIs, completion/results, a legacy `core-installer` path, or device tests.
+The declaration itself does not execute platform code. The Android product may consume the task-scoped handoff through one foreground base-APK `PackageInstaller` session as defined by ADR-0015. Persistence, split APKs, `FileProvider`/content URIs, silent/root/Shizuku installation, and the legacy `core-installer` path remain outside this contract.
 
 Provider-backed update-check operations install `getter.provider.*` for those modules. Plain package evaluation remains host-free and is not the validation path for generated F-Droid or GitHub provider-module output. If generated package Lua needs local helper data, autogen writes it under that package directory's `files/` subtree; getter does not assign product semantics to file names or formats inside `files/`.
 

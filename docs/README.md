@@ -32,10 +32,11 @@ Start here:
 13. `architecture/adr/0012-getter-owned-provider-modules-and-autogen-refresh.md` — draft live provider design for getter-owned F-Droid autogen, standard GitHub/F-Droid Lua modules, provider cache refresh, and stale-cache semantics.
 14. `architecture/adr/0013-artifact-staging-and-package-declared-installers.md` — accepted content-verified multi-artifact staging and structured package-version installer commands.
 15. `architecture/adr/0014-prepare-only-android-apk-install-handoff.md` — accepted Getter-owned, prepare-only Android APK handoff transported through JNI/Kotlin/Dart.
-16. `lua-api/` — practical Lua package authoring docs, including offline `repo validate` diagnostics.
-17. `migration/legacy-room-mapping.md` — old data mapping rules.
-18. `app/flutter-ui-feature-parity-and-testing.md` — Flutter feature parity and BDD/TDD test boundary.
-19. `implementation/coding-agent-handoff.md` — coding-agent / pi-agent handoff instructions.
+16. `architecture/adr/0015-foreground-android-packageinstaller-single-apk-execution.md` — accepted exact Getter action/task/artifact continuity plus one shared foreground single-base-APK PackageInstaller flow, authorization, confirmation, terminal task results, retry, and refreshed inventory.
+17. `lua-api/` — practical Lua package authoring docs, including offline `repo validate` diagnostics.
+18. `migration/legacy-room-mapping.md` — old data mapping rules.
+19. `app/flutter-ui-feature-parity-and-testing.md` — Flutter feature parity and BDD/TDD test boundary.
+20. `implementation/coding-agent-handoff.md` — coding-agent / pi-agent handoff instructions.
 
 Canonical architecture ADRs live in `docs/architecture/adr/*`. The `docs/adr/*` directory is kept for historical/refactor-phase ADRs and transition notes.
 

@@ -41,7 +41,22 @@ flutter test integration_test/native_bridge_test.dart -d emulator-5554
 just test-flutter-device-bridge emulator-5554
 ```
 
-The device bridge test exercises the production MethodChannel/JNI path for copied legacy Room import/report-list and installed-autogen preview/apply. If using the local `Pixel_9a` AVD, start it with enough memory (for example `-memory 4096`) so the Flutter debug VM is not killed by Android low-memory pressure.
+The default device bridge command is self-contained: it exercises the production MethodChannel/JNI path for copied legacy Room import/report-list and installed-autogen preview/apply. The physical PackageInstaller scenario is skipped because it deliberately depends on an externally served signed APK and a pre-provisioned Getter repository.
+
+Run that scenario explicitly only after installing the debug APK and then provisioning `android/acceptance/net.xzos.upgradeall` in its app-private Getter data directory as described by ADR-0015. The repository must be registered and tracked, the signed APK must be served at its declared URL (with `adb reverse` when using host loopback), and the target fixture package must be absent before the run. Then use the filtered recipe so the self-contained tests do not erase the fixture:
+
+```bash
+# Tap Cancel in Android's confirmation UI.
+just test-flutter-device-install-acceptance emulator-5554 aborted
+
+# Reset the target package, provision the fixture again if the test APK was
+# reinstalled, then tap Install.
+just test-flutter-device-install-acceptance emulator-5554 succeeded
+```
+
+If Android first opens the unknown-app-source settings page, grant authorization and return within two minutes; the test retries the same handoff. Accepted `expected` values are `aborted` and `succeeded`. This opt-in test verifies task-scoped preparation, terminal task reporting, and same-task retry after cancellation without adding the signed APK or a prepared Getter database to production assets.
+
+If using the local `Pixel_9a` AVD, start it with enough memory (for example `-memory 4096`) so the Flutter debug VM is not killed by Android low-memory pressure.
 
 From the repository root, `just verify` also runs the Flutter analyzer, widget tests, getter CLI integration/dev test, Android debug build, and an APK inspection that verifies the Flutter APK contains `libapi_proxy.so`, `NativeLib`, and `InstalledInventoryProvider`. `just verify` intentionally does not require an attached device; use `just test-flutter-device-bridge` for the emulator-only path.
 

@@ -41,6 +41,9 @@ test-flutter-android-platform-adapter:
 test-flutter-device-bridge device="emulator-5554":
     cd app_flutter && flutter test integration_test/native_bridge_test.dart -d {{ device }}
 
+test-flutter-device-install-acceptance device="emulator-5554" expected="succeeded":
+    cd app_flutter && flutter test integration_test/native_bridge_test.dart -d {{ device }} --plain-name 'typed PackageInstaller installs Getter handoff on Android' --dart-define=RUN_ANDROID_INSTALL_ACCEPTANCE=true --dart-define=INSTALL_EXPECTED_STATUS={{ expected }}
+
 build-flutter-android-debug:
     cd app_flutter && flutter build apk --debug
     python3 tools/verify_flutter_apk_bridge.py app_flutter/build/app/outputs/flutter-apk/app-debug.apk

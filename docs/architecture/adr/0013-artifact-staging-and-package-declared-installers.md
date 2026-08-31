@@ -123,7 +123,7 @@ The installer declaration is trusted repository content and does not require a s
 
 If the executable is not found, `app install` exits nonzero with stable code `installer.command_not_found`. If the child exits unsuccessfully, it returns `installer.command_failed`. Downloaded artifacts remain staged after either error. Captured stdout/stderr is bounded before it enters a response or diagnostic.
 
-ADR-0014 extends this model with the platform-specific `installer.android_apk { artifact = installer.artifact("app.apk") }` declaration. Getter prepares a versioned typed handoff after its existing refresh, selection, Manifest-backed staging, integrity, target, and APK validation. The first slice transports that handoff through JNI/Kotlin/Dart only; it does not execute Android `PackageInstaller` or change `installer.command`.
+ADR-0014 extends this model with the platform-specific `installer.android_apk { artifact = installer.artifact("app.apk") }` declaration. Getter prepares a versioned typed handoff after its existing refresh, selection, Manifest-backed staging, integrity, target, and APK validation. The first slice transports that handoff through JNI/Kotlin/Dart only; it does not execute Android `PackageInstaller` or change `installer.command`. ADR-0015 later binds product installation to the exact sealed runtime task and consumes that handoff through a foreground Android adapter.
 
 ### Provider and Manifest implications
 

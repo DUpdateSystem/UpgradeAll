@@ -37,6 +37,36 @@ class GetterBridgeRequestBuilderTest {
     }
 
     @Test
+    fun prepareInstallTaskRequestCarriesOnlyDataDirAndTaskId() {
+        val json = JSONObject(
+            GetterBridgeRequestBuilder.prepareInstallTaskRequest(
+                "/app/files/getter",
+                mapOf("task_id" to "task-7"),
+            ),
+        )
+
+        assertEquals(2, json.length())
+        assertEquals("/app/files/getter", json.getString("data_dir"))
+        assertEquals("task-7", json.getString("task_id"))
+    }
+
+    @Test
+    fun prepareInstallTaskRequestRejectsMissingOrUnknownFields() {
+        assertThrows(IllegalArgumentException::class.java) {
+            GetterBridgeRequestBuilder.prepareInstallTaskRequest("/getter", emptyMap<Any?, Any?>())
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            GetterBridgeRequestBuilder.prepareInstallTaskRequest(
+                "/getter",
+                mapOf(
+                    "task_id" to "task-7",
+                    "package_id" to "android/app/com.example.app",
+                ),
+            )
+        }
+    }
+
+    @Test
     fun readOperationRequestPreservesOperationAndPayload() {
         val json = JSONObject(
             GetterBridgeRequestBuilder.readOperationRequest(

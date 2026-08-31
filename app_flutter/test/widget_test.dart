@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:upgradeall/android_package_installer.dart';
 import 'package:upgradeall/getter_adapter.dart';
 import 'package:upgradeall/legacy_migration_platform.dart';
 import 'package:upgradeall/main.dart';
@@ -120,6 +121,147 @@ void main() {
     expect(find.text('Network access required'), findsOneWidget);
   });
 
+  testWidgets(
+    'app detail installs a waiting Getter task and refreshes inventory',
+    (tester) async {
+      final getter = _InstallFlowGetterAdapter();
+      final installer = _SequencedPackageInstaller(
+        <AndroidPackageInstallOutcome>[AndroidPackageInstallOutcome.succeeded],
+      );
+      await tester.pumpWidget(
+        UpgradeAllApp(getter: getter, packageInstaller: installer),
+      );
+
+      await tester.tap(find.byKey(AppKeys.openApps));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(AppKeys.appRow(_installPackageId)));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(AppKeys.checkPackageUpdate(_installPackageId)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(installer.calls, 1);
+      expect(getter.userResults, <RuntimeUserResult>[
+        RuntimeUserResult.accepted,
+      ]);
+      expect(find.text('Installed: 1.21.0'), findsOneWidget);
+      expect(find.text('Installation succeeded'), findsOneWidget);
+    },
+  );
+
+  testWidgets('app detail retries after authorization without a new task', (
+    tester,
+  ) async {
+    final getter = _InstallFlowGetterAdapter();
+    final installer = _SequencedPackageInstaller(<AndroidPackageInstallOutcome>[
+      AndroidPackageInstallOutcome.authorizationRequired,
+      AndroidPackageInstallOutcome.succeeded,
+    ]);
+    await tester.pumpWidget(
+      UpgradeAllApp(getter: getter, packageInstaller: installer),
+    );
+
+    await tester.tap(find.byKey(AppKeys.openApps));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.appRow(_installPackageId)));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.checkPackageUpdate(_installPackageId)));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(AppKeys.retryPackageInstall(_installPackageId)),
+      findsOneWidget,
+    );
+    expect(getter.submittedActions, 1);
+    expect(getter.userResults, isEmpty);
+
+    await tester.tap(
+      find.byKey(AppKeys.retryPackageInstall(_installPackageId)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(installer.calls, 2);
+    expect(getter.submittedActions, 1);
+    expect(getter.userResults, <RuntimeUserResult>[RuntimeUserResult.accepted]);
+    expect(find.text('Installation succeeded'), findsOneWidget);
+  });
+
+  testWidgets('app detail retries the same Getter task after cancellation', (
+    tester,
+  ) async {
+    final getter = _InstallFlowGetterAdapter();
+    final installer = _SequencedPackageInstaller(<AndroidPackageInstallOutcome>[
+      AndroidPackageInstallOutcome.aborted,
+      AndroidPackageInstallOutcome.succeeded,
+    ]);
+    await tester.pumpWidget(
+      UpgradeAllApp(getter: getter, packageInstaller: installer),
+    );
+
+    await tester.tap(find.byKey(AppKeys.openApps));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.appRow(_installPackageId)));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.checkPackageUpdate(_installPackageId)));
+    await tester.pumpAndSettle();
+
+    expect(getter.userResults, <RuntimeUserResult>[RuntimeUserResult.rejected]);
+    expect(find.text('Installation canceled or aborted'), findsOneWidget);
+
+    await tester.tap(
+      find.byKey(AppKeys.retryPackageInstall(_installPackageId)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(getter.runtimeRetries, 1);
+    expect(installer.calls, 2);
+    expect(getter.userResults, <RuntimeUserResult>[
+      RuntimeUserResult.rejected,
+      RuntimeUserResult.accepted,
+    ]);
+    expect(find.text('Installation succeeded'), findsOneWidget);
+  });
+
+  testWidgets(
+    'app detail retries the same Getter task after platform failure',
+    (tester) async {
+      final getter = _InstallFlowGetterAdapter();
+      final installer =
+          _SequencedPackageInstaller(<AndroidPackageInstallOutcome>[
+            AndroidPackageInstallOutcome.failed,
+            AndroidPackageInstallOutcome.succeeded,
+          ]);
+      await tester.pumpWidget(
+        UpgradeAllApp(getter: getter, packageInstaller: installer),
+      );
+
+      await tester.tap(find.byKey(AppKeys.openApps));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(AppKeys.appRow(_installPackageId)));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(AppKeys.checkPackageUpdate(_installPackageId)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Installation failed'), findsOneWidget);
+      expect(
+        find.byKey(AppKeys.retryPackageInstall(_installPackageId)),
+        findsOneWidget,
+      );
+
+      await tester.tap(
+        find.byKey(AppKeys.retryPackageInstall(_installPackageId)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(getter.runtimeRetries, 1);
+      expect(installer.calls, 2);
+      expect(find.text('Installation succeeded'), findsOneWidget);
+    },
+  );
+
   testWidgets('app detail submits getter-issued update action to runtime', (
     tester,
   ) async {
@@ -182,6 +324,98 @@ void main() {
     expect(find.byKey(AppKeys.repoRow('autogen')), findsOneWidget);
   });
 
+  testWidgets('downloads retries authorization on the same waiting task', (
+    tester,
+  ) async {
+    final getter = _InstallFlowGetterAdapter(startWaiting: true);
+    final installer = _SequencedPackageInstaller(<AndroidPackageInstallOutcome>[
+      AndroidPackageInstallOutcome.authorizationRequired,
+      AndroidPackageInstallOutcome.succeeded,
+    ]);
+    await tester.pumpWidget(
+      UpgradeAllApp(getter: getter, packageInstaller: installer),
+    );
+
+    await tester.tap(find.byKey(AppKeys.openDownloads));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.installRuntimeTask(_installTaskId)));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Install authorization required. Return and retry.'),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(AppKeys.installRuntimeTask(_installTaskId)),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(AppKeys.installRuntimeTask(_installTaskId)));
+    await tester.pumpAndSettle();
+
+    expect(installer.calls, 2);
+    expect(getter.runtimeRetries, 0);
+    expect(getter.userResults, <RuntimeUserResult>[RuntimeUserResult.accepted]);
+  });
+
+  testWidgets('downloads retries the same Getter task after cancellation', (
+    tester,
+  ) async {
+    final getter = _InstallFlowGetterAdapter(startWaiting: true);
+    final installer = _SequencedPackageInstaller(<AndroidPackageInstallOutcome>[
+      AndroidPackageInstallOutcome.aborted,
+      AndroidPackageInstallOutcome.succeeded,
+    ]);
+    await tester.pumpWidget(
+      UpgradeAllApp(getter: getter, packageInstaller: installer),
+    );
+
+    await tester.tap(find.byKey(AppKeys.openDownloads));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AppKeys.installRuntimeTask(_installTaskId)));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(AppKeys.retryRuntimeTask(_installTaskId)),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(AppKeys.retryRuntimeTask(_installTaskId)));
+    await tester.pumpAndSettle();
+
+    expect(getter.runtimeRetries, 1);
+    expect(installer.calls, 2);
+    expect(getter.userResults, <RuntimeUserResult>[
+      RuntimeUserResult.rejected,
+      RuntimeUserResult.accepted,
+    ]);
+  });
+
+  testWidgets('downloads installs only Getter waiting-install tasks', (
+    tester,
+  ) async {
+    final getter = _InstallFlowGetterAdapter(startWaiting: true);
+    final installer = _SequencedPackageInstaller(<AndroidPackageInstallOutcome>[
+      AndroidPackageInstallOutcome.succeeded,
+    ]);
+    await tester.pumpWidget(
+      UpgradeAllApp(getter: getter, packageInstaller: installer),
+    );
+
+    await tester.tap(find.byKey(AppKeys.openDownloads));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(AppKeys.installRuntimeTask(_installTaskId)),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(AppKeys.installRuntimeTask(_installTaskId)));
+    await tester.pumpAndSettle();
+
+    expect(installer.calls, 1);
+    expect(getter.userResults, <RuntimeUserResult>[RuntimeUserResult.accepted]);
+    expect(find.text('completed • completed'), findsOneWidget);
+  });
+
   testWidgets('downloads route renders runtime task snapshots read-only', (
     tester,
   ) async {
@@ -231,6 +465,10 @@ void main() {
     expect(
       find.text('completed • completed • app.apk (12 bytes)'),
       findsOneWidget,
+    );
+    expect(
+      find.byKey(AppKeys.installRuntimeTask('task-downloaded')),
+      findsNothing,
     );
   });
 
@@ -1239,4 +1477,192 @@ class _StartupFactsGetterAdapter extends FakeGetterAdapter {
       ),
     ],
   );
+}
+
+const _installPackageId = 'android/org.fdroid.fdroid';
+const _installTaskId = 'task-install';
+
+class _InstallFlowGetterAdapter extends FakeGetterAdapter {
+  _InstallFlowGetterAdapter({bool startWaiting = false})
+    : _task = startWaiting ? _installTask('waiting_user') : null;
+
+  RuntimeTaskSnapshot? _task;
+  bool _installed = false;
+  int submittedActions = 0;
+  int runtimeRetries = 0;
+  final userResults = <RuntimeUserResult>[];
+
+  @override
+  Future<GetterSnapshot> loadSnapshot() async {
+    return GetterSnapshot(
+      status: 'Getter refreshed',
+      updateCount: _installed ? 0 : 1,
+      repositories: const <RepositorySummary>[
+        RepositorySummary(id: 'official', priority: 0),
+      ],
+      apps: <AppSummary>[
+        AppSummary(
+          id: _installPackageId,
+          name: 'F-Droid',
+          installedVersion: _installed ? '1.21.0' : '1.20.0',
+          latestVersion: '1.21.0',
+          updateStatus: _installed ? 'up_to_date' : 'available',
+          repositoryId: 'official',
+          hasFreeNetworkWarning: false,
+        ),
+      ],
+    );
+  }
+
+  @override
+  Future<RuntimeUpdateCheckResult> checkPackageForUpdate(
+    String packageId, {
+    String? repositoryId,
+    String? installedVersion,
+    String? pinVersion,
+  }) async {
+    return RuntimeUpdateCheckResult.fromJson(<String, Object?>{
+      'package': <String, Object?>{
+        'id': packageId,
+        'name': 'F-Droid',
+        'repository': repositoryId ?? 'official',
+      },
+      'update': <String, Object?>{
+        'package_id': packageId,
+        'status': 'update_available',
+        'installed_version': installedVersion,
+        'effective_local_version': installedVersion,
+        'selected': <String, Object?>{
+          'candidate': <String, Object?>{'version': '1.21.0'},
+        },
+        'actions': <Object?>[
+          <String, Object?>{'type': 'download'},
+        ],
+      },
+      'action': <String, Object?>{
+        'action_id': 'action-install',
+        'package_id': packageId,
+      },
+    });
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> submitRuntimeAction(String actionId) async {
+    submittedActions += 1;
+    _task = _installTask('waiting_user');
+    return _task!;
+  }
+
+  @override
+  Future<List<RuntimeTaskSnapshot>> listRuntimeTasks({
+    bool active = false,
+    String? packageId,
+  }) async {
+    return _task == null
+        ? const <RuntimeTaskSnapshot>[]
+        : <RuntimeTaskSnapshot>[_task!];
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> getRuntimeTask(String taskId) async => _task!;
+
+  @override
+  Future<PlatformInstallHandoff> prepareInstallTask(String taskId) async {
+    if (taskId != _installTaskId) {
+      throw StateError('unexpected runtime task: $taskId');
+    }
+    return const PlatformInstallHandoff(
+      kind: PlatformInstallKind.androidApk,
+      taskId: _installTaskId,
+      packageId: _installPackageId,
+      repositoryId: 'official',
+      target: AndroidInstallTarget(packageName: 'org.fdroid.fdroid'),
+      packageVersion: '1.21.0',
+      artifact: PlatformInstallArtifact(
+        name: 'F-Droid.apk',
+        path: '/getter/downloads/F-Droid.apk',
+        sha256:
+            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        status: 'downloaded',
+      ),
+    );
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> sendRuntimeUserResult(
+    String taskId,
+    RuntimeUserResult result, {
+    String? reason,
+  }) async {
+    userResults.add(result);
+    _installed = result == RuntimeUserResult.accepted;
+    _task = _installTask(_installed ? 'completed' : 'failed');
+    return _task!;
+  }
+
+  @override
+  Future<RuntimeTaskSnapshot> retryRuntimeTask(String taskId) async {
+    runtimeRetries += 1;
+    _task = _installTask('waiting_user');
+    return _task!;
+  }
+}
+
+class _SequencedPackageInstaller implements AndroidPackageInstaller {
+  _SequencedPackageInstaller(this._outcomes);
+
+  final List<AndroidPackageInstallOutcome> _outcomes;
+  int calls = 0;
+
+  @override
+  Future<AndroidPackageInstallResult> install(
+    PlatformInstallHandoff handoff,
+  ) async {
+    final outcome = _outcomes[calls];
+    calls += 1;
+    return AndroidPackageInstallResult(
+      outcome: outcome,
+      sessionId: outcome == AndroidPackageInstallOutcome.authorizationRequired
+          ? null
+          : calls,
+      statusCode: switch (outcome) {
+        AndroidPackageInstallOutcome.succeeded => 0,
+        AndroidPackageInstallOutcome.aborted => 3,
+        AndroidPackageInstallOutcome.failed => 1,
+        AndroidPackageInstallOutcome.authorizationRequired => null,
+      },
+    );
+  }
+}
+
+RuntimeTaskSnapshot _installTask(String state) {
+  final waitingForInstall = state == 'waiting_user';
+  return RuntimeTaskSnapshot.fromJson(<String, Object?>{
+    'task_id': _installTaskId,
+    'package_id': _installPackageId,
+    'status': waitingForInstall ? 'running' : state,
+    'phase': <String, Object?>{
+      'category': waitingForInstall ? 'waiting_user' : state,
+      if (waitingForInstall) 'reason': 'install_handoff',
+      if (state == 'failed') 'reason': 'user_rejected',
+    },
+    'progress': null,
+    'capabilities': <String, Object?>{
+      'cancel': waitingForInstall,
+      'pause': false,
+      'resume': false,
+      'retry': state == 'failed',
+    },
+    'current_diagnostic': null,
+    'downloaded_file': waitingForInstall
+        ? <String, Object?>{
+            'file_name': 'F-Droid.apk',
+            'local_path': '/getter/downloads/F-Droid.apk',
+            'size_bytes': 12,
+            'sha256':
+                'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          }
+        : null,
+    'updated_at': 1,
+  });
 }

@@ -14,6 +14,16 @@ object GetterBridgeRequestBuilder {
             .toString()
     }
 
+    fun prepareInstallTaskRequest(dataDir: String, args: Map<*, *>): String {
+        requireOnlyKeys(args, setOf("task_id"))
+        val taskId = args["task_id"] as? String
+        require(!taskId.isNullOrBlank()) { "task_id must be a non-empty string" }
+        return JSONObject()
+            .put("data_dir", dataDir)
+            .put("task_id", taskId)
+            .toString()
+    }
+
     fun startupRequest(dataDir: String, args: Map<*, *>): String {
         val scanOptions = args["scan_options"] as? Map<*, *> ?: emptyMap<Any?, Any?>()
         return JSONObject()

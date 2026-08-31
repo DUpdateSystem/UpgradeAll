@@ -44,6 +44,21 @@ class MethodChannelGetterAdapter extends FakeGetterAdapter {
   }
 
   @override
+  Future<PlatformInstallHandoff> prepareInstallTask(String taskId) async {
+    final data = await _invokeGetterData(
+      'prepareInstallTask',
+      <String, Object?>{'task_id': taskId},
+    );
+    final handoff = PlatformInstallHandoff.fromJson(data);
+    if (handoff.taskId != taskId) {
+      throw FormatException(
+        'platform_install.task_id does not match requested runtime task "$taskId"',
+      );
+    }
+    return handoff;
+  }
+
+  @override
   void initialize() {
     // The installed-autogen bridge initializes lazily when preview is called.
   }

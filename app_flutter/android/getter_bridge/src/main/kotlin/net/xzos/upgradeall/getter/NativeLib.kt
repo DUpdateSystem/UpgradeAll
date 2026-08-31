@@ -27,6 +27,7 @@ class NativeLib {
     external fun startup(context: Context, requestJson: String): String
     external fun readOperation(requestJson: String): String
     external fun prepareInstall(requestJson: String): String
+    external fun prepareInstallTask(requestJson: String): String
     external fun runtimeOperation(requestJson: String): String
     external fun drainRuntimeNotifications(): String
 

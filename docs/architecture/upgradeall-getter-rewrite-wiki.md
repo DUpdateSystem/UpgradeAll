@@ -200,7 +200,7 @@ Flutter APP
 Rust getter core + native bridge
   - Rust-active platform adapter interface
   - Android PackageManager inventory calls through platform adapter
-  - Getter-owned prepare-only Android APK installer handoff
+  - Getter-owned sealed runtime-task Android APK installer handoff
   - notification adapter handoff
   - SAF/file picker/URI permission handoff
   - app/package model
@@ -242,7 +242,7 @@ Rust getter core + native bridge
 
 - Android PackageManager installed app scanning exposed as raw facts through the Rust-active platform adapter (ADR-0009)。
 - Android installed version lookup。
-- APK install / package installer / Shizuku/root installer；在 ADR-0014 的首个 prepare-only slice 中尚不执行这些能力，JNI/Kotlin/Dart 只传输 Getter 已验证的 typed handoff。
+- Foreground Android single-base-APK installation through `PackageInstaller` (ADR-0015); Kotlin consumes the task-scoped Getter handoff's target and staged artifact without re-deriving package policy. App detail and Downloads share one coordinator for the exact waiting Getter runtime task. Split APK, silent, root, and Shizuku installers remain excluded.
 - Android permission request。
 - Notification / foreground service integration。
 - SAF/file picker/URI permission。
@@ -1168,7 +1168,7 @@ getter --data-dir <path> app install <package-id>
 
 `app download` 主动选择 Getter 允许的最新候选，将候选的全部 artifacts 按包级 `Manifest` 校验并暂存；已存在最终暂存文件时直接复用。`app install` 先执行相同暂存，再解析版本 Lua 中的结构化 installer argv，显示最终命令并直接 exec，不经过 shell。找不到命令或命令执行失败时保留已暂存文件并返回稳定 installer 错误。产品 CLI 不接受 endpoint、provider payload、fixture、transport、cache mode、artifact URL/输出路径或 installer argv 等控制字段。现有 `installer.command` 行为不变。
 
-Android APK package 可以声明 `installer.android_apk { artifact = installer.artifact("app.apk") }`，对应 JSON 为 `{ "kind": "android_apk", "artifact": { "artifact": "app.apk" } }`。Getter 仍负责 refresh/selection、Manifest staging/integrity、唯一 Android target 和单个 `.apk` 引用校验，并返回 versioned prepare-only handoff。首个 slice 只经 JNI/Kotlin/Dart 传输；不包含 `PackageInstaller` execution、UI、persistence、split APK、FileProvider/content URI、completion/results、`core-installer` 或 device tests。
+Android APK package 可以声明 `installer.android_apk { artifact = installer.artifact("app.apk") }`，对应 JSON 为 `{ "kind": "android_apk", "artifact": { "artifact": "app.apk" } }`。Getter 在签发 registered-package action 时封存 repository、selected version、Android target、artifact name/filename 与 Manifest SHA-256；runtime task 同时拥有该 sealed plan 和 `downloaded_file`。App detail 与 Downloads 只把 exact task id 交给同一个 coordinator；strict task prepare 仅接受 `running / waiting_user / install_handoff`，核对 task-owned path、filename、size、recorded/current digest，不重新解析 repository、不重选 candidate、不二次下载，并返回含同一 `task_id` 的 typed handoff。Android adapter 只消费 target package 与 staged APK，通过 foreground `PackageInstaller` session 完成 unknown-source authorization、framework confirmation 和 terminal callback；terminal result 回报同一 Getter task 后刷新 installed inventory。取消/失败使同一 task 可 retry，authorization 保持 waiting。仍不支持 persistence、split APK、FileProvider/content URI、silent/root/Shizuku install 或 `core-installer`。
 
 CLI 是验证 getter core 独立性的关键：
 
