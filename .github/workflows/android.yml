@@ -59,13 +59,17 @@ jobs:
 
       # Split due https://github.com/mozilla/rust-android-gradle/issues/38
       - name: Build with Gradle (debug)
-        run: ./gradlew -PappVerName=${{ env.VERSION }} assembleDebug
+        run: |
+          trap '' 36
+          ./gradlew -PappVerName=${{ env.VERSION }} assembleDebug
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
 
       - name: Build with Gradle (release)
         if: ${{ !github.event.pull_request }}
-        run: ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease
+        run: |
+          trap '' 36
+          ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
 
