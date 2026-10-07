@@ -1,0 +1,70 @@
+name: Android x86_64 Cross-Compile
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+        fetch-depth: 0
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Set up Android SDK & NDK
+      uses: android-actions/setup-android@v3
+
+    - name: Install Android NDK Component
+      run: |
+        sdkmanager --install "ndk;29.0.14206865"
+        echo "ANDROID_NDK_HOME=${ANDROID_HOME}/ndk/29.0.14206865" >> $GITHUB_ENV
+
+    - name: Install Rust Toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: x86_64-linux-android aarch64-linux-android armv7-linux-androideabi
+
+    - name: Install cargo-ndk
+      run: cargo install cargo-ndk
+
+    - name: Install cargo-ndk for ARM64
+      run: cargo install cargo-ndk
+
+    - name: Build Release (x86_64)
+      run: |
+        export CMAKE_TOOLCHAIN_FILE="${{ env.ANDROID_NDK_HOME }}/build/cmake/android.toolchain.cmake"
+        export CMAKE_TRY_COMPILE_TARGET_TYPE="STATIC_LIBRARY"
+        cargo ndk --target x86_64-linux-android --api 26 -- cargo build --release -p api_proxy
+
+    - name: Build Release (ARM64)
+      run: |
+        export CMAKE_TOOLCHAIN_FILE="${{ env.ANDROID_NDK_HOME }}/build/cmake/android.toolchain.cmake"
+        export CMAKE_TRY_COMPILE_TARGET_TYPE="STATIC_LIBRARY"
+        cargo ndk --target aarch64-linux-android --api 26 -- cargo build --release -p api_proxy
+
+    - name: Build Release (ARMv7)
+      run: |
+        export CMAKE_TOOLCHAIN_FILE="${{ env.ANDROID_NDK_HOME }}/build/cmake/android.toolchain.cmake"
+        export CMAKE_TRY_COMPILE_TARGET_TYPE="STATIC_LIBRARY"
+        cargo ndk --target armv7-linux-androideabi --api 26 -- cargo build --release -p api_proxy
+
+    - name: Upload Rust Libraries
+      uses: actions/upload-artifact@v4
+      with:
+        name: rust-jniLibs
+        path: |
+          core-getter/src/main/rust/api_proxy/target/*/release/libapi_proxy.so
+        retention-days: 7

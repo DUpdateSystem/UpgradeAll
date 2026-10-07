@@ -113,6 +113,18 @@ If you are familier with multiple languages, please help us introduce the App to
 You can help us translate this project on [Weblate](https://hosted.weblate.org/projects/upgradeall/).
 
 
+## 👤 Maintainer
+
+**DUpdateSystem** — Creator & Lead Maintainer
+
+- GitHub: [@DUpdateSystem](https://github.com/DUpdateSystem)
+- Email: xiangzhedev@gmail.com
+- Telegram: [@DUpdateSystem](https://t.me/DUpdateSystem)
+
+*This project is maintained by a solo developer. If you find UpgradeAll useful, please consider [sponsoring](https://github.com/sponsors/DUpdateSystem) to support continued development.*
+
+---
+
 ## 📖 License
 Use of this software code is **subject to the following license agreement**:  
 [GNU General Public License v3.0](https://github.com/DUpdateSystem/UpgradeAll/blob/master/LICENSE)

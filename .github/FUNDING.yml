@@ -1,0 +1,9 @@
+# GitHub Sponsors funding configuration
+# These usernames will be shown in the "Sponsor this project" section
+
+github: [DUpdateSystem]
+patreon: DUpdateSystem
+open_collective: DUpdateSystem
+ko_fi: DUpdateSystem
+liberapay: DUpdateSystem
+custom: ["https://github.com/sponsors/DUpdateSystem"]
