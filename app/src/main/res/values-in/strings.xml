@@ -69,7 +69,7 @@
     <string name="clean_log">Bersihkan Log</string>
     <string name="background_image">Gambar Latarbelakang</string>
     <string name="apps_logo">Ikon Aplikasi</string>
-    <string name="nothing_in_there">Tidak ada apapun disini. (&gt;﹏&lt;)</string>
+    <string name="nothing_in_there"><![CDATA[Tidak ada apapun disini. (>﹏<)]]></string>
     <string name="auto_update_hub_config">Otomatis Perbarui Konfigurasi Pusat</string>
     <string name="add_apps">Tambah Aplikasi</string>
     <string name="please_grant_storage_perm">Mohon beri perizinan untuk baca dan tulis penyimpanan</string>
