@@ -46,7 +46,7 @@
     <string name="clean_log">Log bereinigen</string>
     <string name="background_image">Hintergrundbild</string>
     <string name="apps_logo">Anwendungs Logo</string>
-    <string name="nothing_in_there">Hier gibt es nichts. (&gt;_&lt;)</string>
+    <string name="nothing_in_there"><![CDATA[Hier gibt es nichts. (>_<)]]></string>
     <string name="please_grant_storage_perm">Bitte erteilen Sie dieser Software die Berechtigung zum Lesen und Schreiben von Speicherplatz</string>
     <string name="add_apps">App hinzufügen</string>
     <string name="auto_update_hub_config">Hub-Konfiguration automatisch aktualisieren</string>
