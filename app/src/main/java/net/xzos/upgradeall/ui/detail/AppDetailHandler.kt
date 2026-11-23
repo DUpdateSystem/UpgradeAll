@@ -11,9 +11,9 @@ class AppDetailHandler(
     private val supportFragmentManager: FragmentManager,
 ) {
     fun clickDownload() {
-        DownloadListDialog(
-            viewModel.currentVersion?.getAssetList() ?: return, viewModel
-        ).show(supportFragmentManager)
+        DownloadListDialog.show(
+            supportFragmentManager, viewModel.currentVersion?.getAssetList() ?: return, viewModel
+        )
     }
 
     fun showMoreURL(urlList: Set<String>, view: View) {
