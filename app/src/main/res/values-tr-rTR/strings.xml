@@ -47,7 +47,7 @@
     <string name="clean_log">Kaydı temizle</string>
     <string name="background_image">Arkaplan resmi</string>
     <string name="apps_logo">Uygulama simgesi</string>
-    <string name="nothing_in_there">Burada hiçbir şey yok (&gt;﹏&lt;)</string>
+    <string name="nothing_in_there"><![CDATA[Burada hiçbir şey yok (>﹏<)]]></string>
     <string name="please_grant_storage_perm">Lütfen bu yazılıma depolama alanı okuma ve yazma izni verin</string>
     <string name="add_apps">Uygulamalar ekle</string>
     <string name="auto_update_hub_config">Otomatik Güncelleme Hub Yapılandırması</string>
