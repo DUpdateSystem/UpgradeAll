@@ -47,7 +47,7 @@
     <string name="clean_log">Limpar Registros</string>
     <string name="background_image">Imagem de fundo</string>
     <string name="apps_logo">Logotipo do aplicativo</string>
-    <string name="nothing_in_there">Não há nada aqui.(&gt;﹏&lt;)</string>
+    <string name="nothing_in_there"><![CDATA[Não há nada aqui.(>﹏<)]]></string>
     <string name="please_grant_storage_perm">Por favor, dê a este software permissão de espaço de armazenamento de leitura e gravação</string>
     <string name="add_apps">Adicionar Aplicativo</string>
     <string name="auto_update_hub_config">Configuração do hub de atualização automática</string>
