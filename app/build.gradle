@@ -16,12 +16,12 @@ if (!project.hasProperty('free')) {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId "net.xzos.upgradeall"
         minSdk = 23
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 106
         versionName = "0.20.0"
         if (project.hasProperty('appVerName')) {
