@@ -61,9 +61,7 @@ jobs:
           targets: aarch64-linux-android
 
       - name: Add Rust target architectures
-        run: |
-          rustup target add x86_64-linux-android
-          rustup target add armv7-linux-androideabi
+        run: rustup target add i686-linux-android x86_64-linux-android armv7-linux-androideabi
 
       - name: Retrieve version
         run: echo "VERSION=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"

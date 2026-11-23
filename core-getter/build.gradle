@@ -39,7 +39,7 @@ androidRust {
 
     module("api_proxy") { moduleConfig ->
         moduleConfig.path = file("./src/main/rust/api_proxy")
-        moduleConfig.targets = ["x86_64", "arm", "arm64"]
+        moduleConfig.targets = ["x86", "x86_64", "arm", "arm64"]
 
         moduleConfig.buildType("debug") {
             it.profile = "dev"
