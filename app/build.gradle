@@ -22,8 +22,8 @@ android {
         applicationId "net.xzos.upgradeall"
         minSdk = 23
         targetSdk = 36
-        versionCode = 105
-        versionName = "0.20-alpha.4"
+        versionCode = 106
+        versionName = "0.20.0"
         if (project.hasProperty('appVerName')) {
             versionName = "${versionName}_${appVerName}"
         }
@@ -90,10 +90,7 @@ android {
 androidComponents {
     onVariants(selector().all()) { variant ->
         variant.outputs.forEach { output ->
-            def appVersion = android.defaultConfig.versionName
-            if (project.hasProperty('appVerName')) {
-                appVersion = "${appVersion}_${project.property('appVerName')}"
-            }
+            def appVersion = output.versionName.get()
             if (variant.buildType == 'release') {
                 output.outputFileName.set("UpgradeAll_${appVersion}.apk")
             } else if (variant.buildType == 'debug') {
