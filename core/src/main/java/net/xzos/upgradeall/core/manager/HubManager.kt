@@ -21,11 +21,10 @@ object HubManager {
         val hubDao = metaDatabase.hubDao()
         try {
             hubDao.insert(hubDatabase)
-            hubMap[hubDatabase.uuid] = Hub(hubDatabase)
-            // TODO: 错误类型判断，并给出 false 返回值
         } catch (ignore: SQLiteConstraintException) {
             hubDao.update(hubDatabase)
         }
+        hubMap[hubDatabase.uuid] = Hub(hubDatabase)
         return true
     }
 

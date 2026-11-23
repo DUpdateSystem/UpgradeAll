@@ -172,10 +172,10 @@ object AppManager : Informer<UpdateStatus, App>() {
         return try {
             if (appEntity.isInit()) {
                 appDao.update(appEntity)
+                appEntity
             } else {
-                appDao.insert(appEntity)
+                appEntity.copy(id = appDao.insert(appEntity))
             }
-            appEntity
             // TODO: 错误类型判断，并给出 null 返回值
         } catch (ignore: SQLiteConstraintException) {
             null
@@ -190,10 +190,10 @@ object AppManager : Informer<UpdateStatus, App>() {
             } else {
                 UpdateStatus.APP_ADDED_NOTIFY
             }
-        val app =
-            oldApp ?: App(appDatabase).apply {
-                allAppList.add(this)
-            }
+        val app = if (oldApp?.db == appDatabase) oldApp else {
+            if (oldApp != null) allAppList.remove(oldApp)
+            App(appDatabase).also { allAppList.add(it) }
+        }
         renewApp(app)
         notifyChanged(changedTag, app)
         return app
