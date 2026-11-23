@@ -47,7 +47,7 @@
     <string name="clean_log">清空日志</string>
     <string name="background_image">背景图片</string>
     <string name="apps_logo">软件图标</string>
-    <string name="nothing_in_there"><![CDATA[Here\'s nothing. (>﹏<)]]></string>
+    <string name="nothing_in_there"><![CDATA[这里啥也没有。 (&gt;﹏&lt;)]]></string>
     <string name="please_grant_storage_perm">请授予存储读写权限</string>
     <string name="add_apps">添加应用</string>
     <string name="auto_update_hub_config">自动更新软件源配置</string>
@@ -206,4 +206,10 @@
 \n值为 0 时禁用（仅限调试）。</string>
     <string name="open_browser_failed">无法打开浏览器；原因未知</string>
     <string name="data_expiration_time">数据缓存过期时间（分钟）</string>
+    <string name="hub_settings">Hub 设置</string>
+    <string name="authentication">身份认证</string>
+    <string name="auth_key_hint">密钥</string>
+    <string name="auth_value_hint">值</string>
+    <string name="add">添加</string>
+    <string name="save">保存</string>
 </resources>
