@@ -58,7 +58,7 @@ suspend fun runGetterService(
     onManagerEvent: ((event: com.google.gson.JsonObject) -> Unit)? = null,
 ) {
     runGetterServer(context, getterPort)
-    getterPort.init()
+    check(getterPort.init()) { "Could not initialize the getter" }
 
     // Start Kotlin Hub RPC Server and register Kotlin hubs as OutsideProviders in the Rust getter
     val okhttpProxy = OkhttpProxy()

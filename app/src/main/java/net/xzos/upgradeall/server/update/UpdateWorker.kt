@@ -9,6 +9,7 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.xzos.upgradeall.core.awaitGetterReady
 import net.xzos.upgradeall.core.manager.AppManager
 import net.xzos.upgradeall.core.websdk.getterPort
 
@@ -53,12 +54,13 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) :
         }
 
         suspend fun doUpdateWork(updateNotification: UpdateNotification) {
-            // Wait for GetterService to be ready before calling RPC.
-            // getterPort.waitService() polls until the WebSocket connection is established.
-            getterPort.waitService()
+            awaitGetterReady()
             AppManager.setRenewProgressFun(updateNotification.renewStatusFun)
-            getterPort.getService().managerRenewAll()
-            AppManager.setRenewProgressFun(null)
+            try {
+                getterPort.getService().managerRenewAll()
+            } finally {
+                AppManager.setRenewProgressFun(null)
+            }
         }
 
         fun finishNotify(updateNotification: UpdateNotification) {
