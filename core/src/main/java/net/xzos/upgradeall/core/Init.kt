@@ -2,11 +2,11 @@ package net.xzos.upgradeall.core
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
 import net.xzos.upgradeall.core.data.CoreConfig
 import net.xzos.upgradeall.core.database.initDatabase
 import net.xzos.upgradeall.core.database.migration.migrateRoomToRust
@@ -21,24 +21,35 @@ import net.xzos.upgradeall.core.websdk.runGetterService
 @SuppressLint("StaticFieldLeak")
 lateinit var coreConfig: CoreConfig
 
+@Volatile private var getterStartup: Deferred<Unit>? = null
+private val getterScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+suspend fun awaitGetterReady() {
+    checkNotNull(getterStartup) { "Core has not been configured" }.await()
+}
+
 /**
  * 初始化 Core 的配置，也用作用户修改设置后传入新的设置
  * @param context Core 初始化时用的 Context
  * @param _coreConfig Core 运行的核心设置
  */
+@Synchronized
 fun initCore(
     context: Context,
     _coreConfig: CoreConfig,
 ) {
     coreConfig = _coreConfig
     initSdkCache(CacheConfig(_coreConfig.data_expiration_time, _coreConfig.cache_dir))
+    renewSdkApi(_coreConfig.update_server_url)
+    if (getterStartup != null) return
+
     initRustSdkApi(
         _coreConfig.rust_data_dir,
         _coreConfig.rust_cache_dir,
         _coreConfig.data_expiration_time.toLong(),
     )
     initObject(context)
-    CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+    getterStartup = getterScope.async {
         runGetterService(
             context,
             onManagerEvent = { event ->
@@ -62,7 +73,6 @@ fun initCore(
         // so the getter port is safe to use here.
         migrateRoomToRust(_coreConfig.rust_data_dir)
     }
-    renewSdkApi(_coreConfig.update_server_url)
 }
 
 /**

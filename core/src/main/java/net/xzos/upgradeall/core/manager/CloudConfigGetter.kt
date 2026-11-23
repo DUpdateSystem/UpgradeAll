@@ -1,7 +1,9 @@
 package net.xzos.upgradeall.core.manager
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.xzos.upgradeall.core.awaitGetterReady
 import net.xzos.upgradeall.core.coreConfig
 import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.log.Log
@@ -9,6 +11,7 @@ import net.xzos.upgradeall.core.utils.log.ObjectTag
 import net.xzos.upgradeall.core.utils.log.ObjectTag.Companion.core
 import net.xzos.upgradeall.core.websdk.getterPort
 import net.xzos.upgradeall.getter.rpc.AppConfig
+import net.xzos.upgradeall.getter.rpc.GetterService
 import net.xzos.upgradeall.getter.rpc.HubConfig
 
 /**
@@ -39,7 +42,10 @@ object CloudConfigGetter {
             else custom
         }
 
-    private fun service() = getterPort.getService()
+    private suspend fun service(): GetterService {
+        awaitGetterReady()
+        return getterPort.getService()
+    }
 
     // =========================================================================
     // Public API (mirrors the old CloudConfigGetter interface)
@@ -58,6 +64,8 @@ object CloudConfigGetter {
                 cachedAppList = service().cloudConfigGetAppList()
                 cachedHubList = service().cloudConfigGetHubList()
                 Log.d(logObjectTag, TAG, "renew: ${cachedAppList.size} apps, ${cachedHubList.size} hubs")
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(logObjectTag, TAG, "renew failed: $e")
             }
@@ -142,7 +150,11 @@ object CloudConfigGetter {
     /** Bulk-update all installed apps and hubs whose cloud config version has increased. */
     suspend fun renewAllFromCloud() {
         try {
-            service().cloudConfigRenewAll()
+            val service = service()
+            service.cloudConfigInit(apiUrl)
+            if (service.cloudConfigRenewAll()) Log.d(logObjectTag, TAG, "Cloud config refresh finished")
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(logObjectTag, TAG, "renewAllFromCloud failed: $e")
         }

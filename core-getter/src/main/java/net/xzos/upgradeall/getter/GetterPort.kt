@@ -1,7 +1,7 @@
 package net.xzos.upgradeall.getter
 
 import android.content.Context
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -17,22 +17,27 @@ import net.xzos.upgradeall.websdk.data.json.ReleaseGson
 class GetterPort(
     private val config: RustConfig,
 ) {
-    private lateinit var service: GetterService
+    @Volatile private lateinit var service: GetterService
+    private val serviceStarted = CompletableDeferred<Unit>()
 
     private val mutex = Mutex()
     private var isInit = false
 
     fun runService(context: Context) {
-        NativeLib()
-            .runServerLambda(context) { url ->
-                service = getClient(url)
-            }.also {
-                if (it.isEmpty()) {
-                    Log.d(logObjectTag, TAG, "runService: success")
-                } else {
-                    Log.e(logObjectTag, TAG, "runService error: $it")
+        // The JNI call returns at server shutdown, not when the socket is ready.
+        Thread({
+            try {
+                val failure = NativeLib().runServerLambda(context) { url ->
+                    service = getClient(url)
+                    serviceStarted.complete(Unit)
                 }
+                check(failure.isEmpty()) { failure }
+                check(serviceStarted.isCompleted) { "Getter stopped before startup" }
+            } catch (e: Throwable) {
+                serviceStarted.completeExceptionally(e)
+                Log.e(logObjectTag, TAG, "runService failed: $e")
             }
+        }, "UpgradeAll getter").start()
     }
 
     private fun isServiceRunning(): Boolean = ::service.isInitialized
@@ -48,11 +53,7 @@ class GetterPort(
     }
 
     suspend fun waitService(): Boolean {
-        while (true) {
-            if (isServiceRunning()) break
-            Log.d(logObjectTag, TAG, "waitService: not ready, retrying...")
-            delay(1000L)
-        }
+        serviceStarted.await()
         return true
     }
 
