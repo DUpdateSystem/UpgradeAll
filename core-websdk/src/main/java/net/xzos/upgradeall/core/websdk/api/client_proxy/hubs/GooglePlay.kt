@@ -127,11 +127,13 @@ class GooglePlay(
                     EMAIL_AUTH to hub.auth[EMAIL_AUTH], TOKEN_AUTH to hub.auth[TOKEN_AUTH]
                 )
             }
-        } ?: getAuthJsonFromWeb(hub.other[AUTH_SERVER] ?: "https://auroraoss.com/api/auth")
+        } ?: (hub.auth[AUTH_SERVER] ?: hub.other[AUTH_SERVER])
+            ?.takeIf(String::isNotBlank)
+            ?.let(::getAuthJsonFromWeb)
     }
 
     private fun getAuthJsonFromWeb(url: String): Map<String, String>? {
-        return dataCache.get(mutex, SaveMode.DISK_ONLY, "AuroraOSS_auth", StringEncoder) {
+        return dataCache.get(mutex, SaveMode.DISK_ONLY, "GooglePlay_auth_${url.hashCode()}", StringEncoder) {
             okhttpProxy.okhttpExecute(HttpRequestData(url))?.body?.string()
         }?.let {
             return@let Gson().fromJson(it, object : TypeToken<Map<String, String>?>() {}.type)
@@ -143,7 +145,6 @@ class GooglePlay(
     ): AuthData? {
         val email = authJson["email"] ?: return null
         val auth = authJson["auth"] ?: return null
-        Log.i(logObjectTag, TAG, "getAuthData: email: $email")
         val properties = DeviceManager.loadProperties("$deviceName.properties") ?: return null
         val locale = getLocale()
         Log.i(logObjectTag, TAG, "getAuthData: locale: $locale")
