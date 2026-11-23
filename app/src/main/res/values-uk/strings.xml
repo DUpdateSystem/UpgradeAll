@@ -37,7 +37,7 @@
     <string name="clean_log">Очистити журнали</string>
     <string name="background_image">Фонове зображення</string>
     <string name="apps_logo">Значок додатка</string>
-    <string name="nothing_in_there">Тут нічого нема. (&gt;﹏&lt;)</string>
+    <string name="nothing_in_there"><![CDATA[Тут нічого нема. (>﹏<)]]></string>
     <string name="add_apps">Додати додаток</string>
     <string name="name">Назва</string>
     <string name="auto_start_update">Автоматичне оновлення даних при відкритті</string>
