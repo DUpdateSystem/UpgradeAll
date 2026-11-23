@@ -1,10 +1,15 @@
 package net.xzos.upgradeall.core.manager
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import net.xzos.upgradeall.core.awaitGetterReady
 import net.xzos.upgradeall.core.coreConfig
+import net.xzos.upgradeall.core.database.metaDatabase
+import net.xzos.upgradeall.core.database.table.AppEntity
+import net.xzos.upgradeall.core.database.table.HubEntity
 import net.xzos.upgradeall.core.utils.AutoTemplate
 import net.xzos.upgradeall.core.utils.log.Log
 import net.xzos.upgradeall.core.utils.log.ObjectTag
@@ -13,6 +18,8 @@ import net.xzos.upgradeall.core.websdk.getterPort
 import net.xzos.upgradeall.getter.rpc.AppConfig
 import net.xzos.upgradeall.getter.rpc.GetterService
 import net.xzos.upgradeall.getter.rpc.HubConfig
+import net.xzos.upgradeall.websdk.data.json.AppConfigGson
+import net.xzos.upgradeall.websdk.data.json.HubConfigGson
 
 /**
  * Cloud config manager — now a thin RPC proxy over the Rust CloudConfigGetter.
@@ -89,14 +96,14 @@ object CloudConfigGetter {
         hubUuid: String?,
         notifyFun: (GetStatus) -> Unit,
     ): Boolean {
-        if (hubUuid == null) {
+        val config = getHubCloudConfig(hubUuid)
+        if (config == null) {
             notifyFun(GetStatus.FAILED_GET_HUB_DATA)
-            notifyFun(GetStatus.FAILED)
             return false
         }
         return try {
             notifyFun(GetStatus.SUCCESS_GET_HUB_DATA)
-            val ok = service().cloudConfigApplyHub(hubUuid)
+            val ok = service().cloudConfigApplyHub(config.uuid) && saveLegacyHub(config)
             if (ok) {
                 notifyFun(GetStatus.SUCCESS_SAVE_HUB_DATA)
                 notifyFun(GetStatus.SUCCESS)
@@ -107,6 +114,8 @@ object CloudConfigGetter {
                 notifyFun(GetStatus.FAILED)
             }
             ok
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(logObjectTag, TAG, "downloadCloudHubConfig failed: $e")
             notifyFun(GetStatus.FAILED_GET_HUB_DATA)
@@ -123,14 +132,18 @@ object CloudConfigGetter {
         appUuid: String?,
         notifyFun: (GetStatus) -> Unit,
     ): Boolean {
-        if (appUuid == null) {
+        val config = getAppCloudConfig(appUuid)
+        val appId = config?.getAppId()
+        val hub = config?.let { getHubCloudConfig(it.baseHubUuid) }
+        if (config == null || appId.isNullOrEmpty() || hub == null) {
             notifyFun(GetStatus.FAILED_GET_APP_DATA)
-            notifyFun(GetStatus.FAILED)
             return false
         }
         return try {
             notifyFun(GetStatus.SUCCESS_GET_APP_DATA)
-            val ok = service().cloudConfigApplyApp(appUuid)
+            val ok = service().cloudConfigApplyApp(config.uuid) && withContext(Dispatchers.IO) {
+                saveLegacyHub(hub) && saveLegacyApp(config, appId)
+            }
             if (ok) {
                 notifyFun(GetStatus.SUCCESS_SAVE_APP_DATA)
                 notifyFun(GetStatus.SUCCESS)
@@ -139,12 +152,37 @@ object CloudConfigGetter {
                 notifyFun(GetStatus.FAILED)
             }
             ok
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(logObjectTag, TAG, "downloadCloudAppConfig failed: $e")
             notifyFun(GetStatus.FAILED_GET_APP_DATA)
             notifyFun(GetStatus.FAILED)
             false
         }
+    }
+
+    // The legacy UI still reads Room even though the getter also stores rules in Rust.
+    private suspend fun saveLegacyHub(config: HubConfig): Boolean {
+        val persisted = metaDatabase.hubDao().loadByUuid(config.uuid)
+        val legacy = HubConfigGson(
+            config.baseVersion, config.configVersion, config.uuid,
+            HubConfigGson.InfoBean(config.info.hubName, config.info.hubIconUrl),
+            config.apiKeywords, config.authKeywords, config.appUrlTemplates, config.targetCheckApi,
+        )
+        return HubManager.updateHub(persisted?.copy(hubConfig = legacy) ?: HubEntity(config.uuid, legacy, mutableMapOf()))
+    }
+
+    private suspend fun saveLegacyApp(config: AppConfig, appId: Map<String, String>): Boolean {
+        val existing = metaDatabase.appDao().loadAll()
+            .firstOrNull { it.cloudConfig?.uuid == config.uuid || it.appId == appId }
+        val legacy = AppConfigGson(
+            config.baseVersion, config.configVersion, config.uuid, config.baseHubUuid,
+            AppConfigGson.InfoBean(config.info.name, config.info.url, config.info.desc, config.info.extraMap),
+        )
+        val entity = existing?.copy(name = config.info.name, cloudConfig = legacy)
+            ?: AppEntity(config.info.name, appId, cloudConfig = legacy)
+        return AppManager.saveApp(entity) != null
     }
 
     /** Bulk-update all installed apps and hubs whose cloud config version has increased. */
