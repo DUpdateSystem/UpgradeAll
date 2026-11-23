@@ -4,6 +4,7 @@ import kotlinx.coroutines.launch
 import net.xzos.upgradeall.application.MyApplication
 import net.xzos.upgradeall.core.utils.coroutines.coroutinesMutableMapOf
 import net.xzos.upgradeall.data.PreferencesMap
+import java.util.concurrent.atomic.AtomicBoolean
 
 object DownloadTaskerManager {
 
@@ -13,6 +14,7 @@ object DownloadTaskerManager {
 
     fun register(downloadTasker: DownloadTasker) {
         addFileTasker(downloadTasker)
+        val completionHandled = AtomicBoolean()
         downloadTasker.observe(
             checkerRunFun = { getFileTaskerList().contains(downloadTasker) },
             observerFun = {
@@ -26,8 +28,12 @@ object DownloadTaskerManager {
                     DownloadTaskerStatus.DOWNLOAD_RUNNING -> {}
                     DownloadTaskerStatus.DOWNLOAD_STOP -> {}
                     DownloadTaskerStatus.DOWNLOAD_COMPLETE -> {
-                        if (PreferencesMap.auto_install)
-                            MyApplication.applicationScope.launch { downloadTasker.install() }
+                        if (completionHandled.compareAndSet(false, true)) {
+                            MyApplication.applicationScope.launch {
+                                downloadTasker.exportCompletedFiles(MyApplication.context)
+                                if (PreferencesMap.auto_install) downloadTasker.install()
+                            }
+                        }
                     }
                     DownloadTaskerStatus.DOWNLOAD_CANCEL -> removeFileTasker(downloadTasker)
                     DownloadTaskerStatus.DOWNLOAD_FAIL -> {}
