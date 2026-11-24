@@ -69,13 +69,7 @@ fun AppEntity.recheck() {
 }
 
 fun AppEntity.getEnableSortHubList(): List<Hub> {
-    val sortHubUuidList = this.getSortHubUuidList().toMutableList().also {
-        if (cloudConfig != null) {
-            val hubUuid = cloudConfig!!.baseHubUuid
-            it.remove(hubUuid)
-            it.add(0, hubUuid)
-        }
-    }
+    val sortHubUuidList = getSortHubUuidList().ifEmpty { listOfNotNull(cloudConfig?.baseHubUuid) }
     return if (sortHubUuidList.isEmpty()) {
         val allHubList = HubManager.getHubList()
         if (isInit()) allHubList
